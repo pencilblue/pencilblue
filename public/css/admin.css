@@ -1,0 +1,12 @@
+body
+{
+    background: #EFEFEF;
+    font-family: 'Helvetica', 'Arial', 'Verdana', sans-serif;
+}
+
+form .error
+{
+    font-size: .85em;
+    color: #AA0000;
+    margin: 0;
+}
