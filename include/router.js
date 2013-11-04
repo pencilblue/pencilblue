@@ -46,42 +46,93 @@ global.Route = function(request, response)
         }
     }
     
-    // Does the page file exist? If so, load it?
-    fs.exists(DOCUMENT_ROOT + '/controllers' + requestURL + '.js', function(exists)
+    this.attemptDefaultRoute = function()
     {
-        if(exists)
+        // Does the page file exist? If so, load it?
+        fs.exists(DOCUMENT_ROOT + '/controllers' + requestURL + '.js', function(exists)
         {
-            require(DOCUMENT_ROOT + '/controllers' + requestURL).init(request, instance.writeResponse);
-        }
-        else
+            if(exists)
+            {
+                require(DOCUMENT_ROOT + '/controllers' + requestURL).init(request, instance.writeResponse);
+            }
+            else
+            {
+                // Is the request URL a folder?
+                fs.exists(DOCUMENT_ROOT + '/controllers' + requestURL + '/index.js', function(exists)
+                {
+                    if(exists)
+                    {
+                        require(DOCUMENT_ROOT + '/controllers' + requestURL + '/index').init(request, instance.writeResponse);
+                    }
+                    else
+                    {
+                        // Is the request URL for a raw file?
+                        fs.exists(DOCUMENT_ROOT + '/public' + requestURL, function(exists)
+                        {
+                            if(exists)
+                            {
+                                fs.readFile(DOCUMENT_ROOT + '/public' + requestURL, function(error, data)
+                                {
+                                    if(error)
+                                    {
+                                        throw error;
+                                    }
+                                    instance.writeResponse({content: data});
+                                });
+                            }
+                            // If everything fails, throw a 404
+                            else
+                            {
+                                require(DOCUMENT_ROOT + '/controllers/error/404').init(request, instance.writeResponse);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+    
+    getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
+    {
+        if(data.length > 0)
         {
-            // Is the request URL a folder?
-            fs.exists(DOCUMENT_ROOT + '/controllers' + requestURL + '/index.js', function(exists)
+            fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers' + requestURL + '.js', function(exists)
             {
                 if(exists)
                 {
-                    require(DOCUMENT_ROOT + '/controllers' + requestURL + '/index').init(request, instance.writeResponse);
+                    require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers' + requestURL).init(request, instance.writeResponse);
                 }
                 else
                 {
-                    // Is the request URL for a raw file?
-                    fs.exists(DOCUMENT_ROOT + '/public' + requestURL, function(exists)
+                    // Is the request URL a folder?
+                    fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers' + requestURL + '/index.js', function(exists)
                     {
                         if(exists)
                         {
-                            fs.readFile(DOCUMENT_ROOT + '/public' + requestURL, function(error, data)
-                            {
-                                if(error)
-                                {
-                                    throw error;
-                                }
-                                instance.writeResponse({content: data});
-                            });
+                            require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers' + requestURL + '/index').init(request, instance.writeResponse);
                         }
-                        // If everything fails, throw a 404
                         else
                         {
-                            require(DOCUMENT_ROOT + '/controllers/error/404').init(request, instance.writeResponse);
+                            // Is the request URL for a raw file?
+                            fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/public' + requestURL, function(exists)
+                            {
+                                if(exists)
+                                {
+                                    fs.readFile(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/public' + requestURL, function(error, data)
+                                    {
+                                        if(error)
+                                        {
+                                            throw error;
+                                        }
+                                        instance.writeResponse({content: data});
+                                    });
+                                }
+                                // If everything fails, throw a 404
+                                else
+                                {
+                                    instance.attemptDefaultRoute();
+                                }
+                            });
                         }
                     });
                 }

@@ -79,6 +79,26 @@ global.ResponseHead = function(request, response, code, cookie)
         {
             this.responseData['content-type'] = 'image/ico';
         }
+        // TTF
+        else if(this.requestURL.lastIndexOf('.ttf') > -1)
+        {
+            this.responseData['content-type'] = 'font/truetype';
+        }
+        // OTF
+        else if(this.requestURL.lastIndexOf('.otf') > -1)
+        {
+            this.responseData['content-type'] = 'font/opentype';
+        }
+        // EOF
+        else if(this.requestURL.lastIndexOf('.eof') > -1)
+        {
+            this.responseData['content-type'] = 'application/vnd.ms-fontobject';
+        }
+        // WOFF
+        else if(this.requestURL.lastIndexOf('.woff') > -1)
+        {
+            this.responseData['content-type'] = 'application/font-woff';
+        }
         // Other binary file
         else
         {

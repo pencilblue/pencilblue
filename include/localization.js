@@ -18,9 +18,21 @@ global.initLocalization = function(request, session, output)
         }
         
         require('./../public/localization/' + session.language);
-        editSession(request, session, [], function(data)
+        
+        getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
         {
-            output(true);
+            if(data.length > 0)
+            {
+                if(fs.existsSync(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/localization/' + session.language + '.js'))
+                {
+                    require('./../plugins/themes/' + data[0]['value'] + '/localization/' + session.language);
+                }
+            }
+        
+            editSession(request, session, [], function(data)
+            {
+                output(true);
+            });
         });
     });
 }

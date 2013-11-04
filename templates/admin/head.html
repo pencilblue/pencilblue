@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
         <title>^site_name^^page_name^</title>
         <meta name="description" content="^meta_desc^">
         
         <link rel="stylesheet" type="text/css" href="^site_root^/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="^site_root^/css/summernote.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/admin.css">
         
         <script type="text/javascript" src="^site_root^/js/jquery-1.10.2.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/summernote.min.js"></script>
     </head>
     <body>
         <nav class="navbar navbar-default" role="navigation">
@@ -30,10 +33,10 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-fixed">
                     <li class="^dashboard^">
-                        <a href="#">^loc_DASHBOARD^</a>
+                        <a href="^site_root^/admin">^loc_DASHBOARD^</a>
                     </li>
                     <li class="^pages^">
-                        <a href="#">^loc_PAGES^</a>
+                        <a href="^site_root^/admin/pages">^loc_PAGES^</a>
                     </li>
                     <li class="^posts^">
                         <a href="#">^loc_POSTS^</a>
@@ -41,7 +44,7 @@
                     <li class="dropdown ^plugins^">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">^loc_PLUGINS^ <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">^loc_THEMES^</a></li>
+                            <li><a href="^site_root^/admin/themes">^loc_THEMES^</a></li>
                             <li><a href="#">^loc_FRONTEND^</a></li>
                             <li><a href="#">^loc_BACKEND^</a></li>
                             <li class="divider"></li>
@@ -59,9 +62,8 @@
                     <li class="dropdown ^settings^">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">^loc_SETTINGS^ <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
+                            <li><a href="#">^loc_SITE_SETTINGS^</a></li>
+                            <li><a href="#">^loc_ACCOUNT^</a></li>
                             <li class="divider"></li>
                             <li><a href="^site_root^/actions/logout">^loc_LOGOUT^</a></li>
                         </ul>

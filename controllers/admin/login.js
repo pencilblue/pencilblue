@@ -7,7 +7,7 @@ this.init = function(request, output)
     {
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/login', 'Home', null, function(data)
+            getHTMLTemplate('admin/login', 'Login', null, function(data)
             {
                 result = result.concat(data);
                 

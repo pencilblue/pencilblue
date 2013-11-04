@@ -1,0 +1,28 @@
+<div class="panel panel-default">
+    <div class="panel-heading">^loc_NEW_PAGE^</div>
+        <div class="panel-body">
+            <form id="new_page_form" method="post" action="^site_root^/actions/new_page">
+                <fieldset>
+                    <div class="form-group">
+                        <label>^loc_PAGE_URL^</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">^site_root^/</span>
+                            <input type="text" id="username" name="username" class="form-control" placeholder="^loc_CUSTOM_URL^"></input>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_TEMPLATE^</label>
+                        <select id="template" name="template" class="form-control">
+                            ^template_options^
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_CONTENT^</label>
+                        <div id="wysiwyg"></div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="^site_root^/js/admin/pages/new_page.js"></script>

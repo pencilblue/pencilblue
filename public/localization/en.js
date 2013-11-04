@@ -24,13 +24,23 @@ loc =
         POSTS: 'Posts',
         PLUGINS: 'Plugins',
         THEMES: 'Themes',
-        FRONTEND: 'Frontend',
-        BACKEND: 'Backend',
+        FRONTEND: 'Frontend plugins',
+        BACKEND: 'Backend plugins',
         INSTALL_PLUGIN: 'Install a plugin',
         USERS: 'Users',
         MANAGE_USERS: 'Manage users',
         NEW_USER: 'New user',
-        SETTINGS: 'Settings'
+        SETTINGS: 'Settings',
+        SITE_SETTINGS: 'Site settings',
+        ACCOUNT: 'Account'
+    },
+    pages:
+    {
+        NEW_PAGE: 'New page',
+        PAGE_URL: 'Page url',
+        CUSTOM_URL: 'custom-url',
+        CONTENT: 'Content',
+        TEMPLATE: 'Template'
     },
     new_user:
     {

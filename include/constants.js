@@ -1,4 +1,4 @@
-global.SITE_NAME = 'PencilBlue';
+global.SITE_NAME = 'pencilblue';
 global.SITE_ROOT = 'http://localhost:8080';
 global.SITE_IP = 'localhost';
 global.SITE_PORT = '8080';
