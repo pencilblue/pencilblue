@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="100"
+   height="175"
+   id="svg3853">
+  <defs
+     id="defs3855" />
+  <metadata
+     id="metadata3858">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-877.36218)"
+     id="layer1">
+    <path
+       d="m 18.13245,1049.8155 -18.13245,0 0,-172.45336 19.54395,0 0,72.39141 c 8.25187,-10.11571 18.78391,-15.17361 31.59614,-15.17378 7.09368,2e-4 13.78925,1.41493 20.08684,4.24444 6.36981,2.75902 11.5815,6.68504 15.63518,11.77823 4.12585,5.02269 7.34696,11.10633 9.66342,18.25099 2.31621,7.14485 3.47436,14.78473 3.47447,22.91981 0,19.31206 -4.88611,34.23826 -14.65799,44.77856 -9.77207,10.5402 -21.49842,15.8104 -35.1791,15.8104 -13.60849,0 -24.28527,-5.5531 -32.03046,-16.6593 l 0,14.1126 m -0.2173,-57.19337 c -5e-5,13.51137 1.88192,23.27357 5.646,29.28637 6.15268,9.8329 14.47699,14.7494 24.97285,14.7494 8.54136,0 15.92467,-3.6078 22.14982,-10.8233 6.22507,-7.2862 9.33759,-18.1094 9.33773,-32.46969 -1e-4,-14.71388 -3.0041,-25.57254 -9.01195,-32.57588 -5.93571,-7.00316 -13.13801,-10.50479 -21.60696,-10.5049 -8.5415,1.1e-4 -15.92475,3.64323 -22.14987,10.92937 -6.22515,7.21557 -9.33767,17.68509 -9.33762,31.40863"
+       id="path3002"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#00aad4;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial" />
+  </g>
+</svg>

@@ -1,0 +1,13 @@
+this.init = function(request, output)
+{
+    var instance = this;
+ 
+    getSession(request, function(session)
+    {
+        session.user = data[0];
+        editSession(request, session, [], function(data)
+        {
+            output({redirect: SITE_ROOT});
+        });
+    });
+}

@@ -13,7 +13,7 @@
         <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/bootstrap.min.js"></script>
         
-        <script type="text/javascript" src="^site_root^/js/form/login_form.js"></script>
+        <script type="text/javascript" src="^site_root^/js/form_validate/login_form.js"></script>
     </head>
     <body>
         <div class="container">

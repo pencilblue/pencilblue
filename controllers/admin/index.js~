@@ -5,11 +5,11 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        /*if(!session['user'] || !session['user']['admin'])
         {
             output({redirect: SITE_ROOT + '/admin/login'});
             return;
-        }
+        }*/
     
         initLocalization(request, session, function(data)
         {

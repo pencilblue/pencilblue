@@ -20,7 +20,7 @@ this.init = function(request, output)
                 return;
             }
             
-            if(adminAttempt && data[0].admin == 0)
+            if(adminAttempt && data[0].admin != 1)
             {
                 instance.loginError(request, session, adminAttempt, output);
                 return;

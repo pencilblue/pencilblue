@@ -31,5 +31,8 @@ require('./client_js');
 // Admin Navigation
 require('./admin_navigation');
 
+//Objects
+require('./model/user');
+
 // Create a custom file called custom_requirements.js to add your own file requirements
 //require('./custom_requirements');

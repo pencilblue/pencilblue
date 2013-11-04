@@ -2,7 +2,6 @@ loc =
 {
     generic:
     {
-        LOGOUT: 'Logout',
         FORM_INCOMPLETE: 'The form is incomplete',
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action'
     },
