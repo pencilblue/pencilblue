@@ -4,7 +4,9 @@ loc =
     {
         LOGOUT: 'Logout',
         FORM_INCOMPLETE: 'The form is incomplete',
-        INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action'
+        INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
+        SAVE: 'Save',
+        SAVE_DRAFT: 'Save draft'
     },
     index:
     {
@@ -22,6 +24,7 @@ loc =
         DASHBOARD: 'Dashboard',
         PAGES: 'Pages',
         POSTS: 'Posts',
+        SECTIONS: 'Sections',
         PLUGINS: 'Plugins',
         THEMES: 'Themes',
         FRONTEND: 'Frontend plugins',
@@ -37,10 +40,22 @@ loc =
     pages:
     {
         NEW_PAGE: 'New page',
-        PAGE_URL: 'Page url',
+        PAGE_URL: 'Page URL',
         CUSTOM_URL: 'custom-url',
         CONTENT: 'Content',
-        TEMPLATE: 'Template'
+        META_DATA: 'Meta data',
+        TEMPLATE: 'Template',
+        HEADLINE: 'Headline',
+        SUBHEADING: 'Subheading',
+        PUBLISH_DATE: 'Publish date',
+        FOCUS_KEYWORD: 'Focus keyword',
+        FOCUS_KEYWORD_PLACEHOLDER: 'The top keyword associated with the content',
+        SEO_TITLE: 'SEO title',
+        SEO_TITLE_PLACEHOLDER: 'Limited to 70 characters',
+        META_DESC: 'Meta description',
+        META_DESC_PLACEHOLDER: 'Limited to 156 characters',
+        META_KEYWORDS: 'Meta keywords',
+        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords'
     },
     new_user:
     {

@@ -1,15 +1,11 @@
 <div class="container-fluid">
     <div class="row-fluid">
         <div class="col-md-3">
-            <div class="panel panel-default">
-                <div class="panel-heading">^loc_PAGES^</div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <a href="javascript:loadPagesContent('^site_root^', 'new_page')">^loc_NEW_PAGE^...</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <ul id="sub_nav" class="nav nav-pills nav-stacked">
+                <li id="new_page_pill">
+                    <a href="javascript:loadPagesContent('^site_root^', 'new_page')">^loc_NEW_PAGE^...</a>
+                </li>
+            </ul>
         </div>
         <div id="pages_content" class="col-md-9"></div>
     </div>

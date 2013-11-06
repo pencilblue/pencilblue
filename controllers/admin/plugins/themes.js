@@ -19,7 +19,7 @@ this.init = function(request, output)
                 result = result.concat(data);
                 result = getAdminNavigation(result, 'themes');
                 
-                getHTMLTemplate('admin/themes', null, null, function(data)
+                getHTMLTemplate('admin/plugins/themes', null, null, function(data)
                 {
                     result = result.concat(data);
                     
@@ -60,7 +60,7 @@ this.getThemes = function(output)
             if(fs.existsSync(DOCUMENT_ROOT + '/plugins/themes/' + directory[sub] + '/details.json'))
             {
                 var themeData = JSON.parse(fs.readFileSync(DOCUMENT_ROOT + '/plugins/themes/' + directory[sub] + '/details.json'));
-                themesList = themesList.concat('<li class="list-group-item"><a href="javascript:loadThemeSettings(\'' + SITE_ROOT + '\', \'' + themeData.uid + '\')">' + themeData.name + '</a></li>');
+                themesList = themesList.concat('<li id="' + themeData.uid + '_pill"><a href="javascript:loadThemeSettings(\'' + SITE_ROOT + '\', \'' + themeData.uid + '\')">' + themeData.name + '</a></li>');
                 if(!firstTheme)
                 {
                     firstTheme = themeData.uid;
@@ -68,6 +68,14 @@ this.getThemes = function(output)
             }
         }
         
-        output(themesList, firstTheme);
+        getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
+        {
+            if(data.length > 0)
+            {
+                firstTheme = data[0]['value'];
+            }
+        
+            output(themesList, firstTheme);
+        });
     });
 }

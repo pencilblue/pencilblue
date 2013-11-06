@@ -1,6 +1,5 @@
 body
 {
-    background: #EFEFEF;
     font-family: 'Helvetica', 'Arial', 'Verdana', sans-serif;
 }
 
@@ -14,4 +13,14 @@ form .error
 #login_logo
 {
     padding: 1em;
+}
+
+#sub_nav
+{
+    margin-bottom: .5em;
+}
+
+.tab-content
+{
+    padding: .5em;
 }

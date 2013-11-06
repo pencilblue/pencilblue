@@ -1,28 +1,73 @@
-<div class="panel panel-default">
-    <div class="panel-heading">^loc_NEW_PAGE^</div>
-        <div class="panel-body">
-            <form id="new_page_form" method="post" action="^site_root^/actions/new_page">
-                <fieldset>
-                    <div class="form-group">
-                        <label>^loc_PAGE_URL^</label>
-                        <div class="input-group">
-                            <span class="input-group-addon">^site_root^/</span>
-                            <input type="text" id="username" name="username" class="form-control" placeholder="^loc_CUSTOM_URL^"></input>
-                        </div>
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#content" data-toggle="tab">^loc_CONTENT^</a></li>
+    <li><a href="#sections" data-toggle="tab">^loc_SECTIONS^</a></li>
+    <li><a href="#meta_data" data-toggle="tab">^loc_META_DATA^</a></li>
+</ul>
+
+<form id="new_page_form" method="post" action="^site_root^/actions/new_page">
+    <fieldset>
+        <div class="tab-content">
+            <div class="tab-pane active" id="content">
+                <div class="form-group">
+                    <label>^loc_PAGE_URL^</label>
+                    <div class="input-group">
+                        <span class="input-group-addon">^site_root^/</span>
+                        <input type="text" id="username" name="username" class="form-control" placeholder="^loc_CUSTOM_URL^"></input>
                     </div>
-                    <div class="form-group">
-                        <label>^loc_TEMPLATE^</label>
-                        <select id="template" name="template" class="form-control">
-                            ^template_options^
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>^loc_CONTENT^</label>
-                        <div id="wysiwyg"></div>
-                    </div>
-                </fieldset>
-            </form>
+                </div>
+                <div class="form-group">
+                    <label>^loc_TEMPLATE^</label>
+                    <select id="template" name="template" class="form-control">
+                        ^template_options^
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>^loc_HEADLINE^</label>
+                    <input type="text" id="headline" name="headline" class="form-control"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_SUBHEADING^</label>
+                    <input type="text" id="subheading" name="subheading" class="form-control"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_PUBLISH_DATE^</label>
+                    <input type="datetime-local" id="publish_date" name="publish_date" class="form-control"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_CONTENT^</label>
+                    <div id="wysiwyg"></div>
+                </div>
+            </div>
+            <div class="tab-pane" id="sections"></div>
+            <div class="tab-pane" id="meta_data">
+                <div class="form-group">
+                    <label>^loc_FOCUS_KEYWORD^</label>
+                    <input type="text" id="focus_keyword" name="focus_keyword" class="form-control" placeholder="^loc_FOCUS_KEYWORD_PLACEHOLDER^"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_SEO_TITLE^</label>
+                    <input type="text" id="seo_title" name="seo_title" class="form-control" placeholder="^loc_SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_META_DESC^</label>
+                    <textarea id="meta_desc" name="meta_desc" class="form-control" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>^loc_META_KEYWORDS^</label>
+                    <input type="text" id="meta_keywords" name="meta_keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^" maxlength="70"></input>
+                </div>
+            </div>
+            <div class="btn-group dropup">
+                <button type="button" class="btn btn-info">^loc_SAVE^</button>
+                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#">^loc_SAVE_DRAFT^</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
-</div>
+    </fieldset>
+</form>
 <script type="text/javascript" src="^site_root^/js/admin/pages/new_page.js"></script>

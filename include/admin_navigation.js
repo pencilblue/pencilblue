@@ -1,6 +1,6 @@
 global.getAdminNavigation = function(template, activePage)
 {
-    var navItems = ['^dashboard^', '^pages^', '^posts^', '^plugins^', '^users^', '^settings^'];
+    var navItems = ['^dashboard^', '^pages^', '^posts^', '^sections^', '^plugins^', '^users^', '^settings^'];
     
     for(var i = 0; i < navItems.length; i++)
     {
