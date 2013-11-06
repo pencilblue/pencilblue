@@ -1,0 +1,24 @@
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#section_settings" data-toggle="tab">^loc_SETTINGS^</a></li>
+</ul>
+
+<form id="new_section_form" method="post" action="^site_root^/actions/new_section">
+    <fieldset>
+        <div class="tab-content">
+            <div class="tab-pane active" id="section_settings">
+                <div class="form-group">
+                    <label>^loc_SECTION_NAME^</label>
+                    <input type="text" id="username" name="username" class="form-control"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_EDITOR^</label>
+                    <select id="template" name="template" class="form-control">
+                        ^editor_options^
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-info">^loc_SAVE^</button>
+        </div>
+    </fieldset>
+</form>
+<script type="text/javascript" src="^site_root^/js/admin/pages/new_section.js"></script>

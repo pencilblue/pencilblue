@@ -3,6 +3,10 @@ loc =
     generic:
     {
         LOGOUT: 'Logout',
+        WRITER: 'Writer',
+        READER: 'Reader',
+        EDITOR: 'Editor',
+        ADMINISTRATOR: 'Administrator',
         FORM_INCOMPLETE: 'The form is incomplete',
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
         SAVE: 'Save',
@@ -23,7 +27,7 @@ loc =
     {
         DASHBOARD: 'Dashboard',
         PAGES: 'Pages',
-        POSTS: 'Posts',
+        ARTICLES: 'Articles',
         SECTIONS: 'Sections',
         PLUGINS: 'Plugins',
         THEMES: 'Themes',
@@ -57,6 +61,11 @@ loc =
         META_KEYWORDS: 'Meta keywords',
         META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords'
     },
+    sections:
+    {
+        NEW_SECTION: 'New section',
+        SECTION_NAME: 'Section name'
+    },
     new_user:
     {
         USERNAME: 'Username',
@@ -66,10 +75,6 @@ loc =
         PASSWORD: 'Password',
         CONFIRM_PASSWORD: 'Confirm Password',
         GENERATE: 'Generate',
-        WRITER: 'Writer',
-        READER: 'Reader',
-        EDITOR: 'Editor',
-        ADMINISTRATOR: 'Administrator',
         CREATE_USER: 'Create user',
         PASSWORD_MISMATCH: 'Passwords do not match',
         EXISTING_USERNAME: 'Username is already registered',

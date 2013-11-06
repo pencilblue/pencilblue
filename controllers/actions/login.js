@@ -26,6 +26,7 @@ this.init = function(request, output)
                 return;
             }
             
+            delete data[0].password;
             session.user = data[0];
             editSession(request, session, [], function(data)
             {

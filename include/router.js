@@ -138,5 +138,9 @@ global.Route = function(request, response)
                 }
             });
         }
+        else
+        {
+            instance.attemptDefaultRoute();
+        }
     });
 }
