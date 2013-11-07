@@ -17,9 +17,9 @@ this.init = function(request, output)
             getHTMLTemplate('admin/head', 'New user', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, 'users');
+                result = getAdminNavigation(result, ['users', 'new_user']);
                 
-                getHTMLTemplate('admin/new_user', null, null, function(data)
+                getHTMLTemplate('admin/users/new_user', null, null, function(data)
                 {
                     result = result.concat(data);
                     

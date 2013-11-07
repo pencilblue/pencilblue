@@ -13,27 +13,27 @@ this.init = function(request, output)
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/head', 'Sections', null, function(data)
+            getHTMLTemplate('admin/head', 'Pages', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, 'sections');
+                result = getAdminNavigation(result, ['content', 'pages']);
                 
-                getHTMLTemplate('admin/sections', null, null, function(data)
+                getHTMLTemplate('admin/content/pages', null, null, function(data)
                 {
                     result = result.concat(data);
                     getHTMLTemplate('admin/footer', null, null, function(data)
                     {
                         result = result.concat(data);
-                        if(session.section == 'sections')
+                        if(session.section == 'pages')
                         {
-                            result = result.concat(getJSTag('loadSectionsContent("' + SITE_ROOT + '", "' + session.subsection + '")'));
+                            result = result.concat(getJSTag('loadPagesContent("' + SITE_ROOT + '", "' + session.subsection + '")'));
                         }
                         else
                         {
-                            result = result.concat(getJSTag('loadSectionsContent("' + SITE_ROOT + '", "new_section")'));
+                            result = result.concat(getJSTag('loadPagesContent("' + SITE_ROOT + '", "new_page")'));
                         }
                         
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'pages'], result)});
                     });
                 });
             });

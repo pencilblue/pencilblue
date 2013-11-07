@@ -26,6 +26,7 @@ loc =
     admin:
     {
         DASHBOARD: 'Dashboard',
+        CONTENT: 'Content',
         PAGES: 'Pages',
         ARTICLES: 'Articles',
         SECTIONS: 'Sections',

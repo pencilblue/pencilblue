@@ -35,19 +35,18 @@
                     <li class="^dashboard^">
                         <a href="^site_root^/admin">^loc_DASHBOARD^</a>
                     </li>
-                    <li class="^sections^">
-                        <a href="^site_root^/admin/sections">^loc_SECTIONS^</a>
-                    </li>
-                    <li class="^pages^">
-                        <a href="^site_root^/admin/pages">^loc_PAGES^</a>
-                    </li>
-                    <li class="^articles^">
-                        <a href="#">^loc_ARTICLES^</a>
+                    <li class="dropdown ^content^">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">^loc_CONTENT^ <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li class="^sections^"><a href="^site_root^/admin/content/sections">^loc_SECTIONS^</a></li>
+                            <li class="^pages^"><a href="^site_root^/admin/content/pages">^loc_PAGES^</a></li>
+                            <li class="^articles^"><a href="#">^loc_ARTICLES^</a></li>
+                        </ul>
                     </li>
                     <li class="dropdown ^plugins^">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">^loc_PLUGINS^ <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="^site_root^/admin/plugins/themes">^loc_THEMES^</a></li>
+                            <li class="^themes^"><a href="^site_root^/admin/plugins/themes">^loc_THEMES^</a></li>
                             <li><a href="#">^loc_FRONTEND^</a></li>
                             <li><a href="#">^loc_BACKEND^</a></li>
                             <li class="divider"></li>
@@ -59,7 +58,7 @@
                         <ul class="dropdown-menu">
                             <li><a href="#">^loc_MANAGE_USERS^</a></li>
                             <li class="divider"></li>
-                            <li><a href="^site_root^/admin/new_user">^loc_NEW_USER^...</a></li>
+                            <li class="^new_user^"><a href="^site_root^/admin/users/new_user">^loc_NEW_USER^...</a></li>
                         </ul>
                     </li>
                     <li class="dropdown ^settings^">

@@ -17,7 +17,7 @@ this.init = function(request, output)
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/pages/new_page', null, null, function(data)
+            getHTMLTemplate('admin/content/pages/new_page', null, null, function(data)
             {
                 result = result.concat(data);
                 

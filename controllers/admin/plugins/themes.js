@@ -17,7 +17,7 @@ this.init = function(request, output)
             getHTMLTemplate('admin/head', 'Themes', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, 'themes');
+                result = getAdminNavigation(result, ['plugins', 'themes']);
                 
                 getHTMLTemplate('admin/plugins/themes', null, null, function(data)
                 {

@@ -17,7 +17,7 @@ this.init = function(request, output)
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/sections/new_section', null, null, function(data)
+            getHTMLTemplate('admin/content/sections/new_section', null, null, function(data)
             {
                 result = result.concat(data);
                 instance.getEditorOptions(session, function(editorsList)

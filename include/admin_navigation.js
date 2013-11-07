@@ -1,16 +1,24 @@
-global.getAdminNavigation = function(template, activePage)
+global.getAdminNavigation = function(template, activeMenuItems)
 {
-    var navItems = ['^dashboard^', '^pages^', '^articles^', '^sections^', '^plugins^', '^users^', '^settings^'];
+    var navItems = ['^dashboard^', '^content^', '^sections^', '^pages^', '^articles^', '^plugins^', '^themes^', '^users^', '^new_user^', '^settings^'];
     
     for(var i = 0; i < navItems.length; i++)
     {
-        if(navItems[i].indexOf(activePage) > -1)
+        var activeMatch = false;
+        for(var j = 0; j < activeMenuItems.length; j++)
         {
-            template = template.split(navItems[i]).join('active');
-            continue;
+            if(navItems[i].indexOf(activeMenuItems[j]) > -1)
+            {
+                template = template.split(navItems[i]).join('active');
+                activeMatch = true;
+                break;
+            }            
         }
         
-        template = template.split(navItems[i]).join('');
+        if(!activeMatch)
+        {
+            template = template.split(navItems[i]).join('');
+        }
     }
     
     return template;
