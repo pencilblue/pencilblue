@@ -20,6 +20,27 @@ this.init = function(request, output)
             getHTMLTemplate('admin/content/sections/new_section', null, null, function(data)
             {
                 result = result.concat(data);
+                
+                if(session['error'])
+                {
+                    result = result.split('^error^').join('<div class="alert alert-danger">' + session['error'] + '</div>');
+                    delete session['error'];
+                }
+                else
+                {
+                    result = result.split('^error^').join('');
+                }
+                
+                if(session['success'])
+                {
+                    result = result.split('^success^').join('<div class="alert alert-success">' + session['success'] + '</div>');
+                    delete session['success'];
+                }
+                else
+                {
+                    result = result.split('^success^').join('');
+                }
+                
                 instance.getEditorOptions(session, function(editorsList)
                 {
                     result = result.split('^editor_options^').join(editorsList);
@@ -38,7 +59,7 @@ this.getEditorOptions = function(session, output)
 {
     templatesList = '';    
     
-    getDBObjectsWithValues({object_type: 'user', $or: [{admin: "2"}, {admin: "3"}]}, function(data)
+    getDBObjectsWithValues({object_type: 'user', admin: {$gt: 1}}, function(data)
     {
         if(data.length > 0)
         {

@@ -43,7 +43,7 @@ this.init = function(request, output)
                     return;
                 }
             
-                createDBObject({object_type: 'user', username: post['username'], first_name: post['first_name'], last_name: post['last_name'], email: post['email'], admin: post['admin'], password: hashedPassword}, function(data)
+                createDBObject({object_type: 'user', username: post['username'], first_name: post['first_name'], last_name: post['last_name'], email: post['email'], admin: parseInt(post['admin']), password: hashedPassword}, function(data)
                 {
                     if(data.length == 0)
                     {
@@ -54,7 +54,7 @@ this.init = function(request, output)
                     session.success = '^loc_USER_CREATED^';
                     editSession(request, session, [], function(data)
                     {        
-                        output({redirect: SITE_ROOT + '/admin/new_user'});
+                        output({redirect: SITE_ROOT + '/admin/users/new_user'});
                     });
                 });
             });
@@ -81,6 +81,6 @@ this.formError = function(request, session, message, output)
     session.error = message;
     editSession(request, session, [], function(data)
     {        
-        output({redirect: SITE_ROOT + '/admin/new_user'});
+        output({redirect: SITE_ROOT + '/admin/users/new_user'});
     });
 }

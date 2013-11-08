@@ -2,11 +2,14 @@ loc =
 {
     generic:
     {
+        NONE: 'None',
         LOGOUT: 'Logout',
         WRITER: 'Writer',
         READER: 'Reader',
         EDITOR: 'Editor',
         ADMINISTRATOR: 'Administrator',
+        CONTENT: 'Content',
+        META_DATA: 'Meta data',
         FORM_INCOMPLETE: 'The form is incomplete',
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
         SAVE: 'Save',
@@ -47,8 +50,6 @@ loc =
         NEW_PAGE: 'New page',
         PAGE_URL: 'Page URL',
         CUSTOM_URL: 'custom-url',
-        CONTENT: 'Content',
-        META_DATA: 'Meta data',
         TEMPLATE: 'Template',
         HEADLINE: 'Headline',
         SUBHEADING: 'Subheading',
@@ -64,8 +65,13 @@ loc =
     },
     sections:
     {
+        SECTION_MAP: 'Section map',
         NEW_SECTION: 'New section',
-        SECTION_NAME: 'Section name'
+        SECTION_NAME: 'Section name',
+        DESCRIPTION: 'Description',
+        PARENT_SECTION: 'Parent section',
+        META_KEYWORDS: 'Meta keywords',
+        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords'
     },
     new_user:
     {

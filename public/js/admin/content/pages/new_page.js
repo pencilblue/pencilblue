@@ -6,15 +6,3 @@ $(document).ready(function()
         focus: true
     });
 });
-
-$('#content_tab a').click(function(e)
-{
-    e.preventDefault();
-    $(this).tab('show');
-});
-
-$('#meta_data_tab a').click(function(e)
-{
-    e.preventDefault();
-    $(this).tab('show');
-});
