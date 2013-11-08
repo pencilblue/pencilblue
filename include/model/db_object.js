@@ -55,7 +55,12 @@ global.editDBObject = function(oid, variables, unsetSkips, output)
             {
                 continue;
             }
-            if(!variables[key])
+            if(typeof variables[key] === undefined)
+            {
+                unsets[key] = 1;
+            }
+            // Allows for automatic removal of temporary session variables
+            if(variables.object_type == 'session' && !variables[key])
             {
                 unsets[key] = 1;
             }

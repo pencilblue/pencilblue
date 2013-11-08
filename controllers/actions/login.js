@@ -5,12 +5,14 @@ this.init = function(request, output)
     getSession(request, function(session)
     {
         var get = getQueryParameters(request);
-        var post = getPostParameters(request.headers['post']);
+        var post = getPostParameters(request);
         var adminAttempt = (get['admin_attempt']) ? true : false;
         
         var whirlpool = require('crypto').createHash('whirlpool');
         whirlpool.update(post.password);
         var hashedPassword = whirlpool.digest('hex');
+        
+        post['username'] = post['username'].toLowerCase();
         
         getDBObjectsWithValues({object_type: 'user', username: post['username'], password: hashedPassword}, function(data)
         {

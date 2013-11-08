@@ -71,7 +71,10 @@ loc =
         DESCRIPTION: 'Description',
         PARENT_SECTION: 'Parent section',
         META_KEYWORDS: 'Meta keywords',
-        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords'
+        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords',
+        EXISTING_SECTION: 'A section with this name already exists',
+        SECTION_CREATED: 'The section was successfully created',
+        SECTION_EDITED: 'The section was successfully edited'
     },
     new_user:
     {

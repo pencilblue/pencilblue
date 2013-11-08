@@ -10,7 +10,7 @@ this.init = function(request, output)
             return;
         }
     
-        var post = getPostParameters(request.headers['post']);
+        var post = getPostParameters(request);
         
         if(message = instance.postErrorCheck(post))
         {

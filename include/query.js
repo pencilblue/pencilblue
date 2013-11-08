@@ -5,8 +5,9 @@ global.getQueryParameters = function(request)
     return this.urlParts.query;
 }
 
-global.getPostParameters = function(postString)
+global.getPostParameters = function(request)
 {
+    var postString = request.headers['post'];
     this.urlParts = url.parse('?' + postString, true);
     return this.urlParts.query;
 }

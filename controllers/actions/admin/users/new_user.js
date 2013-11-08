@@ -10,7 +10,7 @@ this.init = function(request, output)
             return;
         }
     
-        var post = getPostParameters(request.headers['post']);
+        var post = getPostParameters(request);
         
         if(message = instance.postErrorCheck(post))
         {
@@ -27,6 +27,8 @@ this.init = function(request, output)
         whirlpool.update(post.password);
         var hashedPassword = whirlpool.digest('hex');
         
+        post['username'] = post['username'].toLowerCase();
+        
         getDBObjectsWithValues({object_type: 'user', username: post['username']}, function(data)
         {
             if(data.length > 0)
@@ -34,6 +36,8 @@ this.init = function(request, output)
                 instance.formError(request, session, '^loc_EXISTING_USERNAME^', output);
                 return;
             }
+            
+            post['email'] = post['email'].toLowerCase();
             
             getDBObjectsWithValues({object_type: 'user', email: post['email']}, function(data)
             {

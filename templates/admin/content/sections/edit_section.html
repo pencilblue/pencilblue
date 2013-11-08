@@ -1,0 +1,43 @@
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#section_settings" data-toggle="tab">^loc_SETTINGS^</a></li>
+    <li><a href="#section_meta_data" data-toggle="tab">^loc_META_DATA^</a></li>
+</ul>
+
+<form id="edit_section_form" method="post" action="^site_root^/actions/admin/content/sections/edit_section?id=^section_id^">
+    <fieldset>
+        <div class="tab-content">
+            <div class="tab-pane active" id="section_settings">
+                <div class="form-group">
+                    <label>^loc_SECTION_NAME^</label>
+                    <input type="text" id="name" name="name" class="form-control" value="^section_name^"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_DESCRIPTION^</label>
+                    <textarea id="description" name="description" class="form-control">^section_description^</textarea>
+                </div>
+                <div class="form-group">
+                    <label>^loc_PARENT_SECTION^</label>
+                    <select id="parent" name="parent" class="form-control">
+                        <option value="">^loc_NONE^</option>
+                        ^parent_options^
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>^loc_EDITOR^</label>
+                    <select id="editor" name="editor" class="form-control">
+                        ^editor_options^
+                    </select>
+                </div>
+            </div>
+            <div class="tab-pane" id="section_meta_data">
+                <div class="form-group">
+                    <label>^loc_META_KEYWORDS^</label>
+                    <input type="text" id="keywords" name="keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^" value="^section_keywords^"></input>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-info">^loc_SAVE^</button>
+        </div>
+    </fieldset>
+</form>
+<script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="^site_root^/js/admin/content/sections/edit_section.js"></script>
