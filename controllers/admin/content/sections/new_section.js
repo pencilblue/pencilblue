@@ -41,17 +41,43 @@ this.init = function(request, output)
                     result = result.split('^success^').join('');
                 }
                 
-                instance.getEditorOptions(session, function(editorsList)
+                instance.getParentOptions(function(parentsList)
                 {
-                    result = result.split('^editor_options^').join(editorsList);
-                
-                    editSession(request, session, [], function(data)
+                    result = result.split('^parent_options^').join(parentsList);
+                    
+                    instance.getEditorOptions(session, function(editorsList)
                     {
-                        output({content: localize(['admin', 'sections'], result)});
+                        result = result.split('^editor_options^').join(editorsList);
+                    
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                        });
                     });
                 });
             });
         });
+    });
+}
+
+this.getParentOptions = function(output)
+{
+    var sections = [];
+    var parentsList = '';
+    
+    var instance = this;
+    
+    getDBObjectsWithValues({object_type: 'section', parent: null}, function(data)
+    {
+        if(data.length > 0)
+        {
+            for(var i = 0; i < data.length; i++)
+            {
+                parentsList = parentsList.concat('<option value="' + data[i]._id + '">' + data[i].name + '</option>');
+            }
+        }
+        
+        output(parentsList);
     });
 }
 

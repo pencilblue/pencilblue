@@ -31,7 +31,19 @@ this.init = function(request, output)
                 return;
             }
             
-            createDBObject({object_type: 'section', name: post['name'], description: post['description'], parent: post['parent'], editor: post['editor'], keywords: post['keywords']}, function(data)
+            var keywords = post['keywords'].split(',');
+            for(var i = 0; i < keywords.length; i++)
+            {
+                keywords[i] = keywords[i].trim();
+            }
+            
+            var parent = post['parent'];
+            if(parent.length == 0)
+            {
+                parent = null;
+            }
+            
+            createDBObject({object_type: 'section', name: post['name'], description: post['description'], parent: parent, editor: post['editor'], keywords: keywords}, function(data)
             {
                 if(data.length == 0)
                 {
@@ -42,7 +54,7 @@ this.init = function(request, output)
                 session.success = '^loc_SECTION_CREATED^';
                 editSession(request, session, [], function(data)
                 {        
-                    output({redirect: SITE_ROOT + '/admin/content/sections/new_section'});
+                    output({redirect: SITE_ROOT + '/admin/content/sections'});
                 });
             });
         });
@@ -64,6 +76,6 @@ this.formError = function(request, session, message, output)
     session.error = message;
     editSession(request, session, [], function(data)
     {        
-        output({redirect: SITE_ROOT + '/admin/content/sections/new_section'});
+        output({redirect: SITE_ROOT + '/admin/content/sections'});
     });
 }
