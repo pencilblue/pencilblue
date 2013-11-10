@@ -47,6 +47,19 @@ loc =
         SITE_SETTINGS: 'Site settings',
         ACCOUNT: 'Account'
     },
+    sections:
+    {
+        SECTION_MAP: 'Section map',
+        NEW_SECTION: 'New section',
+        SECTION_NAME: 'Section name',
+        DESCRIPTION: 'Description',
+        PARENT_SECTION: 'Parent section',
+        META_KEYWORDS: 'Meta keywords',
+        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords',
+        EXISTING_SECTION: 'A section with this name already exists',
+        SECTION_CREATED: 'The section was successfully created',
+        SECTION_EDITED: 'The section was successfully edited'
+    },
     pages:
     {
         NEW_PAGE: 'New page',
@@ -65,18 +78,23 @@ loc =
         META_KEYWORDS: 'Meta keywords',
         META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords'
     },
-    sections:
+    articles:
     {
-        SECTION_MAP: 'Section map',
-        NEW_SECTION: 'New section',
-        SECTION_NAME: 'Section name',
-        DESCRIPTION: 'Description',
-        PARENT_SECTION: 'Parent section',
+        NEW_ARTICLE: 'New article',
+        ARTICLE_URL: 'Article URL',
+        CUSTOM_URL: 'custom-url',
+        STANDALONE_TEMPLATE: 'Standalone template',
+        HEADLINE: 'Headline',
+        SUBHEADING: 'Subheading',
+        PUBLISH_DATE: 'Publish date',
+        FOCUS_KEYWORD: 'Focus keyword',
+        FOCUS_KEYWORD_PLACEHOLDER: 'The top keyword associated with the content',
+        SEO_TITLE: 'SEO title',
+        SEO_TITLE_PLACEHOLDER: 'Limited to 70 characters',
+        META_DESC: 'Meta description',
+        META_DESC_PLACEHOLDER: 'Limited to 156 characters',
         META_KEYWORDS: 'Meta keywords',
-        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords',
-        EXISTING_SECTION: 'A section with this name already exists',
-        SECTION_CREATED: 'The section was successfully created',
-        SECTION_EDITED: 'The section was successfully edited'
+        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords'
     },
     new_user:
     {

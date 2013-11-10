@@ -3,19 +3,19 @@
     <li><a href="#meta_data" data-toggle="tab">^loc_META_DATA^</a></li>
 </ul>
 
-<form id="new_page_form" method="post" action="^site_root^/actions/admin/content/pages/new_page">
+<form id="new_article_form" method="post" action="^site_root^/actions/admin/content/articles/new_article">
     <fieldset>
         <div class="tab-content">
             <div class="tab-pane active" id="content">
                 <div class="form-group">
-                    <label>^loc_PAGE_URL^</label>
+                    <label>^loc_ARTICLE_URL^</label>
                     <div class="input-group">
                         <span class="input-group-addon">^site_root^/</span>
                         <input type="url" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^"></input>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>^loc_TEMPLATE^</label>
+                    <label>^loc_STANDALONE_TEMPLATE^</label>
                     <select id="template" name="template" class="form-control">
                         ^template_options^
                     </select>
@@ -68,4 +68,4 @@
         </div>
     </fieldset>
 </form>
-<script type="text/javascript" src="^site_root^/js/admin/content/pages/new_page.js"></script>
+<script type="text/javascript" src="^site_root^/js/admin/content/articles/new_article.js"></script>
