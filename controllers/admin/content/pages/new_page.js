@@ -37,7 +37,8 @@ this.init = function(request, output)
 
 this.getTemplateOptions = function(output)
 {
-    templatesList = '';    
+    availableTemplates = [];
+    templatesList = '';
     
     getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
     {
@@ -49,12 +50,33 @@ this.getTemplateOptions = function(output)
                 {
                     if(directory[file].indexOf('.js') > -1)
                     {
-                        var templateName = directory[file].substr(0, directory[file].indexOf('.js'));
-                        templatesList = templatesList.concat('<option value="' + templateName + '">' + templateName + '</option>');
+                        var templateFile = directory[file].substr(0, directory[file].indexOf('.js'));
+                        availableTemplates.push(templateFile);
                     }
                 }
                 
-                output(templatesList);
+                fs.readFile(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/details.json', function(error, data)
+                {
+                    if(error)
+                    {
+                        output('');
+                        return;
+                    }
+                    
+                    var details = JSON.parse(data);
+                    for(var i = 0; i < details.content_templates.length; i++)
+                    {
+                        for(var j = 0; j < availableTemplates.length; j++)
+                        {
+                            if(details.content_templates[i].file == availableTemplates[j])
+                            {
+                                templatesList = templatesList.concat('<option value="' + details.content_templates[i].file + '">' + details.content_templates[i].name + '</option>');
+                            }
+                        }
+                    }
+                    
+                    output(templatesList);
+                });
             });
         }
         else

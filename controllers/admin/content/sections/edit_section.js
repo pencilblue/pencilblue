@@ -38,11 +38,11 @@ this.init = function(request, output)
                     result = result.split('^section_id^').join(section._id);
                     result = instance.setTextDefaults(result, section);
                     
-                    instance.getParentOptions(function(parentsList)
+                    instance.getParentOptions(section, function(parentsList)
                     {
                         result = result.split('^parent_options^').join(parentsList);
                         
-                        instance.getEditorOptions(session, function(editorsList)
+                        instance.getEditorOptions(section, function(editorsList)
                         {
                             result = result.split('^editor_options^').join(editorsList);
                         
@@ -67,7 +67,7 @@ this.setTextDefaults = function(result, section)
     return result;
 }
 
-this.getParentOptions = function(output)
+this.getParentOptions = function(section, output)
 {
     var sections = [];
     var parentsList = '';
@@ -80,6 +80,12 @@ this.getParentOptions = function(output)
         {
             for(var i = 0; i < data.length; i++)
             {
+                if(ObjectID(section.parent).equals(data[i]._id))
+                {
+                    parentsList = parentsList.concat('<option value="' + data[i]._id + '" selected="selected">' + data[i].name + '</option>');
+                    continue;
+                }
+                
                 parentsList = parentsList.concat('<option value="' + data[i]._id + '">' + data[i].name + '</option>');
             }
         }
@@ -88,7 +94,7 @@ this.getParentOptions = function(output)
     });
 }
 
-this.getEditorOptions = function(session, output)
+this.getEditorOptions = function(section, output)
 {
     templatesList = '';    
     
@@ -98,7 +104,7 @@ this.getEditorOptions = function(session, output)
         {
             for(var i = 0; i < data.length; i++)
             {
-                if(session['user']._id.equals(data[i]._id))
+                if(ObjectID(section.editor).equals(data[i]._id))
                 {
                     templatesList = templatesList.concat('<option value="' + data[i]._id + '" selected="selected">' + data[i].first_name + ' ' + data[i].last_name + '</option>');
                     continue;

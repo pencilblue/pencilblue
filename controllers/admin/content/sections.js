@@ -30,7 +30,7 @@ this.init = function(request, output)
                         }
                         else
                         {
-                            result = result.concat(getJSTag('loadSectionsContent("' + SITE_ROOT + '", "new_section")'));
+                            result = result.concat(getJSTag('loadSectionsContent("' + SITE_ROOT + '", "section_map")'));
                         }
                         
                         output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});

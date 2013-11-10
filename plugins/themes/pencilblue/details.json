@@ -1,1 +1,16 @@
-{"uid": "pencilblue", "plugin_type": "theme", "name": "pencilblue"}
+{
+    "uid": "pencilblue",
+    "plugin_type": "theme",
+    "name": "pencilblue",
+    "content_templates":
+    [
+        {
+            "file": "default",
+            "name": "Default"
+        },
+        {
+            "file": "front_page",
+            "name": "Front page"
+        }
+    ]
+}

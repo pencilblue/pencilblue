@@ -7,13 +7,15 @@ loc =
         WRITER: 'Writer',
         READER: 'Reader',
         EDITOR: 'Editor',
+        MANAGING_EDITOR: 'Managing Editor',
         ADMINISTRATOR: 'Administrator',
         CONTENT: 'Content',
         META_DATA: 'Meta data',
         FORM_INCOMPLETE: 'The form is incomplete',
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
         SAVE: 'Save',
-        SAVE_DRAFT: 'Save draft'
+        SAVE_DRAFT: 'Save draft',
+        CANCEL: 'Cancel'
     },
     index:
     {

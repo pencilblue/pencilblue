@@ -70,7 +70,11 @@ this.setAdminOptions = function(session)
     }
     if(session['user']['admin'] > 2)
     {
-        optionsString = optionsString.concat('<option value="3">^loc_ADMINISTRATOR^</option>');
+        optionsString = optionsString.concat('<option value="3">^loc_MANAGING_EDITOR^</option>');
+    }
+    if(session['user']['admin'] > 3)
+    {
+        optionsString = optionsString.concat('<option value="4">^loc_ADMINISTRATOR^</option>');
     }
     
     return optionsString;
