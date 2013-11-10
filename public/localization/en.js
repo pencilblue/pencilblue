@@ -41,8 +41,6 @@ loc =
         BACKEND: 'Backend plugins',
         INSTALL_PLUGIN: 'Install a plugin',
         USERS: 'Users',
-        MANAGE_USERS: 'Manage users',
-        NEW_USER: 'New user',
         SETTINGS: 'Settings',
         SITE_SETTINGS: 'Site settings',
         ACCOUNT: 'Account'
@@ -96,8 +94,12 @@ loc =
         META_KEYWORDS: 'Meta keywords',
         META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords'
     },
-    new_user:
+    users:
     {
+        MANAGE_USERS: 'Manage users',
+        NEW_USER: 'New user',
+        ACCOUNT_INFO: 'Account info',
+        PERSONAL_INFO: 'Personal info',
         USERNAME: 'Username',
         FIRST_NAME: 'First name',
         LAST_NAME: 'Last name',
@@ -105,12 +107,14 @@ loc =
         PASSWORD: 'Password',
         CONFIRM_PASSWORD: 'Confirm Password',
         GENERATE: 'Generate',
+        USER_TYPE: 'User type',
         CREATE_USER: 'Create user',
         PASSWORD_MISMATCH: 'Passwords do not match',
         EXISTING_USERNAME: 'Username is already registered',
         EXISTING_EMAIL: 'Email address is already registered',
         ERROR_SAVING: 'There was an error saving the user',
-        USER_CREATED: 'The user was successfully created'
+        USER_CREATED: 'The user was successfully created',
+        USER_EDITED: 'The user was successfully edited'
     }
 }
 

@@ -13,7 +13,7 @@ this.init = function(request, output)
         var get = getQueryParameters(request);
         var post = getPostParameters(request);
         
-        if(message = instance.postErrorCheck(post))
+        if(message = instance.postErrorCheck(post) || !get['id'])
         {
             instance.formError(request, session, message, output);
             return;

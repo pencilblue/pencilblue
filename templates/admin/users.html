@@ -1,0 +1,16 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="col-md-3">
+            <ul id="sub_nav" class="nav nav-pills nav-stacked">
+                <li id="manage_users_pill">
+                    <a href="javascript:loadUsersContent('^site_root^', 'manage_users')">^loc_MANAGE_USERS^</a>
+                </li>
+                <li id="new_user_pill">
+                    <a href="javascript:loadUsersContent('^site_root^', 'new_user')">^loc_NEW_USER^...</a>
+                </li>
+            </ul>
+        </div>
+        <div id="users_content" class="col-md-9"></div>
+    </div>
+</div>
+<script type="text/javascript" src="^site_root^/js/admin/users.js"></script>

@@ -1,51 +1,59 @@
-<div class="container-fluid">
-    <div class="row-fluid">
-        <div class="col-md-3">
-            ^error^
-            ^success^
-            <div class="panel panel-default">
-                <div class="panel-heading">^loc_NEW_USER^</div>
-                <div class="panel-body">
-                    <form id="new_user_form" method="post" action="^site_root^/actions/admin/users/new_user">
-                        <fieldset>
-                            <div class="form-group">
-                                <input type="text" id="username" name="username" class="form-control" placeholder="^loc_USERNAME^*"></input>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" id="first_name" name="first_name" class="form-control" placeholder="^loc_FIRST_NAME^"></input>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" id="last_name" name="last_name" class="form-control" placeholder="^loc_LAST_NAME^"></input>
-                            </div>
-                            <div class="form-group">
-                                <input type="email" id="email" name="email" class="form-control" placeholder="^loc_EMAIL^*"></input>
-                            </div>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <input type="password" id="password" name="password" class="form-control" placeholder="^loc_PASSWORD^*" onkeyup="checkPasswordMatch()"></input>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button" onclick="generatePassword()">^loc_GENERATE^...</button>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="^loc_CONFIRM_PASSWORD^*" onkeyup="checkPasswordMatch()"></input>
-                                    <span class="input-group-addon"><span id="password_check" class="glyphicon glyphicon-thumbs-down"></span></span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <select id="admin" name="admin" class="form-control">
-                                    ^admin_options^
-                                </select>
-                            </div>
-                            <input type="submit" class="btn btn-lg btn-info btn-block" value="^loc_CREATE_USER^">
-                        </fieldset>
-                    </form>
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#account_info" data-toggle="tab">^loc_ACCOUNT_INFO^</a></li>
+    <li><a href="#personal_info" data-toggle="tab">^loc_PERSONAL_INFO^</a></li>
+</ul>
+
+^error^
+^success^
+<form id="new_user_form" method="post" action="^site_root^/actions/admin/users/new_user">
+    <fieldset>
+        <div class="tab-content">
+            <div class="tab-pane active" id="account_info">
+                <div class="form-group">
+                    <label>^loc_USERNAME^</label>
+                    <input type="text" id="username" name="username" class="form-control"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_EMAIL^</label>
+                    <input type="email" id="email" name="email" class="form-control"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_PASSWORD^</label>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" class="form-control" onkeyup="checkPasswordMatch()"></input>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" onclick="generatePassword()">^loc_GENERATE^...</button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>^loc_CONFIRM_PASSWORD^</label>
+                    <div class="input-group">
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" onkeyup="checkPasswordMatch()"></input>
+                        <span class="input-group-addon"><span id="password_check" class="glyphicon glyphicon-thumbs-down" style="color: #AA0000"></span></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>^loc_USER_TYPE^</label>
+                    <select id="admin" name="admin" class="form-control">
+                        ^admin_options^
+                    </select>
                 </div>
             </div>
+            <div class="tab-pane" id="personal_info">
+                <div class="form-group">
+                    <label>^loc_FIRST_NAME^</label>
+                    <input type="text" id="first_name" name="first_name" class="form-control"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_LAST_NAME^</label>
+                    <input type="text" id="last_name" name="last_name" class="form-control"></input>
+                </div>
+            </div>
+            <button type="button" class="btn btn-default" onclick="loadUsersContent('^site_root^', 'manage_users')">^loc_CANCEL^</button>
+            <button type="submit" class="btn btn-primary">^loc_SAVE^</button>
         </div>
-    </div>
-</div>
+    </fieldset>
+</form>
 <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/users/new_user.js"></script>
