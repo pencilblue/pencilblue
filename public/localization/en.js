@@ -15,7 +15,8 @@ loc =
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
         SAVE: 'Save',
         SAVE_DRAFT: 'Save draft',
-        CANCEL: 'Cancel'
+        CANCEL: 'Cancel',
+        NOW: 'Now'
     },
     index:
     {

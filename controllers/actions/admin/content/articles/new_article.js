@@ -25,6 +25,11 @@ this.init = function(request, output)
             return;
         }
         
+        if(!post['sections[]'])
+        {
+            post['sections[]'] = [];
+        }
+        
         getDBObjectsWithValues({object_type: 'article', url: post['url']}, function(data)
         {
             if(data.length > 0)
@@ -33,19 +38,13 @@ this.init = function(request, output)
                 return;
             }
             
-            var keywords = post['keywords'].split(',');
-            for(var i = 0; i < keywords.length; i++)
+            var meta_keywords = post['meta_keywords'].split(',');
+            for(var i = 0; i < meta_keywords.length; i++)
             {
-                keywords[i] = keywords[i].trim();
+                meta_keywords[i] = meta_keywords[i].trim();
             }
             
-            var parent = post['parent'];
-            if(parent.length == 0)
-            {
-                parent = null;
-            }
-            
-            createDBObject({object_type: 'section', name: post['name'], description: post['description'], parent: parent, editor: post['editor'], keywords: keywords}, function(data)
+            createDBObject({object_type: 'article', url: post['url'], template: post['template'], headline: post['headline'], subheading: post['subheading'], publish_date: post['publish_date']}, function(data)
             {
                 if(data.length == 0)
                 {
