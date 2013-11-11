@@ -24,3 +24,9 @@ form .error
 {
     padding: .5em;
 }
+
+.subsection_checkboxes
+{
+    list-style: none;
+    padding: .5em .5em .5em 1em;
+}

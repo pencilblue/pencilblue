@@ -38,33 +38,19 @@ this.init = function(request, output)
                 {
                     result = result.concat(data);
                     
-                    if(session['error'])
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
                     {
-                        result = result.split('^error^').join('<div class="alert alert-danger">' + session['error'] + '</div>');
-                        delete session['error'];
-                    }
-                    else
-                    {
-                        result = result.split('^error^').join('');
-                    }
-                    
-                    if(session['success'])
-                    {
-                        result = result.split('^success^').join('<div class="alert alert-success">' + session['success'] + '</div>');
-                        delete session['success'];
-                    }
-                    else
-                    {
-                        result = result.split('^success^').join('');
-                    }
-                    
-                    instance.getUsersList(users, function(usersList)
-                    {
-                        result = result.split('^users^').join(usersList);
+                        session = newSession;
+                        result = newResult;
                         
-                        editSession(request, session, [], function(data)
+                        instance.getUsersList(users, function(usersList)
                         {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                            result = result.split('^users^').join(usersList);
+                            
+                            editSession(request, session, [], function(data)
+                            {
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                            });
                         });
                     });
                 });

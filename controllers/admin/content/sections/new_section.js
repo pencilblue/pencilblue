@@ -21,37 +21,23 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                if(session['error'])
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
                 {
-                    result = result.split('^error^').join('<div class="alert alert-danger">' + session['error'] + '</div>');
-                    delete session['error'];
-                }
-                else
-                {
-                    result = result.split('^error^').join('');
-                }
+                    session = newSession;
+                    result = newResult;
                 
-                if(session['success'])
-                {
-                    result = result.split('^success^').join('<div class="alert alert-success">' + session['success'] + '</div>');
-                    delete session['success'];
-                }
-                else
-                {
-                    result = result.split('^success^').join('');
-                }
-                
-                instance.getParentOptions(function(parentsList)
-                {
-                    result = result.split('^parent_options^').join(parentsList);
-                    
-                    instance.getEditorOptions(session, function(editorsList)
+                    instance.getParentOptions(function(parentsList)
                     {
-                        result = result.split('^editor_options^').join(editorsList);
-                    
-                        editSession(request, session, [], function(data)
+                        result = result.split('^parent_options^').join(parentsList);
+                        
+                        instance.getEditorOptions(session, function(editorsList)
                         {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                            result = result.split('^editor_options^').join(editorsList);
+                        
+                            editSession(request, session, [], function(data)
+                            {
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                            });
                         });
                     });
                 });

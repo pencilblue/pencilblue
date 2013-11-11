@@ -1,5 +1,9 @@
+^error^
+^success^
+
 <ul class="nav nav-tabs">
     <li class="active"><a href="#content" data-toggle="tab">^loc_CONTENT^</a></li>
+    <li><a href="#sections" data-toggle="tab">^loc_SECTIONS^</a></li>
     <li><a href="#meta_data" data-toggle="tab">^loc_META_DATA^</a></li>
 </ul>
 
@@ -11,7 +15,7 @@
                     <label>^loc_ARTICLE_URL^</label>
                     <div class="input-group">
                         <span class="input-group-addon">^site_root^/</span>
-                        <input type="url" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^"></input>
+                        <input type="text" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^"></input>
                     </div>
                 </div>
                 <div class="form-group">
@@ -37,6 +41,9 @@
                     <div id="wysiwyg"></div>
                 </div>
             </div>
+            <div class="tab-pane" id="sections">
+                ^section_options^
+            </div>
             <div class="tab-pane" id="meta_data">
                 <div class="form-group">
                     <label>^loc_FOCUS_KEYWORD^</label>
@@ -56,8 +63,8 @@
                 </div>
             </div>
             <div class="btn-group dropup">
-                <button type="button" class="btn btn-info">^loc_SAVE^</button>
-                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                <button type="button" class="btn btn-primary" onclick="checkForNewArticleSave()">^loc_SAVE^</button>
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
@@ -68,4 +75,5 @@
         </div>
     </fieldset>
 </form>
+<script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/content/articles/new_article.js"></script>

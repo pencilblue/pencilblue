@@ -11,19 +11,15 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                if(session['error'])
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
                 {
-                    result = result.split('^error^').join('<div class="alert alert-danger">' + session['error'] + '</div>');
-                    delete session['error'];
-                }
-                else
-                {
-                    result = result.split('^error^').join('');
-                }
+                    session = newSession;
+                    result = newResult;
                 
-                editSession(request, session, [], function(data)
-                {
-                    output({cookie: getSessionCookie(session), content: localize(['login'], result)});
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['login'], result)});
+                    });
                 });
             });
         });

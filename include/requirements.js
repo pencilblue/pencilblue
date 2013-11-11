@@ -30,6 +30,8 @@ require('./localization');
 require('./client_js');
 // Admin Navigation
 require('./admin_navigation');
+// Error and Success Message Handling
+require('./error_success');
 
-// Create a custom file called custom_requirements.js to add your own file requirements
+// Edit custom_requirements.js to add your own file requirements
 //require('./custom_requirements');

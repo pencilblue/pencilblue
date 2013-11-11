@@ -18,31 +18,17 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                if(session['error'])
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
                 {
-                    result = result.split('^error^').join('<div class="alert alert-danger">' + session['error'] + '</div>');
-                    delete session['error'];
-                }
-                else
-                {
-                    result = result.split('^error^').join('');
-                }
-                
-                if(session['success'])
-                {
-                    result = result.split('^success^').join('<div class="alert alert-success">' + session['success'] + '</div>');
-                    delete session['success'];
-                }
-                else
-                {
-                    result = result.split('^success^').join('');
-                }
-                
-                result = result.split('^admin_options^').join(instance.setAdminOptions(session));
-                
-                editSession(request, session, [], function(data)
-                {
-                    output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                    session = newSession;
+                    result = newResult;
+                    
+                    result = result.split('^admin_options^').join(instance.setAdminOptions(session));
+                    
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                    });
                 });
             });
         });
