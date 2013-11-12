@@ -1,7 +1,5 @@
 this.init = function(request, output)
 {
-    var instance = this;
- 
     getSession(request, function(session)
     {
         if(!session['user'] || !session['user']['admin'])
@@ -11,44 +9,38 @@ this.init = function(request, output)
         }
     
         var post = getPostParameters(request);
-        output({content: JSON.stringify(post)});
-        return;
         
-        if(message = instance.postErrorCheck(post))
+        if(message = checkForRequiredParameters(post, ['url', 'template', 'content']))
         {
-            instance.formError(request, session, message, output);
+            formError(request, session, message, '/admin/content/articles', output);
             return;
         }
-        if(session['user']['admin'] < 1)
+        if(session['user']['admin'] < 3)
         {
-            instance.formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/articles', output);
             return;
         }
         
-        if(!post['sections[]'])
+        var articleDocument = createDocument('article', post, ['meta_keywords']);
+        
+        if(!articleDocument['sections[]'])
         {
-            post['sections[]'] = [];
+            articleDocument['sections[]'] = [];
         }
         
-        getDBObjectsWithValues({object_type: 'article', url: post['url']}, function(data)
+        getDBObjectsWithValues({object_type: 'article', url: articleDocument['url']}, function(data)
         {
             if(data.length > 0)
             {
-                instance.formError(request, session, '^loc_EXISTING_URL^', output);
+                formError(request, session, '^loc_EXISTING_URL^', '/admin/content/articles', output);
                 return;
             }
             
-            var meta_keywords = post['meta_keywords'].split(',');
-            for(var i = 0; i < meta_keywords.length; i++)
-            {
-                meta_keywords[i] = meta_keywords[i].trim();
-            }
-            
-            createDBObject({object_type: 'article', url: post['url'], template: post['template'], headline: post['headline'], subheading: post['subheading'], publish_date: post['publish_date']}, function(data)
+            createDBObject(articleDocument, function(data)
             {
                 if(data.length == 0)
                 {
-                    instance.formError(request, session, '^loc_ERROR_SAVING^', output);
+                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/articles', output);
                     return;
                 }
                 
@@ -59,24 +51,5 @@ this.init = function(request, output)
                 });
             });
         });
-    });
-}
-
-this.postErrorCheck = function(post)
-{
-    if(!post['url'] || !post['template'] || !post['content'])
-    {
-        return '^loc_FORM_INCOMPLETE^';
-    }
-    
-    return false;
-}
-
-this.formError = function(request, session, message, output)
-{
-    session.error = message;
-    editSession(request, session, [], function(data)
-    {        
-        output({redirect: SITE_ROOT + '/admin/content/articles'});
     });
 }

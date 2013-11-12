@@ -8,13 +8,9 @@ this.init = function(request, output)
         var post = getPostParameters(request);
         var adminAttempt = (get['admin_attempt']) ? true : false;
         
-        var whirlpool = require('crypto').createHash('whirlpool');
-        whirlpool.update(post.password);
-        var hashedPassword = whirlpool.digest('hex');
+        var userDocument = createDocument('user', post);
         
-        post['username'] = post['username'].toLowerCase();
-        
-        getDBObjectsWithValues({object_type: 'user', username: post['username'], password: hashedPassword}, function(data)
+        getDBObjectsWithValues(userDocument, function(data)
         {
             if(data.length == 0)
             {

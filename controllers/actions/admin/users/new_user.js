@@ -1,7 +1,5 @@
 this.init = function(request, output)
-{
-    var instance = this;
- 
+{ 
     getSession(request, function(session)
     {
         if(!session['user'] || !session['user']['admin'])
@@ -12,79 +10,50 @@ this.init = function(request, output)
     
         var post = getPostParameters(request);
         
-        if(message = instance.postErrorCheck(post))
+        if(message = checkForRequiredParameters(post, ['username', 'email', 'password', 'confirm_password', 'admin']))
         {
-            instance.formError(request, session, message, output);
+            formError(request, session, message, '/admin/users', output);
             return;
         }
         if(session['user']['admin'] < post['admin'])
         {
-            instance.formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/users', output);
             return;
         }
         
-        var whirlpool = require('crypto').createHash('whirlpool');
-        whirlpool.update(post.password);
-        var hashedPassword = whirlpool.digest('hex');
+        var userDocument = createDocument('user', post);
         
-        post['username'] = post['username'].toLowerCase();
-        
-        getDBObjectsWithValues({object_type: 'user', username: post['username']}, function(data)
+        getDBObjectsWithValues({object_type: 'user', username: userDocument['username']}, function(data)
         {
             if(data.length > 0)
             {
-                instance.formError(request, session, '^loc_EXISTING_USERNAME^', output);
+                formError(request, session, '^loc_EXISTING_USERNAME^', '/admin/users', output);
                 return;
             }
             
-            post['email'] = post['email'].toLowerCase();
-            
-            getDBObjectsWithValues({object_type: 'user', email: post['email']}, function(data)
+            getDBObjectsWithValues({object_type: 'user', email: userDocument['email']}, function(data)
             {
                 if(data.length > 0)
                 {
-                    instance.formError(request, session, '^loc_EXISTING_EMAIL^', output);
+                    formError(request, session, '^loc_EXISTING_EMAIL^', '/admin/users', output);
                     return;
                 }
             
-                createDBObject({object_type: 'user', username: post['username'], first_name: post['first_name'], last_name: post['last_name'], email: post['email'], admin: parseInt(post['admin']), password: hashedPassword}, function(data)
+                createDBObject(userDocument, function(data)
                 {
                     if(data.length == 0)
                     {
-                        instance.formError(request, session, '^loc_ERROR_SAVING^', output);
+                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/users', output);
                         return;
                     }
                     
                     session.success = '^loc_USER_CREATED^';
                     editSession(request, session, [], function(data)
                     {        
-                        output({redirect: SITE_ROOT + '/admin/users/new_user'});
+                        output({redirect: SITE_ROOT + '/admin/users'});
                     });
                 });
             });
         });
-    });
-}
-
-this.postErrorCheck = function(post)
-{
-    if(!post['username'] || !post['email'] || !post['password'] || !post['confirm_password'] || typeof post['admin'] == 'undefined')
-    {
-        return '^loc_FORM_INCOMPLETE^';
-    }
-    if(post['password'] != post['confirm_password'])
-    {
-        return '^loc_PASSWORD_MISMATCH^';
-    }
-    
-    return false;
-}
-
-this.formError = function(request, session, message, output)
-{
-    session.error = message;
-    editSession(request, session, [], function(data)
-    {        
-        output({redirect: SITE_ROOT + '/admin/users/new_user'});
     });
 }

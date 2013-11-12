@@ -1,7 +1,5 @@
 this.init = function(request, output)
 {
-    var instance = this;
- 
     getSession(request, function(session)
     {
         if(!session['user'] || !session['user']['admin'])
@@ -13,14 +11,19 @@ this.init = function(request, output)
         var get = getQueryParameters(request);
         var post = getPostParameters(request);
         
-        if(message = instance.postErrorCheck(post) || !get['id'])
+        if(message = checkForRequiredParameters(post, ['name', 'editor']))
         {
-            instance.formError(request, session, message, output);
+            formError(request, session, message, '/admin/content/sections', output);
+            return;
+        }
+        if(message = checkForRequiredParameters(get, ['id']))
+        {
+            formError(request, session, message, '/admin/content/sections', output);
             return;
         }
         if(session['user']['admin'] < 3)
         {
-            instance.formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/sections', output);
             return;
         }
         
@@ -28,40 +31,29 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                instance.formError(request, session, '^loc_ERROR_SAVING^', output);
+                formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/sections', output);
                 return;
             }
             
             var section = data[0];
+            var sectionDocument = createDocument('section', post, ['keywords'], ['parent']);
             
-            getDBObjectsWithValues({object_type: 'section', name: post['name']}, function(data)
+            getDBObjectsWithValues({object_type: 'section', name: sectionDocument['name']}, function(data)
             {
                 if(data.length > 0)
                 {
                     if(!data[0]._id.equals(section._id))
                     {
-                        instance.formError(request, session, '^loc_EXISTING_SECTION^', output);
+                        formError(request, session, '^loc_EXISTING_SECTION^', '/admin/content/sections', output);
                         return;
                     }
                 }
-            
-                var keywords = post['keywords'].split(',');
-                for(var i = 0; i < keywords.length; i++)
-                {
-                    keywords[i] = keywords[i].trim();
-                }
                 
-                var parent = post['parent'];
-                if(parent.length == 0)
-                {
-                    parent = null;
-                }
-                
-                editDBObject(section._id, {object_type: 'section', name: post['name'], description: post['description'], parent: parent, editor: post['editor'], keywords: keywords}, [], function(data)
+                editDBObject(section._id, sectionDocument, [], function(data)
                 {
                     if(data.length == 0)
                     {
-                        instance.formError(request, session, '^loc_ERROR_SAVING^', output);
+                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/sections', output);
                         return;
                     }
                     
@@ -73,24 +65,5 @@ this.init = function(request, output)
                 });
             });
         });
-    });
-}
-
-this.postErrorCheck = function(post)
-{
-    if(!post['name'] || !post['editor'])
-    {
-        return '^loc_FORM_INCOMPLETE^';
-    }
-    
-    return false;
-}
-
-this.formError = function(request, session, message, output)
-{
-    session.error = message;
-    editSession(request, session, [], function(data)
-    {        
-        output({redirect: SITE_ROOT + '/admin/content/sections'});
     });
 }

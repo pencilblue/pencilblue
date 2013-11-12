@@ -11,6 +11,9 @@ this.init = function(request, output)
             output({content: ''});
             return;
         }
+        
+        session.section = 'users';
+        session.subsection = 'new_user';
     
         initLocalization(request, session, function(data)
         {
