@@ -16,7 +16,7 @@ loc =
         SAVE: 'Save',
         SAVE_DRAFT: 'Save draft',
         CANCEL: 'Cancel',
-        NOW: 'Now'
+        NOW: 'Now',
     },
     index:
     {
@@ -44,7 +44,10 @@ loc =
         USERS: 'Users',
         SETTINGS: 'Settings',
         SITE_SETTINGS: 'Site settings',
-        ACCOUNT: 'Account'
+        ACCOUNT: 'Account',
+        CUSTOM_VARIABLES: 'Custom variables',
+        CUSTOM_VARIABLE_KEY: 'Unique name for the variable',
+        CUSTOM_VARIABLE_VALUE: 'Value associated with the variable'
     },
     sections:
     {
@@ -123,4 +126,5 @@ loc =
 if(typeof global !== 'undefined')
 {
     global.loc = loc;
+    global.localizationLanguage = 'en';
 }

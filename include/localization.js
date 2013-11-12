@@ -52,5 +52,11 @@ global.localize = function(sets, text)
         }
     }
     
+    // If the localization is for HTML output, load the localization into client side JS
+    if(text.indexOf('<body') > -1)
+    {
+        text = text.concat(includeJS(SITE_ROOT + '/localization/' + localizationLanguage + '.js'));
+    }
+    
     return text;
 }
