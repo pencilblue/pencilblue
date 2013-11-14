@@ -3,20 +3,29 @@ this.init = function(request, output)
 {
     var result = '';
     
-    getSession(request, function(session)
+    getDBObjectsWithValues({object_type: 'user'}, function(data)
     {
-        initLocalization(request, session, function(data)
+        if(data.length == 0)
         {
-            getHTMLTemplate('head', 'Home', null, function(data)
+            output({redirect: SITE_ROOT + '/setup'});
+            return;
+        }
+    
+        getSession(request, function(session)
+        {
+            initLocalization(request, session, function(data)
             {
-                result = result.concat(data);
-                getHTMLTemplate('index', null, null, function(data)
+                getHTMLTemplate('head', 'Home', null, function(data)
                 {
                     result = result.concat(data);
-                    getHTMLTemplate('footer', null, null, function(data)
+                    getHTMLTemplate('index', null, null, function(data)
                     {
                         result = result.concat(data);
-                        output({cookie: getSessionCookie(session), content: localize(['index'], result)});
+                        getHTMLTemplate('footer', null, null, function(data)
+                        {
+                            result = result.concat(data);
+                            output({cookie: getSessionCookie(session), content: localize(['index'], result)});
+                        });
                     });
                 });
             });

@@ -7,7 +7,7 @@ fs.exists = fs.exists || require('path').exists;
 fs.existsSync = fs.existsSync || require('path').existsSync;
 
 // Site-wide constants
-require('./constants');
+require('./site_settings');
 // ContentType responses
 require('./response_head');
 // URL routing

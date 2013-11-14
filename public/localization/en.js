@@ -22,16 +22,17 @@ loc =
     {
         
     },
-    install:
+    setup:
     {
-        INSTALL: 'Install'
+        REGISTER_ADMIN: 'Register the site\'s first admin account'
     },
     login:
     {
         LOGIN: 'Login',
         USERNAME: 'Username',
         PASSWORD: 'Password',
-        INVALID_LOGIN: 'Invalid username and password combination.'
+        INVALID_LOGIN: 'Invalid username and password combination',
+        READY_TO_USE: 'Your pencilblue installation is ready to use'
     },
     admin:
     {

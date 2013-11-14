@@ -41,12 +41,14 @@ this.init = function(request, output)
             {
                 if(data.length > 0)
                 {
-                    if(!data[0]._id.equals(user._id))
+                    if(!data[0]._id.equals(ObjectID(get['id'])))
                     {
                         formError(request, session, '^loc_EXISTING_USERNAME^', '/admin/users', output);
                         return;
                     }
                 }
+                
+                var user = data[0];
                 
                 getDBObjectsWithValues({object_type: 'user', email: userDocument['email']}, function(data)
                 {

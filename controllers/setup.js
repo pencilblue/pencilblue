@@ -7,7 +7,7 @@ this.init = function(request, output)
     {
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('install', 'Install pencilblue', null, function(data)
+            getHTMLTemplate('setup', 'Setup', null, function(data)
             {
                 result = result.concat(data);
                 
@@ -18,7 +18,7 @@ this.init = function(request, output)
                 
                     editSession(request, session, [], function(data)
                     {
-                        output({cookie: getSessionCookie(session), content: localize(['install'], result)});
+                        output({cookie: getSessionCookie(session), content: localize(['setup', 'users'], result)});
                     });
                 });
             });
