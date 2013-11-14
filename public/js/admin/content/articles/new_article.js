@@ -27,7 +27,7 @@ $(document).ready(function()
         setPublishDateToNow();
     }
     
-    $('#sections .col-md-3').draggable({revert: 'invalid', containment: 'document', helper: 'clone'});
+    $('#sections .col-md-3').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
     $('#active_sections').droppable({accept: '#sections .col-md-3', drop: function(event, ui)
     {
         $('#active_sections').append(ui.draggable);

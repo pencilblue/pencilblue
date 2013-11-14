@@ -3,9 +3,19 @@ global.getSession = function (request, output)
     var clientID = getClientID(request);
     if(request.headers['parsed_cookies'])
     {
-        if(request.headers['parsed_cookies']['session_id'])
+        // Discovered that sometimes the cookie string has trailing spaces
+        var sessionID = null;
+        for(var key in request.headers['parsed_cookies'])
         {
-            getDBObjectsWithValues({object_type: 'session', ip: request.connection.remoteAddress, client_id: clientID, uid: request.headers['parsed_cookies']['session_id']}, function(data)
+            if(key.trim() == 'session_id')
+            {
+                sessionID = request.headers['parsed_cookies'][key];
+            }
+        }
+    
+        if(sessionID)
+        {
+            getDBObjectsWithValues({object_type: 'session', ip: request.connection.remoteAddress, client_id: clientID, uid: sessionID}, function(data)
             {
                 if(data.length == 0)
                 {

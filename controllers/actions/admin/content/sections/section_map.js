@@ -21,6 +21,7 @@ this.init = function(request, output)
             return;
         }
         
+        
         var sectionMap = JSON.parse(decodeURIComponent(post['map']));
         if(!sectionMap[0].uid)
         {
