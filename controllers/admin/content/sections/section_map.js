@@ -29,25 +29,43 @@ this.init = function(request, output)
             
             session.section = 'sections';
             session.subsection = 'section_map';
-    
-            initLocalization(request, session, function(data)
+            
+            getDBObjectsWithValues({object_type: 'setting', key: 'section_map'}, function(data)
             {
-                getHTMLTemplate('admin/content/sections/section_map', null, null, function(data)
+                if(data.length == 0)
                 {
-                    result = result.concat(data);
+                    session.section = 'sections';
+                    session.subsection = 'new_section';
                     
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    editSession(request, session, [], function(data)
                     {
-                        session = newSession;
-                        result = newResult;
+                        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + SITE_ROOT + '/admin/content/sections";')});
+                    });
+                    
+                    return;
+                }
+                
+                var sectionMap = data[0].value;
+        
+                initLocalization(request, session, function(data)
+                {
+                    getHTMLTemplate('admin/content/sections/section_map', null, null, function(data)
+                    {
+                        result = result.concat(data);
                         
-                        instance.getSections(function(sectionsList)
+                        displayErrorOrSuccess(session, result, function(newSession, newResult)
                         {
-                            result = result.split('^sections^').join(sectionsList);
+                            session = newSession;
+                            result = newResult;
                             
-                            editSession(request, session, [], function(data)
+                            instance.getSections(sectionMap, function(sectionsList)
                             {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                                result = result.split('^sections^').join(sectionsList);
+                                
+                                editSession(request, session, [], function(data)
+                                {
+                                    output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                                });
                             });
                         });
                     });
@@ -57,7 +75,7 @@ this.init = function(request, output)
     });
 }
 
-this.getSections = function(output)
+this.getSections = function(sectionMap, output)
 {
     var sections = [];
     var sectionTemplate = '';
@@ -74,38 +92,44 @@ this.getSections = function(output)
             {
                 if(data.length > 0)
                 {
-                    for(var i = 0; i < data.length; i++)
+                    for(var i = 0; i < sectionMap.length; i++)
                     {
-                        if(!data[i].parent)
+                        for(var j = 0; j < data.length; j++)
                         {
-                            var sectionListElement = sectionTemplate.split('^section_id^').join(data[i]._id);
-                            sectionListElement = sectionListElement.split('^section_name^').join(data[i].name);
-                            subsectionList = '';
-                            
+                            if(sectionMap[i].uid == data[j]._id)
+                            {
+                                var sectionListElement = sectionTemplate.split('^section_id^').join(data[j]._id);
+                                sectionListElement = sectionListElement.split('^section_name^').join(data[j].name);
+                                break;
+                            }
+                        }
+                        
+                        subsectionList = '';
+                        for(var o = 0; o < sectionMap[i].children.length; o++)
+                        {
                             for(var j = 0; j < data.length; j++)
                             {
-                                if(data[j].parent)
+                                if(sectionMap[i].children[o].uid == data[j]._id)
                                 {
-                                    if(data[i]._id.equals(ObjectID(data[j].parent)))
-                                    {
-                                        subsectionListElement = subsectionTemplate.split('^subsection_id^').join(data[j]._id);
-                                        subsectionListElement = subsectionListElement.split('^subsection_name^').join(data[j].name);
-                                        subsectionList = subsectionList.concat(subsectionListElement);
-                                    }
+                                    subsectionListElement = subsectionTemplate.split('^subsection_id^').join(data[j]._id);
+                                    subsectionListElement = subsectionListElement.split('^subsection_name^').join(data[j].name);
+                                    subsectionList = subsectionList.concat(subsectionListElement);
+                                    break;
                                 }
                             }
-                            if(subsectionList.length == 0)
-                            {
-                                sectionListElement = sectionListElement.split('^subsection_display^').join('style="display: none"');
-                                sectionListElement = sectionListElement.split('^subsections^').join('');
-                            }
-                            else
-                            {
-                                sectionListElement = sectionListElement.split('^subsection_display^').join('');
-                                sectionListElement = sectionListElement.split('^subsections^').join(subsectionList);
-                            }
-                            sectionsList = sectionsList.concat(sectionListElement);
                         }
+                        
+                        if(subsectionList.length == 0)
+                        {
+                            sectionListElement = sectionListElement.split('^subsection_display^').join('style="display: none"');
+                            sectionListElement = sectionListElement.split('^subsections^').join('');
+                        }
+                        else
+                        {
+                            sectionListElement = sectionListElement.split('^subsection_display^').join('');
+                            sectionListElement = sectionListElement.split('^subsections^').join(subsectionList);
+                        }
+                        sectionsList = sectionsList.concat(sectionListElement);
                     }
                 }
                 

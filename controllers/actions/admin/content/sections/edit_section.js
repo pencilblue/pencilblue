@@ -1,5 +1,7 @@
 this.init = function(request, output)
 {
+    var instance = this;
+
     getSession(request, function(session)
     {
         if(!session['user'] || !session['user']['admin'])
@@ -58,11 +60,83 @@ this.init = function(request, output)
                     }
                     
                     session.success = '^loc_SECTION_EDITED^';
-                    editSession(request, session, [], function(data)
-                    {        
-                        output({redirect: SITE_ROOT + '/admin/content/sections'});
+                    
+                    instance.checkForSectionMapUpdate(sectionDocument, function()
+                    {                
+                        editSession(request, session, [], function(data)
+                        {        
+                            output({redirect: SITE_ROOT + '/admin/content/sections'});
+                        });
                     });
                 });
+            });
+        });
+    });
+}
+
+this.checkForSectionMapUpdate = function(sectionDocument, output)
+{
+    if(!sectionDocument['parent'])
+    {
+        output();
+        return;
+    }
+
+    getDBObjectsWithValues({object_type: 'section', name: sectionDocument['name']}, function(data)
+    {
+        if(data.length == 0)
+        {
+            output();
+            return;
+        }
+        
+        var sectionUID = data[0]._id.toString();
+
+        getDBObjectsWithValues({object_type: 'setting', key: 'section_map'}, function(data)
+        {
+            if(data.length == 0)
+            {
+                output();
+            }
+            
+            var sectionMap = data[0].value;
+            var sectionMapElement = null;
+            
+            for(var i = 0; i < sectionMap.length; i++)
+            {
+                for(var j = 0; j < sectionMap[i].children.length; j++)
+                {
+                    if(sectionMap[i].children[j].uid == sectionUID)
+                    {
+                        if(sectionMap[i].uid != sectionDocument['parent'])
+                        {
+                            sectionMapElement = sectionMap[i].children[j];
+                            sectionMap[i].children.splice(j, 1);
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            if(!sectionMapElement)
+            {
+                output();
+                return;
+            }
+            
+            for(var i = 0; i < sectionMap.length; i++)
+            {
+                if(sectionMap[i].uid == sectionDocument['parent'])
+                {
+                    sectionMap[i].children.push(sectionMapElement);
+                    break;
+                }
+            }
+            
+            var settingDocument = createDocument('setting', {key: 'section_map', value: sectionMap});
+            editDBObject(data[0]._id, settingDocument, [], function(data)
+            {
+                output();
             });
         });
     });

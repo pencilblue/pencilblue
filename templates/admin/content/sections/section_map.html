@@ -3,4 +3,12 @@
 <div id="section_map">
     ^sections^
 </div>
+<form id="section_map_form" method="post" action="^site_root^/actions/admin/content/sections/section_map">
+    <fieldset>
+        <a href="^site_root^/admin/content/sections">
+            <button type="button" class="btn btn-default">^loc_CANCEL^</button>
+        </a>
+        <button type="button" class="btn btn-primary" onclick="buildSectionMap()">^loc_SAVE^</button>
+    </fieldset>
+</form>
 <script type="text/javascript" src="^site_root^/js/admin/content/sections/section_map.js"></script>

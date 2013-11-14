@@ -22,6 +22,10 @@ loc =
     {
         
     },
+    install:
+    {
+        INSTALL: 'Install'
+    },
     login:
     {
         LOGIN: 'Login',
@@ -60,7 +64,8 @@ loc =
         META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords',
         EXISTING_SECTION: 'A section with this name already exists',
         SECTION_CREATED: 'The section was successfully created',
-        SECTION_EDITED: 'The section was successfully edited'
+        SECTION_EDITED: 'The section was successfully edited',
+        SECTION_MAP_SAVED: 'The section map was successfully saved'
     },
     pages:
     {
