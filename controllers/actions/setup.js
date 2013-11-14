@@ -30,10 +30,20 @@ this.init = function(request, output)
                     return;
                 }
                 
-                session.success = '^loc_READY_TO_USE^';
-                editSession(request, session, [], function(data)
-                {        
-                    output({redirect: SITE_ROOT + '/admin/login'});
+                var settingDocument = createDocument('setting', {key: 'active_theme', value: 'pencilblue'});
+                createDBObject(settingDocument, function(data)
+                {
+                    if(data.length == 0)
+                    {
+                        formError(request, session, '^loc_ERROR_SAVING^', '/setup', output);
+                        return;
+                    }
+                
+                    session.success = '^loc_READY_TO_USE^';
+                    editSession(request, session, [], function(data)
+                    {        
+                        output({redirect: SITE_ROOT + '/admin/login'});
+                    });
                 });
             });
         });
