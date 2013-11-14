@@ -66,3 +66,10 @@ function saveSectionMap(sectionMap)
     $('fieldset').prepend('<input type="text" id="map" name="map" value="' + encodeURIComponent(JSON.stringify(sectionMap)) + '" style="display: none"></input>');
     $('#section_map_form').submit();
 }
+
+function confirmDeleteSection(siteRoot, sectionID, sectionName)
+{
+    $('#delete_name').html(sectionName);
+    $('#delete_button').attr('onclick', 'window.location = "' + siteRoot + '/actions/admin/content/sections/delete_section?id=' + sectionID + '"');
+    $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+}

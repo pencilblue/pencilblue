@@ -74,7 +74,7 @@ this.getParentOptions = function(section, output)
     
     var instance = this;
     
-    getDBObjectsWithValues({object_type: 'section', parent: null}, function(data)
+    getDBObjectsWithValues({object_type: 'section', parent: null, $orderby: {name: 1}}, function(data)
     {
         if(data.length > 0)
         {

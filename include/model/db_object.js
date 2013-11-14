@@ -106,6 +106,18 @@ global.deleteMatchingDBObjects = function(criteria, output)
 // Retrieves an array of objects
 global.getDBObjectsWithValues = function(values, output)
 {
+    if(values['$orderby'])
+    {
+        var orderBy = values['$orderby'];
+        delete values['$orderby'];
+        
+        mongoDB.collection(values.object_type).find(values).sort(orderBy).toArray(function(error, docs)
+        {
+            output(docs);
+        });
+        return;
+    }
+
     mongoDB.collection(values.object_type).find(values).toArray(function(error, docs)
     {
         output(docs);

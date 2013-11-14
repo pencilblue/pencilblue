@@ -12,11 +12,14 @@ loc =
         CONTENT: 'Content',
         META_DATA: 'Meta data',
         FORM_INCOMPLETE: 'The form is incomplete',
+        ERROR_SAVING: 'There was an error saving',
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
         SAVE: 'Save',
         SAVE_DRAFT: 'Save draft',
         CANCEL: 'Cancel',
+        DELETE: 'Delete',
         NOW: 'Now',
+        CONFIRM_DELETE: 'Are you sure you want to delete'
     },
     index:
     {
@@ -124,7 +127,6 @@ loc =
         PASSWORD_MISMATCH: 'Passwords do not match',
         EXISTING_USERNAME: 'Username is already registered',
         EXISTING_EMAIL: 'Email address is already registered',
-        ERROR_SAVING: 'There was an error saving the user',
         USER_CREATED: 'The user was successfully created',
         USER_EDITED: 'The user was successfully edited'
     }
