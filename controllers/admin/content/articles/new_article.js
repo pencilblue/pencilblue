@@ -110,7 +110,7 @@ this.getSectionOptions = function(output)
         getHTMLTemplate('admin/content/articles/new_article/subsection', null, null, function(data)
         {
             subsectionTemplate = data;
-            getDBObjectsWithValues({object_type: 'section'}, function(data)
+            getDBObjectsWithValues({object_type: 'section', $orderby: {name: 1}}, function(data)
             {
                 if(data.length > 0)
                 {
@@ -120,31 +120,13 @@ this.getSectionOptions = function(output)
                         {
                             var sectionListElement = sectionTemplate.split('^section_id^').join(data[i]._id);
                             sectionListElement = sectionListElement.split('^section_name^').join(data[i].name);
-                            subsectionList = '';
-                            
-                            for(var j = 0; j < data.length; j++)
-                            {
-                                if(data[j].parent)
-                                {
-                                    if(data[i]._id.equals(ObjectID(data[j].parent)))
-                                    {
-                                        subsectionListElement = subsectionTemplate.split('^subsection_id^').join(data[j]._id);
-                                        subsectionListElement = subsectionListElement.split('^subsection_name^').join(data[j].name);
-                                        subsectionList = subsectionList.concat(subsectionListElement);
-                                    }
-                                }
-                            }
-                            if(subsectionList.length == 0)
-                            {
-                                sectionListElement = sectionListElement.split('^subsection_display^').join('style="display: none"');
-                                sectionListElement = sectionListElement.split('^subsections^').join('');
-                            }
-                            else
-                            {
-                                sectionListElement = sectionListElement.split('^subsection_display^').join('');
-                                sectionListElement = sectionListElement.split('^subsections^').join(subsectionList);
-                            }
                             sectionsList = sectionsList.concat(sectionListElement);
+                        }
+                        else
+                        {
+                            subsectionListElement = subsectionTemplate.split('^subsection_id^').join(data[i]._id);
+                            subsectionListElement = subsectionListElement.split('^subsection_name^').join(data[i].name);
+                            sectionsList = sectionsList.concat(subsectionListElement);
                         }
                     }
                 }
