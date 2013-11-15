@@ -1,0 +1,23 @@
+^error^
+^success^
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#topic_settings" data-toggle="tab">^loc_SETTINGS^</a></li>
+</ul>
+
+<form id="new_topic_form" method="post" action="^site_root^/actions/admin/content/topics/new_topic">
+    <fieldset>
+        <div class="tab-content">
+            <div class="tab-pane active" id="topic_settings">
+                <div class="form-group">
+                    <label>^loc_TOPIC_NAME^</label>
+                    <input type="text" id="name" name="name" class="form-control"></input>
+                </div>
+            </div>
+            <button type="button" class="btn btn-default" onclick="loadtopicsContent('^site_root^', 'topic_map')">^loc_CANCEL^</button>
+            <button type="submit" class="btn btn-primary">^loc_SAVE^</button>
+        </div>
+    </fieldset>
+</form>
+<script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="^site_root^/js/admin/content/topics/new_topic.js"></script>

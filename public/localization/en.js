@@ -72,6 +72,14 @@ loc =
         SECTION_EDITED: 'The section was successfully edited',
         SECTION_MAP_SAVED: 'The section map was successfully saved'
     },
+    topics:
+    {
+        MANAGE_TOPICS: 'Manage topics',
+        NEW_TOPIC: 'New topic',
+        TOPIC_NAME: 'Topic name',
+        EXISTING_TOPIC: 'A topic with this name already exists',
+        TOPIC_CREATED: 'The topic was successfully created',
+    },
     pages:
     {
         NEW_PAGE: 'New page',

@@ -36,6 +36,8 @@ $(document).ready(function()
     {
         $('#inactive_sections').append(ui.draggable);
     }});
+    
+    $('#url').focus();
 });
 
 function setPublishDateToNow()

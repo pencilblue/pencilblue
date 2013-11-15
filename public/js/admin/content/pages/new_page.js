@@ -5,4 +5,6 @@ $(document).ready(function()
         height: 300,
         focus: true
     });
+    
+    $('#url').focus();
 });

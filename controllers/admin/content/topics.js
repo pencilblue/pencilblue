@@ -30,7 +30,7 @@ this.init = function(request, output)
                         }
                         else
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "topics", "manage")'));
+                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "topics", "manage_topics")'));
                         }
                         
                         output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});

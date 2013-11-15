@@ -1,0 +1,21 @@
+^error^
+^success^
+<div id="topics">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <div class="input-group">
+                <input type="text" id="topic_search" name="topic_search" class="form-control" onkeyup="narrowTopics()"></input>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" onclick="clearTopicSearch()"><span id="topic_search_icon" class="glyphicon glyphicon-search"></span></button>
+                </span>
+            </div>
+        </div>
+        <div class="panel-body">
+            ^topics^
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var topics = ^topics_array^;
+</script>
+<script type="text/javascript" src="^site_root^/js/admin/content/topics/manage_topics.js"></script>

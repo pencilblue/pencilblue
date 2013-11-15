@@ -1,6 +1,6 @@
 $(document).ready(function()
 {
-    $('#edit_section_form').validate(
+    $('#new_topic_form').validate(
     {
         rules:
         {
@@ -8,10 +8,6 @@ $(document).ready(function()
             {
                 minlength: 2,
                 required: true
-            },
-            editor:
-            {
-                required: true,
             }
         }
     });

@@ -30,3 +30,19 @@ form .error
     list-style: none;
     padding: .5em .5em .5em 1em;
 }
+
+.topic
+{
+    margin-right: .5em;
+}
+
+.topic a
+{
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.topic a:hover
+{
+    color: #428BCA;
+}
