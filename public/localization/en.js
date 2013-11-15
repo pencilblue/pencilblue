@@ -44,6 +44,7 @@ loc =
         PAGES: 'Pages',
         ARTICLES: 'Articles',
         SECTIONS: 'Sections',
+        TOPICS: 'Topics',
         PLUGINS: 'Plugins',
         THEMES: 'Themes',
         FRONTEND: 'Frontend plugins',

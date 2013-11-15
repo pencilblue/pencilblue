@@ -13,27 +13,27 @@ this.init = function(request, output)
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/head', 'Pages', null, function(data)
+            getHTMLTemplate('admin/head', 'Topics', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, ['users']);
+                result = getAdminNavigation(result, ['content', 'sections']);
                 
-                getHTMLTemplate('admin/users', null, null, function(data)
+                getHTMLTemplate('admin/content/topics', null, null, function(data)
                 {
                     result = result.concat(data);
                     getHTMLTemplate('admin/footer', null, null, function(data)
                     {
                         result = result.concat(data);
-                        if(session.section == 'users')
+                        if(session.section == 'topics')
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/", "users", "' + session.subsection + '")'));
+                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "topics", "' + session.subsection + '")'));
                         }
                         else
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/", "users", "manage_users")'));
+                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "topics", "manage")'));
                         }
                         
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
                     });
                 });
             });

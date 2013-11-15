@@ -26,11 +26,11 @@ this.init = function(request, output)
                         result = result.concat(data);
                         if(session.section == 'articles')
                         {
-                            result = result.concat(getJSTag('loadArticlesContent("' + SITE_ROOT + '", "' + session.subsection + '")'));
+                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "articles", "' + session.subsection + '")'));
                         }
                         else
                         {
-                            result = result.concat(getJSTag('loadArticlesContent("' + SITE_ROOT + '", "new_article")'));
+                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "articles", "new_article")'));
                         }
                         
                         output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
