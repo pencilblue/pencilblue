@@ -19,7 +19,8 @@ loc =
         CANCEL: 'Cancel',
         DELETE: 'Delete',
         NOW: 'Now',
-        CONFIRM_DELETE: 'Are you sure you want to delete'
+        CONFIRM_DELETE: 'Are you sure you want to delete',
+        LOAD_FILE: 'Load file'
     },
     index:
     {
@@ -78,7 +79,7 @@ loc =
         NEW_TOPIC: 'New topic',
         TOPIC_NAME: 'Topic name',
         EXISTING_TOPIC: 'A topic with this name already exists',
-        TOPIC_CREATED: 'The topic was successfully created',
+        TOPIC_CREATED: 'The topic was successfully created'
     },
     pages:
     {
@@ -109,6 +110,8 @@ loc =
         PUBLISH_DATE: 'Publish date',
         ACTIVE_SECTIONS: 'Drag associated sections here',
         INACTIVE_SECTIONS: 'Drag unassociated sections here',
+        ACTIVE_TOPICS: 'Drag associated topics here',
+        INACTIVE_TOPICS: 'Drag unassociated topics here',
         FOCUS_KEYWORD: 'Focus keyword',
         FOCUS_KEYWORD_PLACEHOLDER: 'The top keyword associated with the content',
         SEO_TITLE: 'SEO title',

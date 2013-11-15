@@ -11,26 +11,23 @@ this.init = function(request, output)
             return;
         }
         
-        getDBObjectsWithValues({object_type: 'topic'}, function(data)
+        session.section = 'topics';
+        session.subsection = 'new_topic';
+    
+        initLocalization(request, session, function(data)
         {
-            session.section = 'topics';
-            session.subsection = 'new_topic';
-        
-            initLocalization(request, session, function(data)
+            getHTMLTemplate('admin/content/topics/new_topic', null, null, function(data)
             {
-                getHTMLTemplate('admin/content/topics/new_topic', null, null, function(data)
+                result = result.concat(data);
+                
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
                 {
-                    result = result.concat(data);
+                    session = newSession;
+                    result = newResult;
                     
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    editSession(request, session, [], function(data)
                     {
-                        session = newSession;
-                        result = newResult;
-                        
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
-                        });
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
                     });
                 });
             });

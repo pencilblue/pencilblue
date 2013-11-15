@@ -4,6 +4,7 @@
 <ul class="nav nav-tabs">
     <li class="active"><a href="#content" data-toggle="tab">^loc_CONTENT^</a></li>
     <li><a href="#sections" data-toggle="tab">^loc_SECTIONS^</a></li>
+    <li><a href="#topics" data-toggle="tab">^loc_TOPICS^</a></li>
     <li><a href="#meta_data" data-toggle="tab">^loc_META_DATA^</a></li>
 </ul>
 
@@ -55,6 +56,26 @@
                     <div class="panel-heading">^loc_INACTIVE_SECTIONS^...</div>
                     <div id="inactive_sections" class="panel-body" style="min-height: 100px">
                         ^section_options^
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="topics">
+                <div class="panel panel-default">
+                    <div class="panel-heading">^loc_ACTIVE_TOPICS^...</div>
+                    <div id="active_topics" class="panel-body" style="min-height: 100px"></div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        ^loc_INACTIVE_TOPICS^...
+                        <div class="input-group">
+                            <input type="text" id="topic_search" name="topic_search" class="form-control" onkeyup="narrowTopics()"></input>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" onclick="clearTopicSearch()"><span id="topic_search_icon" class="glyphicon glyphicon-search"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div id="inactive_topics" class="panel-body" style="min-height: 100px">
+                        ^topic_options^
                     </div>
                 </div>
             </div>

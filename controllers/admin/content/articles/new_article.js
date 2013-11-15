@@ -29,14 +29,19 @@ this.init = function(request, output)
                     {
                         result = result.split('^section_options^').join(sectionsList);
                         
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
+                        instance.getTopicOptions(function(topicsList)
                         {
-                            session = newSession;
-                            result = newResult;
-                    
-                            editSession(request, session, [], function(data)
+                            result = result.split('^topic_options^').join(topicsList);
+                        
+                            displayErrorOrSuccess(session, result, function(newSession, newResult)
                             {
-                                output({content: localize(['admin', 'articles'], result)});
+                                session = newSession;
+                                result = newResult;
+                        
+                                editSession(request, session, [], function(data)
+                                {
+                                    output({content: localize(['admin', 'articles'], result)});
+                                });
                             });
                         });
                     });
@@ -133,6 +138,40 @@ this.getSectionOptions = function(output)
                 
                 output(sectionsList);
             });
+        });
+    });
+}
+
+this.getTopicOptions = function(output)
+{
+    var topicsList = '';
+    var topicTemplate = '';
+    
+    getDBObjectsWithValues({object_type: 'topic'}, function(data)
+    {
+        var topics = data;
+        
+        // Case insensitive sort
+        topics.sort(function(a, b)
+        {
+            var x = a['name'].toLowerCase();
+            var y = b['name'].toLowerCase();
+        
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+        
+        getHTMLTemplate('admin/content/articles/new_article/topic', null, null, function(data)
+        {
+            topicTemplate = data;
+
+            for(var i = 0; i < topics.length; i++)
+            {
+                var topicsListElement = topicTemplate.split('^topic_id^').join(topics[i]._id.toString());
+                topicsListElement = topicsListElement.split('^topic_name^').join(topics[i].name);
+                topicsList = topicsList.concat(topicsListElement);
+            }
+            
+            output(topicsList);
         });
     });
 }

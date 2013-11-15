@@ -38,6 +38,16 @@ $(document).ready(function()
     }});
     
     $('#url').focus();
+    
+    $('.topic').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
+    $('#active_topics').droppable({accept: '.topic', drop: function(event, ui)
+    {
+        $('#active_topics').append(ui.draggable);
+    }});
+    $('#inactive_topics').droppable({accept: '.topic', drop: function(event, ui)
+    {
+        $('#inactive_topics').append(ui.draggable);
+    }});
 });
 
 function setPublishDateToNow()
@@ -62,6 +72,47 @@ function getExtraZero(dateNumber)
     }
     
     return dateNumber;
+}
+
+function narrowTopics()
+{
+    var searchString = $('#topic_search').val().toLowerCase();
+    if(searchString.length == 0)
+    {
+        $('#topic_search_icon').attr('class', 'glyphicon glyphicon-search');
+    
+        $('.topic').each(function()
+        {
+            $(this).show();
+        });
+    }
+    else
+    {
+        $('#topic_search_icon').attr('class', 'glyphicon glyphicon-remove');
+    
+        $('.topic').each(function()
+        {
+            var topic = $(this);
+            topic.find('.topic_name').each(function()
+            {
+                if($(this).html().toLowerCase().indexOf(searchString) > -1)
+                {
+                    topic.show();
+                }
+                else
+                {
+                    topic.hide();
+                }
+            });
+        });
+    }
+}
+
+function clearTopicSearch()
+{
+    $('#topic_search').val('');
+    $('#topic_search').focus();
+    narrowTopics();
 }
 
 function checkForNewArticleSave()
