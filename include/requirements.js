@@ -1,6 +1,8 @@
 global.url = require('url');
 global.fs = require('fs');
 global.http = require('http');
+global.formidable = require('formidable');
+global.util = require('util');
 
 // Fixes fs on earlier versions of node
 fs.exists = fs.exists || require('path').exists;

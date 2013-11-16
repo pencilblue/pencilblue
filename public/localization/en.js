@@ -79,7 +79,9 @@ loc =
         NEW_TOPIC: 'New topic',
         TOPIC_NAME: 'Topic name',
         EXISTING_TOPIC: 'A topic with this name already exists',
-        TOPIC_CREATED: 'The topic was successfully created'
+        TOPIC_CREATED: 'The topic was successfully created',
+        IMPORT_TOPICS: 'Import topics',
+        TOPICS_CSV_FILE: 'CSV file containing topic names'
     },
     pages:
     {
