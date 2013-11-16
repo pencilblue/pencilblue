@@ -122,7 +122,8 @@ loc =
         META_DESC: 'Meta description',
         META_DESC_PLACEHOLDER: 'Limited to 156 characters',
         META_KEYWORDS: 'Meta keywords',
-        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords'
+        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords',
+        ARTICLE_CREATED: 'The article was successfully created'
     },
     users:
     {
