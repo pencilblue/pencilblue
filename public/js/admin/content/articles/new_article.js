@@ -81,7 +81,7 @@ function narrowTopics()
     {
         $('#topic_search_icon').attr('class', 'glyphicon glyphicon-search');
     
-        $('.topic').each(function()
+        $('#inactive_topics .topic').each(function()
         {
             $(this).show();
         });
@@ -90,7 +90,7 @@ function narrowTopics()
     {
         $('#topic_search_icon').attr('class', 'glyphicon glyphicon-remove');
     
-        $('.topic').each(function()
+        $('#inactive_topics .topic').each(function()
         {
             var topic = $(this);
             topic.find('.topic_name').each(function()
