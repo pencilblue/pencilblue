@@ -80,6 +80,7 @@ loc =
         TOPIC_NAME: 'Topic name',
         EXISTING_TOPIC: 'A topic with this name already exists',
         TOPIC_CREATED: 'The topic was successfully created',
+        TOPICS_CREATED: 'The topics were successfully created',
         IMPORT_TOPICS: 'Import topics',
         TOPICS_CSV_FILE: 'CSV file containing topic names'
     },
