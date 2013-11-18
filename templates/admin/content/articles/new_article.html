@@ -53,7 +53,15 @@
                     <div id="active_sections" class="panel-body" style="min-height: 100px"></div>
                 </div>
                 <div class="panel panel-default">
-                    <div class="panel-heading">^loc_INACTIVE_SECTIONS^...</div>
+                    <div class="panel-heading">
+                        ^loc_INACTIVE_SECTIONS^...
+                        <div class="input-group">
+                            <input type="text" id="section_search" name="section_search" class="form-control"></input>
+                            <span class="input-group-btn">
+                                <button id="section_search_button" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+                            </span>
+                        </div>
+                    </div>
                     <div id="inactive_sections" class="panel-body" style="min-height: 100px">
                         ^section_options^
                     </div>
@@ -68,9 +76,9 @@
                     <div class="panel-heading">
                         ^loc_INACTIVE_TOPICS^...
                         <div class="input-group">
-                            <input type="text" id="topic_search" name="topic_search" class="form-control" onkeyup="narrowTopics()"></input>
+                            <input type="text" id="topic_search" name="topic_search" class="form-control"></input>
                             <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" onclick="clearTopicSearch()"><span id="topic_search_icon" class="glyphicon glyphicon-search"></span></button>
+                                <button id="topic_search_button" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                             </span>
                         </div>
                     </div>
@@ -111,4 +119,5 @@
     </fieldset>
 </form>
 <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="^site_root^/js/narrow_by_search.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/content/articles/new_article.js"></script>

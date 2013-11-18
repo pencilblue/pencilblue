@@ -48,6 +48,22 @@ $(document).ready(function()
     {
         $('#inactive_topics').append(ui.draggable);
     }});
+    
+    var sectionNarrow = new NarrowBySearch('#section_search', '#inactive_sections .section',
+    {
+        searchChildElement: '.section_name',
+        searchButton: '#section_search_button',
+        searchText: '<span class="glyphicon glyphicon-search"></span>',
+        clearText: '<span class="glyphicon glyphicon-remove"></span>',
+    });
+    
+    var topicNarrow = new NarrowBySearch('#topic_search', '#inactive_topics .topic',
+    {
+        searchChildElement: '.topic_name',
+        searchButton: '#topic_search_button',
+        searchText: '<span class="glyphicon glyphicon-search"></span>',
+        clearText: '<span class="glyphicon glyphicon-remove"></span>',
+    });
 });
 
 function setPublishDateToNow()
@@ -72,47 +88,6 @@ function getExtraZero(dateNumber)
     }
     
     return dateNumber;
-}
-
-function narrowTopics()
-{
-    var searchString = $('#topic_search').val().toLowerCase();
-    if(searchString.length == 0)
-    {
-        $('#topic_search_icon').attr('class', 'glyphicon glyphicon-search');
-    
-        $('#inactive_topics .topic').each(function()
-        {
-            $(this).show();
-        });
-    }
-    else
-    {
-        $('#topic_search_icon').attr('class', 'glyphicon glyphicon-remove');
-    
-        $('#inactive_topics .topic').each(function()
-        {
-            var topic = $(this);
-            topic.find('.topic_name').each(function()
-            {
-                if($(this).html().toLowerCase().indexOf(searchString) > -1)
-                {
-                    topic.show();
-                }
-                else
-                {
-                    topic.hide();
-                }
-            });
-        });
-    }
-}
-
-function clearTopicSearch()
-{
-    $('#topic_search').val('');
-    $('#topic_search').focus();
-    narrowTopics();
 }
 
 function checkForNewArticleSave()

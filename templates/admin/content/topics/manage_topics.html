@@ -4,9 +4,9 @@
     <div class="panel panel-info">
         <div class="panel-heading">
             <div class="input-group">
-                <input type="text" id="topic_search" name="topic_search" class="form-control" onkeyup="narrowTopics()"></input>
+                <input type="text" id="topic_search" name="topic_search" class="form-control"></input>
                 <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" onclick="clearTopicSearch()"><span id="topic_search_icon" class="glyphicon glyphicon-search"></span></button>
+                    <button class="topic_search_button" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                 </span>
             </div>
         </div>
@@ -31,4 +31,5 @@
 <script type="text/javascript">
     var topics = ^topics_array^;
 </script>
+<script type="text/javascript" src="^site_root^/js/narrow_by_search.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/content/topics/manage_topics.js"></script>

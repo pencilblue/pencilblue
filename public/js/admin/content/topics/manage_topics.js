@@ -1,43 +1,13 @@
-function narrowTopics()
+$(document).ready(function()
 {
-    var searchString = $('#topic_search').val().toLowerCase();
-    if(searchString.length == 0)
+    var topicNarrow = new NarrowBySearch('#topic_search', '.topic',
     {
-        $('#topic_search_icon').attr('class', 'glyphicon glyphicon-search');
-    
-        $('.topic').each(function()
-        {
-            $(this).show();
-        });
-    }
-    else
-    {
-        $('#topic_search_icon').attr('class', 'glyphicon glyphicon-remove');
-    
-        $('.topic').each(function()
-        {
-            var topic = $(this);
-            topic.find('.topic_name').each(function()
-            {
-                if($(this).html().toLowerCase().indexOf(searchString) > -1)
-                {
-                    topic.show();
-                }
-                else
-                {
-                    topic.hide();
-                }
-            });
-        });
-    }
-}
-
-function clearTopicSearch()
-{
-    $('#topic_search').val('');
-    $('#topic_search').focus();
-    narrowTopics();
-}
+        searchChildElement: '.topic_name',
+        searchButton: '#topic_search_button',
+        searchText: '<span class="glyphicon glyphicon-search"></span>',
+        clearText: '<span class="glyphicon glyphicon-remove"></span>',
+    });
+});
 
 function confirmDeleteTopic(siteRoot, topicID, topicName)
 {
