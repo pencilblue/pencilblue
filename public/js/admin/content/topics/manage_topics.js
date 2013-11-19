@@ -1,6 +1,6 @@
 $(document).ready(function()
 {
-    var topicNarrow = new NarrowBySearch('#topic_search', '.topic',
+    new jNarrow('#topic_search', '.topic',
     {
         searchChildElement: '.topic_name',
         searchButton: '#topic_search_button',

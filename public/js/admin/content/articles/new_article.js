@@ -49,7 +49,7 @@ $(document).ready(function()
         $('#inactive_topics').append(ui.draggable);
     }});
     
-    var sectionNarrow = new NarrowBySearch('#section_search', '#inactive_sections .section',
+    new jNarrow('#section_search', '#inactive_sections .section',
     {
         searchChildElement: '.section_name',
         searchButton: '#section_search_button',
@@ -57,7 +57,7 @@ $(document).ready(function()
         clearText: '<span class="glyphicon glyphicon-remove"></span>',
     });
     
-    var topicNarrow = new NarrowBySearch('#topic_search', '#inactive_topics .topic',
+    new jNarrow('#topic_search', '#inactive_topics .topic',
     {
         searchChildElement: '.topic_name',
         searchButton: '#topic_search_button',
