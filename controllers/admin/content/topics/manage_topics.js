@@ -43,9 +43,8 @@ this.init = function(request, output)
                         session = newSession;
                         result = newResult;
                         
-                        instance.getTopics(topics, function(topicsArray, topicsList)
+                        instance.getTopics(topics, function(topicsList)
                         {
-                            result = result.split('^topics_array^').join(JSON.stringify(topicsArray));
                             result = result.split('^topics^').join(topicsList);
                             
                             editSession(request, session, [], function(data)
@@ -62,7 +61,6 @@ this.init = function(request, output)
 
 this.getTopics = function(topics, output)
 {
-    var topicsArray = [];
     var topicsList = '';
     var topicTemplate = '';
     
@@ -84,10 +82,8 @@ this.getTopics = function(topics, output)
             var topicsListElement = topicTemplate.split('^topic_id^').join(topics[i]._id.toString());
             topicsListElement = topicsListElement.split('^topic_name^').join(topics[i].name);
             topicsList = topicsList.concat(topicsListElement);
-            
-            topicsArray.push({uid: topics[i]._id.toString(), name: topics[i].name});
         }
         
-        output(topicsArray, topicsList);
+        output(topicsList);
     });
 }

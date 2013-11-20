@@ -88,7 +88,15 @@ loc =
     media:
     {
         MANAGE_MEDIA: 'Manage media',
-        ADD_MEDIA: 'Add media'
+        ADD_MEDIA: 'Add media',
+        LINK_OR_UPLOAD: 'Link or upload',
+        LINK_TO_MEDIA: 'Link to media',
+        UPLOAD_MEDIA: 'Upload media',
+        MEDIA_URL: 'Media URL',
+        MEDIA_URL_PLACEHOLDER: 'URL of image or video',
+        SAVE_LINK: 'Save link',
+        UPLOAD: 'UPLOAD',
+        CAPTION: 'Caption'
     },
     pages:
     {
