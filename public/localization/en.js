@@ -46,6 +46,7 @@ loc =
         ARTICLES: 'Articles',
         SECTIONS: 'Sections',
         TOPICS: 'Topics',
+        MEDIA: 'Media',
         PLUGINS: 'Plugins',
         THEMES: 'Themes',
         FRONTEND: 'Frontend plugins',
@@ -83,6 +84,11 @@ loc =
         TOPICS_CREATED: 'The topics were successfully created',
         IMPORT_TOPICS: 'Import topics',
         TOPICS_CSV_FILE: 'CSV file containing topic names'
+    },
+    media:
+    {
+        MANAGE_MEDIA: 'Manage media',
+        ADD_MEDIA: 'Add media'
     },
     pages:
     {
