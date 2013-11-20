@@ -53,16 +53,16 @@ $(document).ready(function()
     {
         searchChildElement: '.section_name',
         searchButton: '#section_search_button',
-        searchText: '<span class="glyphicon glyphicon-search"></span>',
-        clearText: '<span class="glyphicon glyphicon-remove"></span>',
+        searchText: '<i class="fa fa-search"></i>',
+        clearText: '<i class="fa fa-times"></i>',
     });
     
     new jNarrow('#topic_search', '#inactive_topics .topic',
     {
         searchChildElement: '.topic_name',
         searchButton: '#topic_search_button',
-        searchText: '<span class="glyphicon glyphicon-search"></span>',
-        clearText: '<span class="glyphicon glyphicon-remove"></span>',
+        searchText: '<i class="fa fa-search"></i>',
+        clearText: '<i class="fa fa-times"></i>',
     });
 });
 
