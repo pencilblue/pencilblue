@@ -8,7 +8,7 @@
         </a>
     </li>
     <li>
-        <a href="#topics" data-toggle="tab">
+        <a href="#topics_dnd" data-toggle="tab">
             <i class="fa fa-tags"></i>&nbsp;^loc_TOPICS^
         </a>
     </li>
@@ -22,7 +22,7 @@
                     <input type="checkbox" id="is_file" name="is_file" style="display:none"></input>
                 </div>
                 <div class="form-group">
-                    <input type="text" id="type" name="type" class="form-control" style="display:none"></input>
+                    <input type="text" id="media_type" name="media_type" class="form-control" style="display:none"></input>
                 </div>
                 <div class="form-group">
                     <input type="text" id="location" name="location" class="form-control" style="display:none"></input>
@@ -41,10 +41,30 @@
                     <input type="text" id="caption" name="caption" class="form-control"></input>
                 </div>
             </div>
+            <div class="tab-pane" id="topics_dnd">
+                <div class="panel panel-default">
+                    <div class="panel-heading">^loc_ACTIVE_TOPICS^...</div>
+                    <div id="active_topics" class="panel-body" style="min-height: 100px"></div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        ^loc_INACTIVE_TOPICS^...
+                        <div class="input-group">
+                            <input type="text" id="topic_search" name="topic_search" class="form-control"></input>
+                            <span class="input-group-btn">
+                                <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></span></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div id="inactive_topics" class="panel-body" style="min-height: 100px">
+                        ^topic_options^
+                    </div>
+                </div>
+            </div>
             <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/media';">
                 <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
             </button>
-            <button type="submit" class="btn btn-primary">
+            <button id="save_button" type="button" class="btn btn-primary" onclick="checkForAddMediaSave()" disabled>
                 <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
             </button>
         </div>
@@ -72,4 +92,5 @@
     </div>
 </div>
 <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/content/media/add_media.js"></script>

@@ -1,3 +1,36 @@
+$(document).ready(function()
+{
+    $('#add_media_form').validate(
+    {
+        rules:
+        {
+            caption:
+            {
+                minlength: 2,
+                required: true
+            }
+        }
+    });
+
+    $('.topic').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
+    $('#active_topics').droppable({accept: '.topic', drop: function(event, ui)
+    {
+        $('#active_topics').append(ui.draggable);
+    }});
+    $('#inactive_topics').droppable({accept: '.topic', drop: function(event, ui)
+    {
+        $('#inactive_topics').append(ui.draggable);
+    }});
+    
+    new jNarrow('#topic_search', '#inactive_topics .topic',
+    {
+        searchChildElement: '.topic_name',
+        searchButton: '#topic_search_button',
+        searchText: '<i class="fa fa-search"></i>',
+        clearText: '<i class="fa fa-times"></i>',
+    });
+});
+
 function validateMediaURL()
 {
     var mediaURL = $('#media_url').val();
@@ -101,8 +134,9 @@ function validateMediaURL()
 function setMediaValues(isFile, type, location)
 {
     $('#is_file').prop('checked', isFile);
-    $('#type').val(type);
+    $('#media_type').val(type);
     $('#location').val(location);
+    $('#save_button').removeAttr('disabled');
 }
 
 function previewImage(mediaURL)
@@ -133,4 +167,47 @@ function previewDailyMotion(videoID)
 {
     $('#media_display').html('<iframe frameborder="0" width="480" height="270" src="http://www.dailymotion.com/embed/video/' + videoID + '"></iframe>');
     $('#link_to_media_modal').modal('hide');
+}
+
+// Saving -----------------------------------
+
+function checkForAddMediaSave()
+{
+    buildTopics(function(topicsCSV)
+    {
+        if(!$('#media_topics').position())
+        {
+            $('fieldset').append('<input type="text" id="media_topics" name="media_topics" value="' + topicsCSV + '" style="display: none"></input>');
+        }
+        else
+        {
+            $('#media_topics').val(topicsCSV);
+        }
+        
+        $('#add_media_form').submit();
+    });
+}
+
+function buildTopics(output)
+{
+    var topicElements = $('#active_topics').find('.topic');
+    topicElementCount = 0;
+    topicsArray = [];
+    
+    if(topicElements.length == 0)
+    {
+        output('');
+        return;
+    }
+    
+    topicElements.each(function()
+    {
+        topicsArray.push($(this).attr('id').split('topic_').join('').trim());
+        
+        topicElementCount++;
+        if(topicElementCount >= topicElements.length)
+        {
+            output(topicsArray.join(','));
+        }
+    });
 }

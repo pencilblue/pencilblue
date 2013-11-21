@@ -58,7 +58,9 @@ loc =
         ACCOUNT: 'Account',
         CUSTOM_VARIABLES: 'Custom variables',
         CUSTOM_VARIABLE_KEY: 'Unique name for the variable',
-        CUSTOM_VARIABLE_VALUE: 'Value associated with the variable'
+        CUSTOM_VARIABLE_VALUE: 'Value associated with the variable',
+        ACTIVE_TOPICS: 'Drag associated topics here',
+        INACTIVE_TOPICS: 'Drag unassociated topics here'
     },
     sections:
     {
@@ -96,7 +98,8 @@ loc =
         MEDIA_URL_PLACEHOLDER: 'URL of image or video',
         SAVE_LINK: 'Save link',
         UPLOAD: 'UPLOAD',
-        CAPTION: 'Caption'
+        CAPTION: 'Caption',
+        MEDIA_ADDED: 'The media was successfully added'
     },
     pages:
     {
@@ -127,8 +130,6 @@ loc =
         PUBLISH_DATE: 'Publish date',
         ACTIVE_SECTIONS: 'Drag associated sections here',
         INACTIVE_SECTIONS: 'Drag unassociated sections here',
-        ACTIVE_TOPICS: 'Drag associated topics here',
-        INACTIVE_TOPICS: 'Drag unassociated topics here',
         FOCUS_KEYWORD: 'Focus keyword',
         FOCUS_KEYWORD_PLACEHOLDER: 'The top keyword associated with the content',
         SEO_TITLE: 'SEO title',
