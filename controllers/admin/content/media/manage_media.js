@@ -83,7 +83,8 @@ this.getMedia = function(media, output)
             var mediaItemElement = mediaItemTemplate.split('^media_id^').join(media[i]._id.toString());
             mediaItemElement = mediaItemElement.split('^media_icon^').join(instance.getMediaIcon(media[i].media_type));
             mediaItemElement = mediaItemElement.split('^media_caption^').join(media[i].caption);
-            mediaItemElement = mediaItemElement.split('^media_thumb^').join(instance.getMediaThumb(media[i].media_type, media[i].location));
+            mediaItemElement = mediaItemElement.split('^media_thumb^').join(media[i].thumb);
+            
             mediaList = mediaList.concat(mediaItemElement);
         }
     
@@ -120,31 +121,4 @@ this.getMediaIcon = function(mediaType)
     }
     
     return '<i class="fa fa-' + iconID + '"></i>';
-}
-
-this.getMediaThumb = function(mediaType, mediaLocation)
-{
-    switch(mediaType)
-    {
-        case 'image':
-            return '<img src="' + mediaLocation + '" style="max-height: 150px; max-width: 100%"></img>';
-            break;
-        case 'video/mp4':
-        case 'video/webm':
-        case 'video/ogg':
-            return '<video style="max-height: 150px; max-width: 100%"><source src="' + mediaLocation + '" type="' + mediaType + '"></video>'
-            break;
-        case 'youtube':
-            return '<img src="http://img.youtube.com/vi/' + mediaLocation + '/0.jpg" style="max-height: 150px; max-width: 100%"></img>';
-            break;
-        case 'vimeo':
-            return '';
-            break;
-        case 'daily_motion':
-            return '<img src="http://www.dailymotion.com/thumbnail/video/' + mediaLocation + '" style="max-height: 150px; max-width: 100%"></img>';
-            break;
-        default:
-            return '';
-            break;
-    }
 }
