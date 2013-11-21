@@ -6,7 +6,7 @@
             <div class="input-group">
                 <input type="text" id="topic_search" name="topic_search" class="form-control"></input>
                 <span class="input-group-btn">
-                    <button id="topic_search_button" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+                    <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
                 </span>
             </div>
         </div>
@@ -22,14 +22,15 @@
                 ^loc_CONFIRM_DELETE^ <span id="delete_name"></span>?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">^loc_CANCEL^</button>
-                <button type="button" id="delete_button" class="btn btn-danger">^loc_DELETE^</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </button>
+                <button type="button" id="delete_button" class="btn btn-danger">
+                    <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
+                </button>
             </div>
         </div>
     </div>
 </div>
-<script type="text/javascript">
-    var topics = ^topics_array^;
-</script>
 <script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/content/topics/manage_topics.js"></script>

@@ -1,6 +1,14 @@
 <ul class="nav nav-tabs">
-    <li class="active"><a href="#account_info" data-toggle="tab">^loc_ACCOUNT_INFO^</a></li>
-    <li><a href="#personal_info" data-toggle="tab">^loc_PERSONAL_INFO^</a></li>
+    <li class="active">
+        <a href="#account_info" data-toggle="tab">
+            <i class="fa fa-cog"></i>&nbsp;^loc_ACCOUNT_INFO^
+        </a>
+    </li>
+    <li>
+        <a href="#personal_info" data-toggle="tab">
+            <i class="fa fa-user"></i>&nbsp;^loc_PERSONAL_INFO^
+        </a>
+    </li>
 </ul>
 
 <form id="edit_user_form" method="post" action="^site_root^/actions/admin/users/edit_user?id=^user_id^">
@@ -32,8 +40,12 @@
                     <input type="text" id="last_name" name="last_name" class="form-control" value="^last_name^"></input>
                 </div>
             </div>
-            <button type="button" class="btn btn-default" onclick="loadUsersContent('^site_root^', 'manage_users')">^loc_CANCEL^</button>
-            <button type="submit" class="btn btn-primary">^loc_SAVE^</button>
+            <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/users';">
+                <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+            </button>
         </div>
     </fieldset>
 </form>

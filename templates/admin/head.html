@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
         
         <link rel="stylesheet" type="text/css" href="^site_root^/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/summernote.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/admin.css">
         
@@ -36,37 +36,96 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-fixed">
                     <li class="^dashboard^">
-                        <a href="^site_root^/admin">^loc_DASHBOARD^</a>
+                        <a href="^site_root^/admin">
+                            <i class="fa fa-dashboard"></i>&nbsp;^loc_DASHBOARD^
+                        </a>
                     </li>
                     <li class="dropdown ^content^">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">^loc_CONTENT^ <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-quote-right"></i>&nbsp;^loc_CONTENT^&nbsp;<span class="caret"></span>
+                        </a>
                         <ul class="dropdown-menu">
-                            <li class="^sections^"><a href="^site_root^/admin/content/sections">^loc_SECTIONS^</a></li>
-                            <li class="^topics^"><a href="^site_root^/admin/content/topics">^loc_TOPICS^</a></li>
-                            <li class="^pages^"><a href="^site_root^/admin/content/pages">^loc_PAGES^</a></li>
-                            <li class="^articles^"><a href="^site_root^/admin/content/articles">^loc_ARTICLES^</a></li>
+                            <li class="^sections^">
+                                <a href="^site_root^/admin/content/sections">
+                                    <i class="fa fa-th-large"></i>&nbsp;^loc_SECTIONS^
+                                </a>
+                            </li>
+                            <li class="^topics^">
+                                <a href="^site_root^/admin/content/topics">
+                                    <i class="fa fa-tags"></i>&nbsp;^loc_TOPICS^
+                                </a>
+                            </li>
+                            <li class="^pages^">
+                                <a href="^site_root^/admin/content/pages">
+                                    <i class="fa fa-file-o"></i>&nbsp;^loc_PAGES^
+                                </a>
+                            </li>
+                            <li class="^articles^">
+                                <a href="^site_root^/admin/content/articles">
+                                    <i class="fa fa-files-o"></i>&nbsp;^loc_ARTICLES^
+                                </a>
+                            </li>
+                            <li class="^media^">
+                                <a href="^site_root^/admin/content/media">
+                                    <i class="fa fa-picture-o"></i>&nbsp;^loc_MEDIA^
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="dropdown ^plugins^">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">^loc_PLUGINS^ <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-puzzle-piece"></i>&nbsp;^loc_PLUGINS^&nbsp;<span class="caret"></span>
+                        </a>
                         <ul class="dropdown-menu">
-                            <li class="^themes^"><a href="^site_root^/admin/plugins/themes">^loc_THEMES^</a></li>
-                            <li><a href="#">^loc_FRONTEND^</a></li>
-                            <li><a href="#">^loc_BACKEND^</a></li>
+                            <li class="^themes^">
+                                <a href="^site_root^/admin/plugins/themes">
+                                    <i class="fa fa-magic"></i>&nbsp;^loc_THEMES^
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="fa fa-tint"></i>&nbsp;^loc_FRONTEND^
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="fa fa-terminal"></i>&nbsp;^loc_BACKEND^
+                                </a>
+                            </li>
                             <li class="divider"></li>
-                            <li><a href="#">^loc_INSTALL_PLUGIN^...</a></li>
+                            <li>
+                                <a href="#">
+                                    <i class="fa fa-upload"></i>&nbsp;^loc_INSTALL_PLUGIN^...
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="^users^">
-                        <a href="^site_root^/admin/users">^loc_USERS^</a>
+                        <a href="^site_root^/admin/users">
+                            <i class="fa fa-users"></i>&nbsp;^loc_USERS^
+                        </a>
                     </li>
                     <li class="dropdown ^settings^">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">^loc_SETTINGS^ <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-cogs"></i>&nbsp;^loc_SETTINGS^&nbsp;<span class="caret"></span>
+                        </a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">^loc_SITE_SETTINGS^</a></li>
-                            <li><a href="#">^loc_ACCOUNT^</a></li>
+                            <li>
+                                <a href="#">
+                                    <i class="fa fa-cog"></i>&nbsp;^loc_SITE_SETTINGS^
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="fa fa-user"></i>&nbsp;^loc_ACCOUNT^
+                                </a>
+                            </li>
                             <li class="divider"></li>
-                            <li><a href="^site_root^/actions/logout">^loc_LOGOUT^</a></li>
+                            <li>
+                                <a href="^site_root^/actions/logout">
+                                    <i class="fa fa-power-off"></i>&nbsp;^loc_LOGOUT^
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
