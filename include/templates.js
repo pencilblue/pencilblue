@@ -38,7 +38,39 @@ global.getHTMLTemplate = function(templateLocation, pageName, metaDesc, output)
             
             templateString = templateString.split('^year^').join(new Date().getFullYear());
             
-            output(templateString);
+            var subTemplateCount = templateString.split('^tmp_').length;
+            
+            if(subTemplateCount == 1)
+            {
+                output(templateString);
+                return;
+            }
+            
+            instance.loadSubTemplate(templateString, output);
+        });
+    }
+    
+    this.loadSubTemplate = function(templateString, output)
+    {
+        var instance = this;
+    
+        var startIndex = templateString.indexOf('^tmp_') + 5;
+        var endIndex = templateString.substr(startIndex).indexOf('^');
+        var templateName = templateString.substr(startIndex, endIndex);
+        
+        getHTMLTemplate(templateName.split('=').join('/'), null, null, function(data)
+        {
+            templateString = templateString.split('^tmp_' + templateName + '^').join(data);
+            
+            var subTemplateCount = templateString.split('^tmp_').length;
+            
+            if(subTemplateCount == 1)
+            {
+                output(templateString);
+                return;
+            }
+            
+            instance.loadSubTemplate(templateString, output);
         });
     }
 
