@@ -27,43 +27,7 @@ $(document).ready(function()
         setPublishDateToNow();
     }
     
-    $('#sections_dnd .col-md-3').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
-    $('#active_sections').droppable({accept: '#sections_dnd .col-md-3', drop: function(event, ui)
-    {
-        $('#active_sections').append(ui.draggable);
-    }});
-    $('#inactive_sections').droppable({accept: '#sections_dnd .col-md-3', drop: function(event, ui)
-    {
-        $('#inactive_sections').append(ui.draggable);
-    }});
-    
     $('#url').focus();
-    
-    $('.topic').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
-    $('#active_topics').droppable({accept: '.topic', drop: function(event, ui)
-    {
-        $('#active_topics').append(ui.draggable);
-    }});
-    $('#inactive_topics').droppable({accept: '.topic', drop: function(event, ui)
-    {
-        $('#inactive_topics').append(ui.draggable);
-    }});
-    
-    new jNarrow('#section_search', '#inactive_sections .section',
-    {
-        searchChildElement: '.section_name',
-        searchButton: '#section_search_button',
-        searchText: '<i class="fa fa-search"></i>',
-        clearText: '<i class="fa fa-times"></i>',
-    });
-    
-    new jNarrow('#topic_search', '#inactive_topics .topic',
-    {
-        searchChildElement: '.topic_name',
-        searchButton: '#topic_search_button',
-        searchText: '<i class="fa fa-search"></i>',
-        clearText: '<i class="fa fa-times"></i>',
-    });
 });
 
 function setPublishDateToNow()
