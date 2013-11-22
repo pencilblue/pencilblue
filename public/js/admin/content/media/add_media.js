@@ -48,6 +48,7 @@ function validateMediaURL()
         case 'jpeg':
         case 'png':
         case 'gif':
+        case 'svg':
             setMediaValues(false, 'image', mediaURL);
             previewImage(mediaURL);
             return;
@@ -136,37 +137,67 @@ function setMediaValues(isFile, type, location)
     $('#is_file').prop('checked', isFile);
     $('#media_type').val(type);
     $('#location').val(location);
-    $('#save_button').removeAttr('disabled');
+    $('#link_loading').show();
+    getMediaThumb(type, location, function(thumb)
+    {
+        $('#link_loading').hide();
+        $('#thumb').val(thumb);
+        $('#save_button').removeAttr('disabled');
+        $('#link_to_media_modal').modal('hide');
+    });
+}
+
+function getMediaThumb(type, location, output)
+{
+    switch(type)
+    {
+        case 'image':
+        case 'video/mp4':
+        case 'video/webm':
+        case 'video/ogg':
+            output(location);
+            break;
+        case 'youtube':
+            output('http://img.youtube.com/vi/' + location + '/0.jpg');
+            break;
+        case 'vimeo':
+            $.getJSON('http://vimeo.com/api/v2/video/' + location + '.json', function(data)
+            {
+                output(data[0].thumbnail_medium);
+            });
+            break;
+        case 'daily_motion':
+            output('http://www.dailymotion.com/thumbnail/video/' + location);
+            break;
+        default:
+            return '';
+            break;
+    }
 }
 
 function previewImage(mediaURL)
 {
     $('#media_display').html('<img src="' + mediaURL + '" style="max-height: 200px;"></img>');
-    $('#link_to_media_modal').modal('hide');
 }
 
 function previewHTML5Video(mediaURL, codec)
 {
     $('#media_display').html('<video style="max-height: 300px;" controls><source src="' + mediaURL + '" type="' + codec + '"></video>');
-    $('#link_to_media_modal').modal('hide');
 }
 
 function previewYouTube(videoID)
 {
     $('#media_display').html('<iframe width="420" height="315" src="//www.youtube.com/embed/' + videoID + '" frameborder="0" allowfullscreen></iframe>');
-    $('#link_to_media_modal').modal('hide');
 }
 
 function previewVimeo(videoID)
 {
     $('#media_display').html('<iframe src="//player.vimeo.com/video/' + videoID + '" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
-    $('#link_to_media_modal').modal('hide');
 }
 
 function previewDailyMotion(videoID)
 {
     $('#media_display').html('<iframe frameborder="0" width="480" height="270" src="http://www.dailymotion.com/embed/video/' + videoID + '"></iframe>');
-    $('#link_to_media_modal').modal('hide');
 }
 
 // Saving -----------------------------------

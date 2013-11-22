@@ -95,7 +95,7 @@ loc =
         LINK_TO_MEDIA: 'Link to media',
         UPLOAD_MEDIA: 'Upload media',
         MEDIA_URL: 'Media URL',
-        MEDIA_URL_PLACEHOLDER: 'URL of image or video',
+        MEDIA_URL_PLACEHOLDER: 'image, YouTube, Vimeo, or Dailymotion link',
         SAVE_LINK: 'Save link',
         UPLOAD: 'UPLOAD',
         CAPTION: 'Caption',

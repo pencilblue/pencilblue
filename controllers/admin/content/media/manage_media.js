@@ -61,5 +61,64 @@ this.init = function(request, output)
 
 this.getMedia = function(media, output)
 {
-    output('');
+    var mediaList = '';
+    var mediaItemTemplate = ''
+    var instance = this;
+    
+    // Case insensitive sort
+    media.sort(function(a, b)
+    {
+        var x = a['caption'].toLowerCase();
+        var y = b['caption'].toLowerCase();
+    
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+    
+    getHTMLTemplate('admin/content/media/manage_media/media_item', null, null, function(data)
+    {
+        mediaItemTemplate = data;
+    
+        for(var i = 0; i < media.length; i++)
+        {
+            var mediaItemElement = mediaItemTemplate.split('^media_id^').join(media[i]._id.toString());
+            mediaItemElement = mediaItemElement.split('^media_icon^').join(instance.getMediaIcon(media[i].media_type));
+            mediaItemElement = mediaItemElement.split('^media_caption^').join(media[i].caption);
+            mediaItemElement = mediaItemElement.split('^media_thumb^').join(media[i].thumb);
+            
+            mediaList = mediaList.concat(mediaItemElement);
+        }
+    
+        output(mediaList);
+    });
+}
+
+this.getMediaIcon = function(mediaType)
+{
+    var iconID = '';
+
+    switch(mediaType)
+    {
+        case 'image':
+            iconID = 'picture-o';
+            break;
+        case 'video/mp4':
+        case 'video/webm':
+        case 'video/ogg':
+            iconID = 'film';
+            break;
+        case 'youtube':
+            iconID = 'youtube';
+            break;
+        case 'vimeo':
+            iconID = 'vimeo-square';
+            break;
+        case 'daily_motion':
+            iconID = 'play-circle-o';
+            break;
+        default:
+            iconID = 'question';
+            break;
+    }
+    
+    return '<i class="fa fa-' + iconID + '"></i>';
 }
