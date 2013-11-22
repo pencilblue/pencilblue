@@ -98,6 +98,7 @@ loc =
         MEDIA_URL_PLACEHOLDER: 'image, YouTube, Vimeo, or Dailymotion link',
         SAVE_LINK: 'Save link',
         UPLOAD: 'UPLOAD',
+        MEDIA_NAME: 'Media name',
         CAPTION: 'Caption',
         MEDIA_ADDED: 'The media was successfully added'
     },

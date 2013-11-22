@@ -81,8 +81,10 @@ this.getMedia = function(media, output)
         for(var i = 0; i < media.length; i++)
         {
             var mediaItemElement = mediaItemTemplate.split('^media_id^').join(media[i]._id.toString());
+            mediaItemElement = mediaItemElement.split('^media_name^').join(media[i].name);
             mediaItemElement = mediaItemElement.split('^media_icon^').join(instance.getMediaIcon(media[i].media_type));
             mediaItemElement = mediaItemElement.split('^media_caption^').join(media[i].caption);
+            mediaItemElement = mediaItemElement.split('^media_link^').join(instance.getMediaLink(media[i].media_type, media[i].location));
             mediaItemElement = mediaItemElement.split('^media_thumb^').join(media[i].thumb);
             
             mediaList = mediaList.concat(mediaItemElement);
@@ -121,4 +123,23 @@ this.getMediaIcon = function(mediaType)
     }
     
     return '<i class="fa fa-' + iconID + '"></i>';
+}
+
+this.getMediaLink = function(mediaType, mediaLocation)
+{
+    switch(mediaType)
+    {
+        case 'youtube':
+            return 'http://youtube.com/watch/?v=' + mediaLocation;
+        case 'vimeo':
+            return 'http://vimeo.com/' + mediaLocation;
+        case 'daily_motion':
+            return 'http://dailymotion.com/video/' + mediaLocation;
+        case 'image':
+        case 'video/mp4':
+        case 'video/webm':
+        case 'video/ogg':
+        default:
+            return mediaLocation;
+    }
 }
