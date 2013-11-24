@@ -20,4 +20,4 @@ global.MONGO_DATABASE = 'pencil_blue';
 
 
 // Don't change this setting
-global.DOCUMENT_ROOT = __dirname.substr(0, __dirname.indexOf('/include'));
+global.DOCUMENT_ROOT = __dirname.substr(0, __dirname.indexOf(path.sep+'include'));
