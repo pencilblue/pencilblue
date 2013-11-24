@@ -1,8 +1,11 @@
-global.url = require('url');
-global.fs = require('fs');
-global.http = require('http');
+global.url     = require('url');
+global.fs      = require('fs');
+global.http    = require('http');
+global.path    = require('path');
+global.process = require('process');
 
 // Fixes fs on earlier versions of node
+//TODO Find out if this is still needed!!!!
 fs.exists = fs.exists || require('path').exists;
 fs.existsSync = fs.existsSync || require('path').existsSync;
 
@@ -22,6 +25,7 @@ require('./session');
 require('./mongo_connect');
 // Database objects
 require('./model/db_object');
+require('./model/dao.js');
 // Document creation
 require('./model/create_document.js');
 // Templatizing
