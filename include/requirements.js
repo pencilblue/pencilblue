@@ -10,7 +10,8 @@ global.when      = promise.when;
 global.Promise   = promise.Promise;
 
 // Fixes fs on earlier versions of node
-fs.exists     = fs.exists || path.exists;
+//TODO Find out if this is still needed!!!!
+fs.exists     = fs.exists     || path.exists;
 fs.existsSync = fs.existsSync || path.existsSync;
 
 //Site-wide constants
@@ -29,10 +30,9 @@ require('./query');
 require('./unique_id');
 // Sessions
 require('./session');
-// Database connection
-//require('./mongo_connect');
 // Database objects
 require('./model/db_object');
+require('./model/dao.js');
 // Document creation
 require('./model/create_document.js');
 // Templatizing
