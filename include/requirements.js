@@ -25,7 +25,6 @@ require('./session');
 require('./mongo_connect');
 // Database objects
 require('./model/db_object');
-require('./model/dao.js');
 // Document creation
 require('./model/create_document.js');
 // Templatizing
