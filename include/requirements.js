@@ -1,13 +1,24 @@
-global.url = require('url');
-global.fs = require('fs');
-global.http = require('http');
+global.url       = require('url');
+global.fs        = require('fs');
+global.http      = require('http');
+global.path      = require('path');
+global.process   = require('process');
+
+//setup promises
+global.promise   = require('node-promise');
+global.when      = promise.when;
+global.Promise   = promise.Promise;
 
 // Fixes fs on earlier versions of node
-fs.exists = fs.exists || require('path').exists;
-fs.existsSync = fs.existsSync || require('path').existsSync;
+fs.exists     = fs.exists || path.exists;
+fs.existsSync = fs.existsSync || path.existsSync;
 
-// Site-wide constants
+//Site-wide constants
 require('./site_settings');
+
+//setup DBManager
+global.dbmanager = new (require('./dao/db_manager').DBManager);
+
 // ContentType responses
 require('./response_head');
 // URL routing
@@ -19,7 +30,7 @@ require('./unique_id');
 // Sessions
 require('./session');
 // Database connection
-require('./mongo_connect');
+//require('./mongo_connect');
 // Database objects
 require('./model/db_object');
 // Document creation
