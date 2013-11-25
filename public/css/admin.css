@@ -3,6 +3,11 @@ body
     font-family: 'Helvetica', 'Arial', 'Verdana', sans-serif;
 }
 
+.spacer
+{
+    clear: both;
+}
+
 form .error
 {
     font-size: .85em;

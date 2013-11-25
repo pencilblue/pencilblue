@@ -39,7 +39,7 @@ this.init = function(request, output)
         });
         form.parse(request, function()
         {
-            output({content: JSON.stringify({filename: SITE_ROOT + '/media/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + files[0].name})});
+            output({content: JSON.stringify({filename: '/media/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + files[0].name})});
             return;
         });
     });
