@@ -18,6 +18,14 @@ var server = http.createServer(function(request, response)
         request.headers['parsed_cookies'] = parsedCookies;
     }
     
+    if(request.headers['content-type'])
+    {
+        if(request.headers['content-type'].indexOf('multipart/form-data') > -1)
+        {
+            return;
+        }
+    }
+    
     request.on('data', function(chunk)
     {
         if(typeof request.headers['post'] == 'undefined')
