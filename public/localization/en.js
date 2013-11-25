@@ -20,7 +20,8 @@ loc =
         DELETE: 'Delete',
         NOW: 'Now',
         CONFIRM_DELETE: 'Are you sure you want to delete',
-        LOAD_FILE: 'Load file'
+        LOAD_FILE: 'Load file',
+        SELECT_FILE: 'Select file'
     },
     index:
     {

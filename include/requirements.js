@@ -2,6 +2,7 @@ global.url     = require('url');
 global.fs      = require('fs');
 global.http    = require('http');
 global.path    = require('path');
+global.formidable = require('formidable');
 global.process = require('process');
 
 // Fixes fs on earlier versions of node

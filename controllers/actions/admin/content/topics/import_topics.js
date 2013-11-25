@@ -9,24 +9,33 @@ this.init = function(request, output)
             output({redirect: SITE_ROOT});
             return;
         }
-        
-        //output({content: JSON.stringify(request.headers)});
-    
-        var post = getMultiPartPostParameters(request);
-        
-        if(message = checkForRequiredParameters(post, ['csv_file'], true))
-        {
-            formError(request, session, message, '/admin/content/topics', output);
-            return;
-        }
         if(session['user']['admin'] < 2)
         {
             formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/topics', output);
             return;
         }
         
-        var topics = post['csv_file'].value.split(',');
-        instance.saveTopic(topics, 0, request, session, output);
+        var files = [];
+        
+        var form = new formidable.IncomingForm();
+        form.on('file', function(field, file)
+        {
+            files.push(file);
+        });
+        form.parse(request, function()
+        {
+            fs.readFile(files[0].path, function(error, data)
+            {
+                if(error)
+                {
+                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/topics', output);
+                    return;
+                }
+                
+                var topics = data.toString().split(',');
+                instance.saveTopic(topics, 0, request, session, output);
+            });
+        });
     });
 }
 
@@ -40,7 +49,7 @@ this.saveTopic = function(topics, index, request, session, output)
             
         editSession(request, session, [], function(data)
         {        
-            output({redirect: SITE_ROOT + '/admin/content/topics'});
+            output({content: JSON.stringify({completed: true})});
         });
         
         return;
