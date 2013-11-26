@@ -1,0 +1,8 @@
+{
+	"SITE_NAME": "PencilBlue",
+	"SITE_ROOT": "http://localhost:8080",
+	"SITE_IP": "127.0.0.1",
+	"SITE_PORT": "8080",
+	"MONGO_DATABASE": "pencil_blue",
+	"MONGO_SERVER": "mongodb://127.0.0.1:27017/"
+}
