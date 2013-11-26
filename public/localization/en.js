@@ -101,7 +101,8 @@ loc =
         UPLOAD: 'UPLOAD',
         MEDIA_NAME: 'Media name',
         CAPTION: 'Caption',
-        MEDIA_ADDED: 'The media was successfully added'
+        MEDIA_ADDED: 'The media was successfully added',
+        MEDIA_DELETED: 'The media was successfully deleted'
     },
     pages:
     {

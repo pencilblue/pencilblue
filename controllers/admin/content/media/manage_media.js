@@ -85,6 +85,7 @@ this.getMedia = function(media, output)
             mediaItemElement = mediaItemElement.split('^media_icon^').join(instance.getMediaIcon(media[i].media_type));
             mediaItemElement = mediaItemElement.split('^media_caption^').join(media[i].caption);
             mediaItemElement = mediaItemElement.split('^media_link^').join(instance.getMediaLink(media[i].media_type, media[i].location, media[i].is_file));
+            mediaItemElement = mediaItemElement.split('^spacer^').join((i % 4 == 3) ? '<div class="spacer"></div>' : '');
             
             mediaList = mediaList.concat(mediaItemElement);
         }

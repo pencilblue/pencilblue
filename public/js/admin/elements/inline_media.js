@@ -257,6 +257,7 @@ function checkForAddMediaSave()
             mediaItemElement = mediaItemElement.split('^media_link^').join(getMediaLink(newMedia.media_type, newMedia.location, newMedia.is_file));
             
             $('#active_media').append(mediaItemElement);
+            $('#media .col-md-3').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
             $('#media_modal').modal('hide');
         });
     });

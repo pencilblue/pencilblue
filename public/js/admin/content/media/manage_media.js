@@ -8,3 +8,10 @@ $(document).ready(function()
         clearText: '<i class="fa fa-times"></i>',
     });
 });
+
+function confirmDeleteMedia(siteRoot, mediaID, mediaName)
+{
+    $('#delete_name').html(mediaName);
+    $('#delete_button').attr('onclick', 'window.location = "' + siteRoot + '/actions/admin/content/media/delete_media?id=' + mediaID + '"');
+    $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+}
