@@ -8,11 +8,6 @@
         </a>
     </li>
     <li>
-        <a href="#media" data-toggle="tab">
-            <i class="fa fa-picture-o"></i>&nbsp;^loc_MEDIA^
-        </a>
-    </li>
-    <li>
         <a href="#sections_dnd" data-toggle="tab">
             <i class="fa fa-th-large"></i>&nbsp;^loc_SECTIONS^
         </a>
@@ -20,6 +15,11 @@
     <li>
         <a href="#topics_dnd" data-toggle="tab">
             <i class="fa fa-tags"></i>&nbsp;^loc_TOPICS^
+        </a>
+    </li>
+    <li>
+        <a href="#media" data-toggle="tab">
+            <i class="fa fa-picture-o"></i>&nbsp;^loc_MEDIA^
         </a>
     </li>
     <li>
@@ -64,18 +64,18 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>^loc_CONTENT^</label>
-                    <div id="wysiwyg"></div>
+                    <label>^loc_CONTENT^&nbsp;<span id="column_inches"></span></label>
+                    <textarea id="article_content" name="article_content" class="form-control" style="font-family: 'Courier'; min-height: 200px" onkeyup="calculateColumnInches()"></textarea>
                 </div>
-            </div>
-            <div class="tab-pane" id="media">
-                ^tmp_admin=elements=inline_media^
             </div>
             <div class="tab-pane" id="sections_dnd">
                 ^tmp_admin=elements=section_select^
             </div>
             <div class="tab-pane" id="topics_dnd">
                 ^tmp_admin=elements=topic_select^
+            </div>
+            <div class="tab-pane" id="media">
+                ^tmp_admin=elements=inline_media^
             </div>
             <div class="tab-pane" id="meta_data">
                 <div class="form-group">

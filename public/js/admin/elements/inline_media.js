@@ -237,14 +237,7 @@ function checkForAddMediaSave()
 {
     buildTopics(function(topicsCSV)
     {
-        if(!$('#media_topics').position())
-        {
-            $('#add_media_form fieldset').append('<input type="text" id="media_topics" name="media_topics" value="' + topicsCSV + '" style="display: none"></input>');
-        }
-        else
-        {
-            $('#media_topics').val(topicsCSV);
-        }
+        $('#media_topics').val(topicsCSV);
         
         $.post(saveMediaURL, $('.modal-body fieldset').serialize(), function(data)
         {

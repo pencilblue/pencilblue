@@ -1,11 +1,5 @@
 $(document).ready(function()
-{
-    $('#wysiwyg').summernote(
-    {
-        height: 300,
-        focus: true
-    });
-    
+{    
     $('#new_article_form').validate(
     {
         rules:
@@ -54,17 +48,16 @@ function getExtraZero(dateNumber)
     return dateNumber;
 }
 
-function checkForNewArticleSave()
+function calculateColumnInches()
 {
-    if(!$('#article_content').position())
-    {
-        $('fieldset').append('<textarea id="article_content" name="article_content" style="display: none">' + encodeURIComponent($('#wysiwyg').code()) + '</textarea>');
-    }
-    else
-    {
-        $('#article_content').html(encodeURIComponent($('#wysiwyg').code()));
-    }
+    var wordCount = $('#article_content').val().split(' ').length;
+    var columnInches = (Math.floor(wordCount / 4) * 0.1).toFixed(1);
     
+    $('#column_inches').html('(' + columnInches + ' ' + loc.generic.COLUMN_INCHES + ')');
+}
+
+function checkForNewArticleSave()
+{    
     buildSections(function(sectionsCSV)
     {
         if(!$('#article_sections').position())

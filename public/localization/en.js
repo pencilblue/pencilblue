@@ -9,6 +9,7 @@ loc =
         EDITOR: 'Editor',
         MANAGING_EDITOR: 'Managing Editor',
         ADMINISTRATOR: 'Administrator',
+        COLUMN_INCHES: 'column inches',
         CONTENT: 'Content',
         META_DATA: 'Meta data',
         FORM_INCOMPLETE: 'The form is incomplete',
