@@ -4,6 +4,7 @@ global.http    = require('http');
 global.path    = require('path');
 global.formidable = require('formidable');
 global.process = require('process');
+global.minify = require('minify');
 
 // Fixes fs on earlier versions of node
 //TODO Find out if this is still needed!!!!

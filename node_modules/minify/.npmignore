@@ -1,0 +1,7 @@
+#files, the will be ignored by git
+
+#min
+min
+
+#node modules folder
+node_modules

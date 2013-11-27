@@ -71,6 +71,20 @@ global.Route = function(request, response)
                         {
                             if(exists)
                             {
+                                // If requested file is JavaScript or CSS and isn't already minified, then we auto minify it
+                                if((requestURL.substr(requestURL.lastIndexOf('.')) == '.js' || requestURL.substr(requestURL.lastIndexOf('.')) == '.css') && requestURL.indexOf('.min') == -1)
+                                {
+                                    minify.optimize(DOCUMENT_ROOT + '/public' + requestURL,
+                                    {
+                                        callback: function(data)
+                                        {
+                                            instance.writeResponse({content: data});
+                                        }
+                                    });
+                                    
+                                    return;
+                                }
+                                
                                 fs.readFile(DOCUMENT_ROOT + '/public' + requestURL, function(error, data)
                                 {
                                     if(error)
@@ -118,6 +132,20 @@ global.Route = function(request, response)
                             {
                                 if(exists)
                                 {
+                                    // If requested file is JavaScript or CSS and isn't already minified, then we auto minify it
+                                    if((requestURL.substr(requestURL.lastIndexOf('.')) == '.js' || requestURL.substr(requestURL.lastIndexOf('.')) == '.css') && requestURL.indexOf('.min') == -1)
+                                    {
+                                        minify.optimize(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/public' + requestURL,
+                                        {
+                                            callback: function(data)
+                                            {
+                                                instance.writeResponse({content: data});
+                                            }
+                                        });
+                                        
+                                        return;
+                                    }
+                                
                                     fs.readFile(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/public' + requestURL, function(error, data)
                                     {
                                         if(error)
