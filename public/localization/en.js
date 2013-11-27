@@ -51,6 +51,7 @@ loc =
         MEDIA: 'Media',
         PLUGINS: 'Plugins',
         THEMES: 'Themes',
+        LAYOUT: 'Layout',
         FRONTEND: 'Frontend plugins',
         BACKEND: 'Backend plugins',
         INSTALL_PLUGIN: 'Install a plugin',
@@ -62,7 +63,13 @@ loc =
         CUSTOM_VARIABLE_KEY: 'Unique name for the variable',
         CUSTOM_VARIABLE_VALUE: 'Value associated with the variable',
         ACTIVE_TOPICS: 'Drag associated topics here',
-        INACTIVE_TOPICS: 'Drag unassociated topics here'
+        INACTIVE_TOPICS: 'Drag unassociated topics here',
+        NORMAL_TEXT: 'Normal text',
+        QUOTE: 'Quote',
+        HEADING_1: 'Heading 1',
+        HEADING_2: 'Heading 2',
+        HEADING_3: 'Heading 3',
+        HEADING_4: 'Heading 4'
     },
     sections:
     {
