@@ -9,6 +9,7 @@ loc =
         EDITOR: 'Editor',
         MANAGING_EDITOR: 'Managing Editor',
         ADMINISTRATOR: 'Administrator',
+        COLUMN_INCHES: 'column inches',
         CONTENT: 'Content',
         META_DATA: 'Meta data',
         FORM_INCOMPLETE: 'The form is incomplete',
@@ -20,7 +21,8 @@ loc =
         DELETE: 'Delete',
         NOW: 'Now',
         CONFIRM_DELETE: 'Are you sure you want to delete',
-        LOAD_FILE: 'Load file'
+        LOAD_FILE: 'Load file',
+        SELECT_FILE: 'Select file'
     },
     index:
     {
@@ -49,6 +51,7 @@ loc =
         MEDIA: 'Media',
         PLUGINS: 'Plugins',
         THEMES: 'Themes',
+        LAYOUT: 'Layout',
         FRONTEND: 'Frontend plugins',
         BACKEND: 'Backend plugins',
         INSTALL_PLUGIN: 'Install a plugin',
@@ -60,7 +63,13 @@ loc =
         CUSTOM_VARIABLE_KEY: 'Unique name for the variable',
         CUSTOM_VARIABLE_VALUE: 'Value associated with the variable',
         ACTIVE_TOPICS: 'Drag associated topics here',
-        INACTIVE_TOPICS: 'Drag unassociated topics here'
+        INACTIVE_TOPICS: 'Drag unassociated topics here',
+        NORMAL_TEXT: 'Normal text',
+        QUOTE: 'Quote',
+        HEADING_1: 'Heading 1',
+        HEADING_2: 'Heading 2',
+        HEADING_3: 'Heading 3',
+        HEADING_4: 'Heading 4'
     },
     sections:
     {
@@ -96,11 +105,12 @@ loc =
         UPLOAD_MEDIA: 'Upload media',
         MEDIA_URL: 'Media URL',
         MEDIA_URL_PLACEHOLDER: 'image, YouTube, Vimeo, or Dailymotion link',
-        SAVE_LINK: 'Save link',
+        LOAD_LINK: 'Load link',
         UPLOAD: 'UPLOAD',
         MEDIA_NAME: 'Media name',
         CAPTION: 'Caption',
-        MEDIA_ADDED: 'The media was successfully added'
+        MEDIA_ADDED: 'The media was successfully added',
+        MEDIA_DELETED: 'The media was successfully deleted'
     },
     pages:
     {
@@ -131,6 +141,8 @@ loc =
         PUBLISH_DATE: 'Publish date',
         ACTIVE_SECTIONS: 'Drag associated sections here',
         INACTIVE_SECTIONS: 'Drag unassociated sections here',
+        RELATED_MEDIA: 'Drag related media here',
+        UNRELATED_MEDIA: 'Drag unrelated media here',
         FOCUS_KEYWORD: 'Focus keyword',
         FOCUS_KEYWORD_PLACEHOLDER: 'The top keyword associated with the content',
         SEO_TITLE: 'SEO title',

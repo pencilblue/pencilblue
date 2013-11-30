@@ -68,8 +68,8 @@ this.getMedia = function(media, output)
     // Case insensitive sort
     media.sort(function(a, b)
     {
-        var x = a['caption'].toLowerCase();
-        var y = b['caption'].toLowerCase();
+        var x = a['name'].toLowerCase();
+        var y = b['name'].toLowerCase();
     
         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
     });
@@ -84,8 +84,8 @@ this.getMedia = function(media, output)
             mediaItemElement = mediaItemElement.split('^media_name^').join(media[i].name);
             mediaItemElement = mediaItemElement.split('^media_icon^').join(instance.getMediaIcon(media[i].media_type));
             mediaItemElement = mediaItemElement.split('^media_caption^').join(media[i].caption);
-            mediaItemElement = mediaItemElement.split('^media_link^').join(instance.getMediaLink(media[i].media_type, media[i].location));
-            mediaItemElement = mediaItemElement.split('^media_thumb^').join(media[i].thumb);
+            mediaItemElement = mediaItemElement.split('^media_link^').join(instance.getMediaLink(media[i].media_type, media[i].location, media[i].is_file));
+            mediaItemElement = mediaItemElement.split('^spacer^').join((i % 4 == 3) ? '<div class="spacer"></div>' : '');
             
             mediaList = mediaList.concat(mediaItemElement);
         }
@@ -125,7 +125,7 @@ this.getMediaIcon = function(mediaType)
     return '<i class="fa fa-' + iconID + '"></i>';
 }
 
-this.getMediaLink = function(mediaType, mediaLocation)
+this.getMediaLink = function(mediaType, mediaLocation, isFile)
 {
     switch(mediaType)
     {
@@ -140,6 +140,10 @@ this.getMediaLink = function(mediaType, mediaLocation)
         case 'video/webm':
         case 'video/ogg':
         default:
+            if(isFile)
+            {
+                return SITE_ROOT + mediaLocation;
+            }
             return mediaLocation;
     }
 }

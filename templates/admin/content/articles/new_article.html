@@ -18,6 +18,16 @@
         </a>
     </li>
     <li>
+        <a href="#media" data-toggle="tab">
+            <i class="fa fa-camera"></i>&nbsp;^loc_MEDIA^
+        </a>
+    </li>
+    <li>
+        <a href="#layout_tab" data-toggle="tab">
+            <i class="fa fa-table"></i>&nbsp;^loc_LAYOUT^
+        </a>
+    </li>
+    <li>
         <a href="#meta_data" data-toggle="tab">
             <i class="fa fa-tasks"></i>&nbsp;^loc_META_DATA^
         </a>
@@ -59,8 +69,8 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>^loc_CONTENT^</label>
-                    <div id="wysiwyg"></div>
+                    <label>^loc_CONTENT^&nbsp;<span id="column_inches"></span></label>
+                    <textarea id="article_content" name="article_content" class="form-control" style="font-family: 'Courier'; min-height: 200px" onkeyup="calculateColumnInches()"></textarea>
                 </div>
             </div>
             <div class="tab-pane" id="sections_dnd">
@@ -68,6 +78,12 @@
             </div>
             <div class="tab-pane" id="topics_dnd">
                 ^tmp_admin=elements=topic_select^
+            </div>
+            <div class="tab-pane" id="media">
+                ^tmp_admin=elements=inline_media^
+            </div>
+            <div class="tab-pane" id="layout_tab">
+                ^tmp_admin=elements=content_layout^
             </div>
             <div class="tab-pane" id="meta_data">
                 <div class="form-group">

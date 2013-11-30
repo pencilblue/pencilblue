@@ -1,8 +1,14 @@
-global.url       = require('url');
-global.fs        = require('fs');
-global.http      = require('http');
-global.path      = require('path');
-global.process   = require('process');
+/**
+ * 
+ * @copyright PencilBlue 2013, All Rights Reserved
+ */
+global.url        = require('url');
+global.fs         = require('fs');
+global.http       = require('http');
+global.path       = require('path');
+global.formidable = require('formidable');
+global.process    = require('process');
+global.minify     = require('minify');
 
 //setup promises
 global.promise   = require('node-promise');
@@ -32,7 +38,6 @@ require('./unique_id');
 require('./session');
 // Database objects
 require('./model/db_object');
-require('./model/dao.js');
 // Document creation
 require('./model/create_document.js');
 // Templatizing

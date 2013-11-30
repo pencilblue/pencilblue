@@ -13,12 +13,48 @@ $(document).ready(function()
     });
 });
 
-function validateMediaURL()
+function setupUpload(siteRoot)
 {
-    var mediaURL = $('#media_url').val();
+    $(function() 
+    {
+        'use strict';
+        // Change this to the location of your server-side upload handler:
+        var url = siteRoot + '/actions/admin/content/media/upload_media';
+        $('#media_file').fileupload(
+        {
+            url: url,
+            dataType: 'json',
+            done: function(error, data)
+            {
+                validateMediaURL(data.result.filename, true);
+            },
+            progressall: function (error, data)
+            {
+                $('#upload_progress').show();
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#upload_progress .progress-bar').css(
+                    'width',
+                    progress + '%'
+                );
+            }
+        }).prop('disabled', !$.support.fileInput).parent().addClass($.support.fileInput ? undefined : 'disabled');
+    });
+}
+
+function showMediaModal(subsection)
+{
+    $('#link_to_media').hide();
+    $('#upload_media').hide();
+    $(subsection).show();
+    
+    $('#media_modal').modal({backdrop: 'static', keyboard: true});
+}
+
+function validateMediaURL(mediaURL, isFile)
+{
     if(mediaURL.length == 0)
     {
-        $('#link_to_media_modal').modal('hide');
+        $('#media_modal').modal('hide');
         return;
     }
     
@@ -31,19 +67,19 @@ function validateMediaURL()
         case 'png':
         case 'gif':
         case 'svg':
-            setMediaValues(false, 'image', mediaURL);
+            setMediaValues(isFile, 'image', mediaURL);
             previewImage(mediaURL);
             return;
         case 'mp4':
-            setMediaValues(false, 'video/mp4', mediaURL);
+            setMediaValues(isFile, 'video/mp4', mediaURL);
             previewHTML5Video(mediaURL, 'video/mp4');
             return;
         case 'webm':
-            setMediaValues(false, 'video/webm', mediaURL);
+            setMediaValues(isFile, 'video/webm', mediaURL);
             previewHTML5Video(mediaURL, 'video/webm');
             return;
         case 'ogv':
-            setMediaValues(false, 'video/ogg', mediaURL);
+            setMediaValues(isFile, 'video/ogg', mediaURL);
             previewHTML5Video(mediaURL, 'video/ogg');
             return;
         default:
@@ -59,7 +95,7 @@ function validateMediaURL()
             {
                 videoID = videoID.substr(0, videoID.indexOf('&'));
             }
-            setMediaValues(false, 'youtube', videoID);
+            setMediaValues(isFile, 'youtube', videoID);
             previewYouTube(videoID);
         }
     }
@@ -72,7 +108,7 @@ function validateMediaURL()
             {
                 videoID = videoID.substr(0, videoID.indexOf('&'));
             }
-            setMediaValues(false, 'youtube', videoID);
+            setMediaValues(isFile, 'youtube', videoID);
             previewYouTube(videoID);
         }
     }
@@ -85,7 +121,7 @@ function validateMediaURL()
             {
                 videoID = videoID.substr(0, videoID.indexOf('&'));
             }
-            setMediaValues(false, 'vimeo', videoID);
+            setMediaValues(isFile, 'vimeo', videoID);
             previewVimeo(videoID);
         }
     }
@@ -96,7 +132,7 @@ function validateMediaURL()
         {
             videoID = videoID.substr(0, videoID.indexOf('&'));
         }
-        setMediaValues(false, 'daily_motion', videoID);
+        setMediaValues(isFile, 'daily_motion', videoID);
         previewDailyMotion(videoID);
     }
     else if(mediaURL.indexOf('dai.ly') != -1)
@@ -108,7 +144,7 @@ function validateMediaURL()
             {
                 videoID = videoID.substr(0, videoID.indexOf('&'));
             }
-            setMediaValues(false, 'daily_motion', videoID);
+            setMediaValues(isFile, 'daily_motion', videoID);
             previewDailyMotion(videoID);
         }
     }
@@ -125,7 +161,7 @@ function setMediaValues(isFile, type, location)
         $('#link_loading').hide();
         $('#thumb').val(thumb);
         $('#save_button').removeAttr('disabled');
-        $('#link_to_media_modal').modal('hide');
+        $('#media_modal').modal('hide');
     });
 }
 

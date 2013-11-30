@@ -1,49 +1,102 @@
 // A grouping of all require calls
 require('./include/requirements');
 
-//setup database connection to core database
-dbmanager.getDB(MONGO_DATABASE).then(function(result){
-	if (typeof result !== 'Error') {
-		console.log('Established connection to DB: ' + result.databaseName);
-		mongoDB = result;
-	}
-	else {
-		throw err;
-	}
-});
+/**
+ * To be called when the configuration is loaded.  The function is responsible 
+ * for triggered the startup of the HTTP connection listener as well as start a 
+ * connection pool to the core DB.
+ */
+var onConfigurationLoad = function(){
+	
+	//start core db
+	initDBConnections();
+	
+	//start server
+	initServer();
+	
+	//set event listeners
+	registerSystemForEvents();
+};
 
-var server = http.createServer(function(request, response)
-{
-    // /include/router.js
-    var route = new Route(request, response);
-    
-    if(request.headers.cookie)
-    {
-        var parsedCookies = {};
-        var cookieParameters = request.headers.cookie.split(';');
-        for(var i = 0; i < cookieParameters.length; i++)
-        {
-            var cookieParameter = cookieParameters[i].split('=');
-            parsedCookies[cookieParameter[0]] = cookieParameter[1];
-        }
-        request.headers['parsed_cookies'] = parsedCookies;
-    }
-    
-    request.on('data', function(chunk)
-    {
-        if(typeof request.headers['post'] == 'undefined')
-        {
-            request.headers['post'] = '';
-        }
-        request.headers['post'] += chunk;
-    });
-});
-server.listen(SITE_PORT, SITE_IP);
+/**
+ * Attempts to initialize a connection pool to the core database
+ */
+function initDBConnections(){
+	//setup database connection to core database
+	dbmanager.getDB(MONGO_DATABASE).then(function(result){
+		if (typeof result !== 'Error') {
+			console.log('Established connection to DB: ' + result.databaseName);
+			mongoDB = result;
+		}
+		else {
+			throw err;
+		}
+	});
+}
 
-console.log(SITE_NAME + ' running on ' + SITE_ROOT);
+/**
+ * Initializes the server
+ */
+var server;
+function initServer(){
+	console.log('Starting server...');
+	server = http.createServer(function(request, response){
 
-//shutdown hook
-process.on('SIGINT', function () {
-	console.log('Shutting down...');
-  	dbmanager.shutdown();
-});
+	    // /include/router.js
+	    var route = new Route(request, response);
+	    
+	    if(request.headers.cookie)
+	    {
+	        var parsedCookies = {};
+	        var cookieParameters = request.headers.cookie.split(';');
+	        for(var i = 0; i < cookieParameters.length; i++)
+	        {
+	            var cookieParameter = cookieParameters[i].split('=');
+	            parsedCookies[cookieParameter[0]] = cookieParameter[1];
+	        }
+	        request.headers['parsed_cookies'] = parsedCookies;
+	    }
+	    
+	    if(request.headers['content-type'])
+	    {
+	        if(request.headers['content-type'].indexOf('multipart/form-data') > -1)
+	        {
+	            return;
+	        }
+	    }
+	    
+	    request.on('data', function(chunk)
+	    {
+	        if(typeof request.headers['post'] == 'undefined')
+	        {
+	            request.headers['post'] = '';
+	        }
+	        request.headers['post'] += chunk;
+	    });
+	});
+	
+	server.listen(SITE_PORT, SITE_IP);
+	console.log(SITE_NAME + ' running on ' + SITE_ROOT);
+}
+
+/**
+ * Registers for process level events
+ */
+function registerSystemForEvents(){
+	
+	//shutdown hook
+	process.openStdin();
+	process.on('SIGINT', function () {
+		console.log('Shutting down...');
+	  	dbmanager.shutdown();
+	});
+}
+
+//start up sequence
+//1. Load Requirements
+//2. Load configuration
+//3. Start connection to core DB
+//4. Start HTTP Server
+//5. Register for system events
+loadConfiguration(onConfigurationLoad);
+
