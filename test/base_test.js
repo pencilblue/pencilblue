@@ -13,6 +13,6 @@ require('../include/requirements');
 process.on('uncaughtException', function(err) {
     // handle the error safely
 	console.log('An Uncaught Error Occurred:');
-    console.log(err);
+    console.log(err.stack);
     process.abort();
 });

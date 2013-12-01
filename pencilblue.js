@@ -23,7 +23,7 @@ var onConfigurationLoad = function(){
  */
 function initDBConnections(){
 	//setup database connection to core database
-	dbmanager.getDB(MONGO_DATABASE).then(function(result){
+	dbm.getDB(MONGO_DATABASE).then(function(result){
 		if (typeof result !== 'Error') {
 			console.log('Established connection to DB: ' + result.databaseName);
 			mongoDB = result;
@@ -88,7 +88,7 @@ function registerSystemForEvents(){
 	process.openStdin();
 	process.on('SIGINT', function () {
 		console.log('Shutting down...');
-	  	dbmanager.shutdown();
+	  	dbm.shutdown();
 	});
 }
 

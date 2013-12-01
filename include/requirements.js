@@ -24,7 +24,8 @@ fs.existsSync = fs.existsSync || path.existsSync;
 require('./site_settings');
 
 //setup DBManager
-global.dbmanager = new (require('./dao/db_manager').DBManager);
+global.dbm = new (require('./dao/db_manager').DBManager);
+global.DAO = require('./dao/dao');
 
 // ContentType responses
 require('./response_head');
@@ -38,6 +39,7 @@ require('./unique_id');
 require('./session');
 // Database objects
 require('./model/db_object');
+
 // Document creation
 require('./model/create_document.js');
 // Templatizing

@@ -26,10 +26,13 @@ var DBManager = function() {
 	/**
 	 * Keeps track of all active DBs with active connection pools.
 	 */
-	var dbs = {};
+	var dbs  = {};
+	var self = this;
 	
 	/**
-	 * 
+	 * Retrieves a handle to the specified database.  
+	 * @returns Promise that will either resolve to the DB handle or the error 
+	 * that occurred
 	 */
 	this.getDB = function(name) {
 		var promise = new Promise();
@@ -40,10 +43,17 @@ var DBManager = function() {
 		else{
 			mongo.connect(MONGO_SERVER + name, function(err, db){
 				if(!err){
-					dbs[db.databaseName] = db;
+					//save reference to connection in global connection pool
+					dbs[db.databaseName]  = db;
+					
+					//keep directly accessible reference for instance of DBManager
+					self[db.databaseName] = db;
+					
+					//Indicate the promise was kept.
 					promise.resolve(db);
 				}
 				else {
+					//Fulfill promise with error
 					promise.resolve(err);
 				}
 			});
@@ -51,7 +61,10 @@ var DBManager = function() {
 		return promise;
 	};
 	
-	
+	/**
+	 * Iterates over all database handles and call's their shutdown function.
+	 * @returns Array of promises, one for each shutdown call
+	 */
 	this.shutdown = function(){
 		var promises = [];
 		for(var key in dbs){
@@ -67,6 +80,11 @@ var DBManager = function() {
 		return promises;
 	};
 	
+	/**
+	 * Indicates if a connection pool to the specified database has already been
+	 * initialized 
+	 * @returns boolean
+	 */
 	this.hasConnected = function(){
 		return dbs.hasOwnProperty(name);
 	};
