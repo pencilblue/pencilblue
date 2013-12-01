@@ -9,11 +9,30 @@ require('./include/requirements');
 var onConfigurationLoad = function(){
 	
 	//start core db
-	//TODO fill this in when branch DAO_WRAPPER is merged
+	initDBConnections();
 	
 	//start server
 	initServer();
+	
+	//set event listeners
+	registerSystemForEvents();
 };
+
+/**
+ * Attempts to initialize a connection pool to the core database
+ */
+function initDBConnections(){
+	//setup database connection to core database
+	dbm.getDB(MONGO_DATABASE).then(function(result){
+		if (typeof result !== 'Error') {
+			console.log('Established connection to DB: ' + result.databaseName);
+			mongoDB = result;
+		}
+		else {
+			throw err;
+		}
+	});
+}
 
 /**
  * Initializes the server
@@ -60,9 +79,24 @@ function initServer(){
 	console.log(SITE_NAME + ' running on ' + SITE_ROOT);
 }
 
+/**
+ * Registers for process level events
+ */
+function registerSystemForEvents(){
+	
+	//shutdown hook
+	process.openStdin();
+	process.on('SIGINT', function () {
+		console.log('Shutting down...');
+	  	dbm.shutdown();
+	});
+}
+
 //start up sequence
 //1. Load Requirements
 //2. Load configuration
 //3. Start connection to core DB
 //4. Start HTTP Server
+//5. Register for system events
 loadConfiguration(onConfigurationLoad);
+

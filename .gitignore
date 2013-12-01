@@ -1,2 +1,4 @@
+.jshintrc
+.project
 public/media/
 node_modules/minify/min/

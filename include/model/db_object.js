@@ -13,7 +13,7 @@ global.createDBObject = function(variables, output)
         
         output(doc);
     });
-}
+};
 
 // Edit DBObject with ObjectID
 global.editDBObject = function(oid, variables, unsetSkips, output)
@@ -75,7 +75,7 @@ global.editDBObject = function(oid, variables, unsetSkips, output)
             getDBObjectsWithValues({object_type: variables.object_type, _id: ObjectID(oid.toString())}, output);
         });
     });
-}
+};
 
 // Delete DBObject with ObjectID
 global.deleteDBObject = function(oid, object_type, output)
@@ -88,7 +88,7 @@ global.deleteDBObject = function(oid, object_type, output)
         }
         output(true);
     });
-}
+};
 
 // Deletes DBObject that meet criteria
 global.deleteMatchingDBObjects = function(criteria, output)
@@ -101,7 +101,7 @@ global.deleteMatchingDBObjects = function(criteria, output)
         }
         output(true);
     });
-}
+};
 
 // Retrieves an array of objects
 global.getDBObjectsWithValues = function(values, output)
@@ -122,4 +122,4 @@ global.getDBObjectsWithValues = function(values, output)
     {
         output(docs);
     });
-}
+};
