@@ -36,24 +36,25 @@
                     <li><a href="#">96</a></li>
                 </ul>
             </div>
-            <div class="btn-group">
-                <button type="button" class="btn btn-default" data-toggle="button"><i class="fa fa-bold"></i></button>
-                <button type="button" class="btn btn-default" data-toggle="button"><i class="fa fa-italic"></i></button>
-                <button type="button" class="btn btn-default" data-toggle="button"><i class="fa fa-underline"></i></button>
-                <button type="button" class="btn btn-default"><i class="fa fa-ban"></i></button>
+            <div id="text_format_group" class="btn-group">
+                <button type="button" class="btn btn-default" data-toggle="button" onclick="layoutFormat('bold')"><i class="fa fa-bold"></i></button>
+                <button type="button" class="btn btn-default" data-toggle="button" onclick="layoutFormat('italic')"><i class="fa fa-italic"></i></button>
+                <button type="button" class="btn btn-default" data-toggle="button" onclick="layoutFormat('underline')"><i class="fa fa-underline"></i></button>
+                <button type="button" class="btn btn-default" data-toggle="button" onclick="layoutFormat('strikeThrough')"><i class="fa fa-strikethrough"></i></button>
+                <button id="clear_button" type="button" class="btn btn-default" onclick="clearAllLayoutStyles()"><i class="fa fa-ban"></i></button>
             </div>
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default">
-                    <input type="radio" name="alignment" id="align_left"><i class="fa fa-align-left"></i>
+                    <input type="radio" name="alignment" id="align_left" onchange="layoutFormat('justifyleft')"><i class="fa fa-align-left"></i>
                 </label>
                 <label class="btn btn-default">
-                    <input type="radio" name="alignment" id="align_center"><i class="fa fa-align-center"></i>
+                    <input type="radio" name="alignment" id="align_center" onchange="layoutFormat('justifycenter')"><i class="fa fa-align-center"></i>
                 </label>
                 <label class="btn btn-default">
-                    <input type="radio" name="alignment" id="align_right"><i class="fa fa-align-right"></i>
+                    <input type="radio" name="alignment" id="align_right" onchange="layoutFormat('justifyright')"><i class="fa fa-align-right"></i>
                 </label>
                 <label class="btn btn-default">
-                    <input type="radio" name="alignment" id="align_justify"><i class="fa fa-align-justify"></i>
+                    <input type="radio" name="alignment" id="align_justify" onchange="layoutFormat('justifyfull')"><i class="fa fa-align-justify"></i>
                 </label>
             </div>
             <div class="btn-group">
@@ -69,7 +70,7 @@
         </div>
     </div>
     <div id="layout_content" class="form-control">
-        <div id="layout_editable" onkeyup="onLayoutEditableChanged()" contenteditable></div>
+        <div id="layout_editable" onmouseup="onLayoutEditableChanged()" onkeyup="onLayoutEditableChanged()" contenteditable></div>
         <textarea id="layout_code" style="display: none" onkeyup="onLayoutCodeChanged()"></textarea>
     </div>
 </div>

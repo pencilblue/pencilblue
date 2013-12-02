@@ -1,3 +1,5 @@
+var layoutRange;
+
 $(document).ready(function()
 {
     $('#layout_content').resizable();
@@ -53,12 +55,6 @@ function openLayoutFullscreen()
         'margin': '0'
     });
     
-    $('#layout_code').css(
-    {
-        'width': '100%',
-        'height': '100%',
-        'resize': 'none'
-    });
     $('#layout_code').focus();
 }
 
@@ -67,9 +63,9 @@ function closeLayoutFullscreen()
     $('#layout_editor').attr('style', '');
     $('#layout_content').css(
     {
-        'margin-bottom': '1em'
+        'margin-bottom': '1em',
+        'height': '200px'
     });
-    $('#layout_code').attr('style', 'min-height: 200px');
 }
 
 function toggleCodeView()
@@ -94,9 +90,18 @@ function toggleCodeView()
     }
 }
 
+function forceEditableView()
+{
+    if($('#layout_code').is(':visible'))
+    {
+        toggleCodeView();
+    }
+}
+
 function onLayoutEditableChanged()
 {
     $('#layout_code').val($('#layout_editable').html());
+    layoutRange = window.getSelection().getRangeAt(0);
 }
 
 function onLayoutCodeChanged()
@@ -106,8 +111,41 @@ function onLayoutCodeChanged()
 
 function createParagraphs(content)
 {
-    content = content.split("\n").join("</p>\n<p>");
-    content = content.split("\r").join("</p>\n<p>");
+    content = content.split("\n").join("</div>\n<div>");
+    content = content.split("\r").join("</div>\n<div>");
     
-    return '<p>' + content + '</p>';
+    return '<div>' + content + '</div>';
+}
+
+function layoutFormat(command)
+{
+    forceEditableView();
+    $('#layout_editable').focus();
+    setLayoutRange();
+    document.execCommand(command, false, null);
+    onLayoutEditableChanged();
+}
+
+function setLayoutRange()
+{
+    var input = document.getElementById('layout_editable');
+
+    var range = document.createRange();
+    range.setEnd(layoutRange.startContainer, layoutRange.endOffset);
+    range.setStart(layoutRange.endContainer, layoutRange.startOffset);
+        
+    var selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+function clearAllLayoutStyles()
+{
+    $('#text_format_group button').each(function()
+    {
+        if($(this).attr('id') != 'clear_button' && $(this).hasClass('active'))
+        {
+            $(this).click();
+        }
+    });
 }
