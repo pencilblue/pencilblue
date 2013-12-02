@@ -9,6 +9,11 @@ function DAO(dbName){
 }
 
 /**
+ * Static variable to indicate that all values of a document should be retured.
+ */
+DAO.PROJECT_ALL = {};
+
+/**
  * Retrieves an object by ID
  * @param id
  * @param objectType
@@ -23,6 +28,13 @@ DAO.prototype.loadById = function(id, objectType, collection){
 /**
  * Provides a function to query the database.  
  * TODO determine if we need to enforce an upper bound on limit to prevent misuse.
+ * 
+ * @param entityType
+ * @param where
+ * @param select
+ * @param orderby
+ * @param limit
+ * @param offset
  */
 DAO.prototype.query = function(entityType, where, select, orderby, limit, offset){
 	//verify a collection was provided
@@ -31,9 +43,9 @@ DAO.prototype.query = function(entityType, where, select, orderby, limit, offset
 	}
 	
 	//set defaults
-	where  = typeof where  !== 'undefined' ? where : {};
-	select = typeof select !== 'undefined' ? select : {};
-	offset = typeof offset !== 'undefined' ? offset : 0;
+	where  = where  ? where  : {};
+	select = select ? select : {};
+	offset = offset ? offset : 0;
 
 	var cursor = dbm[this.dbName].collection(entityType)
 		.find(where, select)
@@ -52,7 +64,99 @@ DAO.prototype.query = function(entityType, where, select, orderby, limit, offset
     {
         promise.resolve(err ? err : docs);
     });
+	
+	//clean up
+	cursor.close(function(err){
+		if (err) {
+			console.log("DAO::Query: An error occurred while attempting to close the cursor. "+err);
+		}
+	});
 	return promise;
+};
+
+/**
+ * Persists a DB Object for the first time.
+ * @param dbObject
+ * @returns {Promise} that resolves to an Error or a document
+ */
+DAO.prototype.insert = function(dbObject) {
+	var promise = new Promise();
+	
+	DAO.updateChangeHistory(dbObject);
+	dbm[this.dbName].collection(dbObject.object_type).insert(dbObject, function(err, doc){
+		promise.resolve(err ? err : doc[0]);
+	});
+	return promise;
+};
+
+/**
+ * Replaces an existing document with the specified DB Object
+ * @param dbObj
+ * @returns {Promise}
+ */
+DAO.prototype.update = function(dbObj) {
+	
+	var promise = new Promise();
+	
+	DAO.updateChangeHistory(dbObj);
+	dbm[this.dbName].collection(dbObj.object_type).save(dbObj, function(err, doc){
+		promise.resolve(err ? err : doc);
+	});
+	return promise;
+};
+
+/**
+ * Removes an object from persistence.
+ * @param oid
+ * @param collection
+ * @returns {Promise} that resolves to an Error or the number of records deleted 
+ * by the call.  The number of records could be undefined or null if the write 
+ * concern of the DB is set to "no acknowledgement".
+ */
+DAO.prototype.deleteById = function(oid, collection){
+	if (typeof oid === 'undefined') {
+		throw new Error('An id must be specified in order to delete');
+	}
+	
+	var promise = new Promise();
+	var where   = DAO.getIDWhere(oid);
+	dbm[this.dbName].collection(collection).remove(where, function(err, recordsDeleted) {
+
+        promise.resolve(err ? err : recordsDeleted);
+		if(err){
+            throw err;
+        }
+    });
+	return promise;
+};
+
+/**
+ * Creates a where clause based on the specified ID
+ * @param oid The string value of the object id
+ * @returns {Object} with "_id" parameter and value ObjectId(oid)
+ */
+DAO.getIDWhere = function(oid){
+	return {
+		_id: ObjectID(oid.toString())
+	};
+};
+
+/**
+ * Updates a DB object with a created time stamp and last modified time stamp.
+ * @param dbObject
+ */
+DAO.updateChangeHistory = function(dbObject){
+	if (typeof dbObject === 'undefined' || dbObject == null) {
+		throw new Error("The dbObject parameter is required");
+	}
+	
+	var now = new Date();
+	if (typeof dbObject._id === 'undefined') {
+		dbObject.created = now;
+	}
+	
+	//update for current changes
+	dbObject.last_modified = now;
 };
 
 module.exports = DAO;

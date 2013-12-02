@@ -1,17 +1,11 @@
 // Create a new DBObject by passing a mongo JSON of variables (i.e., {type: "user", name: "Blake", state: "NC"})
 global.createDBObject = function(variables, output)
 {
-    variables['creation_time'] = new Date();
-    variables['last_updated'] = new Date();
-    
-    mongoDB.collection(variables.object_type).save(variables, function(error, doc)
-    {
-        if(error)
-        {
-            throw error;
+    (new DAO()).insert(variables).then(function(result){
+    	if (typeof result === 'Error') {
+            throw result;
         }
-        
-        output(doc);
+    	output(result);
     });
 };
 
@@ -80,13 +74,11 @@ global.editDBObject = function(oid, variables, unsetSkips, output)
 // Delete DBObject with ObjectID
 global.deleteDBObject = function(oid, object_type, output)
 {
-    mongoDB.collection(object_type).remove({_id: ObjectID(oid.toString())}, function(error)
-    {
-        if(error)
-        {
-            throw error;
+    (new DAO()).deleteById(oid, object_type).then(function(result){
+    	if (typeof result === 'Error') {
+            throw result;
         }
-        output(true);
+    	output(result);
     });
 };
 
@@ -104,22 +96,18 @@ global.deleteMatchingDBObjects = function(criteria, output)
 };
 
 // Retrieves an array of objects
-global.getDBObjectsWithValues = function(values, output)
-{
-    if(values['$orderby'])
-    {
-        var orderBy = values['$orderby'];
+global.getDBObjectsWithValues = function(values, output) {
+	
+	var orderBy = null;
+    if (values['$orderby']) {
+        orderBy = values['$orderby'];
         delete values['$orderby'];
-        
-        mongoDB.collection(values.object_type).find(values).sort(orderBy).toArray(function(error, docs)
-        {
-            output(docs);
-        });
-        return;
     }
 
-    mongoDB.collection(values.object_type).find(values).toArray(function(error, docs)
-    {
-        output(docs);
+    (new DAO()).query(values.object_type, values, DAO.PROJECT_ALL, orderBy).then(function(result){
+    	if (typeof result === 'Error') {
+            throw result;
+        }
+    	output(result);
     });
 };

@@ -41,7 +41,10 @@ var DBManager = function() {
 			promise.resolve(null, dbs[name]);
 		}
 		else{
-			mongo.connect(MONGO_SERVER + name, function(err, db){
+			var options = {
+				w: MONGO_WRITE_CONCERN	
+			};
+			mongo.connect(MONGO_SERVER + name, options, function(err, db){
 				if(!err){
 					//save reference to connection in global connection pool
 					dbs[db.databaseName]  = db;
