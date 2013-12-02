@@ -1,3 +1,16 @@
+function checkForLayoutContent(contentID)
+{
+    if($('#layout_code').val().length == 0)
+    {
+        var content = $(contentID).val();
+        if(content.length > 0)
+        {
+            content = createParagraphs(content);
+            $('#layout_code').val(content);
+        }
+    }
+}
+
 function toggleLayoutFullscreen()
 {
     if(!$('#layout_editor').attr('style'))
@@ -51,4 +64,12 @@ function closeLayoutFullscreen()
         'margin-bottom': '1em'
     });
     $('#layout_code').attr('style', 'min-height: 200px');
+}
+
+function createParagraphs(content)
+{
+    content = content.split("\n").join("</p>\n<p>");
+    content = content.split("\r").join("</p>\n<p>");
+    
+    return '<p>' + content + '</p>';
 }
