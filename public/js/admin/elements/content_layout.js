@@ -1,3 +1,8 @@
+$(document).ready(function()
+{
+    $('#layout_content').resizable();
+});
+
 function checkForLayoutContent(contentID)
 {
     if($('#layout_code').val().length == 0)
@@ -7,6 +12,7 @@ function checkForLayoutContent(contentID)
         {
             content = createParagraphs(content);
             $('#layout_code').val(content);
+            $('#layout_editable').html(content);
         }
     }
 }
@@ -64,6 +70,38 @@ function closeLayoutFullscreen()
         'margin-bottom': '1em'
     });
     $('#layout_code').attr('style', 'min-height: 200px');
+}
+
+function toggleCodeView()
+{
+    if($('#layout_code').is(':visible'))
+    {
+        $('#layout_code').hide();
+        $('#layout_editable').show();
+        $('#layout_content').css(
+        {
+            'background-color': '#FFFFFF'
+        });
+    }
+    else
+    {
+        $('#layout_code').show();
+        $('#layout_editable').hide();
+        $('#layout_content').css(
+        {
+            'background-color': '#333333'
+        });
+    }
+}
+
+function onLayoutEditableChanged()
+{
+    $('#layout_code').val($('#layout_editable').html());
+}
+
+function onLayoutCodeChanged()
+{
+    $('#layout_editable').html($('#layout_code').val());
 }
 
 function createParagraphs(content)

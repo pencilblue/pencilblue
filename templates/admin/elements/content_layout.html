@@ -64,12 +64,13 @@
             </div>
             <div class="btn-group">
                 <button type="button" class="btn btn-default" data-toggle="button" onclick="toggleLayoutFullscreen()"><i class="fa fa-arrows-alt"></i></button>
-                <button type="button" class="btn btn-default" data-toggle="button"><i class="fa fa-code"></i></button>
+                <button type="button" class="btn btn-default" data-toggle="button" onclick="toggleCodeView()"><i class="fa fa-code"></i></button>
             </div>
         </div>
     </div>
-    <div id="layout_content" style="margin-bottom: 1em">
-        <textarea id="layout_code" class="form-control" style="min-height: 200px"></textarea>
+    <div id="layout_content" class="form-control">
+        <div id="layout_editable" onkeyup="onLayoutEditableChanged()" contenteditable></div>
+        <textarea id="layout_code" style="display: none" onkeyup="onLayoutCodeChanged()"></textarea>
     </div>
 </div>
 <script type="text/javascript" src="^site_root^/js/admin/elements/content_layout.js"></script>

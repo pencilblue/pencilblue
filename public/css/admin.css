@@ -52,7 +52,29 @@ form .error
     color: #428BCA;
 }
 
+#layout_content
+{
+    background-color: #FFFFFF;
+    margin-bottom: 1em;
+    padding: .5em;
+    min-height: 200px;
+}
+
+#layout_editable, #layout_code
+{
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+#layout_editable:focus, #layout_code:focus
+{
+    outline: none;
+}
+
 #layout_code
 {
-    
+    background-color: #333333;
+    color: #FFFFFF;
+    resize: none;
 }
