@@ -30,11 +30,13 @@
                 <button type="button" class="btn btn-default" onclick="layoutFormat('justifyright')" data-format-type="justifyright"><i class="fa fa-align-right"></i></button>
                 <button type="button" class="btn btn-default" onclick="layoutFormat('justifyfull')" data-format-type="justifyfull"><i class="fa fa-align-justify"></i></button>
             </div>
+            <div class="btn-group" id="layout_list_group">
+                <button type="button" class="btn btn-default" onclick="layoutFormat('insertorderedlist')" data-format-type="insertorderedlist"><i class="fa fa-list-ol"></i></button>
+                <button type="button" class="btn btn-default" onclick="layoutFormat('insertunorderedlist')" data-format-type="insertunorderedlist"><i class="fa fa-list-ul"></i></button>
+            </div>
             <div class="btn-group">
-                <button type="button" class="btn btn-default" onclick="showContentLayoutModal('#add_layout_link')"><i class="fa fa-link"></i></button>
-                <button type="button" class="btn btn-default" onclick="showContentLayoutModal('#add_layout_media')"><i class="fa fa-picture-o"></i></button>
-                <button type="button" class="btn btn-default" data-toggle="button"><i class="fa fa-list-ol"></i></button>
-                <button type="button" class="btn btn-default" data-toggle="button"><i class="fa fa-list-ul"></i></button>
+                <button type="button" class="btn btn-default" onclick="showContentLayoutModal('add_layout_link')"><i class="fa fa-link"></i></button>
+                <button type="button" class="btn btn-default" onclick="showContentLayoutModal('add_layout_media')"><i class="fa fa-picture-o"></i></button>
             </div>
             <div class="btn-group">
                 <button type="button" class="btn btn-default" data-toggle="button" onclick="toggleLayoutFullscreen()"><i class="fa fa-arrows-alt"></i></button>
@@ -42,19 +44,20 @@
             </div>
         </div>
     </div>
-    <div id="layout_content" class="form-control">
-        <div id="layout_editable" onmouseup="onLayoutEditableChanged()" onkeyup="onLayoutEditableChanged()" contenteditable></div>
+    <div id="layout_content" class="form-control" onmouseup="onLayoutEditableChanged()">
+        <div id="layout_editable" onkeyup="onLayoutEditableChanged()" contenteditable></div>
         <textarea id="layout_code" style="display: none" onkeyup="onLayoutCodeChanged()"></textarea>
     </div>
 </div>
 <div class="modal fade" id="content_layout_modal">
     <div class="modal-dialog">
-        <div id="#add_layout_link">
-            <div class="modal-content">
-                <div class="modal-header">
-                    ^loc_ADD_LINK^
-                </div>
-                <div class="modal-body">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="add_layout_link">^loc_ADD_LINK^</span>
+                <span class="add_layout_media">^loc_ADD_MEDIA^</span>
+            </div>
+            <div class="modal-body">
+                <span class="add_layout_link">
                     <div class="form-group">
                         <label>^loc_LINK_URL^</label>
                         <input type="text" id="layout_link_url" name="layout_link_url" class="form-control"></input>
@@ -73,7 +76,17 @@
                     <button id="add_link_button" type="button" class="btn btn-primary" onclick="addLayoutLink()">
                         <i class="fa fa-plus"></i>&nbsp;^loc_INSERT_LINK^
                     </button>
-                </div>
+                </span>
+                <span class="add_layout_media">
+                    <label>^loc_SELECT_MEDIA^</label>
+                    <div id="layout_media_options"></div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button id="add_link_button" type="button" class="btn btn-primary" onclick="addLayoutMedia()">
+                        <i class="fa fa-plus"></i>&nbsp;^loc_INSERT_MEDIA^
+                    </button>
+                </span>
             </div>
         </div>
     </div>

@@ -63,20 +63,7 @@ loc =
         CUSTOM_VARIABLE_KEY: 'Unique name for the variable',
         CUSTOM_VARIABLE_VALUE: 'Value associated with the variable',
         ACTIVE_TOPICS: 'Drag associated topics here',
-        INACTIVE_TOPICS: 'Drag unassociated topics here',
-        NORMAL_TEXT: 'Normal text',
-        QUOTE: 'Quote',
-        HEADING_1: 'Heading 1',
-        HEADING_2: 'Heading 2',
-        HEADING_3: 'Heading 3',
-        HEADING_4: 'Heading 4',
-        HEADING_5: 'Heading 5',
-        HEADING_6: 'Heading 6',
-        ADD_LINK: 'Add a link',
-        LINK_URL: 'Link URL',
-        LINK_IN_TAB: 'Open link in a new tab/window',
-        TEST_LINK: 'Test link',
-        INSERT_LINK: 'Insert link',
+        INACTIVE_TOPICS: 'Drag unassociated topics here'        
     },
     sections:
     {
@@ -158,7 +145,24 @@ loc =
         META_DESC_PLACEHOLDER: 'Limited to 156 characters',
         META_KEYWORDS: 'Meta keywords',
         META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords',
-        ARTICLE_CREATED: 'The article was successfully created'
+        ARTICLE_CREATED: 'The article was successfully created',
+        NORMAL_TEXT: 'Normal text',
+        QUOTE: 'Quote',
+        HEADING_1: 'Heading 1',
+        HEADING_2: 'Heading 2',
+        HEADING_3: 'Heading 3',
+        HEADING_4: 'Heading 4',
+        HEADING_5: 'Heading 5',
+        HEADING_6: 'Heading 6',
+        ADD_LINK: 'Add a link',
+        LINK_URL: 'Link URL',
+        LINK_IN_TAB: 'Open link in a new tab/window',
+        TEST_LINK: 'Test link',
+        INSERT_LINK: 'Insert link',
+        ADD_MEDIA: 'Add media',
+        INSERT_MEDIA: 'Insert media',
+        SELECT_MEDIA: 'Select media to insert (multiple selections will create a carousel)',
+        ASSOCIATE_MEDIA: 'Associate media with the article'
     },
     users:
     {
