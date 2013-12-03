@@ -3,7 +3,7 @@ var selectedHTML;
 
 $(document).ready(function()
 {
-    $('#layout_content').resizable();
+    $('#layout_content').resizable({handles: 'n,s'});
 });
 
 function checkForLayoutContent(contentID)
@@ -38,6 +38,8 @@ function toggleLayoutFullscreen()
 
 function openLayoutFullscreen()
 {
+    $('#layout_content').resizable('disable');
+
     $('#layout_editor').css(
     {
         'background-color': '#FFFFFF',
@@ -61,6 +63,8 @@ function openLayoutFullscreen()
 
 function closeLayoutFullscreen()
 {
+    $('#layout_content').resizable('enable');
+
     $('#layout_editor').attr('style', '');
     $('#layout_content').css(
     {

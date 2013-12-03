@@ -60,6 +60,12 @@ form .error
     min-height: 200px;
 }
 
+#layout_editable
+{
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
 #layout_editable, #layout_code
 {
     width: 100%;
