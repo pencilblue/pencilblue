@@ -9,7 +9,7 @@ function DAO(dbName){
 }
 
 /**
- * Static variable to indicate that all values of a document should be retured.
+ * Static variable to indicate that all values of a document should be returned.
  */
 DAO.PROJECT_ALL = {};
 
@@ -118,8 +118,24 @@ DAO.prototype.deleteById = function(oid, collection){
 		throw new Error('An id must be specified in order to delete');
 	}
 	
-	var promise = new Promise();
 	var where   = DAO.getIDWhere(oid);
+	return this.deleteMatching(where, collection);
+};
+
+/**
+ * Removes objects from persistence that match the specified where clause.
+ * @param where Object describing the criteria for deletion.
+ * @param collection
+ * @returns {Promise} that resolves to an Error or the number of records deleted 
+ * by the call.  The number of records could be undefined or null if the write 
+ * concern of the DB is set to "no acknowledgement".
+ */
+DAO.prototype.deleteMatching = function(where, collection){
+	if (typeof where === 'undefined') {
+		throw new Error('A where object must be specified in order to delete');
+	}
+	
+	var promise = new Promise();
 	dbm[this.dbName].collection(collection).remove(where, function(err, recordsDeleted) {
 
         promise.resolve(err ? err : recordsDeleted);

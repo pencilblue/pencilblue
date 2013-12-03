@@ -85,13 +85,11 @@ global.deleteDBObject = function(oid, object_type, output)
 // Deletes DBObject that meet criteria
 global.deleteMatchingDBObjects = function(criteria, output)
 {
-    mongoDB.collection(criteria.object_type).remove(criteria, function(error)
-    {
-        if(error)
-        {
-            throw error;
+    (new DAO()).deleteMatching(criteria, criteria.object_type).then(function(result){
+    	if (typeof result === 'Error') {
+            throw result;
         }
-        output(true);
+    	output(result);
     });
 };
 
