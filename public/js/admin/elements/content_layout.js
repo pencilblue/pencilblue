@@ -102,6 +102,54 @@ function onLayoutEditableChanged()
 {
     $('#layout_code').val($('#layout_editable').html());
     layoutRange = window.getSelection().getRangeAt(0);
+    checkForFormatState();
+}
+
+function checkForFormatState()
+{
+    var formatBlock = document.queryCommandValue('formatblock');
+    if(formatBlock.length > 0)
+    {
+        $('#format_type_dropdown li a').each(function()
+        {
+            if($(this).attr('href').indexOf(formatBlock) > -1)
+            {
+                setTimeout($(this).attr('href').split('javascript:formatBlock').join('setFormatBlockType'), 5);
+            }
+        });
+    }
+    
+    $('#text_format_group .btn').each(function()
+    {
+        var formatType = $(this).attr('data-format-type');
+        if(typeof formatType !== 'undefined')
+        {
+            if(document.queryCommandValue(formatType) == 'false' && $(this).hasClass('active'))
+            {
+                $(this).attr('class', $(this).attr('class').split(' active').join(''));
+            }
+            else if(document.queryCommandValue(formatType) == 'true' && !$(this).hasClass('active'))
+            {
+                $(this).attr('class', $(this).attr('class') + ' active');
+            }
+        }
+    });
+    
+    $('#justify_group .btn').each(function()
+    {
+        var formatType = $(this).attr('data-format-type');
+        if(typeof formatType !== 'undefined')
+        {
+            if(document.queryCommandValue(formatType) == 'false' && $(this).hasClass('active'))
+            {
+                $(this).attr('class', $(this).attr('class').split(' active').join(''));
+            }
+            else if(document.queryCommandValue(formatType) == 'true' && !$(this).hasClass('active'))
+            {
+                $(this).attr('class', $(this).attr('class') + ' active');
+            }
+        }
+    });
 }
 
 function onLayoutCodeChanged()
@@ -117,12 +165,30 @@ function createParagraphs(content)
     return '<div>' + content + '</div>';
 }
 
-function layoutFormat(command)
+function formatBlock(format, formatName)
 {
+    setFormatBlockType(format, formatName);
+    layoutFormat('formatblock', format);
+}
+
+function setFormatBlockType(format, formatName)
+{
+    $('#format_type_button').html(formatName);
+    $('#format_type_button').attr('onclick', 'formatBlock(\'' + format + '\', \'' + formatName + '\')');
+}
+
+function layoutFormat(command, argument)
+{
+    if(typeof argument === 'undefined')
+    {
+        argument = null;
+    }
+
     forceEditableView();
     $('#layout_editable').focus();
     setLayoutRange();
-    document.execCommand(command, false, null);
+    document.execCommand(command, false, argument);
+    checkForFormatState();
     onLayoutEditableChanged();
 }
 
