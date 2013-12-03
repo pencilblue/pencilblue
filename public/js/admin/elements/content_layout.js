@@ -1,4 +1,5 @@
 var layoutRange;
+var selectedHTML;
 
 $(document).ready(function()
 {
@@ -102,6 +103,7 @@ function onLayoutEditableChanged()
 {
     $('#layout_code').val($('#layout_editable').html());
     layoutRange = window.getSelection().getRangeAt(0);
+    setSelectedHTML();
     checkForFormatState();
 }
 
@@ -214,4 +216,56 @@ function clearAllLayoutStyles()
             $(this).click();
         }
     });
+}
+
+function showContentLayoutModal(subsection)
+{
+    switch(subsection)
+    {
+        case '#add_layout_link':
+            $('#add_layout_media').hide();
+            $('#add_layout_link').hide();
+            $('#layout_link_url').val('');
+            $('#layout_link_url').focus();
+            break;
+        case '#add_layout_media':
+        default:
+            $('#add_layout_link').hide();
+            $('#add_layout_media').hide();
+            break;
+    }
+    
+    $('#content_layout_modal').modal({backdrop: 'static', keyboard: true});
+}
+
+function setSelectedHTML()
+{
+    var sel = window.getSelection();
+    if(sel.rangeCount) 
+    {
+        var container = document.createElement("div");
+        for(var i = 0, len = sel.rangeCount; i < len; ++i)
+        {
+            container.appendChild(sel.getRangeAt(i).cloneContents());
+        }
+        
+        selectedHTML = container.innerHTML;
+    }
+}
+
+function addLayoutLink()
+{
+    if($('#layout_link_url').val().length > 0)
+    {
+        if($('#link_in_tab').is(':checked'))
+        {
+            layoutFormat('inserthtml', '<a href="' + $('#layout_link_url').val() + '" target="_blank">' + selectedHTML + '</a>');
+        }
+        else
+        {
+            layoutFormat('createlink', $('#layout_link_url').val());
+        }
+    }
+    
+    $('#content_layout_modal').modal('hide');
 }

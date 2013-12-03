@@ -31,8 +31,8 @@
                 <button type="button" class="btn btn-default" onclick="layoutFormat('justifyfull')" data-format-type="justifyfull"><i class="fa fa-align-justify"></i></button>
             </div>
             <div class="btn-group">
-                <button type="button" class="btn btn-default"><i class="fa fa-link"></i></button>
-                <button type="button" class="btn btn-default"><i class="fa fa-picture-o"></i></button>
+                <button type="button" class="btn btn-default" onclick="showContentLayoutModal('#add_layout_link')"><i class="fa fa-link"></i></button>
+                <button type="button" class="btn btn-default" onclick="showContentLayoutModal('#add_layout_media')"><i class="fa fa-picture-o"></i></button>
                 <button type="button" class="btn btn-default" data-toggle="button"><i class="fa fa-list-ol"></i></button>
                 <button type="button" class="btn btn-default" data-toggle="button"><i class="fa fa-list-ul"></i></button>
             </div>
@@ -45,6 +45,37 @@
     <div id="layout_content" class="form-control">
         <div id="layout_editable" onmouseup="onLayoutEditableChanged()" onkeyup="onLayoutEditableChanged()" contenteditable></div>
         <textarea id="layout_code" style="display: none" onkeyup="onLayoutCodeChanged()"></textarea>
+    </div>
+</div>
+<div class="modal fade" id="content_layout_modal">
+    <div class="modal-dialog">
+        <div id="#add_layout_link">
+            <div class="modal-content">
+                <div class="modal-header">
+                    ^loc_ADD_LINK^
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>^loc_LINK_URL^</label>
+                        <input type="text" id="layout_link_url" name="layout_link_url" class="form-control"></input>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="link_in_tab">^loc_LINK_IN_TAB^
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button id="add_link_button" type="button" class="btn btn-success" onclick="window.open($('#layout_link_url').val(), '_blank')">
+                        <i class="fa fa-eye"></i>&nbsp;^loc_TEST_LINK^
+                    </button>
+                    <button id="add_link_button" type="button" class="btn btn-primary" onclick="addLayoutLink()">
+                        <i class="fa fa-plus"></i>&nbsp;^loc_INSERT_LINK^
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script type="text/javascript" src="^site_root^/js/admin/elements/content_layout.js"></script>

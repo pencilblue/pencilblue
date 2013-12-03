@@ -71,7 +71,12 @@ loc =
         HEADING_3: 'Heading 3',
         HEADING_4: 'Heading 4',
         HEADING_5: 'Heading 5',
-        HEADING_6: 'Heading 6'
+        HEADING_6: 'Heading 6',
+        ADD_LINK: 'Add a link',
+        LINK_URL: 'Link URL',
+        LINK_IN_TAB: 'Open link in a new tab/window',
+        TEST_LINK: 'Test link',
+        INSERT_LINK: 'Insert link',
     },
     sections:
     {
