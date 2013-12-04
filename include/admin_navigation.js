@@ -23,3 +23,35 @@ global.getAdminNavigation = function(template, activeMenuItems)
     
     return template;
 }
+
+global.getPillNavContainer = function(options, output)
+{
+    var pillTemplate = '';
+    var pillNav = '';
+    
+    getHTMLTemplate('admin/elements/pill_nav_container', null, null, function(data)
+    {
+        pillNav = data;
+        
+        getHTMLTemplate('admin/elements/pill_nav_container/pill', null, null, function(data)
+        {
+            pillTemplate = data;
+            
+            var pills = '';
+            for(var i = 0; i < options.children.length; i++)
+            {
+                var pill = pillTemplate.split('^pill_child^').join(options.children[i].name);
+                pill = pill.split('^pill_folder^').join(options.children[i].folder);
+                pill = pill.split('^pill_icon^').join(options.children[i].icon);
+                pill = pill.split('^pill_title^').join(options.children[i].title);
+                
+                pills = pills.concat(pill);
+            }
+            
+            pillNav = pillNav.split('^pills^').join(pills);
+            pillNav = pillNav.split('^pill_parent^').join(options.name);
+            
+            output(pillNav);
+        });
+    });
+}

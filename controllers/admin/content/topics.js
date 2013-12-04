@@ -18,9 +18,35 @@ this.init = function(request, output)
                 result = result.concat(data);
                 result = getAdminNavigation(result, ['content', 'sections']);
                 
-                getHTMLTemplate('admin/content/topics', null, null, function(data)
+                var pillNavOptions = 
                 {
-                    result = result.concat(data);
+                    name: 'topics',
+                    children: 
+                    [
+                        {
+                            name: 'manage_topics',
+                            title: '^loc_MANAGE_TOPICS^',
+                            icon: 'list-alt',
+                            folder: '/admin/content/'
+                        },
+                        {
+                            name: 'new_topic',
+                            title: '^loc_NEW_TOPIC^',
+                            icon: 'plus',
+                            folder: '/admin/content/'
+                        },
+                        {
+                            name: 'import_topics',
+                            title: '^loc_IMPORT_TOPICS^',
+                            icon: 'upload',
+                            folder: '/admin/content/'
+                        }
+                    ]
+                };
+            
+                getPillNavContainer(pillNavOptions, function(pillNav)
+                {
+                    result = result.concat(pillNav);
                     getHTMLTemplate('admin/footer', null, null, function(data)
                     {
                         result = result.concat(data);

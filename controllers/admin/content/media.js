@@ -18,9 +18,29 @@ this.init = function(request, output)
                 result = result.concat(data);
                 result = getAdminNavigation(result, ['content', 'media']);
                 
-                getHTMLTemplate('admin/content/media', null, null, function(data)
+                var pillNavOptions = 
                 {
-                    result = result.concat(data);
+                    name: 'media',
+                    children: 
+                    [
+                        {
+                            name: 'manage_media',
+                            title: '^loc_MANAGE_MEDIA^',
+                            icon: 'list-alt',
+                            folder: '/admin/content/'
+                        },
+                        {
+                            name: 'add_media',
+                            title: '^loc_ADD_MEDIA^',
+                            icon: 'plus',
+                            folder: '/admin/content/'
+                        }
+                    ]
+                };
+                
+                getPillNavContainer(pillNavOptions, function(pillNav)
+                {
+                    result = result.concat(pillNav);
                     getHTMLTemplate('admin/footer', null, null, function(data)
                     {
                         result = result.concat(data);

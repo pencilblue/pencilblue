@@ -18,9 +18,23 @@ this.init = function(request, output)
                 result = result.concat(data);
                 result = getAdminNavigation(result, ['content', 'articles']);
                 
-                getHTMLTemplate('admin/content/articles', null, null, function(data)
+                var pillNavOptions = 
                 {
-                    result = result.concat(data);
+                    name: 'articles',
+                    children: 
+                    [
+                        {
+                            name: 'new_article',
+                            title: '^loc_NEW_ARTICLE^',
+                            icon: 'plus',
+                            folder: '/admin/content/'
+                        }
+                    ]
+                };
+                
+                getPillNavContainer(pillNavOptions, function(pillNav)
+                {
+                    result = result.concat(pillNav);
                     getHTMLTemplate('admin/footer', null, null, function(data)
                     {
                         result = result.concat(data);
