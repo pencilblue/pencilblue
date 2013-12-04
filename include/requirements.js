@@ -40,6 +40,8 @@ require('./session');
 // Database objects
 require('./model/db_object');
 
+// Access management
+require('./access_management.js');
 // Document creation
 require('./model/create_document.js');
 // Templatizing

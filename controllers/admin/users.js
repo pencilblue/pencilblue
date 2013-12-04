@@ -1,4 +1,12 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Users administration page
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
@@ -18,9 +26,29 @@ this.init = function(request, output)
                 result = result.concat(data);
                 result = getAdminNavigation(result, ['users']);
                 
-                getHTMLTemplate('admin/users', null, null, function(data)
+                var pillNavOptions = 
                 {
-                    result = result.concat(data);
+                    name: 'users',
+                    children: 
+                    [
+                        {
+                            name: 'manage_users',
+                            title: '^loc_MANAGE_USERS^',
+                            icon: 'list-alt',
+                            folder: '/admin/'
+                        },
+                        {
+                            name: 'new_user',
+                            title: '^loc_NEW_USER^',
+                            icon: 'plus',
+                            folder: '/admin/'
+                        }
+                    ]
+                };
+                
+                getPillNavContainer(pillNavOptions, function(pillNav)
+                {
+                    result = result.concat(pillNav);
                     getHTMLTemplate('admin/footer', null, null, function(data)
                     {
                         result = result.concat(data);

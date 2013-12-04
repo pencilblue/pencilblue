@@ -1,11 +1,19 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Articles administration page
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_WRITER}))
         {
             output({redirect: SITE_ROOT});
             return;
