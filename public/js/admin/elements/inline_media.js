@@ -239,7 +239,7 @@ function checkForAddMediaSave()
     {
         $('#media_topics').val(topicsCSV);
         
-        $.post(saveMediaURL, $('.modal-body fieldset').serialize(), function(data)
+        $.post(saveMediaURL, $('#media_modal fieldset').serialize(), function(data)
         {
             var newMedia = JSON.parse(data);
             

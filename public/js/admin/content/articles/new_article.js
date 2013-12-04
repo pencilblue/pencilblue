@@ -58,6 +58,9 @@ function calculateColumnInches()
 
 function checkForNewArticleSave()
 {
+    // We need to remove other fieldsets so the form data isn't duplicated
+    $('.modal-body fieldset').remove();
+
     buildSections(function(sectionsCSV)
     {
         if(!$('#article_sections').position())
