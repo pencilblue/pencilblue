@@ -17,7 +17,10 @@ global.MONGO_SERVER = 'mongodb://127.0.0.1:27017/';
 
 // The name of the database you want pencilblue to save its data to.
 global.MONGO_DATABASE = 'pencil_blue';
- 
+
+//Indicates if the server should wait for a write acknowledgement before returning. 
+//0 => no acknowledgement, 1 => acknowledgement
+global.MONGO_WRITE_CONCERN = 1;
 
 // Don't change this setting
 global.DOCUMENT_ROOT = __dirname.substr(0, __dirname.indexOf(path.sep+'include'));
