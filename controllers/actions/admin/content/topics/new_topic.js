@@ -1,10 +1,19 @@
+/*
+
+    Interface for adding a new topic
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            output({redirect: SITE_ROOT});
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/topics', output);
             return;
         }
     
@@ -13,11 +22,6 @@ this.init = function(request, output)
         if(message = checkForRequiredParameters(post, ['name']))
         {
             formError(request, session, message, '/admin/content/topics', output);
-            return;
-        }
-        if(session['user']['admin'] < 2)
-        {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/topics', output);
             return;
         }
         

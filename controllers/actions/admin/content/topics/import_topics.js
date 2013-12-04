@@ -1,15 +1,19 @@
+/*
+
+    Imports topics CSV
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var instance = this;
 
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
-        {
-            output({redirect: SITE_ROOT});
-            return;
-        }
-        if(session['user']['admin'] < 2)
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_EDITOR}))
         {
             formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/topics', output);
             return;

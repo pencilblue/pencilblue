@@ -1,11 +1,19 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Interface for importing topics CSV
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_EDITOR}))
         {
             output({content: ''});
             return;
@@ -20,14 +28,29 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
-                {
-                    session = newSession;
-                    result = newResult;
-                    
-                    editSession(request, session, [], function(data)
+                var tabs =
+                [
                     {
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
+                        active: true,
+                        href: '#topic_settings',
+                        icon: 'file-text-o',
+                        title: '^loc_LOAD_FILE^'
+                    }
+                ];
+                
+                getTabNav(tabs, function(tabNav)
+                {
+                    result = result.split('^tab_nav^').join(tabNav);
+                
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    {
+                        session = newSession;
+                        result = newResult;
+                        
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
+                        });
                     });
                 });
             });
