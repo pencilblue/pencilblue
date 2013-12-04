@@ -55,3 +55,34 @@ global.getPillNavContainer = function(options, output)
         });
     });
 }
+
+global.getTabNav = function(tabs, output)
+{
+    var tabTemplate = '';
+    var tabNav = '';
+    
+    getHTMLTemplate('admin/elements/tab_nav', null, null, function(data)
+    {
+        tabNav = data;
+        
+        getHTMLTemplate('admin/elements/tab_nav/tab', null, null, function(data)
+        {
+            tabTemplate = data;
+            
+            var tabLayout = '';
+            for(var i = 0; i < tabs.length; i++)
+            {
+                var tab = tabTemplate.split('^tab_active^').join((tabs[i].active) ? 'class="active"' : '');
+                tab = tab.split('^tab_href^').join(tabs[i].href);
+                tab = tab.split('^tab_icon^').join(tabs[i].icon);
+                tab = tab.split('^tab_title^').join(tabs[i].title);
+                
+                tabLayout = tabLayout.concat(tab);
+            }
+            
+            tabNav = tabNav.split('^tabs^').join(tabLayout);
+            
+            output(tabNav);
+        });
+    });
+}
