@@ -30,9 +30,17 @@
                 <button type="button" class="btn btn-default" onclick="layoutFormat('justifyright')" data-format-type="justifyright"><i class="fa fa-align-right"></i></button>
                 <button type="button" class="btn btn-default" onclick="layoutFormat('justifyfull')" data-format-type="justifyfull"><i class="fa fa-align-justify"></i></button>
             </div>
+<<<<<<< HEAD
+            <div class="btn-group" data-toggle="buttons">
+                <button type="button" class="btn btn-default"><i class="fa fa-align-left"></i></button>
+                <button type="button" class="btn btn-default"><i class="fa fa-align-center"></i></button>
+                <button type="button" class="btn btn-default"><i class="fa fa-align-right"></i></button>
+                <button type="button" class="btn btn-default"><i class="fa fa-align-justify"></i></button>
+=======
             <div class="btn-group" id="layout_list_group">
                 <button type="button" class="btn btn-default" onclick="layoutFormat('insertorderedlist')" data-format-type="insertorderedlist"><i class="fa fa-list-ol"></i></button>
                 <button type="button" class="btn btn-default" onclick="layoutFormat('insertunorderedlist')" data-format-type="insertunorderedlist"><i class="fa fa-list-ul"></i></button>
+>>>>>>> wysiwyg
             </div>
             <div class="btn-group">
                 <button type="button" class="btn btn-default" onclick="showContentLayoutModal('add_layout_link')"><i class="fa fa-link"></i></button>
