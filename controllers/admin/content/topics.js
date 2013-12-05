@@ -24,50 +24,53 @@ this.init = function(request, output)
             getHTMLTemplate('admin/head', 'Topics', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, ['content', 'sections']);
+                getAdminNavigation(session, ['content', 'topics'], function(data)
+                {
+                    result = result.split('^admin_nav^').join(data);
                 
-                var pillNavOptions = 
-                {
-                    name: 'topics',
-                    children: 
-                    [
-                        {
-                            name: 'manage_topics',
-                            title: '^loc_MANAGE_TOPICS^',
-                            icon: 'list-alt',
-                            folder: '/admin/content/'
-                        },
-                        {
-                            name: 'new_topic',
-                            title: '^loc_NEW_TOPIC^',
-                            icon: 'plus',
-                            folder: '/admin/content/'
-                        },
-                        {
-                            name: 'import_topics',
-                            title: '^loc_IMPORT_TOPICS^',
-                            icon: 'upload',
-                            folder: '/admin/content/'
-                        }
-                    ]
-                };
-            
-                getPillNavContainer(pillNavOptions, function(pillNav)
-                {
-                    result = result.concat(pillNav);
-                    getHTMLTemplate('admin/footer', null, null, function(data)
+                    var pillNavOptions = 
                     {
-                        result = result.concat(data);
-                        if(session.section == 'topics')
+                        name: 'topics',
+                        children: 
+                        [
+                            {
+                                name: 'manage_topics',
+                                title: '^loc_MANAGE_TOPICS^',
+                                icon: 'list-alt',
+                                folder: '/admin/content/'
+                            },
+                            {
+                                name: 'new_topic',
+                                title: '^loc_NEW_TOPIC^',
+                                icon: 'plus',
+                                folder: '/admin/content/'
+                            },
+                            {
+                                name: 'import_topics',
+                                title: '^loc_IMPORT_TOPICS^',
+                                icon: 'upload',
+                                folder: '/admin/content/'
+                            }
+                        ]
+                    };
+                
+                    getPillNavContainer(pillNavOptions, function(pillNav)
+                    {
+                        result = result.concat(pillNav);
+                        getHTMLTemplate('admin/footer', null, null, function(data)
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "topics", "' + session.subsection + '")'));
-                        }
-                        else
-                        {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "topics", "manage_topics")'));
-                        }
-                        
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
+                            result = result.concat(data);
+                            if(session.section == 'topics')
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "topics", "' + session.subsection + '")'));
+                            }
+                            else
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "topics", "manage_topics")'));
+                            }
+                            
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
+                        });
                     });
                 });
             });

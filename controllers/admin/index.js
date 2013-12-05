@@ -5,7 +5,7 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_WRITER}))
         {
             output({redirect: SITE_ROOT + '/admin/login'});
             return;
@@ -16,15 +16,18 @@ this.init = function(request, output)
             getHTMLTemplate('admin/head', 'Dashboard', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, ['dashboard']);
-                
-                getHTMLTemplate('admin/index', null, null, function(data)
+                getAdminNavigation(session, ['dashboard'], function(data)
                 {
-                    result = result.concat(data);
-                    getHTMLTemplate('admin/footer', null, null, function(data)
+                    result = result.split('^admin_nav^').join(data);
+                
+                    getHTMLTemplate('admin/index', null, null, function(data)
                     {
                         result = result.concat(data);
-                        output({cookie: getSessionCookie(session), content: localize(['admin'], result)});
+                        getHTMLTemplate('admin/footer', null, null, function(data)
+                        {
+                            result = result.concat(data);
+                            output({cookie: getSessionCookie(session), content: localize(['admin'], result)});
+                        });
                     });
                 });
             });

@@ -24,38 +24,41 @@ this.init = function(request, output)
             getHTMLTemplate('admin/head', 'Articles', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, ['content', 'articles']);
-                
-                var pillNavOptions = 
+                getAdminNavigation(session, ['content', 'articles'], function(data)
                 {
-                    name: 'articles',
-                    children: 
-                    [
-                        {
-                            name: 'new_article',
-                            title: '^loc_NEW_ARTICLE^',
-                            icon: 'plus',
-                            folder: '/admin/content/'
-                        }
-                    ]
-                };
+                    result = result.split('^admin_nav^').join(data);
                 
-                getPillNavContainer(pillNavOptions, function(pillNav)
-                {
-                    result = result.concat(pillNav);
-                    getHTMLTemplate('admin/footer', null, null, function(data)
+                    var pillNavOptions = 
                     {
-                        result = result.concat(data);
-                        if(session.section == 'articles')
+                        name: 'articles',
+                        children: 
+                        [
+                            {
+                                name: 'new_article',
+                                title: '^loc_NEW_ARTICLE^',
+                                icon: 'plus',
+                                folder: '/admin/content/'
+                            }
+                        ]
+                    };
+                    
+                    getPillNavContainer(pillNavOptions, function(pillNav)
+                    {
+                        result = result.concat(pillNav);
+                        getHTMLTemplate('admin/footer', null, null, function(data)
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "articles", "' + session.subsection + '")'));
-                        }
-                        else
-                        {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "articles", "new_article")'));
-                        }
-                        
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
+                            result = result.concat(data);
+                            if(session.section == 'articles')
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "articles", "' + session.subsection + '")'));
+                            }
+                            else
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "articles", "new_article")'));
+                            }
+                            
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
+                        });
                     });
                 });
             });

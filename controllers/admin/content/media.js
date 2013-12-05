@@ -24,44 +24,47 @@ this.init = function(request, output)
             getHTMLTemplate('admin/head', 'Media', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, ['content', 'media']);
-                
-                var pillNavOptions = 
+                getAdminNavigation(session, ['content', 'media'], function(data)
                 {
-                    name: 'media',
-                    children: 
-                    [
-                        {
-                            name: 'manage_media',
-                            title: '^loc_MANAGE_MEDIA^',
-                            icon: 'list-alt',
-                            folder: '/admin/content/'
-                        },
-                        {
-                            name: 'add_media',
-                            title: '^loc_ADD_MEDIA^',
-                            icon: 'plus',
-                            folder: '/admin/content/'
-                        }
-                    ]
-                };
+                    result = result.split('^admin_nav^').join(data);
                 
-                getPillNavContainer(pillNavOptions, function(pillNav)
-                {
-                    result = result.concat(pillNav);
-                    getHTMLTemplate('admin/footer', null, null, function(data)
+                    var pillNavOptions = 
                     {
-                        result = result.concat(data);
-                        if(session.section == 'media')
+                        name: 'media',
+                        children: 
+                        [
+                            {
+                                name: 'manage_media',
+                                title: '^loc_MANAGE_MEDIA^',
+                                icon: 'list-alt',
+                                folder: '/admin/content/'
+                            },
+                            {
+                                name: 'add_media',
+                                title: '^loc_ADD_MEDIA^',
+                                icon: 'plus',
+                                folder: '/admin/content/'
+                            }
+                        ]
+                    };
+                    
+                    getPillNavContainer(pillNavOptions, function(pillNav)
+                    {
+                        result = result.concat(pillNav);
+                        getHTMLTemplate('admin/footer', null, null, function(data)
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "media", "' + session.subsection + '")'));
-                        }
-                        else
-                        {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "media", "manage_media")'));
-                        }
-                        
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
+                            result = result.concat(data);
+                            if(session.section == 'media')
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "media", "' + session.subsection + '")'));
+                            }
+                            else
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "media", "manage_media")'));
+                            }
+                            
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
+                        });
                     });
                 });
             });

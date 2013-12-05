@@ -24,44 +24,47 @@ this.init = function(request, output)
             getHTMLTemplate('admin/head', 'Pages', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, ['users']);
-                
-                var pillNavOptions = 
+                getAdminNavigation(session, ['users'], function(data)
                 {
-                    name: 'users',
-                    children: 
-                    [
-                        {
-                            name: 'manage_users',
-                            title: '^loc_MANAGE_USERS^',
-                            icon: 'list-alt',
-                            folder: '/admin/'
-                        },
-                        {
-                            name: 'new_user',
-                            title: '^loc_NEW_USER^',
-                            icon: 'plus',
-                            folder: '/admin/'
-                        }
-                    ]
-                };
+                    result = result.split('^admin_nav^').join(data);
                 
-                getPillNavContainer(pillNavOptions, function(pillNav)
-                {
-                    result = result.concat(pillNav);
-                    getHTMLTemplate('admin/footer', null, null, function(data)
+                    var pillNavOptions = 
                     {
-                        result = result.concat(data);
-                        if(session.section == 'users')
+                        name: 'users',
+                        children: 
+                        [
+                            {
+                                name: 'manage_users',
+                                title: '^loc_MANAGE_USERS^',
+                                icon: 'list-alt',
+                                folder: '/admin/'
+                            },
+                            {
+                                name: 'new_user',
+                                title: '^loc_NEW_USER^',
+                                icon: 'plus',
+                                folder: '/admin/'
+                            }
+                        ]
+                    };
+                    
+                    getPillNavContainer(pillNavOptions, function(pillNav)
+                    {
+                        result = result.concat(pillNav);
+                        getHTMLTemplate('admin/footer', null, null, function(data)
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/", "users", "' + session.subsection + '")'));
-                        }
-                        else
-                        {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/", "users", "manage_users")'));
-                        }
-                        
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                            result = result.concat(data);
+                            if(session.section == 'users')
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/", "users", "' + session.subsection + '")'));
+                            }
+                            else
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/", "users", "manage_users")'));
+                            }
+                            
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                        });
                     });
                 });
             });
