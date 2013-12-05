@@ -14,7 +14,7 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_EDITOR}))
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
             output({content: ''});
             return;

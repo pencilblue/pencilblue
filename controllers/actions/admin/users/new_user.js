@@ -18,7 +18,7 @@ this.init = function(request, output)
             formError(request, session, message, '/admin/users', output);
             return;
         }
-        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_EDITOR}) || session['user']['admin'] < post['admin'])
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}) || session['user']['admin'] < post['admin'])
         {
             formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/users', output);
             return;

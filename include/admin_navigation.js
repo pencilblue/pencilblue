@@ -1,6 +1,6 @@
 global.getAdminNavigation = function(session, activeMenuItems, output)
 {
-    var adminNavigation = buildAdminNavigation();
+    var adminNavigation = removeUnauthorizedAdminNavigation(session, defaultAdminNavigation);
     var buttonTemplate = '';
     var dropdownTemplate = '';
     var navLayout = '';
@@ -38,21 +38,13 @@ global.getAdminNavigation = function(session, activeMenuItems, output)
     });
 }
 
-// TODO: add the ability to modify the admin navigation based off plugins
-global.buildAdminNavigation = function()
-{
-    var adminNavigation = defaultAdminNavigation;
-    
-    return removeUnauthorizedAdminNavigation(adminNavigation);
-}
-
-global.removeUnauthorizedAdminNavigation = function(adminNavigation)
+global.removeUnauthorizedAdminNavigation = function(session, adminNavigation)
 {
     for(var i = 0; i < adminNavigation.length; i++)
     {
         if(typeof adminNavigation[i].access !== 'undefined')
         {
-            if(!userIsAuthorized({admin_level: adminNavigation[i].access}))
+            if(!userIsAuthorized(session, {admin_level: adminNavigation[i].access}))
             {
                 adminNavigation.splice(i, 1);
                 i--;
@@ -66,7 +58,7 @@ global.removeUnauthorizedAdminNavigation = function(adminNavigation)
             {
                 if(typeof adminNavigation[i].children[j].access !== 'undefined')
                 {
-                    if(!userIsAuthorized({admin_level: adminNavigation[i].children[j].access}))
+                    if(!userIsAuthorized(session, {admin_level: adminNavigation[i].children[j].access}))
                     {
                         adminNavigation[i].children.splice(j, 1);
                         j--;

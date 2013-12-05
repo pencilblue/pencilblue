@@ -5,7 +5,7 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_WRITER}))
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
             output({redirect: SITE_ROOT + '/admin/login'});
             return;

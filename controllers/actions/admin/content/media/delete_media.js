@@ -13,7 +13,7 @@ this.init = function(request, output)
 
     getSession(request, function(session)
     {
-        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_WRITER}))
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
             formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/media', output);
             return;
