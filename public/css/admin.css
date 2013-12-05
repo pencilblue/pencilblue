@@ -1,6 +1,7 @@
-body
+html, body
 {
     font-family: 'Helvetica', 'Arial', 'Verdana', sans-serif;
+    height: 100%;
 }
 
 .spacer
@@ -13,6 +14,12 @@ form .error
     font-size: .85em;
     color: #AA0000;
     margin: 0;
+}
+
+#wrap
+{
+    min-height: 100%;
+    margin: 0 auto -4.75em;
 }
 
 #login_logo
@@ -83,4 +90,11 @@ form .error
     background-color: #333333;
     color: #FFFFFF;
     resize: none;
+}
+
+.footer
+{
+    font-size: .75em;
+    padding: 1.5em;
+    text-align: right;
 }

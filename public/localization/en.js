@@ -2,6 +2,8 @@ loc =
 {
     generic:
     {
+        PENCILBLUE: 'pencilblue',
+        ALL_RIGHTS: 'All rights reserved',
         NONE: 'None',
         LOGOUT: 'Logout',
         WRITER: 'Writer',
