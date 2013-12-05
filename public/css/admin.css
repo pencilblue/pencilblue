@@ -19,7 +19,11 @@ form .error
 #wrap
 {
     min-height: 100%;
-    margin: 0 auto -4.75em;
+}
+
+#main
+{
+    overflow: auto;
 }
 
 #login_logo
