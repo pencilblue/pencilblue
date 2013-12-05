@@ -26,6 +26,11 @@ form .error
     overflow: auto;
 }
 
+#main .row-fluid
+{
+    margin: 0;
+}
+
 #login_logo
 {
     padding: 1em;
