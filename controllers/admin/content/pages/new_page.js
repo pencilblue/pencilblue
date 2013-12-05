@@ -1,4 +1,12 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Interface for adding a new page
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
@@ -6,7 +14,7 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
             output({content: ''});
             return;
@@ -21,13 +29,33 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                instance.getTemplateOptions(function(templatesList)
-                {
-                    result = result.split('^template_options^').join(templatesList);
-                
-                    editSession(request, session, [], function(data)
+                var tabs =
+                [
                     {
-                        output({content: localize(['admin', 'pages'], result)});
+                        active: true,
+                        href: '#content',
+                        icon: 'quote-left',
+                        title: '^loc_CONTENT^'
+                    },
+                    {
+                        href: '#meta_data',
+                        icon: 'tasks',
+                        title: '^loc_META_DATA^'
+                    }
+                ];
+                
+                getTabNav(tabs, function(tabNav)
+                {
+                    result = result.split('^tab_nav^').join(tabNav);
+                
+                    instance.getTemplateOptions(function(templatesList)
+                    {
+                        result = result.split('^template_options^').join(templatesList);
+                    
+                        editSession(request, session, [], function(data)
+                        {
+                            output({content: localize(['admin', 'pages'], result)});
+                        });
                     });
                 });
             });

@@ -9,7 +9,7 @@
         
         <link rel="stylesheet" type="text/css" href="^site_root^/css/jquery-ui.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="^site_root^/css/font-awesome.min.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/summernote.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/jquery.fileupload.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/admin.css">
@@ -21,115 +21,5 @@
         <script type="text/javascript" src="^site_root^/js/summernote.min.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#" style="padding: .5em">
-                    <img src="^site_root^/img/logo_menu.png"></img>
-                </a>
-            </div>
-
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-fixed">
-                    <li class="^dashboard^">
-                        <a href="^site_root^/admin">
-                            <i class="fa fa-dashboard"></i>&nbsp;^loc_DASHBOARD^
-                        </a>
-                    </li>
-                    <li class="dropdown ^content^">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-quote-right"></i>&nbsp;^loc_CONTENT^&nbsp;<span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="^sections^">
-                                <a href="^site_root^/admin/content/sections">
-                                    <i class="fa fa-th-large"></i>&nbsp;^loc_SECTIONS^
-                                </a>
-                            </li>
-                            <li class="^topics^">
-                                <a href="^site_root^/admin/content/topics">
-                                    <i class="fa fa-tags"></i>&nbsp;^loc_TOPICS^
-                                </a>
-                            </li>
-                            <li class="^pages^">
-                                <a href="^site_root^/admin/content/pages">
-                                    <i class="fa fa-file-o"></i>&nbsp;^loc_PAGES^
-                                </a>
-                            </li>
-                            <li class="^articles^">
-                                <a href="^site_root^/admin/content/articles">
-                                    <i class="fa fa-files-o"></i>&nbsp;^loc_ARTICLES^
-                                </a>
-                            </li>
-                            <li class="^media^">
-                                <a href="^site_root^/admin/content/media">
-                                    <i class="fa fa-camera"></i>&nbsp;^loc_MEDIA^
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="dropdown ^plugins^">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-puzzle-piece"></i>&nbsp;^loc_PLUGINS^&nbsp;<span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="^themes^">
-                                <a href="^site_root^/admin/plugins/themes">
-                                    <i class="fa fa-magic"></i>&nbsp;^loc_THEMES^
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa fa-tint"></i>&nbsp;^loc_FRONTEND^
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa fa-terminal"></i>&nbsp;^loc_BACKEND^
-                                </a>
-                            </li>
-                            <li class="divider"></li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa fa-upload"></i>&nbsp;^loc_INSTALL_PLUGIN^...
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="^users^">
-                        <a href="^site_root^/admin/users">
-                            <i class="fa fa-users"></i>&nbsp;^loc_USERS^
-                        </a>
-                    </li>
-                    <li class="dropdown ^settings^">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-cogs"></i>&nbsp;^loc_SETTINGS^&nbsp;<span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="#">
-                                    <i class="fa fa-cog"></i>&nbsp;^loc_SITE_SETTINGS^
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa fa-user"></i>&nbsp;^loc_ACCOUNT^
-                                </a>
-                            </li>
-                            <li class="divider"></li>
-                            <li>
-                                <a href="^site_root^/actions/logout">
-                                    <i class="fa fa-power-off"></i>&nbsp;^loc_LOGOUT^
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+        <div id="wrap">
+            ^tmp_admin=elements=admin_nav^

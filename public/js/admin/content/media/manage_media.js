@@ -1,3 +1,12 @@
+/*
+
+    Interface for managing media
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 $(document).ready(function()
 {
     new jNarrow('#media_search', '.media_item',

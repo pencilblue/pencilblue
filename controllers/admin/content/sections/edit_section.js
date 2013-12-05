@@ -1,4 +1,12 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Input for editing a site section
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
@@ -6,7 +14,7 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
             output({content: ''});
             return;
@@ -38,17 +46,37 @@ this.init = function(request, output)
                     result = result.split('^section_id^').join(section._id);
                     result = instance.setTextDefaults(result, section);
                     
-                    instance.getParentOptions(section, function(parentsList)
-                    {
-                        result = result.split('^parent_options^').join(parentsList);
-                        
-                        instance.getEditorOptions(section, function(editorsList)
+                    var tabs =
+                    [
                         {
-                            result = result.split('^editor_options^').join(editorsList);
+                            active: true,
+                            href: '#section_settings',
+                            icon: 'cog',
+                            title: '^loc_SETTINGS^'
+                        },
+                        {
+                            href: '#section_meta_data',
+                            icon: 'tasks',
+                            title: '^loc_META_DATA^'
+                        }
+                    ];
+                    
+                    getTabNav(tabs, function(tabNav)
+                    {
+                        result = result.split('^tab_nav^').join(tabNav);
                         
-                            editSession(request, session, [], function(data)
+                        instance.getParentOptions(section, function(parentsList)
+                        {
+                            result = result.split('^parent_options^').join(parentsList);
+                            
+                            instance.getEditorOptions(section, function(editorsList)
                             {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                                result = result.split('^editor_options^').join(editorsList);
+                            
+                                editSession(request, session, [], function(data)
+                                {
+                                    output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                                });
                             });
                         });
                     });

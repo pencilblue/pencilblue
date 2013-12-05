@@ -17,29 +17,32 @@ this.init = function(request, output)
             getHTMLTemplate('admin/head', 'Themes', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, ['plugins', 'themes']);
-                
-                getHTMLTemplate('admin/plugins/themes', null, null, function(data)
+                getAdminNavigation(session, ['plugins', 'themes'], function(data)
                 {
-                    result = result.concat(data);
-                    
-                    instance.getThemes(function(themesList, firstTheme)
+                    result = result.split('^admin_nav^').join(data);
+                
+                    getHTMLTemplate('admin/plugins/themes', null, null, function(data)
                     {
-                        result = result.split('^themes^').join(themesList);
+                        result = result.concat(data);
                         
-                        if(session.section == 'themes')
+                        instance.getThemes(function(themesList, firstTheme)
                         {
-                            result = result.concat(getJSTag('loadThemeSettings("' + SITE_ROOT + '", "' + session.subsection + '")'));
-                        }
-                        else if(firstTheme)
-                        {
-                            result = result.concat(getJSTag('loadThemeSettings("' + SITE_ROOT + '", "' + firstTheme + '")'));
-                        }
-                        
-                        getHTMLTemplate('admin/footer', null, null, function(data)
-                        {
-                            result = result.concat(data);
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'themes'], result)});
+                            result = result.split('^themes^').join(themesList);
+                            
+                            if(session.section == 'themes')
+                            {
+                                result = result.concat(getJSTag('loadThemeSettings("' + SITE_ROOT + '", "' + session.subsection + '")'));
+                            }
+                            else if(firstTheme)
+                            {
+                                result = result.concat(getJSTag('loadThemeSettings("' + SITE_ROOT + '", "' + firstTheme + '")'));
+                            }
+                            
+                            getHTMLTemplate('admin/footer', null, null, function(data)
+                            {
+                                result = result.concat(data);
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'themes'], result)});
+                            });
                         });
                     });
                 });

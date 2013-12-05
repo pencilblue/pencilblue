@@ -1,4 +1,12 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Input for creating a new site section
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
@@ -6,7 +14,7 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
             output({content: ''});
             return;
@@ -21,22 +29,42 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
-                {
-                    session = newSession;
-                    result = newResult;
-                
-                    instance.getParentOptions(function(parentsList)
+                var tabs =
+                [
                     {
-                        result = result.split('^parent_options^').join(parentsList);
-                        
-                        instance.getEditorOptions(session, function(editorsList)
+                        active: true,
+                        href: '#section_settings',
+                        icon: 'cog',
+                        title: '^loc_SETTINGS^'
+                    },
+                    {
+                        href: '#section_meta_data',
+                        icon: 'tasks',
+                        title: '^loc_META_DATA^'
+                    }
+                ];
+                
+                getTabNav(tabs, function(tabNav)
+                {
+                    result = result.split('^tab_nav^').join(tabNav);
+                    
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    {
+                        session = newSession;
+                        result = newResult;
+                    
+                        instance.getParentOptions(function(parentsList)
                         {
-                            result = result.split('^editor_options^').join(editorsList);
-                        
-                            editSession(request, session, [], function(data)
+                            result = result.split('^parent_options^').join(parentsList);
+                            
+                            instance.getEditorOptions(session, function(editorsList)
                             {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                                result = result.split('^editor_options^').join(editorsList);
+                            
+                                editSession(request, session, [], function(data)
+                                {
+                                    output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
+                                });
                             });
                         });
                     });

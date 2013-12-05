@@ -1,3 +1,12 @@
+/*
+
+    Interface for managing the site's topics via drag and drop
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 $(document).ready(function()
 {
     new jNarrow('#topic_search', '.topic',
