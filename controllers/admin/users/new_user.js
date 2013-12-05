@@ -1,4 +1,12 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Interface for adding a new user
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
@@ -6,7 +14,7 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_EDITOR}))
         {
             output({content: ''});
             return;
@@ -21,16 +29,36 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
-                {
-                    session = newSession;
-                    result = newResult;
-                    
-                    result = result.split('^admin_options^').join(instance.setAdminOptions(session));
-                    
-                    editSession(request, session, [], function(data)
+                var tabs =
+                [
                     {
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                        active: true,
+                        href: '#account_info',
+                        icon: 'cog',
+                        title: '^loc_ACCOUNT_INFO^'
+                    },
+                    {
+                        href: '#personal_info',
+                        icon: 'user',
+                        title: '^loc_PERSONAL_INFO^'
+                    }
+                ];
+                
+                getTabNav(tabs, function(tabNav)
+                {
+                    result = result.split('^tab_nav^').join(tabNav);
+                
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    {
+                        session = newSession;
+                        result = newResult;
+                        
+                        result = result.split('^admin_options^').join(instance.setAdminOptions(session));
+                        
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                        });
                     });
                 });
             });

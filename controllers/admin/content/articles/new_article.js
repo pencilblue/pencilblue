@@ -1,4 +1,12 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Interface for adding a new article
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
@@ -6,7 +14,7 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_WRITER}))
         {
             output({content: ''});
             return;
@@ -21,30 +29,71 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                instance.getTemplateOptions(function(templatesList)
-                {
-                    result = result.split('^template_options^').join(templatesList);
-                    
-                    instance.getSectionOptions(function(sectionsList)
+                var tabs =
+                [
                     {
-                        result = result.split('^section_options^').join(sectionsList);
+                        active: true,
+                        href: '#content',
+                        icon: 'quote-left',
+                        title: '^loc_CONTENT^'
+                    },
+                    {
+                        href: '#sections_dnd',
+                        icon: 'th-large',
+                        title: '^loc_SECTIONS^'
+                    },
+                    {
+                        href: '#topics_dnd',
+                        icon: 'tags',
+                        title: '^loc_TOPICS^'
+                    },
+                    {
+                        href: '#media',
+                        icon: 'camera',
+                        title: '^loc_MEDIA^'
+                    },
+                    {
+                        href: '#layout_tab',
+                        icon: 'table',
+                        title: '^loc_LAYOUT^',
+                        onclick: 'checkForLayoutContent(\'#article_content\')'
+                    },
+                    {
+                        href: '#meta_data',
+                        icon: 'tasks',
+                        title: '^loc_META_DATA^'
+                    }
+                ];
+                
+                getTabNav(tabs, function(tabNav)
+                {
+                    result = result.split('^tab_nav^').join(tabNav);
+                    
+                    instance.getTemplateOptions(function(templatesList)
+                    {
+                        result = result.split('^template_options^').join(templatesList);
                         
-                        instance.getTopicOptions(function(topicsList)
+                        instance.getSectionOptions(function(sectionsList)
                         {
-                            result = result.split('^topic_options^').join(topicsList);
+                            result = result.split('^section_options^').join(sectionsList);
                             
-                            instance.getMediaOptions(function(mediaList)
+                            instance.getTopicOptions(function(topicsList)
                             {
-                                result = result.split('^media_options^').join(mediaList);
-                        
-                                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                                result = result.split('^topic_options^').join(topicsList);
+                                
+                                instance.getMediaOptions(function(mediaList)
                                 {
-                                    session = newSession;
-                                    result = newResult;
+                                    result = result.split('^media_options^').join(mediaList);
                             
-                                    editSession(request, session, [], function(data)
+                                    displayErrorOrSuccess(session, result, function(newSession, newResult)
                                     {
-                                        output({content: localize(['admin', 'articles', 'media'], result)});
+                                        session = newSession;
+                                        result = newResult;
+                                
+                                        editSession(request, session, [], function(data)
+                                        {
+                                            output({content: localize(['admin', 'articles', 'media'], result)});
+                                        });
                                     });
                                 });
                             });

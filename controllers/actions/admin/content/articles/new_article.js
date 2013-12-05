@@ -1,10 +1,19 @@
+/*
+
+    Creates a new article
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({redirect: SITE_ROOT});
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/articles', output);
             return;
         }
     
@@ -25,11 +34,6 @@ this.init = function(request, output)
         if(message = checkForRequiredParameters(post, ['url', 'template', 'article_content']))
         {
             formError(request, session, message, '/admin/content/articles', output);
-            return;
-        }
-        if(session['user']['admin'] < 1)
-        {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/articles', output);
             return;
         }
         

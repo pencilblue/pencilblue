@@ -72,7 +72,8 @@ global.getTabNav = function(tabs, output)
             var tabLayout = '';
             for(var i = 0; i < tabs.length; i++)
             {
-                var tab = tabTemplate.split('^tab_active^').join((tabs[i].active) ? 'class="active"' : '');
+                var tab = tabTemplate.split('^tab_active^').join((tabs[i].active) ? ' class="active"' : '');
+                tab = tab.split('^tab_onclick^').join((tabs[i].onclick) ? ' onclick="' + tabs[i].onclick + '"' : '');
                 tab = tab.split('^tab_href^').join(tabs[i].href);
                 tab = tab.split('^tab_icon^').join(tabs[i].icon);
                 tab = tab.split('^tab_title^').join(tabs[i].title);
