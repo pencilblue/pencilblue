@@ -1,10 +1,19 @@
+/*
+
+    Adds media inline with other forms
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({redirect: SITE_ROOT});
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/media', output);
             return;
         }
     
@@ -14,11 +23,6 @@ this.init = function(request, output)
         if(message = checkForRequiredParameters(post, ['media_type', 'location', 'caption']))
         {
             formError(request, session, message, '/admin/content/media', output);
-            return;
-        }
-        if(session['user']['admin'] < 1)
-        {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/media', output);
             return;
         }
         

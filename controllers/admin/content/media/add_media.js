@@ -1,4 +1,12 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Interface for adding
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
@@ -6,7 +14,7 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized({logged_in: true, admin_level: ACCESS_WRITER}))
         {
             output({content: ''});
             return;
@@ -21,18 +29,38 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
-                {
-                    session = newSession;
-                    result = newResult;
-                    
-                    instance.getTopicOptions(function(topicsList)
+                var tabs =
+                [
                     {
-                        result = result.split('^topic_options^').join(topicsList);
-                    
-                        editSession(request, session, [], function(data)
+                        active: true,
+                        href: '#media_upload',
+                        icon: 'film',
+                        title: '^loc_LINK_OR_UPLOAD^'
+                    },
+                    {
+                        href: '#topics_dnd',
+                        icon: 'tags',
+                        title: '^loc_TOPICS^'
+                    }
+                ];
+                
+                getTabNav(tabs, function(tabNav)
+                {
+                    result = result.split('^tab_nav^').join(tabNav);
+                
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    {
+                        session = newSession;
+                        result = newResult;
+                        
+                        instance.getTopicOptions(function(topicsList)
                         {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
+                            result = result.split('^topic_options^').join(topicsList);
+                        
+                            editSession(request, session, [], function(data)
+                            {
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
+                            });
                         });
                     });
                 });
