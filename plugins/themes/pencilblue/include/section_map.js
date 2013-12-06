@@ -50,22 +50,22 @@ this.setSectionMap = function(headTemplate, output)
                             if(section)
                             {
                                 var dropdown = dropdownTemplate.split('^nav_active^').join('');
-                                dropdown = dropdown.split('^nav_href^').join(SITE_ROOT + '/' + section.name.toLowerCase().split(' ').join('-'));
+                                dropdown = dropdown.split('^nav_href^').join(SITE_ROOT + '/' + instance.getSectionHREF(section.name));
                                 dropdown = dropdown.split('^nav_title^').join(section.name);
                                 
                                 var buttons = buttonTemplate.split('^nav_active^').join('');
-                                buttons = buttons.split('^nav_href^').join(SITE_ROOT + '/' + section.name.toLowerCase().split(' ').join('-'));
+                                buttons = buttons.split('^nav_href^').join(SITE_ROOT + '/' + instance.getSectionHREF(section.name));
                                 buttons = buttons.split('^nav_title^').join(section.name + ' ^loc_HOME^');
                                 
                                 for(var j = 0; j < sectionMap[i].children.length; j++)
                                 {
-                                    section = instance.getSectionData(sectionMap[i].children[j].uid, sections);
+                                    var childSection = instance.getSectionData(sectionMap[i].children[j].uid, sections);
                                     
                                     if(section)
                                     {
                                         var button = buttonTemplate.split('^nav_active^').join('');
-                                        button = button.split('^nav_href^').join(SITE_ROOT + '/' + section.name.toLowerCase().split(' ').join('-'));
-                                        button = button.split('^nav_title^').join(section.name);
+                                        button = button.split('^nav_href^').join(SITE_ROOT + '/' + instance.getSectionHREF(section.name) + '/' + instance.getSectionHREF(childSection.name));
+                                        button = button.split('^nav_title^').join(childSection.name);
                                         
                                         buttons = buttons.concat(button);
                                     }
@@ -96,4 +96,9 @@ this.getSectionData = function(uid, sections)
     }
     
     return null;
+}
+
+this.getSectionHREF = function(sectionName)
+{
+    return sectionName.toLowerCase().split(' ').join('-');
 }
