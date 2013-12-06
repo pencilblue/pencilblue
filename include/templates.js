@@ -8,7 +8,14 @@ global.getHTMLTemplate = function(templateLocation, pageName, metaDesc, output)
         // Load the header template HTML and customize
         fs.readFile(fileLocation, function(error, data)
         {
-            templateString = data.toString();
+            if(data)
+            {
+                templateString = data.toString();
+            }
+            else
+            {
+                templateString = '';
+            }
             templateString = templateString.split('^site_name^').join(SITE_NAME);
             templateString = templateString.split('^site_root^').join(SITE_ROOT);
             if(typeof pageName !== "undefined")

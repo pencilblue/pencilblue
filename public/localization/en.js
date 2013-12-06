@@ -111,6 +111,8 @@ loc =
         UPLOAD: 'UPLOAD',
         MEDIA_NAME: 'Media name',
         CAPTION: 'Caption',
+        RELATED_MEDIA: 'Drag related media here',
+        UNRELATED_MEDIA: 'Drag unrelated media here',
         MEDIA_ADDED: 'The media was successfully added',
         MEDIA_DELETED: 'The media was successfully deleted'
     },
@@ -135,8 +137,6 @@ loc =
         PUBLISH_DATE: 'Publish date',
         ACTIVE_SECTIONS: 'Drag associated sections here',
         INACTIVE_SECTIONS: 'Drag unassociated sections here',
-        RELATED_MEDIA: 'Drag related media here',
-        UNRELATED_MEDIA: 'Drag unrelated media here',
         ARTICLE_CREATED: 'The article was successfully created',
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',

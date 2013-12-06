@@ -1,41 +1,21 @@
-<div class="panel panel-default">
-    <div class="panel-heading">pencilblue ^loc_THEME_SETTINGS^</div>
-    <div class="panel-body">
-        <form id="new_user_form" method="post" action="^site_root^/actions/new_user">
-            <fieldset>
-                <div class="form-group">
-                    <input type="text" id="username" name="username" class="form-control" placeholder="^loc_USERNAME^*"></input>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="first_name" name="first_name" class="form-control" placeholder="^loc_FIRST_NAME^"></input>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="last_name" name="last_name" class="form-control" placeholder="^loc_LAST_NAME^"></input>
-                </div>
-                <div class="form-group">
-                    <input type="email" id="email" name="email" class="form-control" placeholder="^loc_EMAIL^*"></input>
-                </div>
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="password" id="password" name="password" class="form-control" placeholder="^loc_PASSWORD^*" onkeyup="checkPasswordMatch()"></input>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" onclick="generatePassword()">^loc_GENERATE^...</button>
-                        </span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="^loc_CONFIRM_PASSWORD^*" onkeyup="checkPasswordMatch()"></input>
-                        <span class="input-group-addon"><span id="password_check" class="glyphicon glyphicon-thumbs-down"></span></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <select id="admin" name="admin" class="form-control">
-                        ^admin_options^
-                    </select>
-                </div>
-                <input type="submit" class="btn btn-lg btn-info btn-block" value="^loc_CREATE_USER^">
-            </fieldset>
-        </form>
-    </div>
-</div>
+^error_success^
+^tab_nav^
+
+<form id="pencilblue_settings_form" method="post" action="^site_root^/actions/admin/pencilblue_settings">
+    <fieldset>
+        <div class="tab-content">
+            <div class="tab-pane" id="settings">
+                
+            </div>
+            <div class="tab-pane" id="carousel">
+                ^tmp_admin=elements=carousel_settings^
+            </div>
+            <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/plugins/themes';">
+                <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+            </button>
+            <button type="submit" class="btn btn-primary" onclick="checkForPencilBlueSettingsSave()">
+                <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+            </button>
+        </div>
+    </fieldset>
+</form>
