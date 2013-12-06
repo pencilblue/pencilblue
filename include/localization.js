@@ -23,9 +23,9 @@ global.initLocalization = function(request, session, output)
         {
             if(data.length > 0)
             {
-                if(fs.existsSync(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/public/localization/' + session.language + '.js'))
+                if(fs.existsSync(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/public/loc/' + session.language + '.js'))
                 {
-                    require('./../plugins/themes/' + data[0]['value'] + '/public/localization/' + session.language);
+                    require('./../plugins/themes/' + data[0]['value'] + '/public/loc/' + session.language);
                 }
             }
         
