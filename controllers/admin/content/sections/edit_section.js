@@ -90,6 +90,7 @@ this.setTextDefaults = function(result, section)
 {
     result = result.split('^section_name^').join(section.name);
     result = result.split('^section_description^').join(section.description);
+    result = result.split('^section_url^').join(section.url);
     result = result.split('^section_keywords^').join(section.keywords.join(', '));
     
     return result;

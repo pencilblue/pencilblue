@@ -42,16 +42,24 @@ this.init = function(request, output)
             }
             
             var section = data[0];
-            var sectionDocument = createDocument('section', post, ['keywords'], ['parent']);
+            var sectionDocument = createDocument('section', post, ['keywords'], ['url', 'parent']);
             
-            getDBObjectsWithValues({object_type: 'section', name: sectionDocument['name']}, function(data)
+            if(!sectionDocument['url'])
+            {
+                sectionDocument['url'] = sectionDocument['name'].toLowerCase().split(' ').join('-');
+            }
+            
+            getDBObjectsWithValues({object_type: 'section', $or: [{name: sectionDocument['name']}, {url: sectionDocument['url']}]}, function(data)
             {
                 if(data.length > 0)
                 {
-                    if(!data[0]._id.equals(section._id))
+                    for(var i = 0; i < data.length; i++)
                     {
-                        formError(request, session, '^loc_EXISTING_SECTION^', '/admin/content/sections', output);
-                        return;
+                        if(!data[i]._id.equals(section._id))
+                        {
+                            formError(request, session, '^loc_EXISTING_SECTION^', '/admin/content/sections', output);
+                            return;
+                        }
                     }
                 }
                 

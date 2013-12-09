@@ -28,13 +28,23 @@ this.init = function(request, output)
         }
         
         var sectionDocument = createDocument('section', post, ['keywords'], ['parent']);
+        if(!sectionDocument['url'])
+        {
+            sectionDocument['url'] = sectionDocument['name'].toLowerCase().split(' ').join('-');
+        }
         
-        getDBObjectsWithValues({object_type: 'section', name: sectionDocument['name']}, function(data)
+        getDBObjectsWithValues({object_type: 'section', $or: [{name: sectionDocument['name']}, {url: sectionDocument['url']}]}, function(data)
         {
             if(data.length > 0)
             {
-                formError(request, session, '^loc_EXISTING_SECTION^', '/admin/content/sections', output);
-                return;
+                for(var i = 0; i < data.length; i++)
+                {
+                    if(!data[i]._id.equals(section._id))
+                    {
+                        formError(request, session, '^loc_EXISTING_SECTION^', '/admin/content/sections', output);
+                        return;
+                    }
+                }
             }
             
             createDBObject(sectionDocument, function(data)

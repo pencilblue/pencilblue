@@ -81,10 +81,12 @@ loc =
         NEW_SECTION: 'New section',
         SECTION_NAME: 'Section name',
         DESCRIPTION: 'Description',
+        URL_KEY: 'URL Key',
         PARENT_SECTION: 'Parent section',
         EXISTING_SECTION: 'A section with this name already exists',
         SECTION_CREATED: 'The section was successfully created',
         SECTION_EDITED: 'The section was successfully edited',
+        SECTION_DELETED: 'The section was successfully deleted',
         SECTION_MAP_SAVED: 'The section map was successfully saved'
     },
     topics:
