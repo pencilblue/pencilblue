@@ -55,15 +55,6 @@ function checkForNewArticleSave()
 
     buildSections(function(sectionsCSV)
     {
-        if(!$('#article_content').position())
-        {
-            $('fieldset').append('<input type="text" id="article_content" name="article_content" value="' + getArticleContent() + '" style="display: none"></input>');
-        }
-        else
-        {
-            $('#article_content').val(getArticleContent());
-        }
-    
         if(!$('#article_sections').position())
         {
             $('fieldset').append('<input type="text" id="article_sections" name="article_sections" value="' + sectionsCSV + '" style="display: none"></input>');
@@ -101,26 +92,6 @@ function checkForNewArticleSave()
             });
         });
     });
-}
-
-function getArticleContent()
-{
-    var articleContent = $('#layout_editable').text();
-    while(articleContent.indexOf('^media_display') > -1)
-    {
-        var startIndex = articleContent.indexOf('^media_display');
-        var endIndex = articleContent.substr(startIndex + 1).indexOf('^') + 2;
-        articleContent = articleContent.split(articleContent.substr(startIndex, endIndex)).join('');
-    }
-    while(articleContent.indexOf('^carousel_display') > -1)
-    {
-        var startIndex = articleContent.indexOf('^carousel_display');
-        var endIndex = articleContent.substr(startIndex + 1).indexOf('^') + 2;
-        articleContent = articleContent.split(articleContent.substr(startIndex, endIndex)).join('');
-    }
-    articleContent = articleContent.split('  ').join(' ');
-    
-    return articleContent;
 }
 
 function buildSections(output)
