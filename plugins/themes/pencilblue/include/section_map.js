@@ -1,84 +1,103 @@
 this.setSectionMap = function(headTemplate, output)
 {
     var instance = this;
-
-    getDBObjectsWithValues({object_type: 'setting', key: 'section_map'}, function(data)
+    
+    getDBObjectsWithValues({object_type: 'pencilblue_theme_settings'}, function(data)
     {
+        var themeSettings;
+        
         if(data.length == 0)
         {
-            headTemplate = headTemplate.split('^section_map^').join('');
-            output(headTemplate);
-            return;
-        }
-        
-        var sectionMap = data[0]['value'];
-        
-        getDBObjectsWithValues({object_type: 'section'}, function(data)
-        {
-            var sections = data;
-        
-            var buttonTemplate = '';
-            var dropdownTemplate = '';
-            var navLayout = '';
-            
-            getHTMLTemplate('admin/elements/admin_nav/button', null, null, function(data)
+            themeSettings =
             {
-                buttonTemplate = data;
+                site_logo: SITE_ROOT + '/img/logo_menu.png',
+                carousel_media: []
+            };
+        }
+        else
+        {
+            themeSettings = data[0];
+        }
+
+        getDBObjectsWithValues({object_type: 'setting', key: 'section_map'}, function(data)
+        {
+            if(data.length == 0)
+            {
+                headTemplate = headTemplate.split('^section_map^').join('');
+                output(headTemplate);
+                return;
+            }
+            
+            var sectionMap = data[0]['value'];
+            
+            getDBObjectsWithValues({object_type: 'section'}, function(data)
+            {
+                var sections = data;
+            
+                var buttonTemplate = '';
+                var dropdownTemplate = '';
+                var navLayout = '';
                 
-                getHTMLTemplate('admin/elements/admin_nav/dropdown', null, null, function(data)
+                getHTMLTemplate('admin/elements/admin_nav/button', null, null, function(data)
                 {
-                    dropdownTemplate = data;
+                    buttonTemplate = data;
                     
-                    for(var i = 0; i < sectionMap.length; i++)
+                    getHTMLTemplate('admin/elements/admin_nav/dropdown', null, null, function(data)
                     {
-                        var section = instance.getSectionData(sectionMap[i].uid, sections);
+                        dropdownTemplate = data;
                         
-                        if(sectionMap[i].children.length == 0)
+                        for(var i = 0; i < sectionMap.length; i++)
                         {
-                            if(section)
+                            var section = instance.getSectionData(sectionMap[i].uid, sections);
+                            
+                            if(sectionMap[i].children.length == 0)
                             {
-                                //TODO: figure out how to tell if were in one of these sections
-                                var button = buttonTemplate.split('^nav_active^').join('');
-                                button = button.split('^nav_href^').join(SITE_ROOT + '/' + section.name.toLowerCase().split(' ').join('-'));
-                                button = button.split('^nav_title^').join(section.name);
-                                
-                                navLayout = navLayout.concat(button);
-                            }
-                        }
-                        else
-                        {
-                            if(section)
-                            {
-                                var dropdown = dropdownTemplate.split('^nav_active^').join('');
-                                dropdown = dropdown.split('^nav_href^').join(SITE_ROOT + '/' + section.url);
-                                dropdown = dropdown.split('^nav_title^').join(section.name);
-                                
-                                var buttons = buttonTemplate.split('^nav_active^').join('');
-                                buttons = buttons.split('^nav_href^').join(SITE_ROOT + '/' + section.url);
-                                buttons = buttons.split('^nav_title^').join(section.name + ' ^loc_HOME^');
-                                
-                                for(var j = 0; j < sectionMap[i].children.length; j++)
+                                if(section)
                                 {
-                                    var childSection = instance.getSectionData(sectionMap[i].children[j].uid, sections);
+                                    //TODO: figure out how to tell if were in one of these sections
+                                    var button = buttonTemplate.split('^nav_active^').join('');
+                                    button = button.split('^nav_href^').join(SITE_ROOT + '/' + section.name.toLowerCase().split(' ').join('-'));
+                                    button = button.split('^nav_title^').join(section.name);
                                     
-                                    if(section)
-                                    {
-                                        var button = buttonTemplate.split('^nav_active^').join('');
-                                        button = button.split('^nav_href^').join(SITE_ROOT + '/' + section.url + '/' + childSection.url);
-                                        button = button.split('^nav_title^').join(childSection.name);
-                                        
-                                        buttons = buttons.concat(button);
-                                    }
+                                    navLayout = navLayout.concat(button);
                                 }
-                                
-                                dropdown = dropdown.split('^children^').join(buttons);
-                                navLayout = navLayout.concat(dropdown);
+                            }
+                            else
+                            {
+                                if(section)
+                                {
+                                    var dropdown = dropdownTemplate.split('^nav_active^').join('');
+                                    dropdown = dropdown.split('^nav_href^').join(SITE_ROOT + '/' + section.url);
+                                    dropdown = dropdown.split('^nav_title^').join(section.name);
+                                    
+                                    var buttons = buttonTemplate.split('^nav_active^').join('');
+                                    buttons = buttons.split('^nav_href^').join(SITE_ROOT + '/' + section.url);
+                                    buttons = buttons.split('^nav_title^').join(section.name + ' ^loc_HOME^');
+                                    
+                                    for(var j = 0; j < sectionMap[i].children.length; j++)
+                                    {
+                                        var childSection = instance.getSectionData(sectionMap[i].children[j].uid, sections);
+                                        
+                                        if(section)
+                                        {
+                                            var button = buttonTemplate.split('^nav_active^').join('');
+                                            button = button.split('^nav_href^').join(SITE_ROOT + '/' + section.url + '/' + childSection.url);
+                                            button = button.split('^nav_title^').join(childSection.name);
+                                            
+                                            buttons = buttons.concat(button);
+                                        }
+                                    }
+                                    
+                                    dropdown = dropdown.split('^children^').join(buttons);
+                                    navLayout = navLayout.concat(dropdown);
+                                }
                             }
                         }
-                    }
-                    
-                    headTemplate = headTemplate.split('^section_map^').join(navLayout);
-                    output(headTemplate);
+                        
+                        headTemplate = headTemplate.split('^site_logo^').join(themeSettings.site_logo);
+                        headTemplate = headTemplate.split('^section_map^').join(navLayout);
+                        output(themeSettings, headTemplate);
+                    });
                 });
             });
         });
