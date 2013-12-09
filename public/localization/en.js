@@ -24,7 +24,8 @@ loc =
         NOW: 'Now',
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
-        SELECT_FILE: 'Select file'
+        SELECT_FILE: 'Select file',
+        NO_ARTICLES: 'No articles match the given parameters'
     },
     index:
     {

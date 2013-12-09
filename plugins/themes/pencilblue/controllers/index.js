@@ -26,21 +26,26 @@ this.init = function(request, output)
             {
                 getHTMLTemplate('head', 'Home', null, function(data)
                 {
-                    require('../include/section_map.js').setSectionMap(data, function(siteSettings, headLayout)
+                    require('../include/section_map').setSectionMap(data, function(siteSettings, headLayout)
                     {
                         result = result.concat(headLayout);
                         getHTMLTemplate('index', null, null, function(data)
                         {
                             result = result.concat(data);
                             
-                            instance.getCarousel(siteSettings.carousel_media, result, function(newResult)
+                            require('../include/articles').getArticles([], [], function(articles)
                             {
-                                result = newResult;
+                                result = result.split('^articles^').join(articles);
                             
-                                getHTMLTemplate('footer', null, null, function(data)
+                                instance.getCarousel(siteSettings.carousel_media, result, function(newResult)
                                 {
-                                    result = result.concat(data);
-                                    output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic'], result)});
+                                    result = newResult;
+                                
+                                    getHTMLTemplate('footer', null, null, function(data)
+                                    {
+                                        result = result.concat(data);
+                                        output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic'], result)});
+                                    });
                                 });
                             });
                         });
