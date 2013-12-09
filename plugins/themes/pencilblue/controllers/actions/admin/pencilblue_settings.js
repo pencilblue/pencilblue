@@ -19,6 +19,9 @@ this.init = function(request, output)
     
         var post = getPostParameters(request);
         
+        post['site_logo'] = post['uploaded_image'];
+        
+        delete post['uploaded_image'];
         delete post['media_search'];
         delete post['logo_url'];
         

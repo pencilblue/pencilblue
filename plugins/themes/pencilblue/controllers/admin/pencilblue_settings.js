@@ -37,7 +37,8 @@ this.init = function(request, output)
                         settings = data[0];
                     }
                     
-                    result = result.split('^site_logo^').join(settings.site_logo);
+                    result = result.split('^image_title^').join('^loc_SITE_LOGO^');
+                    result = result.split('^uploaded_image^').join(settings.site_logo);
                     
                     var tabs =
                     [

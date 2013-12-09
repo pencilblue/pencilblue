@@ -14,6 +14,11 @@ this.init = function(request, output)
         var get = getQueryParameters(request);
         var post = getPostParameters(request);
         
+        post['photo'] = post['uploaded_image'];
+        
+        delete post['uploaded_image'];
+        delete post['image_url'];
+        
         if(message = checkForRequiredParameters(post, ['username', 'email', 'admin']))
         {
             formError(request, session, message, '/admin/users', output);

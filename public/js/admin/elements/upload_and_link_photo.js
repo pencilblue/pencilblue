@@ -1,24 +1,24 @@
 var siteRoot;
-var savelogoURL;
+var saveimageURL;
 
 function setupUpload(root)
 {
     siteRoot = root;
-    savelogoURL = siteRoot + '/actions/admin/content/media/inline_add_media';
+    saveimageURL = siteRoot + '/actions/admin/content/media/inline_add_media';
 
     $(function() 
     {
         'use strict';
         // Change this to the location of your server-side upload handler:
         var url = siteRoot + '/actions/admin/content/media/upload_media';
-        $('#logo_file').fileupload(
+        $('#image_file').fileupload(
         {
             url: url,
             dataType: 'json',
             done: function(error, data)
             {
                 $('#upload_progress').hide();
-                validateLogoURL(data.result.filename);
+                validateImageURL(data.result.filename);
             },
             progressall: function (error, data)
             {
@@ -33,23 +33,23 @@ function setupUpload(root)
     });
 }
 
-function showLogoModal(subsection)
+function showImageModal(subsection)
 {
-    $('#link_to_logo').hide();
-    $('#upload_logo').hide();
+    $('#link_to_image').hide();
+    $('#upload_image').hide();
     $(subsection).show();
     
-    $('#logo_modal').modal({backdrop: 'static', keyboard: true});
+    $('#image_modal').modal({backdrop: 'static', keyboard: true});
 }
 
-function validateLogoURL(logoURL)
+function validateImageURL(imageURL)
 {
-    if(logoURL.length == 0)
+    if(imageURL.length == 0)
     {
         return;
     }
     
-    var fileType = logoURL.substr(logoURL.lastIndexOf('.') + 1);
+    var fileType = imageURL.substr(imageURL.lastIndexOf('.') + 1);
     
     switch(fileType)
     {
@@ -58,16 +58,16 @@ function validateLogoURL(logoURL)
         case 'png':
         case 'gif':
         case 'svg':
-            setLogoURL(logoURL);
+            setImageURL(imageURL);
             return;
         default:
             return;
     }
 }
 
-function setLogoURL(logoURL)
+function setImageURL(imageURL)
 {
-    $('#site_logo_image').attr('src', logoURL);
-    $('#logo_url').val(logoURL);
-    $('#logo_modal').modal('hide');
+    $('#uploaded_image_preview').attr('src', imageURL);
+    $('#uploaded_image').val(imageURL);
+    $('#image_modal').modal('hide');
 }
