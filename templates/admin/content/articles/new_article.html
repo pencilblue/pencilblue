@@ -37,20 +37,17 @@
                 </div>
                 <div class="form-group">
                     <label>^loc_CONTENT^&nbsp;<span id="column_inches"></span></label>
-                    <textarea id="article_content" name="article_content" class="form-control" style="font-family: 'Courier'; min-height: 200px" onkeyup="calculateColumnInches()"></textarea>
+                    ^tmp_admin=elements=content_layout^
                 </div>
+            </div>
+            <div class="tab-pane" id="media">
+                ^tmp_admin=elements=inline_media^
             </div>
             <div class="tab-pane" id="sections_dnd">
                 ^tmp_admin=elements=section_select^
             </div>
             <div class="tab-pane" id="topics_dnd">
                 ^tmp_admin=elements=topic_select^
-            </div>
-            <div class="tab-pane" id="media">
-                ^tmp_admin=elements=inline_media^
-            </div>
-            <div class="tab-pane" id="layout_tab">
-                ^tmp_admin=elements=content_layout^
             </div>
             <div class="tab-pane" id="meta_data">
                 <div class="form-group">
