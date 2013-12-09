@@ -175,7 +175,7 @@ function buildMedia(output)
 {
     var mediaElements = $('#active_media').find('.col-md-3');
     mediaElementCount = 0;
-    mediasArray = [];
+    mediaArray = [];
     
     if(mediaElements.length == 0)
     {
@@ -185,12 +185,12 @@ function buildMedia(output)
     
     mediaElements.each(function()
     {
-        mediasArray.push($(this).attr('id').split('media_').join('').trim());
+        mediaArray.push($(this).attr('id').split('media_').join('').trim());
         
         mediaElementCount++;
         if(mediaElementCount >= mediaElements.length)
         {
-            output(mediasArray.join(','));
+            output(mediaArray.join(','));
         }
     });
 }

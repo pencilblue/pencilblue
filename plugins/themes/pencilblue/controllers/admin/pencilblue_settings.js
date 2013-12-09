@@ -21,37 +21,57 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                var tabs =
-                [
-                    {
-                        active: true,
-                        href: '#settings',
-                        icon: 'cog',
-                        title: '^loc_SETTINGS^'
-                    },
-                    {
-                        href: '#carousel',
-                        icon: 'picture-o',
-                        title: '^loc_CAROUSEL^'
-                    }
-                ];
-                
-                getTabNav(tabs, function(tabNav)
+                getDBObjectsWithValues({object_type: 'pencilblue_theme_settings'}, function(data)
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
-                    
-                    instance.getMediaOptions(function(mediaList)
+                    var settings;
+                    if(data.length == 0)
                     {
-                        result = result.split('^media_options^').join(mediaList);
-                    
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
+                        settings =
                         {
-                            session = newSession;
-                            result = newResult;
+                            site_logo: SITE_ROOT + '/img/logo_menu.png',
+                            carousel_media: []
+                        };
+                    }
+                    else
+                    {
+                        settings = data[0];
+                    }
                     
-                            editSession(request, session, [], function(data)
+                    result = result.split('^site_logo^').join(settings.site_logo);
+                    
+                    var tabs =
+                    [
+                        {
+                            active: true,
+                            href: '#settings',
+                            icon: 'cog',
+                            title: '^loc_SETTINGS^'
+                        },
+                        {
+                            href: '#carousel',
+                            icon: 'picture-o',
+                            title: '^loc_CAROUSEL^'
+                        }
+                    ];
+                    
+                    getTabNav(tabs, function(tabNav)
+                    {
+                        result = result.split('^tab_nav^').join(tabNav);
+                        
+                        instance.getMediaOptions(settings.carousel_media, function(activeMedia, inactiveMedia)
+                        {
+                            result = result.split('^active_media^').join(activeMedia);
+                            result = result.split('^inactive_media^').join(inactiveMedia);
+                        
+                            displayErrorOrSuccess(session, result, function(newSession, newResult)
                             {
-                                output({content: localize(['admin', 'themes', 'media', 'pencilblue_settings'], result)});
+                                session = newSession;
+                                result = newResult;
+                        
+                                editSession(request, session, [], function(data)
+                                {
+                                    output({content: localize(['admin', 'themes', 'media', 'pencilblue_settings'], result)});
+                                });
                             });
                         });
                     });
@@ -61,9 +81,11 @@ this.init = function(request, output)
     });
 }
 
-this.getMediaOptions = function(output)
+this.getMediaOptions = function(carouselMedia, output)
 {
-    var mediaList = '';
+    var activeMedia = '';
+    var activeMediaItems = [];
+    var inactiveMedia = '';
     var mediaTemplate = '';
     var instance = this;
     
@@ -93,10 +115,35 @@ this.getMediaOptions = function(output)
                 mediaItemElement = mediaItemElement.split('^media_link^').join(instance.getMediaLink(media[i].media_type, media[i].location, media[i].is_file));
                 mediaItemElement = mediaItemElement.split('^spacer^').join((i % 4 == 3) ? '<div class="spacer"></div>' : '');
                 
-                mediaList = mediaList.concat(mediaItemElement);
+                var mediaMatch = false;
+                for(var j = 0; j < carouselMedia.length; j++)
+                {
+                    if(media[i]._id.equals(ObjectID(carouselMedia[j])))
+                    {
+                        activeMediaItems.push({id: carouselMedia[j], element: mediaItemElement});
+                        mediaMatch = true;
+                        break;
+                    }
+                }
+                
+                if(!mediaMatch)
+                {
+                    inactiveMedia = inactiveMedia.concat(mediaItemElement);
+                }
+            }
+            
+            for(var i = 0; i < carouselMedia.length; i++)
+            {
+                for(var j = 0; j < activeMediaItems.length; j++)
+                {
+                    if(carouselMedia[i] == activeMediaItems[j].id)
+                    {
+                        activeMedia = activeMedia.concat(activeMediaItems[j].element);
+                    }
+                }
             }
         
-            output(mediaList);
+            output(activeMedia, inactiveMedia);
         });
     });
 }

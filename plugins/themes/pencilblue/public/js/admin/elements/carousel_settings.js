@@ -1,11 +1,11 @@
 $(document).ready(function()
 {
-    $('#media .col-md-3').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
-    $('#active_media').droppable({accept: '#media .col-md-3', drop: function(event, ui)
+    $('.media_item').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
+    $('#active_media').droppable({accept: '.media_item', drop: function(event, ui)
     {
         $('#active_media').append(ui.draggable);
     }});
-    $('#inactive_media').droppable({accept: '#media .col-md-3', drop: function(event, ui)
+    $('#inactive_media').droppable({accept: '.media_item', drop: function(event, ui)
     {
         $('#inactive_media').append(ui.draggable);
     }});
