@@ -33,7 +33,7 @@ this.init = function(request, output)
         
         post['author'] = session['user']._id.toString();
         
-        if(message = checkForRequiredParameters(post, ['url', 'template', 'article_content']))
+        if(message = checkForRequiredParameters(post, ['url', 'template', 'article_layout']))
         {
             formError(request, session, message, '/admin/content/articles', output);
             return;
