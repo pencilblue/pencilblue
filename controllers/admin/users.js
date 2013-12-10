@@ -1,4 +1,12 @@
-// Retrieve the header, body, and footer and return them to the router
+/*
+
+    Users administration page
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var result = '';
@@ -16,27 +24,50 @@ this.init = function(request, output)
             getHTMLTemplate('admin/head', 'Pages', null, function(data)
             {
                 result = result.concat(data);
-                result = getAdminNavigation(result, ['users']);
-                
-                getHTMLTemplate('admin/users', null, null, function(data)
+                getAdminNavigation(session, ['users'], function(data)
                 {
-                    result = result.concat(data);
-                    getHTMLTemplate('admin/footer', null, null, function(data)
+                    result = result.split('^admin_nav^').join(data);
+                
+                    var pillNavOptions = 
                     {
-                        result = result.concat(data);
-                        if(session.section == 'users')
+                        name: 'users',
+                        children: 
+                        [
+                            {
+                                name: 'manage_users',
+                                title: '^loc_MANAGE_USERS^',
+                                icon: 'list-alt',
+                                folder: '/admin/'
+                            },
+                            {
+                                name: 'new_user',
+                                title: '^loc_NEW_USER^',
+                                icon: 'plus',
+                                folder: '/admin/'
+                            }
+                        ]
+                    };
+                    
+                    getPillNavContainer(pillNavOptions, function(pillNav)
+                    {
+                        result = result.concat(pillNav);
+                        getHTMLTemplate('admin/footer', null, null, function(data)
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/", "users", "' + session.subsection + '")'));
-                        }
-                        else
-                        {
-                            result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/", "users", "manage_users")'));
-                        }
-                        
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                            result = result.concat(data);
+                            if(session.section == 'users')
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/", "users", "' + session.subsection + '")'));
+                            }
+                            else
+                            {
+                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/", "users", "manage_users")'));
+                            }
+                            
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                        });
                     });
                 });
             });
         });
     });
-}
+};

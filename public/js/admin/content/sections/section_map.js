@@ -1,5 +1,15 @@
+/*
+
+    Organizes the site's sections via drag and drop
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 $(document).ready(function()
 {
+    // Make the items draggable and sortable
     $('#section_map').sortable({items: '.section', containment: 'document', cursor: 'move', axis: 'y'});
     $('#section_map').disableSelection();
 
@@ -18,6 +28,7 @@ function editSection(siteRoot, sectionID)
     });
 }
 
+// Prepares the map data for saving
 function buildSectionMap()
 {
     var sectionMap = [];

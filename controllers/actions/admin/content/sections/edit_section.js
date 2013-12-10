@@ -1,12 +1,21 @@
+/*
+
+    Edits a site section
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     var instance = this;
 
     getSession(request, function(session)
     {
-        if(!session['user'] || !session['user']['admin'])
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            output({redirect: pb.config.siteRoot});
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/sections', output);
             return;
         }
         
@@ -21,11 +30,6 @@ this.init = function(request, output)
         if(message = checkForRequiredParameters(get, ['id']))
         {
             formError(request, session, message, '/admin/content/sections', output);
-            return;
-        }
-        if(session['user']['admin'] < 3)
-        {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/sections', output);
             return;
         }
         

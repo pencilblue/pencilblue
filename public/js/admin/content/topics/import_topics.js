@@ -1,9 +1,17 @@
+/*
+
+    Interface for importing topics CSV
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 function setupUpload(siteRoot)
 {
     $(function() 
     {
         'use strict';
-        // Change this to the location of your server-side upload handler:
         var url = siteRoot + '/actions/admin/content/topics/import_topics';
         $('#topics_file').fileupload(
         {

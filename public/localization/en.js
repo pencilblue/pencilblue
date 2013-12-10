@@ -2,6 +2,8 @@ loc =
 {
     generic:
     {
+        PENCILBLUE: 'pencilblue',
+        ALL_RIGHTS: 'All rights reserved',
         NONE: 'None',
         LOGOUT: 'Logout',
         WRITER: 'Writer',
@@ -63,7 +65,15 @@ loc =
         CUSTOM_VARIABLE_KEY: 'Unique name for the variable',
         CUSTOM_VARIABLE_VALUE: 'Value associated with the variable',
         ACTIVE_TOPICS: 'Drag associated topics here',
-        INACTIVE_TOPICS: 'Drag unassociated topics here'        
+        INACTIVE_TOPICS: 'Drag unassociated topics here',
+        FOCUS_KEYWORD: 'Focus keyword',
+        FOCUS_KEYWORD_PLACEHOLDER: 'The&nbsp;top&nbsp;keyword&nbsp;associated&nbsp;with&nbsp;the&nbsp;content',
+        SEO_TITLE: 'SEO title',
+        SEO_TITLE_PLACEHOLDER: 'Limited&nbsp;to&nbsp;70&nbsp;characters',
+        META_DESC: 'Meta description',
+        META_DESC_PLACEHOLDER: 'Limited&nbsp;to&nbsp;156&nbsp;characters',
+        META_KEYWORDS: 'Meta keywords',
+        META_KEYWORDS_PLACEHOLDER: 'Comma-separated&nbsp;keywords'     
     },
     sections:
     {
@@ -72,8 +82,6 @@ loc =
         SECTION_NAME: 'Section name',
         DESCRIPTION: 'Description',
         PARENT_SECTION: 'Parent section',
-        META_KEYWORDS: 'Meta keywords',
-        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords',
         EXISTING_SECTION: 'A section with this name already exists',
         SECTION_CREATED: 'The section was successfully created',
         SECTION_EDITED: 'The section was successfully edited',
@@ -114,15 +122,7 @@ loc =
         TEMPLATE: 'Template',
         HEADLINE: 'Headline',
         SUBHEADING: 'Subheading',
-        PUBLISH_DATE: 'Publish date',
-        FOCUS_KEYWORD: 'Focus keyword',
-        FOCUS_KEYWORD_PLACEHOLDER: 'The top keyword associated with the content',
-        SEO_TITLE: 'SEO title',
-        SEO_TITLE_PLACEHOLDER: 'Limited to 70 characters',
-        META_DESC: 'Meta description',
-        META_DESC_PLACEHOLDER: 'Limited to 156 characters',
-        META_KEYWORDS: 'Meta keywords',
-        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords'
+        PUBLISH_DATE: 'Publish date'
     },
     articles:
     {
@@ -137,14 +137,6 @@ loc =
         INACTIVE_SECTIONS: 'Drag unassociated sections here',
         RELATED_MEDIA: 'Drag related media here',
         UNRELATED_MEDIA: 'Drag unrelated media here',
-        FOCUS_KEYWORD: 'Focus keyword',
-        FOCUS_KEYWORD_PLACEHOLDER: 'The top keyword associated with the content',
-        SEO_TITLE: 'SEO title',
-        SEO_TITLE_PLACEHOLDER: 'Limited to 70 characters',
-        META_DESC: 'Meta description',
-        META_DESC_PLACEHOLDER: 'Limited to 156 characters',
-        META_KEYWORDS: 'Meta keywords',
-        META_KEYWORDS_PLACEHOLDER: 'Comma-separated keywords',
         ARTICLE_CREATED: 'The article was successfully created',
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',

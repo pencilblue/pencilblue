@@ -11,22 +11,17 @@ global.displayErrorOrSuccess = function(session, result, output)
 {
     if(session['error'])
     {
-        result = result.split('^error^').join('<div class="alert alert-danger">' + session['error'] + '</div>');
+        result = result.split('^error_success^').join('<div class="alert alert-danger">' + session['error'] + '<a href="javascript:$(\'.alert-danger\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
         delete session['error'];
     }
-    else
+    else if(session['success'])
     {
-        result = result.split('^error^').join('');
-    }
-    
-    if(session['success'])
-    {
-        result = result.split('^success^').join('<div class="alert alert-success">' + session['success'] + '</div>');
+        result = result.split('^error_success^').join('<div class="alert alert-success">' + session['success'] + '<a href="javascript:$(\'.alert-success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
         delete session['success'];
     }
     else
     {
-        result = result.split('^success^').join('');
+        result = result.split('^error_success^').join('');
     }
     
     output(session, result);

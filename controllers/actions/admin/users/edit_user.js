@@ -1,13 +1,16 @@
+/*
+
+    Edit a user
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2013, All rights reserved
+
+*/
+
 this.init = function(request, output)
 {
     getSession(request, function(session)
-    {
-        if(!session['user'] || !session['user']['admin'])
-        {
-            output({redirect: pb.config.siteRoot});
-            return;
-        }
-    
+    {    
         var get = getQueryParameters(request);
         var post = getPostParameters(request);
         
@@ -21,7 +24,7 @@ this.init = function(request, output)
             formError(request, session, message, '/admin/users', output);
             return;
         }
-        if(session['user']['admin'] < post['admin'])
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}) || session['user']['admin'] < post['admin'])
         {
             formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/users', output);
             return;
