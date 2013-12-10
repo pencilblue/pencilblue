@@ -55,8 +55,5 @@ require('./admin_navigation');
 // Error and Success Message Handling
 require('./error_success');
 
-// Media handling
-require('./media');
-
 // Edit custom_requirements.js to add your own file requirements
 //require('./custom_requirements');

@@ -71,11 +71,62 @@ this.getArticles = function(sections, topics, output)
                         articlesLayout = articlesLayout.concat(article);
                     }
                     
-                    output(articlesLayout);
+                    instance.loadMedia(articlesLayout, function(newLayout)
+                    {
+                        output(newLayout);
+                    });
                 });
             });
         });
     });
 }
 
+this.loadMedia = function(articlesLayout, output)
+{
+    var media = require('./media');
+    var instance = this;
 
+    this.replaceMediaTag = function(layout)
+    {
+        if(layout.indexOf('^media_display_') == -1)
+        {
+            instance.replaceCarouselTag(layout);
+            return;
+        }
+        
+        var startIndex = layout.indexOf('^media_display_') + 15;
+        var endIndex = layout.substr(startIndex).indexOf('^');
+        var mediaID = layout.substr(startIndex, endIndex);
+        
+        getDBObjectsWithValues({object_type: 'media'}, function(data)
+        {
+            if(data.length == 0)
+            {
+                layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join('');
+            }
+            else
+            {
+                layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(media.getMediaEmbed(data[0]));
+            }
+            
+            instance.replaceMediaTag(layout);
+        });
+    }
+    
+    this.replaceCarouselTag = function(layout)
+    {
+        if(layout.indexOf('^carousel_display_') == -1)
+        {
+            output(layout);
+            return;
+        }
+        
+        var startIndex = layout.indexOf('^carousel_display_') + 18;
+        var endIndex = layout.substr(startIndex).indexOf('^');
+        var mediaIDs = layout.substr(startIndex, endIndex).split('-');
+        
+        media.getCarousel(mediaIDs, layout, layout.substr(startIndex - 18, endIndex + 19), layout.substr(startIndex - 17, endIndex + 17), instance.replaceCarouselTag);
+    }
+    
+    this.replaceMediaTag(articlesLayout);
+}
