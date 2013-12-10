@@ -269,7 +269,7 @@ this.getMediaLink = function(mediaType, mediaLocation, isFile)
         default:
             if(isFile)
             {
-                return SITE_ROOT + mediaLocation;
+                return pb.config.siteRoot + mediaLocation;
             }
             return mediaLocation;
     }

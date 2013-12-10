@@ -7,7 +7,7 @@ this.init = function(request, output)
     {
         if(!session['user'] || !session['user']['admin'])
         {
-            output({redirect: SITE_ROOT});
+            output({redirect: pb.config.siteRoot});
             return;
         }
     
@@ -26,11 +26,11 @@ this.init = function(request, output)
                         result = result.concat(data);
                         if(session.section == 'media')
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "media", "' + session.subsection + '")'));
+                            result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/content/", "media", "' + session.subsection + '")'));
                         }
                         else
                         {
-                            result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "media", "manage_media")'));
+                            result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/content/", "media", "manage_media")'));
                         }
                         
                         output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});

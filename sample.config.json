@@ -1,8 +1,20 @@
 {
-	"SITE_NAME": "PencilBlue",
-	"SITE_ROOT": "http://localhost:8080",
-	"SITE_IP": "127.0.0.1",
-	"SITE_PORT": "8080",
-	"MONGO_DATABASE": "pencil_blue",
-	"MONGO_SERVER": "mongodb://127.0.0.1:27017/"
+	siteName: "PencilBlue",
+	siteRoot: "http://localhost:8080/",
+	siteIP:   "127.0.0.1",
+	sitePort: 8080,
+	db: {
+        type:'mongo',
+		servers: [
+          'mongodb://127.0.0.1:27017/'
+        ],
+        name: 'pencil_blue',
+        writeConern: 1
+	},
+	logging: {
+		transports: [
+             new (winston.transports.Console)({ level: "debug", timestamp: true }),
+             new (winston.transports.File)({ filename: '/etc/pencilblue/log/pencilblue.log', level: "debug", timestamp: true })
+       ]
+	}
 }

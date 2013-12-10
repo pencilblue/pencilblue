@@ -4,7 +4,7 @@ this.init = function(request, output)
     {
         if(!session['user'] || !session['user']['admin'])
         {
-            output({redirect: SITE_ROOT});
+            output({redirect: pb.config.siteRoot});
             return;
         }
     
@@ -35,7 +35,7 @@ this.init = function(request, output)
             session.success = '^loc_MEDIA_ADDED^';
             editSession(request, session, [], function(data)
             {        
-                output({redirect: SITE_ROOT + '/admin/content/media'});
+                output({redirect: pb.config.siteRoot + '/admin/content/media'});
             });
         });
     });

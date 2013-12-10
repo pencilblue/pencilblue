@@ -21,7 +21,7 @@ this.init = function(request, output)
                 
                 editSession(request, session, [], function(data)
                 {
-                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + SITE_ROOT + '/admin/content/media";')});
+                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/media";')});
                 });
                 
                 return;
@@ -142,7 +142,7 @@ this.getMediaLink = function(mediaType, mediaLocation, isFile)
         default:
             if(isFile)
             {
-                return SITE_ROOT + mediaLocation;
+                return pb.config.siteRoot + mediaLocation;
             }
             return mediaLocation;
     }

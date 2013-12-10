@@ -4,7 +4,7 @@ this.init = function(request, output)
     {
         if(!session['user'] || !session['user']['admin'])
         {
-            output({redirect: SITE_ROOT});
+            output({redirect: pb.config.siteRoot});
             return;
         }
     
@@ -72,7 +72,7 @@ this.init = function(request, output)
                         session.success = '^loc_USER_EDITED^';
                         editSession(request, session, [], function(data)
                         {        
-                            output({redirect: SITE_ROOT + '/admin/users'});
+                            output({redirect: pb.config.siteRoot + '/admin/users'});
                         });
                     });
                 });

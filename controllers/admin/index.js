@@ -7,7 +7,7 @@ this.init = function(request, output)
     {
         if(!session['user'] || !session['user']['admin'])
         {
-            output({redirect: SITE_ROOT + '/admin/login'});
+            output({redirect: pb.config.siteRoot + '/admin/login'});
             return;
         }
     

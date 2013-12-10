@@ -7,7 +7,7 @@ this.init = function(request, output)
         delete session.user;
         editSession(request, session, [], function(data)
         {
-            output({redirect: SITE_ROOT});
+            output({redirect: pb.config.siteRoot});
         });
     });
-}
+};

@@ -5,7 +5,7 @@
  * @copyright PencilBlue 2013, All Rights Reserved
  */
 function DAO(dbName){
-	this.dbName  = typeof dbName  !== 'undefined' ? dbName : MONGO_DATABASE;
+	this.dbName  = typeof dbName  !== 'undefined' ? dbName : pb.config.db.name;
 }
 
 /**
@@ -46,8 +46,8 @@ DAO.prototype.query = function(entityType, where, select, orderby, limit, offset
 	where  = where  ? where  : {};
 	select = select ? select : {};
 	offset = offset ? offset : 0;
-
-	var cursor = dbm[this.dbName].collection(entityType)
+	
+	var cursor = pb.dbm[this.dbName].collection(entityType)
 		.find(where, select)
 		.skip(offset);
 	
@@ -68,7 +68,7 @@ DAO.prototype.query = function(entityType, where, select, orderby, limit, offset
 	//clean up
 	cursor.close(function(err){
 		if (err) {
-			console.log("DAO::Query: An error occurred while attempting to close the cursor. "+err);
+			pb.log.error("DAO::Query: An error occurred while attempting to close the cursor. "+err);
 		}
 	});
 	return promise;
@@ -83,7 +83,7 @@ DAO.prototype.insert = function(dbObject) {
 	var promise = new Promise();
 	
 	DAO.updateChangeHistory(dbObject);
-	dbm[this.dbName].collection(dbObject.object_type).insert(dbObject, function(err, doc){
+	pb.dbm[this.dbName].collection(dbObject.object_type).insert(dbObject, function(err, doc){
 		promise.resolve(err ? err : doc[0]);
 	});
 	return promise;
@@ -99,7 +99,7 @@ DAO.prototype.update = function(dbObj) {
 	var promise = new Promise();
 	
 	DAO.updateChangeHistory(dbObj);
-	dbm[this.dbName].collection(dbObj.object_type).save(dbObj, function(err, doc){
+	pb.dbm[this.dbName].collection(dbObj.object_type).save(dbObj, function(err, doc){
 		promise.resolve(err ? err : doc);
 	});
 	return promise;
@@ -136,7 +136,7 @@ DAO.prototype.deleteMatching = function(where, collection){
 	}
 	
 	var promise = new Promise();
-	dbm[this.dbName].collection(collection).remove(where, function(err, recordsDeleted) {
+	pb.dbm[this.dbName].collection(collection).remove(where, function(err, recordsDeleted) {
 
         promise.resolve(err ? err : recordsDeleted);
 		if(err){

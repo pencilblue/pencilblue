@@ -7,7 +7,7 @@ this.init = function(request, output)
     {
         if(data.length == 0)
         {
-            output({redirect: SITE_ROOT + '/setup'});
+            output({redirect: pb.config.siteRoot + '/setup'});
             return;
         }
     

@@ -30,11 +30,11 @@ this.init = function(request, output)
             {
                 if(adminAttempt)
                 {
-                    output({redirect: SITE_ROOT + '/admin'});
+                    output({redirect: pb.config.siteRoot + '/admin'});
                 }
                 else
                 {
-                    output({redirect: SITE_ROOT + '/account'});
+                    output({redirect: pb.config.siteRoot + '/account'});
                 }
             });
         });
@@ -48,10 +48,10 @@ this.loginError = function(request, session, adminAttempt, output)
     {
         if(adminAttempt)
         {
-            output({redirect: SITE_ROOT + '/admin/login'});
+            output({redirect: pb.config.siteRoot + '/admin/login'});
             return;
         }
         
-        output({redirect: SITE_ROOT + '/login'});
+        output({redirect: pb.config.siteRoot + '/login'});
     });
 }

@@ -8,7 +8,7 @@ this.init = function(request, output)
     {
         if(!session['user'] || !session['user']['admin'])
         {
-            output({redirect: SITE_ROOT});
+            output({redirect: pb.config.siteRoot});
             return;
         }
     
@@ -29,11 +29,11 @@ this.init = function(request, output)
                         
                         if(session.section == 'themes')
                         {
-                            result = result.concat(getJSTag('loadThemeSettings("' + SITE_ROOT + '", "' + session.subsection + '")'));
+                            result = result.concat(getJSTag('loadThemeSettings("' + pb.config.siteRoot + '", "' + session.subsection + '")'));
                         }
                         else if(firstTheme)
                         {
-                            result = result.concat(getJSTag('loadThemeSettings("' + SITE_ROOT + '", "' + firstTheme + '")'));
+                            result = result.concat(getJSTag('loadThemeSettings("' + pb.config.siteRoot + '", "' + firstTheme + '")'));
                         }
                         
                         getHTMLTemplate('admin/footer', null, null, function(data)
@@ -60,7 +60,7 @@ this.getThemes = function(output)
             if(fs.existsSync(DOCUMENT_ROOT + '/plugins/themes/' + directory[sub] + '/details.json'))
             {
                 var themeData = JSON.parse(fs.readFileSync(DOCUMENT_ROOT + '/plugins/themes/' + directory[sub] + '/details.json'));
-                themesList = themesList.concat('<li id="' + themeData.uid + '_pill"><a href="javascript:loadThemeSettings(\'' + SITE_ROOT + '\', \'' + themeData.uid + '\')">' + themeData.name + '</a></li>');
+                themesList = themesList.concat('<li id="' + themeData.uid + '_pill"><a href="javascript:loadThemeSettings(\'' + pb.config.siteRoot + '\', \'' + themeData.uid + '\')">' + themeData.name + '</a></li>');
                 if(!firstTheme)
                 {
                     firstTheme = themeData.uid;
