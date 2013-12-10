@@ -6,7 +6,7 @@ require('./include/requirements');
  * for triggered the startup of the HTTP connection listener as well as start a 
  * connection pool to the core DB.
  */
-var onConfigurationLoad = function(){
+var init = function(){
 	
 	//start core db
 	initDBConnections();
@@ -23,9 +23,9 @@ var onConfigurationLoad = function(){
  */
 function initDBConnections(){
 	//setup database connection to core database
-	dbm.getDB(MONGO_DATABASE).then(function(result){
+	pb.dbm.getDB(pb.config.db.name).then(function(result){
 		if (typeof result !== 'Error') {
-			console.log('Established connection to DB: ' + result.databaseName);
+			log.debug('Established connection to DB: ' + result.databaseName);
 			mongoDB = result;
 		}
 		else {
@@ -39,8 +39,8 @@ function initDBConnections(){
  */
 var server;
 function initServer(){
-	console.log('Starting server...');
-	server = http.createServer(function(request, response){
+	log.debug('Starting server...');
+	pb.server = http.createServer(function(request, response){
 
 	    // /include/router.js
 	    var route = new Route(request, response);
@@ -75,8 +75,8 @@ function initServer(){
 	    });
 	});
 	
-	server.listen(SITE_PORT, SITE_IP);
-	console.log(SITE_NAME + ' running on ' + SITE_ROOT);
+	pb.server.listen(pb.config.sitePort, pb.config.siteIP);
+	log.info(pb.config.siteName + ' running on ' + pb.config.siteRoot);
 }
 
 /**
@@ -87,8 +87,8 @@ function registerSystemForEvents(){
 	//shutdown hook
 	process.openStdin();
 	process.on('SIGINT', function () {
-		console.log('Shutting down...');
-	  	dbm.shutdown();
+		log.info('Shutting down...');
+	  	pb.dbm.shutdown();
 	});
 }
 
@@ -98,5 +98,5 @@ function registerSystemForEvents(){
 //3. Start connection to core DB
 //4. Start HTTP Server
 //5. Register for system events
-loadConfiguration(onConfigurationLoad);
+init();
 

@@ -69,14 +69,14 @@ this.init = function(request, output)
                     {                
                         editSession(request, session, [], function(data)
                         {        
-                            output({redirect: SITE_ROOT + '/admin/content/sections'});
+                            output({redirect: pb.config.siteRoot + '/admin/content/sections'});
                         });
                     });
                 });
             });
         });
     });
-}
+};
 
 this.checkForSectionMapUpdate = function(sectionDocument, output)
 {
@@ -144,4 +144,4 @@ this.checkForSectionMapUpdate = function(sectionDocument, output)
             });
         });
     });
-}
+};

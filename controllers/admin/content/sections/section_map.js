@@ -29,7 +29,7 @@ this.init = function(request, output)
                 
                 editSession(request, session, [], function(data)
                 {
-                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + SITE_ROOT + '/admin/content/sections";')});
+                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/sections";')});
                 });
                 
                 return;
@@ -47,7 +47,7 @@ this.init = function(request, output)
                     
                     editSession(request, session, [], function(data)
                     {
-                        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + SITE_ROOT + '/admin/content/sections";')});
+                        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/sections";')});
                     });
                     
                     return;

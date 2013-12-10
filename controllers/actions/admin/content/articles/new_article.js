@@ -58,7 +58,7 @@ this.init = function(request, output)
                 session.success = '^loc_ARTICLE_CREATED^';
                 editSession(request, session, [], function(data)
                 {        
-                    output({redirect: SITE_ROOT + '/admin/content/articles'});
+                    output({redirect: pb.config.siteRoot + '/admin/content/articles'});
                 });
             });
         });

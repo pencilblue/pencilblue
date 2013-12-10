@@ -7,7 +7,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({redirect: SITE_ROOT + '/admin/login'});
+            output({redirect: pb.config.siteRoot + '/admin/login'});
             return;
         }
     

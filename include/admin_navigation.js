@@ -90,7 +90,7 @@ global.getAdminNavigationItem = function(template, itemData, activeItems)
     }
     else
     {
-        var href = SITE_ROOT + itemData.href;
+        var href = pb.config.siteRoot + itemData.href;
     }
 
     var item = template.split('^nav_icon^').join(itemData.icon);

@@ -116,6 +116,6 @@ this.invalidIDProvided = function(request, session, output)
     session.subsection = 'manage_users';
     editSession(request, session, [], function(data)
     {
-        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + SITE_ROOT + '/admin/users";')});
+        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/users";')});
     });
 }

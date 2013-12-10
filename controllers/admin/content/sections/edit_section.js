@@ -155,6 +155,6 @@ this.invalidIDProvided = function(request, session, output)
     session.subsection = 'section_map';
     editSession(request, session, [], function(data)
     {
-        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + SITE_ROOT + '/admin/content/sections";')});
+        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/sections";')});
     });
 }

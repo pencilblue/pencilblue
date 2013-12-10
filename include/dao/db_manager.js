@@ -42,9 +42,9 @@ var DBManager = function() {
 		}
 		else{
 			var options = {
-				w: MONGO_WRITE_CONCERN	
+				w: pb.config.db.writeConcern	
 			};
-			mongo.connect(MONGO_SERVER + name, options, function(err, db){
+			mongo.connect(pb.config.db.servers[0] + name, options, function(err, db){
 				if(!err){
 					//save reference to connection in global connection pool
 					dbs[db.databaseName]  = db;

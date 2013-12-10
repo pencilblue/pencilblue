@@ -41,7 +41,7 @@ this.init = function(request, output)
                 
                 editSession(request, session, [], function(data)
                 {        
-                    output({redirect: SITE_ROOT + '/admin/content/media'});
+                    output({redirect: pb.config.siteRoot + '/admin/content/media'});
                 });
             });
         });

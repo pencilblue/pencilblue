@@ -15,7 +15,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({redirect: SITE_ROOT});
+            output({redirect: pb.config.siteRoot});
             return;
         }
     
@@ -50,11 +50,11 @@ this.init = function(request, output)
                             result = result.concat(data);
                             if(session.section == 'articles')
                             {
-                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "articles", "' + session.subsection + '")'));
+                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/content/", "articles", "' + session.subsection + '")'));
                             }
                             else
                             {
-                                result = result.concat(getJSTag('loadAdminContent("' + SITE_ROOT + '/admin/content/", "articles", "new_article")'));
+                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/content/", "articles", "new_article")'));
                             }
                             
                             output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
