@@ -80,6 +80,37 @@
                 <span class="add_layout_media">
                     <label>^loc_SELECT_MEDIA^</label>
                     <div id="layout_media_options"></div>
+                    <div id="layout_media_format" style="display: none; margin-bottom: .5em">
+                        <label>^loc_MEDIA_FORMATTING^</label><br/>
+                        <div id="media_position_radio" class="btn-group" data-toggle="buttons" style="margin-bottom: .5em">
+                            <label class="btn btn-primary active">
+                                <i class="fa fa-align-left"></i>&nbsp;
+                                <input type="radio" name="media_position" id="left">^loc_LEFT^
+                            </label>
+                            <label class="btn btn-primary">
+                                <i class="fa fa-align-center"></i>&nbsp;
+                                <input type="radio" name="media_position" id="center">^loc_CENTER^
+                            </label>
+                            <label class="btn btn-primary">
+                                <i class="fa fa-align-right"></i>&nbsp;
+                                <input type="radio" name="media_position" id="right">^loc_RIGHT^
+                            </label>
+                        </div>
+                        <div class="spacer"></div>
+                        <label>^loc_MAXIMUM_HEIGHT^</label>
+                        <div class="input-group">
+                            <input type="number" id="media_max_height" name="media_max_height" class="form-control"></input>
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span id="media_max_height_unit">px</span>&nbsp;<span class="caret"></span></button>
+                                    <ul class="dropdown-menu pull-right">
+                                        <li><a href="javascript:setMediaMaxHeightUnit('px')">px</a></li>
+                                        <li><a href="javascript:setMediaMaxHeightUnit('em')">em</a></li>
+                                        <li><a href="javascript:setMediaMaxHeightUnit('%')">%</a></li>
+                                    </ul>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     <button type="button" class="btn btn-default" data-dismiss="modal">
                         <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
                     </button>
