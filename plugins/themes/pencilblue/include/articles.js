@@ -84,6 +84,7 @@ this.getArticles = function(sections, topics, output)
 this.loadMedia = function(articlesLayout, output)
 {
     var media = require('./media');
+    var mediaTemplate = '';
     var instance = this;
 
     this.replaceMediaTag = function(layout)
@@ -98,7 +99,7 @@ this.loadMedia = function(articlesLayout, output)
         var endIndex = layout.substr(startIndex).indexOf('^');
         var mediaID = layout.substr(startIndex, endIndex);
         
-        getDBObjectsWithValues({object_type: 'media'}, function(data)
+        getDBObjectsWithValues({object_type: 'media', _id: ObjectID(mediaID)}, function(data)
         {
             if(data.length == 0)
             {
@@ -106,7 +107,10 @@ this.loadMedia = function(articlesLayout, output)
             }
             else
             {
-                layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(media.getMediaEmbed(data[0]));
+                var mediaEmbed = mediaTemplate.split('^media^').join(media.getMediaEmbed(data[0]));
+                mediaEmbed = mediaEmbed.split('^caption^').join(data[0].caption + data[0].caption);
+                
+                layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);
             }
             
             instance.replaceMediaTag(layout);
@@ -128,5 +132,9 @@ this.loadMedia = function(articlesLayout, output)
         media.getCarousel(mediaIDs, layout, layout.substr(startIndex - 18, endIndex + 19), layout.substr(startIndex - 17, endIndex + 17), instance.replaceCarouselTag);
     }
     
-    this.replaceMediaTag(articlesLayout);
+    getHTMLTemplate('elements/media', null, null, function(data)
+    {
+        mediaTemplate = data;
+        instance.replaceMediaTag(articlesLayout);
+    });
 }

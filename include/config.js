@@ -12,7 +12,8 @@
 global.DOCUMENT_ROOT = __dirname.substr(0, __dirname.indexOf(path.sep+'include'));
 
 global.LOG_LEVEL = 'debug';
-global.LOG_FILE  = DOCUMENT_ROOT + '/log/pencilblue.log';
+global.LOG_FOLDER = '/log/';
+global.LOG_FILE  = DOCUMENT_ROOT + LOG_FOLDER + 'pencilblue.log';
 
 var config = {
 	siteName: 'pencilblue',
@@ -47,12 +48,12 @@ global.loadConfiguration = function() {
     // If no log file exists, we should create one - Blake
     if(!fs.existsSync(LOG_FILE))
     {
-        if(!fs.existsSync(DOCUMENT_ROOT + '/log/'))
+        if(!fs.existsSync(DOCUMENT_ROOT + LOG_FOLDER))
         {
-            fs.mkdirSync(DOCUMENT_ROOT + '/log/');
+            fs.mkdirSync(DOCUMENT_ROOT + LOG_FOLDER);
         }
         
-        fs.writeFileSync(DOCUMENT_ROOT + '/log/pencilblue.log', '');
+        fs.writeFileSync(LOG_FILE, '');
     }
 
     // Needed to add DOCUMENT_ROOT and a test to make sure the file exists. Was crashing on my setup. - Blake    

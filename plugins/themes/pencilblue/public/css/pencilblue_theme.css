@@ -1,6 +1,6 @@
 body
 {
-    background-color: #e6ecf2;
+    background-color: #E6ECF2;
 }
 
 .spacer
@@ -41,8 +41,52 @@ body
     margin: 0 0 .5em 0;
 }
 
-.media
+.byline
 {
     float: left;
     margin: 0 1em .5em 0;
+}
+
+.byline .pull-left
+{
+    width: 5em;
+    height: 5em;
+    margin: 0;
+    overflow: hidden;
+}
+
+.byline .media-body
+{
+    margin: 0;
+    padding: .5em;
+    height: 5em;
+    border: 1px solid;
+    border-color: #DFDFDF #DFDFDF #DFDFDF transparent;
+    border-radius: 0 .5em .5em 0;
+}
+
+.byline .media-heading
+{
+    margin: 0;
+}
+
+.media_embed
+{
+    display: inline-block;
+    position: relative;
+    max-width: 100%;
+}
+
+.media_embed img
+{
+    border-radius: .25em .25em 0 0;
+    max-width: 100%;
+}
+
+.media_caption
+{
+    padding: .5em;
+    font-size: .9em;
+    border-radius: 0 0 .25em .25em;
+    max-width: 100%;
 }
