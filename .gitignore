@@ -1,4 +1,6 @@
 .jshintrc
 .project
+config.json
 public/media/
 node_modules/minify/min/
+log/

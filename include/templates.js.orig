@@ -22,7 +22,7 @@ global.getHTMLTemplate = function(templateLocation, pageName, metaDesc, output)
                 templateString = '';
             }
             templateString = templateString.split('^site_name^').join(SITE_NAME);
-            templateString = templateString.split('^site_root^').join(SITE_ROOT);
+            templateString = templateString.split('^site_root^').join(pb.config.siteRoot);
 >>>>>>> theme
             if(typeof pageName !== "undefined")
             {

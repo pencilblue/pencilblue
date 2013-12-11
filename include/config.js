@@ -23,7 +23,7 @@ var config = {
 	db: {
         type:'mongo',
 		servers: [
-          'mongodb://192.168.1.73:27017/'
+          'mongodb://127.0.0.1:27017/'
         ],
         name: 'pencil_blue',
         writeConern: 1

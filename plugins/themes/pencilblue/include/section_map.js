@@ -10,7 +10,7 @@ this.setSectionMap = function(headTemplate, output)
         {
             themeSettings =
             {
-                site_logo: SITE_ROOT + '/img/logo_menu.png',
+                site_logo: pb.config.siteRoot + '/img/logo_menu.png',
                 carousel_media: []
             };
         }
@@ -56,7 +56,7 @@ this.setSectionMap = function(headTemplate, output)
                                 {
                                     //TODO: figure out how to tell if were in one of these sections
                                     var button = buttonTemplate.split('^nav_active^').join('');
-                                    button = button.split('^nav_href^').join(SITE_ROOT + '/' + section.name.toLowerCase().split(' ').join('-'));
+                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/' + section.name.toLowerCase().split(' ').join('-'));
                                     button = button.split('^nav_title^').join(section.name);
                                     
                                     navLayout = navLayout.concat(button);
@@ -67,11 +67,11 @@ this.setSectionMap = function(headTemplate, output)
                                 if(section)
                                 {
                                     var dropdown = dropdownTemplate.split('^nav_active^').join('');
-                                    dropdown = dropdown.split('^nav_href^').join(SITE_ROOT + '/' + section.url);
+                                    dropdown = dropdown.split('^nav_href^').join(pb.config.siteRoot + '/' + section.url);
                                     dropdown = dropdown.split('^nav_title^').join(section.name);
                                     
                                     var buttons = buttonTemplate.split('^nav_active^').join('');
-                                    buttons = buttons.split('^nav_href^').join(SITE_ROOT + '/' + section.url);
+                                    buttons = buttons.split('^nav_href^').join(pb.config.siteRoot + '/' + section.url);
                                     buttons = buttons.split('^nav_title^').join(section.name + ' ^loc_HOME^');
                                     
                                     for(var j = 0; j < sectionMap[i].children.length; j++)
@@ -81,7 +81,7 @@ this.setSectionMap = function(headTemplate, output)
                                         if(section)
                                         {
                                             var button = buttonTemplate.split('^nav_active^').join('');
-                                            button = button.split('^nav_href^').join(SITE_ROOT + '/' + section.url + '/' + childSection.url);
+                                            button = button.split('^nav_href^').join(pb.config.siteRoot + '/' + section.url + '/' + childSection.url);
                                             button = button.split('^nav_title^').join(childSection.name);
                                             
                                             buttons = buttons.concat(button);

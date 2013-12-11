@@ -28,7 +28,7 @@ this.init = function(request, output)
                     {
                         settings =
                         {
-                            site_logo: SITE_ROOT + '/img/logo_menu.png',
+                            site_logo: pb.config.siteRoot + '/img/logo_menu.png',
                             carousel_media: []
                         };
                     }
@@ -197,7 +197,7 @@ this.getMediaLink = function(mediaType, mediaLocation, isFile)
         default:
             if(isFile)
             {
-                return SITE_ROOT + mediaLocation;
+                return pb.config.siteRoot + mediaLocation;
             }
             return mediaLocation;
     }

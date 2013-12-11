@@ -49,7 +49,7 @@ this.init = function(request, output)
                     
                     editSession(request, session, [], function(data)
                     {        
-                        output({redirect: SITE_ROOT + '/admin/plugins/themes'});
+                        output({redirect: pb.config.siteRoot + '/admin/plugins/themes'});
                     });
                 });
                 return;
@@ -67,7 +67,7 @@ this.init = function(request, output)
                 
                 editSession(request, session, [], function(data)
                 {        
-                    output({redirect: SITE_ROOT + '/admin/plugins/themes'});
+                    output({redirect: pb.config.siteRoot + '/admin/plugins/themes'});
                 });
             });
         });
