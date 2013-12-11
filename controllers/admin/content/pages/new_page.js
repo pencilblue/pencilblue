@@ -54,7 +54,7 @@ this.init = function(request, output)
                     
                         editSession(request, session, [], function(data)
                         {
-                            output({content: localize(['admin', 'pages'], result)});
+                            output({content: localize(['admin', 'pages', 'articles', 'media'], result)});
                         });
                     });
                 });
