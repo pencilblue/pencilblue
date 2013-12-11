@@ -38,6 +38,11 @@ this.init = function(request, output)
                         title: '^loc_CONTENT^'
                     },
                     {
+                        href: '#media',
+                        icon: 'camera',
+                        title: '^loc_MEDIA^'
+                    },
+                    {
                         href: '#sections_dnd',
                         icon: 'th-large',
                         title: '^loc_SECTIONS^'
@@ -46,17 +51,6 @@ this.init = function(request, output)
                         href: '#topics_dnd',
                         icon: 'tags',
                         title: '^loc_TOPICS^'
-                    },
-                    {
-                        href: '#media',
-                        icon: 'camera',
-                        title: '^loc_MEDIA^'
-                    },
-                    {
-                        href: '#layout_tab',
-                        icon: 'table',
-                        title: '^loc_LAYOUT^',
-                        onclick: 'checkForLayoutContent(\'#article_content\')'
                     },
                     {
                         href: '#meta_data',

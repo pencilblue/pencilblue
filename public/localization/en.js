@@ -24,7 +24,8 @@ loc =
         NOW: 'Now',
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
-        SELECT_FILE: 'Select file'
+        SELECT_FILE: 'Select file',
+        NO_ARTICLES: 'No articles match the given parameters'
     },
     index:
     {
@@ -60,6 +61,11 @@ loc =
         USERS: 'Users',
         SETTINGS: 'Settings',
         SITE_SETTINGS: 'Site settings',
+        SITE_LOGO: 'Site logo',
+        LINK_TO_IMAGE: 'Link to image',
+        UPLOAD_IMAGE: 'Upload image',
+        IMAGE_URL: 'Image URL',
+        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
         ACCOUNT: 'Account',
         CUSTOM_VARIABLES: 'Custom variables',
         CUSTOM_VARIABLE_KEY: 'Unique name for the variable',
@@ -81,10 +87,12 @@ loc =
         NEW_SECTION: 'New section',
         SECTION_NAME: 'Section name',
         DESCRIPTION: 'Description',
+        URL_KEY: 'URL Key',
         PARENT_SECTION: 'Parent section',
         EXISTING_SECTION: 'A section with this name already exists',
         SECTION_CREATED: 'The section was successfully created',
         SECTION_EDITED: 'The section was successfully edited',
+        SECTION_DELETED: 'The section was successfully deleted',
         SECTION_MAP_SAVED: 'The section map was successfully saved'
     },
     topics:
@@ -111,6 +119,8 @@ loc =
         UPLOAD: 'UPLOAD',
         MEDIA_NAME: 'Media name',
         CAPTION: 'Caption',
+        RELATED_MEDIA: 'Drag related media here',
+        UNRELATED_MEDIA: 'Drag unrelated media here',
         MEDIA_ADDED: 'The media was successfully added',
         MEDIA_DELETED: 'The media was successfully deleted'
     },
@@ -135,8 +145,6 @@ loc =
         PUBLISH_DATE: 'Publish date',
         ACTIVE_SECTIONS: 'Drag associated sections here',
         INACTIVE_SECTIONS: 'Drag unassociated sections here',
-        RELATED_MEDIA: 'Drag related media here',
-        UNRELATED_MEDIA: 'Drag unrelated media here',
         ARTICLE_CREATED: 'The article was successfully created',
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',
@@ -163,8 +171,10 @@ loc =
         ACCOUNT_INFO: 'Account info',
         PERSONAL_INFO: 'Personal info',
         USERNAME: 'Username',
+        USER_PHOTO: 'User photo',
         FIRST_NAME: 'First name',
         LAST_NAME: 'Last name',
+        POSITION: 'Position',
         EMAIL: 'Email',
         PASSWORD: 'Password',
         CONFIRM_PASSWORD: 'Confirm Password',

@@ -48,14 +48,6 @@ function getExtraZero(dateNumber)
     return dateNumber;
 }
 
-function calculateColumnInches()
-{
-    var wordCount = $('#article_content').val().split(' ').length;
-    var columnInches = (Math.floor(wordCount / 4) * 0.1).toFixed(1);
-    
-    $('#column_inches').html('(' + columnInches + ' ' + loc.generic.COLUMN_INCHES + ')');
-}
-
 function checkForNewArticleSave()
 {
     // We need to remove other fieldsets so the form data isn't duplicated
@@ -154,7 +146,7 @@ function buildMedia(output)
 {
     var mediaElements = $('#active_media').find('.col-md-3');
     mediaElementCount = 0;
-    mediasArray = [];
+    mediaArray = [];
     
     if(mediaElements.length == 0)
     {
@@ -164,12 +156,12 @@ function buildMedia(output)
     
     mediaElements.each(function()
     {
-        mediasArray.push($(this).attr('id').split('media_').join('').trim());
+        mediaArray.push($(this).attr('id').split('media_').join('').trim());
         
         mediaElementCount++;
         if(mediaElementCount >= mediaElements.length)
         {
-            output(mediasArray.join(','));
+            output(mediaArray.join(','));
         }
     });
 }

@@ -84,6 +84,10 @@ this.setTextDefaults = function(result, user)
     result = result.split('^email^').join(user.email);
     result = result.split('^first_name^').join(user.first_name);
     result = result.split('^last_name^').join(user.last_name);
+    result = result.split('^position^').join(user.position);
+    
+    result = result.split('^image_title^').join('^loc_USER_PHOTO^');
+    result = result.split('^uploaded_image^').join((user.photo) ? user.photo : '');
     
     return result;
 }

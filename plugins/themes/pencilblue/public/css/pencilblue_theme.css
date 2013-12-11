@@ -1,0 +1,48 @@
+body
+{
+    background-color: #e6ecf2;
+}
+
+.spacer
+{
+    clear: both;
+}
+
+#index_carousel .item
+{
+    max-height: 320px;
+}
+
+#index_carousel img
+{
+    width: 100%;
+    min-width: 800px;
+}
+
+.carousel .inner-item
+{
+    text-align: center;
+}
+
+.carousel .inner-item img
+{
+    margin: 0 auto;
+}
+
+.article
+{
+    background-color: #FFFFFF;
+    padding: 1em;
+    margin: 1em 0;
+}
+
+.article h1, .article h2, .article h3, .article h4, .article h5
+{
+    margin: 0 0 .5em 0;
+}
+
+.media
+{
+    float: left;
+    margin: 0 1em .5em 0;
+}

@@ -31,7 +31,9 @@ this.init = function(request, output)
         delete post['caption'];
         delete post['layout_link_url'];
         
-        if(message = checkForRequiredParameters(post, ['url', 'template', 'article_content']))
+        post['author'] = session['user']._id.toString();
+        
+        if(message = checkForRequiredParameters(post, ['url', 'template', 'article_layout']))
         {
             formError(request, session, message, '/admin/content/articles', output);
             return;

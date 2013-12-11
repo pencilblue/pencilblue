@@ -29,6 +29,9 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
+                result = result.split('^image_title^').join('^loc_USER_PHOTO^');
+                result = result.split('^uploaded_image^').join('');
+                
                 var tabs =
                 [
                     {
@@ -57,7 +60,7 @@ this.init = function(request, output)
                         
                         editSession(request, session, [], function(data)
                         {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users', 'media'], result)});
                         });
                     });
                 });

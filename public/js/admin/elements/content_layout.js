@@ -6,18 +6,12 @@ $(document).ready(function()
     $('#layout_content').resizable({handles: 'n,s'});
 });
 
-function checkForLayoutContent(contentID)
+function calculateColumnInches()
 {
-    if($('#layout_code').val().length == 0)
-    {
-        var content = $(contentID).val();
-        if(content.length > 0)
-        {
-            content = createParagraphs(content);
-            $('#layout_code').val(content);
-            $('#layout_editable').html(content);
-        }
-    }
+    var wordCount = $('#layout_editable').text().split(' ').length;
+    var columnInches = (Math.floor(wordCount / 4) * 0.1).toFixed(1);
+    
+    $('#column_inches').html('(' + columnInches + ' ' + loc.generic.COLUMN_INCHES + ')');
 }
 
 function toggleLayoutFullscreen()
@@ -111,6 +105,7 @@ function onLayoutEditableChanged()
         layoutRange = window.getSelection().getRangeAt(0);
         setSelectedHTML();
         checkForFormatState();
+        calculateColumnInches();
     }
 }
 
@@ -153,6 +148,7 @@ function checkForFormatState()
 function onLayoutCodeChanged()
 {
     $('#layout_editable').html($('#layout_code').val());
+    calculateColumnInches();
 }
 
 function createParagraphs(content)
