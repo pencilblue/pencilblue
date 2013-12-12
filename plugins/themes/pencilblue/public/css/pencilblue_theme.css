@@ -60,9 +60,9 @@ body
     margin: 0;
     padding: .5em;
     height: 5em;
-    border: 1px solid;
-    border-color: #DFDFDF #DFDFDF #DFDFDF transparent;
-    border-radius: 0 .5em .5em 0;
+    border: 1px solid #DFDFDF;
+    border-left: none;
+    border-radius: 0 .25em .25em 0;
 }
 
 .byline .media-heading

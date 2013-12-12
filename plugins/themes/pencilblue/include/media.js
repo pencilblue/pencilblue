@@ -5,7 +5,7 @@ this.getMediaEmbed = function(mediaObject, options)
     switch(mediaObject.media_type)
     {
         case 'image':
-            return '<img class="img-responsive" src="' + mediaObject.location + '"></img>';
+            return '<img class="img-responsive" src="' + mediaObject.location + '" style="^media_style^"></img>';
         case 'youtube':
             return '<iframe width="560" height="315" src="//www.youtube.com/embed/' + mediaObject.location + '" frameborder="0" allowfullscreen></iframe>';
         case 'vimeo':
@@ -13,6 +13,47 @@ this.getMediaEmbed = function(mediaObject, options)
         case 'daily_motion':
             return '<iframe frameborder="0" width="480" height="270" src="http://www.dailymotion.com/embed/video/' + mediaObject.location + '"></iframe>'
     }
+}
+
+this.getMediaStyle = function(template, styleString)
+{
+    var styleElements = styleString.split(',');
+    var containerCSS = [];
+    var mediaCSS = [];
+    
+    for(var i = 0; i < styleElements.length; i++)
+    {
+        var styleSetting = styleElements[i].split(':');
+        
+        switch(styleSetting[0])
+        {
+            case 'position':
+                switch(styleSetting[1])
+                {
+                    case 'left':
+                        containerCSS.push('float: left');
+                        break;
+                    case 'right':
+                        containerCSS.push('float: right');
+                        break;
+                    case 'center':
+                    default:
+                        containerCSS.push('text-align: center');
+                        break;
+                }
+                break;
+            case 'maxheight':
+                mediaCSS.push('max-height: ' + styleSetting[1]);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    template = template.split('^container_style^').join(containerCSS.join(';'));
+    template = template.split('^media_style^').join(mediaCSS.join(';'));
+    
+    return template;
 }
 
 this.getCarousel = function(carouselMedia, template, tagToReplace, carouselID, output)

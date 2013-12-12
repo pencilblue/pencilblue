@@ -97,7 +97,9 @@ this.loadMedia = function(articlesLayout, output)
         
         var startIndex = layout.indexOf('^media_display_') + 15;
         var endIndex = layout.substr(startIndex).indexOf('^');
-        var mediaID = layout.substr(startIndex, endIndex);
+        var mediaProperties = layout.substr(startIndex, endIndex).split('/');
+        var mediaID = mediaProperties[0];
+        var mediaStyleString = mediaProperties[1];
         
         getDBObjectsWithValues({object_type: 'media', _id: ObjectID(mediaID)}, function(data)
         {
@@ -108,7 +110,8 @@ this.loadMedia = function(articlesLayout, output)
             else
             {
                 var mediaEmbed = mediaTemplate.split('^media^').join(media.getMediaEmbed(data[0]));
-                mediaEmbed = mediaEmbed.split('^caption^').join(data[0].caption + data[0].caption);
+                mediaEmbed = mediaEmbed.split('^caption^').join(data[0].caption);
+                mediaEmbed = media.getMediaStyle(mediaEmbed, mediaStyleString);
                 
                 layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);
             }
