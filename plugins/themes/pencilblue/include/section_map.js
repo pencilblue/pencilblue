@@ -56,7 +56,7 @@ this.setSectionMap = function(headTemplate, output)
                                 {
                                     //TODO: figure out how to tell if were in one of these sections
                                     var button = buttonTemplate.split('^nav_active^').join('');
-                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/' + section.name.toLowerCase().split(' ').join('-'));
+                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/' + section.url);
                                     button = button.split('^nav_title^').join(section.name);
                                     
                                     navLayout = navLayout.concat(button);

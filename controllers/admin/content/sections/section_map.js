@@ -102,14 +102,22 @@ this.getSections = function(sectionMap, output)
                 {
                     for(var i = 0; i < sectionMap.length; i++)
                     {
+                        var sectionMatch = false;
+                        
                         for(var j = 0; j < data.length; j++)
                         {
                             if(sectionMap[i].uid == data[j]._id)
                             {
                                 var sectionListElement = sectionTemplate.split('^section_id^').join(data[j]._id);
                                 sectionListElement = sectionListElement.split('^section_name^').join(data[j].name);
+                                sectionMatch = true;
                                 break;
                             }
+                        }
+                        
+                        if(!sectionMatch)
+                        {
+                            break;
                         }
                         
                         subsectionList = '';
