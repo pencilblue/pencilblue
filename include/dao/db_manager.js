@@ -38,13 +38,17 @@ var DBManager = function() {
 		var promise = new Promise();
 		
 		if (dbs.hasOwnProperty(name)) {
+			log.debug("Providing cached instance of DB connection ["+name+"]");
 			promise.resolve(null, dbs[name]);
 		}
 		else{
+			var dbURL   = pb.config.db.servers[0] + name;
 			var options = {
 				w: pb.config.db.writeConcern	
 			};
-			mongo.connect(pb.config.db.servers[0] + name, options, function(err, db){
+			
+			pb.log.debug("Attempting connection to: "+dbURL);
+			mongo.connect(dbURL, options, function(err, db){
 				if(!err){
 					//save reference to connection in global connection pool
 					dbs[db.databaseName]  = db;

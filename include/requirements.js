@@ -1,7 +1,9 @@
 /**
- * 
- * @copyright PencilBlue 2013, All Rights Reserved
+ * Requirements - Responsible for declaring all of the system types and modules 
+ * needed to construct the system API object.
+ * @copyright PencilBlue, all rights reserved.
  */
+//setup global resources & modules
 global.url        = require('url');
 global.fs         = require('fs');
 global.http       = require('http');
@@ -10,56 +12,46 @@ global.formidable = require('formidable');
 global.process    = require('process');
 global.minify     = require('minify');
 global.winston    = require('winston');
+global.async      = require('async');
 
-//setup promises
-var promise      = require('node-promise');
-global.when      = promise.when;
-global.Promise   = promise.Promise;
+var promise       = require('node-promise');
+global.when       = promise.when;
+global.Promise    = promise.Promise;
 
-// Fixes fs on earlier versions of node
-//TODO Find out if this is still needed!!!!
+//hack for fs module
 fs.exists     = fs.exists     || path.exists;
 fs.existsSync = fs.existsSync || path.existsSync;
 
-//set global properties
-global.pb = {};
+//define what will become the global entry point into the server api.
+var pb = {};
+
+//load the configuration
 pb.config = require('./config');
-pb.log    = require('./utils/logging.js').logger(winston, pb.config);
-pb.dbm    = new (require('./dao/db_manager').DBManager);
 
-global.log = pb.log;
+//configure logging
+global.log = 
+pb.log = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, pb.config);
 
-//global types
-global.DAO = require('./dao/dao');
+//configure the DB manager
+pb.dbm = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
 
-// ContentType responses
-require('./response_head');
-// URL routing
-require('./router');
-// Query parameter retrieval
-require('./query');
-// Unique ID
-require('./unique_id');
-// Sessions
-require('./session');
-// Database objects
-require('./model/db_object');
+//setup system class types
+pb.DAO = require(DOCUMENT_ROOT+'/include/dao/dao');
 
-// Access management
-require('./access_management.js');
-// Document creation
-require('./model/create_document.js');
-// Templatizing
-require('./templates');
-// Localization
-require('./localization');
-// Client JS
-require('./client_js');
-// Admin Navigation
-require('./admin_navigation');
-// Error and Success Message Handling
-require('./error_success');
+//system requires
+require(DOCUMENT_ROOT+'/include/response_head');			//ContentType responses
+require(DOCUMENT_ROOT+'/include/router');					// URL routing
+require(DOCUMENT_ROOT+'/include/query');					// Query parameter retrieval
+require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
+require(DOCUMENT_ROOT+'/include/session');					// Sessions
+require(DOCUMENT_ROOT+'/include/model/db_object');			// Database objects
+require(DOCUMENT_ROOT+'/include/access_management.js');		// Access management
+require(DOCUMENT_ROOT+'/include/model/create_document.js');	// Document creation
+require(DOCUMENT_ROOT+'/include/templates');				// Templatizing
+require(DOCUMENT_ROOT+'/include/localization');				// Localization
+require(DOCUMENT_ROOT+'/include/client_js');				// Client JS
+require(DOCUMENT_ROOT+'/include/admin_navigation');			// Admin Navigation
+require(DOCUMENT_ROOT+'/include/error_success');			// Error and Success Message Handling
 
-// Edit custom_requirements.js to add your own file requirements
-//require('./custom_requirements');
-
+//Export system object
+module.exports = pb;

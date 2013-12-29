@@ -16,7 +16,7 @@ exports.testSimpleQuery = function(test){
 	loadConfiguration(function(){
 		dbm.getDB(MONGO_DATABASE).then(function(result){
 			
-			(new DAO()).query('setting').then(function(result){
+			(new pb.DAO()).query('setting').then(function(result){
 				
 				//start the shutdown sequence
 				dbm.shutdown();
@@ -34,7 +34,7 @@ exports.testDeleteById = function(test){
 	loadConfiguration(function(){
 		dbm.getDB(MONGO_DATABASE).then(function(result){
 			
-			(new DAO()).deleteById(expectedId, collection).then(function(result){
+			(new pb.DAO()).deleteById(expectedId, collection).then(function(result){
 				
 				//start the shutdown sequence
 				dbm.shutdown();
@@ -54,7 +54,7 @@ exports.testInsert = function(test){
 	};
 	loadConfiguration(function(){
 		dbm.getDB(MONGO_DATABASE).then(function(result){
-			(new DAO()).insert(expected).then(function(result){
+			(new pb.DAO()).insert(expected).then(function(result){
 				
 				//start the shutdown sequence
 				dbm.shutdown();
@@ -79,7 +79,7 @@ exports.testUpdate = function(test){
 	};
 	loadConfiguration(function(){
 		dbm.getDB(MONGO_DATABASE).then(function(result){
-			var dao = new DAO();
+			var dao = new pb.DAO();
 			dao.insert(expected).then(function(result){
 				
 				result.value = "some value 2";
