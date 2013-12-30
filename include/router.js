@@ -161,6 +161,35 @@ global.Route = function(request, response)
         }
     }
     
+    this.checkForArticleRoute = function(requestURL, output)
+    {
+        if(requestURL.lastIndexOf('.') > -1)
+        {
+            output(false);
+            return;
+        }
+    
+        var sections = requestURL.substr(1).split('/');
+        
+        if(sections.length > 1)
+        {
+            output(false);
+            return;
+        }
+        
+        getDBObjectsWithValues({object_type: 'article', url: sections[0]}, function(data)
+        {
+            if(data.length == 0)
+            {
+                output(false);
+                return;
+            }
+            
+            request.pencilblue_article = data[0]._id.toString();
+            output(true);
+        });
+    }
+    
     getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
     {
         if(data.length > 0)
@@ -210,14 +239,41 @@ global.Route = function(request, response)
                                         instance.writeResponse({content: data});
                                     });
                                 }
-                                // If everything fails, see if the route is for a section
+                                // If everything fails, see if the route is for a section or article
                                 else
                                 {
                                     instance.checkForSectionRoute(requestURL, function(isSection)
                                     {
                                         if(!isSection)
                                         {
-                                            instance.attemptDefaultRoute();
+                                            instance.checkForArticleRoute(requestURL, function(isArticle)
+                                            {
+                                                if(!isArticle)
+                                                {
+                                                    instance.attemptDefaultRoute();
+                                                    return;
+                                                }
+                                                
+                                                fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/article.js', function(exists)
+                                                {
+                                                    if(!exists)
+                                                    {
+                                                        fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/index.js', function(exists)
+                                                        {
+                                                            if(!exists)
+                                                            {
+                                                                instance.attemptDefaultRoute();
+                                                                return;
+                                                            }
+                                                            
+                                                            require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/index').init(request, instance.writeResponse);
+                                                        });  
+                                                        return;
+                                                    }
+                                                    
+                                                    require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/article').init(request, instance.writeResponse);
+                                                });
+                                            });
                                             return;
                                         }
                                         

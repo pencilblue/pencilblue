@@ -34,7 +34,10 @@ this.init = function(request, output)
                             result = result.concat(data);
                             
                             var section = request.pencilblue_section || null;
-                            require('../include/articles').getArticles(section, null, function(articles)
+                            var topic = request.pencilblue_topic || null;
+                            var article = request.pencilblue_article || null;
+                            
+                            require('../include/articles').getArticles(section, topic, article, function(articles)
                             {
                                 result = result.split('^articles^').join(articles);
                                 

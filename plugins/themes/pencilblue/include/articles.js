@@ -1,8 +1,9 @@
-this.getArticles = function(section, topic, output)
+this.getArticles = function(section, topic, article, output)
 {
     var articlesLayout = '';
     var articleTemplate = '';
     var bylineTemplate = '';
+    var isArticle = false;
     var instance = this;
     
     var searchObject = {object_type: 'article'};
@@ -13,6 +14,11 @@ this.getArticles = function(section, topic, output)
     if(topic)
     {
         searchObject.article_topics = topic;
+    }
+    if(article)
+    {
+        var isArticle = true;
+        searchObject._id = ObjectID(article);
     }
     
     getHTMLTemplate('elements/article', [], [], function(data)
@@ -50,7 +56,7 @@ this.getArticles = function(section, topic, output)
                     
                     for(var i = 0; i < articles.length; i++)
                     {
-                        var article = articleTemplate.split('^article_headline^').join(articles[i].headline);
+                        var article = articleTemplate.split('^article_headline^').join((isArticle) ? articles[i].headline : '<a href="' + pb.config.siteRoot + '/' + articles[i].url + '">' + articles[i].headline + '</a>');
                         article = article.split('^article_subheading^').join('<h3>' + articles[i].subheading + '</h3>');
                         
                         var byline = '';
