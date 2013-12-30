@@ -49,7 +49,8 @@ function openLayoutFullscreen()
     $('#layout_content').css(
     {
         'height': ($('#layout_editor').height() - $('#layout_content').position().top) + 'px',
-        'margin': '0'
+        'margin': '0',
+        'opacity': '1'
     });
     
     $('#layout_code').focus();
