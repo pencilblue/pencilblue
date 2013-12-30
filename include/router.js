@@ -106,6 +106,61 @@ global.Route = function(request, response)
         });
     }
     
+    this.checkForSectionRoute = function(requestURL, output)
+    {
+        if(requestURL.lastIndexOf('.') > -1)
+        {
+            output(false);
+            return;
+        }
+    
+        var sections = requestURL.substr(1).split('/');
+        
+        if(sections.length > 2)
+        {
+            output(false);
+        }
+        else if(sections.length == 1)
+        {
+            getDBObjectsWithValues({object_type: 'section', url: sections[0], parent: null}, function(data)
+            {
+                if(data.length == 0)
+                {
+                    output(false);
+                    return;
+                }
+                
+                request.pencilblue_section = data[0]._id.toString();
+                output(true);
+            });
+        }
+        else
+        {
+            getDBObjectsWithValues({object_type: 'section', url: sections[0], parent: null}, function(data)
+            {
+                if(data.length == 0)
+                {
+                    output(false);
+                    return;
+                }
+                
+                var parentSectionID = data[0]._id;
+                
+                getDBObjectsWithValues({object_type: 'section', url: sections[1], parent: parentSectionID.toString()}, function(data)
+                {
+                    if(data.length == 0)
+                    {
+                        output(false);
+                        return;
+                    }
+                    
+                    request.pencilblue_section = data[0]._id.toString();
+                    output(true);
+                });
+            });
+        }
+    }
+    
     getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
     {
         if(data.length > 0)
@@ -155,10 +210,37 @@ global.Route = function(request, response)
                                         instance.writeResponse({content: data});
                                     });
                                 }
-                                // If everything fails, throw a 404
+                                // If everything fails, see if the route is for a section
                                 else
                                 {
-                                    instance.attemptDefaultRoute();
+                                    instance.checkForSectionRoute(requestURL, function(isSection)
+                                    {
+                                        if(!isSection)
+                                        {
+                                            instance.attemptDefaultRoute();
+                                            return;
+                                        }
+                                        
+                                        fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/section.js', function(exists)
+                                        {
+                                            if(!exists)
+                                            {
+                                                fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/index.js', function(exists)
+                                                {
+                                                    if(!exists)
+                                                    {
+                                                        instance.attemptDefaultRoute();
+                                                        return;
+                                                    }
+                                                    
+                                                    require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/index').init(request, instance.writeResponse);
+                                                });  
+                                                return;
+                                            }
+                                            
+                                            require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/section').init(request, instance.writeResponse);
+                                        });
+                                    });
                                 }
                             });
                         }

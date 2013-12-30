@@ -1,4 +1,4 @@
-this.getArticles = function(sections, topics, output)
+this.getArticles = function(section, topic, output)
 {
     var articlesLayout = '';
     var articleTemplate = '';
@@ -6,13 +6,13 @@ this.getArticles = function(sections, topics, output)
     var instance = this;
     
     var searchObject = {object_type: 'article'};
-    if(sections.length > 0)
+    if(section)
     {
-        searchObject.sections = {$in: sections};
+        searchObject.article_sections = section;
     }
-    if(topics.length > 0)
+    if(topic)
     {
-        searchObject.topics = {$in: topics};
+        searchObject.article_topics = topic;
     }
     
     getHTMLTemplate('elements/article', [], [], function(data)
