@@ -32,9 +32,11 @@ this.getMediaStyle = function(template, styleString)
                 {
                     case 'left':
                         containerCSS.push('float: left');
+                        containerCSS.push('margin-right: 1em');
                         break;
                     case 'right':
                         containerCSS.push('float: right');
+                        containerCSS.push('margin-left: 1em');
                         break;
                     case 'center':
                     default:

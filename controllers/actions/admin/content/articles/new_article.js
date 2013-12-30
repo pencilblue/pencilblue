@@ -34,6 +34,7 @@ this.init = function(request, output)
         delete post['media_max_height'];
         
         post['author'] = session['user']._id.toString();
+        post['publish_date'] = new Date(post['publish_date']);
         
         if(message = checkForRequiredParameters(post, ['url', 'template', 'article_layout']))
         {

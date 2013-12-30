@@ -20,6 +20,7 @@ this.getArticles = function(section, topic, article, output)
         var isArticle = true;
         searchObject._id = ObjectID(article);
     }
+    searchObject.publish_date = {$lt: new Date()};
     
     getHTMLTemplate('elements/article', [], [], function(data)
     {
