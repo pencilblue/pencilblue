@@ -1,18 +1,24 @@
-this.getArticles = function(sections, topics, output)
+this.getArticles = function(section, topic, article, output)
 {
     var articlesLayout = '';
     var articleTemplate = '';
     var bylineTemplate = '';
+    var isArticle = false;
     var instance = this;
     
     var searchObject = {object_type: 'article'};
-    if(sections.length > 0)
+    if(section)
     {
-        searchObject.sections = {$in: sections};
+        searchObject.article_sections = section;
     }
-    if(topics.length > 0)
+    if(topic)
     {
-        searchObject.topics = {$in: topics};
+        searchObject.article_topics = topic;
+    }
+    if(article)
+    {
+        var isArticle = true;
+        searchObject._id = ObjectID(article);
     }
     
     getHTMLTemplate('elements/article', [], [], function(data)
@@ -50,7 +56,7 @@ this.getArticles = function(sections, topics, output)
                     
                     for(var i = 0; i < articles.length; i++)
                     {
-                        var article = articleTemplate.split('^article_headline^').join(articles[i].headline);
+                        var article = articleTemplate.split('^article_headline^').join((isArticle) ? articles[i].headline : '<a href="' + pb.config.siteRoot + '/' + articles[i].url + '">' + articles[i].headline + '</a>');
                         article = article.split('^article_subheading^').join('<h3>' + articles[i].subheading + '</h3>');
                         
                         var byline = '';
@@ -84,6 +90,7 @@ this.getArticles = function(sections, topics, output)
 this.loadMedia = function(articlesLayout, output)
 {
     var media = require('./media');
+    var mediaTemplate = '';
     var instance = this;
 
     this.replaceMediaTag = function(layout)
@@ -96,9 +103,11 @@ this.loadMedia = function(articlesLayout, output)
         
         var startIndex = layout.indexOf('^media_display_') + 15;
         var endIndex = layout.substr(startIndex).indexOf('^');
-        var mediaID = layout.substr(startIndex, endIndex);
+        var mediaProperties = layout.substr(startIndex, endIndex).split('/');
+        var mediaID = mediaProperties[0];
+        var mediaStyleString = mediaProperties[1];
         
-        getDBObjectsWithValues({object_type: 'media'}, function(data)
+        getDBObjectsWithValues({object_type: 'media', _id: ObjectID(mediaID)}, function(data)
         {
             if(data.length == 0)
             {
@@ -106,7 +115,11 @@ this.loadMedia = function(articlesLayout, output)
             }
             else
             {
-                layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(media.getMediaEmbed(data[0]));
+                var mediaEmbed = mediaTemplate.split('^media^').join(media.getMediaEmbed(data[0]));
+                mediaEmbed = mediaEmbed.split('^caption^').join(data[0].caption);
+                mediaEmbed = media.getMediaStyle(mediaEmbed, mediaStyleString);
+                
+                layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);
             }
             
             instance.replaceMediaTag(layout);
@@ -128,5 +141,9 @@ this.loadMedia = function(articlesLayout, output)
         media.getCarousel(mediaIDs, layout, layout.substr(startIndex - 18, endIndex + 19), layout.substr(startIndex - 17, endIndex + 17), instance.replaceCarouselTag);
     }
     
-    this.replaceMediaTag(articlesLayout);
+    getHTMLTemplate('elements/media', null, null, function(data)
+    {
+        mediaTemplate = data;
+        instance.replaceMediaTag(articlesLayout);
+    });
 }

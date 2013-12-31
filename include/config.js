@@ -87,6 +87,6 @@ var loadConfiguration = function() {
 };
 
 //export configuration
-config = loadConfiguration();
+config                   = loadConfiguration();
 config.loadConfiguration = loadConfiguration;
-module.exports = config;
+module.exports           = config;

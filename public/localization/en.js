@@ -5,6 +5,9 @@ loc =
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'All rights reserved',
         NONE: 'None',
+        LEFT: 'Left',
+        CENTER: 'Center',
+        RIGHT: 'Right',
         LOGOUT: 'Logout',
         WRITER: 'Writer',
         READER: 'Reader',
@@ -121,6 +124,8 @@ loc =
         CAPTION: 'Caption',
         RELATED_MEDIA: 'Drag related media here',
         UNRELATED_MEDIA: 'Drag unrelated media here',
+        MEDIA_FORMATTING: 'Media formatting',
+        MAXIMUM_HEIGHT: 'Maximum height',
         MEDIA_ADDED: 'The media was successfully added',
         MEDIA_DELETED: 'The media was successfully deleted'
     },

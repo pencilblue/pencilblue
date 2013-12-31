@@ -30,6 +30,8 @@ this.init = function(request, output)
         delete post['name'];
         delete post['caption'];
         delete post['layout_link_url'];
+        delete post['media_position'];
+        delete post['media_max_height'];
         
         post['author'] = session['user']._id.toString();
         

@@ -269,6 +269,7 @@ function getLayoutMediaOptions()
     if(activeMedia.length == 0)
     {
         return '<a href="javascript:associateMedia()">' + loc.articles.ASSOCIATE_MEDIA + '</a><br/>&nbsp;';
+        $('#layout_media_format').hide();
     }
     
     var mediaHTML = '';
@@ -281,7 +282,13 @@ function getLayoutMediaOptions()
         mediaHTML = mediaHTML.concat(mediaCheckbox);
     });
     
+    $('#layout_media_format').show();
     return mediaHTML;
+}
+
+function setMediaMaxHeightUnit(unit)
+{
+    $('#media_max_height_unit').html(unit);
 }
 
 function associateMedia()
@@ -293,22 +300,41 @@ function associateMedia()
 function addLayoutMedia()
 {
     var associatedMedia = [];
+    var mediaOptionsChecked = 0;
     $('#layout_media_options input').each(function()
     {
         if($(this).is(':checked'))
         {
             associatedMedia.push($(this).attr('id').substr(13));
         }
+        mediaOptionsChecked++;
+        
+        if(mediaOptionsChecked >= $('#layout_media_options input').length)
+        {
+            var mediaFormat = getMediaFormat();
+        
+            if(associatedMedia.length == 1)
+            {
+                layoutFormat('inserthtml', '<div>^media_display_' + associatedMedia[0] + mediaFormat + '^</div>');
+            }
+            else if(associatedMedia.length > 1)
+            {
+                layoutFormat('inserthtml', '<div>^carousel_display_' + associatedMedia.join('-') + mediaFormat + '^</div>');
+            }
+            
+            $('#content_layout_modal').modal('hide');
+        }
     });
+}
+
+function getMediaFormat()
+{
+    var mediaFormat = '/position:' + $('#media_position_radio').find('.active').first().find('input').attr('id');
     
-    if(associatedMedia.length == 1)
+    if($('#media_max_height').val())
     {
-        layoutFormat('inserthtml', '<div>^media_display_' + associatedMedia[0] + '^</div>');
-    }
-    else if(associatedMedia.length > 1)
-    {
-        layoutFormat('inserthtml', '<div>^carousel_display_' + associatedMedia.join('-') + '^</div>');
+        mediaFormat = mediaFormat.concat(',maxheight:' + $('#media_max_height').val() + $('#media_max_height_unit').html());
     }
     
-    $('#content_layout_modal').modal('hide');
+    return mediaFormat;
 }
