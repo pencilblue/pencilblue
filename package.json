@@ -1,0 +1,54 @@
+{
+    "author": {
+        "name": "PencilBlue Inc.",
+        "email": "info@pencilblue.com"
+    },
+    "contributors": [
+        {
+            "name": "Blake Callens"
+        },
+        {
+            "name": "Brian Hyder"
+        }
+    ],
+    "name": "pencileblue",
+    "description": "An awesome & flexible CMS",
+    "keywords": [
+        "cms", "website", "framework"
+    ],
+   "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "git://bitbucket.org/pencilblue/pencilblue.git"
+    },
+    "dependencies": {
+    	"async": "0.2.9",
+	    "mongodb": "1.3.19",
+	    "formidable": "1.0.14",
+	    "minify": "0.2.3",
+	    "node-promise": "0.5.9",
+	    "nodemailer": "0.5.3",
+	    "process": "0.5.1",
+	    "winston": "0.7.2"
+    },
+    "devDependencies": {},
+    "main": "./pencileblue.js",
+    "engines": {
+        "node": ">= 0.10.0"
+    },
+    "scripts": {
+        "test": "make test_functional"
+    },
+    "licenses": [
+        {
+            "type": "Apache License, Version 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0"
+        }
+    ],
+    "readme": "See README file",
+    "readmeFilename": "README.md",
+    "bugs": {
+        "url": "https://bitbucket.org/pencilblue/pencilblue/issues"
+    },
+    "_id": "pencileblue@0.0.1"
+}

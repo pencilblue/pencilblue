@@ -10,10 +10,11 @@
 
 // Don't change this setting
 global.DOCUMENT_ROOT = __dirname.substr(0, __dirname.indexOf(path.sep+'include'));
+global.EXTERNAL_ROOT = path.join(path.sep, 'etc', 'pencilblue');
 
 global.LOG_LEVEL = 'debug';
-global.LOG_FOLDER = '/log/';
-global.LOG_FILE  = DOCUMENT_ROOT + LOG_FOLDER + 'pencilblue.log';
+global.LOG_DIR   = path.join(DOCUMENT_ROOT, 'log');
+global.LOG_FILE  = path.join(LOG_DIR, 'pencilblue.log');
 
 var config = {
 	siteName: 'pencilblue',
@@ -43,25 +44,23 @@ var config = {
  * this function after the server starts may cause unintended behavior across 
  * the system.
  */
-global.loadConfiguration = function() {
+var loadConfiguration = function() {
 
-    // If no log file exists, we should create one - Blake
-    if(!fs.existsSync(LOG_FILE))
-    {
-        if(!fs.existsSync(DOCUMENT_ROOT + LOG_FOLDER))
-        {
-            fs.mkdirSync(DOCUMENT_ROOT + LOG_FOLDER);
+    // If no log file exists, we should create one
+	// TODO decide if this is still needed or if the file logger creates the file for us
+	console.log("Creating log directory: "+LOG_DIR);
+    if (!fs.existsSync(LOG_FILE)) {
+        if (!fs.existsSync(LOG_DIR)) {
+            fs.mkdirSync(LOG_DIR);
         }
-        
         fs.writeFileSync(LOG_FILE, '');
     }
-
-    // Needed to add DOCUMENT_ROOT and a test to make sure the file exists. Was crashing on my setup. - Blake    
-    if(fs.existsSync(DOCUMENT_ROOT + '/config.json'))
-    {
-	    var result = fs.readFileSync(DOCUMENT_ROOT + '/config.json', {encoding: "UTF-8"});
+   
+    var overrideFile = path.join(EXTERNAL_ROOT, 'config.json');
+    if (fs.existsSync(overrideFile)) {
+	    var result = fs.readFileSync(overrideFile, {encoding: "UTF-8"});
 		      
-	    var override = null;
+	    var override = {};
 	    if (typeof result === 'Error') {
 	        console.log('Failed to read external configuration file. Using defaults: '+err);
 	        return config;
@@ -71,7 +70,7 @@ global.loadConfiguration = function() {
 		      override = JSON.parse(result);
 		    }
 		    catch(e){
-		      console.log('Failed to parse configuration file.  Using defaults: '+e);
+		      console.log('Failed to parse configuration file ['+overrideFile+'].  Using defaults: '+e);
 		      return config;
 		    }
 	    }
@@ -81,7 +80,13 @@ global.loadConfiguration = function() {
 		    config[key] = override[key];
 	    }
     }
+    else{
+    	console.log("No override file found ["+overrideFile+"], keeping defaults");
+    }
 	return config;
 };
 
-module.exports = loadConfiguration();
+//export configuration
+config                   = loadConfiguration();
+config.loadConfiguration = loadConfiguration;
+module.exports           = config;

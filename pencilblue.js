@@ -1,5 +1,5 @@
 // A grouping of all require calls
-require('./include/requirements');
+global.pb = require('./include/requirements');
 
 /**
  * To be called when the configuration is loaded.  The function is responsible 

@@ -1,7 +1,7 @@
 // Create a new DBObject by passing a mongo JSON of variables (i.e., {type: "user", name: "Blake", state: "NC"})
 global.createDBObject = function(variables, output)
 {
-    (new DAO()).insert(variables).then(function(result){
+    (new pb.DAO()).insert(variables).then(function(result){
     	if (typeof result === 'Error') {
             throw result;
         }
@@ -74,7 +74,7 @@ global.editDBObject = function(oid, variables, unsetSkips, output)
 // Delete DBObject with ObjectID
 global.deleteDBObject = function(oid, object_type, output)
 {
-    (new DAO()).deleteById(oid, object_type).then(function(result){
+    (new pb.DAO()).deleteById(oid, object_type).then(function(result){
     	if (typeof result === 'Error') {
             throw result;
         }
@@ -85,7 +85,7 @@ global.deleteDBObject = function(oid, object_type, output)
 // Deletes DBObject that meet criteria
 global.deleteMatchingDBObjects = function(criteria, output)
 {
-    (new DAO()).deleteMatching(criteria, criteria.object_type).then(function(result){
+    (new pb.DAO()).deleteMatching(criteria, criteria.object_type).then(function(result){
     	if (typeof result === 'Error') {
             throw result;
         }
@@ -102,7 +102,7 @@ global.getDBObjectsWithValues = function(values, output) {
         delete values['$orderby'];
     }
 
-    (new DAO()).query(values.object_type, values, DAO.PROJECT_ALL, orderBy).then(function(result){
+    (new pb.DAO()).query(values.object_type, values, pb.DAO.PROJECT_ALL, orderBy).then(function(result){
     	if (typeof result === 'Error') {
             throw result;
         }
