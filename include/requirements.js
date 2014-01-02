@@ -52,6 +52,7 @@ require(DOCUMENT_ROOT+'/include/localization');				// Localization
 require(DOCUMENT_ROOT+'/include/client_js');				// Client JS
 require(DOCUMENT_ROOT+'/include/admin_navigation');			// Admin Navigation
 require(DOCUMENT_ROOT+'/include/error_success');			// Error and Success Message Handling
+require(DOCUMENT_ROOT+'/include/form');			            // Retrieving of form data through sessions
 
 //Export system object
 module.exports = pb;

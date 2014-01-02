@@ -302,12 +302,5 @@ global.defaultAdminNavigation =
                 access: ACCESS_WRITER
             }
         ]
-    },
-    {
-        id: 'view_site',
-        title: '^loc_VIEW_SITE^',
-        icon: 'eye',
-        href: pb.config.siteRoot,
-        access: ACCESS_WRITER
     }
 ];

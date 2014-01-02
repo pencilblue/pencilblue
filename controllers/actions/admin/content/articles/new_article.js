@@ -36,7 +36,9 @@ this.init = function(request, output)
         post['author'] = session['user']._id.toString();
         post['publish_date'] = new Date(post['publish_date']);
         
-        if(message = checkForRequiredParameters(post, ['url', 'template', 'article_layout']))
+        session = setFormFieldValues(post, session);
+        
+        if(message = checkForRequiredParameters(post, ['url', 'headline', 'template', 'article_layout']))
         {
             formError(request, session, message, '/admin/content/articles', output);
             return;
@@ -69,6 +71,7 @@ this.init = function(request, output)
                     }
                     
                     session.success = '^loc_ARTICLE_CREATED^';
+                    delete session.fieldValues;
                     editSession(request, session, [], function(data)
                     {        
                         output({redirect: pb.config.siteRoot + '/admin/content/articles'});
