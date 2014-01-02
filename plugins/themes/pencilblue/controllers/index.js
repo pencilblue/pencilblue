@@ -36,8 +36,9 @@ this.init = function(request, output)
                             var section = request.pencilblue_section || null;
                             var topic = request.pencilblue_topic || null;
                             var article = request.pencilblue_article || null;
+                            var page = request.pencilblue_page || null;
                             
-                            require('../include/articles').getArticles(section, topic, article, function(articles)
+                            require('../include/articles').getArticles(section, topic, article, page, function(articles)
                             {
                                 result = result.split('^articles^').join(articles);
                                 

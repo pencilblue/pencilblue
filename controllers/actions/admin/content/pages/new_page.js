@@ -1,6 +1,6 @@
 /*
 
-    Creates a new article
+    Creates a new page
     
     @author Blake Callens <blake.callens@gmail.com>
     @copyright PencilBlue 2013, All rights reserved
@@ -11,15 +11,14 @@ this.init = function(request, output)
 {
     getSession(request, function(session)
     {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
+        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/articles', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/pages', output);
             return;
         }
     
         var post = getPostParameters(request);
         
-        delete post['section_search'];
         delete post['topic_search'];
         delete post['media_search'];
         delete post['media_url'];
@@ -36,42 +35,43 @@ this.init = function(request, output)
         post['author'] = session['user']._id.toString();
         post['publish_date'] = new Date(post['publish_date']);
         
-        if(message = checkForRequiredParameters(post, ['url', 'template', 'article_layout']))
+        if(message = checkForRequiredParameters(post, ['url', 'template', 'page_layout']))
         {
-            formError(request, session, message, '/admin/content/articles', output);
+            formError(request, session, message, '/admin/content/pages', output);
             return;
         }
         
-        var articleDocument = createDocument('article', post, ['meta_keywords', 'article_sections', 'article_topics', 'article_media']);
+        var pageDocument = createDocument('page', post, ['meta_keywords', 'page_topics', 'page_media']);
         
-        getDBObjectsWithValues({object_type: 'article', url: articleDocument['url']}, function(data)
+        getDBObjectsWithValues({object_type: 'page', url: pageDocument['url']}, function(data)
         {
             if(data.length > 0)
             {
-                formError(request, session, '^loc_EXISTING_URL^', '/admin/content/articles', output);
+                formError(request, session, '^loc_EXISTING_URL^', '/admin/content/pages', output);
                 return;
             }
             
-            getDBObjectsWithValues({object_type: 'page', url: articleDocument['url']}, function(data)
+            getDBObjectsWithValues({object_type: 'article', url: pageDocument['url']}, function(data)
             {
+            
                 if(data.length > 0)
                 {
-                    formError(request, session, '^loc_EXISTING_URL^', '/admin/content/articles', output);
+                    formError(request, session, '^loc_EXISTING_URL^', '/admin/content/pages', output);
                     return;
-                }
+                }            
             
-                createDBObject(articleDocument, function(data)
+                createDBObject(pageDocument, function(data)
                 {
                     if(data.length == 0)
                     {
-                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/articles', output);
+                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/pages', output);
                         return;
                     }
                     
-                    session.success = '^loc_ARTICLE_CREATED^';
+                    session.success = '^loc_PAGE_CREATED^';
                     editSession(request, session, [], function(data)
                     {        
-                        output({redirect: pb.config.siteRoot + '/admin/content/articles'});
+                        output({redirect: pb.config.siteRoot + '/admin/content/pages'});
                     });
                 });
             });

@@ -161,7 +161,7 @@ global.Route = function(request, response)
         }
     }
     
-    this.checkForArticleRoute = function(requestURL, output)
+    this.checkForArticleOrPageRoute = function(requestURL, output)
     {
         if(requestURL.lastIndexOf('.') > -1)
         {
@@ -181,7 +181,17 @@ global.Route = function(request, response)
         {
             if(data.length == 0)
             {
-                output(false);
+                getDBObjectsWithValues({object_type: 'page', url: sections[0]}, function(data)
+                {
+                    if(data.length == 0)
+                    {
+                        output(false);
+                        return;
+                    }
+                    
+                    request.pencilblue_page = data[0]._id.toString();
+                    output(true);
+                });
                 return;
             }
             
@@ -242,13 +252,13 @@ global.Route = function(request, response)
                                 // If everything fails, see if the route is for a section or article
                                 else
                                 {
-                                    instance.checkForSectionRoute(requestURL, function(isSection)
+                                    instance.checkForArticleOrPageRoute(requestURL, function(isArticleOrPage)
                                     {
-                                        if(!isSection)
+                                        if(!isArticleOrPage)
                                         {
-                                            instance.checkForArticleRoute(requestURL, function(isArticle)
+                                            instance.checkForSectionRoute(requestURL, function(isSection)
                                             {
-                                                if(!isArticle)
+                                                if(!isSection)
                                                 {
                                                     instance.attemptDefaultRoute();
                                                     return;

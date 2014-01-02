@@ -88,6 +88,10 @@ global.getAdminNavigationItem = function(template, itemData, activeItems)
     {
         var href = itemData.href;
     }
+    else if(itemData.href.indexOf('http://') > -1 || itemData.href.indexOf('https://') > -1)
+    {
+        var href = itemData.href;
+    }
     else
     {
         var href = pb.config.siteRoot + itemData.href;
@@ -298,5 +302,12 @@ global.defaultAdminNavigation =
                 access: ACCESS_WRITER
             }
         ]
+    },
+    {
+        id: 'view_site',
+        title: '^loc_VIEW_SITE^',
+        icon: 'eye',
+        href: pb.config.siteRoot,
+        access: ACCESS_WRITER
     }
 ];
