@@ -35,7 +35,9 @@ this.init = function(request, output)
         post['author'] = session['user']._id.toString();
         post['publish_date'] = new Date(post['publish_date']);
         
-        if(message = checkForRequiredParameters(post, ['url', 'template', 'page_layout']))
+        session = setFormFieldValues(post, session);
+        
+        if(message = checkForRequiredParameters(post, ['url', 'headline', 'template', 'page_layout']))
         {
             formError(request, session, message, '/admin/content/pages', output);
             return;
@@ -69,6 +71,7 @@ this.init = function(request, output)
                     }
                     
                     session.success = '^loc_PAGE_CREATED^';
+                    delete session.fieldValues;
                     editSession(request, session, [], function(data)
                     {        
                         output({redirect: pb.config.siteRoot + '/admin/content/pages'});

@@ -74,10 +74,16 @@ this.init = function(request, output)
                                 {
                                     session = newSession;
                                     result = newResult;
-                            
-                                    editSession(request, session, [], function(data)
+                                    
+                                    checkForFormRefill(result, session, function(newResult, newSession)
                                     {
-                                        output({content: localize(['admin', 'pages', 'articles', 'media'], result)});
+                                        session = newSession;
+                                        result = newResult;
+                            
+                                        editSession(request, session, [], function(data)
+                                        {
+                                            output({content: localize(['admin', 'pages', 'articles', 'media'], result)});
+                                        });
                                     });
                                 });
                             });
