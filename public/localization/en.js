@@ -63,6 +63,7 @@ loc =
         INSTALL_PLUGIN: 'Install a plugin',
         USERS: 'Users',
         SETTINGS: 'Settings',
+        VIEW_SITE: 'View site', 
         SITE_SETTINGS: 'Site settings',
         SITE_LOGO: 'Site logo',
         LINK_TO_IMAGE: 'Link to image',
@@ -137,7 +138,8 @@ loc =
         TEMPLATE: 'Template',
         HEADLINE: 'Headline',
         SUBHEADING: 'Subheading',
-        PUBLISH_DATE: 'Publish date'
+        PUBLISH_DATE: 'Publish date',
+        PAGE_CREATED: 'The page was successfully created'
     },
     articles:
     {

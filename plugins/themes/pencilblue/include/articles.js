@@ -1,9 +1,10 @@
-this.getArticles = function(section, topic, article, output)
+this.getArticles = function(section, topic, article, page, output)
 {
     var articlesLayout = '';
     var articleTemplate = '';
     var bylineTemplate = '';
     var isArticle = false;
+    var isPage = false;
     var instance = this;
     
     var searchObject = {object_type: 'article'};
@@ -11,15 +12,22 @@ this.getArticles = function(section, topic, article, output)
     {
         searchObject.article_sections = section;
     }
-    if(topic)
+    else if(topic)
     {
         searchObject.article_topics = topic;
     }
-    if(article)
+    else if(article)
     {
         var isArticle = true;
         searchObject._id = ObjectID(article);
     }
+    else if(page)
+    {
+        var isPage = true;
+        searchObject.object_type = 'page';
+        searchObject._id = ObjectID(page);
+    }
+    searchObject.publish_date = {$lt: new Date()};
     
     getHTMLTemplate('elements/article', [], [], function(data)
     {
@@ -73,7 +81,16 @@ this.getArticles = function(section, topic, article, output)
                         }
                         
                         article = article.split('^article_byline^').join(byline);
-                        article = article.split('^article_layout^').join(articles[i].article_layout);
+                        switch(searchObject.object_type)
+                        {
+                            case 'page':
+                                article = article.split('^article_layout^').join(articles[i].page_layout);
+                                break;
+                            case 'article':
+                            default:
+                                article = article.split('^article_layout^').join(articles[i].article_layout);
+                                break;
+                        }
                         articlesLayout = articlesLayout.concat(article);
                     }
                     
