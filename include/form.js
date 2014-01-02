@@ -1,10 +1,18 @@
+global.prepareFormReturns = function(session, result, output)
+{
+    displayErrorOrSuccess(session, result, function(newSession, newResult)
+    {
+        checkForFormRefill(newSession, newResult, output);
+    });
+}
+
 global.setFormFieldValues = function(post, session)
 {
     session.fieldValues = post;
     return session;
 }
 
-global.checkForFormRefill = function(result, session, output)
+global.checkForFormRefill = function(session, result, output)
 {
     if(session.fieldValues)
     {
@@ -15,5 +23,5 @@ global.checkForFormRefill = function(result, session, output)
         delete session.fieldValues;
     }
     
-    output(result, session);
+    output(session, result);
 }

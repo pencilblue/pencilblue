@@ -79,20 +79,14 @@ this.init = function(request, output)
                                 {
                                     result = result.split('^media_options^').join(mediaList);
                             
-                                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                                    prepareFormReturns(session, result, function(newSession, newResult)
                                     {
                                         session = newSession;
                                         result = newResult;
                                         
-                                        checkForFormRefill(result, session, function(newResult, newSession)
+                                        editSession(request, session, [], function(data)
                                         {
-                                            session = newSession;
-                                            result = newResult;
-                                
-                                            editSession(request, session, [], function(data)
-                                            {
-                                                output({content: localize(['admin', 'articles', 'media'], result)});
-                                            });
+                                            output({content: localize(['admin', 'articles', 'media'], result)});
                                         });
                                     });
                                 });
