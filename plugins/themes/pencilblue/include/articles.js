@@ -64,7 +64,7 @@ this.getArticles = function(section, topic, article, page, output)
                     
                     for(var i = 0; i < articles.length; i++)
                     {
-                        var article = articleTemplate.split('^article_headline^').join((isArticle) ? articles[i].headline : '<a href="' + pb.config.siteRoot + '/' + articles[i].url + '">' + articles[i].headline + '</a>');
+                        var article = articleTemplate.split('^article_headline^').join((isArticle || isPage) ? articles[i].headline : '<a href="' + pb.config.siteRoot + '/' + articles[i].url + '">' + articles[i].headline + '</a>');
                         article = article.split('^article_subheading^').join('<h3>' + articles[i].subheading + '</h3>');
                         
                         var byline = '';
