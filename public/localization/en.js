@@ -70,6 +70,7 @@ loc =
         UPLOAD_IMAGE: 'Upload image',
         IMAGE_URL: 'Image URL',
         IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
+        AUTHOR: 'Author',
         ACCOUNT: 'Account',
         CUSTOM_VARIABLES: 'Custom variables',
         CUSTOM_VARIABLE_KEY: 'Unique name for the variable',
@@ -143,6 +144,7 @@ loc =
     },
     articles:
     {
+        MANAGE_ARTICLES: 'Manage articles',
         NEW_ARTICLE: 'New article',
         ARTICLE_URL: 'Article URL',
         CUSTOM_URL: 'custom-url',

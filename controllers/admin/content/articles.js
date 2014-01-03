@@ -34,6 +34,12 @@ this.init = function(request, output)
                         children: 
                         [
                             {
+                                name: 'manage_articles',
+                                title: '^loc_MANAGE_ARTICLES^',
+                                icon: 'files-o',
+                                folder: '/admin/content/'
+                            },
+                            {
                                 name: 'new_article',
                                 title: '^loc_NEW_ARTICLE^',
                                 icon: 'plus',
