@@ -7,6 +7,30 @@
 
 */
 
+var formRefillOptions =
+[
+    {
+        id: 'publish_date',
+        type: 'datetime'
+    },
+    {
+        id: 'page_layout',
+        type: 'layout'
+    },
+    {
+        id: 'page_media',
+        type: 'drag_and_drop',
+        elementPrefix: 'media_',
+        activeContainer: '#active_media'
+    },
+    {
+        id: 'page_topics',
+        type: 'drag_and_drop',
+        elementPrefix: 'topic_',
+        activeContainer: '#active_topics'
+    }
+];
+
 $(document).ready(function()
 {
     $('#new_page_form').validate(
