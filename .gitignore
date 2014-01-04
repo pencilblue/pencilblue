@@ -4,3 +4,4 @@ config.json
 public/media/
 node_modules/minify/min/
 log/
+node_modules
