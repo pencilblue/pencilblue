@@ -35,11 +35,14 @@ var DBManager = function() {
 	 * that occurred
 	 */
 	this.getDB = function(name) {
+		if(!name){
+			name = pb.config.db.name;
+		}
 		var promise = new Promise();
 		
 		if (dbs.hasOwnProperty(name)) {
 			log.debug("Providing cached instance of DB connection ["+name+"]");
-			promise.resolve(null, dbs[name]);
+			promise.resolve(dbs[name]);
 		}
 		else{
 			var dbURL   = pb.config.db.servers[0] + name;

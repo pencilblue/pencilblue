@@ -98,8 +98,13 @@ global.getDBObjectsWithValues = function(values, output) {
 	
 	var orderBy = null;
     if (values['$orderby']) {
-        orderBy = values['$orderby'];
+        var temp = values['$orderby'];
         delete values['$orderby'];
+        
+        orderBy = [];
+        for(var key in temp){
+        	orderBy.push([key, temp[key]]);
+        }
     }
 
     (new pb.DAO()).query(values.object_type, values, pb.DAO.PROJECT_ALL, orderBy).then(function(result){

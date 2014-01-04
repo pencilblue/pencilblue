@@ -97,7 +97,7 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
 
 this.getTemplateOptions = function(output)
 {
@@ -148,13 +148,13 @@ this.getTemplateOptions = function(output)
             output('');
         }
     });
-}
+};
 
 this.getSectionOptions = function(output)
 {
     var sections = [];
     var sectionTemplate = '';
-    var subsectionTemplate = ''
+    var subsectionTemplate = '';
     var sectionsList = '';
     
     getHTMLTemplate('admin/content/articles/new_article/section', null, null, function(data)
@@ -162,7 +162,7 @@ this.getSectionOptions = function(output)
         sectionTemplate = data;
         getHTMLTemplate('admin/content/articles/new_article/subsection', null, null, function(data)
         {
-            subsectionTemplate = data;
+            subsectionTemplate = data;pb.log.debug('here');
             getDBObjectsWithValues({object_type: 'section', $orderby: {name: 1}}, function(data)
             {
                 if(data.length > 0)
@@ -188,7 +188,7 @@ this.getSectionOptions = function(output)
             });
         });
     });
-}
+};
 
 this.getTopicOptions = function(output)
 {
@@ -222,7 +222,7 @@ this.getTopicOptions = function(output)
             output(topicsList);
         });
     });
-}
+};
 
 this.getMediaOptions = function(output)
 {
@@ -262,7 +262,7 @@ this.getMediaOptions = function(output)
             output(mediaList);
         });
     });
-}
+};
 
 this.getMediaIcon = function(mediaType)
 {
@@ -293,7 +293,7 @@ this.getMediaIcon = function(mediaType)
     }
     
     return '<i class="fa fa-' + iconID + '"></i>';
-}
+};
 
 this.getMediaLink = function(mediaType, mediaLocation, isFile)
 {
@@ -316,4 +316,4 @@ this.getMediaLink = function(mediaType, mediaLocation, isFile)
             }
             return mediaLocation;
     }
-}
+};

@@ -8,56 +8,136 @@
 //requires
 require('../../base_test');
 
-process.on('uncaughtException', function(err) {
-	  console.error(err.stack);
-});
+//constants
+var TEST_COLLECTION = 'test_collection';
 
-exports.testSimpleQuery = function(test){
-	loadConfiguration(function(){
-		dbm.getDB(MONGO_DATABASE).then(function(result){
+module.exports = {
+	
+	setUp: function(cb){
+		async.series({
+			dropCollection: function(callback){
+				pb.dbm.getDB().then(function(result){
+					result.dropCollection(TEST_COLLECTION, function(err, result){
+						if(err){
+							console.log('WARNING: Could not drop collection ['+TEST_COLLECTION+']: '+err);
+						}
+						callback(null, result);
+					});
+				});
+			},
+			createCollection: function(callback){
+				pb.dbm.getDB().then(function(result){
+					result.createCollection(TEST_COLLECTION, {}, callback);
+				});
+			}
+		}, 
+		function(err, result){
+			if(err){
+				throw err;
+			}
+			cb();
+		});
+	},
+
+	tearDown: function(cb){
+		cb();
+	},
+	
+	testSimpleQuery: function(test){
+		pb.dbm.getDB().then(function(result){
 			
-			(new pb.DAO()).query('setting').then(function(result){
+			(new pb.DAO()).query(TEST_COLLECTION).then(function(result){
 				
 				//start the shutdown sequence
-				dbm.shutdown();
+				pb.dbm.shutdown();
 				
 				//TODO actually test for setting
 				test.done();
 			});
 		});
-	});
-};
-
-exports.testDeleteById = function(test){
-	var expectedId = '123456789012';
-	var collection = 'setting';
-	loadConfiguration(function(){
-		dbm.getDB(MONGO_DATABASE).then(function(result){
+	},
+	
+	testOrderByQuery: function(test){
+		pb.dbm.getDB().then(function(result){
+			var dao = new pb.DAO();
+			async.series([
+	                function(callback){
+	                	var expected = {
+	            			object_type: TEST_COLLECTION,
+	            			key: "testOrderByQuery3",
+	            			value: "3",
+	                	};
+	                	dao.insert(expected).then(function(result){
+	                		callback(null, result);
+	                	});
+	                },
+	                function(callback){
+	                	var expected = {
+	            			object_type: TEST_COLLECTION,
+	            			key: "testOrderByQuery1",
+	            			value: "1",
+	                	};
+	                	dao.insert(expected).then(function(result){
+	                		callback(typeof result == 'Error' ? result : null, result);
+	                	});
+	                },
+	                function(callback){
+	                	var expected = {
+	            			object_type: TEST_COLLECTION,
+	            			key: "testOrderByQuery2",
+	            			value: "2",
+	                	};
+	                	dao.insert(expected).then(function(result){
+	                		callback(null, result);
+	                	});
+	                }
+	            ], 
+	            function(err, result){
+					test.equals(null, err);
+					
+					var orderBy = [['key', pb.DAO.ASC]];
+					dao.query(TEST_COLLECTION, pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, orderBy).then(function(result){
+						
+						//start the shutdown sequence
+						pb.dbm.shutdown();
+						
+						test.equals('testOrderByQuery1', result[0]['key']);
+						test.equals('testOrderByQuery2', result[1]['key']);
+						test.equals('testOrderByQuery3', result[2]['key']);
+						test.done();
+					});
+				}
+			);
+		});
+	},
+	
+	testDeleteById: function(test){
+		var expectedId = '123456789012';
+		var collection = 'setting';
+		pb.dbm.getDB().then(function(result){
 			
 			(new pb.DAO()).deleteById(expectedId, collection).then(function(result){
 				
 				//start the shutdown sequence
-				dbm.shutdown();
+				pb.dbm.shutdown();
 				
 				test.equals(0, result);
 				test.done();
 			});
 		});
-	});
-};
-
-exports.testInsert = function(test){
-	var expected = {
-			object_type: "setting",
-			key: "unit_test_insert",
-			value: "some value",
-	};
-	loadConfiguration(function(){
-		dbm.getDB(MONGO_DATABASE).then(function(result){
+	},
+	
+	testInsert: function(test){
+		var expected = {
+				object_type: "setting",
+				key: "unit_test_insert",
+				value: "some value",
+		};
+		pb.dbm.getDB().then(function(result){
 			(new pb.DAO()).insert(expected).then(function(result){
 				
 				//start the shutdown sequence
-				dbm.shutdown();
+				pb.dbm.shutdown();
 				
 				//evaluate test
 				test.notEqual(result._id, undefined);
@@ -68,17 +148,15 @@ exports.testInsert = function(test){
 				test.done();
 			});
 		});
-	});
-};
-
-exports.testUpdate = function(test){
-	var expected = {
-			object_type: "setting",
-			key: "unit_test_update",
-			value: "some value",
-	};
-	loadConfiguration(function(){
-		dbm.getDB(MONGO_DATABASE).then(function(result){
+	},
+	
+	testUpdate: function(test){
+		var expected = {
+				object_type: "setting",
+				key: "unit_test_update",
+				value: "some value",
+		};
+		pb.dbm.getDB().then(function(result){
 			var dao = new pb.DAO();
 			dao.insert(expected).then(function(result){
 				
@@ -86,7 +164,7 @@ exports.testUpdate = function(test){
 				dao.update(result).then(function(uresult){
 					
 					//start the shutdown sequence
-					dbm.shutdown();
+					pb.dbm.shutdown();
 					
 					//evaluate test
 					console.log("UPDATE: "+JSON.stringify(uresult));
@@ -95,5 +173,5 @@ exports.testUpdate = function(test){
 				});
 			});
 		});
-	});
+	}
 };
