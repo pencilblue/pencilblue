@@ -30,6 +30,11 @@ var config = {
         name: 'pencil_blue',
         writeConern: 1
 	},
+	cache: {
+		fake: true,
+		host: "localhost",
+		port: 6379
+	},
 	logging: {
 		level: LOG_LEVEL,
 		transports: [

@@ -32,6 +32,9 @@ pb.config = require('./config');
 global.log = 
 pb.log = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, pb.config);
 
+//configure cache
+pb.cache = require(DOCUMENT_ROOT+'/include/dao/cache.js').createClient(pb.config);
+
 //configure the DB manager
 pb.dbm = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
 
