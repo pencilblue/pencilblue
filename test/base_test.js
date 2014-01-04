@@ -4,7 +4,7 @@
  * @author Brian Hyder <brianhyder@gmail.com>
  * @copyright PencilBlue 2013, All rights reserved
  */
-require('../include/requirements');
+global.pb = require('../include/requirements');
 
 //exception handler
 //TODO Figure out how to bail out and still fail the test.  Currently the 

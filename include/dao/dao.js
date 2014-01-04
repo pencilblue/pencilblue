@@ -12,6 +12,10 @@ function DAO(dbName){
  * Static variable to indicate that all values of a document should be returned.
  */
 DAO.PROJECT_ALL = {};
+DAO.ANYWHERE    = {};
+
+DAO.ASC  = 'asc';
+DAO.DESC = 'desc';
 
 /**
  * Retrieves an object by ID
@@ -36,7 +40,7 @@ DAO.prototype.loadById = function(id, objectType, collection){
  * @param limit
  * @param offset
  */
-DAO.prototype.query = function(entityType, where, select, orderby, limit, offset){
+DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset){
 	//verify a collection was provided
 	if (typeof entityType === 'undefined') {
 		throw Error('An entity type must be specified!');
@@ -59,9 +63,19 @@ DAO.prototype.query = function(entityType, where, select, orderby, limit, offset
 		cursor.limit(limit);
 	}
 	
+	if(pb.log.isDebug()){
+		var query = "QUERY: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
+		if (typeof orderBy !== 'undefined') {
+			query += " ORDER BY "+JSON.stringify(orderBy);
+		}
+		if (typeof limit !== 'undefined') {
+			query += " LIMITY "+JSON.stringify(limit)+", OFFSET "+offset;
+		}
+		pb.log.debug(query);
+	}
+	
 	var promise = new Promise();
-	cursor.toArray(function(err, docs)
-    {
+	cursor.toArray(function(err, docs){
         promise.resolve(err ? err : docs);
     });
 	

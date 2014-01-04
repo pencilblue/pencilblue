@@ -31,13 +31,16 @@
 	    "process": "0.5.1",
 	    "winston": "0.7.2"
     },
-    "devDependencies": {},
+    "devDependencies": {
+    	"nodeunit": "0.8.2"
+    },
     "main": "./pencileblue.js",
     "engines": {
         "node": ">= 0.10.0"
     },
     "scripts": {
-        "test": "make test_functional"
+    	"start": "node pencilblue.js",
+        "test": "nodeunit test/include/dao/dao_test.js"
     },
     "licenses": [
         {

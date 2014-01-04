@@ -31,6 +31,7 @@ var config = {
         writeConern: 1
 	},
 	logging: {
+		level: LOG_LEVEL,
 		transports: [
              new (winston.transports.Console)({ level: LOG_LEVEL, timestamp: true }),
              new (winston.transports.File)({ filename: LOG_FILE, level: LOG_LEVEL, timestamp: true })
