@@ -192,6 +192,19 @@ loc =
         EXISTING_EMAIL: 'Email address is already registered',
         USER_CREATED: 'The user was successfully created',
         USER_EDITED: 'The user was successfully edited'
+    },
+    site_settings:
+    {
+        CONFIGURATION: 'Configuration',
+        EDIT_CONFIGURATION: 'To edit the configuration, create a config.json file in the root directory',
+        SITE_NAME: 'Site name',
+        SITE_ROOT: 'Site root',
+        DOCUMENT_ROOT: 'Document root',
+        IP_ADDRESS: 'IP address',
+        PORT: 'Port',
+        DB_TYPE: 'Database type',
+        DB_NAME: 'Database name',
+        DB_SERVERS: 'Database server(s)'
     }
 }
 
