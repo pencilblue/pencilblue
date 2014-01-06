@@ -1,3 +1,12 @@
+/*
+
+    Interface for editing a page
+    
+    @author Blake Callens <blake.callens@gmail.com>
+    @copyright PencilBlue 2014, All rights reserved
+
+*/
+
 var formRefillOptions =
 [
     {
@@ -5,23 +14,17 @@ var formRefillOptions =
         type: 'datetime'
     },
     {
-        id: 'article_layout',
+        id: 'page_layout',
         type: 'layout'
     },
     {
-        id: 'article_media',
+        id: 'page_media',
         type: 'drag_and_drop',
         elementPrefix: 'media_',
         activeContainer: '#active_media'
     },
     {
-        id: 'article_sections',
-        type: 'drag_and_drop',
-        elementPrefix: 'section_',
-        activeContainer: '#active_sections'
-    },
-    {
-        id: 'article_topics',
+        id: 'page_topics',
         type: 'drag_and_drop',
         elementPrefix: 'topic_',
         activeContainer: '#active_topics'
@@ -29,8 +32,8 @@ var formRefillOptions =
 ];
 
 $(document).ready(function()
-{    
-    $('#edit_article_form').validate(
+{
+    $('#edit_page_form').validate(
     {
         rules:
         {
@@ -77,73 +80,37 @@ function getExtraZero(dateNumber)
     return dateNumber;
 }
 
-function checkForEditArticleSave()
+function checkForEditPageSave()
 {
     // We need to remove other fieldsets so the form data isn't duplicated
     $('.modal-body fieldset').remove();
 
-    buildSections(function(sectionsCSV)
+    buildTopics(function(topicsCSV)
     {
-        if(!$('#article_sections').position())
+        if(!$('#page_topics').position())
         {
-            $('fieldset').append('<input type="text" id="article_sections" name="article_sections" value="' + sectionsCSV + '" style="display: none"></input>');
+            $('fieldset').append('<input type="text" id="page_topics" name="page_topics" value="' + topicsCSV + '" style="display: none"></input>');
         }
         else
         {
-            $('#article_sections').val(sectionsCSV);
+            $('#page_topics').val(topicsCSV);
         }
         
-        buildTopics(function(topicsCSV)
+        buildMedia(function(mediaCSV)
         {
-            if(!$('#article_topics').position())
+            if(!$('#page_media').position())
             {
-                $('fieldset').append('<input type="text" id="article_topics" name="article_topics" value="' + topicsCSV + '" style="display: none"></input>');
+                $('fieldset').append('<input type="text" id="page_media" name="page_media" value="' + mediaCSV + '" style="display: none"></input>');
             }
             else
             {
-                $('#article_topics').val(topicsCSV);
+                $('#page_media').val(mediaCSV);
             }
-            
-            buildMedia(function(mediaCSV)
-            {
-                if(!$('#article_media').position())
-                {
-                    $('fieldset').append('<input type="text" id="article_media" name="article_media" value="' + mediaCSV + '" style="display: none"></input>');
-                }
-                else
-                {
-                    $('#article_media').val(mediaCSV);
-                }
-            
-                $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + $('#layout_editable').html() + '</textarea>');
-                
-                $('#edit_article_form').submit();
-            });
-        });
-    });
-}
-
-function buildSections(output)
-{
-    var sectionElements = $('#active_sections').find('.section');
-    sectionElementCount = 0;
-    sectionsArray = [];
-    
-    if(sectionElements.length == 0)
-    {
-        output('');
-        return;
-    }
-    
-    sectionElements.each(function()
-    {
-        sectionsArray.push($(this).attr('id').split('section_').join('').trim());
         
-        sectionElementCount++;
-        if(sectionElementCount >= sectionElements.length)
-        {
-            output(sectionsArray.join(','));
-        }
+            $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + $('#layout_editable').html() + '</textarea>');
+            
+            $('#edit_page_form').submit();
+        });
     });
 }
 

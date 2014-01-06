@@ -131,6 +131,7 @@ loc =
     },
     pages:
     {
+        MANAGE_PAGES: 'Manage pages',
         NEW_PAGE: 'New page',
         PAGE_URL: 'Page URL',
         CUSTOM_URL: 'custom-url',

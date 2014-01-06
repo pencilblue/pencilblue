@@ -39,6 +39,7 @@ function setArticleRows(index, sortField, sortOrder)
     for(var i = index; i < index + articlesPerPage && i < articles.length; i++)
     {
         var articleRow = articleTemplate.split('^headline^').join(articles[i].headline);
+        articleRow = articleRow.split('^url^').join(articles[i].url);
         articleRow = articleRow.split('^author^').join(articles[i].author_name);
         articleRow = articleRow.split('^publish_date^').join(getDatetimeText(new Date(articles[i].publish_date)));
         articleRow = articleRow.split('^article_id^').join(articles[i]._id);

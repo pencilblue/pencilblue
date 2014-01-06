@@ -1,23 +1,23 @@
 ^error_success^
 
-<table id="articles_table" class="table table-responsive table-condensed">
-    <tr id="articles_table_header">
+<table id="pages_table" class="table table-responsive table-condensed">
+    <tr id="pages_table_header">
         <th>^loc_HEADLINE^</th>
-        <th>^loc_ARTICLE_URL^</th>
+        <th>^loc_PAGE_URL^</th>
         <th>^loc_AUTHOR^</th>
         <th>^loc_PUBLISH_DATE^</th>
         <th></th>
     </tr>
 </table>
-<ul id="articles_pagination" class="pagination pagination-sm">
+<ul id="pages_pagination" class="pagination pagination-sm">
 </ul>
-<table id="article_template" style="display: none">
-    <tr class="article_row">
+<table id="page_template" style="display: none">
+    <tr class="page_row">
         <td>^headline^</td>
         <td>^url^</td>
         <td>^author^</td>
         <td>^publish_date^</td>
-        <td><a href="javascript:editArticle('^site_root^', '^article_id^')"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a href="javascript:confirmDeleteArticle('^site_root^', '^article_id^', '^headline^')"><i class="fa fa-times"></i></a></td>
+        <td><a href="javascript:editPage('^site_root^', '^page_id^')"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a href="javascript:confirmDeletePage('^site_root^', '^page_id^', '^headline^')"><i class="fa fa-times"></i></a></td>
     </tr>
 </table>
 <div class="modal fade" id="confirm_delete_modal">
@@ -37,4 +37,4 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="^site_root^/js/admin/content/articles/manage_articles.js"></script>
+<script type="text/javascript" src="^site_root^/js/admin/content/pages/manage_pages.js"></script>
