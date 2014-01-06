@@ -60,7 +60,7 @@ this.init = function(request, output)
                             }
                             else
                             {
-                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/content/", "articles", "new_article")'));
+                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/content/", "articles", "manage_articles")'));
                             }
                             
                             output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});

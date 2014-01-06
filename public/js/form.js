@@ -25,6 +25,7 @@ function refillForm(fieldValues)
                     break;
                 case 'layout':
                     $('#layout_editable').html(fieldValues[option.id]);
+                    $('#layout_editable').focus();
                     onLayoutEditableChanged();
                     break;
                 case 'drag_and_drop':

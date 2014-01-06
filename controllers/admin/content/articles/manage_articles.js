@@ -55,10 +55,12 @@ this.init = function(request, output)
                     session = newSession;
                     result = newResult;
                     
-                    instance.getArticleRows(articles, function(articleRows)
+                    instance.getArticleAuthors(articles, function(newArticles)
                     {
-                        result = result.split('^articles^').join(articleRows);
-            
+                        articles = newArticles;
+                    
+                        result = result.concat(getJSTag('$(document).ready(function(){setArticles(' + JSON.stringify(articles) + ')})'));
+                        
                         editSession(request, session, [], function(data)
                         {
                             output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
@@ -70,58 +72,33 @@ this.init = function(request, output)
     });
 }
 
-this.getArticleRows = function(articles, output)
+this.getArticleAuthors = function(articles, output)
 {
+    var instance = this;
 
-    var articleRows = '';
-    var articleTemplate = '';
-    
-    getHTMLTemplate('admin/content/articles/manage_articles/article', null, null, function(data)
+    this.getArticleAuthor = function(index)
     {
-        articleTemplate = data;
-        var instance = this;
-        
-        this.getArticleRow = function(index)
+        if(index >= articles.length)
         {
-            if(index >= articles.length)
+            output(articles);
+            return;
+        }
+    
+        getDBObjectsWithValues({object_type: 'user', _id: ObjectID(articles[index].author)}, function(data)
+        {
+            if(data.length == 0)
             {
-                output(articleRows);
+                articles.splice(index, 1);
+                instance.getArticleAuthor(index);
                 return;
             }
             
-            getDBObjectsWithValues({object_type: 'user', _id: ObjectID(articles[index].author)}, function(data)
-            {
-                if(data.length > 0)
-                {
-                    var articleRow = articleTemplate.split('^headline^').join(articles[index].headline);
-                    articleRow = articleRow.split('^author^').join(data[0].first_name + ' ' + data[0].last_name);
-                    articleRow = articleRow.split('^publish_date^').join(instance.getDatetimeText(articles[index].publish_date));
-                    
-                    articleRows = articleRows.concat(articleRow);
-                }
-                
-                index++;
-                instance.getArticleRow(index);
-            });
-        }
-        
-        this.getDatetimeText = function(date)
-        {
-            var datetime = date.getFullYear() + '-' + instance.getExtraZero(date.getMonth() + 1) + '-' + instance.getExtraZero(date.getDate()) + ' ' + instance.getExtraZero(date.getHours()) + ':' + instance.getExtraZero(date.getMinutes());
+            articles[index].author_name = data[0].first_name + ' ' + data[0].last_name;
             
-            return datetime;
-        }
-
-        this.getExtraZero = function(dateNumber)
-        {
-            if(dateNumber < 10)
-            {
-                dateNumber = '0' + dateNumber;
-            }
-            
-            return dateNumber;
-        }
-        
-        this.getArticleRow(0);
-    });
+            index++;
+            instance.getArticleAuthor(index);
+        });
+    }
+    
+    instance.getArticleAuthor(0);
 }
