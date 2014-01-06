@@ -35,9 +35,11 @@ this.init = function(request, output)
                 return;
             }
             
+            var section = data[0];
+            
             deleteMatchingDBObjects({object_type: 'section', $or: [{_id: ObjectID(get['id'])}, {parent: get['id']}]}, function(success)
             {
-                session.success = '^loc_SECTION_DELETED^';
+                session.success = section.name + ' ^loc_DELETED^';
                 
                 instance.updateSectionMap(get['id'], function(data)
                 {

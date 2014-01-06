@@ -1,9 +1,9 @@
 /*
 
-    Interface for adding a new article
+    Interface for editing an page
     
     @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+    @copyright PencilBlue 2014, All rights reserved
 
 */
 
@@ -20,57 +20,75 @@ this.init = function(request, output)
             return;
         }
         
-        session.section = 'articles';
-        session.subsection = 'new_article';
-    
-        initLocalization(request, session, function(data)
+        var get = getQueryParameters(request);
+        if(!get['id'])
         {
-            getHTMLTemplate('admin/content/articles/new_article', null, null, function(data)
+            instance.invalidIDProvided(request, session, output);
+            return;
+        }
+        
+        getDBObjectsWithValues({object_type: 'page', _id: ObjectID(get['id'])}, function(data)
+        {
+            if(data.length == 0)
             {
-                result = result.concat(data);
-                
-                var tabs =
-                [
-                    {
-                        active: true,
-                        href: '#content',
-                        icon: 'quote-left',
-                        title: '^loc_CONTENT^'
-                    },
-                    {
-                        href: '#media',
-                        icon: 'camera',
-                        title: '^loc_MEDIA^'
-                    },
-                    {
-                        href: '#sections_dnd',
-                        icon: 'th-large',
-                        title: '^loc_SECTIONS^'
-                    },
-                    {
-                        href: '#topics_dnd',
-                        icon: 'tags',
-                        title: '^loc_TOPICS^'
-                    },
-                    {
-                        href: '#meta_data',
-                        icon: 'tasks',
-                        title: '^loc_META_DATA^'
-                    }
-                ];
-                
-                getTabNav(tabs, function(tabNav)
+                instance.invalidIDProvided(request, session, output);
+                return;
+            }
+            
+            var page = data[0];
+            page.page_media = page.page_media.join(',');
+            page.page_topics = page.page_topics.join(',');
+            session = setFormFieldValues(page, session);
+            
+            if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
+            {
+                if(!session.user._id.equals(ObjectID(page.author)))
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
+                    instance.invalidIDProvided(request, session, output);
+                    return;
+                }
+            }
+    
+            initLocalization(request, session, function(data)
+            {
+                getHTMLTemplate('admin/content/pages/edit_page', null, null, function(data)
+                {
+                    result = result.concat(data);
+                    result = result.split('^page_id^').join(get['id']);
                     
-                    instance.getTemplateOptions(function(templatesList)
-                    {
-                        result = result.split('^template_options^').join(templatesList);
-                        
-                        instance.getSectionOptions(function(sectionsList)
+                    var tabs =
+                    [
                         {
-                            result = result.split('^section_options^').join(sectionsList);
-                            
+                            active: true,
+                            href: '#content',
+                            icon: 'quote-left',
+                            title: '^loc_CONTENT^'
+                        },
+                        {
+                            href: '#media',
+                            icon: 'camera',
+                            title: '^loc_MEDIA^'
+                        },
+                        {
+                            href: '#topics_dnd',
+                            icon: 'tags',
+                            title: '^loc_TOPICS^'
+                        },
+                        {
+                            href: '#meta_data',
+                            icon: 'tasks',
+                            title: '^loc_META_DATA^'
+                        }
+                    ];
+                    
+                    getTabNav(tabs, function(tabNav)
+                    {
+                        result = result.split('^tab_nav^').join(tabNav);
+                        
+                        instance.getTemplateOptions(function(templatesList)
+                        {
+                            result = result.split('^template_options^').join(templatesList);
+                                
                             instance.getTopicOptions(function(topicsList)
                             {
                                 result = result.split('^topic_options^').join(topicsList);
@@ -86,7 +104,7 @@ this.init = function(request, output)
                                         
                                         editSession(request, session, [], function(data)
                                         {
-                                            output({content: localize(['admin', 'articles', 'media'], result)});
+                                            output({content: localize(['admin', 'pages', 'media'], result)});
                                         });
                                     });
                                 });
@@ -148,47 +166,7 @@ this.getTemplateOptions = function(output)
             output('');
         }
     });
-};
-
-this.getSectionOptions = function(output)
-{
-    var sections = [];
-    var sectionTemplate = '';
-    var subsectionTemplate = '';
-    var sectionsList = '';
-    
-    getHTMLTemplate('admin/content/articles/new_article/section', null, null, function(data)
-    {
-        sectionTemplate = data;
-        getHTMLTemplate('admin/content/articles/new_article/subsection', null, null, function(data)
-        {
-            subsectionTemplate = data;pb.log.debug('here');
-            getDBObjectsWithValues({object_type: 'section', $orderby: {name: 1}}, function(data)
-            {
-                if(data.length > 0)
-                {
-                    for(var i = 0; i < data.length; i++)
-                    {
-                        if(!data[i].parent)
-                        {
-                            var sectionListElement = sectionTemplate.split('^section_id^').join(data[i]._id);
-                            sectionListElement = sectionListElement.split('^section_name^').join(data[i].name);
-                            sectionsList = sectionsList.concat(sectionListElement);
-                        }
-                        else
-                        {
-                            subsectionListElement = subsectionTemplate.split('^subsection_id^').join(data[i]._id);
-                            subsectionListElement = subsectionListElement.split('^subsection_name^').join(data[i].name);
-                            sectionsList = sectionsList.concat(subsectionListElement);
-                        }
-                    }
-                }
-                
-                output(sectionsList);
-            });
-        });
-    });
-};
+}
 
 this.getTopicOptions = function(output)
 {
@@ -222,7 +200,7 @@ this.getTopicOptions = function(output)
             output(topicsList);
         });
     });
-};
+}
 
 this.getMediaOptions = function(output)
 {
@@ -262,7 +240,7 @@ this.getMediaOptions = function(output)
             output(mediaList);
         });
     });
-};
+}
 
 this.getMediaIcon = function(mediaType)
 {
@@ -293,7 +271,7 @@ this.getMediaIcon = function(mediaType)
     }
     
     return '<i class="fa fa-' + iconID + '"></i>';
-};
+}
 
 this.getMediaLink = function(mediaType, mediaLocation, isFile)
 {
@@ -316,4 +294,14 @@ this.getMediaLink = function(mediaType, mediaLocation, isFile)
             }
             return mediaLocation;
     }
-};
+}
+
+this.invalidIDProvided = function(request, session, output)
+{
+    session.section = 'pages';
+    session.subsection = 'manage_pages';
+    editSession(request, session, [], function(data)
+    {
+        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/pages";')});
+    });
+}

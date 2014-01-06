@@ -34,6 +34,12 @@ this.init = function(request, output)
                         children: 
                         [
                             {
+                                name: 'manage_pages',
+                                title: '^loc_MANAGE_PAGES^',
+                                icon: 'file-o',
+                                folder: '/admin/content/'
+                            },
+                            {
                                 name: 'new_page',
                                 title: '^loc_NEW_PAGE^',
                                 icon: 'plus',
@@ -54,7 +60,7 @@ this.init = function(request, output)
                             }
                             else
                             {
-                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/content/", "pages", "new_page")'));
+                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/content/", "pages", "manage_pages")'));
                             }
                             
                             output({cookie: getSessionCookie(session), content: localize(['admin', 'pages'], result)});

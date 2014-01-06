@@ -1,9 +1,9 @@
 /*
 
-    Interface for adding a new article
+    Interface for editing an article
     
     @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+    @copyright PencilBlue 2014, All rights reserved
 
 */
 
@@ -20,73 +20,102 @@ this.init = function(request, output)
             return;
         }
         
-        session.section = 'articles';
-        session.subsection = 'new_article';
-    
-        initLocalization(request, session, function(data)
+        var get = getQueryParameters(request);
+        if(!get['id'])
         {
-            getHTMLTemplate('admin/content/articles/new_article', null, null, function(data)
+            instance.invalidIDProvided(request, session, output);
+            return;
+        }
+        
+        getDBObjectsWithValues({object_type: 'article', _id: ObjectID(get['id'])}, function(data)
+        {
+            if(data.length == 0)
             {
-                result = result.concat(data);
-                
-                var tabs =
-                [
-                    {
-                        active: true,
-                        href: '#content',
-                        icon: 'quote-left',
-                        title: '^loc_CONTENT^'
-                    },
-                    {
-                        href: '#media',
-                        icon: 'camera',
-                        title: '^loc_MEDIA^'
-                    },
-                    {
-                        href: '#sections_dnd',
-                        icon: 'th-large',
-                        title: '^loc_SECTIONS^'
-                    },
-                    {
-                        href: '#topics_dnd',
-                        icon: 'tags',
-                        title: '^loc_TOPICS^'
-                    },
-                    {
-                        href: '#meta_data',
-                        icon: 'tasks',
-                        title: '^loc_META_DATA^'
-                    }
-                ];
-                
-                getTabNav(tabs, function(tabNav)
+                instance.invalidIDProvided(request, session, output);
+                return;
+            }
+            
+            var article = data[0];
+            article.article_media = article.article_media.join(',');
+            article.article_sections = article.article_sections.join(',');
+            article.article_topics = article.article_topics.join(',');
+            session = setFormFieldValues(article, session);
+            
+            if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
+            {
+                if(!session.user._id.equals(ObjectID(article.author)))
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
+                    instance.invalidIDProvided(request, session, output);
+                    return;
+                }
+            }
+    
+            initLocalization(request, session, function(data)
+            {
+                getHTMLTemplate('admin/content/articles/edit_article', null, null, function(data)
+                {
+                    result = result.concat(data);
+                    result = result.split('^article_id^').join(get['id']);
                     
-                    instance.getTemplateOptions(function(templatesList)
-                    {
-                        result = result.split('^template_options^').join(templatesList);
-                        
-                        instance.getSectionOptions(function(sectionsList)
+                    var tabs =
+                    [
                         {
-                            result = result.split('^section_options^').join(sectionsList);
+                            active: true,
+                            href: '#content',
+                            icon: 'quote-left',
+                            title: '^loc_CONTENT^'
+                        },
+                        {
+                            href: '#media',
+                            icon: 'camera',
+                            title: '^loc_MEDIA^'
+                        },
+                        {
+                            href: '#sections_dnd',
+                            icon: 'th-large',
+                            title: '^loc_SECTIONS^'
+                        },
+                        {
+                            href: '#topics_dnd',
+                            icon: 'tags',
+                            title: '^loc_TOPICS^'
+                        },
+                        {
+                            href: '#meta_data',
+                            icon: 'tasks',
+                            title: '^loc_META_DATA^'
+                        }
+                    ];
+                    
+                    getTabNav(tabs, function(tabNav)
+                    {
+                        result = result.split('^tab_nav^').join(tabNav);
+                        
+                        instance.getTemplateOptions(function(templatesList)
+                        {
+                            result = result.split('^template_options^').join(templatesList);
                             
-                            instance.getTopicOptions(function(topicsList)
+                            instance.getSectionOptions(function(sectionsList)
                             {
-                                result = result.split('^topic_options^').join(topicsList);
+                                result = result.split('^section_options^').join(sectionsList);
                                 
-                                instance.getMediaOptions(function(mediaList)
+                                instance.getTopicOptions(function(topicsList)
                                 {
-                                    result = result.split('^media_options^').join(mediaList);
-                            
-                                    prepareFormReturns(session, result, function(newSession, newResult)
+                                    result = result.split('^topic_options^').join(topicsList);
+                                    
+                                    instance.getMediaOptions(function(mediaList)
                                     {
-                                        session = newSession;
-                                        result = newResult;
-                                        
-                                        editSession(request, session, [], function(data)
+                                        result = result.split('^media_options^').join(mediaList);
+                                
+                                        prepareFormReturns(session, result, function(newSession, newResult)
                                         {
-                                            output({content: localize(['admin', 'articles', 'media'], result)});
+                                            session = newSession;
+                                            result = newResult;
+                                            
+                                            editSession(request, session, [], function(data)
+                                            {
+                                                output({content: localize(['admin', 'articles', 'media'], result)});
+                                            });
                                         });
                                     });
                                 });
@@ -317,3 +346,13 @@ this.getMediaLink = function(mediaType, mediaLocation, isFile)
             return mediaLocation;
     }
 };
+
+this.invalidIDProvided = function(request, session, output)
+{
+    session.section = 'articles';
+    session.subsection = 'manage_articles';
+    editSession(request, session, [], function(data)
+    {
+        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/articles";')});
+    });
+}

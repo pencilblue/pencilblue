@@ -70,7 +70,7 @@ this.init = function(request, output)
                         return;
                     }
                     
-                    session.success = '^loc_PAGE_CREATED^';
+                    session.success = pageDocument.headline + ' ^loc_CREATED^';
                     delete session.fieldValues;
                     editSession(request, session, [], function(data)
                     {        

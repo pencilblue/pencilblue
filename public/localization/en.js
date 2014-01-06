@@ -84,7 +84,11 @@ loc =
         META_DESC: 'Meta description',
         META_DESC_PLACEHOLDER: 'Limited&nbsp;to&nbsp;156&nbsp;characters',
         META_KEYWORDS: 'Meta keywords',
-        META_KEYWORDS_PLACEHOLDER: 'Comma-separated&nbsp;keywords'     
+        META_KEYWORDS_PLACEHOLDER: 'Comma-separated&nbsp;keywords',
+        CREATED: 'was created',
+        ADDED: 'was added',
+        EDITED: 'was edited',
+        DELETED: 'was deleted'
     },
     sections:
     {
@@ -95,9 +99,6 @@ loc =
         URL_KEY: 'URL Key',
         PARENT_SECTION: 'Parent section',
         EXISTING_SECTION: 'A section with this name already exists',
-        SECTION_CREATED: 'The section was successfully created',
-        SECTION_EDITED: 'The section was successfully edited',
-        SECTION_DELETED: 'The section was successfully deleted',
         SECTION_MAP_SAVED: 'The section map was successfully saved'
     },
     topics:
@@ -106,7 +107,6 @@ loc =
         NEW_TOPIC: 'New topic',
         TOPIC_NAME: 'Topic name',
         EXISTING_TOPIC: 'A topic with this name already exists',
-        TOPIC_CREATED: 'The topic was successfully created',
         TOPICS_CREATED: 'The topics were successfully created',
         IMPORT_TOPICS: 'Import topics',
         TOPICS_CSV_FILE: 'CSV file containing topic names'
@@ -127,20 +127,18 @@ loc =
         RELATED_MEDIA: 'Drag related media here',
         UNRELATED_MEDIA: 'Drag unrelated media here',
         MEDIA_FORMATTING: 'Media formatting',
-        MAXIMUM_HEIGHT: 'Maximum height',
-        MEDIA_ADDED: 'The media was successfully added',
-        MEDIA_DELETED: 'The media was successfully deleted'
+        MAXIMUM_HEIGHT: 'Maximum height'
     },
     pages:
     {
+        MANAGE_PAGES: 'Manage pages',
         NEW_PAGE: 'New page',
         PAGE_URL: 'Page URL',
         CUSTOM_URL: 'custom-url',
         TEMPLATE: 'Template',
         HEADLINE: 'Headline',
         SUBHEADING: 'Subheading',
-        PUBLISH_DATE: 'Publish date',
-        PAGE_CREATED: 'The page was successfully created'
+        PUBLISH_DATE: 'Publish date'
     },
     articles:
     {
@@ -154,7 +152,6 @@ loc =
         PUBLISH_DATE: 'Publish date',
         ACTIVE_SECTIONS: 'Drag associated sections here',
         INACTIVE_SECTIONS: 'Drag unassociated sections here',
-        ARTICLE_CREATED: 'The article was successfully created',
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',
         HEADING_1: 'Heading 1',

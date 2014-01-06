@@ -178,13 +178,6 @@ global.getTabNav = function(tabs, output)
 global.defaultAdminNavigation =
 [
     {
-        id: 'dashboard',
-        title: '^loc_DASHBOARD^',
-        icon: 'dashboard',
-        href: '/admin',
-        access: ACCESS_WRITER
-    },
-    {
         id: 'content',
         title: '^loc_CONTENT^',
         icon: 'quote-right',
