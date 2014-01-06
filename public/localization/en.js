@@ -8,6 +8,8 @@ loc =
         LEFT: 'Left',
         CENTER: 'Center',
         RIGHT: 'Right',
+        YES: 'Yes',
+        NO: 'No',
         LOGOUT: 'Logout',
         WRITER: 'Writer',
         READER: 'Reader',
@@ -204,7 +206,10 @@ loc =
         PORT: 'Port',
         DB_TYPE: 'Database type',
         DB_NAME: 'Database name',
-        DB_SERVERS: 'Database server(s)'
+        DB_SERVERS: 'Database server(s)',
+        COMMENTS: 'Comments',
+        ALLOW_COMMENTS: 'Allow comments',
+        COMMENTS_ON: 'Comments on by default'
     }
 }
 

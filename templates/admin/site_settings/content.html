@@ -1,0 +1,41 @@
+^error_success^
+^tab_nav^
+
+<form id="content_form" method="post" action="^site_root^/actions/admin/site_settings/content">
+    <fieldset>
+        <div class="tab-content">
+            <div class="tab-pane active" id="content">
+                <div class="form-group">
+                    <label>^loc_ALLOW_COMMENTS^&nbsp;</label>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-info">
+                            <input type="radio" name="allow_comments" id="allow_comments_1" value="0"> ^loc_YES^
+                        </label>
+                        <label class="btn btn-info">
+                            <input type="radio" name="allow_comments" id="allow_comments_0" value="1"> ^loc_NO^
+                        </label>
+                    </div>
+                </div>
+                <div id="default_comments_group" class="form-group">
+                    <label>^loc_COMMENTS_ON^&nbsp;</label>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-info">
+                            <input type="radio" name="default_comments" id="default_comments_1" value="0"> ^loc_YES^
+                        </label>
+                        <label class="btn btn-info">
+                            <input type="radio" name="default_comments" id="default_comments_0" value="1"> ^loc_NO^
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/site_settings';">
+                <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+            </button>
+            <button type="button" class="btn btn-primary" onclick="saveContentSettings()">
+                <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+            </button>
+        </div>
+    </fieldset>
+</form>
+<script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="^site_root^/js/admin/site_settings/content.js"></script>

@@ -31,6 +31,9 @@ function refillForm(fieldValues)
                 case 'drag_and_drop':
                     refillDragAndDrop(option, fieldValues);
                     break;
+                case 'button_group':
+                    $('#' + option.elementPrefix + fieldValues[option.id]).click();
+                    break;
                 default:
                     break;
             }

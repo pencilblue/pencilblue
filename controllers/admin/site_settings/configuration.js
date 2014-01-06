@@ -20,8 +20,8 @@ this.init = function(request, output)
             return;
         }
         
-        session.section = 'users';
-        session.subsection = 'manage_users';
+        session.section = 'site_settings';
+        session.subsection = 'configuration';
 
         initLocalization(request, session, function(data)
         {
