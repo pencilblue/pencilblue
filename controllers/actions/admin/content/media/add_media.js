@@ -20,7 +20,7 @@ this.init = function(request, output)
         var post = getPostParameters(request);
         delete post['topic_search'];
         
-        if(message = checkForRequiredParameters(post, ['media_type', 'location', 'caption']))
+        if(message = checkForRequiredParameters(post, ['media_type', 'location', 'name', 'caption']))
         {
             formError(request, session, message, '/admin/content/media', output);
             return;
@@ -36,7 +36,7 @@ this.init = function(request, output)
                 return;
             }
             
-            session.success = '^loc_MEDIA_ADDED^';
+            session.success = mediaDocument.name + ' ^loc_ADDED^';
             editSession(request, session, [], function(data)
             {        
                 output({redirect: pb.config.siteRoot + '/admin/content/media'});

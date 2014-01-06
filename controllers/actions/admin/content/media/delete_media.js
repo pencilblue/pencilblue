@@ -35,9 +35,11 @@ this.init = function(request, output)
                 return;
             }
             
+            var media = data[0];
+            
             deleteMatchingDBObjects({object_type: 'media', _id: ObjectID(get['id'])}, function(success)
             {
-                session.success = '^loc_MEDIA_DELETED^';
+                session.success = media.name + ' ^loc_DELETED^';
                 
                 editSession(request, session, [], function(data)
                 {        

@@ -71,7 +71,7 @@ this.init = function(request, output)
                         return;
                     }
                     
-                    session.success = '^loc_SECTION_EDITED^';
+                    session.success = sectionDocument.name + ' ^loc_EDITED^';
                     
                     instance.checkForSectionMapUpdate(sectionDocument, function()
                     {                

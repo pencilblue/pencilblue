@@ -55,7 +55,7 @@ this.init = function(request, output)
                     return;
                 }
                 
-                session.success = '^loc_SECTION_CREATED^';
+                session.success = sectionDocument.name + ' ^loc_CREATED^';
                 
                 instance.checkForSectionMap(sectionDocument, function()
                 {                

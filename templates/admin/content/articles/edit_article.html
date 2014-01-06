@@ -1,7 +1,7 @@
 ^error_success^
 ^tab_nav^
 
-<form id="new_article_form" method="post" action="^site_root^/actions/admin/content/articles/new_article">
+<form id="edit_article_form" method="post" action="^site_root^/actions/admin/content/articles/edit_article?id=^article_id^">
     <fieldset>
         <div class="tab-content">
             <div class="tab-pane active" id="content">
@@ -71,7 +71,7 @@
                 <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
             </button>&nbsp;
             <div class="btn-group dropup">
-                <button type="button" class="btn btn-primary" onclick="checkForNewArticleSave()">
+                <button type="button" class="btn btn-primary" onclick="checkForEditArticleSave()">
                     <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">

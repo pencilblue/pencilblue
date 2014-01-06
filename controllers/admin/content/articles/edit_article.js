@@ -55,6 +55,7 @@ this.init = function(request, output)
                 getHTMLTemplate('admin/content/articles/edit_article', null, null, function(data)
                 {
                     result = result.concat(data);
+                    result = result.split('^article_id^').join(get['id']);
                     
                     var tabs =
                     [

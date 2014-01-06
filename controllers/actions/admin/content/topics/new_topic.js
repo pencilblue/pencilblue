@@ -43,7 +43,7 @@ this.init = function(request, output)
                     return;
                 }
                 
-                session.success = '^loc_TOPIC_CREATED^';
+                session.success = topicDocument.name + ' ^loc_CREATED^';
                 
                 editSession(request, session, [], function(data)
                 {        
