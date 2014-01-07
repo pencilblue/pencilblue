@@ -69,7 +69,7 @@ this.getDefaultContentSettings = function()
         articles_per_page: 5,
         auto_break_articles: 0,
         display_timestamp: 1,
-        date_format: 'Month dd, YYYY',
+        date_format: 'M dd, YYYY',
         display_hours_minutes: 1,
         time_format: '12',
         display_bylines: 1,

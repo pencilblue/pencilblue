@@ -5,7 +5,7 @@ global.getContentSettings = function(output)
         articles_per_page: 5,
         auto_break_articles: 0,
         display_timestamp: 1,
-        date_format: 'Month dd, YYYY',
+        date_format: 'M dd, YYYY',
         display_hours_minutes: 1,
         time_format: '12',
         display_bylines: 1,
@@ -36,7 +36,7 @@ global.getTimestampText = function(date, format, displayTime, timeFormat)
     
     dateString = dateString.split('YYYY').join(date.getFullYear());
     dateString = dateString.split('yy').join(date.getYear());
-    dateString = dateString.split('Month').join(monthNames[date.getMonth()]);
+    dateString = dateString.split('M').join(monthNames[date.getMonth()]);
     dateString = dateString.split('mm').join(date.getMonth() + 1);
     dateString = dateString.split('dd').join(date.getDate());
     
