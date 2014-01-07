@@ -1,3 +1,9 @@
+function SessionHandler(){};
+
+SessionHandler.SID_KEY = 'client_id';
+
+module.exports = SessionHandler;
+
 global.getSession = function (request, output)
 {
     var clientID = getClientID(request);
