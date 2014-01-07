@@ -43,9 +43,9 @@ this.init = function(request, output)
                         title: '^loc_TIMESTAMP^'
                     },
                     {
-                        href: '#writers',
+                        href: '#authors',
                         icon: 'user',
-                        title: '^loc_WRITERS^'
+                        title: '^loc_AUTHOR^'
                     },
                     {
                         href: '#comments',

@@ -18,6 +18,7 @@ this.init = function(request, output)
         }
     
         var post = getPostParameters(request);
+        post = formatIntegerItems(post, ['articles_per_page', 'auto_break_articles', 'display_timestamp', 'display_hours_minutes', 'display_bylines', 'display_author_photo', 'display_author_position', 'allow_comments', 'default_comments']);
         
         if(message = checkForRequiredParameters(post, ['articles_per_page']))
         {

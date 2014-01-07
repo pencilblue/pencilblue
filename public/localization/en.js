@@ -32,6 +32,23 @@ loc =
         SELECT_FILE: 'Select file',
         NO_ARTICLES: 'No articles match the given parameters'
     },
+    timestamp:
+    {
+        JAN: 'January',
+        FEB: 'February',
+        MAR: 'March',
+        APR: 'April',
+        MAY: 'May',
+        JUN: 'June',
+        JUL: 'July',
+        AUG: 'August',
+        SEP: 'September',
+        OCT: 'October',
+        NOV: 'November',
+        DEC: 'December',
+        TIME_AM: 'AM',
+        TIME_PM: 'PM'
+    },
     index:
     {
         
@@ -216,10 +233,10 @@ loc =
         DATE_FORMAT: 'Date format',
         DISPLAY_HOURS_MINUTES: 'Display hours and minutes',
         TIME_FORMAT: 'Time format',
-        WRITERS: 'Writers',
-        DISPLAY_BYLINES: 'Display writer bylines in articles',
-        DISPLAY_WRITER_PHOTO: 'Display writer photos in bylines',
-        DISPLAY_WRITER_POSITION: 'Display writer positions in bylines',
+        AUTHORS: 'AUTHORS',
+        DISPLAY_BYLINES: 'Display author bylines in articles',
+        DISPLAY_AUTHOR_PHOTO: 'Display author photos in bylines',
+        DISPLAY_AUTHOR_POSITION: 'Display author positions in bylines',
         COMMENTS: 'Comments',
         ALLOW_COMMENTS: 'Allow users to comment',
         COMMENTS_ON: 'Allow comments on articles by default'

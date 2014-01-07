@@ -9,8 +9,8 @@ global.getContentSettings = function(output)
         display_hours_minutes: 1,
         time_format: '12',
         display_bylines: 1,
-        display_writer_photo: 1,
-        display_writer_position: 1,
+        display_author_photo: 1,
+        display_author_position: 1,
         allow_comments: 1,
         default_comments: 1
     }
@@ -27,4 +27,51 @@ global.getContentSettings = function(output)
         }
     
     });
+}
+
+global.getTimestampText = function(date, format, displayTime, timeFormat)
+{
+    var dateString = format;
+    var monthNames = ['^loc_JAN^', '^loc_FEB^', '^loc_MAR^', '^loc_APR^', '^loc_MAY^', '^loc_JUN^', '^loc_JUL^', '^loc_AUG^', '^loc_SEP^', '^loc_OCT^', '^loc_NOV^', '^loc_DEC^'];
+    
+    dateString = dateString.split('YYYY').join(date.getFullYear());
+    dateString = dateString.split('yy').join(date.getYear());
+    dateString = dateString.split('Month').join(monthNames[date.getMonth()]);
+    dateString = dateString.split('mm').join(date.getMonth() + 1);
+    dateString = dateString.split('dd').join(date.getDate());
+    
+    if(typeof displayTime !== 'undefined')
+    {
+        if(displayTime)
+        {
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var ampm = '';
+            
+            if(timeFormat == '12')
+            {
+                if(hours > 12)
+                {
+                    hours -= 12;
+                    ampm = ' ^loc_TIME_PM^';
+                }
+                else
+                {
+                    ampm = ' ^loc_TIME_AM^';
+                }
+            }
+            else
+            {
+                if(hours < 10)
+                {
+                    hours = '0' + hours;
+                }
+            }
+            
+            
+            dateString = dateString.concat(' ' + hours + ':' + minutes + ampm);
+        }
+    }
+    
+    return dateString;
 }

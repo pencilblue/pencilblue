@@ -26,14 +26,14 @@ var formRefillOptions =
         elementPrefix: 'display_bylines_'
     },
     {
-        id: 'display_writer_photo',
+        id: 'display_author_photo',
         type: 'button_group',
-        elementPrefix: 'display_writer_photo_'
+        elementPrefix: 'display_author_photo_'
     },
     {
-        id: 'display_writer_position',
+        id: 'display_author_position',
         type: 'button_group',
-        elementPrefix: 'display_writer_position_'
+        elementPrefix: 'display_author_position_'
     },
     {
         id: 'allow_comments',

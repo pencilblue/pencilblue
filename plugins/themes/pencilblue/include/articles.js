@@ -69,20 +69,46 @@ this.getArticles = function(section, topic, article, page, output)
                             var article = articleTemplate.split('^article_headline^').join((isArticle || isPage) ? articles[i].headline : '<a href="' + pb.config.siteRoot + '/' + articles[i].url + '">' + articles[i].headline + '</a>');
                             article = article.split('^article_subheading^').join('<h3>' + articles[i].subheading + '</h3>');
                             
-                            var byline = '';
-                            for(var j = 0; j < authors.length; j++)
+                            if(contentSettings.display_bylines && searchObject.object_type == 'article')
                             {
-                                if(authors[j]._id.equals(ObjectID(articles[i].author)))
+                                var byline = '';
+                                for(var j = 0; j < authors.length; j++)
                                 {
-                                    byline = bylineTemplate.split('^author_photo^').join((authors[j].photo) ? authors[j].photo : '');
-                                    byline = byline.split('^display_photo^').join((authors[j].photo) ? '' : ' display: none');
-                                    byline = byline.split('^author_name^').join((authors[j].first_name) ? authors[j].first_name + ' ' + authors[j].last_name : authors[j].username);
-                                    byline = byline.split('^author_position^').join((authors[j].position) ? authors[j].position : '');
-                                    break;
+                                    if(authors[j]._id.equals(ObjectID(articles[i].author)))
+                                    {
+                                        if(authors[j].photo && contentSettings.display_author_photo)
+                                        {
+                                            byline = bylineTemplate.split('^author_photo^').join('<span class="pull-left"><img class="media-object" src="' + authors[j].photo + '" style="width: 5em"></img></span>');
+                                            byline = byline.split('^media_body_style^').join('');
+                                        }
+                                        else
+                                        {
+                                            byline = bylineTemplate.split('^author_photo^').join('');
+                                            byline = byline.split('^media_body_style^').join('height: auto');
+                                        }
+                                        byline = byline.split('^author_name^').join((authors[j].first_name) ? authors[j].first_name + ' ' + authors[j].last_name : authors[j].username);
+                                            
+                                        byline = byline.split('^author_position^').join((authors[j].position && contentSettings.display_author_position) ? authors[j].position : '');
+                                        break;
+                                    }
                                 }
+                                
+                                article = article.split('^article_byline^').join(byline);
+                            }
+                            else
+                            {
+                                article = article.split('^article_byline^').join('');
                             }
                             
-                            article = article.split('^article_byline^').join(byline);
+                            if(contentSettings.display_timestamp && searchObject.object_type == 'article')
+                            {
+                                article = article.split('^article_timestamp^').join('<div class="timestamp">' + getTimestampText(articles[i].publish_date, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format) + '</div>');
+                            }
+                            else
+                            {
+                                article = article.split('^article_timestamp^').join('');
+                            }
+                            
                             switch(searchObject.object_type)
                             {
                                 case 'page':
