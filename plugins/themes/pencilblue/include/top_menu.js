@@ -96,7 +96,28 @@ this.setTopMenu = function(session, headTemplate, output)
                         
                         headTemplate = headTemplate.split('^site_logo^').join(themeSettings.site_logo);
                         headTemplate = headTemplate.split('^section_map^').join(navLayout);
-                        output(themeSettings, headTemplate);
+                        
+                        getContentSettings(function(contentSettings)
+                        {
+                            var userAccountOptions = '';
+                            if(contentSettings.allow_comments)
+                            {
+                                if(session.user)
+                                {
+                                    var userAccountOptions = '<li><a href="' + pb.config.siteRoot + '/user/manage_account"><i class="fa fa-user fa-lg"></i>&nbsp;</a></li>' +
+                                                             '<li><a href="' + pb.config.siteRoot + '/actions/logout"><i class="fa fa-power-off fa-lg"></i>&nbsp;</a></li>';
+                                    
+                                }
+                                else
+                                {
+                                    var userAccountOptions = '<li><a href="' + pb.config.siteRoot + '/user/sign_up"><i class="fa fa-user fa-lg"></i></a></li>'
+                                }
+                            }
+                            
+                            headTemplate = headTemplate.split('^account_options^').join(userAccountOptions);
+                            
+                            output(themeSettings, headTemplate);
+                        });
                     });
                 });
             });

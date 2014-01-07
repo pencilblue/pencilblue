@@ -10,7 +10,9 @@ loc =
         RIGHT: 'Right',
         YES: 'Yes',
         NO: 'No',
+        LOGIN: 'Login',
         LOGOUT: 'Logout',
+        SIGN_UP: 'Sign up',
         WRITER: 'Writer',
         READER: 'Reader',
         EDITOR: 'Editor',
@@ -30,7 +32,8 @@ loc =
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
         SELECT_FILE: 'Select file',
-        NO_ARTICLES: 'No articles match the given parameters'
+        NO_ARTICLES: 'No articles match the given parameters',
+        ACCOUNT: 'Account'
     },
     timestamp:
     {
@@ -210,8 +213,7 @@ loc =
         EXISTING_USERNAME: 'Username is already registered',
         EXISTING_EMAIL: 'Email address is already registered',
         USER_CREATED: 'The user was successfully created',
-        USER_EDITED: 'The user was successfully edited',
-        SIGN_UP: 'Sign up'
+        USER_EDITED: 'The user was successfully edited'
     },
     site_settings:
     {
