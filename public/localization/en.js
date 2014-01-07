@@ -210,7 +210,8 @@ loc =
         EXISTING_USERNAME: 'Username is already registered',
         EXISTING_EMAIL: 'Email address is already registered',
         USER_CREATED: 'The user was successfully created',
-        USER_EDITED: 'The user was successfully edited'
+        USER_EDITED: 'The user was successfully edited',
+        SIGN_UP: 'Sign up'
     },
     site_settings:
     {

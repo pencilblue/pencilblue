@@ -1,4 +1,4 @@
-this.setSectionMap = function(headTemplate, output)
+this.setTopMenu = function(session, headTemplate, output)
 {
     var instance = this;
     
@@ -38,11 +38,11 @@ this.setSectionMap = function(headTemplate, output)
                 var dropdownTemplate = '';
                 var navLayout = '';
                 
-                getHTMLTemplate('admin/elements/admin_nav/button', null, null, function(data)
+                getHTMLTemplate('elements/top_menu/button', null, null, function(data)
                 {
                     buttonTemplate = data;
                     
-                    getHTMLTemplate('admin/elements/admin_nav/dropdown', null, null, function(data)
+                    getHTMLTemplate('elements/top_menu/dropdown', null, null, function(data)
                     {
                         dropdownTemplate = data;
                         

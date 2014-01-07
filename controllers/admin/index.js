@@ -23,10 +23,21 @@ this.init = function(request, output)
                     getHTMLTemplate('admin/index', null, null, function(data)
                     {
                         result = result.concat(data);
-                        getHTMLTemplate('admin/footer', null, null, function(data)
+                        
+                        getDBObjectsWithValues({object_type: 'article'}, function(data)
                         {
-                            result = result.concat(data);
-                            output({cookie: getSessionCookie(session), content: localize(['admin'], result)});
+                            result = result.split('^article_count^').join(data.length.toString());
+                            
+                            getDBObjectsWithValues({object_type: 'page'}, function(data)
+                            {
+                                result = result.split('^page_count^').join(data.length.toString());
+                                
+                                getHTMLTemplate('admin/footer', null, null, function(data)
+                                {
+                                    result = result.concat(data);
+                                    output({cookie: getSessionCookie(session), content: localize(['admin'], result)});
+                                });
+                            });
                         });
                     });
                 });
