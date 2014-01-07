@@ -49,7 +49,7 @@ this.init = function(request, output)
                                     getHTMLTemplate('footer', null, null, function(data)
                                     {
                                         result = result.concat(data);
-                                        output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic'], result)});
+                                        output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic', 'timestamp'], result)});
                                     });
                                 });
                             });
