@@ -207,6 +207,7 @@ loc =
         DB_TYPE: 'Database type',
         DB_NAME: 'Database name',
         DB_SERVERS: 'Database server(s)',
+        CONTENT_SETTINGS: 'Content settings',
         ARTICLES_PER_PAGE: 'Articles per page',
         AUTO_BREAK_ARTICLES: 'Auto break articles after # of paragraphs',
         DONT_BREAK: 'Don\'t break',
