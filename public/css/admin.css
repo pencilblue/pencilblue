@@ -54,7 +54,8 @@ form .error
 
 .topic
 {
-    margin-right: .5em;
+    float: left;
+    margin: 0 .5em .5em 0;
 }
 
 .topic a

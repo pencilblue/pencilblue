@@ -4,26 +4,141 @@
 <form id="content_form" method="post" action="^site_root^/actions/admin/site_settings/content">
     <fieldset>
         <div class="tab-content">
-            <div class="tab-pane active" id="content">
+            <div class="tab-pane active" id="articles">
                 <div class="form-group">
-                    <label>^loc_ALLOW_COMMENTS^&nbsp;</label>
+                    <label>^loc_ARTICLES_PER_PAGE^</label>
+                    <input type="number" id="articles_per_page" name="articles_per_page" class="form-control" step="1" min="1"></input>
+                </div>
+                <div class="form-group">
+                    <label>^loc_AUTO_BREAK_ARTICLES^</label><br/>
                     <div class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-info">
-                            <input type="radio" name="allow_comments" id="allow_comments_1" value="0"> ^loc_YES^
+                        <label class="btn btn-default">
+                            <input type="radio" name="auto_break_articles" id="auto_break_articles_0" value="0"> ^loc_DONT_BREAK^
                         </label>
-                        <label class="btn btn-info">
-                            <input type="radio" name="allow_comments" id="allow_comments_0" value="1"> ^loc_NO^
+                        <label class="btn btn-default">
+                            <input type="radio" name="auto_break_articles" id="auto_break_articles_1" value="1"> 1
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="auto_break_articles" id="auto_break_articles_2" value="2"> 2
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="auto_break_articles" id="auto_break_articles_3" value="3"> 3
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="auto_break_articles" id="auto_break_articles_4" value="4"> 4
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="auto_break_articles" id="auto_break_articles_5" value="5"> 5
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="timestamp">
+                <div class="form-group">
+                    <label>^loc_DISPLAY_TIMESTAMP^</label><br/>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" name="display_timestamp" id="display_timestamp_1" value="1"> ^loc_YES^
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="display_timestamp" id="display_timestamp_0" value="0"> ^loc_NO^
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>^loc_DATE_FORMAT^</label>
+                    <select id="date_format" name="date_format" class="form-control">
+                        <option value="Month dd, YYYY">Month dd, YYYY</option>
+                        <option value="mm/dd/YYYY">mm/dd/YYYY</option>
+                        <option value="mm/dd/yy">mm/dd/yy</option>
+                        <option value="mm-dd-YYYY">mm-dd-YYYY</option>
+                        <option value="mm-dd-yy">mm-dd-yy</option>
+                        <option value="YYYY-mm-dd">YYYY-mm-dd</option>
+                        <option value="dd/mm/YYYY">dd/mm/YYYY</option>
+                        <option value="dd/mm/yy">dd/mm/yy</option>
+                        <option value="dd-mm-YYYY">dd-mm-YYYY</option>
+                        <option value="dd-mm-yy">dd-mm-yy</option>
+                        <option value="YYYY-dd-mm">YYYY-dd-mm</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>^loc_DISPLAY_HOURS_MINUTES^</label><br/>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" name="display_hours_minutes" id="display_hours_minutes_1" value="1"> ^loc_YES^
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="display_hours_minutes" id="display_hours_minutes_0" value="0"> ^loc_NO^
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>^loc_TIME_FORMAT^</label><br/>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" name="time_format" id="time_format_12" value="12"> 12
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="time_format" id="time_format_24" value="24"> 24
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="writers">
+                <div class="form-group">
+                    <label>^loc_DISPLAY_BYLINES^</label><br/>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" name="display_bylines" id="display_bylines_1" value="1"> ^loc_YES^
+                        </label>
+                        <label class="btn btn-default" onclick="$('#display_writer_photo_0').click();$('#display_writer_position_0').click()">
+                            <input type="radio" name="display_bylines" id="display_bylines_0" value="0"> ^loc_NO^
                         </label>
                     </div>
                 </div>
                 <div id="default_comments_group" class="form-group">
-                    <label>^loc_COMMENTS_ON^&nbsp;</label>
+                    <label>^loc_DISPLAY_WRITER_PHOTO^</label><br/>
                     <div class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-info">
-                            <input type="radio" name="default_comments" id="default_comments_1" value="0"> ^loc_YES^
+                        <label class="btn btn-default">
+                            <input type="radio" name="display_writer_photo" id="display_writer_photo_1" value="1"> ^loc_YES^
                         </label>
-                        <label class="btn btn-info">
-                            <input type="radio" name="default_comments" id="default_comments_0" value="1"> ^loc_NO^
+                        <label class="btn btn-default">
+                            <input type="radio" name="display_writer_photo" id="display_writer_photo_0" value="0"> ^loc_NO^
+                        </label>
+                    </div>
+                </div>
+                <div id="default_comments_group" class="form-group">
+                    <label>^loc_DISPLAY_WRITER_POSITION^</label><br/>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" name="display_writer_position" id="display_writer_position_1" value="1"> ^loc_YES^
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="display_writer_position" id="display_writer_position_0" value="0"> ^loc_NO^
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="comments">
+                <div class="form-group">
+                    <label>^loc_ALLOW_COMMENTS^</label><br/>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" name="allow_comments" id="allow_comments_1" value="1"> ^loc_YES^
+                        </label>
+                        <label class="btn btn-default" onclick="$('#default_comments_0').click()">
+                            <input type="radio" name="allow_comments" id="allow_comments_0" value="0"> ^loc_NO^
+                        </label>
+                    </div>
+                </div>
+                <div id="default_comments_group" class="form-group">
+                    <label>^loc_COMMENTS_ON^</label><br/>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default">
+                            <input type="radio" name="default_comments" id="default_comments_1" value="1"> ^loc_YES^
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="default_comments" id="default_comments_0" value="0"> ^loc_NO^
                         </label>
                     </div>
                 </div>

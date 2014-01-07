@@ -207,9 +207,21 @@ loc =
         DB_TYPE: 'Database type',
         DB_NAME: 'Database name',
         DB_SERVERS: 'Database server(s)',
+        ARTICLES_PER_PAGE: 'Articles per page',
+        AUTO_BREAK_ARTICLES: 'Auto break articles after # of paragraphs',
+        DONT_BREAK: 'Don\'t break',
+        TIMESTAMP: 'Timestamp',
+        DISPLAY_TIMESTAMP: 'Display timestamps in articles',
+        DATE_FORMAT: 'Date format',
+        DISPLAY_HOURS_MINUTES: 'Display hours and minutes',
+        TIME_FORMAT: 'Time format',
+        WRITERS: 'Writers',
+        DISPLAY_BYLINES: 'Display writer bylines in articles',
+        DISPLAY_WRITER_PHOTO: 'Display writer photos in bylines',
+        DISPLAY_WRITER_POSITION: 'Display writer positions in bylines',
         COMMENTS: 'Comments',
-        ALLOW_COMMENTS: 'Allow comments',
-        COMMENTS_ON: 'Comments on by default'
+        ALLOW_COMMENTS: 'Allow users to comment',
+        COMMENTS_ON: 'Allow comments on articles by default'
     }
 }
 

@@ -13,7 +13,7 @@ function refillForm(fieldValues)
         for(var i = 0; i < formRefillOptions.length; i++)
         {
             var option = formRefillOptions[i];
-            if(!fieldValues[option.id])
+            if(typeof fieldValues[option.id] === 'undefined')
             {
                 continue;
             }
