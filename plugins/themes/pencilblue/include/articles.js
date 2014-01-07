@@ -29,30 +29,16 @@ this.getArticles = function(section, topic, article, page, output)
     }
     searchObject.publish_date = {$lt: new Date()};
     
-    getHTMLTemplate('elements/article', [], [], function(data)
-    {
-        articleTemplate = data;
-        getHTMLTemplate('elements/article/byline', [], [], function(data)
+    getContentSettings(function(contentSettings)
+    {    
+        getHTMLTemplate('elements/article', [], [], function(data)
         {
-            bylineTemplate = data;
-            
-            getDBObjectsWithValues(searchObject, function(data)
+            articleTemplate = data;
+            getHTMLTemplate('elements/article/byline', [], [], function(data)
             {
-                if(data.length == 0)
-                {
-                    output('^loc_NO_ARTICLES^');
-                    return;
-                }
+                bylineTemplate = data;
                 
-                var articles = data;
-                var authorIDs = [];
-                
-                for(var i = 0; i < articles.length; i++)
-                {
-                    authorIDs.push({_id: ObjectID(articles[i].author)});
-                }
-                
-                getDBObjectsWithValues({object_type: 'user', $or: authorIDs}, function(data)
+                getDBObjectsWithValues(searchObject, function(data)
                 {
                     if(data.length == 0)
                     {
@@ -60,43 +46,60 @@ this.getArticles = function(section, topic, article, page, output)
                         return;
                     }
                     
-                    authors = data;
+                    var articles = data;
+                    var authorIDs = [];
                     
                     for(var i = 0; i < articles.length; i++)
                     {
-                        var article = articleTemplate.split('^article_headline^').join((isArticle || isPage) ? articles[i].headline : '<a href="' + pb.config.siteRoot + '/' + articles[i].url + '">' + articles[i].headline + '</a>');
-                        article = article.split('^article_subheading^').join('<h3>' + articles[i].subheading + '</h3>');
-                        
-                        var byline = '';
-                        for(var j = 0; j < authors.length; j++)
-                        {
-                            if(authors[j]._id.equals(ObjectID(articles[i].author)))
-                            {
-                                byline = bylineTemplate.split('^author_photo^').join((authors[j].photo) ? authors[j].photo : '');
-                                byline = byline.split('^display_photo^').join((authors[j].photo) ? '' : ' display: none');
-                                byline = byline.split('^author_name^').join((authors[j].first_name) ? authors[j].first_name + ' ' + authors[j].last_name : authors[j].username);
-                                byline = byline.split('^author_position^').join((authors[j].position) ? authors[j].position : '');
-                                break;
-                            }
-                        }
-                        
-                        article = article.split('^article_byline^').join(byline);
-                        switch(searchObject.object_type)
-                        {
-                            case 'page':
-                                article = article.split('^article_layout^').join(articles[i].page_layout);
-                                break;
-                            case 'article':
-                            default:
-                                article = article.split('^article_layout^').join(articles[i].article_layout);
-                                break;
-                        }
-                        articlesLayout = articlesLayout.concat(article);
+                        authorIDs.push({_id: ObjectID(articles[i].author)});
                     }
                     
-                    instance.loadMedia(articlesLayout, function(newLayout)
+                    getDBObjectsWithValues({object_type: 'user', $or: authorIDs}, function(data)
                     {
-                        output(newLayout);
+                        if(data.length == 0)
+                        {
+                            output('^loc_NO_ARTICLES^');
+                            return;
+                        }
+                        
+                        authors = data;
+                        
+                        for(var i = 0; i < articles.length; i++)
+                        {
+                            var article = articleTemplate.split('^article_headline^').join((isArticle || isPage) ? articles[i].headline : '<a href="' + pb.config.siteRoot + '/' + articles[i].url + '">' + articles[i].headline + '</a>');
+                            article = article.split('^article_subheading^').join('<h3>' + articles[i].subheading + '</h3>');
+                            
+                            var byline = '';
+                            for(var j = 0; j < authors.length; j++)
+                            {
+                                if(authors[j]._id.equals(ObjectID(articles[i].author)))
+                                {
+                                    byline = bylineTemplate.split('^author_photo^').join((authors[j].photo) ? authors[j].photo : '');
+                                    byline = byline.split('^display_photo^').join((authors[j].photo) ? '' : ' display: none');
+                                    byline = byline.split('^author_name^').join((authors[j].first_name) ? authors[j].first_name + ' ' + authors[j].last_name : authors[j].username);
+                                    byline = byline.split('^author_position^').join((authors[j].position) ? authors[j].position : '');
+                                    break;
+                                }
+                            }
+                            
+                            article = article.split('^article_byline^').join(byline);
+                            switch(searchObject.object_type)
+                            {
+                                case 'page':
+                                    article = article.split('^article_layout^').join(articles[i].page_layout);
+                                    break;
+                                case 'article':
+                                default:
+                                    article = article.split('^article_layout^').join(articles[i].article_layout);
+                                    break;
+                            }
+                            articlesLayout = articlesLayout.concat(article);
+                        }
+                        
+                        instance.loadMedia(articlesLayout, function(newLayout)
+                        {
+                            output(newLayout);
+                        });
                     });
                 });
             });

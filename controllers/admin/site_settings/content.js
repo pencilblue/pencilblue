@@ -58,17 +58,8 @@ this.init = function(request, output)
                 {
                     result = result.split('^tab_nav^').join(tabNav);
                     
-                    getDBObjectsWithValues({object_type: 'setting', key: 'content_settings'}, function(data)
+                    getContentSettings(function(contentSettings)
                     {
-                        if(data.length == 0)
-                        {
-                            var contentSettings = instance.getDefaultContentSettings();
-                        }
-                        else
-                        {
-                            var contentSettings = data[0].value;
-                        }
-                        
                         session = setFormFieldValues(contentSettings, session);
                 
                         prepareFormReturns(session, result, function(newSession, newResult)
@@ -86,24 +77,4 @@ this.init = function(request, output)
             });
         });
     });
-}
-
-this.getDefaultContentSettings = function()
-{
-    defaultContentSettings =
-    {
-        articles_per_page: 5,
-        auto_break_articles: 0,
-        display_timestamp: 1,
-        date_format: 'Month dd, YYYY',
-        display_hours_minutes: 1,
-        time_format: '12',
-        display_bylines: 1,
-        display_writer_photo: 1,
-        display_writer_position: 1,
-        allow_comments: 1,
-        default_comments: 1
-    }
-    
-    return defaultContentSettings;
 }
