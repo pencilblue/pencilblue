@@ -104,13 +104,26 @@ this.setTopMenu = function(session, headTemplate, output)
                             {
                                 if(session.user)
                                 {
-                                    var userAccountOptions = '<li><a href="' + pb.config.siteRoot + '/user/manage_account"><i class="fa fa-user fa-lg"></i>&nbsp;</a></li>' +
-                                                             '<li><a href="' + pb.config.siteRoot + '/actions/logout"><i class="fa fa-power-off fa-lg"></i>&nbsp;</a></li>';
+                                    var button = buttonTemplate.split('^nav_active^').join('');
+                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/user/manage_account');
+                                    button = button.split('^nav_title^').join('<i class="fa fa-user fa-lg"></i>&nbsp;');
+                                    
+                                    userAccountOptions = userAccountOptions.concat(button);
+                                    
+                                    button = buttonTemplate.split('^nav_active^').join('');
+                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/actions/logout');
+                                    button = button.split('^nav_title^').join('<i class="fa fa-power-off fa-lg"></i>&nbsp;');
+                                    
+                                    userAccountOptions = userAccountOptions.concat(button);
                                     
                                 }
                                 else
                                 {
-                                    var userAccountOptions = '<li><a href="' + pb.config.siteRoot + '/user/sign_up"><i class="fa fa-user fa-lg"></i></a></li>'
+                                    var button = buttonTemplate.split('^nav_active^').join('');
+                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/user/sign_up');
+                                    button = button.split('^nav_title^').join('<i class="fa fa-user fa-lg"></i>&nbsp;');
+                                    
+                                    userAccountOptions = userAccountOptions.concat(button);
                                 }
                             }
                             
@@ -137,3 +150,5 @@ this.getSectionData = function(uid, sections)
     
     return null;
 }
+
+this.get
