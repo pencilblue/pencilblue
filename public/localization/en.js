@@ -13,6 +13,7 @@ loc =
         LOGIN: 'Login',
         LOGOUT: 'Logout',
         SIGN_UP: 'Sign up',
+        HOME: 'Home',
         WRITER: 'Writer',
         READER: 'Reader',
         EDITOR: 'Editor',
