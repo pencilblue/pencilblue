@@ -14,6 +14,7 @@ loc =
         LOGOUT: 'Logout',
         SIGN_UP: 'Sign up',
         HOME: 'Home',
+        BACK_HOME: 'Go back to homepage',
         WRITER: 'Writer',
         READER: 'Reader',
         EDITOR: 'Editor',
