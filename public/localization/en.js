@@ -29,6 +29,7 @@ loc =
         SAVE_DRAFT: 'Save draft',
         CANCEL: 'Cancel',
         DELETE: 'Delete',
+        SUBMIT: 'Submit',
         NOW: 'Now',
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
@@ -214,7 +215,12 @@ loc =
         EXISTING_USERNAME: 'Username is already registered',
         EXISTING_EMAIL: 'Email address is already registered',
         USER_CREATED: 'The user was successfully created',
-        USER_EDITED: 'The user was successfully edited'
+        USER_EDITED: 'The user was successfully edited',
+        CREATE_ACCOUNT: 'Create an account',
+        LOGIN_EXISTING: 'Login to an existing account',
+        AVAILABILITY: 'Availability',
+        AVAILABLE: 'Available',
+        UNAVAILABLE: 'Unavailable'
     },
     site_settings:
     {

@@ -19,14 +19,26 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                getDBObjectsWithValues({object_type: 'pencilblue_theme_settings'}, function(data)
                 {
-                    session = newSession;
-                    result = newResult;
-                    
-                    editSession(request, session, [], function(data)
+                    if(data.length == 0)
                     {
-                        output({cookie: getSessionCookie(session), content: localize(['users'], result)});
+                        result = result.split('^site_logo^').join(pb.config.siteRoot + '/img/logo_menu.png');
+                    }
+                    else
+                    {
+                        result = result.split('^site_logo^').join(data[0].site_logo);
+                    }
+                
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    {
+                        session = newSession;
+                        result = newResult;
+                        
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['users'], result)});
+                        });
                     });
                 });
             });
