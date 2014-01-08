@@ -218,7 +218,7 @@ loc =
         USER_EDITED: 'The user was successfully edited',
         CREATE_ACCOUNT: 'Create an account',
         LOGIN_EXISTING: 'Login to an existing account',
-        AVAILABILITY: 'Availability',
+        CHECK: 'Check',
         AVAILABLE: 'Available',
         UNAVAILABLE: 'Unavailable'
     },

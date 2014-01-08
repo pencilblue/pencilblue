@@ -1,7 +1,7 @@
 global.apiResponseCode = 
 {
-    FAILURE: 0,
-    SUCCESS: 1
+    SUCCESS: 0,
+    FAILURE: 1
 }
 
 global.apiResponse = function(cd, msg, dta)

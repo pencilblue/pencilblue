@@ -3,6 +3,14 @@
     clear: both;
 }
 
+form .error
+{
+    font-size: .85em;
+    color: #AA0000;
+    width: 100%;
+    margin: 0;
+}
+
 #index_carousel .item
 {
     max-height: 320px;

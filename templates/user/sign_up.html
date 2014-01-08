@@ -11,12 +11,15 @@
         <link rel="stylesheet" type="text/css" href="^site_root^/css/font-awesome.min.css">
         
         <script type="text/javascript" src="^site_root^/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/media.js"></script>
+        
+        <script type="text/javascript" src="^site_root^/js/user/sign_up.js"></script>
     </head>
     <body>
         <div id="container">
-            <div class="row">
+            <div class="row-fluid">
                 <div class="col-md-4 col-md-offset-4">
                     <div id="login_logo">
                         <img src="^site_logo^"></img>
@@ -25,14 +28,14 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">^loc_CREATE_ACCOUNT^ | <a href="^site_root^/user/login">^loc_LOGIN_EXISTING^</a></div>
                         <div class="panel-body">
-                            <form id="email_sign_up_form" method="post" action="^site_root^/actions/login?admin_attempt=1">
+                            <form id="sign_up_form" method="post" action="^site_root^/user/sign_up">
                                 <fieldset>
                                     <div class="form-group">
                                         <label>^loc_USERNAME^</label>
                                         <div class="input-group">
-                                            <input type="text" id="username" name="username" class="form-control"></input>
+                                            <input type="text" id="username" name="username" class="form-control" onkeyup="resetUsernameAvailability()"></input>
                                             <span class="input-group-btn">
-                                                <button id="availability_button" class="btn btn-default" type="button" onclick="validateUsername()">^loc_AVAILABILITY^</button>
+                                                <button id="availability_button" class="btn btn-default" type="button" onclick="validateUsername()">^loc_CHECK^</button>
                                             </span>
                                         </div>
                                     </div>
