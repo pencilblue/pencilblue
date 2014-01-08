@@ -1,6 +1,6 @@
 /**
- * 
- * @returns
+ * RedisSessionStore - Session storage backed by redis
+ * @author Brian Hyder <brianhyder@gmail.com>
  */
 function RedisSessionStore(){
 
@@ -21,10 +21,10 @@ RedisSessionStore.prototype.get = function(sessionId, cb){
 	});
 };
 
-RedisSessionStore.prototype.set = function(session){
-	var sid  = RedisSessionStore.getSessionKey(session[SessionHandler.SID_KEY]);
+RedisSessionStore.prototype.set = function(session, cb){
+	var sid  = RedisSessionStore.getSessionKey(session.client_id);
 	var json = JSON.stringify(session);
-	pb.cache.set(sid, json, pb.config.session.timeout, cb);
+	pb.cache.setex(sid, pb.config.session.timeout, json, cb);
 };
 
 RedisSessionStore.prototype.clear = function(sessionId, cb){

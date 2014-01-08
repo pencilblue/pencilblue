@@ -43,7 +43,7 @@ global.getSession = function (request, output)
     }
     
     deleteMatchingDBObjects({object_type: 'session', timeout: {$lte: new Date()}}, function(data){});
-}
+};
 
 createSession = function(request, output)
 {
