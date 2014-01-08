@@ -1,4 +1,4 @@
-this.setSectionMap = function(headTemplate, output)
+this.setTopMenu = function(session, headTemplate, output)
 {
     var instance = this;
     
@@ -38,11 +38,11 @@ this.setSectionMap = function(headTemplate, output)
                 var dropdownTemplate = '';
                 var navLayout = '';
                 
-                getHTMLTemplate('admin/elements/admin_nav/button', null, null, function(data)
+                getHTMLTemplate('elements/top_menu/button', null, null, function(data)
                 {
                     buttonTemplate = data;
                     
-                    getHTMLTemplate('admin/elements/admin_nav/dropdown', null, null, function(data)
+                    getHTMLTemplate('elements/top_menu/dropdown', null, null, function(data)
                     {
                         dropdownTemplate = data;
                         
@@ -96,7 +96,41 @@ this.setSectionMap = function(headTemplate, output)
                         
                         headTemplate = headTemplate.split('^site_logo^').join(themeSettings.site_logo);
                         headTemplate = headTemplate.split('^section_map^').join(navLayout);
-                        output(themeSettings, headTemplate);
+                        
+                        getContentSettings(function(contentSettings)
+                        {
+                            var userAccountOptions = '';
+                            if(contentSettings.allow_comments)
+                            {
+                                if(session.user)
+                                {
+                                    var button = buttonTemplate.split('^nav_active^').join('');
+                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/user/manage_account');
+                                    button = button.split('^nav_title^').join('<i class="fa fa-user fa-lg"></i>&nbsp;');
+                                    
+                                    userAccountOptions = userAccountOptions.concat(button);
+                                    
+                                    button = buttonTemplate.split('^nav_active^').join('');
+                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/actions/logout');
+                                    button = button.split('^nav_title^').join('<i class="fa fa-power-off fa-lg"></i>&nbsp;');
+                                    
+                                    userAccountOptions = userAccountOptions.concat(button);
+                                    
+                                }
+                                else
+                                {
+                                    var button = buttonTemplate.split('^nav_active^').join('');
+                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/user/sign_up');
+                                    button = button.split('^nav_title^').join('<i class="fa fa-user fa-lg"></i>&nbsp;');
+                                    
+                                    userAccountOptions = userAccountOptions.concat(button);
+                                }
+                            }
+                            
+                            headTemplate = headTemplate.split('^account_options^').join(userAccountOptions);
+                            
+                            output(themeSettings, headTemplate);
+                        });
                     });
                 });
             });
@@ -116,3 +150,5 @@ this.getSectionData = function(uid, sections)
     
     return null;
 }
+
+this.get

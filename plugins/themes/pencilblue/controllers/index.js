@@ -26,7 +26,7 @@ this.init = function(request, output)
             {
                 getHTMLTemplate('head', 'Home', null, function(data)
                 {
-                    require('../include/section_map').setSectionMap(data, function(siteSettings, headLayout)
+                    require('../include/top_menu').setTopMenu(session, data, function(siteSettings, headLayout)
                     {
                         result = result.concat(headLayout);
                         getHTMLTemplate('index', null, null, function(data)
