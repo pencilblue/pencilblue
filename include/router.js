@@ -267,7 +267,7 @@ global.Route = function(request, response)
                                                     return;
                                                 }
                                                 
-                                                fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/article.js', function(exists)
+                                                fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/section.js', function(exists)
                                                 {
                                                     if(!exists)
                                                     {
@@ -275,7 +275,7 @@ global.Route = function(request, response)
                                                         {
                                                             if(!exists)
                                                             {
-                                                                instance.attemptDefaultRoute();
+                                                                require(DOCUMENT_ROOT + '/controllers/index').init(request, instance.writeResponse);
                                                                 return;
                                                             }
                                                             
@@ -290,7 +290,7 @@ global.Route = function(request, response)
                                             return;
                                         }
                                         
-                                        fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/section.js', function(exists)
+                                        fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/article.js', function(exists)
                                         {
                                             if(!exists)
                                             {
@@ -298,7 +298,7 @@ global.Route = function(request, response)
                                                 {
                                                     if(!exists)
                                                     {
-                                                        instance.attemptDefaultRoute();
+                                                        require(DOCUMENT_ROOT + '/controllers/index').init(request, instance.writeResponse);
                                                         return;
                                                     }
                                                     
