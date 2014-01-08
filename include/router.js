@@ -168,36 +168,39 @@ global.Route = function(request, response)
             output(false);
             return;
         }
-    
-        var sections = requestURL.substr(1).split('/');
         
-        if(sections.length > 1)
+        if(requestURL.indexOf('/article/') > -1)
+        {
+            getDBObjectsWithValues({object_type: 'article', url: requestURL.substr(requestURL.indexOf('/article/') + 9)}, function(data)
+            {
+                if(data.length == 0)
+                {
+                    output(false);
+                    return;
+                }
+                
+                request.pencilblue_article = data[0]._id.toString();
+                output(true);
+            });
+        }
+        else if(requestURL.indexOf('/page/') > -1)
+        {
+            getDBObjectsWithValues({object_type: 'page', url: requestURL.substr(requestURL.indexOf('/page/') + 6)}, function(data)
+            {
+                if(data.length == 0)
+                {
+                    output(false);
+                    return;
+                }
+                
+                request.pencilblue_page = data[0]._id.toString();
+                output(true);
+            });
+        }
+        else
         {
             output(false);
-            return;
         }
-        
-        getDBObjectsWithValues({object_type: 'article', url: sections[0]}, function(data)
-        {
-            if(data.length == 0)
-            {
-                getDBObjectsWithValues({object_type: 'page', url: sections[0]}, function(data)
-                {
-                    if(data.length == 0)
-                    {
-                        output(false);
-                        return;
-                    }
-                    
-                    request.pencilblue_page = data[0]._id.toString();
-                    output(true);
-                });
-                return;
-            }
-            
-            request.pencilblue_article = data[0]._id.toString();
-            output(true);
-        });
     }
     
     getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
