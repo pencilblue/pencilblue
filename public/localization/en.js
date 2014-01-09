@@ -223,7 +223,13 @@ loc =
         LOGIN_EXISTING: 'Login to an existing account',
         CHECK: 'Check',
         AVAILABLE: 'Available',
-        UNAVAILABLE: 'Unavailable'
+        UNAVAILABLE: 'Unavailable',
+        VERIFICATION_SENT: 'Verification sent',
+        YOUR_VERIFICATION: 'A verification email has been sent',
+        CHECK_INBOX: 'Please check your inbox and click the link provided',
+        RESEND_VERIFICATION: 'Resend the verification email',
+        USER_VERIFIED: 'That email address has already been verified',
+        NOT_REGISTERED: 'That email address has not been registered'
     },
     site_settings:
     {
