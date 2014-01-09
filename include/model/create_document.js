@@ -108,7 +108,10 @@ global.formatIntegerItems = function(post, integerItems)
 {
     for(var i = 0; i < integerItems.length; i++)
     {
-        post[integerItems[i]] = parseInt(post[integerItems[i]]);
+        if(typeof post[integerItems[i]] !== 'undefined')
+        {
+            post[integerItems[i]] = parseInt(post[integerItems[i]]);
+        }
     }
     
     return post;

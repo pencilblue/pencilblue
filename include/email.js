@@ -8,7 +8,7 @@ global.getEmailSettings = function(output)
         service: 'Gmail',
         host: '',
         secure_connection: 1,
-        port: '465',
+        port: 465,
         username: '',
         password: ''
     }

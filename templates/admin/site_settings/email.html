@@ -1,7 +1,7 @@
 ^error_success^
 ^tab_nav^
 
-<form id="email_form" method="post" action="^site_root^/actions/admin/site_settings/content">
+<form id="email_form" method="post" action="^site_root^/actions/admin/site_settings/email">
     <fieldset>
         <div class="tab-content">
             <div class="tab-pane active" id="preferences">
@@ -76,7 +76,7 @@
             <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/site_settings';">
                 <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
             </button>
-            <button type="submit" class="btn btn-primary">
+            <button type="button" class="btn btn-primary" onclick="prepareEmailSettingsSave()">
                 <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
             </button>
         </div>

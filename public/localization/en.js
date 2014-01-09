@@ -263,7 +263,8 @@ loc =
         CUSTOM: 'Custom',
         HOST: 'Host',
         SECURE_CONNECTION: 'Secure connection (SSL)',
-        PORT: 'Port'
+        PORT: 'Port',
+        EMAIL_SETTINGS: 'Email settings'
     }
 }
 

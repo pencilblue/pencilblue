@@ -28,3 +28,10 @@ function checkForCustomService()
         $('#custom_smtp_options').hide();
     }
 }
+
+function prepareEmailSettingsSave()
+{
+    $('fieldset').append('<textarea id="verification_content" name="verification_content" style="display: none">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
+    
+    $('#email_form').submit();
+}

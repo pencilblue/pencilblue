@@ -115,7 +115,7 @@ function checkForEditArticleSave()
                     $('#article_media').val(mediaCSV);
                 }
             
-                $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + $('#layout_editable').html() + '</textarea>');
+                $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
                 
                 $('#edit_article_form').submit();
             });
