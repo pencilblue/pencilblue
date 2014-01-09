@@ -44,6 +44,12 @@ this.init = function(request, output)
                                 title: '^loc_CONTENT^',
                                 icon: 'quote-right',
                                 folder: '/admin/'
+                            },
+                            {
+                                name: 'email',
+                                title: '^loc_EMAIL^',
+                                icon: 'envelope',
+                                folder: '/admin/'
                             }
                         ]
                     };

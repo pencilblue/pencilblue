@@ -13,6 +13,8 @@ loc =
         LOGIN: 'Login',
         LOGOUT: 'Logout',
         SIGN_UP: 'Sign up',
+        USERNAME: 'Username',
+        PASSWORD: 'Password',
         HOME: 'Home',
         BACK_HOME: 'Go back to homepage',
         WRITER: 'Writer',
@@ -36,7 +38,9 @@ loc =
         LOAD_FILE: 'Load file',
         SELECT_FILE: 'Select file',
         NO_ARTICLES: 'No articles match the given parameters',
-        ACCOUNT: 'Account'
+        ACCOUNT: 'Account',
+        EMAIL: 'Email',
+        PREFERENCES: 'Preferences'
     },
     timestamp:
     {
@@ -65,11 +69,9 @@ loc =
     },
     login:
     {
-        LOGIN: 'Login',
-        USERNAME: 'Username',
-        PASSWORD: 'Password',
         INVALID_LOGIN: 'Invalid username and password combination',
-        READY_TO_USE: 'Your pencilblue installation is ready to use'
+        READY_TO_USE: 'Your pencilblue installation is ready to use',
+        ACCOUNT_CREATED: 'Your account was successfully created, you may now login'
     },
     admin:
     {
@@ -250,7 +252,18 @@ loc =
         DISPLAY_AUTHOR_POSITION: 'Display author positions in bylines',
         COMMENTS: 'Comments',
         ALLOW_COMMENTS: 'Allow users to comment',
-        COMMENTS_ON: 'Allow comments on articles by default'
+        COMMENTS_ON: 'Allow comments on articles by default',
+        REQUIRE_VERIFICATION: 'Require users to verify email address',
+        SMTP: 'SMTP',
+        FROM_NAME: 'From name',
+        FROM_ADDRESS: 'From address',
+        VERIFICATION_SUBJECT: 'Verification subject',
+        VERIFICATION_CONTENT: 'Verification content',
+        SERVICE: 'Service',
+        CUSTOM: 'Custom',
+        HOST: 'Host',
+        SECURE_CONNECTION: 'Secure connection (SSL)',
+        PORT: 'Port'
     }
 }
 

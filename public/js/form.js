@@ -37,6 +37,11 @@ function refillForm(fieldValues)
                 default:
                     break;
             }
+            
+            if(typeof option.onComplete !== 'undefined')
+            {
+                option.onComplete();
+            }
         }
     }
 }

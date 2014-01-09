@@ -12,7 +12,8 @@ global.getContentSettings = function(output)
         display_author_photo: 1,
         display_author_position: 1,
         allow_comments: 1,
-        default_comments: 1
+        default_comments: 1,
+        require_verification: 0
     }
     
     getDBObjectsWithValues({object_type: 'setting', key: 'content_settings'}, function(data)
