@@ -8,9 +8,9 @@ this.init = function(request, output)
         var post = getPostParameters(request);
         var adminAttempt = (get['admin_attempt']) ? true : false;
         
-        var userDocument = createDocument('user', post);
+        var userDocument = createDocument('user', post);        
         
-        getDBObjectsWithValues(userDocument, function(data)
+        getDBObjectsWithValues({object_type: 'user', $or: [{username: userDocument['username']}, {email: userDocument['username']}], password: userDocument['password']}, function(data)
         {
             if(data.length == 0)
             {
@@ -34,7 +34,7 @@ this.init = function(request, output)
                 }
                 else
                 {
-                    output({redirect: pb.config.siteRoot + '/account'});
+                    output({redirect: pb.config.siteRoot});
                 }
             });
         });

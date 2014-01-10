@@ -14,20 +14,20 @@
         <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/bootstrap.min.js"></script>
         
-        <script type="text/javascript" src="^site_root^/js/admin/login.js"></script>
+        <script type="text/javascript" src="^site_root^/js/user/login.js"></script>
     </head>
     <body>
         <div class="container">
             <div class="row">
                 <div class="col-md-4 col-md-offset-4">
                     <div id="login_logo">
-                        <img src="^site_root^/img/pb_logo.png"></img>
+                        <img src="^site_logo^"></img>
                     </div>
                     ^error_success^
                     <div class="panel panel-default">
-                        <div class="panel-heading">^loc_ADMIN_LOGIN^</div>
+                        <div class="panel-heading">^loc_LOGIN^</div>
                         <div class="panel-body">
-                            <form id="login_form" method="post" action="^site_root^/actions/login?admin_attempt=1">
+                            <form id="login_form" method="post" action="^site_root^/actions/login">
                                 <fieldset>
                                     <div class="form-group">
                                         <label>^loc_USERNAME_OR_EMAIL^</label>

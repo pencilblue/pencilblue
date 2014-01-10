@@ -69,6 +69,8 @@ loc =
     },
     login:
     {
+        ADMIN_LOGIN: 'Writer, editor, and administrator login',
+        USERNAME_OR_EMAIL: 'Username or email address',
         INVALID_LOGIN: 'Invalid username and password combination',
         READY_TO_USE: 'Your pencilblue installation is ready to use',
         ACCOUNT_CREATED: 'Your account was successfully created, you may now login'
