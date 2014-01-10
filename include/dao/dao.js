@@ -11,8 +11,9 @@ function DAO(dbName){
 /**
  * Static variable to indicate that all values of a document should be returned.
  */
-DAO.PROJECT_ALL = {};
-DAO.ANYWHERE    = {};
+DAO.PROJECT_ALL   = {};
+DAO.ANYWHERE      = {};
+DAO.NATURAL_ORDER = [];
 
 DAO.ASC  = 'asc';
 DAO.DESC = 'desc';
@@ -39,6 +40,7 @@ DAO.prototype.loadById = function(id, objectType, collection){
  * @param orderby
  * @param limit
  * @param offset
+ * @returns Promise
  */
 DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset){
 	//verify a collection was provided
@@ -64,7 +66,7 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
 	}
 	
 	if(pb.log.isDebug()){
-		var query = "QUERY: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
+		var query = "DAO: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
 		if (typeof orderBy !== 'undefined') {
 			query += " ORDER BY "+JSON.stringify(orderBy);
 		}
@@ -147,6 +149,11 @@ DAO.prototype.deleteById = function(oid, collection){
 DAO.prototype.deleteMatching = function(where, collection){
 	if (typeof where === 'undefined') {
 		throw new Error('A where object must be specified in order to delete');
+	}
+	
+	//output delete command
+	if(pb.log.isDebug()){
+		pb.log.debug("DAO: DELETE FROM "+collection+" WHERE "+JSON.stringify(where));
 	}
 	
 	var promise = new Promise();

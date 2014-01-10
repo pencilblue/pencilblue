@@ -36,10 +36,13 @@ pb.log = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, pb.c
 pb.cache = require(DOCUMENT_ROOT+'/include/dao/cache.js').createClient(pb.config);
 
 //configure the DB manager
-pb.dbm = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
+pb.dbm      = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
 
 //setup system class types
 pb.DAO = require(DOCUMENT_ROOT+'/include/dao/dao');
+
+//setup DBObject Service
+pb.dbobject = new (require(DOCUMENT_ROOT+'/include/model/db_object').DBObjectService);	
 
 //system requires
 require(DOCUMENT_ROOT+'/include/response_head');			//ContentType responses
@@ -47,7 +50,7 @@ require(DOCUMENT_ROOT+'/include/router');					// URL routing
 require(DOCUMENT_ROOT+'/include/query');					// Query parameter retrieval
 require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
 require(DOCUMENT_ROOT+'/include/session');					// Sessions
-require(DOCUMENT_ROOT+'/include/model/db_object');			// Database objects
+		// Database objects
 require(DOCUMENT_ROOT+'/include/access_management.js');		// Access management
 require(DOCUMENT_ROOT+'/include/model/create_document.js');	// Document creation
 require(DOCUMENT_ROOT+'/include/templates');				// Templatizing
