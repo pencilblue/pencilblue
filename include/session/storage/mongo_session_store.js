@@ -1,14 +1,20 @@
 /**
- * MongoSessionStore
+ * MongoSessionStore - Session storage backed by MongoDB
  * 
  * @author Brian Hyder <brianhyder@gmail.com
  */
-function MongoSessionStore(){
+function MongoSessionStore(){};
 
-};
-
+/**
+ * The mongo collection that stores the sessions
+ */
 var SESSION_COLLECTION_NAME = 'session';
 
+/**
+ * Responsable for retrieving the session for persistent storage.  
+ * @param sessionId The identifier of the session to retrieve.
+ * @param cb Callback of form cb(err, [Object])
+ */
 MongoSessionStore.prototype.get = function(sessionId, cb){
 	var dao = new pb.DAO();
 	
@@ -25,6 +31,17 @@ MongoSessionStore.prototype.get = function(sessionId, cb){
 	});
 };
 
+/**
+ * Responsable for persisting the session object between user requests
+ * @param session The session object to store.  The session object must contain 
+ * the following in addition to other data:
+ * <pre>
+ * {
+ * 	client_id: [primitive]
+ * }
+ * </pre>
+ * @param cb Callback of form cb(err, 'OK')
+ */
 MongoSessionStore.prototype.set = function(session, cb){
 	var dao = new pb.DAO();
 	
@@ -39,6 +56,11 @@ MongoSessionStore.prototype.set = function(session, cb){
 	});
 };
 
+/**
+ * Deletes a session if it exists.
+ * @param sessionId
+ * @param cb Callback of form cb(err, [int SESSIONS_CLEARED])
+ */
 MongoSessionStore.prototype.clear = function(sessionId, cb){
 	var dao = new pb.DAO();
 	dao.deleteMatching(MongoSessionStore.getSessionQuery(sessionId), SESSION_COLLECTION_NAME).then(function(result){
@@ -47,12 +69,21 @@ MongoSessionStore.prototype.clear = function(sessionId, cb){
 	});
 };
 
+/**
+ * Constructs a query to find a session in Mongo 
+ * @param sessionId The session identifier
+ * @returns {Object}
+ */
 MongoSessionStore.getSessionQuery = function(sessionId){
 	return {
 		client_id: sessionId
 	};
 };
 
+/**
+ * Queries for any expired sessions in Mongo and deletes them
+ * @param cb cb Callback of form cb(err, [int SESSIONS_CLEARED])
+ */
 MongoSessionStore.clearExpired = function(cb){
 	pb.log.debug("MongoSessionStore: Reaping expired sessions...");
 	var start = new Date().getTime();
@@ -71,12 +102,20 @@ MongoSessionStore.clearExpired = function(cb){
 	});
 };
 
+/**
+ * Responsable for shutting down the session store and any resources used for 
+ * reaping expired sessions.
+ */
 MongoSessionStore.shutdown = function(){
 	pb.log.debug("MongoSessionStore: Stopping Reaper...");
 	clearInterval(TIMEOUT_ID);
 	TIMEOUT_ID = null;
 };
 
+/**
+ * Responsable for ensuring that the mechanism that expires sessions becomes 
+ * active.
+ */
 MongoSessionStore.startReaper = function(){
 	if(TIMEOUT_ID == null){
 		TIMEOUT_ID = setInterval(MongoSessionStore.clearExpired, 30000);
