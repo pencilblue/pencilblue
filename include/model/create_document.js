@@ -103,3 +103,13 @@ global.createDocument = function(object_type, post, csvItems, nullIfEmptyItems)
     
     return post;
 }
+
+global.formatIntegerItems = function(post, integerItems)
+{
+    for(var i = 0; i < integerItems.length; i++)
+    {
+        post[integerItems[i]] = parseInt(post[integerItems[i]]);
+    }
+    
+    return post;
+}

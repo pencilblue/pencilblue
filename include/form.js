@@ -16,7 +16,6 @@ global.checkForFormRefill = function(session, result, output)
 {
     if(session.fieldValues)
     {
-        console.log(session.fieldValues);
         var formScript = getJSTag('if(typeof refillForm !== "undefined") $(document).ready(function(){refillForm(' + JSON.stringify(session.fieldValues) + ')})');
         result = result.concat(formScript);
         

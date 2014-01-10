@@ -5,12 +5,8 @@
     "content_templates":
     [
         {
-            "file": "default",
+            "file": "index",
             "name": "Default"
-        },
-        {
-            "file": "front_page",
-            "name": "Front page"
         }
     ]
 }

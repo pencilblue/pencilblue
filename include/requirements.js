@@ -53,6 +53,7 @@ require(DOCUMENT_ROOT+'/include/session');					// Sessions
 		// Database objects
 require(DOCUMENT_ROOT+'/include/access_management.js');		// Access management
 require(DOCUMENT_ROOT+'/include/model/create_document.js');	// Document creation
+require(DOCUMENT_ROOT+'/include/content');			        // Content settings and functions
 require(DOCUMENT_ROOT+'/include/templates');				// Templatizing
 require(DOCUMENT_ROOT+'/include/localization');				// Localization
 require(DOCUMENT_ROOT+'/include/client_js');				// Client JS

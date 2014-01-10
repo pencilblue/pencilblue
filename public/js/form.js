@@ -13,7 +13,7 @@ function refillForm(fieldValues)
         for(var i = 0; i < formRefillOptions.length; i++)
         {
             var option = formRefillOptions[i];
-            if(!fieldValues[option.id])
+            if(typeof fieldValues[option.id] === 'undefined')
             {
                 continue;
             }
@@ -30,6 +30,9 @@ function refillForm(fieldValues)
                     break;
                 case 'drag_and_drop':
                     refillDragAndDrop(option, fieldValues);
+                    break;
+                case 'button_group':
+                    $('#' + option.elementPrefix + fieldValues[option.id]).click();
                     break;
                 default:
                     break;

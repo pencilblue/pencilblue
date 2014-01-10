@@ -1,9 +1,9 @@
 /*
 
-    Users administration page
+    Settings administration page
     
     @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+    @copyright PencilBlue 2014, All rights reserved
 
 */
 
@@ -21,28 +21,28 @@ this.init = function(request, output)
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/head', 'Users', null, function(data)
+            getHTMLTemplate('admin/head', 'Settings', null, function(data)
             {
                 result = result.concat(data);
-                getAdminNavigation(session, ['users'], function(data)
+                getAdminNavigation(session, ['settings'], function(data)
                 {
                     result = result.split('^admin_nav^').join(data);
                 
                     var pillNavOptions = 
                     {
-                        name: 'users',
+                        name: 'site_settings',
                         children: 
                         [
                             {
-                                name: 'manage_users',
-                                title: '^loc_MANAGE_USERS^',
-                                icon: 'list-alt',
+                                name: 'configuration',
+                                title: '^loc_CONFIGURATION^',
+                                icon: 'flask',
                                 folder: '/admin/'
                             },
                             {
-                                name: 'new_user',
-                                title: '^loc_NEW_USER^',
-                                icon: 'plus',
+                                name: 'content',
+                                title: '^loc_CONTENT^',
+                                icon: 'quote-right',
                                 folder: '/admin/'
                             }
                         ]
@@ -54,16 +54,16 @@ this.init = function(request, output)
                         getHTMLTemplate('admin/footer', null, null, function(data)
                         {
                             result = result.concat(data);
-                            if(session.section == 'users')
+                            if(session.section == 'site_settings')
                             {
-                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/", "users", "' + session.subsection + '")'));
+                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/", "site_settings", "' + session.subsection + '")'));
                             }
                             else
                             {
-                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/", "users", "manage_users")'));
+                                result = result.concat(getJSTag('loadAdminContent("' + pb.config.siteRoot + '/admin/", "site_settings", "configuration")'));
                             }
                             
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings'], result)});
                         });
                     });
                 });

@@ -8,7 +8,12 @@ loc =
         LEFT: 'Left',
         CENTER: 'Center',
         RIGHT: 'Right',
+        YES: 'Yes',
+        NO: 'No',
+        LOGIN: 'Login',
         LOGOUT: 'Logout',
+        SIGN_UP: 'Sign up',
+        HOME: 'Home',
         WRITER: 'Writer',
         READER: 'Reader',
         EDITOR: 'Editor',
@@ -28,7 +33,25 @@ loc =
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
         SELECT_FILE: 'Select file',
-        NO_ARTICLES: 'No articles match the given parameters'
+        NO_ARTICLES: 'No articles match the given parameters',
+        ACCOUNT: 'Account'
+    },
+    timestamp:
+    {
+        JAN: 'January',
+        FEB: 'February',
+        MAR: 'March',
+        APR: 'April',
+        MAY: 'May',
+        JUN: 'June',
+        JUL: 'July',
+        AUG: 'August',
+        SEP: 'September',
+        OCT: 'October',
+        NOV: 'November',
+        DEC: 'December',
+        TIME_AM: 'AM',
+        TIME_PM: 'PM'
     },
     index:
     {
@@ -192,6 +215,35 @@ loc =
         EXISTING_EMAIL: 'Email address is already registered',
         USER_CREATED: 'The user was successfully created',
         USER_EDITED: 'The user was successfully edited'
+    },
+    site_settings:
+    {
+        CONFIGURATION: 'Configuration',
+        EDIT_CONFIGURATION: 'To edit the configuration, create a config.json file in the root directory',
+        SITE_NAME: 'Site name',
+        SITE_ROOT: 'Site root',
+        DOCUMENT_ROOT: 'Document root',
+        IP_ADDRESS: 'IP address',
+        PORT: 'Port',
+        DB_TYPE: 'Database type',
+        DB_NAME: 'Database name',
+        DB_SERVERS: 'Database server(s)',
+        CONTENT_SETTINGS: 'Content settings',
+        ARTICLES_PER_PAGE: 'Articles per page',
+        AUTO_BREAK_ARTICLES: 'Auto break articles after # of paragraphs',
+        DONT_BREAK: 'Don\'t break',
+        TIMESTAMP: 'Timestamp',
+        DISPLAY_TIMESTAMP: 'Display timestamps in articles',
+        DATE_FORMAT: 'Date format',
+        DISPLAY_HOURS_MINUTES: 'Display hours and minutes',
+        TIME_FORMAT: 'Time format',
+        AUTHORS: 'AUTHORS',
+        DISPLAY_BYLINES: 'Display author bylines in articles',
+        DISPLAY_AUTHOR_PHOTO: 'Display author photos in bylines',
+        DISPLAY_AUTHOR_POSITION: 'Display author positions in bylines',
+        COMMENTS: 'Comments',
+        ALLOW_COMMENTS: 'Allow users to comment',
+        COMMENTS_ON: 'Allow comments on articles by default'
     }
 }
 

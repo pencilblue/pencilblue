@@ -276,7 +276,7 @@ global.defaultAdminNavigation =
                 id: 'site_settings',
                 title: '^loc_SITE_SETTINGS^',
                 icon: 'cog',
-                href: '#',
+                href: '/admin/site_settings',
                 access: ACCESS_MANAGING_EDITOR
             },
             {
