@@ -25,7 +25,7 @@ this.init = function(request, output)
         {
             if(data.length > 0)
             {
-                formError(request, session, '^loc_USER_VERIFIED^', '/user/resend_verification', output);
+                formError(request, session, '^loc_USER_VERIFIED^', '/user/login', output);
                 return;
             }
             
@@ -65,7 +65,7 @@ this.sendVerificationEmail = function(user)
 {
     getEmailSettings(function(emailSettings)
     {
-        emailBody = emailSettings.verification_content.split('^verification_url^').join(pb.config.siteRoot + '/user/verify_email?code=' + user.verification_code);;
+        emailBody = emailSettings.verification_content.split('^verification_url^').join(pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code);
         emailBody = emailBody.split('^first_name^').join(user.first_name);
         emailBody = emailBody.split('^last_name^').join(user.last_name);
         

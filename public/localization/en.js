@@ -229,7 +229,9 @@ loc =
         CHECK_INBOX: 'Please check your inbox and click the link provided',
         RESEND_VERIFICATION: 'Resend the verification email',
         USER_VERIFIED: 'That email address has already been verified',
-        NOT_REGISTERED: 'That email address has not been registered'
+        NOT_REGISTERED: 'That email address has not been registered',
+        INVALID_VERIFICATION: 'The verification parameters were invalid. Please re-enter your email address.',
+        EMAIL_VERIFIED: 'Thank you for verifying your email address. You may now login.'
     },
     site_settings:
     {
