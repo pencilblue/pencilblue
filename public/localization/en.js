@@ -96,10 +96,6 @@ loc =
         VIEW_SITE: 'View site', 
         SITE_SETTINGS: 'Site settings',
         SITE_LOGO: 'Site logo',
-        LINK_TO_IMAGE: 'Link to image',
-        UPLOAD_IMAGE: 'Upload image',
-        IMAGE_URL: 'Image URL',
-        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
         AUTHOR: 'Author',
         ACCOUNT: 'Account',
         CUSTOM_VARIABLES: 'Custom variables',
@@ -157,7 +153,11 @@ loc =
         RELATED_MEDIA: 'Drag related media here',
         UNRELATED_MEDIA: 'Drag unrelated media here',
         MEDIA_FORMATTING: 'Media formatting',
-        MAXIMUM_HEIGHT: 'Maximum height'
+        MAXIMUM_HEIGHT: 'Maximum height',
+        LINK_TO_IMAGE: 'Link to image',
+        UPLOAD_IMAGE: 'Upload image',
+        IMAGE_URL: 'Image URL',
+        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg'
     },
     pages:
     {
@@ -237,7 +237,8 @@ loc =
         EMAIL_VERIFIED: 'Thank you for verifying your email address. You may now login.',
         MANAGE_ACCOUNT: 'Manage account',
         PROFILE: 'Profile',
-        CHANGE_PASSWORD: 'Change password'
+        CHANGE_PASSWORD: 'Change password',
+        PROFILE_EDITED: 'Your profile was successfully edited'
     },
     site_settings:
     {

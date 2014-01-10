@@ -22,15 +22,18 @@ this.init = function(request, output)
                         result = result.split('^site_logo^').join(data[0].site_logo);
                     }
                 
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    if(session.account_subsection)
                     {
-                        session = newSession;
-                        result = newResult;
-                    
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['users'], result)});
-                        });
+                        result = result.concat(getJSTag('loadAccountContent("' + pb.config.siteRoot + '/user/manage_account", "' + session.account_subsection + '")'));
+                    }
+                    else
+                    {
+                        result = result.concat(getJSTag('loadAccountContent("' + pb.config.siteRoot + '/user/manage_account", "profile")'));
+                    }
+                
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['users'], result)});
                     });
                 });
             });

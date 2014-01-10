@@ -15,6 +15,7 @@ this.init = function(request, output)
     {    
         var post = getPostParameters(request);
         
+        post['position'] = '';
         post['photo'] = null;
         post['admin'] = 0;
         

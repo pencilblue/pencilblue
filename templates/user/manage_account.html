@@ -7,13 +7,18 @@
         <meta name="description" content="^meta_desc^">
         <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
         
+        <link rel="stylesheet" type="text/css" href="^site_root^/css/jquery-ui.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="^site_root^/css/pencilblue_theme.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="^site_root^/css/jquery.fileupload.css">
+        <link rel="stylesheet" type="text/css" href="^site_root^/css/pencilblue_theme.css">
         
         <script type="text/javascript" src="^site_root^/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/jquery-ui-1.10.3.custom.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/jquery.ui.touch-punch.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/form.js"></script>
         
         <script type="text/javascript" src="^site_root^/js/user/manage_account.js"></script>
     </head>
@@ -32,25 +37,23 @@
                     <div class="col-md-3">
                         <ul id="sub_nav" class="nav nav-pills nav-stacked">
                             <li id="profile_pill" class="active">
-                                <a href="javascript:loadAccountContent('^site_root^/user/manage_account/', 'profile')">
+                                <a href="javascript:loadAccountContent('^site_root^/user/manage_account', 'profile')">
                                     <i class="fa fa-user"></i>&nbsp;^loc_PROFILE^
                                 </a>
                             </li>
                             <li id="comments_pill">
-                                <a href="javascript:loadAccountContent('^site_root^/user/manage_account/', 'comments')">
+                                <a href="javascript:loadAccountContent('^site_root^/user/manage_account', 'comments')">
                                     <i class="fa fa-comments"></i>&nbsp;^loc_COMMENTS^
                                 </a>
                             </li>
                             <li id="change_password_pill">
-                                <a href="javascript:loadAccountContent('^site_root^/user/manage_account/', 'change_password')">
+                                <a href="javascript:loadAccountContent('^site_root^/user/manage_account', 'change_password')">
                                     <i class="fa fa-lock"></i>&nbsp;^loc_CHANGE_PASSWORD^
                                 </a>
                             </li>
                         </ul>
                     </div>
-                    <div id="^pill_parent^_content" class="col-md-9">
-                        ^tmp_user=manage_account=profile^
-                    </div>
+                    <div id="manage_account_content" class="col-md-9"></div>
                 </div>
             </div>
         </div>
