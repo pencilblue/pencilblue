@@ -40,7 +40,8 @@ loc =
         NO_ARTICLES: 'No articles match the given parameters',
         ACCOUNT: 'Account',
         EMAIL: 'Email',
-        PREFERENCES: 'Preferences'
+        PREFERENCES: 'Preferences',
+        COMMENTS: 'Comments'
     },
     timestamp:
     {
@@ -233,7 +234,10 @@ loc =
         USER_VERIFIED: 'That email address has already been verified',
         NOT_REGISTERED: 'That email address has not been registered',
         INVALID_VERIFICATION: 'The verification parameters were invalid. Please re-enter your email address.',
-        EMAIL_VERIFIED: 'Thank you for verifying your email address. You may now login.'
+        EMAIL_VERIFIED: 'Thank you for verifying your email address. You may now login.',
+        MANAGE_ACCOUNT: 'Manage account',
+        PROFILE: 'Profile',
+        CHANGE_PASSWORD: 'Change password'
     },
     site_settings:
     {
@@ -260,7 +264,6 @@ loc =
         DISPLAY_BYLINES: 'Display author bylines in articles',
         DISPLAY_AUTHOR_PHOTO: 'Display author photos in bylines',
         DISPLAY_AUTHOR_POSITION: 'Display author positions in bylines',
-        COMMENTS: 'Comments',
         ALLOW_COMMENTS: 'Allow users to comment',
         COMMENTS_ON: 'Allow comments on articles by default',
         REQUIRE_VERIFICATION: 'Require users to verify email address',
