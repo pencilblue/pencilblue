@@ -238,7 +238,11 @@ loc =
         MANAGE_ACCOUNT: 'Manage account',
         PROFILE: 'Profile',
         CHANGE_PASSWORD: 'Change password',
-        PROFILE_EDITED: 'Your profile was successfully edited'
+        PROFILE_EDITED: 'Your profile was successfully edited',
+        OLD_PASSWORD: 'Old password',
+        NEW_PASSWORD: 'New password',
+        INVALID_PASSWORD: 'Invalid old password',
+        PASSWORD_CHANGED: 'Your password was successfully changed'
     },
     site_settings:
     {
