@@ -7,4 +7,20 @@
  */
 function Util(){};
 
+Util.onPromisesOk = function(promises, cb){
+	
+	var cnt = 0;
+	for(var i = 0; i < promises.length; i++){
+		
+		promises[i].then(function(result){
+			
+			pb.log.debug("Promise ["+cnt+"] Compelted");
+			if(++cnt == promises.length){
+				pb.log.debug("All promises Accounted for");
+				cb();
+			}
+		});
+	}
+};
+
 module.exports = Util;

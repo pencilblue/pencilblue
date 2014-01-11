@@ -2,7 +2,9 @@
  * RedisSessionStore - Session storage backed by Redis
  * @author Brian Hyder <brianhyder@gmail.com>
  */
-function RedisSessionStore(){};
+function RedisSessionStore(){
+	pb.log.debug("RedisSessionStore: Initialized");
+};
 
 /**
  * The prefix to prepend to the session ID in order to construct a cache key

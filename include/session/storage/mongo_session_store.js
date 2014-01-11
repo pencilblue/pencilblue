@@ -3,7 +3,9 @@
  * 
  * @author Brian Hyder <brianhyder@gmail.com
  */
-function MongoSessionStore(){};
+function MongoSessionStore(){
+	pb.log.debug("MongoSessionStore: Initialized");
+};
 
 /**
  * The mongo collection that stores the sessions
@@ -125,7 +127,6 @@ MongoSessionStore.startReaper = function(){
 
 //set interval for expiring sessions
 var TIMEOUT_ID = null;
-MongoSessionStore.startReaper();
 
 //set exports
 module.exports = MongoSessionStore;

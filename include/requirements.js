@@ -23,14 +23,14 @@ fs.exists     = fs.exists     || path.exists;
 fs.existsSync = fs.existsSync || path.existsSync;
 
 //define what will become the global entry point into the server api.
-var pb = {};
+global.pb = {};
 
 //load the configuration
 pb.config = require('./config');
 
 //configure logging
 global.log = 
-pb.log = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, pb.config);
+pb.log     = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, pb.config);
 
 //configure cache
 pb.cache = require(DOCUMENT_ROOT+'/include/dao/cache.js').createClient(pb.config);
@@ -44,12 +44,17 @@ pb.DAO = require(DOCUMENT_ROOT+'/include/dao/dao');
 //setup DBObject Service
 pb.dbobject = new (require(DOCUMENT_ROOT+'/include/model/db_object').DBObjectService);	
 
+//setup the session handler
+pb.session = new (require(DOCUMENT_ROOT+'/include/session/session.js'))();
+
+//setup utils
+pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
+
 //system requires
 require(DOCUMENT_ROOT+'/include/response_head');			//ContentType responses
 require(DOCUMENT_ROOT+'/include/router');					// URL routing
 require(DOCUMENT_ROOT+'/include/query');					// Query parameter retrieval
 require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
-require(DOCUMENT_ROOT+'/include/session');					// Sessions
 		// Database objects
 require(DOCUMENT_ROOT+'/include/access_management.js');		// Access management
 require(DOCUMENT_ROOT+'/include/model/create_document.js');	// Document creation
