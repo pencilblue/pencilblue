@@ -45,7 +45,8 @@ pb.DAO = require(DOCUMENT_ROOT+'/include/dao/dao');
 pb.dbobject = new (require(DOCUMENT_ROOT+'/include/model/db_object').DBObjectService);	
 
 //setup the session handler
-pb.session = new (require(DOCUMENT_ROOT+'/include/session/session.js'))();
+pb.SessionHandler = require(DOCUMENT_ROOT+'/include/session/session.js');
+pb.session = new pb.SessionHandler();
 
 //setup utils
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');

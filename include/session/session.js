@@ -87,6 +87,9 @@ global.getEmptySessionCookie = function()
     return {session_id: '', path: '/', expires: expireDate.toUTCString()};
 };
 
+//types
+var SessionStore = null;
+
 /**
  * SessionHandler - Responsible for managing user sessions
  * 
@@ -96,7 +99,9 @@ global.getEmptySessionCookie = function()
 function SessionHandler(){
 	
 	//ensure a session store was started
-	this.sessionStore = SessionHandler.getSessionStore();
+	SessionStore = SessionHandler.getSessionStore();
+	SessionStore.startReaper();
+	this.sessionStore = new SessionStore();
 	
 	//create a local storage object
 	this.localStorage = {};
@@ -232,7 +237,7 @@ SessionHandler.prototype.shutdown = function(){
 	SessionHandler.SessionStore.shutdown();
 };
 
-SessionHandler.create = function(request){
+SessionHandler.prototype.create = function(request){
 	var session = {
 		authentication: {
 			user_id: null,
@@ -255,17 +260,21 @@ SessionHandler.getEmptySessionCookie = function(){
 	return global.getEmptySessionCookie();
 };
 
+/**
+ * Loads a session store based on the configuration.
+ * @throws {Error} when the defined session store can not be loaded
+ * @returns
+ */
 SessionHandler.getSessionStore = function(){
 	var possibleStores = [
           SessionHandler.HANDLER_PATH+ pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
           pb.config.session.storage
      ];
  	
- 	var sessionStore = null;
+ 	var sessionStorePrototype = null;
  	for(var i = 0; i < possibleStores.length; i++){
  		try{
- 			SessionHandler.SessionStore = require(possibleStores[i]);
- 			sessionStore                = new this.SessionStore();
+ 			sessionStorePrototype = require(possibleStores[i]);;
  			break;
  		}
  		catch(e){
@@ -274,12 +283,17 @@ SessionHandler.getSessionStore = function(){
  	}
  	
  	//ensure session store was loaded
- 	if (sessionStore == null){
-		throw new Error("Failed to initialize a session store. Choices were: "+JSON.stringify(possbileStores));
+ 	if (sessionStorePrototype == null){
+		throw new Error("Failed to initialize a session store. Choices were: "+JSON.stringify(possibleStores));
 	}
- 	return sessionStore;
+ 	return sessionStorePrototype;
 };
 
+/**
+ * Extracts the session id from the returned cookie
+ * @param request The object that describes the incoming user request
+ * @returns {string} Session Id if available NULL if it cannot be found
+ */
 SessionHandler.getSessionIdFromCookie = function(request){
 	
 	var sessionId = null;
