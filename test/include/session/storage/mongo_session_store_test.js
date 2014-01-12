@@ -74,7 +74,7 @@ module.exports = {
 	},
 	
 	testTimeout: function(test){
-		pb.config.session.timeout = 2;
+		pb.config.session.timeout = 2000;
 		
 		var session = getSessionObject('abc'+Math.random());
 		var store   = new MongoSessionStore();
@@ -98,11 +98,12 @@ module.exports = {
 };
 
 function getSessionObject(sessionId){
-	var timeout = new Date(0);
-	timeout.setUTCSeconds(new Date().getTime()+(pb.config.session.timeout * 1000));
+	var timeout = new Date().getTime() + pb.config.session.timeout;
 	return {
-			client_id: sessionId,
-			a: "a",
-			b: "b",
+		uid: sessionId,
+		client_id: sessionId,
+		timeout: timeout,
+		a: "a",
+		b: "b",
 	};
 }

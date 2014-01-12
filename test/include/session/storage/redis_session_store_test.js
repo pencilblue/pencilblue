@@ -12,6 +12,7 @@ var RedisSessionStore = require(DOCUMENT_ROOT+"/include/session/storage/redis_se
 //constants
 var SESSION_ID  = 'abc123';
 var SESSION_OBJ = {
+	uid: SESSION_ID,
 	client_id: SESSION_ID,
 	a: "a",
 	b: "b"
@@ -30,18 +31,19 @@ module.exports = {
 	},
 	
 	testSetGet: function(test){
-		var store = new RedisSessionStore();
+		var store   = new RedisSessionStore();
+		var session = getSessionObj();
 		store.get(SESSION_ID, function(err, result){
 			test.equal(null, err);
 			test.equal(null, result);
 			
-			store.set(SESSION_OBJ, function(err, result){
+			store.set(session, function(err, result){
 				test.equal(null, err);
 				test.equal('OK', result);
 				
 				store.get(SESSION_ID, function(err, result){
 					test.equal(null, err);
-					test.deepEqual(SESSION_OBJ, result);
+					test.deepEqual(session, result);
 					test.done();
 				});
 			});
@@ -49,8 +51,9 @@ module.exports = {
 	},
 	
 	testSetClear: function(test){
-		var store = new RedisSessionStore();
-		store.set(SESSION_OBJ, function(err, result){
+		var store   = new RedisSessionStore();
+		var session = getSessionObj();
+		store.set(session, function(err, result){
 			test.equal(null, err);
 			test.equal('OK', result);
 			
@@ -64,11 +67,11 @@ module.exports = {
 	},
 	
 	testTimeout: function(test){
-		pb.config.session.timeout = 2;
-		var store = new RedisSessionStore();
-		
+		pb.config.session.timeout = 2000;
+		var store   = new RedisSessionStore();
+		var session = getSessionObj();
 		test.expect(4);
-		store.set(SESSION_OBJ, function(err, result){
+		store.set(session, function(err, result){
 			test.equal(null, err);
 			test.equal('OK', result);
 			
@@ -83,3 +86,8 @@ module.exports = {
 		});
 	},
 };
+
+function getSessionObj(){
+	SESSION_OBJ.timeout = new Date().getTime() + pb.config.session.timeout;
+	return SESSION_OBJ;
+}

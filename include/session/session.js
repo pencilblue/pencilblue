@@ -1,36 +1,23 @@
 
-global.getSession = function (request, output)
-{
-    var clientID = getClientID(request);
-    if(request.headers['parsed_cookies'])
-    {
-        // Discovered that sometimes the cookie string has trailing spaces
-        var sessionID = null;
-        for(var key in request.headers['parsed_cookies'])
-        {
-            if(key.trim() == 'session_id')
-            {
-                sessionID = request.headers['parsed_cookies'][key];
-            }
-        }
+global.getSession = function (request, output) {
     
-        if(sessionID)
-        {
-            getDBObjectsWithValues({object_type: 'session', ip: request.connection.remoteAddress, client_id: clientID, uid: sessionID}, function(data)
-            {
-                if(data.length == 0)
-                {
-                    createSession(request, output);
-                    return;
-                }
-                
-                output(data[0]);
-            });
-        }
-        else
-        {
-            createSession(request, output);
-        }
+    var sessionID = SessionHandler.getSessionIdFromCookie(request);
+    if(sessionID){
+    	
+    	var clientID = getClientID(request);
+    	var criteria = {
+			object_type: 'session', 
+			ip: request.connection.remoteAddress, 
+			client_id: clientID, 
+			uid: sessionID
+		};
+        getDBObjectsWithValues(criteria, function(data){
+            if(data.length == 0) {
+                createSession(request, output);
+                return;
+            }
+            output(data[0]);
+        });
     }
     else
     {
@@ -57,7 +44,6 @@ createSession = function(request, output)
 
 global.editSession = function(request, session, unsets, output)
 {
-    var clientID = getClientID(request);
     getDBObjectsWithValues({object_type: 'session', uid: session.uid}, function(data)
     {
         if(data.length == 0)
@@ -101,13 +87,16 @@ global.getEmptySessionCookie = function()
     return {session_id: '', path: '/', expires: expireDate.toUTCString()};
 };
 
+/**
+ * SessionHandler - Responsible for managing user sessions
+ * 
+ * @author Brian Hyder <brianhyder@gmail.com>
+ * @copyright PencilBlue 2014, All Rights Reserved
+ */
 function SessionHandler(){
 	
 	//ensure a session store was started
 	this.sessionStore = SessionHandler.getSessionStore();
-	if (this.sessionStore == null){
-		throw new Error("Failed to initialize a session store. Choices were: "+JSON.stringify(possbileStores));
-	}
 	
 	//create a local storage object
 	this.localStorage = {};
@@ -115,10 +104,18 @@ function SessionHandler(){
 
 SessionHandler.HANDLER_PATH   = path.join(DOCUMENT_ROOT, 'include', 'session', 'storage', path.sep);
 SessionHandler.HANDLER_SUFFIX = '_session_store.js';
-SessionHandler.SID_KEY        = 'client_id';
+SessionHandler.SID_KEY        = 'uid';
+SessionHandler.TIMEOUT_KEY    = 'timeout';
+SessionHandler.COOKIE_HEADER  = 'parsed_cookies';
 
 SessionHandler.prototype.open = function(request, output){
-	var sid = SessionHandler.getClientID(request);
+	
+	//check for active
+	var sid = SessionHandler.getSessionIdFromCookie(request);
+	if (!sid) {
+		cb(null, SessionHandler.create(request));
+		return;
+	}
 	
 	//check in local storage
 	var session = null;
@@ -141,9 +138,7 @@ SessionHandler.prototype.open = function(request, output){
 		}
 		
 		//session not found create one
-		session = SessionHandler.create(request, sid);
-		this.setLocal(session);
-		cb(null, session);
+		cb(null, SessionHandler.create(request));
 	});
 };
 
@@ -159,6 +154,9 @@ SessionHandler.prototype.close = function(session, cb) {
 		}
 	}
 	
+	//update timeout
+	session[SessionHandler.TIMEOUT_KEY] = new Date().getTime() + pb.confi.session.timeout;
+	
 	//last active request using this session, persist it back to storage
 	if(this.purgeLocal(session[SessionHandler.SID_KEY])){
 		this.sessionStore.set(session, cb);
@@ -170,6 +168,7 @@ SessionHandler.prototype.close = function(session, cb) {
 };
 
 /**
+ * 
  * NOTE: This function should only be called <b>AFTER</b> SessionHandler.open 
  * is called and callsback successfully.
  * @param sessionId
@@ -233,14 +232,18 @@ SessionHandler.prototype.shutdown = function(){
 	SessionHandler.SessionStore.shutdown();
 };
 
-SessionHandler.create = function(request, sid){
+SessionHandler.create = function(request){
 	var session = {
-			authentication: {
-				user_id: null,
-				permissions: []
-			}
+		authentication: {
+			user_id: null,
+			permissions: []
+		},
+		ip: request.connection.remote_address,
+		client_id: SessionHandler.getClientId(request)
 	};
-	session[SessionHandler.SID_KEY] = sid ? sid : SessionHandler.getClientId(request);
+	session[SessionHandler.SID_KEY] = pb.utils.uniqueId();
+	
+	this.setLocal(session);
 	return session;
 };
 
@@ -258,17 +261,39 @@ SessionHandler.getSessionStore = function(){
           pb.config.session.storage
      ];
  	
- 	this.sessionStore = null;
+ 	var sessionStore = null;
  	for(var i = 0; i < possibleStores.length; i++){
  		try{
  			SessionHandler.SessionStore = require(possibleStores[i]);
- 			this.sessionStore = new this.SessionStore();
+ 			sessionStore                = new this.SessionStore();
  			break;
  		}
  		catch(e){
  			pb.log.debug("SessionHandler: Failed to load "+possibleStores[i]);
  		}
  	}
+ 	
+ 	//ensure session store was loaded
+ 	if (sessionStore == null){
+		throw new Error("Failed to initialize a session store. Choices were: "+JSON.stringify(possbileStores));
+	}
+ 	return sessionStore;
+};
+
+SessionHandler.getSessionIdFromCookie = function(request){
+	
+	var sessionId = null;
+	if (request.headers[SessionHandler.COOKIE_HEADER]) {
+        
+		// Discovered that sometimes the cookie string has trailing spaces
+        for(var key in request.headers[SessionHandler.COOKIE_HEADER]){
+        	if(key.trim() == 'session_id'){
+                sessionId = request.headers[SessionHandler.COOKIE_HEADER][key];
+                break;
+            }
+        }
+    }
+	return sessionId;
 };
 
 //do module exports

@@ -35,15 +35,19 @@ RedisSessionStore.prototype.get = function(sessionId, cb){
  * the following in addition to other data:
  * <pre>
  * {
- * 	client_id: [primitive]
+ * 	uid: [primitive]
  * }
  * </pre>
  * @param cb Callback of form cb(err, 'OK')
  */
 RedisSessionStore.prototype.set = function(session, cb){
-	var sid  = RedisSessionStore.getSessionKey(session.client_id);
+	var sid  = RedisSessionStore.getSessionKey(session.uid);
 	var json = JSON.stringify(session);
-	pb.cache.setex(sid, pb.config.session.timeout, json, cb);
+	
+	//in seconds
+	var millisFromNow = session.timeout - new Date().getTime();
+	var timeout       = Math.floor(millisFromNow / pb.utils.TIME.MILLIS_PER_SEC);
+	pb.cache.setex(sid, timeout, json, cb);
 };
 
 /**

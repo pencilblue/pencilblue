@@ -21,7 +21,7 @@ MongoSessionStore.prototype.get = function(sessionId, cb){
 	var dao = new pb.DAO();
 	
 	var query = {
-		client_id: sessionId
+		uid: sessionId
 	};
 	dao.query(SESSION_COLLECTION_NAME, query, pb.DAO.PROJECT_ALL, pb.DAO.NATURAL_ORDER, 1, 0).then(function(result){
 		var isError =  typeof result  == 'Error';
@@ -39,7 +39,7 @@ MongoSessionStore.prototype.get = function(sessionId, cb){
  * the following in addition to other data:
  * <pre>
  * {
- * 	client_id: [primitive]
+ * 	uid: [primitive]
  * }
  * </pre>
  * @param cb Callback of form cb(err, 'OK')
@@ -49,7 +49,6 @@ MongoSessionStore.prototype.set = function(session, cb){
 	
 	//ensure an object type is set
 	session.object_type = SESSION_COLLECTION_NAME;
-	session.expires     = new Date().getTime() + (pb.config.session.timeout * 1000);
 	
 	//persist the session
 	dao.update(session).then(function(result){
@@ -78,7 +77,7 @@ MongoSessionStore.prototype.clear = function(sessionId, cb){
  */
 MongoSessionStore.getSessionQuery = function(sessionId){
 	return {
-		client_id: sessionId
+		uid: sessionId
 	};
 };
 
@@ -92,7 +91,7 @@ MongoSessionStore.clearExpired = function(cb){
 	
 	var dao   = new pb.DAO();
 	var query = {
-		expires: {
+		timeout: {
 			"$lte": new Date().getTime()
 		}
 	};

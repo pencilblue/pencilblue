@@ -23,4 +23,17 @@ Util.onPromisesOk = function(promises, cb){
 	}
 };
 
+
+Util.uniqueId = function(){
+	return global.uniqueId();
+};
+
+Util.TIME = {
+	
+	MILLIS_PER_SEC: 1000,
+	MILLIS_PER_MIN: 60000,
+	MILLIS_PER_HOUR: 3600000,
+	MILLIS_PER_DAY: 86400000
+};
+
 module.exports = Util;

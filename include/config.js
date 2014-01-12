@@ -37,7 +37,7 @@ var config = {
 	},
 	session: {
 		storage: "redis",
-		timeout: 600
+		timeout: 600000
 	},
 	logging: {
 		level: LOG_LEVEL,

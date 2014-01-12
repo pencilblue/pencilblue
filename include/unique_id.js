@@ -24,8 +24,12 @@ global.uniqueID = function(output)
 	milliseconds = milliseconds * Math.pow(2, 12);
 	var id2 = parseInt(Math.random() * 1000000) * Math.pow(2, 8);
 	var uid = milliseconds.toString(16) + '-' + uniqueCounter + '-' + id2 + '-' + getAlphanumericKey(16);
-	output(uid);
-}
+	
+	if(output){
+		output(uid);
+	}
+	return uid;
+};
 
 global.getAlphanumericKey = function(keyLength)
 {
@@ -36,4 +40,4 @@ global.getAlphanumericKey = function(keyLength)
     }
     
     return key;
-}
+};
