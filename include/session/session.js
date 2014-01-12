@@ -102,33 +102,116 @@ global.getEmptySessionCookie = function()
 };
 
 function SessionHandler(){
-	var possibleStores = [
-         SessionHandler.HANDLER_PATH+ pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
-         pb.config.session.storage
-    ];
-	
-	this.sessionStore = null;
-	for(var i = 0; i < possibleStores.length; i++){
-		try{
-			this.SessionStore = require(possibleStores[i]);
-			this.sessionStore = new this.SessionStore();
-			break;
-		}
-		catch(e){
-			pb.log.debug("SessionHandler: Failed to load "+possibleStores[i]);
-		}
-	}
 	
 	//ensure a session store was started
+	this.sessionStore = SessionHandler.getSessionStore();
 	if (this.sessionStore == null){
 		throw new Error("Failed to initialize a session store. Choices were: "+JSON.stringify(possbileStores));
 	}
+	
+	//create a local storage object
+	this.localStorage = {};
 };
 
 SessionHandler.HANDLER_PATH   = path.join(DOCUMENT_ROOT, 'include', 'session', 'storage', path.sep);
 SessionHandler.HANDLER_SUFFIX = '_session_store.js';
 SessionHandler.SID_KEY        = 'client_id';
 
+SessionHandler.prototype.open = function(request, output){
+	var sid = SessionHandler.getClientID(request);
+	
+	//check in local storage
+	var session = null;
+	if (this.isLocal(sid)) {
+		session = this.gl(sid);
+		this.setLocal(session);
+		cb(null, session);
+		return;
+	}
+	
+	//session not available locally so check persistent storage
+	this.sessionStore.get(sid, function(err, result){
+		if(err){
+			cb(err, null);
+			return;
+		}
+		else if(result){
+			cb(null, result);
+			return;
+		}
+		
+		//session not found create one
+		session = SessionHandler.create(request, sid);
+		this.setLocal(session);
+		cb(null, session);
+	});
+};
+
+SessionHandler.prototype.close = function(session, cb) {
+	if(!session){
+		throw new Error("SessionHandler: Cannot close an empty session");
+	}
+	
+	if(typeof session != 'object'){
+		session = this.gl(session);
+		if(!session) {
+			throw new Error("SessionHandler: The session has not been opened or is already closed");
+		}
+	}
+	
+	//last active request using this session, persist it back to storage
+	if(this.purgeLocal(session[SessionHandler.SID_KEY])){
+		this.sessionStore.set(session, cb);
+		return;
+	}
+	
+	//another request is using the session object so just call back OK
+	cb(null, true);
+};
+
+/**
+ * NOTE: This function should only be called <b>AFTER</b> SessionHandler.open 
+ * is called and callsback successfully.
+ * @param sessionId
+ * @returns
+ */
+SessionHandler.prototype.gl = function(sessionId){
+	var localSession = this.localStorage[sessionId];
+	return localSession ? localSession.session : null;
+};
+
+SessionHandler.prototype.setLocal = function(session){
+	var sid = session[SessionHandler.SID_KEY];
+	if (this.isLocal(sid)) {
+		this.localStorage[sid].request_count += 1;
+	}
+	else{
+		this.localStorage[sid] = {
+			request_count: 1,
+			session: session
+		};
+	}
+};
+
+SessionHandler.prototype.purgeLocal = function(sessionId){
+	if (!this.isLocal(sessionId)) {
+		throw new Error("SessionHandler: The session was never opened or the session is already closed");
+	}
+	
+	//decrement request count
+	this.localStorage[sessionId].request_count -= 1;
+	
+	//qualifies for local purge if request count is at 0
+	var doesQualify = this.localStorage[sessionId].request_count;
+	if (doesQualify) {
+		delete this.localStorage[sessionId];
+	}
+	return doesQualify;
+};
+
+SessionHandler.prototype.isLocal = function(sessionId){
+	return this.localStorage.hasOwnProperty(sessionId);
+};
 
 SessionHandler.prototype.getSession = function(request, output){
 	global.getSession(request, output);
@@ -147,7 +230,18 @@ SessionHandler.prototype.closeSession = function(session, output){
 };
 
 SessionHandler.prototype.shutdown = function(){
-	this.SessionStore.shutdown();
+	SessionHandler.SessionStore.shutdown();
+};
+
+SessionHandler.create = function(request, sid){
+	var session = {
+			authentication: {
+				user_id: null,
+				permissions: []
+			}
+	};
+	session[SessionHandler.SID_KEY] = sid ? sid : SessionHandler.getClientId(request);
+	return session;
 };
 
 SessionHandler.getClientID = function(request){
@@ -156,6 +250,25 @@ SessionHandler.getClientID = function(request){
 
 SessionHandler.getEmptySessionCookie = function(){
 	return global.getEmptySessionCookie();
+};
+
+SessionHandler.getSessionStore = function(){
+	var possibleStores = [
+          SessionHandler.HANDLER_PATH+ pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
+          pb.config.session.storage
+     ];
+ 	
+ 	this.sessionStore = null;
+ 	for(var i = 0; i < possibleStores.length; i++){
+ 		try{
+ 			SessionHandler.SessionStore = require(possibleStores[i]);
+ 			this.sessionStore = new this.SessionStore();
+ 			break;
+ 		}
+ 		catch(e){
+ 			pb.log.debug("SessionHandler: Failed to load "+possibleStores[i]);
+ 		}
+ 	}
 };
 
 //do module exports
