@@ -46,6 +46,11 @@ var formRefillOptions =
         elementPrefix: 'default_comments_'
     },
     {
+        id: 'require_account',
+        type: 'button_group',
+        elementPrefix: 'require_account_'
+    },
+    {
         id: 'require_verification',
         type: 'button_group',
         elementPrefix: 'require_verification_'
