@@ -9,10 +9,10 @@
                 <div class="panel-heading">
                     {{section.name}}
                     <a href="javascript:confirmDeleteSection('{{section._id}}', '{{section.name}}')">
-                        <i class="fa fa-times" style="float: right;"></i>&nbsp;
+                        <i class="fa fa-times fa-lg" style="float: right;"></i>&nbsp;&nbsp;
                     </a>
                     <a href="/admin/content/sections/edit_section?id={{section._id}}">
-                        <i class="fa fa-pencil" style="float: right; margin-right: .5em;"></i>
+                        <i class="fa fa-pencil fa-lg" style="float: right; margin-right: .5em;"></i>
                     </a>
                 </div>
                 <div class="panel-body" ng-hide="section.children.length == 0">
@@ -21,10 +21,10 @@
                             <div class="panel-heading">
                                 {{child.name}}
                                 <a href="javascript:confirmDeleteSection('{{child._id}}', '{{child.name}}')">
-                                    <i class="fa fa-times" style="float: right;"></i>&nbsp;
+                                    <i class="fa fa-times fa-lg" style="float: right;"></i>&nbsp;&nbsp;
                                 </a>
                                 <a href="/admin/content/sections/edit_section?id={{child._id}}">
-                                    <i class="fa fa-pencil" style="float: right; margin-right: .5em;"></i>
+                                    <i class="fa fa-pencil fa-lg" style="float: right; margin-right: .5em;"></i>
                                 </a>
                             </div>
                         </div>
