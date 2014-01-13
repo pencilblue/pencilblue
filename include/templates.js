@@ -59,7 +59,7 @@ global.getHTMLTemplate = function(templateLocation, pageName, metaDesc, output)
         var endIndex = templateString.substr(startIndex).indexOf('^');
         var templateName = templateString.substr(startIndex, endIndex);
         
-        getHTMLTemplate(templateName.split('=').join('/'), null, null, function(data)
+        getHTMLTemplate(templateName.split('=').join('/'), pageName, metaDesc, function(data)
         {
             templateString = templateString.split('^tmp_' + templateName + '^').join(data);
             

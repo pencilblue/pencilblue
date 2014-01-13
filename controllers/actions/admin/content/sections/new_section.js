@@ -15,7 +15,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/sections', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/sections/new_section', output);
             return;
         }
     
@@ -23,7 +23,7 @@ this.init = function(request, output)
         
         if(message = checkForRequiredParameters(post, ['name', 'editor']))
         {
-            formError(request, session, message, '/admin/content/sections', output);
+            formError(request, session, message, '/admin/content/sections/new_section', output);
             return;
         }
         
@@ -41,7 +41,7 @@ this.init = function(request, output)
                 {
                     if(!data[i]._id.equals(section._id))
                     {
-                        formError(request, session, '^loc_EXISTING_SECTION^', '/admin/content/sections', output);
+                        formError(request, session, '^loc_EXISTING_SECTION^', '/admin/content/sections/new_section', output);
                         return;
                     }
                 }
@@ -51,7 +51,7 @@ this.init = function(request, output)
             {
                 if(data.length == 0)
                 {
-                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/sections', output);
+                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/sections/new_section', output);
                     return;
                 }
                 
@@ -61,7 +61,7 @@ this.init = function(request, output)
                 {                
                     editSession(request, session, [], function(data)
                     {        
-                        output({redirect: pb.config.siteRoot + '/admin/content/sections'});
+                        output({redirect: pb.config.siteRoot + '/admin/content/sections/new_section'});
                     });
                 });
             });

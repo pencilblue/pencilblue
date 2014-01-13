@@ -16,50 +16,45 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
-        
-        session.section = 'sections';
-        session.subsection = 'new_section';
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/content/sections/new_section', null, null, function(data)
+            getHTMLTemplate('admin/content/sections/new_section', '^loc_NEW_SECTION^', null, function(data)
             {
                 result = result.concat(data);
                 
-                var tabs =
-                [
-                    {
-                        active: true,
-                        href: '#section_settings',
-                        icon: 'cog',
-                        title: '^loc_SETTINGS^'
-                    },
-                    {
-                        href: '#section_meta_data',
-                        icon: 'tasks',
-                        title: '^loc_META_DATA^'
-                    }
-                ];
-                
-                getTabNav(tabs, function(tabNav)
+                getAdminNavigation(session, ['content', 'sections'], function(data)
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
-                    
+                    result = result.split('^admin_nav^').join(data);
+                
+                    var tabs =
+                    [
+                        {
+                            active: 'active',
+                            href: '#section_settings',
+                            icon: 'cog',
+                            title: '^loc_SETTINGS^'
+                        },
+                        {
+                            href: '#section_meta_data',
+                            icon: 'tasks',
+                            title: '^loc_META_DATA^'
+                        }
+                    ];
+                        
                     displayErrorOrSuccess(session, result, function(newSession, newResult)
                     {
                         session = newSession;
                         result = newResult;
                     
-                        instance.getParentOptions(function(parentsList)
-                        {
-                            result = result.split('^parent_options^').join(parentsList);
-                            
-                            instance.getEditorOptions(session, function(editorsList)
+                        getDBObjectsWithValues({object_type: 'section', parent: null, $orderby: {name: 1}}, function(parents)
+                        {                            
+                            instance.getEditors(session, function(editors)
                             {
-                                result = result.split('^editor_options^').join(editorsList);
+                                result = result.concat(getAngularController({pills: require('../sections').getPillNavOptions('new_section'), tabs: tabs, parents: parents, editors: editors}));
                             
                                 editSession(request, session, [], function(data)
                                 {
@@ -74,50 +69,24 @@ this.init = function(request, output)
     });
 }
 
-this.getParentOptions = function(output)
+this.getEditors = function(session, output)
 {
-    var sections = [];
-    var parentsList = '';
+    var editors = [];
     
-    var instance = this;
-    
-    getDBObjectsWithValues({object_type: 'section', parent: null, $orderby: {name: 1}}, function(data)
+    getDBObjectsWithValues({object_type: 'user', admin: {$gt: ACCESS_WRITER}}, function(data)
     {
-        if(data.length > 0)
+        for(var i = 0; i < data.length; i++)
         {
-            for(var i = 0; i < data.length; i++)
+            var editor = {_id: data[0]._id, name: data[0].first_name + ' ' + data[0].last_name};
+        
+            if(session['user']._id.equals(data[i]._id))
             {
-                parentsList = parentsList.concat('<option value="' + data[i]._id + '">' + data[i].name + '</option>');
+                editor.selected = 'selected';
             }
+            
+            editors.push(editor);
         }
         
-        output(parentsList);
-    });
-}
-
-this.getEditorOptions = function(session, output)
-{
-    templatesList = '';    
-    
-    getDBObjectsWithValues({object_type: 'user', admin: {$gt: 1}}, function(data)
-    {
-        if(data.length > 0)
-        {
-            for(var i = 0; i < data.length; i++)
-            {
-                if(session['user']._id.equals(data[i]._id))
-                {
-                    templatesList = templatesList.concat('<option value="' + data[i]._id + '" selected="selected">' + data[i].first_name + ' ' + data[i].last_name + '</option>');
-                    continue;
-                }
-                
-                templatesList = templatesList.concat('<option value="' + data[i]._id + '">' + data[i].first_name + ' ' + data[i].last_name + '</option>');
-            }
-            output(templatesList);
-        }
-        else
-        {
-            output('');
-        }
+        output(editors);
     });
 }

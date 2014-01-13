@@ -16,7 +16,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
         
@@ -24,30 +24,23 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                session.section = 'sections';
-                session.subsection = 'new_section';
-                
                 editSession(request, session, [], function(data)
                 {
-                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/sections";')});
+                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/sections/new_section";')});
                 });
                 
                 return;
             }
             
-            session.section = 'sections';
-            session.subsection = 'section_map';
+            var sections = data;
             
             getDBObjectsWithValues({object_type: 'setting', key: 'section_map'}, function(data)
             {
                 if(data.length == 0)
                 {
-                    session.section = 'sections';
-                    session.subsection = 'new_section';
-                    
                     editSession(request, session, [], function(data)
                     {
-                        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/sections";')});
+                        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/sections/new_section";')});
                     });
                     
                     return;
@@ -57,18 +50,20 @@ this.init = function(request, output)
         
                 initLocalization(request, session, function(data)
                 {
-                    getHTMLTemplate('admin/content/sections/section_map', null, null, function(data)
+                    getHTMLTemplate('admin/content/sections/section_map', '^loc_SECTION_MAP^', null, function(data)
                     {
                         result = result.concat(data);
                         
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
+                        getAdminNavigation(session, ['content', 'sections'], function(data)
                         {
-                            session = newSession;
-                            result = newResult;
-                            
-                            instance.getSections(sectionMap, function(sectionsList)
+                            result = result.split('^admin_nav^').join(data);
+                                
+                            displayErrorOrSuccess(session, result, function(newSession, newResult)
                             {
-                                result = result.split('^sections^').join(sectionsList);
+                                session = newSession;
+                                result = newResult;
+                                
+                                result = result.concat(getAngularController({pills: require('../sections').getPillNavOptions('section_map'), sections: instance.getOrderedSections(sections, sectionMap)}));
                                 
                                 editSession(request, session, [], function(data)
                                 {
@@ -83,74 +78,43 @@ this.init = function(request, output)
     });
 }
 
-this.getSections = function(sectionMap, output)
+this.getOrderedSections = function(sections, sectionMap)
 {
-    var sections = [];
-    var sectionTemplate = '';
-    var subsectionTemplate = ''
-    var sectionsList = '';
-    
-    getHTMLTemplate('admin/content/sections/section_map/section', null, null, function(data)
+    var orderedSections = [];
+
+    for(var i = 0; i < sectionMap.length; i++)
     {
-        sectionTemplate = data;
-        getHTMLTemplate('admin/content/sections/section_map/subsection', null, null, function(data)
+        var parentSection = null;
+        
+        for(var j = 0; j < sections.length; j++)
         {
-            subsectionTemplate = data;
-            getDBObjectsWithValues({object_type: 'section'}, function(data)
+            if(sectionMap[i].uid == sections[j]._id)
             {
-                if(data.length > 0)
+                parentSection = sections[j];
+                parentSection.children = [];
+                break;
+            }
+        }
+        
+        if(!parentSection)
+        {
+            continue;
+        }
+        
+        for(var o = 0; o < sectionMap[i].children.length; o++)
+        {
+            for(var j = 0; j < sections.length; j++)
+            {
+                if(sectionMap[i].children[o].uid == sections[j]._id)
                 {
-                    for(var i = 0; i < sectionMap.length; i++)
-                    {
-                        var sectionMatch = false;
-                        
-                        for(var j = 0; j < data.length; j++)
-                        {
-                            if(sectionMap[i].uid == data[j]._id)
-                            {
-                                var sectionListElement = sectionTemplate.split('^section_id^').join(data[j]._id);
-                                sectionListElement = sectionListElement.split('^section_name^').join(data[j].name);
-                                sectionMatch = true;
-                                break;
-                            }
-                        }
-                        
-                        if(!sectionMatch)
-                        {
-                            break;
-                        }
-                        
-                        subsectionList = '';
-                        for(var o = 0; o < sectionMap[i].children.length; o++)
-                        {
-                            for(var j = 0; j < data.length; j++)
-                            {
-                                if(sectionMap[i].children[o].uid == data[j]._id)
-                                {
-                                    subsectionListElement = subsectionTemplate.split('^subsection_id^').join(data[j]._id);
-                                    subsectionListElement = subsectionListElement.split('^subsection_name^').join(data[j].name);
-                                    subsectionList = subsectionList.concat(subsectionListElement);
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        if(subsectionList.length == 0)
-                        {
-                            sectionListElement = sectionListElement.split('^subsection_display^').join('style="display: none"');
-                            sectionListElement = sectionListElement.split('^subsections^').join('');
-                        }
-                        else
-                        {
-                            sectionListElement = sectionListElement.split('^subsection_display^').join('');
-                            sectionListElement = sectionListElement.split('^subsections^').join(subsectionList);
-                        }
-                        sectionsList = sectionsList.concat(sectionListElement);
-                    }
+                    parentSection.children.push(sections[j]);
+                    break;
                 }
-                
-                output(sectionsList);
-            });
-        });
-    });
+            }
+        }
+        
+        orderedSections.push(parentSection);
+    }
+    
+    return orderedSections;
 }

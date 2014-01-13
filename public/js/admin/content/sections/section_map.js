@@ -17,17 +17,6 @@ $(document).ready(function()
     $('#section_map .panel-body').disableSelection();
 });
 
-function editSection(siteRoot, sectionID)
-{
-    $('#sections_content').html('<div class="row" style="padding-top: 100px;"><div class="col-md-4 col-md-offset-4"><div class="progress progress-striped active"><div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div></div></div>');
-    $('#sections_content').load(siteRoot + '/admin/content/sections/edit_section?id=' + sectionID);
-    
-    $('#sub_nav li').each(function()
-    {
-        $(this).attr('class', '');
-    });
-}
-
 // Prepares the map data for saving
 function buildSectionMap()
 {
@@ -78,9 +67,9 @@ function saveSectionMap(sectionMap)
     $('#section_map_form').submit();
 }
 
-function confirmDeleteSection(siteRoot, sectionID, sectionName)
+function confirmDeleteSection(sectionID, sectionName)
 {
     $('#delete_name').html(sectionName);
-    $('#delete_button').attr('onclick', 'window.location = "' + siteRoot + '/actions/admin/content/sections/delete_section?id=' + sectionID + '"');
+    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/sections/delete_section?id=' + sectionID + '"');
     $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
 }

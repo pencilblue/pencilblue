@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
-<html>
+<html ng-app="pencilblueApp">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
         <title>^site_name^^page_name^</title>
@@ -19,8 +19,11 @@
         <script type="text/javascript" src="^site_root^/js/jquery.ui.touch-punch.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/jquery.datetimepicker.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/angular.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/angular-route.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/angular-whitelist.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/form.js"></script>
     </head>
-    <body>
+    <body ng-controller="PencilBlueController">
         <div id="wrap">
             ^tmp_admin=elements=admin_nav^

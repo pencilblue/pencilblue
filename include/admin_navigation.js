@@ -110,70 +110,6 @@ global.getAdminNavigationItem = function(template, itemData, activeItems)
     return item;
 }
 
-global.getPillNavContainer = function(options, output)
-{
-    var pillTemplate = '';
-    var pillNav = '';
-    
-    getHTMLTemplate('admin/elements/pill_nav_container', null, null, function(data)
-    {
-        pillNav = data;
-        
-        getHTMLTemplate('admin/elements/pill_nav_container/pill', null, null, function(data)
-        {
-            pillTemplate = data;
-            
-            var pills = '';
-            for(var i = 0; i < options.children.length; i++)
-            {
-                var pill = pillTemplate.split('^pill_child^').join(options.children[i].name);
-                pill = pill.split('^pill_folder^').join(options.children[i].folder);
-                pill = pill.split('^pill_icon^').join(options.children[i].icon);
-                pill = pill.split('^pill_title^').join(options.children[i].title);
-                
-                pills = pills.concat(pill);
-            }
-            
-            pillNav = pillNav.split('^pills^').join(pills);
-            pillNav = pillNav.split('^pill_parent^').join(options.name);
-            
-            output(pillNav);
-        });
-    });
-}
-
-global.getTabNav = function(tabs, output)
-{
-    var tabTemplate = '';
-    var tabNav = '';
-    
-    getHTMLTemplate('admin/elements/tab_nav', null, null, function(data)
-    {
-        tabNav = data;
-        
-        getHTMLTemplate('admin/elements/tab_nav/tab', null, null, function(data)
-        {
-            tabTemplate = data;
-            
-            var tabLayout = '';
-            for(var i = 0; i < tabs.length; i++)
-            {
-                var tab = tabTemplate.split('^tab_active^').join((tabs[i].active) ? ' class="active"' : '');
-                tab = tab.split('^tab_onclick^').join((tabs[i].onclick) ? ' onclick="' + tabs[i].onclick + '"' : '');
-                tab = tab.split('^tab_href^').join(tabs[i].href);
-                tab = tab.split('^tab_icon^').join(tabs[i].icon);
-                tab = tab.split('^tab_title^').join(tabs[i].title);
-                
-                tabLayout = tabLayout.concat(tab);
-            }
-            
-            tabNav = tabNav.split('^tabs^').join(tabLayout);
-            
-            output(tabNav);
-        });
-    });
-}
-
 // Defines the default admin nav
 global.defaultAdminNavigation =
 [
@@ -189,35 +125,35 @@ global.defaultAdminNavigation =
                 id: 'sections',
                 title: '^loc_SECTIONS^',
                 icon: 'th-large',
-                href: '/admin/content/sections',
+                href: '/admin/content/sections/section_map',
                 access: ACCESS_EDITOR
             },
             {
                 id: 'topics',
                 title: '^loc_TOPICS^',
                 icon: 'tags',
-                href: '/admin/content/topics',
+                href: '/admin/content/topics/manage_topics',
                 access: ACCESS_EDITOR
             },
             {
                 id: 'pages',
                 title: '^loc_PAGES^',
                 icon: 'file-o',
-                href: '/admin/content/pages',
+                href: '/admin/content/pages/manage_pages',
                 access: ACCESS_EDITOR
             },
             {
                 id: 'articles',
                 title: '^loc_ARTICLES^',
                 icon: 'files-o',
-                href: '/admin/content/articles',
+                href: '/admin/content/articles/manage_articles',
                 access: ACCESS_WRITER
             },
             {
                 id: 'media',
                 title: '^loc_MEDIA^',
                 icon: 'camera',
-                href: '/admin/content/media',
+                href: '/admin/content/media/manage_media',
                 access: ACCESS_WRITER
             }
         ]

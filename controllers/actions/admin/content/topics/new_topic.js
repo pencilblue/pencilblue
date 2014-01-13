@@ -13,7 +13,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/topics', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/topics/new_topic', output);
             return;
         }
     
@@ -21,7 +21,7 @@ this.init = function(request, output)
         
         if(message = checkForRequiredParameters(post, ['name']))
         {
-            formError(request, session, message, '/admin/content/topics', output);
+            formError(request, session, message, '/admin/content/topics/new_topic', output);
             return;
         }
         
@@ -31,7 +31,7 @@ this.init = function(request, output)
         {
             if(data.length > 0)
             {
-                formError(request, session, '^loc_EXISTING_TOPIC^', '/admin/content/topics', output);
+                formError(request, session, '^loc_EXISTING_TOPIC^', '/admin/content/topics/new_topic', output);
                 return;
             }
             
@@ -39,7 +39,7 @@ this.init = function(request, output)
             {
                 if(data.length == 0)
                 {
-                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/topics', output);
+                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/topics/new_topic', output);
                     return;
                 }
                 
@@ -47,7 +47,7 @@ this.init = function(request, output)
                 
                 editSession(request, session, [], function(data)
                 {        
-                    output({redirect: pb.config.siteRoot + '/admin/content/topics'});
+                    output({redirect: pb.config.siteRoot + '/admin/content/topics/new_topic'});
                 });
             });
         });
