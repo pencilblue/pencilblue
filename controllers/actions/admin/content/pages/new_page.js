@@ -13,7 +13,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/pages', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/pages/new_page', output);
             return;
         }
     
@@ -39,7 +39,7 @@ this.init = function(request, output)
         
         if(message = checkForRequiredParameters(post, ['url', 'headline', 'template', 'page_layout']))
         {
-            formError(request, session, message, '/admin/content/pages', output);
+            formError(request, session, message, '/admin/content/pages/new_page', output);
             return;
         }
         
@@ -49,7 +49,7 @@ this.init = function(request, output)
         {
             if(data.length > 0)
             {
-                formError(request, session, '^loc_EXISTING_URL^', '/admin/content/pages', output);
+                formError(request, session, '^loc_EXISTING_URL^', '/admin/content/pages/new_page', output);
                 return;
             }
             
@@ -58,7 +58,7 @@ this.init = function(request, output)
             
                 if(data.length > 0)
                 {
-                    formError(request, session, '^loc_EXISTING_URL^', '/admin/content/pages', output);
+                    formError(request, session, '^loc_EXISTING_URL^', '/admin/content/pages/new_page', output);
                     return;
                 }            
             
@@ -66,7 +66,7 @@ this.init = function(request, output)
                 {
                     if(data.length == 0)
                     {
-                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/pages', output);
+                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/pages/new_page', output);
                         return;
                     }
                     
@@ -74,7 +74,7 @@ this.init = function(request, output)
                     delete session.fieldValues;
                     editSession(request, session, [], function(data)
                     {        
-                        output({redirect: pb.config.siteRoot + '/admin/content/pages'});
+                        output({redirect: pb.config.siteRoot + '/admin/content/pages/new_page'});
                     });
                 });
             });

@@ -15,7 +15,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/pages', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/pages/manage_pages', output);
             return;
         }
         
@@ -23,7 +23,7 @@ this.init = function(request, output)
         
         if(message = checkForRequiredParameters(get, ['id']))
         {
-            formError(request, session, message, '/admin/content/pages', output);
+            formError(request, session, message, '/admin/content/pages/manage_pages', output);
             return;
         }
         
@@ -31,7 +31,7 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/page', output);
+                formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/pages/manage_pages', output);
                 return;
             }
             
@@ -43,7 +43,7 @@ this.init = function(request, output)
                 
                 editSession(request, session, [], function(data)
                 {        
-                    output({redirect: pb.config.siteRoot + '/admin/content/pages'});
+                    output({redirect: pb.config.siteRoot + '/admin/content/pages/manage_pages'});
                 });
             });
         });
