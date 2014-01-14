@@ -16,12 +16,9 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
-        
-        session.section = 'site_settings';
-        session.subsection = 'configuration';
 
         initLocalization(request, session, function(data)
         {
@@ -29,14 +26,15 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                getAdminNavigation(session, ['content', 'articles'], function(data)
                 {
-                    session = newSession;
-                    result = newResult;
-                    
+                    result = result.split('^admin_nav^').join(data);
+                
                     instance.getConfiguration(result, function(newResult)
                     {
                         result = newResult;
+                        
+                        result = result.concat(getAngularController({pills: require('../site_settings').getPillNavOptions('configuration')}));
                         
                         editSession(request, session, [], function(data)
                         {

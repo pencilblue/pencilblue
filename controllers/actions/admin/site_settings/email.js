@@ -13,7 +13,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/site_settings', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/site_settings/email', output);
             return;
         }
     
@@ -37,7 +37,7 @@ this.init = function(request, output)
                 {
                     if(data.length == 0)
                     {
-                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/site_settings', output);
+                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/site_settings/email', output);
                         return;
                     }
                     
@@ -45,7 +45,7 @@ this.init = function(request, output)
                     delete session.fieldValues;
                     editSession(request, session, [], function(data)
                     {        
-                        output({redirect: pb.config.siteRoot + '/admin/site_settings'});
+                        output({redirect: pb.config.siteRoot + '/admin/site_settings/email'});
                     });
                 });
                 return;
@@ -55,7 +55,7 @@ this.init = function(request, output)
             {
                 if(data.length == 0)
                 {
-                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/site_settings', output);
+                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/site_settings/email', output);
                     return;
                 }
                 
@@ -63,7 +63,7 @@ this.init = function(request, output)
                 delete session.fieldValues;
                 editSession(request, session, [], function(data)
                 {        
-                    output({redirect: pb.config.siteRoot + '/admin/site_settings'});
+                    output({redirect: pb.config.siteRoot + '/admin/site_settings/email'});
                 });
             });
         });

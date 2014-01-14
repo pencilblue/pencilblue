@@ -16,12 +16,9 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
-        
-        session.section = 'site_settings';
-        session.subsection = 'email';
 
         initLocalization(request, session, function(data)
         {
@@ -29,25 +26,25 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                var tabs =
-                [
-                    {
-                        active: true,
-                        href: '#preferences',
-                        icon: 'wrench',
-                        title: '^loc_PREFERENCES^'
-                    },
-                    {
-                        href: '#smtp',
-                        icon: 'upload',
-                        title: '^loc_SMTP^'
-                    }
-                ];
-                
-                getTabNav(tabs, function(tabNav)
+                getAdminNavigation(session, ['content', 'articles'], function(data)
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
-                    
+                    result = result.split('^admin_nav^').join(data);
+                
+                    var tabs =
+                    [
+                        {
+                            active: 'active',
+                            href: '#preferences',
+                            icon: 'wrench',
+                            title: '^loc_PREFERENCES^'
+                        },
+                        {
+                            href: '#smtp',
+                            icon: 'upload',
+                            title: '^loc_SMTP^'
+                        }
+                    ];
+                        
                     getEmailSettings(function(emailSettings)
                     {
                         session = setFormFieldValues(emailSettings, session);
@@ -56,6 +53,8 @@ this.init = function(request, output)
                         {
                             session = newSession;
                             result = newResult;
+                            
+                            result = result.concat(getAngularController({pills: require('../site_settings').getPillNavOptions('email'), tabs: tabs}));
                             
                             editSession(request, session, [], function(data)
                             {

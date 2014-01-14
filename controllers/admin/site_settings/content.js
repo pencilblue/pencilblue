@@ -16,48 +16,45 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
-        
-        session.section = 'site_settings';
-        session.subsection = 'content';
 
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/site_settings/content', null, null, function(data)
+            getHTMLTemplate('admin/site_settings/content', '^loc_CONTENT^', null, function(data)
             {
                 result = result.concat(data);
                 
-                var tabs =
-                [
-                    {
-                        active: true,
-                        href: '#articles',
-                        icon: 'files-o',
-                        title: '^loc_ARTICLES^'
-                    },
-                    {
-                        href: '#timestamp',
-                        icon: 'clock-o',
-                        title: '^loc_TIMESTAMP^'
-                    },
-                    {
-                        href: '#authors',
-                        icon: 'user',
-                        title: '^loc_AUTHOR^'
-                    },
-                    {
-                        href: '#comments',
-                        icon: 'comment',
-                        title: '^loc_COMMENTS^'
-                    }
-                ];
-                
-                getTabNav(tabs, function(tabNav)
+                getAdminNavigation(session, ['content', 'articles'], function(data)
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
-                    
+                    result = result.split('^admin_nav^').join(data);
+                
+                    var tabs =
+                    [
+                        {
+                            active: 'active',
+                            href: '#articles',
+                            icon: 'files-o',
+                            title: '^loc_ARTICLES^'
+                        },
+                        {
+                            href: '#timestamp',
+                            icon: 'clock-o',
+                            title: '^loc_TIMESTAMP^'
+                        },
+                        {
+                            href: '#authors',
+                            icon: 'user',
+                            title: '^loc_AUTHOR^'
+                        },
+                        {
+                            href: '#comments',
+                            icon: 'comment',
+                            title: '^loc_COMMENTS^'
+                        }
+                    ];
+                        
                     getContentSettings(function(contentSettings)
                     {
                         session = setFormFieldValues(contentSettings, session);
@@ -66,6 +63,8 @@ this.init = function(request, output)
                         {
                             session = newSession;
                             result = newResult;
+                            
+                            result = result.concat(getAngularController({pills: require('../site_settings').getPillNavOptions('content'), tabs: tabs}));
                             
                             editSession(request, session, [], function(data)
                             {
