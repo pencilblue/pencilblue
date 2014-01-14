@@ -15,7 +15,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/media', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/media/manage_media', output);
             return;
         }
         

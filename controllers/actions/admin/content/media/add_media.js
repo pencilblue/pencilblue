@@ -13,7 +13,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/media', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/media/add_media', output);
             return;
         }
     
@@ -22,7 +22,7 @@ this.init = function(request, output)
         
         if(message = checkForRequiredParameters(post, ['media_type', 'location', 'name', 'caption']))
         {
-            formError(request, session, message, '/admin/content/media', output);
+            formError(request, session, message, '/admin/content/media/add_media', output);
             return;
         }
         
@@ -32,14 +32,14 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/media', output);
+                formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/media/add_media', output);
                 return;
             }
             
             session.success = mediaDocument.name + ' ^loc_ADDED^';
             editSession(request, session, [], function(data)
             {        
-                output({redirect: pb.config.siteRoot + '/admin/content/media'});
+                output({redirect: pb.config.siteRoot + '/admin/content/media/add_media'});
             });
         });
     });

@@ -16,46 +16,44 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot});
             return;
         }
-        
-        session.section = 'media';
-        session.subsection = 'add_media';
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/content/media/add_media', null, null, function(data)
+            getHTMLTemplate('admin/content/media/add_media', '^loc_ADD_MEDIA^', null, function(data)
             {
                 result = result.concat(data);
                 
-                var tabs =
-                [
-                    {
-                        active: true,
-                        href: '#media_upload',
-                        icon: 'film',
-                        title: '^loc_LINK_OR_UPLOAD^'
-                    },
-                    {
-                        href: '#topics_dnd',
-                        icon: 'tags',
-                        title: '^loc_TOPICS^'
-                    }
-                ];
-                
-                getTabNav(tabs, function(tabNav)
+                getAdminNavigation(session, ['content', 'articles'], function(data)
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
+                    result = result.split('^admin_nav^').join(data);
                 
+                    var tabs =
+                    [
+                        {
+                            active: 'active',
+                            href: '#media_upload',
+                            icon: 'film',
+                            title: '^loc_LINK_OR_UPLOAD^'
+                        },
+                        {
+                            href: '#topics_dnd',
+                            icon: 'tags',
+                            title: '^loc_TOPICS^'
+                        }
+                    ];
+                    
                     displayErrorOrSuccess(session, result, function(newSession, newResult)
                     {
                         session = newSession;
                         result = newResult;
                         
-                        instance.getTopicOptions(function(topicsList)
+                        getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
                         {
-                            result = result.split('^topic_options^').join(topicsList);
+                        
+                            result = result.concat(getAngularController({pills: require('../media').getPillNavOptions('add_media'), tabs: tabs, topics: topics}));
                         
                             editSession(request, session, [], function(data)
                             {
@@ -65,40 +63,6 @@ this.init = function(request, output)
                     });
                 });
             });
-        });
-    });
-}
-
-this.getTopicOptions = function(output)
-{
-    var topicsList = '';
-    var topicTemplate = '';
-    
-    getDBObjectsWithValues({object_type: 'topic'}, function(data)
-    {
-        var topics = data;
-        
-        // Case insensitive sort
-        topics.sort(function(a, b)
-        {
-            var x = a['name'].toLowerCase();
-            var y = b['name'].toLowerCase();
-        
-            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-        });
-        
-        getHTMLTemplate('admin/content/articles/new_article/topic', null, null, function(data)
-        {
-            topicTemplate = data;
-
-            for(var i = 0; i < topics.length; i++)
-            {
-                var topicsListElement = topicTemplate.split('^topic_id^').join(topics[i]._id.toString());
-                topicsListElement = topicsListElement.split('^topic_name^').join(topics[i].name);
-                topicsList = topicsList.concat(topicsListElement);
-            }
-            
-            output(topicsList);
         });
     });
 }
