@@ -16,7 +16,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot});
             return;
         }
         
@@ -30,40 +30,36 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                session.section = 'articles';
-                session.subsection = 'new_article';
-                
-                editSession(request, session, [], function(data)
-                {
-                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/articles";')});
-                });
-                
+                output({redirect: pb.config.siteRoot + '/admin/content/articles/new_article'});
                 return;
             }
             
-            session.section = 'articles';
-            session.subsection = 'manage_articles';
-            
             var articles = data;
             
-            getHTMLTemplate('admin/content/articles/manage_articles', null, null, function(data)
+            initLocalization(request, session, function(data)
             {
-                result = result.concat(data);
-                
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                getHTMLTemplate('admin/content/articles/manage_articles', '^loc_MANAGE_ARTICLES^', null, function(data)
                 {
-                    session = newSession;
-                    result = newResult;
+                    result = result.concat(data);
                     
-                    instance.getArticleAuthors(articles, function(newArticles)
+                    getAdminNavigation(session, ['content', 'articles'], function(data)
                     {
-                        articles = newArticles;
+                        result = result.split('^admin_nav^').join(data);
                     
-                        result = result.concat(getJSTag('$(document).ready(function(){setArticles(' + JSON.stringify(articles) + ')})'));
-                        
-                        editSession(request, session, [], function(data)
+                        displayErrorOrSuccess(session, result, function(newSession, newResult)
                         {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
+                            session = newSession;
+                            result = newResult;
+                            
+                            instance.getArticleAuthors(articles, function(articlesWithAuthorNames)
+                            {                                
+                                result = result.concat(getAngularController({pills: require('../articles').getPillNavOptions('manage_articles'), articles: articlesWithAuthorNames}));
+                                
+                                editSession(request, session, [], function(data)
+                                {
+                                    output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
+                                });
+                            });
                         });
                     });
                 });

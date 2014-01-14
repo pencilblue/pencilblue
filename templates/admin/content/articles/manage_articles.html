@@ -1,40 +1,43 @@
-^error_success^
-
-<table id="articles_table" class="table table-responsive table-condensed">
-    <tr id="articles_table_header">
-        <th>^loc_HEADLINE^</th>
-        <th>^loc_ARTICLE_URL^</th>
-        <th>^loc_AUTHOR^</th>
-        <th>^loc_PUBLISH_DATE^</th>
-        <th></th>
-    </tr>
-</table>
-<ul id="articles_pagination" class="pagination pagination-sm">
-</ul>
-<table id="article_template" style="display: none">
-    <tr class="article_row">
-        <td>^headline^</td>
-        <td>^url^</td>
-        <td>^author^</td>
-        <td>^publish_date^</td>
-        <td><a href="javascript:editArticle('^site_root^', '^article_id^')"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a href="javascript:confirmDeleteArticle('^site_root^', '^article_id^', '^headline^')"><i class="fa fa-times"></i></a></td>
-    </tr>
-</table>
-<div class="modal fade" id="confirm_delete_modal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-body">
-                ^loc_CONFIRM_DELETE^ <span id="delete_name" style="font-style: italic"></span>?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                </button>
-                <button type="button" id="delete_button" class="btn btn-danger">
-                    <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
-                </button>
+^tmp_admin=head^
+<div id="main" class="container-fluid">
+    <div class="row-fluid">
+        ^tmp_admin=elements=pill_nav^    
+        <div class="col-md-9">
+        ^error_success^
+        <table id="articles_table" class="table table-responsive table-condensed">
+            <tr id="articles_table_header">
+                <th>^loc_HEADLINE^</th>
+                <th>^loc_ARTICLE_URL^</th>
+                <th>^loc_AUTHOR^</th>
+                <th>^loc_PUBLISH_DATE^</th>
+                <th></th>
+            </tr>
+            <tr class="article_row" ng-repeat="article in articles" ng-cloak>
+                <td>{{article.headline}}</td>
+                <td>{{article.url}}</td>
+                <td>{{article.author_name}}</td>
+                <td>{{article.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
+                <td><a href="/admin/content/articles/edit_article?id={{article._id}}"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a href="javascript:confirmDeleteArticle('{{article._id}}', '{{article.headline}}')"><i class="fa fa-times"></i></a></td>
+            </tr>
+        </table>
+        <div class="modal fade" id="confirm_delete_modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        ^loc_CONFIRM_DELETE^ <span id="delete_name" style="font-style: italic"></span>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                        </button>
+                        <button type="button" id="delete_button" class="btn btn-danger">
+                            <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <script type="text/javascript" src="^site_root^/js/admin/content/articles/manage_articles.js"></script>
+^tmp_admin=footer^

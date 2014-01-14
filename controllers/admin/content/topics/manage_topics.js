@@ -24,11 +24,7 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {                
-                editSession(request, session, [], function(data)
-                {
-                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/topics/new_topic";')});
-                });
-                
+                output({redirect: pb.config.siteRoot + '/admin/content/topics/new_topic'});
                 return;
             }
             

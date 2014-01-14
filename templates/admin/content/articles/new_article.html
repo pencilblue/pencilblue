@@ -1,94 +1,101 @@
-^error_success^
-^tab_nav^
-
-<form id="new_article_form" method="post" action="^site_root^/actions/admin/content/articles/new_article">
-    <fieldset>
-        <div class="tab-content">
-            <div class="tab-pane active" id="content">
-                <div class="form-group">
-                    <label>^loc_ARTICLE_URL^</label>
-                    <div class="input-group">
-                        <span class="input-group-addon">article/</span>
-                        <input type="text" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" required></input>
+^tmp_admin=head^
+<div id="main" class="container-fluid">
+    <div class="row-fluid">
+        ^tmp_admin=elements=pill_nav^
+        <div class="col-md-9">
+        ^error_success^
+        ^tmp_admin=elements=tab_nav^
+        <form id="new_article_form" method="post" action="^site_root^/actions/admin/content/articles/new_article">
+            <fieldset>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="content">
+                        <div class="form-group">
+                            <label>^loc_ARTICLE_URL^</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">article/</span>
+                                <input type="text" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" required></input>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_STANDALONE_TEMPLATE^</label>
+                            <select id="template" name="template" class="form-control" required>
+                                <option value="{{template.file}}" ng-repeat="template in templates" ng-cloak>{{template.name}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_HEADLINE^</label>
+                            <input type="text" id="headline" name="headline" class="form-control"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_SUBHEADING^</label>
+                            <input type="text" id="subheading" name="subheading" class="form-control"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_PUBLISH_DATE^</label>
+                            <div class="input-group">
+                                <input type="text" id="publish_date" name="publish_date" class="form-control"></input>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" onclick="setPublishDateToNow()">^loc_NOW^</button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_CONTENT^&nbsp;<span id="column_inches"></span></label>
+                            ^tmp_admin=elements=content_layout^
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>^loc_STANDALONE_TEMPLATE^</label>
-                    <select id="template" name="template" class="form-control" required>
-                        ^template_options^
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>^loc_HEADLINE^</label>
-                    <input type="text" id="headline" name="headline" class="form-control"></input>
-                </div>
-                <div class="form-group">
-                    <label>^loc_SUBHEADING^</label>
-                    <input type="text" id="subheading" name="subheading" class="form-control"></input>
-                </div>
-                <div class="form-group">
-                    <label>^loc_PUBLISH_DATE^</label>
-                    <div class="input-group">
-                        <input type="text" id="publish_date" name="publish_date" class="form-control"></input>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" onclick="setPublishDateToNow()">^loc_NOW^</button>
-                        </span>
+                    <div class="tab-pane" id="media">
+                        ^tmp_admin=elements=inline_media^
                     </div>
+                    <div class="tab-pane" id="sections_dnd">
+                        ^tmp_admin=elements=section_select^
+                    </div>
+                    <div class="tab-pane" id="topics_dnd">
+                        ^tmp_admin=elements=topic_select^
+                    </div>
+                    <div class="tab-pane" id="meta_data">
+                        <div class="form-group">
+                            <label>^loc_FOCUS_KEYWORD^</label>
+                            <input type="text" id="focus_keyword" name="focus_keyword" class="form-control" placeholder="^loc_FOCUS_KEYWORD_PLACEHOLDER^"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_SEO_TITLE^</label>
+                            <input type="text" id="seo_title" name="seo_title" class="form-control" placeholder="^loc_SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_META_DESC^</label>
+                            <textarea id="meta_desc" name="meta_desc" class="form-control" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_META_KEYWORDS^</label>
+                            <input type="text" id="meta_keywords" name="meta_keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/articles';">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>&nbsp;
+                    <div class="btn-group dropup">
+                        <button type="button" class="btn btn-primary" onclick="checkForNewArticleSave()">
+                            <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                        </button>
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="#">
+                                    <i class="fa fa-paperclip"></i>&nbsp;^loc_SAVE_DRAFT^
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="spacer"></div>
                 </div>
-                <div class="form-group">
-                    <label>^loc_CONTENT^&nbsp;<span id="column_inches"></span></label>
-                    ^tmp_admin=elements=content_layout^
-                </div>
-            </div>
-            <div class="tab-pane" id="media">
-                ^tmp_admin=elements=inline_media^
-            </div>
-            <div class="tab-pane" id="sections_dnd">
-                ^tmp_admin=elements=section_select^
-            </div>
-            <div class="tab-pane" id="topics_dnd">
-                ^tmp_admin=elements=topic_select^
-            </div>
-            <div class="tab-pane" id="meta_data">
-                <div class="form-group">
-                    <label>^loc_FOCUS_KEYWORD^</label>
-                    <input type="text" id="focus_keyword" name="focus_keyword" class="form-control" placeholder="^loc_FOCUS_KEYWORD_PLACEHOLDER^"></input>
-                </div>
-                <div class="form-group">
-                    <label>^loc_SEO_TITLE^</label>
-                    <input type="text" id="seo_title" name="seo_title" class="form-control" placeholder="^loc_SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
-                </div>
-                <div class="form-group">
-                    <label>^loc_META_DESC^</label>
-                    <textarea id="meta_desc" name="meta_desc" class="form-control" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>^loc_META_KEYWORDS^</label>
-                    <input type="text" id="meta_keywords" name="meta_keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
-                </div>
-            </div>
-            <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/articles';">
-                <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-            </button>&nbsp;
-            <div class="btn-group dropup">
-                <button type="button" class="btn btn-primary" onclick="checkForNewArticleSave()">
-                    <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
-                </button>
-                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                    <span class="caret"></span>
-                    <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a href="#">
-                            <i class="fa fa-paperclip"></i>&nbsp;^loc_SAVE_DRAFT^
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="spacer"></div>
-        </div>
-    </fieldset>
-</form>
+            </fieldset>
+        </form>
+    </div>
+</div>
 <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/content/articles/new_article.js"></script>
+^tmp_admin=footer^

@@ -16,14 +16,14 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot});
             return;
         }
         
         var get = getQueryParameters(request);
         if(!get['id'])
         {
-            instance.invalidIDProvided(request, session, output);
+            output({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
             return;
         }
         
@@ -31,7 +31,7 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                instance.invalidIDProvided(request, session, output);
+                output({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
                 return;
             }
             
@@ -45,72 +45,68 @@ this.init = function(request, output)
             {
                 if(!session.user._id.equals(ObjectID(article.author)))
                 {
-                    instance.invalidIDProvided(request, session, output);
+                    output({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
                     return;
                 }
             }
     
             initLocalization(request, session, function(data)
             {
-                getHTMLTemplate('admin/content/articles/edit_article', null, null, function(data)
+                getHTMLTemplate('admin/content/articles/edit_article', '^loc_EDIT_ARTICLE^', null, function(data)
                 {
                     result = result.concat(data);
                     result = result.split('^article_id^').join(get['id']);
                     
-                    var tabs =
-                    [
-                        {
-                            active: true,
-                            href: '#content',
-                            icon: 'quote-left',
-                            title: '^loc_CONTENT^'
-                        },
-                        {
-                            href: '#media',
-                            icon: 'camera',
-                            title: '^loc_MEDIA^'
-                        },
-                        {
-                            href: '#sections_dnd',
-                            icon: 'th-large',
-                            title: '^loc_SECTIONS^'
-                        },
-                        {
-                            href: '#topics_dnd',
-                            icon: 'tags',
-                            title: '^loc_TOPICS^'
-                        },
-                        {
-                            href: '#meta_data',
-                            icon: 'tasks',
-                            title: '^loc_META_DATA^'
-                        }
-                    ];
-                    
-                    getTabNav(tabs, function(tabNav)
+                    getAdminNavigation(session, ['content', 'articles'], function(data)
                     {
-                        result = result.split('^tab_nav^').join(tabNav);
-                        
-                        instance.getTemplateOptions(function(templatesList)
-                        {
-                            result = result.split('^template_options^').join(templatesList);
-                            
-                            instance.getSectionOptions(function(sectionsList)
+                        result = result.split('^admin_nav^').join(data);
+                    
+                        var tabs =
+                        [
                             {
-                                result = result.split('^section_options^').join(sectionsList);
-                                
-                                instance.getTopicOptions(function(topicsList)
+                                active: 'active',
+                                href: '#content',
+                                icon: 'quote-left',
+                                title: '^loc_CONTENT^'
+                            },
+                            {
+                                href: '#media',
+                                icon: 'camera',
+                                title: '^loc_MEDIA^'
+                            },
+                            {
+                                href: '#sections_dnd',
+                                icon: 'th-large',
+                                title: '^loc_SECTIONS^'
+                            },
+                            {
+                                href: '#topics_dnd',
+                                icon: 'tags',
+                                title: '^loc_TOPICS^'
+                            },
+                            {
+                                href: '#meta_data',
+                                icon: 'tasks',
+                                title: '^loc_META_DATA^'
+                            }
+                        ];
+                        
+                        var articles = require('../articles');
+                    
+                        articles.getTemplates(function(templates)
+                        {                        
+                            getDBObjectsWithValues({object_type: 'section', $orderby: {name: 1}}, function(sections)
+                            {
+                                getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
                                 {
-                                    result = result.split('^topic_options^').join(topicsList);
-                                    
-                                    instance.getMediaOptions(function(mediaList)
-                                    {
-                                        result = result.split('^media_options^').join(mediaList);
-                                
+                                    articles.getMedia(function(media)
+                                    {                            
                                         prepareFormReturns(session, result, function(newSession, newResult)
                                         {
                                             session = newSession;
                                             result = newResult;
+                                            
+                                            result = result.concat(getAngularController({pills: articles.getPillNavOptions('new_article'), tabs: tabs, templates: templates, sections: sections, topics: topics, media: media}));
                                             
                                             editSession(request, session, [], function(data)
                                             {
@@ -346,13 +342,3 @@ this.getMediaLink = function(mediaType, mediaLocation, isFile)
             return mediaLocation;
     }
 };
-
-this.invalidIDProvided = function(request, session, output)
-{
-    session.section = 'articles';
-    session.subsection = 'manage_articles';
-    editSession(request, session, [], function(data)
-    {
-        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/articles";')});
-    });
-}

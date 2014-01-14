@@ -13,7 +13,13 @@
         </div>
     </div>
     <div id="inactive_sections" class="panel-body" style="min-height: 100px">
-        ^section_options^
+        <div id="section_{{section._id}}" class="col-md-3 section" ng-repeat="section in sections" ng-cloak>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="section_name">{{section.name}}</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>

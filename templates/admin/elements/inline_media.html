@@ -21,7 +21,23 @@
         </div>
     </div>
     <div id="inactive_media" class="panel-body" style="min-height: 100px">
-        ^media_options^
+        <div id="media_{{mediaItem._id}}" class="col-md-3 media_item" ng-repeat="mediaItem in media" ng-cloak>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div style="font-size: 1.5em">
+                        <i class="fa fa-bars"></i>&nbsp;
+                        <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
+                        <a href="javascript:window.open('{{mediaItem.link}}', '_blank')">
+                            <i class="fa fa-eye" style="float: right; margin-right: .5em;"></i>
+                        </a>
+                    </div>
+                    <div class="media_name">{{mediaItem.name}}</div>
+                </div>
+                <div class="panel-footer">
+                    <span class="media_caption">{{mediaItem.caption}}</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="modal fade" id="media_modal">
