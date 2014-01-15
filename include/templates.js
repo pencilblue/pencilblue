@@ -21,7 +21,7 @@ global.getHTMLTemplate = function(templateLocation, pageName, metaDesc, output)
             templateString = templateString.split('^site_root^').join(pb.config.siteRoot);
             if(typeof pageName !== "undefined")
             {
-                templateString = templateString.split('^page_name^').join(' | ' + pageName);
+                templateString = templateString.split('^page_name^').join(pageName);
             }
             else
             {

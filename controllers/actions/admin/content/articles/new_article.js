@@ -74,7 +74,7 @@ this.init = function(request, output)
                     delete session.fieldValues;
                     editSession(request, session, [], function(data)
                     {        
-                        output({redirect: pb.config.siteRoot + '/admin/content/articles/new_article'});
+                        output({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
                     });
                 });
             });

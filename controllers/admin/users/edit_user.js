@@ -16,14 +16,14 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
         
         var get = getQueryParameters(request);
         if(!get['id'])
         {
-            instance.invalidIDProvided(request, session, output);
+            output({redirect: pb.config.siteRoot + '/admin/users/manage_users'});
             return;
         }
         
@@ -31,11 +31,12 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                instance.invalidIDProvided(request, session, output);
+                output({redirect: pb.config.siteRoot + '/admin/users/manage_users'});
                 return;
             }
             
             var user = data[0];
+            delete user.password;
     
             initLocalization(request, session, function(data)
             {
@@ -44,32 +45,39 @@ this.init = function(request, output)
                     result = result.concat(data);
                     
                     result = result.split('^user_id^').join(user._id);
-                    result = instance.setTextDefaults(result, user);
+                    result = result.split('^image_title^').join('^loc_USER_PHOTO^');
+                    result = result.split('^uploaded_image^').join((user.photo) ? user.photo : '');
                     
-                    result = result.split('^admin_options^').join(instance.setAdminOptions(user, session));
-                    
-                    var tabs =
-                    [
-                        {
-                            active: true,
-                            href: '#account_info',
-                            icon: 'cog',
-                            title: '^loc_ACCOUNT_INFO^'
-                        },
-                        {
-                            href: '#personal_info',
-                            icon: 'user',
-                            title: '^loc_PERSONAL_INFO^'
-                        }
-                    ];
-                    
-                    getTabNav(tabs, function(tabNav)
+                    getAdminNavigation(session, ['users'], function(data)
                     {
-                        result = result.split('^tab_nav^').join(tabNav);
+                        result = result.split('^admin_nav^').join(data);
                     
-                        editSession(request, session, [], function(data)
+                        var tabs =
+                        [
+                            {
+                                active: 'active',
+                                href: '#account_info',
+                                icon: 'cog',
+                                title: '^loc_ACCOUNT_INFO^'
+                            },
+                            {
+                                href: '#personal_info',
+                                icon: 'user',
+                                title: '^loc_PERSONAL_INFO^'
+                            }
+                        ];
+                        
+                        displayErrorOrSuccess(session, result, function(newSession, newResult)
                         {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users', 'media'], result)});
+                            session = newSession;
+                            result = newResult;
+                            
+                            result = result.concat(getAngularController({pills: require('../users').getPillNavOptions('edit_user'), tabs: tabs, adminOptions: instance.getAdminOptions(session), user: user}));
+                                            
+                            editSession(request, session, [], function(data)
+                            {
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'users', 'media'], result)});
+                            });
                         });
                     });
                 });
@@ -78,48 +86,23 @@ this.init = function(request, output)
     });
 }
 
-this.setTextDefaults = function(result, user)
+this.getAdminOptions = function(session)
 {
-    result = result.split('^username^').join(user.username);
-    result = result.split('^email^').join(user.email);
-    result = result.split('^first_name^').join(user.first_name);
-    result = result.split('^last_name^').join(user.last_name);
-    result = result.split('^position^').join(user.position);
+    var adminOptions =
+    [
+        {name: localize([], '^loc_READER^'), value: ACCESS_USER},
+        {name: localize([], '^loc_WRITER^'), value: ACCESS_WRITER},
+        {name: localize([], '^loc_EDITOR^'), value: ACCESS_EDITOR}
+    ];
     
-    result = result.split('^image_title^').join('^loc_USER_PHOTO^');
-    result = result.split('^uploaded_image^').join((user.photo) ? user.photo : '');
-    
-    return result;
-}
-
-this.setAdminOptions = function(user, session)
-{
-    var optionsString = '<option value="1"' + ((user.admin == 1) ? ' selected="selected"' : '') + '>^loc_WRITER^</option>';
-    
-    optionsString = optionsString.concat('<option value="0"' + ((user.admin == 0) ? ' selected="selected"' : '') + '>^loc_READER^</option>');
-    
-    if(session['user']['admin'] > 1)
+    if(session.user.admin >= ACCESS_MANAGING_EDITOR)
     {
-        optionsString = optionsString.concat('<option value="2"' + ((user.admin == 2) ? ' selected="selected"' : '') + '>^loc_EDITOR^</option>');
+        adminOptions.push({name: localize([], '^loc_MANAGING_EDITOR^'), value: ACCESS_MANAGING_EDITOR});
     }
-    if(session['user']['admin'] > 2)
+    if(session.user.admin >= ACCESS_ADMINISTRATOR)
     {
-        optionsString = optionsString.concat('<option value="3"' + ((user.admin == 3) ? ' selected="selected"' : '') + '>^loc_MANAGING_EDITOR^</option>');
-    }
-    if(session['user']['admin'] > 3)
-    {
-        optionsString = optionsString.concat('<option value="4"' + ((user.admin == 4) ? ' selected="selected"' : '') + '>^loc_ADMINISTRATOR^</option>');
+        adminOptions.push({name: localize([], '^loc_ADMINISTRATOR^'), value: ACCESS_ADMINISTRATOR});
     }
     
-    return optionsString;
-}
-
-this.invalidIDProvided = function(request, session, output)
-{
-    session.section = 'users';
-    session.subsection = 'manage_users';
-    editSession(request, session, [], function(data)
-    {
-        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/users";')});
-    });
+    return adminOptions;
 }

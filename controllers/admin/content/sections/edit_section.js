@@ -23,7 +23,7 @@ this.init = function(request, output)
         var get = getQueryParameters(request);
         if(!get['id'])
         {
-            instance.invalidIDProvided(request, session, output);
+            output({redirect: pb.config.siteRoot + '/admin/sections/section_map'});
             return;
         }
         
@@ -31,7 +31,7 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                instance.invalidIDProvided(request, session, output);
+                output({redirect: pb.config.siteRoot + '/admin/sections/section_map'});
                 return;
             }
             
@@ -40,7 +40,7 @@ this.init = function(request, output)
         
             initLocalization(request, session, function(data)
             {
-                getHTMLTemplate('admin/content/sections/edit_section', null, null, function(data)
+                getHTMLTemplate('admin/content/sections/edit_section', '^loc_EDIT_SECTION^', null, function(data)
                 {
                     result = result.concat(data);
                     
@@ -70,7 +70,7 @@ this.init = function(request, output)
                         {
                             instance.getEditors(session, function(editors)
                             {
-                                result = result.concat(getAngularController({pills: require('../sections').getPillNavOptions('new_section'), tabs: tabs, parents: parents, editors: editors, section: section, submitURL: '/actions/admin/content/sections/edit_section?id=' + section._id}));
+                                result = result.concat(getAngularController({pills: require('../sections').getPillNavOptions('edit_section'), tabs: tabs, parents: parents, editors: editors, section: section, submitURL: '/actions/admin/content/sections/edit_section?id=' + section._id}));
                             
                                 editSession(request, session, [], function(data)
                                 {
@@ -99,13 +99,5 @@ this.getEditors = function(session, output)
         }
         
         output(editors);
-    });
-}
-
-this.invalidIDProvided = function(request, session, output)
-{
-    editSession(request, session, [], function(data)
-    {
-        output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/sections/section_map";')});
     });
 }

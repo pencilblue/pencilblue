@@ -197,7 +197,7 @@ global.defaultAdminNavigation =
         id: 'users',
         title: '^loc_USERS^',
         icon: 'users',
-        href: '/admin/users',
+        href: '/admin/users/manage_users',
         access: ACCESS_EDITOR
     },
     {
@@ -212,7 +212,7 @@ global.defaultAdminNavigation =
                 id: 'site_settings',
                 title: '^loc_SITE_SETTINGS^',
                 icon: 'cog',
-                href: '/admin/site_settings',
+                href: '/admin/site_settings/configuration',
                 access: ACCESS_MANAGING_EDITOR
             },
             {
