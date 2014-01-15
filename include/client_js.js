@@ -22,3 +22,8 @@ global.getAngularController = function(objects)
     
     return getJSTag(angularController);
 }
+
+global.addAngularRepeatDirective = function(directiveName, directiveJS)
+{
+    return getJSTag('pencilblueApp.directive("' + directiveName + '", function(){return function(scope, element, attrs) {if(scope.$last){' + directiveJS + ';}};})');
+}

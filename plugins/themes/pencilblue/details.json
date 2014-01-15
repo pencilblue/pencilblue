@@ -2,6 +2,8 @@
     "uid": "pencilblue",
     "plugin_type": "theme",
     "name": "pencilblue",
+    "icon": "pencil",
+    "settings": "/admin/pencilblue_settings",
     "content_templates":
     [
         {
