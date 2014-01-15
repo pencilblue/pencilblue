@@ -24,7 +24,7 @@ this.init = function(request, output)
         {
             initLocalization(request, session, function(data)
             {
-                getHTMLTemplate('head', 'Home', null, function(data)
+                getHTMLTemplate('head', '^loc_HOME^', null, function(data)
                 {
                     require('../include/theme/top_menu').setTopMenu(session, data, function(siteSettings, headLayout)
                     {
@@ -45,6 +45,7 @@ this.init = function(request, output)
                                 require('../include/theme/media').getCarousel(siteSettings.carousel_media, result, '^carousel^', 'index_carousel', function(newResult)
                                 {
                                     result = newResult;
+                                    result = result.concat(getAngularController({test: 'test'}));
                                 
                                     getHTMLTemplate('footer', null, null, function(data)
                                     {

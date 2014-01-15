@@ -1,15 +1,12 @@
-<div class="container-fluid">
+^tmp_admin=head^
+<div id="main" class="container-fluid">
     <div class="row-fluid">
         <div class="col-md-3">
             <ul class="list-group">
-                <li class="list-group-item">
-                    <span class="badge">^article_count^</span>
-                    <a href="^site_root^/admin/content/articles">^loc_ARTICLES^</a>
-                </li>
-                <li class="list-group-item">
-                    <span class="badge">^page_count^</span>
-                    <a href="^site_root^/admin/content/pages">^loc_PAGES^</a>
-                </li>
+                <li class="list-group-item" ng-repeat="contentInfoItem in contentInfo" ng-cloak>
+                    <span class="badge">{{contentInfoItem.count}}</span>
+                    <a href="{{contentInfoItem.href}}">{{contentInfoItem.name}}</a>
+                </li
             </ul>
         </div>
         <div class="col-md-9">
@@ -17,3 +14,4 @@
         </div>
     </div>
 </div>
+^tmp_footer^
