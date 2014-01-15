@@ -32,6 +32,11 @@ this.init = function(request, output)
         {
             sectionDocument['url'] = sectionDocument['name'].toLowerCase().split(' ').join('-');
         }
+        if(sectionDocument['name'] == 'admin')
+        {
+            formError(request, session, '^loc_EXISTING_SECTION^', '/admin/content/sections/new_section', output);
+            return;
+        }
         
         getDBObjectsWithValues({object_type: 'section', $or: [{name: sectionDocument['name']}, {url: sectionDocument['url']}]}, function(data)
         {
