@@ -1,4 +1,4 @@
-this.setTopMenu = function(session, headTemplate, output)
+this.getTopMenu = function(session, output)
 {
     var instance = this;
     
@@ -20,118 +20,85 @@ this.setTopMenu = function(session, headTemplate, output)
         }
 
         getDBObjectsWithValues({object_type: 'setting', key: 'section_map'}, function(data)
-        {
-            if(data.length == 0)
-            {
-                headTemplate = headTemplate.split('^section_map^').join('');
-                output(headTemplate);
-                return;
-            }
-            
+        {            
             var sectionMap = data[0]['value'];
+            var formattedSections = [];
             
             getDBObjectsWithValues({object_type: 'section'}, function(data)
             {
                 var sections = data;
-            
-                var buttonTemplate = '';
-                var dropdownTemplate = '';
-                var navLayout = '';
-                
-                getHTMLTemplate('elements/top_menu/button', null, null, function(data)
+                        
+                for(var i = 0; i < sectionMap.length; i++)
                 {
-                    buttonTemplate = data;
+                    var section = instance.getSectionData(sectionMap[i].uid, sections);
                     
-                    getHTMLTemplate('elements/top_menu/dropdown', null, null, function(data)
+                    if(sectionMap[i].children.length == 0)
                     {
-                        dropdownTemplate = data;
-                        
-                        for(var i = 0; i < sectionMap.length; i++)
+                        if(section)
                         {
-                            var section = instance.getSectionData(sectionMap[i].uid, sections);
-                            
-                            if(sectionMap[i].children.length == 0)
-                            {
-                                if(section)
-                                {
-                                    //TODO: figure out how to tell if were in one of these sections
-                                    var button = buttonTemplate.split('^nav_active^').join('');
-                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/' + section.url);
-                                    button = button.split('^nav_title^').join(section.name);
-                                    
-                                    navLayout = navLayout.concat(button);
-                                }
-                            }
-                            else
-                            {
-                                if(section)
-                                {
-                                    var dropdown = dropdownTemplate.split('^nav_active^').join('');
-                                    dropdown = dropdown.split('^nav_href^').join(pb.config.siteRoot + '/' + section.url);
-                                    dropdown = dropdown.split('^nav_title^').join(section.name);
-                                    
-                                    var buttons = buttonTemplate.split('^nav_active^').join('');
-                                    buttons = buttons.split('^nav_href^').join(pb.config.siteRoot + '/' + section.url);
-                                    buttons = buttons.split('^nav_title^').join(section.name + ' ^loc_HOME^');
-                                    
-                                    for(var j = 0; j < sectionMap[i].children.length; j++)
-                                    {
-                                        var childSection = instance.getSectionData(sectionMap[i].children[j].uid, sections);
-                                        
-                                        if(section)
-                                        {
-                                            var button = buttonTemplate.split('^nav_active^').join('');
-                                            button = button.split('^nav_href^').join(pb.config.siteRoot + '/' + section.url + '/' + childSection.url);
-                                            button = button.split('^nav_title^').join(childSection.name);
-                                            
-                                            buttons = buttons.concat(button);
-                                        }
-                                    }
-                                    
-                                    dropdown = dropdown.split('^children^').join(buttons);
-                                    navLayout = navLayout.concat(dropdown);
-                                }
-                            }
+                            //TODO: figure out how to tell if were in one of these sections
+                            formattedSections.push(section);
                         }
-                        
-                        headTemplate = headTemplate.split('^site_logo^').join(themeSettings.site_logo);
-                        headTemplate = headTemplate.split('^section_map^').join(navLayout);
-                        
-                        getContentSettings(function(contentSettings)
+                    }
+                    else
+                    {
+                        section.dropdown = 'dropdown'
+                    
+                        if(section)
                         {
-                            var userAccountOptions = '';
-                            if(contentSettings.allow_comments)
+                            var sectionHome = clone(section);
+                            if(typeof loc !== 'undefined')
                             {
-                                if(session.user)
-                                {
-                                    var button = buttonTemplate.split('^nav_active^').join('');
-                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/user/manage_account');
-                                    button = button.split('^nav_title^').join('<i class="fa fa-user fa-lg"></i>&nbsp;');
-                                    
-                                    userAccountOptions = userAccountOptions.concat(button);
-                                    
-                                    button = buttonTemplate.split('^nav_active^').join('');
-                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/actions/logout');
-                                    button = button.split('^nav_title^').join('<i class="fa fa-power-off fa-lg"></i>&nbsp;');
-                                    
-                                    userAccountOptions = userAccountOptions.concat(button);
-                                    
-                                }
-                                else
-                                {
-                                    var button = buttonTemplate.split('^nav_active^').join('');
-                                    button = button.split('^nav_href^').join(pb.config.siteRoot + '/user/sign_up');
-                                    button = button.split('^nav_title^').join('<i class="fa fa-user fa-lg"></i>&nbsp;');
-                                    
-                                    userAccountOptions = userAccountOptions.concat(button);
-                                }
+                                sectionHome.name = sectionHome.name + ' ' + localize([], '^loc_HOME^');
+                            }
+                            delete sectionHome.children;
+                        
+                            section.children = [sectionHome];
+                            
+                            for(var j = 0; j < sectionMap[i].children.length; j++)
+                            {
+                                section.children.push(instance.getSectionData(sectionMap[i].children[j].uid, sections));
                             }
                             
-                            headTemplate = headTemplate.split('^account_options^').join(userAccountOptions);
+                            formattedSections.push(section);
+                        }
+                    }
+                }
+                
+                getContentSettings(function(contentSettings)
+                {
+                    var accountButtons = [];
+                
+                    if(contentSettings.allow_comments)
+                    {
+                        if(session.user)
+                        {
+                            accountButtons =
+                            [
+                                {
+                                    icon: 'user',
+                                    href: '/user/manage_account'
+                                },
+                                {
+                                    icon: 'power-off',
+                                    href: '/actions/logout'
+                                }
+                            ];
                             
-                            output(themeSettings, headTemplate);
-                        });
-                    });
+                        }
+                        else
+                        {
+                            accountButtons =
+                            [
+                                {
+                                    icon: 'user',
+                                    href: '/user/sign_up'
+                                }
+                            ];
+                        }
+                    }
+                    
+                    output(themeSettings, formattedSections, accountButtons);
                 });
             });
         });
@@ -150,5 +117,3 @@ this.getSectionData = function(uid, sections)
     
     return null;
 }
-
-this.get
