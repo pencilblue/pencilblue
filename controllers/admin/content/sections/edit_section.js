@@ -70,7 +70,15 @@ this.init = function(request, output)
                         {
                             instance.getEditors(session, function(editors)
                             {
-                                result = result.concat(getAngularController({pills: require('../sections').getPillNavOptions('edit_section'), tabs: tabs, parents: parents, editors: editors, section: section, submitURL: '/actions/admin/content/sections/edit_section?id=' + section._id}));
+                                result = result.concat(getAngularController(
+                                {
+                                    navigation: getAdminNavigation(session, ['content', 'sections']),
+                                    pills: require('../sections').getPillNavOptions('edit_section'),
+                                    tabs: tabs,
+                                    parents: parents,
+                                    editors: editors,
+                                    section: section
+                                }));
                             
                                 editSession(request, session, [], function(data)
                                 {

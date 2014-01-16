@@ -43,22 +43,22 @@ this.init = function(request, output)
                 getHTMLTemplate('admin/content/topics/manage_topics', '^loc_MANAGE_TOPICS^', null, function(data)
                 {
                     result = result.concat(data);
-                    
-                    getAdminNavigation(session, ['content', 'topics'], function(data)
-                    {
-                        result = result.split('^admin_nav^').join(data);
                         
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    {
+                        session = newSession;
+                        result = newResult;
+                        
+                        result = result.concat(getAngularController(
                         {
-                            session = newSession;
-                            result = newResult;
-                            
-                            result = result.concat(getAngularController({pills: require('../topics').getPillNavOptions('manage_topics'), topics: topics}));
-                            
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
-                            });
+                            navigation: getAdminNavigation(session, ['content', 'topics']),
+                            pills: require('../topics').getPillNavOptions('manage_topics'),
+                            topics: topics
+                        }));
+                        
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
                         });
                     });
                 });

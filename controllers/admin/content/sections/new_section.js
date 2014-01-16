@@ -26,40 +26,42 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                getAdminNavigation(session, ['content', 'sections'], function(data)
-                {
-                    result = result.split('^admin_nav^').join(data);
-                
-                    var tabs =
-                    [
-                        {
-                            active: 'active',
-                            href: '#section_settings',
-                            icon: 'cog',
-                            title: '^loc_SETTINGS^'
-                        },
-                        {
-                            href: '#section_meta_data',
-                            icon: 'tasks',
-                            title: '^loc_META_DATA^'
-                        }
-                    ];
-                        
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                var tabs =
+                [
                     {
-                        session = newSession;
-                        result = newResult;
+                        active: 'active',
+                        href: '#section_settings',
+                        icon: 'cog',
+                        title: '^loc_SETTINGS^'
+                    },
+                    {
+                        href: '#section_meta_data',
+                        icon: 'tasks',
+                        title: '^loc_META_DATA^'
+                    }
+                ];
                     
-                        getDBObjectsWithValues({object_type: 'section', parent: null, $orderby: {name: 1}}, function(parents)
-                        {                            
-                            instance.getEditors(session, function(editors)
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                {
+                    session = newSession;
+                    result = newResult;
+                
+                    getDBObjectsWithValues({object_type: 'section', parent: null, $orderby: {name: 1}}, function(parents)
+                    {                            
+                        instance.getEditors(session, function(editors)
+                        {
+                            result = result.concat(getAngularController(
                             {
-                                result = result.concat(getAngularController({pills: require('../sections').getPillNavOptions('new_section'), tabs: tabs, parents: parents, editors: editors}));
-                            
-                                editSession(request, session, [], function(data)
-                                {
-                                    output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
-                                });
+                                navigation: getAdminNavigation(session, ['content', 'sections']),
+                                pills: require('../sections').getPillNavOptions('new_section'),
+                                tabs: tabs,
+                                parents: parents,
+                                editors: editors
+                            }));
+                        
+                            editSession(request, session, [], function(data)
+                            {
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
                             });
                         });
                     });

@@ -17,29 +17,28 @@ this.init = function(request, output)
             getHTMLTemplate('admin/plugins/themes', 'Themes', null, function(data)
             {
                 result = result.concat(data);
-                
-                getAdminNavigation(session, ['plugins', 'themes'], function(data)
-                {
-                    result = result.split('^admin_nav^').join(data);
                     
-                    instance.getThemes(function(themes)
+                instance.getThemes(function(themes)
+                {
+                    for(var i = 0; i < themes.length; i++)
                     {
-                        for(var i = 0; i < themes.length; i++)
+                        if(themes[i].active)
                         {
-                            if(themes[i].active)
-                            {
-                                result = result.split('^active_theme_settings^').join(themes[i].settingsURL);
-                                var themeSettingsURL = themes[i].settingsURL;
-                                break;
-                            }
+                            result = result.split('^active_theme_settings^').join(themes[i].settingsURL);
+                            var themeSettingsURL = themes[i].settingsURL;
+                            break;
                         }
-                        
-                        result = result.concat(getAngularController({pills: themes, themeSettingsURL: themeSettingsURL}));
-                               
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'themes'], result)});
-                        });
+                    }
+                    
+                    result = result.concat(getAngularController(
+                    {
+                        navigation: getAdminNavigation(session, ['plugins', 'themes']),
+                        pills: themes, themeSettingsURL: themeSettingsURL
+                    }));
+                           
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'themes'], result)});
                     });
                 });
             });

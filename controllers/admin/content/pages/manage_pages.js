@@ -38,23 +38,23 @@ this.init = function(request, output)
                 {
                     result = result.concat(data);
                     
-                    getAdminNavigation(session, ['content', 'articles'], function(data)
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
                     {
-                        result = result.split('^admin_nav^').join(data);
-                    
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
+                        session = newSession;
+                        result = newResult;
+                        
+                        instance.getPageAuthors(pages, function(pagesWithAuthorNames)
                         {
-                            session = newSession;
-                            result = newResult;
-                            
-                            instance.getPageAuthors(pages, function(pagesWithAuthorNames)
+                            result = result.concat(getAngularController(
                             {
-                                result = result.concat(getAngularController({pills: require('../pages').getPillNavOptions('manage_pages'), pages: pagesWithAuthorNames}));
-                                
-                                editSession(request, session, [], function(data)
-                                {
-                                    output({cookie: getSessionCookie(session), content: localize(['admin', 'pages'], result)});
-                                });
+                                navigation: getAdminNavigation(session, ['content', 'pages']),
+                                pills: require('../pages').getPillNavOptions('manage_pages'),
+                                pages: pagesWithAuthorNames
+                            }));
+                            
+                            editSession(request, session, [], function(data)
+                            {
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'pages'], result)});
                             });
                         });
                     });

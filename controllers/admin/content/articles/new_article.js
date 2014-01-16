@@ -26,61 +26,65 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                getAdminNavigation(session, ['content', 'articles'], function(data)
-                {
-                    result = result.split('^admin_nav^').join(data);
+                var tabs =
+                [
+                    {
+                        active: 'active',
+                        href: '#content',
+                        icon: 'quote-left',
+                        title: '^loc_CONTENT^'
+                    },
+                    {
+                        href: '#media',
+                        icon: 'camera',
+                        title: '^loc_MEDIA^'
+                    },
+                    {
+                        href: '#sections_dnd',
+                        icon: 'th-large',
+                        title: '^loc_SECTIONS^'
+                    },
+                    {
+                        href: '#topics_dnd',
+                        icon: 'tags',
+                        title: '^loc_TOPICS^'
+                    },
+                    {
+                        href: '#meta_data',
+                        icon: 'tasks',
+                        title: '^loc_META_DATA^'
+                    }
+                ];
                 
-                    var tabs =
-                    [
-                        {
-                            active: 'active',
-                            href: '#content',
-                            icon: 'quote-left',
-                            title: '^loc_CONTENT^'
-                        },
-                        {
-                            href: '#media',
-                            icon: 'camera',
-                            title: '^loc_MEDIA^'
-                        },
-                        {
-                            href: '#sections_dnd',
-                            icon: 'th-large',
-                            title: '^loc_SECTIONS^'
-                        },
-                        {
-                            href: '#topics_dnd',
-                            icon: 'tags',
-                            title: '^loc_TOPICS^'
-                        },
-                        {
-                            href: '#meta_data',
-                            icon: 'tasks',
-                            title: '^loc_META_DATA^'
-                        }
-                    ];
+                var articles = require('../articles');
                     
-                    var articles = require('../articles');
-                        
-                    articles.getTemplates(function(templates)
-                    {                        
-                        getDBObjectsWithValues({object_type: 'section', $orderby: {name: 1}}, function(sections)
+                articles.getTemplates(function(templates)
+                {                        
+                    getDBObjectsWithValues({object_type: 'section', $orderby: {name: 1}}, function(sections)
+                    {
+                        getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
                         {
-                            getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
-                            {
-                                articles.getMedia(function(media)
-                                {                            
-                                    prepareFormReturns(session, result, function(newSession, newResult)
+                            articles.getMedia(function(media)
+                            {                            
+                                prepareFormReturns(session, result, function(newSession, newResult)
+                                {
+                                    session = newSession;
+                                    result = newResult;
+                                    
+                                    result = result.concat(getAngularController(
                                     {
-                                        session = newSession;
-                                        result = newResult;
-                                        
-                                        result = result.concat(getAngularController({pills: articles.getPillNavOptions('new_article'), tabs: tabs, templates: templates, sections: sections, topics: topics, media: media}));
-                                        
-                                        editSession(request, session, [], function(data)
-                                        {
-                                            output({content: localize(['admin', 'articles', 'media'], result)});
-                                        });
+                                        navigation: getAdminNavigation(session, ['content', 'articles']),
+                                        pills: articles.getPillNavOptions('new_article'),
+                                        tabs: tabs,
+                                        templates: templates,
+                                        sections: sections,
+                                        topics: topics,
+                                        media: media
+                                    }));
+                                    
+                                    editSession(request, session, [], function(data)
+                                    {
+                                        output({content: localize(['admin', 'articles', 'media'], result)});
                                     });
                                 });
                             });

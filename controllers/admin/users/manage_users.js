@@ -36,21 +36,21 @@ this.init = function(request, output)
                 {
                     result = result.concat(data);
                     
-                    getAdminNavigation(session, ['users'], function(data)
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
                     {
-                        result = result.split('^admin_nav^').join(data);
-                    
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
+                        session = newSession;
+                        result = newResult;
+                        
+                        result = result.concat(getAngularController(
                         {
-                            session = newSession;
-                            result = newResult;
+                            navigation: getAdminNavigation(session, ['users']),
+                            pills: require('../users').getPillNavOptions('manage_users'),
+                            users: users
+                        }));
                             
-                            result = result.concat(getAngularController({pills: require('../users').getPillNavOptions('manage_users'), users: users}));
-                                
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
-                            });
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
                         });
                     });
                 });

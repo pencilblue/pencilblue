@@ -45,22 +45,22 @@ this.init = function(request, output)
                     getHTMLTemplate('admin/content/sections/section_map', '^loc_SECTION_MAP^', null, function(data)
                     {
                         result = result.concat(data);
-                        
-                        getAdminNavigation(session, ['content', 'sections'], function(data)
+                                
+                        displayErrorOrSuccess(session, result, function(newSession, newResult)
                         {
-                            result = result.split('^admin_nav^').join(data);
-                                
-                            displayErrorOrSuccess(session, result, function(newSession, newResult)
+                            session = newSession;
+                            result = newResult;
+                            
+                            result = result.concat(getAngularController(
                             {
-                                session = newSession;
-                                result = newResult;
-                                
-                                result = result.concat(getAngularController({pills: require('../sections').getPillNavOptions('section_map'), sections: instance.getOrderedSections(sections, sectionMap)}));
-                                
-                                editSession(request, session, [], function(data)
-                                {
-                                    output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
-                                });
+                                navigation: getAdminNavigation(session, ['content', 'sections']),
+                                pills: require('../sections').getPillNavOptions('section_map'),
+                                sections: instance.getOrderedSections(sections, sectionMap)
+                            }));
+                            
+                            editSession(request, session, [], function(data)
+                            {
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
                             });
                         });
                     });

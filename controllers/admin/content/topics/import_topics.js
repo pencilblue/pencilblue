@@ -25,31 +25,31 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                getAdminNavigation(session, ['content', 'topics'], function(data)
-                {
-                    result = result.split('^admin_nav^').join(data);
-                
-                    var tabs =
-                    [
-                        {
-                            active: 'active',
-                            href: '#topic_settings',
-                            icon: 'file-text-o',
-                            title: '^loc_LOAD_FILE^'
-                        }
-                    ];
-                    
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                var tabs =
+                [
                     {
-                        session = newSession;
-                        result = newResult;
-                        
-                        result = result.concat(getAngularController({pills: require('../topics').getPillNavOptions('import_topics'), tabs: tabs}));
-                        
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
-                        });
+                        active: 'active',
+                        href: '#topic_settings',
+                        icon: 'file-text-o',
+                        title: '^loc_LOAD_FILE^'
+                    }
+                ];
+                
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                {
+                    session = newSession;
+                    result = newResult;
+                    
+                    result = result.concat(getAngularController(
+                    {
+                        navigation: getAdminNavigation(session, ['content', 'topics']),
+                        pills: require('../topics').getPillNavOptions('import_topics'),
+                        tabs: tabs
+                    }));
+                    
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
                     });
                 });
             });

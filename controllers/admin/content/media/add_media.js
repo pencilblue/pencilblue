@@ -26,39 +26,40 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                getAdminNavigation(session, ['content', 'articles'], function(data)
-                {
-                    result = result.split('^admin_nav^').join(data);
-                
-                    var tabs =
-                    [
-                        {
-                            active: 'active',
-                            href: '#media_upload',
-                            icon: 'film',
-                            title: '^loc_LINK_OR_UPLOAD^'
-                        },
-                        {
-                            href: '#topics_dnd',
-                            icon: 'tags',
-                            title: '^loc_TOPICS^'
-                        }
-                    ];
-                    
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                var tabs =
+                [
                     {
-                        session = newSession;
-                        result = newResult;
-                        
-                        getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
+                        active: 'active',
+                        href: '#media_upload',
+                        icon: 'film',
+                        title: '^loc_LINK_OR_UPLOAD^'
+                    },
+                    {
+                        href: '#topics_dnd',
+                        icon: 'tags',
+                        title: '^loc_TOPICS^'
+                    }
+                ];
+                
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                {
+                    session = newSession;
+                    result = newResult;
+                    
+                    getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
+                    {
+                    
+                        result = result.concat(getAngularController(
                         {
-                        
-                            result = result.concat(getAngularController({pills: require('../media').getPillNavOptions('add_media'), tabs: tabs, topics: topics}));
-                        
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
-                            });
+                            navigation: getAdminNavigation(session, ['content', 'media']),
+                            pills: require('../media').getPillNavOptions('add_media'),
+                            tabs: tabs,
+                            topics: topics
+                        }));
+                    
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
                         });
                     });
                 });

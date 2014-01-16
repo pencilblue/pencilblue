@@ -26,20 +26,19 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                getAdminNavigation(session, ['content', 'articles'], function(data)
+                instance.getConfiguration(result, function(newResult)
                 {
-                    result = result.split('^admin_nav^').join(data);
-                
-                    instance.getConfiguration(result, function(newResult)
+                    result = newResult;
+                    
+                    result = result.concat(getAngularController(
                     {
-                        result = newResult;
-                        
-                        result = result.concat(getAngularController({pills: require('../site_settings').getPillNavOptions('configuration')}));
-                        
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings'], result)});
-                        });
+                        navigation: getAdminNavigation(session, ['settings', 'site_settings']),
+                        pills: require('../site_settings').getPillNavOptions('configuration')
+                    }));
+                    
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings'], result)});
                     });
                 });
             });

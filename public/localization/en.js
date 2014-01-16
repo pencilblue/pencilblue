@@ -120,6 +120,7 @@ loc =
     {
         SECTION_MAP: 'Section map',
         NEW_SECTION: 'New section',
+        EDIT_SECTION: 'Edit section',
         SECTION_NAME: 'Section name',
         DESCRIPTION: 'Description',
         URL_KEY: 'URL Key',

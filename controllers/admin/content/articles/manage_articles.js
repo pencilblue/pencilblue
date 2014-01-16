@@ -42,23 +42,23 @@ this.init = function(request, output)
                 {
                     result = result.concat(data);
                     
-                    getAdminNavigation(session, ['content', 'articles'], function(data)
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
                     {
-                        result = result.split('^admin_nav^').join(data);
-                    
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
-                        {
-                            session = newSession;
-                            result = newResult;
+                        session = newSession;
+                        result = newResult;
+                        
+                        instance.getArticleAuthors(articles, function(articlesWithAuthorNames)
+                        {                                
+                            result = result.concat(getAngularController(
+                            {
+                                navigation: getAdminNavigation(session, ['content', 'articles']),
+                                pills: require('../articles').getPillNavOptions('manage_articles'),
+                                articles: articlesWithAuthorNames
+                            }));
                             
-                            instance.getArticleAuthors(articles, function(articlesWithAuthorNames)
-                            {                                
-                                result = result.concat(getAngularController({pills: require('../articles').getPillNavOptions('manage_articles'), articles: articlesWithAuthorNames}));
-                                
-                                editSession(request, session, [], function(data)
-                                {
-                                    output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
-                                });
+                            editSession(request, session, [], function(data)
+                            {
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
                             });
                         });
                     });

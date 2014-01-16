@@ -37,23 +37,23 @@ this.init = function(request, output)
                 {
                     result = result.concat(data);
                     
-                    getAdminNavigation(session, ['content', 'articles'], function(data)
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
                     {
-                        result = result.split('^admin_nav^').join(data);
-                    
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
+                        session = newSession;
+                        result = newResult;
+                        
+                        var mediaCommands = require('../media');
+                        
+                        result = result.concat(getAngularController(
                         {
-                            session = newSession;
-                            result = newResult;
+                            navigation: getAdminNavigation(session, ['content', 'media']),
+                            pills: mediaCommands.getPillNavOptions('manage_media'),
+                            media: mediaCommands.formatMedia(mediaData)
+                        }));
                             
-                            var mediaCommands = require('../media');
-                            
-                            result = result.concat(getAngularController({pills: mediaCommands.getPillNavOptions('manage_media'), media: mediaCommands.formatMedia(mediaData)}));
-                                
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
-                            });
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
                         });
                     });
                 });

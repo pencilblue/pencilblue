@@ -29,36 +29,37 @@ this.init = function(request, output)
                 result = result.split('^image_title^').join('^loc_USER_PHOTO^');
                 result = result.split('^uploaded_image^').join('');
                 
-                getAdminNavigation(session, ['users'], function(data)
-                {
-                    result = result.split('^admin_nav^').join(data);
-                
-                    var tabs =
-                    [
-                        {
-                            active: 'active',
-                            href: '#account_info',
-                            icon: 'cog',
-                            title: '^loc_ACCOUNT_INFO^'
-                        },
-                        {
-                            href: '#personal_info',
-                            icon: 'user',
-                            title: '^loc_PERSONAL_INFO^'
-                        }
-                    ];
-                
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                var tabs =
+                [
                     {
-                        session = newSession;
-                        result = newResult;
-                        
-                        result = result.concat(getAngularController({pills: require('../users').getPillNavOptions('new_user'), tabs: tabs, adminOptions: instance.getAdminOptions(session)}));
-                        
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users', 'media'], result)});
-                        });
+                        active: 'active',
+                        href: '#account_info',
+                        icon: 'cog',
+                        title: '^loc_ACCOUNT_INFO^'
+                    },
+                    {
+                        href: '#personal_info',
+                        icon: 'user',
+                        title: '^loc_PERSONAL_INFO^'
+                    }
+                ];
+            
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                {
+                    session = newSession;
+                    result = newResult;
+                    
+                    result = result.concat(getAngularController(
+                    {
+                        navigation: getAdminNavigation(session, ['users']),
+                        pills: require('../users').getPillNavOptions('new_user'),
+                        tabs: tabs,
+                        adminOptions: instance.getAdminOptions(session)
+                    }));
+                    
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'users', 'media'], result)});
                     });
                 });
             });

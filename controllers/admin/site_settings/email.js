@@ -26,40 +26,40 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                getAdminNavigation(session, ['content', 'articles'], function(data)
-                {
-                    result = result.split('^admin_nav^').join(data);
-                
-                    var tabs =
-                    [
-                        {
-                            active: 'active',
-                            href: '#preferences',
-                            icon: 'wrench',
-                            title: '^loc_PREFERENCES^'
-                        },
-                        {
-                            href: '#smtp',
-                            icon: 'upload',
-                            title: '^loc_SMTP^'
-                        }
-                    ];
-                        
-                    getEmailSettings(function(emailSettings)
+                var tabs =
+                [
                     {
-                        session = setFormFieldValues(emailSettings, session);
-                
-                        prepareFormReturns(session, result, function(newSession, newResult)
+                        active: 'active',
+                        href: '#preferences',
+                        icon: 'wrench',
+                        title: '^loc_PREFERENCES^'
+                    },
+                    {
+                        href: '#smtp',
+                        icon: 'upload',
+                        title: '^loc_SMTP^'
+                    }
+                ];
+                    
+                getEmailSettings(function(emailSettings)
+                {
+                    session = setFormFieldValues(emailSettings, session);
+            
+                    prepareFormReturns(session, result, function(newSession, newResult)
+                    {
+                        session = newSession;
+                        result = newResult;
+                        
+                        result = result.concat(getAngularController(
                         {
-                            session = newSession;
-                            result = newResult;
-                            
-                            result = result.concat(getAngularController({pills: require('../site_settings').getPillNavOptions('email'), tabs: tabs}));
-                            
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings', 'articles'], result)});
-                            });
+                            navigation: getAdminNavigation(session, ['settings', 'site_settings']),
+                            pills: require('../site_settings').getPillNavOptions('email'),
+                            tabs: tabs
+                        }));
+                        
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings', 'articles'], result)});
                         });
                     });
                 });
