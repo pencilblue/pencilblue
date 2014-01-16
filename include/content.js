@@ -76,3 +76,9 @@ global.getTimestampText = function(date, format, displayTime, timeFormat)
     
     return dateString;
 }
+
+//TODO: move this into a util object
+global.clone = function(object)
+{
+    return JSON.parse(JSON.stringify(object));
+}

@@ -1,6 +1,6 @@
 global.getAdminNavigation = function(session, activeMenuItems)
 {
-    return removeUnauthorizedAdminNavigation(session, defaultAdminNavigation, activeMenuItems);
+    return removeUnauthorizedAdminNavigation(session, clone(defaultAdminNavigation), activeMenuItems);
 }
 
 global.removeUnauthorizedAdminNavigation = function(session, adminNavigation, activeItems)
