@@ -184,6 +184,10 @@ SessionHandler.prototype.gl = function(sessionId){
 	return localSession ? localSession.session : null;
 };
 
+/**
+ * Keeps a reference to the session in memory in case multiple requests come in.
+ * @param session
+ */
 SessionHandler.prototype.setLocal = function(session){
 	var sid = session[SessionHandler.SID_KEY];
 	if (this.isLocal(sid)) {
@@ -197,6 +201,12 @@ SessionHandler.prototype.setLocal = function(session){
 	}
 };
 
+/**
+ * Purges the session from local memory unless multiple requests have accessed 
+ * the session.
+ * @param sessionId The session identifier
+ * @returns {Boolean}
+ */
 SessionHandler.prototype.purgeLocal = function(sessionId){
 	if (!this.isLocal(sessionId)) {
 		throw new Error("SessionHandler: The session was never opened or the session is already closed");
@@ -206,13 +216,18 @@ SessionHandler.prototype.purgeLocal = function(sessionId){
 	this.localStorage[sessionId].request_count -= 1;
 	
 	//qualifies for local purge if request count is at 0
-	var doesQualify = this.localStorage[sessionId].request_count;
+	var doesQualify = this.localStorage[sessionId].request_count == 0;
 	if (doesQualify) {
 		delete this.localStorage[sessionId];
 	}
 	return doesQualify;
 };
 
+/**
+ * 
+ * @param sessionId The ID of the session to search for
+ * @returns {boolean} True if the session is stored locally
+ */
 SessionHandler.prototype.isLocal = function(sessionId){
 	return this.localStorage.hasOwnProperty(sessionId);
 };
@@ -237,13 +252,18 @@ SessionHandler.prototype.shutdown = function(){
 	SessionHandler.SessionStore.shutdown();
 };
 
+/**
+ * Creates the shell of a session object
+ * @param request
+ * @returns {___anonymous6521_6682} 
+ */
 SessionHandler.prototype.create = function(request){
 	var session = {
 		authentication: {
 			user_id: null,
 			permissions: []
 		},
-		ip: request.connection.remote_address,
+		ip: request.connection.remoteAddress,
 		client_id: SessionHandler.getClientId(request)
 	};
 	session[SessionHandler.SID_KEY] = pb.utils.uniqueId();
@@ -252,7 +272,7 @@ SessionHandler.prototype.create = function(request){
 	return session;
 };
 
-SessionHandler.getClientID = function(request){
+SessionHandler.getClientId = function(request){
 	return global.getClientID(request);
 };
 
@@ -267,14 +287,14 @@ SessionHandler.getEmptySessionCookie = function(){
  */
 SessionHandler.getSessionStore = function(){
 	var possibleStores = [
-          SessionHandler.HANDLER_PATH+ pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
+          SessionHandler.HANDLER_PATH + pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
           pb.config.session.storage
      ];
  	
  	var sessionStorePrototype = null;
  	for(var i = 0; i < possibleStores.length; i++){
  		try{
- 			sessionStorePrototype = require(possibleStores[i]);;
+ 			sessionStorePrototype = require(possibleStores[i]);
  			break;
  		}
  		catch(e){

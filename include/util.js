@@ -25,7 +25,7 @@ Util.onPromisesOk = function(promises, cb){
 
 
 Util.uniqueId = function(){
-	return global.uniqueId();
+	return global.uniqueID();
 };
 
 Util.TIME = {
