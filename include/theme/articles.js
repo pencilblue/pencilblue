@@ -28,9 +28,23 @@ this.getArticles = function(section, topic, article, page, output)
     
     getContentSettings(function(contentSettings)
     {
-        instance.getTemplates(function(articleTemplate, bylineTemplate)
+        getDBObjectsWithValues(searchObject, function(data)
         {
-            getDBObjectsWithValues(searchObject, function(data)
+            if(data.length == 0)
+            {
+                output('^loc_NO_ARTICLES^');
+                return;
+            }
+            
+            var articles = data;
+            var authorIDs = [];
+                
+            for(var i = 0; i < articles.length; i++)
+            {
+                authorIDs.push({_id: ObjectID(articles[i].author)});
+            }
+            
+            getDBObjectsWithValues({object_type: 'user', $or: authorIDs}, function(data)
             {
                 if(data.length == 0)
                 {
@@ -38,108 +52,74 @@ this.getArticles = function(section, topic, article, page, output)
                     return;
                 }
                 
-                var articles = data;
-                var authorIDs = [];
-                    
-                for(var i = 0; i < articles.length; i++)
-                {
-                    authorIDs.push({_id: ObjectID(articles[i].author)});
-                }
+                authors = data;
                 
-                getDBObjectsWithValues({object_type: 'user', $or: authorIDs}, function(data)
+                var subInstance = this;
+                
+                this.loadArticle = function(index, output)
                 {
-                    if(data.length == 0)
+                    if(index >= articles.length)
                     {
-                        output('^loc_NO_ARTICLES^');
+                        output(articles);
                         return;
                     }
                     
-                    authors = data;
+                    var article = articles[index];
                     
-                    var subInstance = this;
-                    
-                    this.loadArticle = function(index, layout, output)
+                    if(contentSettings.display_bylines && searchObject.object_type == 'article')
                     {
-                        if(index >= articles.length)
+                        var byline = '';
+                        for(var j = 0; j < authors.length; j++)
                         {
-                            output(layout);
-                            return;
-                        }
-                    
-                        var article = articleTemplate.split('^article_headline^').join((singleItem) ? articles[index].headline : '<a href="' + pb.config.siteRoot + '/' + articles[index].object_type + '/' + articles[index].url + '">' + articles[index].headline + '</a>');
-                        article = article.split('^article_subheading^').join('<h3>' + articles[index].subheading + '</h3>');
-                        
-                        if(contentSettings.display_bylines && searchObject.object_type == 'article')
-                        {
-                            var byline = '';
-                            for(var j = 0; j < authors.length; j++)
+                            if(authors[j]._id.equals(ObjectID(articles[index].author)))
                             {
-                                if(authors[j]._id.equals(ObjectID(articles[index].author)))
+                                if(authors[j].photo && contentSettings.display_author_photo)
                                 {
-                                    if(authors[j].photo && contentSettings.display_author_photo)
-                                    {
-                                        byline = bylineTemplate.split('^author_photo^').join('<span class="pull-left"><img class="media-object" src="' + authors[j].photo + '" style="width: 5em"></img></span>');
-                                        byline = byline.split('^media_body_style^').join('');
-                                    }
-                                    else
-                                    {
-                                        byline = bylineTemplate.split('^author_photo^').join('');
-                                        byline = byline.split('^media_body_style^').join('height: auto');
-                                    }
-                                    byline = byline.split('^author_name^').join((authors[j].first_name) ? authors[j].first_name + ' ' + authors[j].last_name : authors[j].username);
-                                        
-                                    byline = byline.split('^author_position^').join((authors[j].position && contentSettings.display_author_position) ? authors[j].position : '');
-                                    break;
+                                    article.author_photo = authors[j].photo;
                                 }
-                            }
-                            
-                            article = article.split('^article_byline^').join(byline);
-                        }
-                        else
-                        {
-                            article = article.split('^article_byline^').join('');
-                        }
-                        
-                        if(contentSettings.display_timestamp && searchObject.object_type == 'article')
-                        {
-                            article = article.split('^article_timestamp^').join('<div class="timestamp">' + getTimestampText(articles[index].publish_date, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format) + '</div>');
-                        }
-                        else
-                        {
-                            article = article.split('^article_timestamp^').join('');
-                        }
-                        
-                        switch(searchObject.object_type)
-                        {
-                            case 'page':
-                                article = article.split('^article_layout^').join(articles[index].page_layout);
-                                article = article.split('^comments^').join('');
-                                layout = layout.concat(article)
-                                index++;
-                                subInstance.loadArticle(index, layout, output);
-                                break;
-                            case 'article':
-                            default:
-                                article = article.split('^article_layout^').join(articles[index].article_layout);
-                                comments.getComments(articles[index], contentSettings, function(commentsLayout)
+                                else
                                 {
-                                    article = article.split('^comments^').join(commentsLayout);
-                                    layout = layout.concat(article)
-                                    index++;
-                                    subInstance.loadArticle(index, layout, output);
-                                });
-                                break;
+                                    article.media_body_style = 'height: auto';
+                                }
+                                
+                                article.author_name = (authors[j].first_name) ? authors[j].first_name + ' ' + authors[j].last_name : authors[j].username;
+                                article.author_position = (authors[j].position && contentSettings.display_author_position) ? authors[j].position : '';
+                            }
                         }
                     }
                     
-                    this.loadArticle(0, '', function(articlesLayout)
+                    if(contentSettings.display_timestamp && searchObject.object_type == 'article')
                     {
-                        instance.loadMedia(articlesLayout, function(newLayout)
-                        {
-                            output(newLayout);
-                        });
-                    });
-                });
+                        article.timestamp = getTimestampText(article.publish_date, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format);
+                    }
+                    
+                    switch(searchObject.object_type)
+                    {
+                        case 'page':
+                            article.layout = instance.loadMedia(article.page_layout, function(newLayout)
+                            {
+                                article.layout = newLayout;
+                                delete article.page_layout;
+                                
+                                index++;
+                                subInstance.loadArticle(index, output);
+                            });
+                            break;
+                        case 'article':
+                        default:
+                            article.layout = instance.loadMedia(article.article_layout, function(newLayout)
+                            {
+                                article.layout = newLayout;
+                                delete article.article_layout;
+                                
+                                index++;
+                                subInstance.loadArticle(index, output);
+                            });
+                            break;
+                    }
+                }
+                
+                this.loadArticle(0, output);
             });
         });
     });

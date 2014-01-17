@@ -37,22 +37,26 @@ this.init = function(request, output)
                         
                         require('../include/theme/articles').getArticles(section, topic, article, page, function(articles)
                         {
-                            result = result.split('^articles^').join(articles);
-                            
                             require('../include/theme/media').getCarousel(themeSettings.carousel_media, result, '^carousel^', 'index_carousel', function(newResult)
                             {
-                                result = newResult;
-                                result = result.concat(getAngularController(
+                                getContentSettings(function(contentSettings)
                                 {
-                                    navigation: navigation,
-                                    themeSettings: themeSettings,
-                                    accountButtons: accountButtons
-                                }));
-                            
-                                getHTMLTemplate('footer', null, null, function(data)
-                                {
-                                    result = result.concat(data);
-                                    output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic', 'timestamp'], result)});
+                                    result = newResult;
+                                    result = result.concat(getAngularController(
+                                    {
+                                        navigation: navigation,
+                                        contentSettings: contentSettings,
+                                        themeSettings: themeSettings,
+                                        accountButtons: accountButtons,
+                                        articles: articles,
+                                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+                                    }, ['ngSanitize']));
+                                
+                                    getHTMLTemplate('footer', null, null, function(data)
+                                    {
+                                        result = result.concat(data);
+                                        output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic', 'timestamp'], result)});
+                                    });
                                 });
                             });
                         });

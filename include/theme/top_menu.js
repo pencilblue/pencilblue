@@ -57,7 +57,9 @@ this.getTopMenu = function(session, output)
                             
                             for(var j = 0; j < sectionMap[i].children.length; j++)
                             {
-                                section.children.push(instance.getSectionData(sectionMap[i].children[j].uid, sections));
+                                var child = instance.getSectionData(sectionMap[i].children[j].uid, sections);
+                                child.url = section.url + '/' + child.url;
+                                section.children.push(child);
                             }
                             
                             formattedSections.push(section);
