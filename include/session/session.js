@@ -147,6 +147,12 @@ SessionHandler.prototype.open = function(request, output){
 	});
 };
 
+/**
+ * Closes the session and persists it when no other requests are currently 
+ * accessing the session.
+ * @param session
+ * @param cb
+ */
 SessionHandler.prototype.close = function(session, cb) {
 	if(!session){
 		throw new Error("SessionHandler: Cannot close an empty session");
@@ -160,7 +166,7 @@ SessionHandler.prototype.close = function(session, cb) {
 	}
 	
 	//update timeout
-	session[SessionHandler.TIMEOUT_KEY] = new Date().getTime() + pb.confi.session.timeout;
+	session[SessionHandler.TIMEOUT_KEY] = new Date().getTime() + pb.config.session.timeout;
 	
 	//last active request using this session, persist it back to storage
 	if(this.purgeLocal(session[SessionHandler.SID_KEY])){

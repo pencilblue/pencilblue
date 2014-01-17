@@ -199,5 +199,130 @@ module.exports = {
 		test.equal(2, handler.localStorage[sid].request_count);
 		test.equal(sid, handler.localStorage[sid].session.uid);
 		test.done();
-	}
+	},
+	
+	testGlNotLocal: function(test) {
+		var sid     = 'non-existent';
+		var handler = new SessionHandler();
+		var result = handler.gl(sid);
+		test.equal(null, result);
+		test.done();
+	},
+	
+	testGl: function(test) {
+		var sid     = 'some-existing-sid';
+		var session = {
+			uid: sid	
+		};
+		var sessionWrapper = {
+			session: session
+		};
+		var handler = new SessionHandler();
+		handler.localStorage[sid] = sessionWrapper;
+		
+		var result = handler.gl(sid);
+		test.deepEqual(session, result);
+		test.done();
+	},
+	
+	testCloseUnopenedSession: function(test){
+		var session = {
+			uid: 'abc'	
+		};
+		var handler = new SessionHandler();
+		try{
+			handler.close(session, null);
+			test.fail("SessionHandler should have thrown exception");
+		}
+		catch(e){
+			//expected exception
+			pb.log.debug(JSON.stringify(e));
+		}
+		test.done();
+	},
+	
+	testCloseNullSession: function(test){
+		var session = null;
+		var handler = new SessionHandler();
+		try{
+			handler.close(session, null);
+			test.fail("SessionHandler should have thrown exception");
+		}
+		catch(e){
+			//expected exception
+			pb.log.debug(JSON.stringify(e));
+		}
+		test.done();
+	},
+	
+	testCloseById: function(test){
+		var sid     = 'some-session-id';
+		var session = {
+			uid: sid
+		};
+		var handler = new SessionHandler();
+		handler.setLocal(session);
+		handler.close(sid, function(err, result){
+			
+			test.equal(null, err);
+			test.equal(null, handler.gl(sid));
+			test.done();
+		});
+	},
+	
+	testCloseByObject: function(test){
+		var sid     = 'some-session-id';
+		var session = {
+			uid: sid
+		};
+		var handler = new SessionHandler();
+		handler.setLocal(session);
+		handler.close(session, function(err, result){
+			
+			test.equal(null, err);
+			test.equal(null, handler.gl(sid));
+			test.done();
+		});
+	},
+	
+	testCloseByObjectMultipleRequests: function(test){
+		var sid     = 'some-session-id';
+		var session = {
+			uid: sid
+		};
+		var handler = new SessionHandler();
+		handler.setLocal(session);
+		handler.setLocal(session);
+		handler.close(session, function(err, result){
+			
+			test.equal(null, err);
+			test.equal(session, handler.gl(sid));
+			test.done();
+		});
+	},
+	
+	testOpenNoCookie: function(test){
+		test.fail("Not Yet Implemented");
+		test.done();
+	},
+	
+	testOpenBadSIDFromCookie: function(test){
+		test.fail("Not Yet Implemented");
+		test.done();
+	},
+	
+	testOpenCreateNoInStorage: function(test){
+		test.fail("Not Yet Implemented");
+		test.done();
+	},
+	
+	testOpenFromStorage: function(test){
+		test.fail("Not Yet Implemented");
+		test.done();
+	},
+	
+	testOpenFromLocalStorage: function(test){
+		test.fail("Not Yet Implemented");
+		test.done();
+	},
 };
