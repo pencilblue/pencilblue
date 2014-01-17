@@ -2,7 +2,7 @@
     <h1>{{article.headline}}</h1>
     <h3 ng-if="article.subheading.length > 0">{{article.subheading}}</h3>
     <div class="article_body">
-        <div class="media byline" ng-if="contentSettings.display_bylines">
+        <div class="media byline" ng-if="contentSettings.display_bylines && article.object_type == 'article'">
             <span class="pull-left" ng-if="article.author_photo">
                 <img class="media-object" src="{{article.author_photo}}" style="width: 5em"></img>
             </span>
