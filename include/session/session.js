@@ -113,12 +113,19 @@ SessionHandler.SID_KEY        = 'uid';
 SessionHandler.TIMEOUT_KEY    = 'timeout';
 SessionHandler.COOKIE_HEADER  = 'parsed_cookies';
 
-SessionHandler.prototype.open = function(request, output){
+/**
+ * Retrieves a session for the current request.  When the session ID is 
+ * available the existing session is retrieved otherwise a new session is 
+ * created.
+ * @param request The request descriptor
+ * @param cb The callback(ERROR, SESSION_OBJ)
+ */
+SessionHandler.prototype.open = function(request, cb){
 	
 	//check for active
 	var sid = SessionHandler.getSessionIdFromCookie(request);
 	if (!sid) {
-		cb(null, SessionHandler.create(request));
+		cb(null, this.create(request));
 		return;
 	}
 	
@@ -132,18 +139,20 @@ SessionHandler.prototype.open = function(request, output){
 	}
 	
 	//session not available locally so check persistent storage
+	var handler = this;
 	this.sessionStore.get(sid, function(err, result){
 		if(err){
 			cb(err, null);
 			return;
 		}
 		else if(result){
+			handler.setLocal(result);
 			cb(null, result);
 			return;
 		}
-		
+
 		//session not found create one
-		cb(null, SessionHandler.create(request));
+		cb(null, handler.create(request));
 	});
 };
 

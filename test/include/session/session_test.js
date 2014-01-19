@@ -302,27 +302,97 @@ module.exports = {
 	},
 	
 	testOpenNoCookie: function(test){
-		test.fail("Not Yet Implemented");
-		test.done();
+		var request = {
+			headers: {
+				parsed_cookies: {}
+			},
+			connection: {
+				remoteAddress: '10.1.1.12'
+			}
+		};
+		var handler = new SessionHandler();
+		handler.open(request, function(err, result){
+		
+			test.equal(null, err);
+			test.ok(result.uid);
+			test.equal(1, handler.localStorage[result.uid].request_count);
+			test.done();
+		});
 	},
 	
-	testOpenBadSIDFromCookie: function(test){
-		test.fail("Not Yet Implemented");
-		test.done();
-	},
-	
-	testOpenCreateNoInStorage: function(test){
-		test.fail("Not Yet Implemented");
-		test.done();
+	testOpenCreateNotInStorage: function(test){
+		var sid     = 'abc123|'+Math.random();
+		var request = {
+			headers: {
+				parsed_cookies: {
+					session_id: sid
+				}
+			},
+			connection: {
+				remoteAddress: '10.1.1.12'
+			}
+		};
+		var handler = new SessionHandler();
+		handler.open(request, function(err, result){
+		
+			test.equal(null, err);
+			test.notEqual(sid, result.uid);
+			test.equal(1, handler.localStorage[result.uid].request_count);
+			test.done();
+		});
 	},
 	
 	testOpenFromStorage: function(test){
-		test.fail("Not Yet Implemented");
-		test.done();
+		var sid     = 'abc123|'+Math.random();
+		var session = {
+			uid: sid,
+			timeout: new Date().getTime() + 6000
+		};
+		var request = {
+			headers: {
+				parsed_cookies: {
+					session_id: sid
+				}
+			}
+		};
+		var handler = new SessionHandler();
+		handler.sessionStore.set(session, function(err, result){
+			test.equal(null, err);
+			
+			handler.open(request, function(err, result){
+			
+				test.equal(null, err);
+				test.deepEqual(session, result);
+				test.equal(1, handler.localStorage[sid].request_count);
+				test.done();
+			});
+		});
 	},
 	
 	testOpenFromLocalStorage: function(test){
-		test.fail("Not Yet Implemented");
-		test.done();
+		var sid     = 'abc123';
+		var session = {
+			uid: sid
+		};
+		var wrapper = {
+			request_count: 1,
+			session: session
+		};
+		var request = {
+			headers: {
+				parsed_cookies: {
+					session_id: sid
+				}
+			}
+		};
+		var handler               = new SessionHandler();
+		handler.localStorage[sid] = wrapper;
+		handler.open(request, function(err, result){
+			
+			test.equal(null, err);
+			test.equal(session, result);
+			test.equal(2, handler.localStorage[sid].request_count);
+			test.done();
+		});
 	},
 };

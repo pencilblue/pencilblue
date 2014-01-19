@@ -36,7 +36,7 @@ pb.log     = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, 
 pb.cache = require(DOCUMENT_ROOT+'/include/dao/cache.js').createClient(pb.config);
 
 //configure the DB manager
-pb.dbm      = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
+pb.dbm = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
 
 //setup system class types
 pb.DAO = require(DOCUMENT_ROOT+'/include/dao/dao');
@@ -46,7 +46,7 @@ pb.dbobject = new (require(DOCUMENT_ROOT+'/include/model/db_object').DBObjectSer
 
 //setup the session handler
 pb.SessionHandler = require(DOCUMENT_ROOT+'/include/session/session.js');
-pb.session = new pb.SessionHandler();
+pb.session        = new pb.SessionHandler();
 
 //setup utils
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
