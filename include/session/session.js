@@ -68,7 +68,7 @@ global.closeSession = function(session, output)
 
 global.getClientID = function(request)
 {
-    var whirlpool = require('crypto').createHash('whirlpool');
+    var whirlpool = crypto.createHash('whirlpool');
     whirlpool.update(request.connection.remoteAddress + request.headers['user-agent']);
     var clientID = whirlpool.digest('hex');
     
@@ -78,13 +78,6 @@ global.getClientID = function(request)
 global.getSessionCookie = function(session)
 {
     return {session_id: session.uid, path: '/', expires: '0'};
-};
-
-global.getEmptySessionCookie = function()
-{
-    var expireDate = new Date();
-    
-    return {session_id: '', path: '/', expires: expireDate.toUTCString()};
 };
 
 //types
@@ -263,6 +256,9 @@ SessionHandler.prototype.closeSession = function(session, output){
 	global.closeSession(session, output);
 };
 
+/**
+ * Shuts down the sesison handler and the associated session store
+ */
 SessionHandler.prototype.shutdown = function(){
 	SessionHandler.SessionStore.shutdown();
 };
@@ -287,12 +283,15 @@ SessionHandler.prototype.create = function(request){
 	return session;
 };
 
+/**
+ * Generates a unique client ID based on the user agent and the remote address.
+ * @param request
+ * @returns
+ */
 SessionHandler.getClientId = function(request){
-	return global.getClientID(request);
-};
-
-SessionHandler.getEmptySessionCookie = function(){
-	return global.getEmptySessionCookie();
+    var whirlpool = crypto.createHash('whirlpool');
+    whirlpool.update(request.connection.remoteAddress + request.headers['user-agent']);
+    return whirlpool.digest('hex');
 };
 
 /**

@@ -13,6 +13,7 @@ global.process    = require('process');
 global.minify     = require('minify');
 global.winston    = require('winston');
 global.async      = require('async');
+global.crypto     = require('crypto');
 
 var promise       = require('node-promise');
 global.when       = promise.when;
