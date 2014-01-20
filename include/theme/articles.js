@@ -113,7 +113,20 @@ this.getArticles = function(section, topic, article, page, output)
                                 delete article.article_layout;
                                 
                                 index++;
-                                subInstance.loadArticle(index, output);
+                                getDBObjectsWithValues({object_type: 'comment', article: article._id.toString()}, function(comments)
+                                {
+                                    if(comments.length == 0)
+                                    {
+                                        subInstance.loadArticle(index, output);
+                                        return;
+                                    }
+                                
+                                    instance.getCommenters(0, comments, contentSettings, function(commentsWithCommenters)
+                                    {
+                                        article.comments = commentsWithCommenters;
+                                        subInstance.loadArticle(index, output);
+                                    });
+                                });
                             });
                             break;
                     }
@@ -194,5 +207,41 @@ this.loadMedia = function(articlesLayout, output)
     {
         mediaTemplate = data;
         instance.replaceMediaTag(articlesLayout);
+    });
+}
+
+this.getCommenters = function(index, comments, contentSettings, output)
+{
+    if(index >= comments.length)
+    {
+        output(comments);
+        return;
+    }
+
+    var instance = this;
+    
+    getDBObjectsWithValues({object_type: 'user', _id: ObjectID(comments[index].commenter)}, function(data)
+    {
+        if(data.length == 0)
+        {
+            comments.splice(index, 1);
+            instance.getCommenters(index, comments, contentSettings, output);
+            return;
+        }
+        
+        var commenter = data[0];
+        comments[index].commenter_name = (commenter.first_name) ? commenter.first_name + ' ' + commenter.last_name : commenter.username;
+        comments[index].timestamp = getTimestampText(comments[index].created, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format);
+        if(commenter.photo)
+        {
+            comments[index].commenter_photo = commenter.photo;
+        }
+        if(commenter.position)
+        {
+            comments[index].commenter_position = commenter.position;
+        }
+        
+        index++;
+        instance.getCommenters(index, comments, contentSettings, output);
     });
 }

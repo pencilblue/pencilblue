@@ -27,7 +27,7 @@ this.init = function(request, output)
                 getHTMLTemplate('index', '^loc_HOME^', null, function(data)
                 {
                     result = result.concat(data);
-                
+                                    
                     require('../include/theme/top_menu').getTopMenu(session, function(themeSettings, navigation, accountButtons)
                     {
                         var section = request.pencilblue_section || null;
@@ -41,21 +41,32 @@ this.init = function(request, output)
                             {
                                 getContentSettings(function(contentSettings)
                                 {
-                                    result = newResult;
-                                    result = result.concat(getAngularController(
+                                    require('../include/theme/comments').getCommentsTemplate(contentSettings, function(commentsTemplate)
                                     {
-                                        navigation: navigation,
-                                        contentSettings: contentSettings,
-                                        themeSettings: themeSettings,
-                                        accountButtons: accountButtons,
-                                        articles: articles,
-                                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
-                                    }, ['ngSanitize']));
+                                        result = result.split('^comments^').join(commentsTemplate);
+                                        
+                                        var loggedIn = false;
+                                        if(session.user)
+                                        {
+                                            loggedIn = true;
+                                        }
                                 
-                                    getHTMLTemplate('footer', null, null, function(data)
-                                    {
-                                        result = result.concat(data);
-                                        output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic', 'timestamp'], result)});
+                                        result = result.concat(getAngularController(
+                                        {
+                                            navigation: navigation,
+                                            contentSettings: contentSettings,
+                                            loggedIn: loggedIn,
+                                            themeSettings: themeSettings,
+                                            accountButtons: accountButtons,
+                                            articles: articles,
+                                            trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+                                        }, ['ngSanitize']));
+                                    
+                                        getHTMLTemplate('footer', null, null, function(data)
+                                        {
+                                            result = result.concat(data);
+                                            output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic', 'timestamp'], result)});
+                                        });
                                     });
                                 });
                             });

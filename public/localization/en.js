@@ -41,7 +41,9 @@ loc =
         ACCOUNT: 'Account',
         EMAIL: 'Email',
         PREFERENCES: 'Preferences',
-        COMMENTS: 'Comments'
+        COMMENTS: 'Comments',
+        SUBMIT_COMMENT: 'Submit a comment',
+        LOGIN_TO_COMMENT: 'Login to comment'
     },
     timestamp:
     {

@@ -1,4 +1,4 @@
-<div class="article" ng-repeat="article in articles" ng-cloak>
+<div id="article_{{article._id}}" class="article" article-index="{{$index}}" ng-repeat="article in articles" ng-cloak>
     <h1>{{article.headline}}</h1>
     <h3 ng-if="article.subheading.length > 0">{{article.subheading}}</h3>
     <div class="article_body">
