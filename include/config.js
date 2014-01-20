@@ -35,6 +35,10 @@ var config = {
 		host: "localhost",
 		port: 6379
 	},
+	session: {
+		storage: "redis",
+		timeout: 600000
+	},
 	logging: {
 		level: LOG_LEVEL,
 		transports: [

@@ -87,8 +87,10 @@ function registerSystemForEvents(){
 	//shutdown hook
 	process.openStdin();
 	process.on('SIGINT', function () {
-		log.info('Shutting down...');
+		pb.log.info('Shutting down...');
 	  	pb.dbm.shutdown();
+	  	pb.cache.quit();
+	  	pb.session.shutdown();
 	});
 }
 

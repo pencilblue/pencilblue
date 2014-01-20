@@ -114,3 +114,18 @@ global.getDBObjectsWithValues = function(values, output) {
     	output(result);
     });
 };
+
+/**
+ * DBObjectService
+ * 
+ */
+function DBObjectService(){
+	
+};
+
+DBObjectService.createDBObject         = createDBObject;
+DBObjectService.editDBObject           = editDBObject;
+DBObjectService.deleteDBObject         = deleteDBObject;
+DBObjectService.getDBObjectsWithValues = getDBObjectsWithValues;
+
+module.exports.DBObjectService = DBObjectService;
