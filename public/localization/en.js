@@ -43,7 +43,9 @@ loc =
         PREFERENCES: 'Preferences',
         COMMENTS: 'Comments',
         SUBMIT_COMMENT: 'Submit a comment',
-        LOGIN_TO_COMMENT: 'Login to comment'
+        LOGIN_TO_COMMENT: 'Login to comment',
+        COMMENT_SUBMITTED: 'Your comment was submitted',
+        COMMENT_ERROR: 'There was an error submitting your comment'
     },
     timestamp:
     {

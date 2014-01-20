@@ -47,6 +47,10 @@ global.getTimestampText = function(date, format, displayTime, timeFormat)
         {
             var hours = date.getHours();
             var minutes = date.getMinutes();
+            if(minutes < 10)
+            {
+                minutes = '0' + minutes;
+            }
             var ampm = '';
             
             if(timeFormat == '12')

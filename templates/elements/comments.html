@@ -2,7 +2,9 @@
 <div id="comments_{{$index}}" class="panel panel-default comments_container">
     <div class="panel-heading">
         <a data-toggle="collapse" data-parent="#comments_{{$index}}" href="#comments_collapse_{{$index}}">
-            <i class="fa fa-comments"></i>&nbsp;^loc_COMMENTS^
+            <i class="fa fa-comments"></i>&nbsp;
+            <span ng-if="article.comments">^loc_COMMENTS^ ({{article.comments.length}})</span>
+            <span ng-if="!article.comments">^loc_COMMENTS^ (0)</span>
         </a>
     </div>
     <div id="comments_collapse_{{$index}}" class="panel-collapse collapse">
@@ -17,6 +19,16 @@
                     <div class="panel-body">
                         <form class="comment_form">
                             <fieldset>
+                                <div id="comment_saved_{{$index}}" class="panel panel-info" style="display: none">
+                                    <div class="panel-heading">
+                                        ^loc_COMMENT_SUBMITTED^
+                                    </div>
+                                </div>
+                                <div id="comment_error_{{$index}}" class="panel panel-danger" style="display: none">
+                                    <div class="panel-heading">
+                                        ^loc_COMMENT_ERROR^
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <textarea id="comment_content_{{$index}}" name="comment_content" class="form-control"></textarea>
                                 </div>
@@ -28,13 +40,13 @@
                     </div>
                 </div>
             </div>
-            <div class="panel-heading" ng-if="!loggedIn">
+            <div ng-if="!loggedIn">
                 <a href="/user/login">
                     <button type="button" class="btn btn-default">
                         <i class="fa fa-user"></i>&nbsp;^loc_LOGIN_TO_COMMENT^
                     </button>
                 </a>
-            </div> 
+            </div>
             <div class="well comment" ng-repeat="comment in article.comments">
                 <span class="pull-left" ng-if="comment.commenter_photo">
                     <img class="media-object" src="{{comment.commenter_photo}}" style="width: 3em; margin: 0 .5em .5em 0"></img>
@@ -42,7 +54,7 @@
                 <div class="comment_content">
                     <b>{{comment.commenter_name}}<span ng-if="comment.commenter_position">, {{comment.commenter_position}}</span></b>: {{comment.content}}
                 </div>
-                <div class="comment_timestamp" style="color: #AAAAAA; text-align: right">
+                <div class="comment_timestamp" style="color: #AAAAAA; text-align: right; font-size: .9em">
                     {{comment.timestamp}}
                 </div>
                 <div class="spacer"></div>

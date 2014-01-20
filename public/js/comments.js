@@ -22,6 +22,17 @@ function submitComment(button)
             $.post('/api/comments/new_comment', {article: articleID, content: $('#comment_content_' + articleIndex).val()}, function(data)
             {
                 alert(data);
+                var response = $.parseJSON(data);
+                if(response.code > 0)
+                {
+                    $('#comment_saved_' + articleIndex).hide();
+                    $('#comment_error_' + articleIndex).show();
+                }
+                else
+                {
+                    $('#comment_saved_' + articleIndex).show();
+                    $('#comment_error_' + articleIndex).hide();
+                }
             });
         }
     });

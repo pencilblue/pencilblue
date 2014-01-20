@@ -113,7 +113,7 @@ this.getArticles = function(section, topic, article, page, output)
                                 delete article.article_layout;
                                 
                                 index++;
-                                getDBObjectsWithValues({object_type: 'comment', article: article._id.toString()}, function(comments)
+                                getDBObjectsWithValues({object_type: 'comment', article: article._id.toString(), $orderby: {created: 1}}, function(comments)
                                 {
                                     if(comments.length == 0)
                                     {

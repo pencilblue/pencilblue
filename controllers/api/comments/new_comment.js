@@ -37,7 +37,7 @@ this.init = function(request, output)
                     return;
                 }
                 
-                output({content: apiResponse(apiResponseCode.SUCCESS, 'comment created' , JSON.stringify(commentDocument))});
+                output({content: apiResponse(apiResponseCode.SUCCESS, 'comment created' , commentDocument)});
             });
         });
     });
