@@ -1,11 +1,14 @@
-body
-{
-    background-color: #E6ECF2;
-}
-
 .spacer
 {
     clear: both;
+}
+
+form .error
+{
+    font-size: .85em;
+    color: #AA0000;
+    width: 100%;
+    margin: 0;
 }
 
 #index_carousel .item
@@ -31,9 +34,12 @@ body
 
 .article
 {
-    background-color: #FFFFFF;
+    background-color: #FAFAFA;
     padding: 1em;
     margin: 1em 0;
+    border: 1px solid;
+    border-radius: .25em .25em 0 0;
+    border-color: #DFDFDF #DFDFDF transparent #DFDFDF;
 }
 
 .article h1, .article h2, .article h3, .article h4, .article h5
@@ -95,4 +101,9 @@ body
     font-size: .9em;
     border-radius: 0 0 .25em .25em;
     max-width: 100%;
+}
+
+#login_logo
+{
+    padding: 1em;
 }

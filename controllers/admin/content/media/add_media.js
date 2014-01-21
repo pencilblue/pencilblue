@@ -16,23 +16,20 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot});
             return;
         }
-        
-        session.section = 'media';
-        session.subsection = 'add_media';
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/content/media/add_media', null, null, function(data)
+            getHTMLTemplate('admin/content/media/add_media', '^loc_ADD_MEDIA^', null, function(data)
             {
                 result = result.concat(data);
                 
                 var tabs =
                 [
                     {
-                        active: true,
+                        active: 'active',
                         href: '#media_upload',
                         icon: 'film',
                         title: '^loc_LINK_OR_UPLOAD^'
@@ -44,61 +41,29 @@ this.init = function(request, output)
                     }
                 ];
                 
-                getTabNav(tabs, function(tabNav)
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
-                
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    session = newSession;
+                    result = newResult;
+                    
+                    getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
                     {
-                        session = newSession;
-                        result = newResult;
-                        
-                        instance.getTopicOptions(function(topicsList)
+                    
+                        result = result.concat(getAngularController(
                         {
-                            result = result.split('^topic_options^').join(topicsList);
-                        
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
-                            });
+                            navigation: getAdminNavigation(session, ['content', 'media']),
+                            pills: require('../media').getPillNavOptions('add_media'),
+                            tabs: tabs,
+                            topics: topics
+                        }));
+                    
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
                         });
                     });
                 });
             });
-        });
-    });
-}
-
-this.getTopicOptions = function(output)
-{
-    var topicsList = '';
-    var topicTemplate = '';
-    
-    getDBObjectsWithValues({object_type: 'topic'}, function(data)
-    {
-        var topics = data;
-        
-        // Case insensitive sort
-        topics.sort(function(a, b)
-        {
-            var x = a['name'].toLowerCase();
-            var y = b['name'].toLowerCase();
-        
-            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-        });
-        
-        getHTMLTemplate('admin/content/articles/new_article/topic', null, null, function(data)
-        {
-            topicTemplate = data;
-
-            for(var i = 0; i < topics.length; i++)
-            {
-                var topicsListElement = topicTemplate.split('^topic_id^').join(topics[i]._id.toString());
-                topicsListElement = topicsListElement.split('^topic_name^').join(topics[i].name);
-                topicsList = topicsList.concat(topicsListElement);
-            }
-            
-            output(topicsList);
         });
     });
 }

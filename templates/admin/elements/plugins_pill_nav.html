@@ -1,0 +1,9 @@
+<div class="col-md-3">
+    <ul id="sub_nav" class="nav nav-pills nav-stacked">
+        <li id="{{pill.name}}_pill" class="{{pill.active}}" ng-repeat="pill in pills" ng-cloak>
+            <a href="javascript:activateThemePill('{{pill.name}}')" ng-click="themeSettingsURL = '{{pill.settingsURL}}'">
+                <i class="fa fa-{{pill.icon}}"></i>&nbsp;{{pill.title}}
+            </a>
+        </li>
+    </ul>
+</div>

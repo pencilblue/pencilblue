@@ -13,7 +13,10 @@ loc =
         LOGIN: 'Login',
         LOGOUT: 'Logout',
         SIGN_UP: 'Sign up',
+        USERNAME: 'Username',
+        PASSWORD: 'Password',
         HOME: 'Home',
+        BACK_HOME: 'Go back to homepage',
         WRITER: 'Writer',
         READER: 'Reader',
         EDITOR: 'Editor',
@@ -29,12 +32,20 @@ loc =
         SAVE_DRAFT: 'Save draft',
         CANCEL: 'Cancel',
         DELETE: 'Delete',
+        SUBMIT: 'Submit',
         NOW: 'Now',
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
         SELECT_FILE: 'Select file',
         NO_ARTICLES: 'No articles match the given parameters',
-        ACCOUNT: 'Account'
+        ACCOUNT: 'Account',
+        EMAIL: 'Email',
+        PREFERENCES: 'Preferences',
+        COMMENTS: 'Comments',
+        SUBMIT_COMMENT: 'Submit a comment',
+        LOGIN_TO_COMMENT: 'Login to comment',
+        COMMENT_SUBMITTED: 'Your comment was submitted',
+        COMMENT_ERROR: 'There was an error submitting your comment'
     },
     timestamp:
     {
@@ -63,11 +74,11 @@ loc =
     },
     login:
     {
-        LOGIN: 'Login',
-        USERNAME: 'Username',
-        PASSWORD: 'Password',
+        ADMIN_LOGIN: 'Writer, editor, and administrator login',
+        USERNAME_OR_EMAIL: 'Username or email address',
         INVALID_LOGIN: 'Invalid username and password combination',
-        READY_TO_USE: 'Your pencilblue installation is ready to use'
+        READY_TO_USE: 'Your pencilblue installation is ready to use',
+        ACCOUNT_CREATED: 'Your account was successfully created, you may now login'
     },
     admin:
     {
@@ -89,10 +100,6 @@ loc =
         VIEW_SITE: 'View site', 
         SITE_SETTINGS: 'Site settings',
         SITE_LOGO: 'Site logo',
-        LINK_TO_IMAGE: 'Link to image',
-        UPLOAD_IMAGE: 'Upload image',
-        IMAGE_URL: 'Image URL',
-        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
         AUTHOR: 'Author',
         ACCOUNT: 'Account',
         CUSTOM_VARIABLES: 'Custom variables',
@@ -117,6 +124,7 @@ loc =
     {
         SECTION_MAP: 'Section map',
         NEW_SECTION: 'New section',
+        EDIT_SECTION: 'Edit section',
         SECTION_NAME: 'Section name',
         DESCRIPTION: 'Description',
         URL_KEY: 'URL Key',
@@ -150,7 +158,11 @@ loc =
         RELATED_MEDIA: 'Drag related media here',
         UNRELATED_MEDIA: 'Drag unrelated media here',
         MEDIA_FORMATTING: 'Media formatting',
-        MAXIMUM_HEIGHT: 'Maximum height'
+        MAXIMUM_HEIGHT: 'Maximum height',
+        LINK_TO_IMAGE: 'Link to image',
+        UPLOAD_IMAGE: 'Upload image',
+        IMAGE_URL: 'Image URL',
+        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg'
     },
     pages:
     {
@@ -214,7 +226,28 @@ loc =
         EXISTING_USERNAME: 'Username is already registered',
         EXISTING_EMAIL: 'Email address is already registered',
         USER_CREATED: 'The user was successfully created',
-        USER_EDITED: 'The user was successfully edited'
+        USER_EDITED: 'The user was successfully edited',
+        CREATE_ACCOUNT: 'Create an account',
+        LOGIN_EXISTING: 'Login to an existing account',
+        CHECK: 'Check',
+        AVAILABLE: 'Available',
+        UNAVAILABLE: 'Unavailable',
+        VERIFICATION_SENT: 'Verification sent',
+        YOUR_VERIFICATION: 'A verification email has been sent',
+        CHECK_INBOX: 'Please check your inbox and click the link provided',
+        RESEND_VERIFICATION: 'Resend the verification email',
+        USER_VERIFIED: 'That email address has already been verified',
+        NOT_REGISTERED: 'That email address has not been registered',
+        INVALID_VERIFICATION: 'The verification parameters were invalid. Please re-enter your email address.',
+        EMAIL_VERIFIED: 'Thank you for verifying your email address. You may now login.',
+        MANAGE_ACCOUNT: 'Manage account',
+        PROFILE: 'Profile',
+        CHANGE_PASSWORD: 'Change password',
+        PROFILE_EDITED: 'Your profile was successfully edited',
+        OLD_PASSWORD: 'Old password',
+        NEW_PASSWORD: 'New password',
+        INVALID_PASSWORD: 'Invalid old password',
+        PASSWORD_CHANGED: 'Your password was successfully changed'
     },
     site_settings:
     {
@@ -241,9 +274,21 @@ loc =
         DISPLAY_BYLINES: 'Display author bylines in articles',
         DISPLAY_AUTHOR_PHOTO: 'Display author photos in bylines',
         DISPLAY_AUTHOR_POSITION: 'Display author positions in bylines',
-        COMMENTS: 'Comments',
         ALLOW_COMMENTS: 'Allow users to comment',
-        COMMENTS_ON: 'Allow comments on articles by default'
+        COMMENTS_ON: 'Allow comments on articles by default',
+        REQUIRE_ACCOUNT: 'Require an account to comment',
+        REQUIRE_VERIFICATION: 'Require new users to verify their email address',
+        SMTP: 'SMTP',
+        FROM_NAME: 'From name',
+        FROM_ADDRESS: 'From address',
+        VERIFICATION_SUBJECT: 'Verification subject',
+        VERIFICATION_CONTENT: 'Verification content',
+        SERVICE: 'Service',
+        CUSTOM: 'Custom',
+        HOST: 'Host',
+        SECURE_CONNECTION: 'Secure connection (SSL)',
+        PORT: 'Port',
+        EMAIL_SETTINGS: 'Email settings'
     }
 }
 

@@ -1,0 +1,100 @@
+<style type="text/css">
+    body
+    {
+        background-color: #FFFFFF;
+        font-family: 'Helvetica', 'Arial', 'Verdana', sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6
+    {
+        margin: 0;
+    }
+
+    a
+    {
+        text-decoration: none;
+    }
+
+    tr
+    {
+        border: none;
+    }
+
+    .pb_container
+    {
+        margin: 0 auto;
+        width: 36em;
+        max-width: 100%;
+    }
+
+    .pb_header
+    {
+        padding: .5em;
+        border: none
+    }
+
+    .pb_box
+    {
+        padding: .5em;
+        background-color: #EFEFEF;
+        border: 2px solid #EAEAEA;
+        border-radius: 0 0 .25em .25em;
+    }
+
+    .pb_lead
+    {
+        font-size: 1.125em;
+        margin: .5em 0;
+    }
+
+    .pb_fade
+    {
+        margin: 0;
+        color: #666666;
+        text-align: center;
+    }
+
+    .pb_button_holder
+    {
+        margin: 2em;
+        text-align: center;
+    }
+
+    .pb_button
+    {
+        padding: .5em;
+        background-color: #38E156;
+        font-weight: bold;
+        color: #FFFFFF;
+        font-size: 1.25em;
+        text-align: center;
+        border-radius: .5em;
+    }
+
+    .pb_button:hover
+    {
+        background-color: #00AAD4;
+    }
+</style>
+
+<table class="pb_container">
+    <tr>
+        <td class="pb_header">
+            <img src="http://localhost:8080/img/pb_logo.png"></img>
+        </td>
+    </tr>
+    <tr>
+        <td class="pb_box">
+            <h2>Hi ^first_name^ ^last_name^,</h2>
+            <p class="pb_lead">Your account is ready to activate. All you need to do is click the button below to verify your email address.</h5>
+            <a href="^verification_url^">
+                <p class="pb_button_holder">
+                    <span class="pb_button">
+                        Verify your email
+                    </span>
+                </p>
+            </a>
+            <p class="pb_fade">If you didn't create a pencilblue account, just delete this email.</p>
+        </td>
+    </tr>
+</table>

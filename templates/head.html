@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="pencilblueApp">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-        <title>^site_name^^page_name^</title>
+        <title>^page_name^</title>
         <meta name="description" content="^meta_desc^">
+         <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
         
         <link rel="stylesheet" type="text/css" href="^site_root^/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="^site_root^/css/pencilblue_theme.css">
@@ -12,8 +13,12 @@
         
         <script type="text/javascript" src="^site_root^/js/jquery-1.10.2.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/angular.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/angular-route.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/angular-sanitize.min.js"></script>
+        <script type="text/javascript" src="^site_root^/js/angular-whitelist.min.js"></script>
         <script type="text/javascript" src="^site_root^/js/media.js"></script>
     </head>
-        <body>
-            <div id="wrap">
-                ^tmp_elements=top_menu^
+    <body ng-controller="PencilBlueController">
+        <div id="wrap">
+            ^tmp_elements=top_menu^

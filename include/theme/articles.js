@@ -1,12 +1,9 @@
 this.getArticles = function(section, topic, article, page, output)
 {
-    var articlesLayout = '';
-    var articleTemplate = '';
-    var bylineTemplate = '';
-    var isArticle = false;
-    var isPage = false;
+    var comments = require('./comments');
+    var singleItem = false;
     var instance = this;
-    
+
     var searchObject = {object_type: 'article'};
     if(section)
     {
@@ -18,117 +15,136 @@ this.getArticles = function(section, topic, article, page, output)
     }
     else if(article)
     {
-        var isArticle = true;
+        singleItem = true;
         searchObject._id = ObjectID(article);
     }
     else if(page)
     {
-        var isPage = true;
+        singleItem = true;
         searchObject.object_type = 'page';
         searchObject._id = ObjectID(page);
     }
     searchObject.publish_date = {$lt: new Date()};
     
     getContentSettings(function(contentSettings)
-    {    
-        getHTMLTemplate('elements/article', [], [], function(data)
+    {
+        getDBObjectsWithValues(searchObject, function(data)
         {
-            articleTemplate = data;
-            getHTMLTemplate('elements/article/byline', [], [], function(data)
+            if(data.length == 0)
             {
-                bylineTemplate = data;
+                output('^loc_NO_ARTICLES^');
+                return;
+            }
+            
+            var articles = data;
+            var authorIDs = [];
                 
-                getDBObjectsWithValues(searchObject, function(data)
+            for(var i = 0; i < articles.length; i++)
+            {
+                authorIDs.push({_id: ObjectID(articles[i].author)});
+            }
+            
+            getDBObjectsWithValues({object_type: 'user', $or: authorIDs}, function(data)
+            {
+                if(data.length == 0)
                 {
-                    if(data.length == 0)
+                    output('^loc_NO_ARTICLES^');
+                    return;
+                }
+                
+                authors = data;
+                
+                var subInstance = this;
+                
+                this.loadArticle = function(index, output)
+                {
+                    if(index >= articles.length)
                     {
-                        output('^loc_NO_ARTICLES^');
+                        output(articles);
                         return;
                     }
                     
-                    var articles = data;
-                    var authorIDs = [];
+                    var article = articles[index];
                     
-                    for(var i = 0; i < articles.length; i++)
+                    if(contentSettings.display_bylines && searchObject.object_type == 'article')
                     {
-                        authorIDs.push({_id: ObjectID(articles[i].author)});
-                    }
-                    
-                    getDBObjectsWithValues({object_type: 'user', $or: authorIDs}, function(data)
-                    {
-                        if(data.length == 0)
+                        var byline = '';
+                        for(var j = 0; j < authors.length; j++)
                         {
-                            output('^loc_NO_ARTICLES^');
-                            return;
-                        }
-                        
-                        authors = data;
-                        
-                        for(var i = 0; i < articles.length; i++)
-                        {
-                            var article = articleTemplate.split('^article_headline^').join((isArticle || isPage) ? articles[i].headline : '<a href="' + pb.config.siteRoot + '/' + articles[i].object_type + '/' + articles[i].url + '">' + articles[i].headline + '</a>');
-                            article = article.split('^article_subheading^').join('<h3>' + articles[i].subheading + '</h3>');
-                            
-                            if(contentSettings.display_bylines && searchObject.object_type == 'article')
+                            if(authors[j]._id.equals(ObjectID(articles[index].author)))
                             {
-                                var byline = '';
-                                for(var j = 0; j < authors.length; j++)
+                                if(authors[j].photo && contentSettings.display_author_photo)
                                 {
-                                    if(authors[j]._id.equals(ObjectID(articles[i].author)))
-                                    {
-                                        if(authors[j].photo && contentSettings.display_author_photo)
-                                        {
-                                            byline = bylineTemplate.split('^author_photo^').join('<span class="pull-left"><img class="media-object" src="' + authors[j].photo + '" style="width: 5em"></img></span>');
-                                            byline = byline.split('^media_body_style^').join('');
-                                        }
-                                        else
-                                        {
-                                            byline = bylineTemplate.split('^author_photo^').join('');
-                                            byline = byline.split('^media_body_style^').join('height: auto');
-                                        }
-                                        byline = byline.split('^author_name^').join((authors[j].first_name) ? authors[j].first_name + ' ' + authors[j].last_name : authors[j].username);
-                                            
-                                        byline = byline.split('^author_position^').join((authors[j].position && contentSettings.display_author_position) ? authors[j].position : '');
-                                        break;
-                                    }
+                                    article.author_photo = authors[j].photo;
+                                }
+                                else
+                                {
+                                    article.media_body_style = 'height: auto';
                                 }
                                 
-                                article = article.split('^article_byline^').join(byline);
+                                article.author_name = (authors[j].first_name) ? authors[j].first_name + ' ' + authors[j].last_name : authors[j].username;
+                                article.author_position = (authors[j].position && contentSettings.display_author_position) ? authors[j].position : '';
                             }
-                            else
-                            {
-                                article = article.split('^article_byline^').join('');
-                            }
-                            
-                            if(contentSettings.display_timestamp && searchObject.object_type == 'article')
-                            {
-                                article = article.split('^article_timestamp^').join('<div class="timestamp">' + getTimestampText(articles[i].publish_date, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format) + '</div>');
-                            }
-                            else
-                            {
-                                article = article.split('^article_timestamp^').join('');
-                            }
-                            
-                            switch(searchObject.object_type)
-                            {
-                                case 'page':
-                                    article = article.split('^article_layout^').join(articles[i].page_layout);
-                                    break;
-                                case 'article':
-                                default:
-                                    article = article.split('^article_layout^').join(articles[i].article_layout);
-                                    break;
-                            }
-                            articlesLayout = articlesLayout.concat(article);
                         }
-                        
-                        instance.loadMedia(articlesLayout, function(newLayout)
-                        {
-                            output(newLayout);
-                        });
-                    });
-                });
+                    }
+                    
+                    if(contentSettings.display_timestamp && searchObject.object_type == 'article')
+                    {
+                        article.timestamp = getTimestampText(article.publish_date, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format);
+                    }
+                    
+                    switch(searchObject.object_type)
+                    {
+                        case 'page':
+                            article.layout = instance.loadMedia(article.page_layout, function(newLayout)
+                            {
+                                article.layout = newLayout;
+                                delete article.page_layout;
+                                
+                                index++;
+                                subInstance.loadArticle(index, output);
+                            });
+                            break;
+                        case 'article':
+                        default:
+                            article.layout = instance.loadMedia(article.article_layout, function(newLayout)
+                            {
+                                article.layout = newLayout;
+                                delete article.article_layout;
+                                
+                                index++;
+                                getDBObjectsWithValues({object_type: 'comment', article: article._id.toString(), $orderby: {created: 1}}, function(comments)
+                                {
+                                    if(comments.length == 0)
+                                    {
+                                        subInstance.loadArticle(index, output);
+                                        return;
+                                    }
+                                
+                                    instance.getCommenters(0, comments, contentSettings, function(commentsWithCommenters)
+                                    {
+                                        article.comments = commentsWithCommenters;
+                                        subInstance.loadArticle(index, output);
+                                    });
+                                });
+                            });
+                            break;
+                    }
+                }
+                
+                this.loadArticle(0, output);
             });
+        });
+    });
+}
+
+this.getTemplates = function(output)
+{
+    getHTMLTemplate('elements/article', [], [], function(articleTemplate)
+    {
+        getHTMLTemplate('elements/article/byline', [], [], function(bylineTemplate)
+        {
+            output(articleTemplate, bylineTemplate);
         });
     });
 }
@@ -191,5 +207,41 @@ this.loadMedia = function(articlesLayout, output)
     {
         mediaTemplate = data;
         instance.replaceMediaTag(articlesLayout);
+    });
+}
+
+this.getCommenters = function(index, comments, contentSettings, output)
+{
+    if(index >= comments.length)
+    {
+        output(comments);
+        return;
+    }
+
+    var instance = this;
+    
+    getDBObjectsWithValues({object_type: 'user', _id: ObjectID(comments[index].commenter)}, function(data)
+    {
+        if(data.length == 0)
+        {
+            comments.splice(index, 1);
+            instance.getCommenters(index, comments, contentSettings, output);
+            return;
+        }
+        
+        var commenter = data[0];
+        comments[index].commenter_name = (commenter.first_name) ? commenter.first_name + ' ' + commenter.last_name : commenter.username;
+        comments[index].timestamp = getTimestampText(comments[index].created, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format);
+        if(commenter.photo)
+        {
+            comments[index].commenter_photo = commenter.photo;
+        }
+        if(commenter.position)
+        {
+            comments[index].commenter_position = commenter.position;
+        }
+        
+        index++;
+        instance.getCommenters(index, comments, contentSettings, output);
     });
 }

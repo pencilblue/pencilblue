@@ -18,9 +18,9 @@ $(document).ready(function()
     });
 });
 
-function confirmDeleteTopic(siteRoot, topicID, topicName)
+function confirmDeleteTopic(topicID, topicName)
 {
     $('#delete_name').html(topicName);
-    $('#delete_button').attr('onclick', 'window.location = "' + siteRoot + '/actions/admin/content/topics/deleteTopic?id=' + topicID + '"');
+    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/topics/delete_topic?id=' + topicID + '"');
     $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
 }

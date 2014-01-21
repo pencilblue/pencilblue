@@ -1,11 +1,9 @@
-<div class="container-fluid">
+^tmp_admin=head^
+<div id="main" class="container-fluid">
     <div class="row-fluid">
-        <div class="col-md-3">
-            <ul id="sub_nav" class="nav nav-pills nav-stacked">
-                ^themes^
-            </ul>
-        </div>
-        <div id="settings_content" class="col-md-9"></div>
+        ^tmp_admin=elements=plugins_pill_nav^
+        <div id="settings_content" class="col-md-9" ng-include="themeSettingsURL"></div>
     </div>
 </div>
 <script type="text/javascript" src="^site_root^/js/admin/plugins/themes.js"></script>
+^tmp_admin=footer^

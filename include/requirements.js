@@ -61,12 +61,14 @@ require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
 require(DOCUMENT_ROOT+'/include/access_management.js');		// Access management
 require(DOCUMENT_ROOT+'/include/model/create_document.js');	// Document creation
 require(DOCUMENT_ROOT+'/include/content');			        // Content settings and functions
+require(DOCUMENT_ROOT+'/include/email');			        // Email settings and functions
 require(DOCUMENT_ROOT+'/include/templates');				// Templatizing
 require(DOCUMENT_ROOT+'/include/localization');				// Localization
 require(DOCUMENT_ROOT+'/include/client_js');				// Client JS
 require(DOCUMENT_ROOT+'/include/admin_navigation');			// Admin Navigation
 require(DOCUMENT_ROOT+'/include/error_success');			// Error and Success Message Handling
 require(DOCUMENT_ROOT+'/include/form');			            // Retrieving of form data through sessions
+require(DOCUMENT_ROOT+'/include/api/response');			    // API response formatting
 
 //Export system object
 module.exports = pb;

@@ -114,7 +114,7 @@ function checkForNewPageSave()
                 $('#page_media').val(mediaCSV);
             }
         
-            $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + $('#layout_editable').html() + '</textarea>');
+            $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
             
             $('#new_page_form').submit();
         });

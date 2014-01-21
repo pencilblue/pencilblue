@@ -1,3 +1,7 @@
 <ul class="nav nav-tabs">
-    ^tabs^
+    <li class="{{tab.active}}" ng-repeat="tab in tabs" ng-cloak>
+        <a href="{{tab.href}}" data-toggle="tab">
+            <i class="fa fa-{{tab.icon}}"></i>&nbsp;{{tab.title}}
+        </a>
+    </li>
 </ul>

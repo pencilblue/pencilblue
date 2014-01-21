@@ -14,35 +14,31 @@ this.init = function(request, output)
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/head', 'Themes', null, function(data)
+            getHTMLTemplate('admin/plugins/themes', 'Themes', null, function(data)
             {
                 result = result.concat(data);
-                getAdminNavigation(session, ['plugins', 'themes'], function(data)
+                    
+                instance.getThemes(function(themes)
                 {
-                    result = result.split('^admin_nav^').join(data);
-                
-                    getHTMLTemplate('admin/plugins/themes', null, null, function(data)
+                    for(var i = 0; i < themes.length; i++)
                     {
-                        result = result.concat(data);           
-                        instance.getThemes(function(themesList, firstTheme)
+                        if(themes[i].active)
                         {
-                            result = result.split('^themes^').join(themesList);
-                            
-                            if(session.section == 'themes')
-                            {
-                                result = result.concat(getJSTag('loadThemeSettings("' + pb.config.siteRoot + '", "' + session.subsection + '")'));
-                            }
-                            else if(firstTheme)
-                            {
-                                result = result.concat(getJSTag('loadThemeSettings("' + pb.config.siteRoot + '", "' + firstTheme + '")'));
-                            }
-                            
-                            getHTMLTemplate('admin/footer', null, null, function(data)
-                            {
-                                result = result.concat(data);
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'themes'], result)});
-                            });
-                        });
+                            result = result.split('^active_theme_settings^').join(themes[i].settingsURL);
+                            var themeSettingsURL = themes[i].settingsURL;
+                            break;
+                        }
+                    }
+                    
+                    result = result.concat(getAngularController(
+                    {
+                        navigation: getAdminNavigation(session, ['plugins', 'themes']),
+                        pills: themes, themeSettingsURL: themeSettingsURL
+                    }));
+                           
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'themes'], result)});
                     });
                 });
             });
@@ -52,9 +48,8 @@ this.init = function(request, output)
 
 this.getThemes = function(output)
 {
-    var themesList = '';
-    var firstTheme = null;
-
+    var themes = [];
+    
     fs.readdir(DOCUMENT_ROOT + '/plugins/themes', function(error, directory)
     {
         for(var sub in directory)
@@ -62,10 +57,19 @@ this.getThemes = function(output)
             if(fs.existsSync(DOCUMENT_ROOT + '/plugins/themes/' + directory[sub] + '/details.json'))
             {
                 var themeData = JSON.parse(fs.readFileSync(DOCUMENT_ROOT + '/plugins/themes/' + directory[sub] + '/details.json'));
-                themesList = themesList.concat('<li id="' + themeData.uid + '_pill"><a href="javascript:loadThemeSettings(\'' + pb.config.siteRoot + '\', \'' + themeData.uid + '\')">' + themeData.name + '</a></li>');
-                if(!firstTheme)
+                if(themeData.settings)
                 {
-                    firstTheme = themeData.uid;
+                    if(fs.existsSync(DOCUMENT_ROOT + '/plugins/themes/' + directory[sub] + '/controllers' + themeData.settings + '.js'))
+                    {
+                        themes.push(
+                        {
+                            name: themeData.uid,
+                            title: themeData.name,
+                            icon: (themeData.icon) ? themeData.icon : '',
+                            settingsURL: themeData.settings,
+                            href: 'javascript:activateThemePill("' + themeData.name + '")'
+                        });
+                    }
                 }
             }
         }
@@ -74,10 +78,18 @@ this.getThemes = function(output)
         {
             if(data.length > 0)
             {
-                firstTheme = data[0]['value'];
+                themes[0].active = 'active';
+            }
+            
+            for(var i = 0; i < themes.length; i++)
+            {
+                if(themes[i].name == data[0].value)
+                {
+                    themes[i].active = 'active';
+                }
             }
         
-            output(themesList, firstTheme);
+            output(themes);
         });
     });
 }

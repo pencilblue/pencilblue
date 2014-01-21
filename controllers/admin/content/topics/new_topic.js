@@ -15,42 +15,41 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
-        
-        session.section = 'topics';
-        session.subsection = 'new_topic';
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/content/topics/new_topic', null, null, function(data)
+            getHTMLTemplate('admin/content/topics/new_topic', '^loc_NEW_TOPIC^', null, function(data)
             {
                 result = result.concat(data);
                 
                 var tabs =
                 [
                     {
-                        active: true,
+                        active: 'active',
                         href: '#topic_settings',
                         icon: 'cog',
                         title: '^loc_SETTINGS^'
                     }
                 ];
                 
-                getTabNav(tabs, function(tabNav)
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
-                
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    session = newSession;
+                    result = newResult;
+                    
+                    result = result.concat(getAngularController(
                     {
-                        session = newSession;
-                        result = newResult;
-                        
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
-                        });
+                        navigation: getAdminNavigation(session, ['content', 'topics']),
+                        pills: require('../topics').getPillNavOptions('new_topic'),
+                        tabs: tabs
+                    }));
+                    
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'topics'], result)});
                     });
                 });
             });

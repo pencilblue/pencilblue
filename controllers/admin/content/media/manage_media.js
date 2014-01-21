@@ -17,7 +17,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot});
             return;
         }
         
@@ -25,25 +25,15 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                session.section = 'media';
-                session.subsection = 'add_media';
-                
-                editSession(request, session, [], function(data)
-                {
-                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/media";')});
-                });
-                
+                output({redirect: pb.config.siteRoot + '/admin/content/media/add_media'});
                 return;
             }
             
-            var media = data;
-        
-            session.section = 'media';
-            session.subsection = 'manage_media';
+            var mediaData = data;
         
             initLocalization(request, session, function(data)
             {
-                getHTMLTemplate('admin/content/media/manage_media', null, null, function(data)
+                getHTMLTemplate('admin/content/media/manage_media', '^loc_MANAGE_MEDIA', null, function(data)
                 {
                     result = result.concat(data);
                     
@@ -52,14 +42,18 @@ this.init = function(request, output)
                         session = newSession;
                         result = newResult;
                         
-                        instance.getMedia(media, function(mediaList)
+                        var mediaCommands = require('../media');
+                        
+                        result = result.concat(getAngularController(
                         {
-                            result = result.split('^media^').join(mediaList);
+                            navigation: getAdminNavigation(session, ['content', 'media']),
+                            pills: mediaCommands.getPillNavOptions('manage_media'),
+                            media: mediaCommands.formatMedia(mediaData)
+                        }));
                             
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
-                            });
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'media'], result)});
                         });
                     });
                 });

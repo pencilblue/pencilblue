@@ -5,6 +5,17 @@ this.init = function(request, output)
     
     getSession(request, function(session)
     {
+        if(userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
+        {
+            output({redirect: pb.config.siteRoot + '/admin'});
+            return;
+        }
+        else if(userIsAuthorized(session, {logged_in: true}))
+        {
+            output({redirect: pb.config.siteRoot});
+            return;
+        }
+    
         initLocalization(request, session, function(data)
         {
             getHTMLTemplate('admin/login', 'Login', null, function(data)

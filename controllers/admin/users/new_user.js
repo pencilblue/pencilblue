@@ -16,16 +16,13 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
-        
-        session.section = 'users';
-        session.subsection = 'new_user';
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/users/new_user', null, null, function(data)
+            getHTMLTemplate('admin/users/new_user', '^loc_NEW_USER^', null, function(data)
             {
                 result = result.concat(data);
                 
@@ -35,7 +32,7 @@ this.init = function(request, output)
                 var tabs =
                 [
                     {
-                        active: true,
+                        active: 'active',
                         href: '#account_info',
                         icon: 'cog',
                         title: '^loc_ACCOUNT_INFO^'
@@ -46,22 +43,23 @@ this.init = function(request, output)
                         title: '^loc_PERSONAL_INFO^'
                     }
                 ];
-                
-                getTabNav(tabs, function(tabNav)
+            
+                displayErrorOrSuccess(session, result, function(newSession, newResult)
                 {
-                    result = result.split('^tab_nav^').join(tabNav);
-                
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    session = newSession;
+                    result = newResult;
+                    
+                    result = result.concat(getAngularController(
                     {
-                        session = newSession;
-                        result = newResult;
-                        
-                        result = result.split('^admin_options^').join(instance.setAdminOptions(session));
-                        
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users', 'media'], result)});
-                        });
+                        navigation: getAdminNavigation(session, ['users']),
+                        pills: require('../users').getPillNavOptions('new_user'),
+                        tabs: tabs,
+                        adminOptions: instance.getAdminOptions(session)
+                    }));
+                    
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'users', 'media'], result)});
                     });
                 });
             });
@@ -69,23 +67,23 @@ this.init = function(request, output)
     });
 }
 
-this.setAdminOptions = function(session)
+this.getAdminOptions = function(session)
 {
-    var optionsString = '<option value="1">^loc_WRITER^</option>';
-    optionsString = optionsString.concat('<option value="0">^loc_READER^</option>');
+    var adminOptions =
+    [
+        {name: localize([], '^loc_READER^'), value: ACCESS_USER},
+        {name: localize([], '^loc_WRITER^'), value: ACCESS_WRITER},
+        {name: localize([], '^loc_EDITOR^'), value: ACCESS_EDITOR}
+    ];
     
-    if(session['user']['admin'] > 1)
+    if(session.user.admin >= ACCESS_MANAGING_EDITOR)
     {
-        optionsString = optionsString.concat('<option value="2">^loc_EDITOR^</option>');
+        adminOptions.push({name: localize([], '^loc_MANAGING_EDITOR^'), value: ACCESS_MANAGING_EDITOR});
     }
-    if(session['user']['admin'] > 2)
+    if(session.user.admin >= ACCESS_ADMINISTRATOR)
     {
-        optionsString = optionsString.concat('<option value="3">^loc_MANAGING_EDITOR^</option>');
-    }
-    if(session['user']['admin'] > 3)
-    {
-        optionsString = optionsString.concat('<option value="4">^loc_ADMINISTRATOR^</option>');
+        adminOptions.push({name: localize([], '^loc_ADMINISTRATOR^'), value: ACCESS_ADMINISTRATOR});
     }
     
-    return optionsString;
+    return adminOptions;
 }

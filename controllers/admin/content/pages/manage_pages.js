@@ -16,7 +16,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
         
@@ -26,40 +26,36 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                session.section = 'pages';
-                session.subsection = 'new_page';
-                
-                editSession(request, session, [], function(data)
-                {
-                    output({cookie: getSessionCookie(session), content: getJSTag('window.location = "' + pb.config.siteRoot + '/admin/content/pages";')});
-                });
-                
+                output({redirect: pb.config.siteRoot + '/admin/content/pages/new_page'});
                 return;
             }
             
-            session.section = 'pages';
-            session.subsection = 'manage_pages';
-            
             var pages = data;
             
-            getHTMLTemplate('admin/content/pages/manage_pages', null, null, function(data)
+            initLocalization(request, session, function(data)
             {
-                result = result.concat(data);
-                
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                getHTMLTemplate('admin/content/pages/manage_pages', '^loc_MANAGE_PAGES^', null, function(data)
                 {
-                    session = newSession;
-                    result = newResult;
+                    result = result.concat(data);
                     
-                    instance.getPageAuthors(pages, function(newPages)
+                    displayErrorOrSuccess(session, result, function(newSession, newResult)
                     {
-                        pages = newPages;
-                    
-                        result = result.concat(getJSTag('$(document).ready(function(){setPages(' + JSON.stringify(pages) + ')})'));
+                        session = newSession;
+                        result = newResult;
                         
-                        editSession(request, session, [], function(data)
+                        instance.getPageAuthors(pages, function(pagesWithAuthorNames)
                         {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'pages'], result)});
+                            result = result.concat(getAngularController(
+                            {
+                                navigation: getAdminNavigation(session, ['content', 'pages']),
+                                pills: require('../pages').getPillNavOptions('manage_pages'),
+                                pages: pagesWithAuthorNames
+                            }));
+                            
+                            editSession(request, session, [], function(data)
+                            {
+                                output({cookie: getSessionCookie(session), content: localize(['admin', 'pages'], result)});
+                            });
                         });
                     });
                 });

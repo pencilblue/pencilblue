@@ -21,17 +21,17 @@ this.init = function(request, output)
         
         if(message = checkForRequiredParameters(post, ['username', 'email', 'admin']))
         {
-            formError(request, session, message, '/admin/users', output);
+            formError(request, session, message, '/admin/users/manage_users', output);
             return;
         }
         if(message = checkForRequiredParameters(get, ['id']))
         {
-            formError(request, session, message, '/admin/users', output);
+            formError(request, session, message, '/admin/users/manage_users', output);
             return;
         }
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}) || session['user']['admin'] < post['admin'])
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/users', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/users/manage_users', output);
             return;
         }
         
@@ -39,7 +39,7 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                formError(request, session, '^loc_ERROR_SAVING^', '/admin/users', output);
+                formError(request, session, '^loc_ERROR_SAVING^', '/admin/users/manage_users', output);
                 return;
             }
             
@@ -51,7 +51,7 @@ this.init = function(request, output)
                 {
                     if(!data[0]._id.equals(ObjectID(get['id'])))
                     {
-                        formError(request, session, '^loc_EXISTING_USERNAME^', '/admin/users', output);
+                        formError(request, session, '^loc_EXISTING_USERNAME^', '/admin/users/edit_user?id=' + get['id'], output);
                         return;
                     }
                 }
@@ -64,7 +64,7 @@ this.init = function(request, output)
                     {
                         if(!data[0]._id.equals(user._id))
                         {
-                            formError(request, session, '^loc_EXISTING_EMAIL^', '/admin/users', output);
+                            formError(request, session, '^loc_EXISTING_EMAIL^', '/admin/users/edit_user?id=' + get['id'], output);
                             return;
                         }
                     }
@@ -73,14 +73,14 @@ this.init = function(request, output)
                     {
                         if(data.length == 0)
                         {
-                            formError(request, session, '^loc_ERROR_SAVING^', '/admin/users', output);
+                            formError(request, session, '^loc_ERROR_SAVING^', '/admin/users/edit_user?id=' + get['id'], output);
                             return;
                         }
                         
                         session.success = '^loc_USER_EDITED^';
                         editSession(request, session, [], function(data)
                         {        
-                            output({redirect: pb.config.siteRoot + '/admin/users'});
+                            output({redirect: pb.config.siteRoot + '/admin/users/manage_users'});
                         });
                     });
                 });

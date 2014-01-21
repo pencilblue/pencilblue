@@ -13,7 +13,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/articles', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/articles/new_article', output);
             return;
         }
     
@@ -40,7 +40,7 @@ this.init = function(request, output)
         
         if(message = checkForRequiredParameters(post, ['url', 'headline', 'template', 'article_layout']))
         {
-            formError(request, session, message, '/admin/content/articles', output);
+            formError(request, session, message, '/admin/content/articles/new_article', output);
             return;
         }
         
@@ -50,7 +50,7 @@ this.init = function(request, output)
         {
             if(data.length > 0)
             {
-                formError(request, session, '^loc_EXISTING_URL^', '/admin/content/articles', output);
+                formError(request, session, '^loc_EXISTING_URL^', '/admin/content/articles/new_article', output);
                 return;
             }
             
@@ -58,7 +58,7 @@ this.init = function(request, output)
             {
                 if(data.length > 0)
                 {
-                    formError(request, session, '^loc_EXISTING_URL^', '/admin/content/articles', output);
+                    formError(request, session, '^loc_EXISTING_URL^', '/admin/content/articles/new_article', output);
                     return;
                 }
             
@@ -66,7 +66,7 @@ this.init = function(request, output)
                 {
                     if(data.length == 0)
                     {
-                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/articles', output);
+                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/articles/new_article', output);
                         return;
                     }
                     
@@ -74,7 +74,7 @@ this.init = function(request, output)
                     delete session.fieldValues;
                     editSession(request, session, [], function(data)
                     {        
-                        output({redirect: pb.config.siteRoot + '/admin/content/articles'});
+                        output({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
                     });
                 });
             });

@@ -13,34 +13,28 @@ this.init = function(request, output)
     
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/head', 'Dashboard', null, function(data)
+            getHTMLTemplate('admin/index', '^loc_DASHBOARD^', null, function(data)
             {
                 result = result.concat(data);
-                getAdminNavigation(session, ['dashboard'], function(data)
-                {
-                    result = result.split('^admin_nav^').join(data);
-                
-                    getHTMLTemplate('admin/index', null, null, function(data)
-                    {
-                        result = result.concat(data);
                         
-                        getDBObjectsWithValues({object_type: 'article'}, function(data)
+                getDBObjectsWithValues({object_type: 'article'}, function(articles)
+                {
+                    var contentInfo = [{name: localize(['admin'], '^loc_ARTICLES^'), count: articles.length, href: '/admin/content/articles/manage_articles'}];
+                    
+                    getDBObjectsWithValues({object_type: 'page'}, function(pages)
+                    {
+                        contentInfo.push({name: localize(['admin'], '^loc_PAGES^'), count: pages.length, href: '/admin/content/pages/manage_pages'});
+                        
+                        result = result.concat(getAngularController(
                         {
-                            result = result.split('^article_count^').join(data.length.toString());
-                            
-                            getDBObjectsWithValues({object_type: 'page'}, function(data)
-                            {
-                                result = result.split('^page_count^').join(data.length.toString());
-                                
-                                getHTMLTemplate('admin/footer', null, null, function(data)
-                                {
-                                    result = result.concat(data);
-                                    output({cookie: getSessionCookie(session), content: localize(['admin'], result)});
-                                });
-                            });
-                        });
+                            navigation: getAdminNavigation(session, ['dashboard']),
+                            contentInfo: contentInfo
+                        }));
+                        
+                        output({cookie: getSessionCookie(session), content: localize(['admin'], result)});
                     });
                 });
+                
             });
         });
     });

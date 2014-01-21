@@ -12,7 +12,8 @@ global.getContentSettings = function(output)
         display_author_photo: 1,
         display_author_position: 1,
         allow_comments: 1,
-        default_comments: 1
+        default_comments: 1,
+        require_verification: 0
     }
     
     getDBObjectsWithValues({object_type: 'setting', key: 'content_settings'}, function(data)
@@ -46,6 +47,10 @@ global.getTimestampText = function(date, format, displayTime, timeFormat)
         {
             var hours = date.getHours();
             var minutes = date.getMinutes();
+            if(minutes < 10)
+            {
+                minutes = '0' + minutes;
+            }
             var ampm = '';
             
             if(timeFormat == '12')
@@ -74,4 +79,10 @@ global.getTimestampText = function(date, format, displayTime, timeFormat)
     }
     
     return dateString;
+}
+
+//TODO: move this into a util object
+global.clone = function(object)
+{
+    return JSON.parse(JSON.stringify(object));
 }

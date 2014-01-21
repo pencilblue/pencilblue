@@ -23,9 +23,9 @@ this.init = function(request, output)
         
         delete post['uploaded_image'];
         delete post['media_search'];
-        delete post['logo_url'];
+        delete post['image_url'];
         
-        if(message = checkForRequiredParameters(post, ['site_logo', 'carousel_media']))
+        if(message = checkForRequiredParameters(post, ['site_logo']))
         {
             formError(request, session, message, '/admin/plugins/themes', output);
             return;

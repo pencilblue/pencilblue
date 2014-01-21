@@ -1,0 +1,93 @@
+^tmp_admin=head^
+<div id="main" class="container-fluid">
+    <div class="row-fluid">
+        ^tmp_admin=elements=pill_nav^
+        <div class="col-md-9">
+        ^error_success^
+        ^tmp_admin=elements=tab_nav^
+        <form id="email_form" method="post" action="^site_root^/actions/admin/site_settings/email">
+            <fieldset>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="preferences">
+                        <div class="form-group">
+                            <label>^loc_FROM_NAME^</label>
+                            <input type="text" id="from_name" name="from_name" class="form-control"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_FROM_ADDRESS^</label>
+                            <input type="text" id="from_address" name="from_address" class="form-control"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_VERIFICATION_SUBJECT^</label>
+                            <input type="text" id="verification_subject" name="verification_subject" class="form-control"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_VERIFICATION_CONTENT^</label>
+                            ^tmp_admin=elements=content_layout^
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="smtp">
+                        <div class="form-group">
+                            <label>^loc_SERVICE^</label>
+                            <select id="service" name="service" class="form-control" onchange="checkForCustomService()">
+                                <option value="custom">^loc_CUSTOM^</option>
+                                <option value="Gmail">Gmail</option>
+                                <option value="Yahoo">Yahoo</option>
+                                <option value="Hotmail">Hotmail</option>
+                                <option value="DynectEmail">DynectEmail</option>
+                                <option value="iCloud">iCloud</option>
+                                <option value="mail.ee">mail.ee</option>
+                                <option value="Mail.Ru">Mail.Ru</option>
+                                <option value="Mailgun">Mailgun</option>
+                                <option value="Mailjet">Mailjet</option>
+                                <option value="Postmark">Postmark</option>
+                                <option value="SendGrid">SendGrid</option>
+                                <option value="SES">SES</option>
+                                <option value="yandex">yandex</option>
+                                <option value="Zoho">Zoho</option>
+                            </select>
+                        </div>
+                        <div id="custom_smtp_options">
+                            <div class="form-group">
+                                <label>^loc_HOST^</label>
+                                <input type="text" id="host" name="host" class="form-control"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_SECURE_CONNECTION^</label><br/>
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" name="secure_connection" id="secure_connection_1" value="1"> ^loc_YES^
+                                    </label>
+                                    <label class="btn btn-default">
+                                        <input type="radio" name="secure_connection" id="secure_connection_0" value="0"> ^loc_NO^
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_PORT^</label>
+                                <input type="number" id="port" name="port" class="form-control" step="1" min="0"></input>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_USERNAME^</label>
+                            <input type="text" id="username" name="username" class="form-control"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_PASSWORD^</label>
+                            <input type="password" id="password" name="password" class="form-control"></input>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/site_settings';">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="prepareEmailSettingsSave()">
+                        <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                    </button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="^site_root^/js/admin/site_settings/email.js"></script>
+^tmp_admin=footer^

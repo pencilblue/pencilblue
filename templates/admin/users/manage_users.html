@@ -1,5 +1,21 @@
-^error_success^
-<div class="row">
-    ^users^
+^tmp_admin=head^
+<div id="main" class="container-fluid">
+    <div class="row-fluid">
+        ^tmp_admin=elements=pill_nav^
+        <div class="col-md-9">
+        ^error_success^
+        <div class="row">
+            <div class="col-md-4" ng-repeat="user in users" ng-cloak>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        {{user.username}} | {{user.first_name}} {{user.last_name}}
+                        <i class="fa fa-times fa-lg" style="float: right"></i>
+                        <a href="/admin/users/edit_user?id={{user._id}}"><i class="fa fa-pencil fa-lg" style="float: right; margin-right: .5em"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script type="text/javascript" src="^site_root^/js/admin/users/manage_users.js"></script>
+^tmp_admin=footer^

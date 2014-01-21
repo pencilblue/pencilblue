@@ -16,23 +16,20 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
-        
-        session.section = 'site_settings';
-        session.subsection = 'content';
 
         initLocalization(request, session, function(data)
         {
-            getHTMLTemplate('admin/site_settings/content', null, null, function(data)
+            getHTMLTemplate('admin/site_settings/content', '^loc_CONTENT^', null, function(data)
             {
                 result = result.concat(data);
                 
                 var tabs =
                 [
                     {
-                        active: true,
+                        active: 'active',
                         href: '#articles',
                         icon: 'files-o',
                         title: '^loc_ARTICLES^'
@@ -53,24 +50,26 @@ this.init = function(request, output)
                         title: '^loc_COMMENTS^'
                     }
                 ];
-                
-                getTabNav(tabs, function(tabNav)
-                {
-                    result = result.split('^tab_nav^').join(tabNav);
                     
-                    getContentSettings(function(contentSettings)
+                getContentSettings(function(contentSettings)
+                {
+                    session = setFormFieldValues(contentSettings, session);
+            
+                    prepareFormReturns(session, result, function(newSession, newResult)
                     {
-                        session = setFormFieldValues(contentSettings, session);
-                
-                        prepareFormReturns(session, result, function(newSession, newResult)
+                        session = newSession;
+                        result = newResult;
+                        
+                        result = result.concat(getAngularController(
                         {
-                            session = newSession;
-                            result = newResult;
-                            
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings'], result)});
-                            });
+                            navigation: getAdminNavigation(session, ['settings', 'site_settings']),
+                            pills: require('../site_settings').getPillNavOptions('content'),
+                            tabs: tabs
+                        }));
+                        
+                        editSession(request, session, [], function(data)
+                        {
+                            output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings'], result)});
                         });
                     });
                 });

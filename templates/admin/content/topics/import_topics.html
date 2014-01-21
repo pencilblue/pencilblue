@@ -1,21 +1,27 @@
-^error_success^
-^tab_nav^
-
-<form id="import_topics_form" enctype="multipart/form-data" accept="text/csv" method="post">
-    <fieldset>
-        <div class="tab-content">
-            <div id="upload_progress" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div>
-            <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/topics';">
-                <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-            </button>
-            <span class="btn btn-success fileinput-button">
-                <i class="fa fa-plus"></i>
-                <span>^loc_SELECT_FILE^...</span>
-                <input id="topics_file" type="file" name="topics_file">
-            </span>
-        </div>
-    </fieldset>
-</form>
+^tmp_admin=head^
+<div id="main" class="container-fluid">
+    <div class="row-fluid">
+        ^tmp_admin=elements=pill_nav^    
+        <div class="col-md-9">
+        ^error_success^
+        ^tmp_admin=elements=tab_nav^
+        <form id="import_topics_form" enctype="multipart/form-data" accept="text/csv" method="post">
+            <fieldset>
+                <div class="tab-content">
+                    <div id="upload_progress" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div>
+                    <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/topics';">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <span class="btn btn-success fileinput-button">
+                        <i class="fa fa-plus"></i>
+                        <span>^loc_SELECT_FILE^...</span>
+                        <input id="topics_file" type="file" name="topics_file">
+                    </span>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
 <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/jquery.iframe-transport.js"></script>
 <script type="text/javascript" src="^site_root^/js/jquery.fileupload.js"></script>
@@ -23,3 +29,4 @@
 <script type="text/javascript">
     setupUpload('^site_root^');
 </script>
+^tmp_admin=footer^

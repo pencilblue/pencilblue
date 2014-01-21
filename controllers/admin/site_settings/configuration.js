@@ -16,12 +16,9 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
         {
-            output({content: ''});
+            output({redirect: pb.config.siteRoot + '/admin'});
             return;
         }
-        
-        session.section = 'site_settings';
-        session.subsection = 'configuration';
 
         initLocalization(request, session, function(data)
         {
@@ -29,19 +26,19 @@ this.init = function(request, output)
             {
                 result = result.concat(data);
                 
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
+                instance.getConfiguration(result, function(newResult)
                 {
-                    session = newSession;
                     result = newResult;
                     
-                    instance.getConfiguration(result, function(newResult)
+                    result = result.concat(getAngularController(
                     {
-                        result = newResult;
-                        
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings'], result)});
-                        });
+                        navigation: getAdminNavigation(session, ['settings', 'site_settings']),
+                        pills: require('../site_settings').getPillNavOptions('configuration')
+                    }));
+                    
+                    editSession(request, session, [], function(data)
+                    {
+                        output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings'], result)});
                     });
                 });
             });

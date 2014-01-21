@@ -37,3 +37,5 @@ Util.TIME = {
 };
 
 module.exports = Util;
+
+// TODO: Brian, let me know how you want these functions to work, so we can put a clone function into it. For now it's in the content include.

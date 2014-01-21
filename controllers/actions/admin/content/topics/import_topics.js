@@ -15,7 +15,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/topics', output);
+            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/topics/import_topics', output);
             return;
         }
         
@@ -32,7 +32,7 @@ this.init = function(request, output)
             {
                 if(error)
                 {
-                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/topics', output);
+                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/topics/import_topics', output);
                     return;
                 }
                 
@@ -74,7 +74,7 @@ this.saveTopic = function(topics, index, request, session, output)
         {
             if(data.length == 0)
             {
-                formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/topics', output);
+                formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/topics/manage_topics', output);
                 return;
             }
             

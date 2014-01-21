@@ -24,32 +24,54 @@ this.init = function(request, output)
         {
             initLocalization(request, session, function(data)
             {
-                getHTMLTemplate('head', 'Home', null, function(data)
+                getHTMLTemplate('index', '^loc_HOME^', null, function(data)
                 {
-                    require('../include/theme/top_menu').setTopMenu(session, data, function(siteSettings, headLayout)
+                    result = result.concat(data);
+                                    
+                    require('../include/theme/top_menu').getTopMenu(session, function(themeSettings, navigation, accountButtons)
                     {
-                        result = result.concat(headLayout);
-                        getHTMLTemplate('index', null, null, function(data)
+                        var section = request.pencilblue_section || null;
+                        var topic = request.pencilblue_topic || null;
+                        var article = request.pencilblue_article || null;
+                        var page = request.pencilblue_page || null;
+                        
+                        require('../include/theme/articles').getArticles(section, topic, article, page, function(articles)
                         {
-                            result = result.concat(data);
-                            
-                            var section = request.pencilblue_section || null;
-                            var topic = request.pencilblue_topic || null;
-                            var article = request.pencilblue_article || null;
-                            var page = request.pencilblue_page || null;
-                            
-                            require('../include/theme/articles').getArticles(section, topic, article, page, function(articles)
+                            require('../include/theme/media').getCarousel(themeSettings.carousel_media, result, '^carousel^', 'index_carousel', function(newResult)
                             {
-                                result = result.split('^articles^').join(articles);
-                                
-                                require('../include/theme/media').getCarousel(siteSettings.carousel_media, result, '^carousel^', 'index_carousel', function(newResult)
+                                getContentSettings(function(contentSettings)
                                 {
-                                    result = newResult;
-                                
-                                    getHTMLTemplate('footer', null, null, function(data)
+                                    var comments = require('../include/theme/comments');
+                                    
+                                    comments.getCommentsTemplate(contentSettings, function(commentsTemplate)
                                     {
-                                        result = result.concat(data);
-                                        output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic', 'timestamp'], result)});
+                                        result = result.split('^comments^').join(commentsTemplate);
+                                        
+                                        var loggedIn = false;
+                                        var commentingUser = {};
+                                        if(session.user)
+                                        {
+                                            loggedIn = true;
+                                            commentingUser = comments.getCommentingUser(session.user);
+                                        }
+                                
+                                        result = result.concat(getAngularController(
+                                        {
+                                            navigation: navigation,
+                                            contentSettings: contentSettings,
+                                            loggedIn: loggedIn,
+                                            commentingUser: commentingUser,
+                                            themeSettings: themeSettings,
+                                            accountButtons: accountButtons,
+                                            articles: articles,
+                                            trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+                                        }, ['ngSanitize']));
+                                    
+                                        getHTMLTemplate('footer', null, null, function(data)
+                                        {
+                                            result = result.concat(data);
+                                            output({cookie: getSessionCookie(session), content: localize(['pencilblue_generic', 'timestamp'], result)});
+                                        });
                                     });
                                 });
                             });
