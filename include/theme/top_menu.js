@@ -82,6 +82,10 @@ this.getTopMenu = function(session, output)
                                     href: '/user/manage_account'
                                 },
                                 {
+                                    icon: 'rss',
+                                    href: '/feed'
+                                },
+                                {
                                     icon: 'power-off',
                                     href: '/actions/logout'
                                 }
@@ -95,6 +99,10 @@ this.getTopMenu = function(session, output)
                                 {
                                     icon: 'user',
                                     href: '/user/sign_up'
+                                },
+                                {
+                                    icon: 'rss',
+                                    href: '/feed'
                                 }
                             ];
                         }
