@@ -41,14 +41,18 @@ this.init = function(request, output)
                             {
                                 getContentSettings(function(contentSettings)
                                 {
-                                    require('../include/theme/comments').getCommentsTemplate(contentSettings, function(commentsTemplate)
+                                    var comments = require('../include/theme/comments');
+                                    
+                                    comments.getCommentsTemplate(contentSettings, function(commentsTemplate)
                                     {
                                         result = result.split('^comments^').join(commentsTemplate);
                                         
                                         var loggedIn = false;
+                                        var commentingUser = {};
                                         if(session.user)
                                         {
                                             loggedIn = true;
+                                            commentingUser = comments.getCommentingUser(session.user);
                                         }
                                 
                                         result = result.concat(getAngularController(
@@ -56,6 +60,7 @@ this.init = function(request, output)
                                             navigation: navigation,
                                             contentSettings: contentSettings,
                                             loggedIn: loggedIn,
+                                            commentingUser: commentingUser,
                                             themeSettings: themeSettings,
                                             accountButtons: accountButtons,
                                             articles: articles,
