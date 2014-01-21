@@ -3,9 +3,9 @@ this.init = function(request, output)
 {
     var instance = this;
 
-    getHTMLTemplate('sitemap', null, null, function(result)
+    getHTMLTemplate('xml_feeds/sitemap', null, null, function(result)
     {        
-        getHTMLTemplate('sitemap/url', null, null, function(urlTemplate)
+        getHTMLTemplate('xml_feeds/sitemap/url', null, null, function(urlTemplate)
         {
             var urls = '';
         
@@ -21,7 +21,7 @@ this.init = function(request, output)
                     urls = urls.concat(url);
                 }
                 
-                getDBObjectsWithValues({object_type: 'page'}, function(pages)
+                getDBObjectsWithValues({object_type: 'page', publish_date: {$lte: new Date()}}, function(pages)
                 {
                     for(var i = 0; i < pages.length; i++)
                     {
@@ -33,7 +33,7 @@ this.init = function(request, output)
                         urls = urls.concat(url);
                     }
                     
-                    getDBObjectsWithValues({object_type: 'article'}, function(articles)
+                    getDBObjectsWithValues({object_type: 'article', publish_date: {$lte: new Date()}}, function(articles)
                     {
                         for(var i = 0; i < articles.length; i++)
                         {

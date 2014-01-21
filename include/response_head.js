@@ -40,6 +40,11 @@ global.ResponseHead = function(request, response, code, cookie)
         {
             this.responseData['content-type'] = 'text/xml; charset=utf-8';
         }
+        // RSS responses
+        if(this.requestURL == '/feed')
+        {
+            this.responseData['content-type'] = 'application/rss+xml; charset=utf-8';
+        }
         // HTML responses
         else if(this.requestURL.lastIndexOf('.') == -1 || this.requestURL.lastIndexOf('.html') > -1)
         {

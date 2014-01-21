@@ -7,14 +7,14 @@ global.initLocalization = function(request, session, output)
     }
     else if(!session.language)
     {
-        session.language = 'en';
+        session.language = 'en-us';
     }
     
     fs.exists(DOCUMENT_ROOT + 'public/localization/' + session.language + '.js', function(exists)
     {
         if(!exists)
         {
-            session.language = 'en';
+            session.language = 'en-us';
         }
         
         require('./../public/localization/' + session.language);
