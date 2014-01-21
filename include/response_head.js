@@ -34,9 +34,14 @@ global.ResponseHead = function(request, response, code, cookie)
         this.responseData['content-type'] = 'text/html; charset=utf-8';
     }
     else
-    {    
+    {
+        // XML responses
+        if(this.requestURL == '/sitemap' || this.requestURL.lastIndexOf('.xml') > -1)
+        {
+            this.responseData['content-type'] = 'text/xml; charset=utf-8';
+        }
         // HTML responses
-        if(this.requestURL.lastIndexOf('.') == -1 || this.requestURL.lastIndexOf('.html') > -1)
+        else if(this.requestURL.lastIndexOf('.') == -1 || this.requestURL.lastIndexOf('.html') > -1)
         {
             this.responseData['content-type'] = 'text/html; charset=utf-8';
         }
