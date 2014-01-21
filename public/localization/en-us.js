@@ -47,6 +47,10 @@ loc =
         COMMENT_SUBMITTED: 'Your comment was submitted',
         COMMENT_ERROR: 'There was an error submitting your comment'
     },
+    error:
+    {
+        PAGE_NOT_FOUND: 'The page can not be found'
+    },
     timestamp:
     {
         JAN: 'January',
