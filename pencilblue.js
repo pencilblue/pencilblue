@@ -41,9 +41,6 @@ var server;
 function initServer(){
 	log.debug('Starting server...');
 	pb.server = http.createServer(function(request, response){
-
-	    // /include/router.js
-	    var route = new Route(request, response);
 	    
 	    if(request.headers.cookie)
 	    {
@@ -73,6 +70,9 @@ function initServer(){
 	        }
 	        request.headers['post'] += chunk;
 	    });
+	    
+	    // /include/router.js
+	    var route = new Route(request, response);
 	});
 	
 	pb.server.listen(pb.config.sitePort, pb.config.siteIP);
