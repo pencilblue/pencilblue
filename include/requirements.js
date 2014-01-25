@@ -14,6 +14,7 @@ global.minify     = require('minify');
 global.winston    = require('winston');
 global.async      = require('async');
 global.crypto     = require('crypto');
+global.util       = require('util');
 
 var promise       = require('node-promise');
 global.when       = promise.when;
@@ -51,6 +52,12 @@ pb.session        = new pb.SessionHandler();
 
 //setup utils
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
+
+//setup request handling
+pb.RequestHandler = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
+
+//setup errors
+global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js');
 
 //system requires
 require(DOCUMENT_ROOT+'/include/response_head');			//ContentType responses

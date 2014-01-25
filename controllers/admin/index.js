@@ -1,5 +1,7 @@
+function Index(){}
+
 // Retrieve the header, body, and footer and return them to the router
-this.init = function(request, output)
+Index.prototype.init = function(request, output)
 {
     var result = '';
     
@@ -7,7 +9,7 @@ this.init = function(request, output)
     {
         if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
         {
-            output({redirect: pb.config.siteRoot + '/admin/login'});
+            output({redirect: pb.config.siteRoot + '/admin/login'}); 
             return;
         }
     
@@ -38,4 +40,6 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
+
+module.exports = new Index();
