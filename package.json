@@ -25,6 +25,7 @@
     	"async": "0.2.9",
     	"fakeredis": "0.1.1",
 	    "formidable": "1.0.14",
+	    "locale": "0.0.14",
 	    "mongodb": "1.3.19",
 	    "minify": "0.2.3",
 	    "node-promise": "0.5.9",
@@ -36,7 +37,7 @@
     "devDependencies": {
     	"nodeunit": "0.8.2"
     },
-    "main": "./pencileblue.js",
+    "main": "./pencilblue.js",
     "engines": {
         "node": ">= 0.10.0"
     },

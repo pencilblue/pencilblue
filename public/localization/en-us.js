@@ -1,4 +1,4 @@
-loc = 
+var loc = 
 {
     generic:
     {
@@ -294,11 +294,14 @@ loc =
         PORT: 'Port',
         EMAIL_SETTINGS: 'Email settings'
     }
+};
+
+//Allows for both server and client use
+if(typeof global !== 'undefined') {
+ global.loc = loc;
+ global.localizationLanguage = 'en';
 }
 
-// Allows for both server and client use
-if(typeof global !== 'undefined')
-{
-    global.loc = loc;
-    global.localizationLanguage = 'en-us';
+if(typeof modules !== 'undefined') {
+ module.exports = loc;
 }

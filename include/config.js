@@ -45,6 +45,18 @@ var config = {
              new (winston.transports.Console)({ level: LOG_LEVEL, timestamp: true }),
              new (winston.transports.File)({ filename: LOG_FILE, level: LOG_LEVEL, timestamp: true })
        ]
+	},
+	locales: {
+		supported: [
+            {
+            	local: 'en',
+            	file: path.join(DOCUMENT_ROOT, 'public', 'localization', 'en.js')
+        	},
+            {
+            	local: 'en_us',
+            	file: path.join(DOCUMENT_ROOT, 'public', 'localization', 'en-us.js')
+        	}
+        ]
 	}
 };
     
