@@ -14,6 +14,7 @@ global.minify     = require('minify');
 global.winston    = require('winston');
 global.async      = require('async');
 global.crypto     = require('crypto');
+global.locale     = require('locale');
 
 var promise       = require('node-promise');
 global.when       = promise.when;
@@ -51,6 +52,10 @@ pb.session        = new pb.SessionHandler();
 
 //setup utils
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
+
+//setup localization
+pb.Localization = require(DOCUMENT_ROOT+'/include/localization.js').Localization;
+pb.Localization.init();
 
 //system requires
 require(DOCUMENT_ROOT+'/include/response_head');			//ContentType responses

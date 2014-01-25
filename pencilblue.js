@@ -25,6 +25,10 @@ function initDBConnections(){
 	//setup database connection to core database
 	pb.dbm.getDB(pb.config.db.name).then(function(result){
 		if (typeof result !== 'Error') {
+			if (result.databaseName == undefined){
+				throw new Error("Failed to establish a connection to: "+pb.config.db.name);
+			}
+			
 			log.debug('Established connection to DB: ' + result.databaseName);
 			mongoDB = result;
 		}
