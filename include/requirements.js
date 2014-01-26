@@ -14,11 +14,8 @@ global.minify     = require('minify');
 global.winston    = require('winston');
 global.async      = require('async');
 global.crypto     = require('crypto');
-<<<<<<< HEAD
 global.util       = require('util');
-=======
 global.locale     = require('locale');
->>>>>>> master
 
 var promise       = require('node-promise');
 global.when       = promise.when;
@@ -56,6 +53,17 @@ pb.session        = new pb.SessionHandler();
 
 //setup utils
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
+
+//setup object services
+pb.SimpleLayeredService = require(DOCUMENT_ROOT+'/include/service/simple_layered_service.js').SimpleLayeredService;
+pb.MemoryEntityService  = require(DOCUMENT_ROOT+'/include/service/memory_entity_service.js').MemoryEntityService;
+pb.CacheEntityService   = require(DOCUMENT_ROOT+'/include/service/cache_entity_service.js').CacheEntityService;
+pb.DBEntityService      = require(DOCUMENT_ROOT+'/include/service/db_entity_service.js').DBEntityService;
+pb.FSEntityService      = require(DOCUMENT_ROOT+'/include/service/fs_entity_service.js').FSEntityService;
+
+//setup settings service
+pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').SettingServiceFactory;
+pb.settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
 
 //setup request handling
 pb.RequestHandler = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
