@@ -61,7 +61,11 @@ var config = {
 	settings: {
 		use_memory: true,
 		use_cache: true
-	}
+	},
+	templates: {
+		use_memory: true,
+		use_cache: true
+	} 
 };
     
 /**

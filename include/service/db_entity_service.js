@@ -16,6 +16,7 @@ DBEntityService.prototype.get = function(key, cb){
 	var where            = {};
 	where[this.keyField] = key;
 	
+	var self = this;
 	dao.query(this.objType, where).then(function(result){
 		if (util.isError(result)) {
 			cb(result, null);
@@ -30,7 +31,7 @@ DBEntityService.prototype.get = function(key, cb){
 
 		//get setting
 		var entity = result[0];
-		var val    = this.valueField == null ? entity : entity[this.valueField];
+		var val    = self.valueField == null ? entity : entity[self.valueField];
 		
 		//callback with the result
 		cb(null, val);
@@ -41,6 +42,8 @@ DBEntityService.prototype.set = function(key, value, cb) {
 	var dao              = new pb.DAO();
 	var where            = {};
 	where[this.keyField] = key;
+	
+	var self = this;
 	dao.query('setting', where).then(function(result){
 		if (util.isError(result)) {
 			cb(result, null);
@@ -49,21 +52,21 @@ DBEntityService.prototype.set = function(key, value, cb) {
 		
 		//value doesn't exist in cache
 		var val = null;
-		if (this.valueField == null) {
+		if (self.valueField == null) {
 			val = value;
 		}
 		else{
 			var rawVal = null;
 			if (result == null || result.length == 0) {
 				rawVal = {
-					object_type: this.objType
+					object_type: self.objType
 				};
-				rawVal[this.keyField]   = key;
+				rawVal[self.keyField]   = key;
 			}
 			else{
 				rawVal = result[0];
 			}
-			rawVal[this.valueField] = value;
+			rawVal[self.valueField] = value;
 			val                     = rawVal;
 		}
 		

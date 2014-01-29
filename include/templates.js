@@ -49,7 +49,7 @@ global.getHTMLTemplate = function(templateLocation, pageName, metaDesc, output)
             
             instance.loadSubTemplate(templateString, output);
         });
-    }
+    };
     
     this.loadSubTemplate = function(templateString, output)
     {
@@ -73,25 +73,162 @@ global.getHTMLTemplate = function(templateLocation, pageName, metaDesc, output)
             
             instance.loadSubTemplate(templateString, output);
         });
-    }
+    };
 
-    getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
-    {
-        if(data.length > 0)
-        {
-            fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/templates/' + templateLocation + '.html', function(exists)
-            {
-                if(exists)
-                {
-                    fileLocation = DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/templates/' + templateLocation + '.html';
-                }
-                
-                instance.loadTemplate();
-            });
-        }
-        else
-        {
+    pb.log.debug("Templates: "+JSON.stringify(pb.settings));
+    pb.settings.get('active_theme', function(err, setting){
+    	if (setting == null){
+    		instance.loadTemplate();
+    		return;
+    	}
+    	
+    	var templatePath = DOCUMENT_ROOT + '/plugins/themes/' + setting + '/templates/' + templateLocation + '.html';
+    	fs.exists(templatePath, function(exists) {
+            if (exists) {
+                fileLocation = templatePath;
+            }
             instance.loadTemplate();
-        }
+        });
     });
+};
+
+function TemplateService(services, name){
+	this.services = services;
+	this.name     = name;
 }
+
+util.inherits(TemplateService, pb.SimpleLayeredService);
+
+TemplateService.SEP = '^';
+TemplateService.PREFIX = TemplateService.SEP+'tmp_';
+
+TemplateService.prototype.load = function(templateLocation, pageName, metaDesc, cb) {
+	var fileLocation = TemplateService.getDefaultPath(templateLocation);
+	
+	//cehck for an active theme
+	var instance = this;
+    pb.settings.get('active_theme', function(err, setting){
+    	if (setting == null){
+    		
+    		//just load default template
+			instance.get(fileLocation, function(err, defaultTemplateData){
+				instance.transform(defaultTemplateData, pageName, metaDesc, fileLocation, cb);
+			});
+    		return;
+    	}
+    	
+    	//check if custom these exists
+    	var templatePath = TemplateService.getCustomPath(setting, templateLocation);
+    	instance.get(templatePath, function(err, customTemplateData) {
+    		
+    		//custom template wasn't found
+    		if(customTemplateData == null) {
+    			
+    			//just load default template
+    			instance.get(fileLocation, function(err, defaultTemplateData){
+    				instance.transform(defaultTemplateData, pageName, metaDesc, fileLocation, cb);
+    			});
+    		}
+    		else{
+    			instance.transform(customTemplateData, pageName, metaDesc, templatePath, cb);
+    		}
+    	});
+    });
+};
+
+TemplateService.prototype.transform = function(templateString, pageName, metaDesc, templatePath, cb){
+	if(templateString == null){
+		pb.log.warn('TemplateService: No template was found for page ['+pageName+'] at location ['+templatePath+']');
+        cb('');
+        return;
+    }
+    
+	//set site name and root
+    templateString = templateString.split('^site_name^').join(pb.config.siteName);
+    templateString = templateString.split('^site_root^').join(pb.config.siteRoot);
+    
+    //set page title
+    pageName       = pageName ? pageName : '';
+    templateString = templateString.split('^page_name^').join(pageName);
+
+    //set meta description
+    metaDesc = metaDesc ? metaDesc : pb.config.siteName + ' | ' + pageName;
+    templateString = templateString.split('^meta_desc^').join(metaDesc);
+
+    //set year
+    templateString = templateString.split('^year^').join(new Date().getFullYear());
+    
+    //check for sub template
+    var subTemplateIndex = templateString.indexOf('^tmp_');
+    if(subTemplateIndex >= 0){
+    	this.loadSubTemplate(templateString, pageName, metaDesc, cb);
+        return;
+    }
+    
+    cb(templateString);
+};
+
+TemplateService.prototype.loadSubTemplate = function(templateString, pageName, metaDesc, cb){
+    
+    var startIndex   = templateString.indexOf(TemplateService.PREFIX) + TemplateService.PREFIX.length;
+    var endIndex     = templateString.substr(startIndex).indexOf(TemplateService.SEP);
+    var templateName = templateString.substr(startIndex, endIndex);
+    
+    var templatePath = templateName.split('=').join('/');
+    
+    pb.log.silly(this.name+": Loading SubTemplate ["+templatePath+"]");
+    this.load(templatePath, pageName, metaDesc, function(data) {
+        
+    	templateString = templateString.split(TemplateService.PREFIX + templateName + TemplateService.SEP).join(data);
+        
+    	//check for sub template
+    	var instance          = this;
+        var subTemplateExists = templateString.indexOf('^tmp_');
+        if(subTemplateExists){
+        	instance.loadSubTemplate(templateString, pageName, metaDesc, cb);
+            return;
+        }
+        
+        cb(templateString);
+    });
+};
+
+TemplateService.getDefaultPath = function(templateLocation){
+	return DOCUMENT_ROOT + '/templates/' + templateLocation + '.html';
+};
+
+TemplateService.getCustomPath = function(themeName, templateLocation){
+	return DOCUMENT_ROOT + '/plugins/themes/' + themeName + '/templates/' + templateLocation + '.html';
+};
+
+TemplateService.getPlaceholder = function(name){
+	return TemplateService.SEP+name+TemplateService.SEP;
+};
+
+function TemplateServiceFactory(){}
+
+var count = 1;
+
+TemplateServiceFactory.getService = function(useMemory, useCache) {
+	var objType    = 'template';
+	var services = [];
+	
+	//add in-memory service
+	if (useMemory){
+		services.push(new pb.MemoryEntityService(objType));
+	}
+	
+	//add cache service
+	if (useCache) {
+		services.push(new pb.CacheEntityService(objType));
+	}
+	
+	//always add db service
+	services.push(new pb.FSEntityService(objType));
+	
+	return new TemplateService(services, 'TemplateService' + count++);
+};
+
+//exports
+module.exports.TemplateService        = TemplateService;
+module.exports.TemplateServiceFactory = TemplateServiceFactory;

@@ -12,6 +12,8 @@ function CacheEntityService(objType, valueField, keyField){
 }
 
 CacheEntityService.prototype.get = function(key, cb){
+	
+	var self = this;
 	pb.cache.get(key, function(err, result){
 		if (util.isError(err)) {
 			cb(err, null);
@@ -26,9 +28,9 @@ CacheEntityService.prototype.get = function(key, cb){
 		
 		//value exists
 		var val = result;
-		if (this.valueField != null){
+		if (self.valueField != null){
 			var rawVal = JSON.parse(result);
-			val        = rawVal[this.valueField];
+			val        = rawVal[self.valueField];
 		}
 		
 		//make call back
@@ -37,6 +39,7 @@ CacheEntityService.prototype.get = function(key, cb){
 };
 
 CacheEntityService.prototype.set = function(key, value, cb) {
+	var self = this;
 	pb.cache.get(key, function(err, result){
 		if (util.isError(err)) {
 			cb(err, null);
@@ -45,7 +48,7 @@ CacheEntityService.prototype.set = function(key, value, cb) {
 		
 		//value doesn't exist in cache
 		var val = null;
-		if (this.valueField == null) {
+		if (self.valueField == null) {
 			val = value;
 		}
 		else{
@@ -54,16 +57,17 @@ CacheEntityService.prototype.set = function(key, value, cb) {
 				rawVal = {
 					object_type: this.objType
 				};
-				rawVal[this.keyField]   = key;
+				rawVal[self.keyField]   = key;
 			}
 			else{
 				rawVal = JSON.parse(result);
 			}
-			rawVal[this.valueField] = value;
+			rawVal[self.valueField] = value;
 			val                     = JSON.stringify(rawVal);
 		}
 		
 		//set into cache
+		pb.log.silly("Setting key ["+key+"] with value="+val+" VF="+self.valueField+" RES=["+result+"]");
 		pb.cache.set(key, val, cb);
 	});
 };

@@ -66,8 +66,8 @@ global.localize = function(sets, text)
  * assists in the determination of the best language for the given user.
  * @param locale
  */
-function Localization(locale){
-	this.language = locale;
+function Localization(request){
+	this.language = Localization.best(request);
 }
 
 Localization.SEP                = '^';
@@ -137,6 +137,7 @@ Localization.init = function() {
 		supportedLocales.push(localeDescriptor.locale);
 	}
 	
+	pb.log.debug("Localization: Supporting - "+JSON.stringify(supportedLocales));
 	Localization.supported = new locale.Locales(supportedLocales);
 };
 

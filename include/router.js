@@ -1,6 +1,7 @@
 // This is the main router of the server app
 global.Route = function(request, response)
 {
+	this.startTime = (new Date()).getTime();
     var requestURL = request.url;
     
     // Remove query parameters from the route URL
@@ -176,6 +177,7 @@ Route.prototype.writeResponse = function(data) {
     else {
     	this.response.end(data.content, 'binary');
     }
+    pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+"ms URL="+this.request.url);
 };
 
 
@@ -235,7 +237,7 @@ Route.prototype.attemptDefaultRoute = function() {
                         else
                         {
                         	pb.log.debug("I give up I can't find it 404 it is");
-                            require(DOCUMENT_ROOT + '/controllers/error/404').init(request, instance.writeResponse);
+                            require(DOCUMENT_ROOT + '/controllers/error/404').init(instance.request, instance.writeResponse.bind(instance));
                         }
                     });
                 }

@@ -26,10 +26,10 @@ MemoryEntityService.prototype.get = function(key, cb){
 	
 	var value = null;
 	if (this.valueField == null) {
-		value = rawValue;
+		value = rawVal;
 	}
 	else {
-		value = rawValue[this.valueField];
+		value = rawVal[this.valueField];
 	}
 	cb(null, value);
 };

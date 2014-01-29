@@ -21,9 +21,12 @@ this.getTopMenu = function(session, output)
 
         getDBObjectsWithValues({object_type: 'setting', key: 'section_map'}, function(data)
         {            
-            var sectionMap = data[0]['value'];
-            var formattedSections = [];
+            var sectionMap = [];
+            if (data.length > 0) {
+            	sectionMap = data[0]['value'];
+            }
             
+            var formattedSections = [];
             getDBObjectsWithValues({object_type: 'section'}, function(data)
             {
                 var sections = data;

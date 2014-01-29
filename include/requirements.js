@@ -63,7 +63,11 @@ pb.FSEntityService      = require(DOCUMENT_ROOT+'/include/service/fs_entity_serv
 
 //setup settings service
 pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').SettingServiceFactory;
-pb.settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
+pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
+
+//setup template service
+pb.TemplateServiceFactory = require(DOCUMENT_ROOT+'/include/templates.js').TemplateServiceFactory;
+pb.templates              = pb.TemplateServiceFactory.getService(pb.config.templates.use_memory, pb.config.templates.use_cache);
 
 //setup request handling
 pb.RequestHandler = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;

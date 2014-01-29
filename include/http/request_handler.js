@@ -10,20 +10,15 @@ function RequestHandler(server, req, resp){
 RequestHandler.prototype.handleRequest = function(){
 	
 	this.req.headers[pb.SessionHandler.COOKIE_HEADER] = RequestHandler.parseCookies(this.req);
+	this.localizationService = new pb.Localization(this.req);
     
-//    if(this.req.headers['content-type'])
-//    {
-//        if(this.req.headers['content-type'].indexOf('multipart/form-data') > -1)
-//        {
-//            return;
-//        }
-//    }
-    
+	//pull down post data
+    var instance = this;
     this.req.on('data', function(chunk) {
-        if (typeof this.req.headers['post'] == 'undefined') {
-            req.headers['post'] = '';
+        if (typeof instance.req.headers['post'] == 'undefined') {
+        	instance.req.headers['post'] = '';
         }
-        req.headers['post'] += chunk;
+        instance.req.headers['post'] += chunk;
     });
     
     // /include/router.js
