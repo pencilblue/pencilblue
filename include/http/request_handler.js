@@ -7,6 +7,15 @@ function RequestHandler(server, req, resp){
 	this.resp   = resp;
 }
 
+RequestHandler.CORE_ROUTES = [
+    {
+    	path: "/setup",
+    	access_level: 0,
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'setup.js')
+    }
+];
+
 RequestHandler.prototype.handleRequest = function(){
 	
 	this.req.headers[pb.SessionHandler.COOKIE_HEADER] = RequestHandler.parseCookies(this.req);

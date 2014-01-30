@@ -24,34 +24,35 @@ Route.prototype.route = function(){
 	var instance   = this;
 	
 	pb.log.debug("Getting Active theme");
-	getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
-    {
-        if(data.length > 0)
-        {
+	pb.settings.get('active_theme', function(activeTheme) {
+        
+		if(activeTheme != null) {
+			
         	pb.log.debug("Checking for controller");
-            fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers' + requestURL + '.js', function(exists)
-            {
+        	var controllerPath = DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers' + requestURL + '.js';
+            fs.exists(controllerPath, function(exists) {
+            	
                 if(exists)
                 {
                 	pb.log.debug("Loading controller");
-                    require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers' + requestURL).init(request, instance.writeResponse);
+                    require(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers' + requestURL).init(request, instance.writeResponse);
                 }
                 else
                 {
                     // Is the request URL a folder?
                 	pb.log.debug("Checking for controller index");
-                    fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers' + requestURL + '/index.js', function(exists)
+                    fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers' + requestURL + '/index.js', function(exists)
                     {
                         if(exists)
                         {
                         	pb.log.debug("Loading controller index");
-                            require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers' + requestURL + '/index').init(request, instance.writeResponse);
+                            require(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers' + requestURL + '/index').init(request, instance.writeResponse);
                         }
                         else
                         {
                             // Is the request URL for a raw file?
                         	pb.log.debug("Checking for raw file");
-                            fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/public' + requestURL, function(exists)
+                            fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/public' + requestURL, function(exists)
                             {
                                 if(exists)
                                 {
@@ -59,7 +60,7 @@ Route.prototype.route = function(){
                                 	pb.log.debug("Loading raw file");
                                     if((requestURL.substr(requestURL.lastIndexOf('.')) == '.js' || requestURL.substr(requestURL.lastIndexOf('.')) == '.css') && requestURL.indexOf('.min') == -1)
                                     {
-                                        minify.optimize(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/public' + requestURL,
+                                        minify.optimize(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/public' + requestURL,
                                         {
                                             callback: function(data)
                                             {
@@ -70,7 +71,7 @@ Route.prototype.route = function(){
                                         return;
                                     }
                                 
-                                    fs.readFile(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/public' + requestURL, function(error, data)
+                                    fs.readFile(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/public' + requestURL, function(error, data)
                                     {
                                         if(error)
                                         {
@@ -97,11 +98,11 @@ Route.prototype.route = function(){
                                                     return;
                                                 }
                                                 
-                                                fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/section.js', function(exists)
+                                                fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers/section.js', function(exists)
                                                 {
                                                     if(!exists)
                                                     {
-                                                        fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/index.js', function(exists)
+                                                        fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers/index.js', function(exists)
                                                         {
                                                             if(!exists)
                                                             {
@@ -109,22 +110,22 @@ Route.prototype.route = function(){
                                                                 return;
                                                             }
                                                             
-                                                            require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/index').init(request, instance.writeResponse);
+                                                            require(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers/index').init(request, instance.writeResponse);
                                                         });  
                                                         return;
                                                     }
                                                     
-                                                    require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/article').init(request, instance.writeResponse);
+                                                    require(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers/article').init(request, instance.writeResponse);
                                                 });
                                             });
                                             return;
                                         }
                                         
-                                        fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/article.js', function(exists)
+                                        fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers/article.js', function(exists)
                                         {
                                             if(!exists)
                                             {
-                                                fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/index.js', function(exists)
+                                                fs.exists(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers/index.js', function(exists)
                                                 {
                                                     if(!exists)
                                                     {
@@ -132,12 +133,12 @@ Route.prototype.route = function(){
                                                         return;
                                                     }
                                                     
-                                                    require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/index').init(request, instance.writeResponse);
+                                                    require(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers/index').init(request, instance.writeResponse);
                                                 });  
                                                 return;
                                             }
                                             
-                                            require(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers/section').init(request, instance.writeResponse);
+                                            require(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers/section').init(request, instance.writeResponse);
                                         });
                                     });
                                 }

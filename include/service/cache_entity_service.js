@@ -67,7 +67,6 @@ CacheEntityService.prototype.set = function(key, value, cb) {
 		}
 		
 		//set into cache
-		pb.log.silly("Setting key ["+key+"] with value="+val+" VF="+self.valueField+" RES=["+result+"]");
 		pb.cache.set(key, val, cb);
 	});
 };

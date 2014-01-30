@@ -31,7 +31,7 @@ SimpleLayeredService.prototype.get = function(key, cb){
 			return i < instance.services.length && resultNotFound;
 		},
 		function(callback) {//do
-			pb.log.silly(instance.name+": Checking Service ["+instance.services[i].type+" for KEY ["+key+"]");
+			pb.log.silly(instance.name+": Checking Service ["+instance.services[i].type+"] for Key ["+key+"]");
 			
 			instance.services[i].get(key, function(err, result){
 				if (util.isError(err)){
