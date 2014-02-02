@@ -16,6 +16,7 @@ RequestHandler.index   = {};
 
 RequestHandler.CORE_ROUTES = [
     {
+    	method: 'get',
     	path: "/setup",
     	access_level: 0,
     	auth_required: false,
@@ -46,6 +47,11 @@ RequestHandler.registerRoute = function(descriptor, theme){
 	if (!RequestHandler.isValidRoute(descriptor)) {
 		pb.log.error("Route Validation Failed for: "+JSON.stringify(descriptor));
 		return false;
+	}
+	
+	//standardize http method (if exists) to upper case
+	if (descriptor.method !== undefined) {
+		descriptor.method = descriptor.method.toUpperCase();
 	}
 	
 	//clean up path
@@ -224,6 +230,14 @@ RequestHandler.prototype.getRoute = function(path) {
 	for (var i = 0; i < RequestHandler.storage.length; i++) {
 		
 		var curr   = RequestHandler.storage[i];
+		
+		//test method when exists
+		if (curr.method !== undefined && curr.method !== this.req.method) {
+			if (pb.log.isSilly()) {
+				pb.log.silly('RequestHandler: Skipping Path ['+path+'] becuase Method ['+this.request.method+'] does not match ['+curr.method+']');
+			}
+			continue;
+		}
 		var result = curr.expression.test(path);
 		
 		if (pb.log.isSilly()) {

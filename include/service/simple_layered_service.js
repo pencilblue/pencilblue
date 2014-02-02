@@ -23,7 +23,6 @@ function SimpleLayeredService(services, name){
  * @param cb
  */
 SimpleLayeredService.prototype.get = function(key, cb){
-	pb.log.silly(this.name+": Retrieving Key ["+key+"]");
 	
 	var i              = 0;
 	var resultNotFound = true;
