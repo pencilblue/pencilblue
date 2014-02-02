@@ -79,12 +79,16 @@ SimpleLayeredService.prototype.get = function(key, cb){
  * @param cb
  */
 SimpleLayeredService.prototype.set = function(key, value, cb){
-	
+	var self = this;
+
 	var tasks = [];
 	for (var i = this.services.length -1; i >= 0; i--){
 		var task = function(index){
 			return function(callback) {
-				this.services[index].set(key, value, callback);
+				if (pb.log.isSilly()) {
+					pb.log.silly(self.name+":"+self.services[index].type+": Setting ["+key+"] Value ["+JSON.stringify(value)+"]");
+				}
+				self.services[index].set(key, value, callback);
 			};
 		};
 		tasks.push(task(i));

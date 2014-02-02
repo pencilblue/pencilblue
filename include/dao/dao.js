@@ -54,18 +54,7 @@ DAO.prototype.count = function(entityType, where, cb) {
  */
 DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset){
 	
-	var cursor = this._doQuery(entityType, where, select, orderBy, limit, offset);
-	if(pb.log.isDebug()){
-		var query = "DAO: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
-		if (typeof orderBy !== 'undefined') {
-			query += " ORDER BY "+JSON.stringify(orderBy);
-		}
-		if (typeof limit !== 'undefined') {
-			query += " LIMITY "+JSON.stringify(limit)+", OFFSET "+offset;
-		}
-		pb.log.debug(query);
-	}
-	
+	var cursor  = this._doQuery(entityType, where, select, orderBy, limit, offset);
 	var promise = new Promise();
 	cursor.toArray(function(err, docs){
         promise.resolve(err ? err : docs);
@@ -101,6 +90,17 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 		
 	if (typeof limit !== 'undefined') {
 		cursor.limit(limit);
+	}
+	
+	if(pb.log.isDebug()){
+		var query = "DAO: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
+		if (typeof orderBy !== 'undefined') {
+			query += " ORDER BY "+JSON.stringify(orderBy);
+		}
+		if (typeof limit !== 'undefined') {
+			query += " LIMITY "+JSON.stringify(limit)+", OFFSET "+offset;
+		}
+		pb.log.debug(query);
 	}
 	return cursor;
 };

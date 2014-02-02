@@ -89,7 +89,7 @@ require(DOCUMENT_ROOT+'/include/query');					// Query parameter retrieval
 require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
 		// Database objects
 require(DOCUMENT_ROOT+'/include/access_management.js');		// Access management
-require(DOCUMENT_ROOT+'/include/model/create_document.js');	// Document creation
+pb.DocumentCreator = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
 require(DOCUMENT_ROOT+'/include/content');			        // Content settings and functions
 require(DOCUMENT_ROOT+'/include/email');			        // Email settings and functions
 require(DOCUMENT_ROOT+'/include/templates');				// Templatizing

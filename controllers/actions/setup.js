@@ -60,7 +60,7 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
 
 this.getDefaultContentSettings = function()
 {
@@ -77,7 +77,7 @@ this.getDefaultContentSettings = function()
         display_writer_position: 1,
         allow_comments: 1,
         default_comments: 1
-    }
+    };
     
     return defaultContentSettings;
 };
@@ -119,7 +119,7 @@ Setup.prototype.doSetup = function(cb) {
 			return;
 		}
 		
-		self.onPostparamsRetrieved(post, cb);
+		self.onPostParamsRetrieved(post, cb);
 	});
 };
 
@@ -132,43 +132,56 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
     
-    post['admin'] = 4;
-    var userDocument = createDocument('user', post);
-    
-    createDBObject(userDocument, function(data)
-    {
-        if(data.length == 0)
-        {
-            formError(request, session, '^loc_ERROR_SAVING^', '/setup', output);
-            return;
-        }
-        
-        var settingDocument = createDocument('setting', {key: 'active_theme', value: 'pencilblue'});
-        createDBObject(settingDocument, function(data)
-        {
-            if(data.length == 0)
-            {
-                formError(request, session, '^loc_ERROR_SAVING^', '/setup', output);
+    post['admin'] = 4; 
+    var self      = this;
+    async.series(
+		[
+			function(callback) {
+				var userDocument = pb.DocumentCreator.create('user', post);
+				createDBObject(userDocument, function(data) {
+					if (data.length == 0) {
+						callback(new PBError("Failed to persist user object", 500), null);
+						return;
+					}
+					
+					callback(null, data);
+				});
+			},
+			function(callback) {
+				pb.settings.set('active_theme',
+				pb.RequestHandler.DEFAULT_THEME, callback);
+			},
+			function(callback) {
+				var contentSettings = Setup.getDefaultContentSettings();
+				pb.settings.set('content_settings', contentSettings, callback);
+			} 
+		], 
+        function(err, results){
+    		if (util.isError(err)) {
+    			self.formError(request, session, '^loc_ERROR_SAVING^', '/setup', output);
                 return;
-            }
-            
-            settingDocument = createDocument('setting', {key: 'content_settings', value: instance.getDefaultContentSettings()});
-            createDBObject(settingDocument, function(data)
-            {
-                if(data.length == 0)
-                {
-                    formError(request, session, '^loc_ERROR_SAVING^', '/setup', output);
-                    return;
-                }
-            
-                session.success = '^loc_READY_TO_USE^';
-                editSession(request, session, [], function(data)
-                {        
-                    output({redirect: pb.config.siteRoot + '/admin/login'});
-                });
-            });
-        });
-    });
+    		}
+    		
+    		self.session.success = '^loc_READY_TO_USE^';
+    		cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/login'));
+		}
+    );
+};
+
+Setup.getDefaultContentSettings = function() {
+    return {
+        articles_per_page: 5,
+        auto_break_articles: 0,
+        display_timestamp: 1,
+        date_format: 'M dd, YYYY',
+        display_hours_minutes: 1,
+        time_format: '12',
+        display_bylines: 1,
+        display_writer_photo: 1,
+        display_writer_position: 1,
+        allow_comments: 1,
+        default_comments: 1
+    };
 };
 
 //exports

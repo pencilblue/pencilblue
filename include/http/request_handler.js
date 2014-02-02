@@ -147,8 +147,9 @@ RequestHandler.prototype.handleRequest = function(){
     //route.route();
     
     //open session
+	var self = this;
     pb.session.open(this.req, function(err, session){
-    	instance.onSessionRetrieved(err, session);
+    	self.onSessionRetrieved(err, session);
     });
 };
 
@@ -353,12 +354,13 @@ RequestHandler.prototype.writeCookie = function(descriptor, cookieStr){
 	for(var key in descriptor) {
         cookieStr += key + '=' + descriptor[key]+'; ';
     }
+	return cookieStr;
 };
 
 RequestHandler.prototype.doRedirect = function(location) {
-	this.response.statusCode = 302;
-    this.response.setHeader("Location", location);
-    this.response.end();
+	this.resp.statusCode = 302;
+    this.resp.setHeader("Location", location);
+    this.resp.end();
 };
 
 RequestHandler.prototype.onErrorOccurred = function(err){

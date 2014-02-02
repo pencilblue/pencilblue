@@ -47,7 +47,7 @@ BaseController.prototype.getPostParams = function(cb) {
 			return;
 		}
 		
-		var postParams = url.parse('?' + postString, true).query;
+		var postParams = url.parse('?' + raw, true).query;
 		cb(null, postParams);
 	});
 };
