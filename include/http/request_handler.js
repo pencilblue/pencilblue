@@ -6,7 +6,7 @@ function RequestHandler(server, req, resp){
 	this.server    = server;
 	this.req       = req;
 	this.resp      = resp;
-	this.url       = url.parse(req.url);
+	this.url       = url.parse(req.url, true);
 }
 
 RequestHandler.DEFAULT_THEME = 'pencilblue';
@@ -22,6 +22,14 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'setup.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/setup",
+    	access_level: 0,
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'setup.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -35,6 +43,12 @@ RequestHandler.init = function(){
 		//register the route
 		RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
 	}
+};
+
+RequestHandler.generateRedirect = function (location) {
+	return {
+		redirect: location
+	};
 };
 
 RequestHandler.isValidRoute = function(descriptor) {
@@ -127,15 +141,6 @@ RequestHandler.prototype.handleRequest = function(){
 	
 	//get locale preference
 	this.localizationService = new pb.Localization(this.req);
-    
-	//pull down post data
-    var instance = this;
-    this.req.on('data', function(chunk) {
-        if (typeof instance.req.headers['post'] == 'undefined') {
-        	instance.req.headers['post'] = '';
-        }
-        instance.req.headers['post'] += chunk;
-    });
     
     // /include/router.js
     //var route = new Route(this.req, this.resp);
@@ -277,7 +282,8 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 		response: this.resp,
 		session: this.session,
 		localization_service: this.localizationService,
-		path_vars: pathVars
+		path_vars: pathVars,
+		query: this.url.query
 	};
 	cInstance.init(props, function(){
 		self.onControllerInitialized(cInstance);

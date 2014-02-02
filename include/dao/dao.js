@@ -31,6 +31,16 @@ DAO.prototype.loadById = function(id, objectType, collection){
 };
 
 /**
+ * Retrieves the count based on the specified criteria
+ * @param entityType
+ * @param where
+ * @param cb
+ */
+DAO.prototype.count = function(entityType, where, cb) {
+	this._doQuery(entityType, where).count(cb);
+};
+
+/**
  * Provides a function to query the database.  
  * TODO determine if we need to enforce an upper bound on limit to prevent misuse.
  * 
@@ -43,28 +53,8 @@ DAO.prototype.loadById = function(id, objectType, collection){
  * @returns Promise
  */
 DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset){
-	//verify a collection was provided
-	if (typeof entityType === 'undefined') {
-		throw Error('An entity type must be specified!');
-	}
 	
-	//set defaults
-	where  = where  ? where  : {};
-	select = select ? select : {};
-	offset = offset ? offset : 0;
-	
-	var cursor = pb.dbm[this.dbName].collection(entityType)
-		.find(where, select)
-		.skip(offset);
-	
-	if (typeof orderBy !== 'undefined') {
-		cursor.sort(orderBy);
-	}
-		
-	if (typeof limit !== 'undefined') {
-		cursor.limit(limit);
-	}
-	
+	var cursor = this._doQuery(entityType, where, select, orderBy, limit, offset);
 	if(pb.log.isDebug()){
 		var query = "DAO: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
 		if (typeof orderBy !== 'undefined') {
@@ -88,6 +78,31 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
 		}
 	});
 	return promise;
+};
+
+DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, offset) {
+	//verify a collection was provided
+	if (typeof entityType === 'undefined') {
+		throw Error('An entity type must be specified!');
+	}
+	
+	//set defaults
+	where  = where  ? where  : {};
+	select = select ? select : {};
+	offset = offset ? offset : 0;
+	
+	var cursor = pb.dbm[this.dbName].collection(entityType)
+		.find(where, select)
+		.skip(offset);
+	
+	if (typeof orderBy !== 'undefined') {
+		cursor.sort(orderBy);
+	}
+		
+	if (typeof limit !== 'undefined') {
+		cursor.limit(limit);
+	}
+	return cursor;
 };
 
 /**

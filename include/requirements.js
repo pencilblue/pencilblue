@@ -71,6 +71,7 @@ pb.TemplateServiceFactory = require(DOCUMENT_ROOT+'/include/templates.js').Templ
 pb.templates              = pb.TemplateServiceFactory.getService(pb.config.templates.use_memory, pb.config.templates.use_cache);
 
 //setup request handling
+pb.BaseController = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;
 pb.RequestHandler = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
 pb.RequestHandler.init();
 

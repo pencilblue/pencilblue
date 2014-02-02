@@ -1,6 +1,14 @@
 // Retrieve the header, body, and footer and return them to the router
 function Setup(){}
 
+//inheritance 
+util.inherits(Setup, pb.BaseController);
+
+/**
+ * TODO Remove - Legacy code. Left until conversion complete
+ * @param request
+ * @param output
+ */
 Setup.init = function(request, output) {
     var result = '';
     
@@ -20,18 +28,12 @@ Setup.init = function(request, output) {
     });
 };
 
-Setup.prototype.init = function(props, cb) {
-	this.session             = props.session;
-	this.localizationService = props.localization_service;
-	cb();
-};
-
 Setup.prototype.render = function(cb) {
 	var self = this;
 	pb.templates.load('setup', 'Setup', null, function(data) {
         var result = data;
         
-        displayErrorOrSuccess(self.session, result, function(newSession, newResult) {
+        self.displayErrorOrSuccess(result, function(newResult) {
             result = newResult;
         
             var sets    = ['setup', 'users'];

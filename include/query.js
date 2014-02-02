@@ -3,14 +3,14 @@ global.getQueryParameters = function(request)
 {
     this.urlParts = url.parse(request.url, true);
     return this.urlParts.query;
-}
+};
 
 global.getPostParameters = function(request)
 {
     var postString = decodeURIComponent(request.headers['post']);
     this.urlParts = url.parse('?' + postString, true);
     return this.urlParts.query;
-}
+};
 
 global.checkForRequiredParameters = function(queryObject, requiredParameters)
 {
@@ -35,4 +35,4 @@ global.checkForRequiredParameters = function(queryObject, requiredParameters)
     }
     
     return null;
-}
+};
