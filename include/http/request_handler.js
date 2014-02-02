@@ -19,15 +19,17 @@ RequestHandler.CORE_ROUTES = [
     	path: "/setup",
     	access_level: 0,
     	auth_required: false,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'setup.js')
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'setup.js'),
+    	content_type: 'text/html'
     }
 ];
 
 RequestHandler.init = function(){
 	
 	//iterate core routes adding them
-	for (var i = 0; i < RequestHandlre.CORE_ROUTES.length; i++) {
-		var descriptor = RequestHandlre.CORE_ROUTES[i];
+	pb.log.debug('RequestHandler: Registering System Routes');
+	for (var i = 0; i < RequestHandler.CORE_ROUTES.length; i++) {
+		var descriptor = RequestHandler.CORE_ROUTES[i];
 
 		//register the route
 		RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
@@ -46,12 +48,21 @@ RequestHandler.registerRoute = function(descriptor, theme){
 		return false;
 	}
 	
+	//clean up path
+	var path = descriptor.path;
+	if (path.indexOf('/') == 0) {
+		path = path.substring(1);
+	}
+	if (path.lastIndexOf('/') == path.length - 1) {
+		path = path.substring(0, path.length - 1);
+	}
+	
 	var pathVars = {};
-	var pattern = '';
-	var pathPieces = descriptor.path.split('/');
+	var pattern = '^';
+	var pathPieces = path.split('/');
 	for (var i = 0; i < pathPieces.length; i++) {
-		
 		var piece = pathPieces[i];
+		
 		if (piece.indexOf(':') == 0) {
 			var fieldName = piece.substring(1);
 			pathVars[fieldName] = i;
@@ -61,6 +72,7 @@ RequestHandler.registerRoute = function(descriptor, theme){
 			pattern += '/'+piece;
 		}
 	}
+	pattern += '[/]{0,1}$';
 	
 	//insert it
 	var routeDescriptor = null;
@@ -90,11 +102,24 @@ RequestHandler.registerRoute = function(descriptor, theme){
 	//set the descriptor for the theme and load the controller type
 	routeDescriptor[theme]            = descriptor;
 	routeDescriptor[theme].controller = require(descriptor.controller);
+	
+	pb.log.debug("RequestHandler: Registered Route - Theme ["+theme+"] Path ["+descriptor.path+"] Patthern ["+pattern+"]");
+	return true;
 };
 
 RequestHandler.prototype.handleRequest = function(){
 	
+	//fist things first check for public resource
+	if (RequestHandler.isPublicRoute(this.url.pathname)) {
+		this.servePublicContent();
+		return;
+	}
+	
+	//check for session cookie
 	this.req.headers[pb.SessionHandler.COOKIE_HEADER] = RequestHandler.parseCookies(this.req);
+	this.setSessionCookie = Object.keys(this.req.headers[pb.SessionHandler.COOKIE_HEADER]).length == 0;
+	
+	//get locale preference
 	this.localizationService = new pb.Localization(this.req);
     
 	//pull down post data
@@ -107,13 +132,66 @@ RequestHandler.prototype.handleRequest = function(){
     });
     
     // /include/router.js
-    var route = new Route(this.req, this.resp);
-    route.route();
+    //var route = new Route(this.req, this.resp);
+    //route.route();
     
     //open session
-    pb.sesson.open(req, function(err, session){
-    	instance.onSessionRetrieved(err, result);
+    pb.session.open(this.req, function(err, session){
+    	instance.onSessionRetrieved(err, session);
     });
+};
+
+RequestHandler.prototype.servePublicContent = function() {
+	
+	var self         = this;
+	var urlPath      = this.url.pathname;//.substring('/public/'.length);
+	var absolutePath = path.join(DOCUMENT_ROOT, 'public', urlPath);
+	fs.readFile(absolutePath, function(err, content){
+		if (err) {
+			self.server404();
+			return;
+		}
+		
+		//build response structure
+		var data = {
+			content: content
+		};
+		
+		//guess at content-type
+		var map = {
+			js: 'text/javascript',
+			css: 'text/css'
+		};
+		var index = absolutePath.lastIndexOf('.');
+		if (index >= 0) {
+			var mime = map[absolutePath.substring(index + 1)];
+			if (mime != undefined) {
+				data.content_type = mime;
+			}
+		}
+		
+		//send response
+		self.writeResponse(data);
+	});
+};
+
+RequestHandler.isPublicRoute = function(path){
+	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', 'favicon.ico'];
+	for (var i = 0; i < publicRoutes.length; i++) {
+		if (path.indexOf(publicRoutes[i]) == 0) {
+			return true;
+		}
+	}
+	return false;
+};
+
+RequestHandler.prototype.server404 = function() {
+	//TODO implement 404 handling
+	this.writeResponse({content: 'Url ['+this.url.href+'] could not be found on this server'});
+	
+	if (pb.log.isSilly()) {
+		pb.log.silly("No Route Found: Sending 404 for URL="+this.url.href);
+	}
 };
 
 RequestHandler.prototype.onSessionRetrieved = function(err, session) {
@@ -126,27 +204,37 @@ RequestHandler.prototype.onSessionRetrieved = function(err, session) {
 	this.session = session;
 	
 	//find the controller to hand off to
-	var route = null;
-	for (var i = 0; i < RequestHandler.storage.length; i++) {
-		
-		var curr = RequestHandler.storage[i];
-		if (curr.expression.test(this.url.pathname)) {
-			route = curr;
-			break;
-		}
-	}
-	
+	var route = this.getRoute(this.url.pathname);
 	if (route == null) {
-		//do 404
-		pb.log.silly("No Route Found: Sending 404 for URL="+this.url.href);
+		this.server404();
 		return;
 	}
+	this.route = route;
 	
 	//get active theme
 	var self = this;
 	pb.settings.get('active_theme', function(activeTheme){
 		self.onThemeRetrieved(activeTheme == null ? RequestHandler.DEFAULT_THEME : activeTheme, route);
 	});
+};
+
+RequestHandler.prototype.getRoute = function(path) {
+	
+	var route = null;
+	for (var i = 0; i < RequestHandler.storage.length; i++) {
+		
+		var curr   = RequestHandler.storage[i];
+		var result = curr.expression.test(path);
+		
+		if (pb.log.isSilly()) {
+			pb.log.silly('RequestHandler: Comparing Path ['+path+'] to Pattern ['+curr.pattern+'] Result ['+result+']');
+		}
+		if (result) {
+			route = curr;
+			break;
+		}
+	}
+	return route;
 };
 
 RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
@@ -156,14 +244,28 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 		activeTheme = RequestHandler.DEFAULT_THEME;
 	}
 	
-	//verify permissions
+	//TODO verify permissions
 	
+	//extract path variables
+	var pathVars = {};
+	var pathParts = this.url.pathname.split('/');
+	for (var field in route.path_vars) {
+		pathVars[field] = pathParts[route.path_vars[field]];
+	}
 	
 	//execute controller
 	var self            = this;
 	var ControllerType  = route[activeTheme].controller;
 	var cInstance       = new ControllerType();
-	cInstance.init(this.req, this.resp, this.session, this.localizationService, function(){
+	
+	var props = {
+		request: this.req,
+		response: this.resp,
+		session: this.session,
+		localization_service: this.localizationService,
+		path_vars: pathVars
+	};
+	cInstance.init(props, function(){
 		self.onControllerInitialized(cInstance);
 	});
 };
@@ -182,9 +284,55 @@ RequestHandler.prototype.onRenderComplete = function(data){
     }
 	
 	//output data here
-	//TODO look at ResponseHead
+	this.writeResponse(data);
+	if (pb.log.isDebug()) {
+		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+"ms URL="+this.req.url);
+	}
 	
-	pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+"ms URL="+this.request.url);
+	//close session after data sent
+	pb.session.close(this.session, function(err, result) {
+		//TODO handle any errors
+	});
+};
+
+RequestHandler.prototype.writeResponse = function(data){
+    
+    //infer a response code when not provided
+    if(typeof data.code === 'undefined'){
+        code = 200;
+    }
+    
+    //set cookies
+    var cookies = new Cookies(this.req, this.resp);
+    if (this.setSessionCookie) {
+    	cookies.set(pb.SessionHandler.COOKIE_NAME, pb.SessionHandler.getSessionCookie(this.session));
+    }
+    if(typeof data.cookie !== 'undefined') {
+        cookies.set(data.cookie.name, data.cookie);
+    }
+    
+    // If a response code other than 200 is provided, force that code into the head
+    var contentType = 'text/html';
+    if (typeof data.content_type !== 'undefined') {
+    	contentType = data.content_type;
+    }
+    else if (this.route && typeof this.route.content_type !== 'undefined') {
+    	contentType = this.route.content_type;
+    }
+    
+    //send response
+    this.resp.setHeader('content-type', contentType);
+    this.resp.writeHead(code);
+    this.resp.end(data.content);
+};
+
+
+RequestHandler.prototype.writeCookie = function(descriptor, cookieStr){
+	cookieStr = cookieStr ? cookieStr : '';
+	
+	for(var key in descriptor) {
+        cookieStr += key + '=' + descriptor[key]+'; ';
+    }
 };
 
 RequestHandler.prototype.doRedirect = function(location) {

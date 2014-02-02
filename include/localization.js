@@ -65,7 +65,7 @@ global.localize = function(sets, text)
  * @param locale
  */
 function Localization(request){
-	this.language = Localization.best(request);
+	this.language = Localization.best(request).toString().toLowerCase();
 }
 
 Localization.SEP                = '^';
@@ -83,6 +83,9 @@ Localization.supported = null;
  * @returns The text where keys have been replaced with translated values
  */
 Localization.prototype.localize = function(sets, text){
+	if (pb.log.isDebug()) {
+		pb.log.debug('Localization: Localizing text - Locale ['+this.language+'] Sets '+JSON.stringify(sets));
+	}
 	
 	//get i18n from storage
 	var loc = Localization.storage[this.language];
@@ -130,7 +133,7 @@ Localization.init = function() {
 	for (var i = 0; i < pb.config.locales.supported.length; i++) {
 		
 		var localeDescriptor = pb.config.locales.supported[i];
-		Localization.storage[localeDescriptor.locale] = require(localeDescriptor.file);
+		Localization.storage[localeDescriptor.locale.toLowerCase()] = require(localeDescriptor.file);
 		
 		supportedLocales.push(localeDescriptor.locale);
 	}

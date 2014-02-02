@@ -20,6 +20,7 @@ global.locale     = require('locale');
 var promise       = require('node-promise');
 global.when       = promise.when;
 global.Promise    = promise.Promise;
+global.Cookies    = require('cookies');
 
 //hack for fs module
 fs.exists     = fs.exists     || path.exists;
@@ -71,6 +72,7 @@ pb.templates              = pb.TemplateServiceFactory.getService(pb.config.templ
 
 //setup request handling
 pb.RequestHandler = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
+pb.RequestHandler.init();
 
 //setup errors
 global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js');

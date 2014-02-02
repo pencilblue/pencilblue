@@ -10,7 +10,10 @@ function SimpleLayeredService(services, name){
 		for (var i = 0; i < this.services.length; i++){
 			serviceTypes.push(this.services[i].type);
 		}
-		pb.log.debug(name+": Initialized with layers - "+JSON.stringify(serviceTypes));
+		
+		if (pb.log.isDebug()) {
+			pb.log.debug(name+": Initialized with layers - "+JSON.stringify(serviceTypes));
+		}
 	}
 }
 
@@ -31,7 +34,9 @@ SimpleLayeredService.prototype.get = function(key, cb){
 			return i < instance.services.length && resultNotFound;
 		},
 		function(callback) {//do
-			pb.log.silly(instance.name+": Checking Service ["+instance.services[i].type+"] for Key ["+key+"]");
+			if (pb.log.isSilly()) {
+				pb.log.silly(instance.name+": Checking Service ["+instance.services[i].type+"] for Key ["+key+"]");
+			}
 			
 			instance.services[i].get(key, function(err, result){
 				if (util.isError(err)){
@@ -53,7 +58,6 @@ SimpleLayeredService.prototype.get = function(key, cb){
 		},
 		function(err){//when done
 			
-			//pb.debug.log(instance.name+": KEY=["+key+"] VAL=["+entity+"]");
 			if (entity) {
 				
 				//set value in services that didn't have it.

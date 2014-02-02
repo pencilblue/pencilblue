@@ -20,5 +20,26 @@ Setup.init = function(request, output) {
     });
 };
 
+Setup.prototype.init = function(props, cb) {
+	this.session             = props.session;
+	this.localizationService = props.localization_service;
+	cb();
+};
+
+Setup.prototype.render = function(cb) {
+	var self = this;
+	pb.templates.load('setup', 'Setup', null, function(data) {
+        var result = data;
+        
+        displayErrorOrSuccess(self.session, result, function(newSession, newResult) {
+            result = newResult;
+        
+            var sets    = ['setup', 'users'];
+            var content = self.localizationService.localize(sets, result);
+            cb({content: content});
+        });
+    });
+};
+
 //exports
 module.exports = Setup;

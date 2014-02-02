@@ -105,6 +105,7 @@ SessionHandler.HANDLER_SUFFIX = '_session_store.js';
 SessionHandler.SID_KEY        = 'uid';
 SessionHandler.TIMEOUT_KEY    = 'timeout';
 SessionHandler.COOKIE_HEADER  = 'parsed_cookies';
+SessionHandler.COOKIE_NAME    = 'session_id';
 
 /**
  * Retrieves a session for the current request.  When the session ID is 
@@ -342,6 +343,10 @@ SessionHandler.getSessionIdFromCookie = function(request){
         }
     }
 	return sessionId;
+};
+
+SessionHandler.getSessionCookie = function(session) {
+    return {session_id: session.uid, path: '/', expires: '0'};
 };
 
 //do module exports
