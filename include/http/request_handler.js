@@ -30,6 +30,22 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'setup.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/login",
+    	access_level: 0,
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'login.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/login",
+    	access_level: 0,
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'login.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -202,7 +218,7 @@ RequestHandler.prototype.server404 = function() {
 	this.writeResponse({content: 'Url ['+this.url.href+'] could not be found on this server'});
 	
 	if (pb.log.isSilly()) {
-		pb.log.silly("No Route Found: Sending 404 for URL="+this.url.href);
+		pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL="+this.url.href);
 	}
 };
 

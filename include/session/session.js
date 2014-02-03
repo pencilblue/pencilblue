@@ -261,7 +261,7 @@ SessionHandler.prototype.closeSession = function(session, output){
  * Shuts down the sesison handler and the associated session store
  */
 SessionHandler.prototype.shutdown = function(){
-	SessionHandler.SessionStore.shutdown();
+	SessionStore.shutdown();
 };
 
 /**
@@ -273,7 +273,8 @@ SessionHandler.prototype.create = function(request){
 	var session = {
 		authentication: {
 			user_id: null,
-			permissions: []
+			permissions: [],
+			admin_level: ACCESS_USER
 		},
 		ip: request.connection.remoteAddress,
 		client_id: SessionHandler.getClientId(request)

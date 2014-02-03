@@ -162,7 +162,7 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
                 return;
     		}
     		
-    		self.session.success = '^loc_READY_TO_USE^';
+    		session.success = '^loc_READY_TO_USE^';
     		cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/login'));
 		}
     );

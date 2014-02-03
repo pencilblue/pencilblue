@@ -88,12 +88,11 @@ require(DOCUMENT_ROOT+'/include/router');					// URL routing
 require(DOCUMENT_ROOT+'/include/query');					// Query parameter retrieval
 require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
 		// Database objects
-require(DOCUMENT_ROOT+'/include/access_management.js');		// Access management
+pb.security        = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;		// Access management
 pb.DocumentCreator = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
 require(DOCUMENT_ROOT+'/include/content');			        // Content settings and functions
 require(DOCUMENT_ROOT+'/include/email');			        // Email settings and functions
 require(DOCUMENT_ROOT+'/include/templates');				// Templatizing
-require(DOCUMENT_ROOT+'/include/localization');				// Localization
 require(DOCUMENT_ROOT+'/include/client_js');				// Client JS
 require(DOCUMENT_ROOT+'/include/admin_navigation');			// Admin Navigation
 require(DOCUMENT_ROOT+'/include/error_success');			// Error and Success Message Handling
