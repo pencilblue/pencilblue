@@ -347,7 +347,7 @@ SessionHandler.getSessionIdFromCookie = function(request){
 };
 
 SessionHandler.getSessionCookie = function(session) {
-    return {session_id: session.uid, path: '/', expires: '0'};
+    return {session_id: session.uid, path: '/'};
 };
 
 //do module exports

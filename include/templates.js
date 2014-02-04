@@ -103,6 +103,10 @@ TemplateService.SEP = '^';
 TemplateService.PREFIX = TemplateService.SEP+'tmp_';
 
 TemplateService.prototype.load = function(templateLocation, pageName, metaDesc, cb) {
+	this._load(templateLocation, pageName, metaDesc, true, cb);
+};
+
+TemplateService.prototype._load = function(templateLocation, pageName, metaDesc, doSubTemplates, cb) {
 	var fileLocation = TemplateService.getDefaultPath(templateLocation);
 	
 	//cehck for an active theme
@@ -126,17 +130,17 @@ TemplateService.prototype.load = function(templateLocation, pageName, metaDesc, 
     			
     			//just load default template
     			instance.get(fileLocation, function(err, defaultTemplateData){
-    				instance.transform(defaultTemplateData, pageName, metaDesc, fileLocation, cb);
+    				instance.transform(defaultTemplateData, pageName, metaDesc, fileLocation, doSubTemplates, cb);
     			});
     		}
     		else{
-    			instance.transform(customTemplateData, pageName, metaDesc, templatePath, cb);
+    			instance.transform(customTemplateData, pageName, metaDesc, templatePath, doSubTemplates, cb);
     		}
     	});
     });
 };
 
-TemplateService.prototype.transform = function(templateString, pageName, metaDesc, templatePath, cb){
+TemplateService.prototype.transform = function(templateString, pageName, metaDesc, templatePath, doSubTemplates, cb){
 	if(templateString == null){
 		pb.log.warn('TemplateService: No template was found for page ['+pageName+'] at location ['+templatePath+']');
         cb('');
@@ -158,18 +162,37 @@ TemplateService.prototype.transform = function(templateString, pageName, metaDes
     //set year
     templateString = templateString.split('^year^').join(new Date().getFullYear());
     
-    //check for sub template
-    var subTemplateIndex = templateString.indexOf('^tmp_');
-    if(subTemplateIndex >= 0){
-    	this.loadSubTemplate(templateString, pageName, metaDesc, cb);
-        return;
+    //verify sub-templates should be check for
+    if (!doSubTemplates) {
+    	cb(templateString);
+    	return;
     }
     
-    cb(templateString);
+    //check for sub templates
+    var self = this;
+    async.whilst(
+	    function () { return templateString.indexOf('^tmp_') >= 0; },
+	    function (callback) {
+	    	
+	    	var startIndex      = templateString.indexOf(TemplateService.PREFIX) + TemplateService.PREFIX.length;
+	        var endIndex        = templateString.substr(startIndex).indexOf(TemplateService.SEP);
+	        var templateName    = templateString.substr(startIndex, endIndex);
+	        var subtemplatePath = templateName.split('=').join('/');
+	        
+	        pb.log.silly(self.name+": Loading SubTemplate ["+subtemplatePath+"] Parent ["+templatePath+']');
+	        self._load(subtemplatePath, pageName, metaDesc, false, function(subTemplateStr){
+	        	templateString = templateString.split(TemplateService.PREFIX + templateName + TemplateService.SEP).join(subTemplateStr);
+	        	callback();
+	        });
+	    },
+	    function (err) {
+	        cb(templateString);
+	    }
+	);
 };
 
 TemplateService.prototype.loadSubTemplate = function(templateString, pageName, metaDesc, cb){
-    
+    var self         = this;
     var startIndex   = templateString.indexOf(TemplateService.PREFIX) + TemplateService.PREFIX.length;
     var endIndex     = templateString.substr(startIndex).indexOf(TemplateService.SEP);
     var templateName = templateString.substr(startIndex, endIndex);
@@ -182,10 +205,9 @@ TemplateService.prototype.loadSubTemplate = function(templateString, pageName, m
     	templateString = templateString.split(TemplateService.PREFIX + templateName + TemplateService.SEP).join(data);
         
     	//check for sub template
-    	var instance          = this;
         var subTemplateExists = templateString.indexOf('^tmp_');
         if(subTemplateExists){
-        	instance.loadSubTemplate(templateString, pageName, metaDesc, cb);
+        	self.loadSubTemplate(templateString, pageName, metaDesc, cb);
             return;
         }
         

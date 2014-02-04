@@ -70,6 +70,9 @@ pb.settings              = pb.SettingServiceFactory.getService(pb.config.setting
 pb.TemplateServiceFactory = require(DOCUMENT_ROOT+'/include/templates.js').TemplateServiceFactory;
 pb.templates              = pb.TemplateServiceFactory.getService(pb.config.templates.use_memory, pb.config.templates.use_cache);
 
+//setup security
+pb.security = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;
+
 //setup request handling
 pb.BaseController = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;
 pb.RequestHandler = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
@@ -87,14 +90,12 @@ require(DOCUMENT_ROOT+'/include/response_head');			//ContentType responses
 require(DOCUMENT_ROOT+'/include/router');					// URL routing
 require(DOCUMENT_ROOT+'/include/query');					// Query parameter retrieval
 require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
-		// Database objects
-pb.security        = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;		// Access management
 pb.DocumentCreator = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
 require(DOCUMENT_ROOT+'/include/content');			        // Content settings and functions
 require(DOCUMENT_ROOT+'/include/email');			        // Email settings and functions
 require(DOCUMENT_ROOT+'/include/templates');				// Templatizing
-require(DOCUMENT_ROOT+'/include/client_js');				// Client JS
-require(DOCUMENT_ROOT+'/include/admin_navigation');			// Admin Navigation
+pb.js = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;				// Client JS
+pb.AdminNavigation = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
 require(DOCUMENT_ROOT+'/include/error_success');			// Error and Success Message Handling
 require(DOCUMENT_ROOT+'/include/form');			            // Retrieving of form data through sessions
 require(DOCUMENT_ROOT+'/include/api/response');			    // API response formatting

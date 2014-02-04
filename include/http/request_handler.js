@@ -46,7 +46,15 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'login.js'),
     	content_type: 'text/html'
-    }
+    },
+    {
+    	method: 'get',
+    	path: "/admin",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'index.js'),
+    	content_type: 'text/html'
+    },
 ];
 
 RequestHandler.init = function(){
@@ -152,8 +160,8 @@ RequestHandler.prototype.handleRequest = function(){
 	}
 	
 	//check for session cookie
-	this.req.headers[pb.SessionHandler.COOKIE_HEADER] = RequestHandler.parseCookies(this.req);
-	this.setSessionCookie = Object.keys(this.req.headers[pb.SessionHandler.COOKIE_HEADER]).length == 0;
+	var cookies = RequestHandler.parseCookies(this.req);
+	this.req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
 	
 	//get locale preference
 	this.localizationService = new pb.Localization(this.req);
@@ -165,6 +173,17 @@ RequestHandler.prototype.handleRequest = function(){
     //open session
 	var self = this;
     pb.session.open(this.req, function(err, session){
+    	
+    	//set the session id when no session has started or the current one has 
+    	//expired.
+    	var sc = Object.keys(cookies).length == 0;
+    	var se = !sc && cookies.session_id != session.uid;
+    	self.setSessionCookie =  sc || se;
+    	if (pb.log.isSilly()) {
+    		pb.log.silly("RequestHandler: Session ID ["+session.uid+"] Cookie SID ["+cookies.session_id+"] Created ["+sc+"] Expired ["+se+"]");
+    	}
+    	
+    	//continue processing
     	self.onSessionRetrieved(err, session);
     });
 };
@@ -339,13 +358,10 @@ RequestHandler.prototype.writeResponse = function(data){
         code = 200;
     }
     
-    //set cookies
+    //set cookie
     var cookies = new Cookies(this.req, this.resp);
     if (this.setSessionCookie) {
-    	cookies.set(pb.SessionHandler.COOKIE_NAME, pb.SessionHandler.getSessionCookie(this.session));
-    }
-    if(typeof data.cookie !== 'undefined') {
-        cookies.set(data.cookie.name, data.cookie);
+    	cookies.set(pb.SessionHandler.COOKIE_NAME, this.session.uid, pb.SessionHandler.getSessionCookie(this.session));
     }
     
     // If a response code other than 200 is provided, force that code into the head

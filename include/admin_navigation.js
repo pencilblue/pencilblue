@@ -1,53 +1,43 @@
-global.getAdminNavigation = function(session, activeMenuItems)
-{
+global.getAdminNavigation = function(session, activeMenuItems) {
     return removeUnauthorizedAdminNavigation(session, clone(defaultAdminNavigation), activeMenuItems);
-}
+};
 
-global.removeUnauthorizedAdminNavigation = function(session, adminNavigation, activeItems)
-{
-    for(var i = 0; i < adminNavigation.length; i++)
-    {
-        if(typeof adminNavigation[i].access !== 'undefined')
-        {
-            if(!userIsAuthorized(session, {admin_level: adminNavigation[i].access}))
-            {
+global.removeUnauthorizedAdminNavigation = function(session, adminNavigation, activeItems) {
+    
+	for (var i = 0; i < adminNavigation.length; i++) {
+        if (typeof adminNavigation[i].access !== 'undefined') {
+            
+        	if (!pb.security.isAuthorized(session, {admin_level: adminNavigation[i].access})) {
                 adminNavigation.splice(i, 1);
                 i--;
                 continue;
             }
         }
         
-        for(var o = 0; o < activeItems.length; o++)
-        {
-            if(activeItems[o] == adminNavigation[i].id)
-            {
+        for (var o = 0; o < activeItems.length; o++) {
+            if (activeItems[o] == adminNavigation[i].id) {
                 adminNavigation[i].active = 'active';
                 break;
             }
         }
         
-        if(typeof adminNavigation[i].children !== 'undefined')
-        {
-            if(adminNavigation[i].children.length > 0)
-            {
-                adminNavigation[i].dropdown = 'dropdown'
+        if (typeof adminNavigation[i].children !== 'undefined') {
+            if (adminNavigation[i].children.length > 0) {
+                adminNavigation[i].dropdown = 'dropdown';
                 
-                for(var j = 0; j < adminNavigation[i].children.length; j++)
-                {
-                    if(typeof adminNavigation[i].children[j].access !== 'undefined')
-                    {
-                        if(!userIsAuthorized(session, {admin_level: adminNavigation[i].children[j].access}))
-                        {
+                for (var j = 0; j < adminNavigation[i].children.length; j++) {
+                    
+                	if (typeof adminNavigation[i].children[j].access !== 'undefined') {
+                        
+                		if (!pb.security.isAuthorized(session, {admin_level: adminNavigation[i].children[j].access})) {
                             adminNavigation[i].children.splice(j, 1);
                             j--;
                             continue;
                         }
                     }
                     
-                    for(var o = 0; o < activeItems.length; o++)
-                    {
-                        if(activeItems[o] == adminNavigation[i].children[j].id)
-                        {
+                    for (var o = 0; o < activeItems.length; o++) {
+                        if (activeItems[o] == adminNavigation[i].children[j].id) {
                             adminNavigation[i].children[j].active = 'active';
                             break;
                         }
@@ -58,7 +48,7 @@ global.removeUnauthorizedAdminNavigation = function(session, adminNavigation, ac
     }
     
     return adminNavigation;
-}
+};
 
 // Defines the default admin nav
 global.defaultAdminNavigation =
@@ -183,3 +173,20 @@ global.defaultAdminNavigation =
         ]
     }
 ];
+
+function AdminNavigation(){}
+
+AdminNavigation.get = function(session, activeMenuItems) {
+    return AdminNavigation.removeUnauthorized(
+    		session, 
+    		clone(defaultAdminNavigation), 
+    		activeMenuItems
+	);
+};
+
+AdminNavigation.removeUnauthorized = function(session, adminNavigation, activeItems) {
+	return global.removeUnauthorizedAdminNavigation(session, adminNavigation, activeItems);
+};
+
+//exports
+module.exports.AdminNavigation = AdminNavigation;
