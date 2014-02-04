@@ -52,7 +52,7 @@ this.init = function(request, output)
     
             initLocalization(request, session, function(data)
             {
-                getHTMLTemplate('admin/content/articles/edit_article', '^loc_EDIT_ARTICLE^', null, function(data)
+                getHTMLTemplate('admin/content/articles/edit_article', '^loc_EDIT^ ' + article.headline, null, function(data)
                 {
                     result = result.concat(data);
                     result = result.split('^article_id^').join(get['id']);
@@ -102,10 +102,19 @@ this.init = function(request, output)
                                         session = newSession;
                                         result = newResult;
                                         
+                                        var pills = articles.getPillNavOptions('edit_article');
+                                        pills.unshift(
+                                        {
+                                            name: 'manage_articles',
+                                            title: article.headline,
+                                            icon: 'chevron-left',
+                                            href: '/admin/content/articles/manage_articles'
+                                        });
+                                        
                                         result = result.concat(getAngularController(
                                         {
                                             navigation: getAdminNavigation(session, ['content', 'articles']),
-                                            pills: articles.getPillNavOptions('edit_article'),
+                                            pills: pills,
                                             tabs: tabs,
                                             templates: templates,
                                             sections: sections,

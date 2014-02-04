@@ -31,6 +31,7 @@ var loc =
         SAVE: 'Save',
         SAVE_DRAFT: 'Save draft',
         CANCEL: 'Cancel',
+        EDIT: 'Edit',
         DELETE: 'Delete',
         SUBMIT: 'Submit',
         NOW: 'Now',
@@ -122,7 +123,8 @@ var loc =
         CREATED: 'was created',
         ADDED: 'was added',
         EDITED: 'was edited',
-        DELETED: 'was deleted'
+        DELETED: 'was deleted',
+        NARROW_RESULTS: 'Narrow results'
     },
     sections:
     {

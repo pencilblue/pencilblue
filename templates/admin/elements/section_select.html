@@ -13,12 +13,9 @@
         </div>
     </div>
     <div id="inactive_sections" class="panel-body" style="min-height: 100px">
-        <div id="section_{{section._id}}" class="col-md-3 section" ng-repeat="section in sections" ng-cloak>
-            <div class="panel panel-info">
-                <div class="panel-heading">
-                    <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="section_name">{{section.name}}</span>
-                </div>
-            </div>
+        <div id="section_{{section._id}}" class="label label-default section_item" ng-repeat="section in sections" ng-cloak>
+            <i class="fa fa-bars"></i>&nbsp;
+            <span class="section_name">{{section.name}}</span>
         </div>
     </div>
 </div>
