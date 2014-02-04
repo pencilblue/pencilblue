@@ -138,6 +138,19 @@ a:hover
     outline.none;
 }
 
+.form-control, .input-group-addon, text-area
+{
+    border: 1px solid #B3B3B3;
+    box-shadow: none;
+}
+
+.form-control:focus, text-area:focus
+{
+    border: 1px solid #01AAD5;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
 .panel
 {
     box-shadow: none;
@@ -183,10 +196,35 @@ a:hover
     border: 1px solid #01AAD5;
 }
 
-.btn-primary:hover
+.btn-default:hover, .btn-primary:hover, .btn-info:hover, .btn-success:hover, .btn-warning:hover
 {
     background-color: #5D5D5D;
     border: 1px solid #5D5D5D;
+    color: #FFFFFF;
+}
+
+.btn-default
+{
+    background-color: #FFFFFF;
+    border: 1px solid #B3B3B3;
+}
+
+.btn-info
+{
+    background-color: #B3B3B3;
+    border: 1px solid #B3B3B3;
+}
+
+.btn-success
+{
+    background-color: #2BAA4C;
+    border: 1px solid #2BAA4C;
+}
+
+.btn-warning
+{
+    background-color: #FF9F40;
+    border: 1px solid #FF9F40;
 }
 
 .label-default
