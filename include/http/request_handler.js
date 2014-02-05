@@ -55,6 +55,14 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'index.js'),
     	content_type: 'text/html'
     },
+    {
+    	method: 'post',
+    	path: "/actions/logout",
+    	access_level: 0,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'logout.js'),
+    	content_type: 'text/html'
+    }
 ];
 
 RequestHandler.init = function(){
@@ -334,13 +342,17 @@ RequestHandler.prototype.onControllerInitialized = function(controller) {
 };
 
 RequestHandler.prototype.onRenderComplete = function(data){
+	
+	//do any necessary redirects
 	if(typeof data.redirect != "undefined") {
         this.doRedirect(data.redirect);
-        return;
     }
+	else {
+		//output data here
+		this.writeResponse(data);
+	}
 	
-	//output data here
-	this.writeResponse(data);
+	//calculate response time
 	if (pb.log.isDebug()) {
 		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+"ms URL="+this.req.url);
 	}

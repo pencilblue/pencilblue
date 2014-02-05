@@ -173,11 +173,27 @@ SessionHandler.prototype.close = function(session, cb) {
 	
 	//last active request using this session, persist it back to storage
 	if(this.purgeLocal(session[SessionHandler.SID_KEY])){
-		this.sessionStore.set(session, cb);
+		
+		if (session.end) {
+			this.sessionStore.clear(session.uid, cb);
+		}
+		else {
+			this.sessionStore.set(session, cb);
+		}
 		return;
 	}
 	
 	//another request is using the session object so just call back OK
+	cb(null, true);
+};
+
+/**
+ * Sets the session in a state that it should be terminated after the last request has completed.
+ * @param session
+ * @param cb
+ */
+SessionHandler.prototype.end = function(session, cb) {
+	session.end = true;
 	cb(null, true);
 };
 
