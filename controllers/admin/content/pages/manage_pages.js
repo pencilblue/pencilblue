@@ -45,10 +45,19 @@ this.init = function(request, output)
                         
                         instance.getPageAuthors(pages, function(pagesWithAuthorNames)
                         {
+                            var pills = require('../pages').getPillNavOptions('manage_pages');
+                            pills.unshift(
+                            {
+                                name: 'manage_pages',
+                                title: '^loc_MANAGE_PAGES^',
+                                icon: 'refresh',
+                                href: '/admin/content/pages/manage_pages'
+                            });
+                            
                             result = result.concat(getAngularController(
                             {
                                 navigation: getAdminNavigation(session, ['content', 'pages']),
-                                pills: require('../pages').getPillNavOptions('manage_pages'),
+                                pills: pills,
                                 pages: pagesWithAuthorNames
                             }));
                             

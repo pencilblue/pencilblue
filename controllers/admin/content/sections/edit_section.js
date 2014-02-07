@@ -70,10 +70,19 @@ this.init = function(request, output)
                         {
                             instance.getEditors(session, function(editors)
                             {
+                                var pills = require('../sections').getPillNavOptions('edit_section');
+                                pills.unshift(
+                                {
+                                    name: 'manage_topics',
+                                    title: section.name,
+                                    icon: 'chevron-left',
+                                    href: '/admin/content/sections/section_map'
+                                });
+                            
                                 result = result.concat(getAngularController(
                                 {
                                     navigation: getAdminNavigation(session, ['content', 'sections']),
-                                    pills: require('../sections').getPillNavOptions('edit_section'),
+                                    pills: pills,
                                     tabs: tabs,
                                     parents: parents,
                                     editors: editors,

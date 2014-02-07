@@ -12,23 +12,18 @@ this.getPillNavOptions = function(activePill)
     var pillNavOptions = 
     [
         {
-            name: 'manage_topics',
-            title: '^loc_MANAGE_TOPICS^',
-            icon: 'list-alt',
-            href: '/admin/content/topics/manage_topics'
+            name: 'import_topics',
+            title: '',
+            icon: 'upload',
+            href: '/admin/content/topics/import_topics'
         },
         {
             name: 'new_topic',
-            title: '^loc_NEW_TOPIC^',
+            title: '',
             icon: 'plus',
             href: '/admin/content/topics/new_topic'
-        },
-        {
-            name: 'import_topics',
-            title: '^loc_IMPORT_TOPICS^',
-            icon: 'upload',
-            href: '/admin/content/topics/import_topics'
         }
+        
     ];
     
     if(typeof activePill !== 'undefined')
