@@ -138,6 +138,13 @@ a:hover
     outline.none;
 }
 
+.alert-info
+{
+    background: #E7E7E7;
+    color: #5D5D5D;
+    border: none;
+}
+
 .form-control, .input-group-addon, text-area
 {
     border: 1px solid #B3B3B3;

@@ -30,10 +30,19 @@ this.init = function(request, output)
                 {
                     result = newResult;
                     
+                    var pills = require('../site_settings').getPillNavOptions('configuration');
+                    pills.unshift(
+                    {
+                        name: 'configuration',
+                        title: '^loc_CONFIGURATION^',
+                        icon: 'refresh',
+                        href: '/admin/site_settings/configuration'
+                    });
+                    
                     result = result.concat(getAngularController(
                     {
                         navigation: getAdminNavigation(session, ['settings', 'site_settings']),
-                        pills: require('../site_settings').getPillNavOptions('configuration')
+                        pills: pills
                     }));
                     
                     editSession(request, session, [], function(data)
