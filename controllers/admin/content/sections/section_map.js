@@ -51,10 +51,19 @@ this.init = function(request, output)
                             session = newSession;
                             result = newResult;
                             
+                            var pills = require('../sections').getPillNavOptions('section_map');
+                            pills.unshift(
+                            {
+                                name: 'section_map',
+                                title: '^loc_SECTION_MAP^',
+                                icon: 'refresh',
+                                href: '/admin/content/sections/section_map'
+                            });
+                            
                             result = result.concat(getAngularController(
                             {
                                 navigation: getAdminNavigation(session, ['content', 'sections']),
-                                pills: require('../sections').getPillNavOptions('section_map'),
+                                pills: pills,
                                 sections: instance.getOrderedSections(sections, sectionMap)
                             }));
                             

@@ -1,56 +1,53 @@
-^tmp_admin=head^
-<div id="main" class="container-fluid">
-    <div class="row-fluid">
-        ^tmp_admin=elements=pill_nav^
-        <div class="col-md-9">
-        ^error_success^
-        ^tmp_admin=elements=tab_nav^
-        <form id="edit_section_form" method="post" action="/actions/admin/content/sections/edit_section?id=^section_id^">
-            <fieldset>
-                <div class="tab-content">
-                    <div class="tab-pane active" id="section_settings">
-                        <div class="form-group">
-                            <label>^loc_SECTION_NAME^</label>
-                            <input type="text" id="name" name="name" class="form-control" value="{{section.name}}"></input>
-                        </div>
-                        <div class="form-group">
-                            <label>^loc_DESCRIPTION^</label>
-                            <textarea id="description" name="description" class="form-control">{{section.description}}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>^loc_URL_KEY^</label>
-                            <input type="text" id="url" name="url" class="form-control" value="{{section.url}}"></input>
-                        </div>
-                        <div class="form-group">
-                            <label>^loc_PARENT_SECTION^</label>
-                            <select id="parent" name="parent" class="form-control">
-                                <option value="">^loc_NONE^</option>
-                                <option value="{{parent._id}}" ng-repeat="parent in parents" ng-selected="section.parent == parent._id" ng-cloak>{{parent.name}}</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>^loc_EDITOR^</label>
-                            <select id="editor" name="editor" class="form-control">
-                                <option value="{{editor._id}}" ng-repeat="editor in editors" ng-selected="section.editor == editor._id" ng-cloak>{{editor.name}}</option>
-                            </select>
-                        </div>
+^tmp_admin=head^   
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form id="edit_section_form" method="post" action="/actions/admin/content/sections/edit_section?id=^section_id^">
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="section_settings">
+                    <div class="form-group">
+                        <label>^loc_SECTION_NAME^</label>
+                        <input type="text" id="name" name="name" class="form-control" value="{{section.name}}"></input>
                     </div>
-                    <div class="tab-pane" id="section_meta_data">
-                        <div class="form-group">
-                            <label>^loc_META_KEYWORDS^</label>
-                            <input type="text" id="keywords" name="keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^" value="{{section.keywords}}"></input>
-                        </div>
+                    <div class="form-group">
+                        <label>^loc_DESCRIPTION^</label>
+                        <textarea id="description" name="description" class="form-control">{{section.description}}</textarea>
                     </div>
-                    <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/sections';">
-                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
-                    </button>
+                    <div class="form-group">
+                        <label>^loc_URL_KEY^</label>
+                        <input type="text" id="url" name="url" class="form-control" value="{{section.url}}"></input>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_PARENT_SECTION^</label>
+                        <select id="parent" name="parent" class="form-control">
+                            <option value="">^loc_NONE^</option>
+                            <option value="{{parent._id}}" ng-repeat="parent in parents" ng-selected="section.parent == parent._id" ng-cloak>{{parent.name}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_EDITOR^</label>
+                        <select id="editor" name="editor" class="form-control">
+                            <option value="{{editor._id}}" ng-repeat="editor in editors" ng-selected="section.editor == editor._id" ng-cloak>{{editor.name}}</option>
+                        </select>
+                    </div>
                 </div>
-            </fieldset>
-        </form>
-    </div>
+                <div class="tab-pane" id="section_meta_data">
+                    <div class="form-group">
+                        <label>^loc_META_KEYWORDS^</label>
+                        <input type="text" id="keywords" name="keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^" value="{{section.keywords}}"></input>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/sections';">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                </button>
+            </div>
+        </fieldset>
+    </form>
 </div>
 <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/content/sections/edit_section.js"></script>
