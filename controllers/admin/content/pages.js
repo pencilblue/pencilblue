@@ -12,14 +12,8 @@ this.getPillNavOptions = function(activePill)
     var pillNavOptions = 
     [
         {
-            name: 'manage_pages',
-            title: '^loc_MANAGE_PAGES^',
-            icon: 'file-o',
-            href: '/admin/content/pages/manage_pages'
-        },
-        {
             name: 'new_page',
-            title: '^loc_NEW_PAGE^',
+            title: '',
             icon: 'plus',
             href: '/admin/content/pages/new_page'
         }
