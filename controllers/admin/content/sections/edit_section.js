@@ -73,7 +73,7 @@ this.init = function(request, output)
                                 var pills = require('../sections').getPillNavOptions('edit_section');
                                 pills.unshift(
                                 {
-                                    name: 'edit_section',
+                                    name: 'manage_topics',
                                     title: section.name,
                                     icon: 'chevron-left',
                                     href: '/admin/content/sections/section_map'

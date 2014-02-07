@@ -1,43 +1,39 @@
 ^tmp_admin=head^
-<div id="main" class="container-fluid">
-    <div class="row-fluid">
-        ^tmp_admin=elements=pill_nav^    
-        <div class="col-md-9">
-            ^error_success^
-            <div id="topics">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <div class="input-group">
-                            <input type="text" id="topic_search" name="topic_search" class="form-control"></input>
-                            <span class="input-group-btn">
-                                <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div id="topic_{{topic._id}}" class="label label-info topic" ng-repeat="topic in topics" ng-cloak>
-                            <a href="javascript:confirmDeleteTopic('{{topic._id}}', '{{topic.name}}')">
-                                <span class="topic_name">{{topic.name}}</span>&nbsp;<i class="fa fa-times"></i>
-                            </a>
-                        </div>
-                    </div>
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    <div id="topics">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <div class="input-group">
+                    <input type="text" id="topic_search" name="topic_search" class="form-control"></input>
+                    <span class="input-group-btn">
+                        <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+                    </span>
                 </div>
             </div>
-            <div class="modal fade" id="confirm_delete_modal">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            ^loc_CONFIRM_DELETE^ <span id="delete_name"></span>?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                            </button>
-                            <button type="button" id="delete_button" class="btn btn-danger">
-                                <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
-                            </button>
-                        </div>
-                    </div>
+            <div class="panel-body">
+                <div id="topic_{{topic._id}}" class="label label-info topic" ng-repeat="topic in topics" ng-cloak>
+                    <a href="javascript:confirmDeleteTopic('{{topic._id}}', '{{topic.name}}')">
+                        <span class="topic_name">{{topic.name}}</span>&nbsp;<i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="confirm_delete_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    ^loc_CONFIRM_DELETE^ <span id="delete_name"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button type="button" id="delete_button" class="btn btn-danger">
+                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
+                    </button>
                 </div>
             </div>
         </div>
