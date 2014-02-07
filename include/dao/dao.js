@@ -31,6 +31,16 @@ DAO.prototype.loadById = function(id, objectType, collection){
 };
 
 /**
+ * Retrieves the count based on the specified criteria
+ * @param entityType
+ * @param where
+ * @param cb
+ */
+DAO.prototype.count = function(entityType, where, cb) {
+	this._doQuery(entityType, where).count(cb);
+};
+
+/**
  * Provides a function to query the database.  
  * TODO determine if we need to enforce an upper bound on limit to prevent misuse.
  * 
@@ -43,6 +53,23 @@ DAO.prototype.loadById = function(id, objectType, collection){
  * @returns Promise
  */
 DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset){
+	
+	var cursor  = this._doQuery(entityType, where, select, orderBy, limit, offset);
+	var promise = new Promise();
+	cursor.toArray(function(err, docs){
+        promise.resolve(err ? err : docs);
+    });
+	
+	//clean up
+	cursor.close(function(err){
+		if (err) {
+			pb.log.error("DAO::Query: An error occurred while attempting to close the cursor. "+err);
+		}
+	});
+	return promise;
+};
+
+DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, offset) {
 	//verify a collection was provided
 	if (typeof entityType === 'undefined') {
 		throw Error('An entity type must be specified!');
@@ -75,19 +102,7 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
 		}
 		pb.log.debug(query);
 	}
-	
-	var promise = new Promise();
-	cursor.toArray(function(err, docs){
-        promise.resolve(err ? err : docs);
-    });
-	
-	//clean up
-	cursor.close(function(err){
-		if (err) {
-			pb.log.error("DAO::Query: An error occurred while attempting to close the cursor. "+err);
-		}
-	});
-	return promise;
+	return cursor;
 };
 
 /**

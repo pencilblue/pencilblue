@@ -14,11 +14,13 @@ global.minify     = require('minify');
 global.winston    = require('winston');
 global.async      = require('async');
 global.crypto     = require('crypto');
+global.util       = require('util');
 global.locale     = require('locale');
 
 var promise       = require('node-promise');
 global.when       = promise.when;
 global.Promise    = promise.Promise;
+global.Cookies    = require('cookies');
 
 //hack for fs module
 fs.exists     = fs.exists     || path.exists;
@@ -53,6 +55,32 @@ pb.session        = new pb.SessionHandler();
 //setup utils
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
 
+//setup object services
+pb.SimpleLayeredService = require(DOCUMENT_ROOT+'/include/service/simple_layered_service.js').SimpleLayeredService;
+pb.MemoryEntityService  = require(DOCUMENT_ROOT+'/include/service/memory_entity_service.js').MemoryEntityService;
+pb.CacheEntityService   = require(DOCUMENT_ROOT+'/include/service/cache_entity_service.js').CacheEntityService;
+pb.DBEntityService      = require(DOCUMENT_ROOT+'/include/service/db_entity_service.js').DBEntityService;
+pb.FSEntityService      = require(DOCUMENT_ROOT+'/include/service/fs_entity_service.js').FSEntityService;
+
+//setup settings service
+pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').SettingServiceFactory;
+pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
+
+//setup template service
+pb.TemplateServiceFactory = require(DOCUMENT_ROOT+'/include/templates.js').TemplateServiceFactory;
+pb.templates              = pb.TemplateServiceFactory.getService(pb.config.templates.use_memory, pb.config.templates.use_cache);
+
+//setup security
+pb.security = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;
+
+//setup request handling
+pb.BaseController = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;
+pb.RequestHandler = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
+pb.RequestHandler.init();
+
+//setup errors
+global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js');
+
 //setup localization
 pb.Localization = require(DOCUMENT_ROOT+'/include/localization.js').Localization;
 pb.Localization.init();
@@ -62,15 +90,12 @@ require(DOCUMENT_ROOT+'/include/response_head');			//ContentType responses
 require(DOCUMENT_ROOT+'/include/router');					// URL routing
 require(DOCUMENT_ROOT+'/include/query');					// Query parameter retrieval
 require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
-		// Database objects
-require(DOCUMENT_ROOT+'/include/access_management.js');		// Access management
-require(DOCUMENT_ROOT+'/include/model/create_document.js');	// Document creation
+pb.DocumentCreator = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
 require(DOCUMENT_ROOT+'/include/content');			        // Content settings and functions
 require(DOCUMENT_ROOT+'/include/email');			        // Email settings and functions
 require(DOCUMENT_ROOT+'/include/templates');				// Templatizing
-require(DOCUMENT_ROOT+'/include/localization');				// Localization
-require(DOCUMENT_ROOT+'/include/client_js');				// Client JS
-require(DOCUMENT_ROOT+'/include/admin_navigation');			// Admin Navigation
+pb.js = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;				// Client JS
+pb.AdminNavigation = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
 require(DOCUMENT_ROOT+'/include/error_success');			// Error and Success Message Handling
 require(DOCUMENT_ROOT+'/include/form');			            // Retrieving of form data through sessions
 require(DOCUMENT_ROOT+'/include/api/response');			    // API response formatting

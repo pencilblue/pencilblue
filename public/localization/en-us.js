@@ -302,6 +302,6 @@ if(typeof global !== 'undefined') {
  global.localizationLanguage = 'en';
 }
 
-if(typeof modules !== 'undefined') {
+if(typeof module !== 'undefined') {
  module.exports = loc;
 }

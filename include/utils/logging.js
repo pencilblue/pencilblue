@@ -8,8 +8,13 @@ module.exports.logger = function(winston, config){
 	    transports: config.logging.transports,
 	    level: config.logging.level
    });
+	
 	logger.isDebug = function(){
 		return pb.log.levels[pb.log.level] <= 1;
+	};
+	
+	logger.isSilly = function(){
+		return pb.log.levels[pb.log.level] <= 0;
 	};
 	return logger;
 };

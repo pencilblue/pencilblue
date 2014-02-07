@@ -51,7 +51,7 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
 
 this.updateSectionMap = function(removeID, output)
 {
@@ -89,4 +89,4 @@ this.updateSectionMap = function(removeID, output)
             output();
         });
     });
-}
+};

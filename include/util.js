@@ -23,6 +23,22 @@ Util.onPromisesOk = function(promises, cb){
 	}
 };
 
+/**
+ * Assets Not Error.  If the object is an error the function will throw the error.  If the
+ */
+Util.ane = function(obj){
+	if (util.isError(obj)) {
+		throw obj;
+	}
+};
+
+/**
+ * Empty callback function just used as a place holder if a callback is required 
+ * and the result is not needed.
+ */
+Util.cb = function(err, result){
+	//do nothing
+};
 
 Util.uniqueId = function(){
 	return global.uniqueID();

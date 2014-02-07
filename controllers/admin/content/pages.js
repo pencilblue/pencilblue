@@ -1,16 +1,14 @@
-/*
+/**
 
     Pages administration page
     
     @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+    @copyright PencilBlue 2014, All rights reserved
 
 */
-
 this.getPillNavOptions = function(activePill)
 {
-    var pillNavOptions = 
-    [
+    var pillNavOptions = [
         {
             name: 'manage_pages',
             title: '^loc_MANAGE_PAGES^',
@@ -23,7 +21,7 @@ this.getPillNavOptions = function(activePill)
             icon: 'plus',
             href: '/admin/content/pages/new_page'
         }
-    ]
+    ];
     
     if(typeof activePill !== 'undefined')
     {
@@ -41,11 +39,11 @@ this.getPillNavOptions = function(activePill)
 
 this.getTemplates = function(output)
 {
-    getDBObjectsWithValues({object_type: 'setting', key: 'active_theme'}, function(data)
+    pb.settings.get('active_theme', function(activeTheme)
     {
-        if(data.length > 0)
+        if(activeTheme != null)
         {
-            fs.readdir(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/controllers', function(error, directory)
+            fs.readdir(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/controllers', function(error, directory)
             {
                 for(var file in directory)
                 {
@@ -56,7 +54,7 @@ this.getTemplates = function(output)
                     }
                 }
                 
-                fs.readFile(DOCUMENT_ROOT + '/plugins/themes/' + data[0]['value'] + '/details.json', function(error, data)
+                fs.readFile(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/details.json', function(error, data)
                 {
                     if(error)
                     {
@@ -142,7 +140,6 @@ this.getMediaLink = function(mediaType, mediaLocation, isFile)
     }
 };
 
-this.init = function(request, output)
-{
+this.init = function(request, output) {
     output({redirect: pb.config.siteRoot + '/admin/content/pages/manage_pages'});
-}
+};

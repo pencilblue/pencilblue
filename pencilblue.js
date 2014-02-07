@@ -41,46 +41,17 @@ function initDBConnections(){
 /**
  * Initializes the server
  */
-var server;
 function initServer(){
 	log.debug('Starting server...');
-	pb.server = http.createServer(function(request, response){
-	    
-	    if(request.headers.cookie)
-	    {
-	        var parsedCookies = {};
-	        var cookieParameters = request.headers.cookie.split(';');
-	        for(var i = 0; i < cookieParameters.length; i++)
-	        {
-	            var cookieParameter = cookieParameters[i].split('=');
-	            parsedCookies[cookieParameter[0]] = cookieParameter[1];
-	        }
-	        request.headers['parsed_cookies'] = parsedCookies;
-	    }
-	    
-	    if(request.headers['content-type'])
-	    {
-	        if(request.headers['content-type'].indexOf('multipart/form-data') > -1)
-	        {
-	            return;
-	        }
-	    }
-	    
-	    request.on('data', function(chunk)
-	    {
-	        if(typeof request.headers['post'] == 'undefined')
-	        {
-	            request.headers['post'] = '';
-	        }
-	        request.headers['post'] += chunk;
-	    });
-	    
-	    // /include/router.js
-	    var route = new Route(request, response);
-	});
+	pb.server = http.createServer(onHttpConnect);
 	
 	pb.server.listen(pb.config.sitePort, pb.config.siteIP);
 	log.info(pb.config.siteName + ' running on ' + pb.config.siteRoot);
+}
+
+function onHttpConnect(req, resp){
+    var handler = new pb.RequestHandler(pb.server, req, resp);
+    handler.handleRequest();
 }
 
 /**

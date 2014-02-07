@@ -105,6 +105,7 @@ SessionHandler.HANDLER_SUFFIX = '_session_store.js';
 SessionHandler.SID_KEY        = 'uid';
 SessionHandler.TIMEOUT_KEY    = 'timeout';
 SessionHandler.COOKIE_HEADER  = 'parsed_cookies';
+SessionHandler.COOKIE_NAME    = 'session_id';
 
 /**
  * Retrieves a session for the current request.  When the session ID is 
@@ -172,11 +173,27 @@ SessionHandler.prototype.close = function(session, cb) {
 	
 	//last active request using this session, persist it back to storage
 	if(this.purgeLocal(session[SessionHandler.SID_KEY])){
-		this.sessionStore.set(session, cb);
+		
+		if (session.end) {
+			this.sessionStore.clear(session.uid, cb);
+		}
+		else {
+			this.sessionStore.set(session, cb);
+		}
 		return;
 	}
 	
 	//another request is using the session object so just call back OK
+	cb(null, true);
+};
+
+/**
+ * Sets the session in a state that it should be terminated after the last request has completed.
+ * @param session
+ * @param cb
+ */
+SessionHandler.prototype.end = function(session, cb) {
+	session.end = true;
 	cb(null, true);
 };
 
@@ -260,7 +277,7 @@ SessionHandler.prototype.closeSession = function(session, output){
  * Shuts down the sesison handler and the associated session store
  */
 SessionHandler.prototype.shutdown = function(){
-	SessionHandler.SessionStore.shutdown();
+	SessionStore.shutdown();
 };
 
 /**
@@ -272,7 +289,8 @@ SessionHandler.prototype.create = function(request){
 	var session = {
 		authentication: {
 			user_id: null,
-			permissions: []
+			permissions: [],
+			admin_level: ACCESS_USER
 		},
 		ip: request.connection.remoteAddress,
 		client_id: SessionHandler.getClientId(request)
@@ -342,6 +360,10 @@ SessionHandler.getSessionIdFromCookie = function(request){
         }
     }
 	return sessionId;
+};
+
+SessionHandler.getSessionCookie = function(session) {
+    return {session_id: session.uid, path: '/'};
 };
 
 //do module exports
