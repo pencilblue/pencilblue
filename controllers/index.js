@@ -1,13 +1,24 @@
-/*
+/**
+ * Index page of the pencilblue theme
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2013, All rights reserved
+ */
+function Index(){}
 
-    Index page of the pencilblue theme
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+//inheritance
+util.inherits(Logout, pb.BaseController);
 
-*/
+Index.prototype.render = function() {
+	//move setup check to settings
+	//add function to security to see if setup
+	//modify route definitions
+	//modify request handler to inspect security
+	//implement functionality below
+	//add route definition for controller
+};
 
-this.init = function(request, output)
+Index.init = function(request, output)
 {
     var result = '';
     var instance = this;
@@ -81,4 +92,7 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
+
+//exports
+module.exports = Index;
