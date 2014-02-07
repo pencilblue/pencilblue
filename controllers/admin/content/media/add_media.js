@@ -49,10 +49,19 @@ this.init = function(request, output)
                     getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
                     {
                     
+                        var pills = require('../media').getPillNavOptions('add_media');
+                        pills.unshift(
+                        {
+                            name: 'manage_media',
+                            title: '^loc_ADD_MEDIA^',
+                            icon: 'chevron-left',
+                            href: '/admin/content/media/manage_media'
+                        });
+                    
                         result = result.concat(getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['content', 'media']),
-                            pills: require('../media').getPillNavOptions('add_media'),
+                            pills: pills,
                             tabs: tabs,
                             topics: topics
                         }));

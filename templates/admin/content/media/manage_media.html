@@ -1,61 +1,48 @@
-^tmp_admin=head^
-<div id="main" class="container-fluid">
-    <div class="row-fluid">
-        ^tmp_admin=elements=pill_nav^    
-        <div class="col-md-9">
-        ^error_success^
-        <div id="media_manage">
-            <div class="panel panel-info">
-                <div class="panel-heading">
-                    <div class="input-group">
-                        <input type="text" id="media_search" name="media_search" class="form-control"></input>
-                        <span class="input-group-btn">
-                            <button id="media_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-                        </span>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div id="media_{{mediaItem._id}}" class="col-md-3 media_item" ng-repeat="mediaItem in media" ng-cloak>
-                        <div class="panel panel-info">
-                            <div class="panel-heading">
-                                <div style="font-size: 1.5em">
-                                    <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
-                                    <a href="javascript:confirmDeleteMedia('{{mediaItem._id}}', '{{mediaItem.name}}')">
-                                        <i class="fa fa-times" style="float: right;"></i>
-                                    </a>
-                                    &nbsp;
-                                    <a href="/admin/content/media/edit_media?id={{mediaItem._id}}">
-                                        <i class="fa fa-pencil" style="float: right; margin-right: .5em;"></i>
-                                    </a>
-                                    &nbsp;
-                                    <a href="javascript:window.open('{{mediaItem.link}}', '_blank')">
-                                        <i class="fa fa-eye" style="float: right; margin-right: .5em;"></i>
-                                    </a>
-                                </div>
-                                <div class="media_name">{{mediaItem.name}}</div>
-                            </div>
-                            <div class="panel-footer">
-                                <span class="media_caption">{{mediaItem.caption}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+^tmp_admin=head^    
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^ 
+    <div id="media_manage">
+        <div class="input-group" style="margin-bottom: .5em">
+            <input type="text" id="media_search" name="media_search" class="form-control"></input>
+            <span class="input-group-btn">
+                <button id="media_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+            </span>
         </div>
-        <div class="modal fade" id="confirm_delete_modal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        ^loc_CONFIRM_DELETE^ <span id="delete_name"></span>?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">
-                            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                        </button>
-                        <button type="button" id="delete_button" class="btn btn-danger">
-                            <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
-                        </button>
-                    </div>
+        <table id="pages_table" class="table table-responsive table-condensed">
+            <tr id="pages_table_header">
+                <th></th>
+                <th>^loc_MEDIA^</th>
+                <th>^loc_DATE_ADDED^</th>
+                <th></th>
+            </tr>
+            <tr class="media_row" ng-repeat="mediaItem in media" ng-cloak>
+                <td>
+                    <a href="{{mediaItem.link}}" target="_blank">
+                        <i class="fa fa-{{mediaItem.icon}} fa-lg" style="float: right; margin-right: .5em;"></i>
+                    </a>
+                </td>
+                <td class="media_name">
+                    <a href="/admin/content/media/edit_media?id={{mediaItem._id}}">{{mediaItem.name}}</a>
+                </td>
+                <td>{{mediaItem.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+                <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal fade" id="confirm_delete_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    ^loc_CONFIRM_DELETE^ <span id="delete_name"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button type="button" id="delete_button" class="btn btn-danger">
+                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
+                    </button>
                 </div>
             </div>
         </div>

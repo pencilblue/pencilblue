@@ -46,7 +46,8 @@ var loc =
         SUBMIT_COMMENT: 'Submit a comment',
         LOGIN_TO_COMMENT: 'Login to comment',
         COMMENT_SUBMITTED: 'Your comment was submitted',
-        COMMENT_ERROR: 'There was an error submitting your comment'
+        COMMENT_ERROR: 'There was an error submitting your comment',
+        DATE_ADDED: 'Date added'
     },
     error:
     {
