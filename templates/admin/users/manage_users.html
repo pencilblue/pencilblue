@@ -1,21 +1,31 @@
 ^tmp_admin=head^
-<div id="main" class="container-fluid">
-    <div class="row-fluid">
-        ^tmp_admin=elements=pill_nav^
-        <div class="col-md-9">
-        ^error_success^
-        <div class="row">
-            <div class="col-md-4" ng-repeat="user in users" ng-cloak>
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        {{user.username}} | {{user.first_name}} {{user.last_name}}
-                        <i class="fa fa-times fa-lg" style="float: right"></i>
-                        <a href="/admin/users/edit_user?id={{user._id}}"><i class="fa fa-pencil fa-lg" style="float: right; margin-right: .5em"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    <div class="input-group" style="margin-bottom: .5em">
+        <input type="text" id="user_search" name="user_search" class="form-control"></input>
+        <span class="input-group-btn">
+            <button id="user_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+        </span>
     </div>
+    <table id="users_table" class="table table-responsive table-condensed">
+        <tr id="users_table_header">
+            <th>^loc_USERNAME^</th>
+            <th>^loc_NAME^</th>
+            <th>^loc_EMAIL^</th>
+            <th>^loc_DATE_ADDED^</th>
+        </tr>
+        <tr class="user_row"  ng-repeat="user in users" ng-cloak>
+            <td>
+                <a href="/admin/users/edit_user?id={{user._id}}">{{user.username}}</a>
+            </td>
+            <td class="user_name">{{user.first_name}} {{user.last_name}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
+        </tr>
+    </table>
 </div>
+<script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/users/manage_users.js"></script>
 ^tmp_admin=footer^

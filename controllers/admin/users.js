@@ -12,14 +12,8 @@ this.getPillNavOptions = function(activePill)
     var pillNavOptions = 
     [
         {
-            name: 'manage_users',
-            title: '^loc_MANAGE_USERS^',
-            icon: 'list-alt',
-            href: '/admin/users/manage_users'
-        },
-        {
             name: 'new_user',
-            title: '^loc_NEW_USER^',
+            title: '',
             icon: 'plus',
             href: '/admin/users/new_user'
         }

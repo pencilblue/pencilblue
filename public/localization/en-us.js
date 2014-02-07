@@ -220,6 +220,7 @@ var loc =
         PERSONAL_INFO: 'Personal info',
         USERNAME: 'Username',
         USER_PHOTO: 'User photo',
+        NAME: 'Name',
         FIRST_NAME: 'First name',
         LAST_NAME: 'Last name',
         POSITION: 'Position',
