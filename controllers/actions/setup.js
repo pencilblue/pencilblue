@@ -1,8 +1,12 @@
+/**
+ * 
+ * @copyright PencilBlue, LLC 2014 All Rights Reserved
+ */
+function Setup(){}
+
 // Retrieve the header, body, and footer and return them to the router
-this.init = function(request, output)
-{
-    var instance = this;
-    
+Setup.init = function(request, output)
+{   
     getDBObjectsWithValues({object_type: 'user'}, function(data)
     {
         if(data.length > 0)
@@ -41,7 +45,7 @@ this.init = function(request, output)
                         return;
                     }
                     
-                    settingDocument = createDocument('setting', {key: 'content_settings', value: instance.getDefaultContentSettings()});
+                    settingDocument = createDocument('setting', {key: 'content_settings', value: Setup.getDefaultContentSettings()});
                     createDBObject(settingDocument, function(data)
                     {
                         if(data.length == 0)
@@ -62,7 +66,7 @@ this.init = function(request, output)
     });
 };
 
-this.getDefaultContentSettings = function()
+Setup.getDefaultContentSettings = function()
 {
     defaultContentSettings =
     {
@@ -81,8 +85,6 @@ this.getDefaultContentSettings = function()
     
     return defaultContentSettings;
 };
-
-function Setup(){}
 
 //inheritance 
 util.inherits(Setup, pb.BaseController);

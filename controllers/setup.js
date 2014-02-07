@@ -1,4 +1,7 @@
-// Retrieve the header, body, and footer and return them to the router
+/**
+ * 
+ * @copyright PencilBlue, LLC 2014 All Rights Reserved
+ */
 function Setup(){}
 
 //inheritance 

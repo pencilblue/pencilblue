@@ -116,7 +116,7 @@ TemplateService.prototype._load = function(templateLocation, pageName, metaDesc,
     		
     		//just load default template
 			instance.get(fileLocation, function(err, defaultTemplateData){
-				instance.transform(defaultTemplateData, pageName, metaDesc, fileLocation, cb);
+				instance.transform(defaultTemplateData, pageName, metaDesc, fileLocation, doSubTemplates, cb);
 			});
     		return;
     	}

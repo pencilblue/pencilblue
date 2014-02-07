@@ -1,5 +1,11 @@
+/**
+ * 
+ * @copyright PencilBlue, LLC 2014 All Rights Reserved
+ */
+function Login(){}
+
 // Retrieve the header, body, and footer and return them to the router
-this.init = function(request, output)
+Login.init = function(request, output)
 {
     var result = '';
     
@@ -37,7 +43,7 @@ this.init = function(request, output)
     });
 };
 
-function Login(){}
+
 
 //inheritance 
 util.inherits(Login, pb.BaseController);

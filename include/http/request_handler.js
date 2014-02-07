@@ -175,25 +175,34 @@ RequestHandler.prototype.handleRequest = function(){
 	this.localizationService = new pb.Localization(this.req);
     
     // /include/router.js
-    //var route = new Route(this.req, this.resp);
-    //route.route();
+	var self = this;
+	this.req.on('data', function(chunk)
+    {
+        if(typeof self.req.headers['post'] == 'undefined')
+        {
+            self.req.headers['post'] = '';
+        }
+        self.req.headers['post'] += chunk;
+    });
+    var route = new Route(this.req, this.resp);
+    route.route();
     
     //open session
-	var self = this;
-    pb.session.open(this.req, function(err, session){
-    	
-    	//set the session id when no session has started or the current one has 
-    	//expired.
-    	var sc = Object.keys(cookies).length == 0;
-    	var se = !sc && cookies.session_id != session.uid;
-    	self.setSessionCookie =  sc || se;
-    	if (pb.log.isSilly()) {
-    		pb.log.silly("RequestHandler: Session ID ["+session.uid+"] Cookie SID ["+cookies.session_id+"] Created ["+sc+"] Expired ["+se+"]");
-    	}
-    	
-    	//continue processing
-    	self.onSessionRetrieved(err, session);
-    });
+//	var self = this;
+//    pb.session.open(this.req, function(err, session){
+//    	
+//    	//set the session id when no session has started or the current one has 
+//    	//expired.
+//    	var sc = Object.keys(cookies).length == 0;
+//    	var se = !sc && cookies.session_id != session.uid;
+//    	self.setSessionCookie =  sc || se;
+//    	if (pb.log.isSilly()) {
+//    		pb.log.silly("RequestHandler: Session ID ["+session.uid+"] Cookie SID ["+cookies.session_id+"] Created ["+sc+"] Expired ["+se+"]");
+//    	}
+//    	
+//    	//continue processing
+//    	self.onSessionRetrieved(err, session);
+//    });
 };
 
 RequestHandler.prototype.servePublicContent = function() {

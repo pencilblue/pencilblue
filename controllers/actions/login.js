@@ -1,7 +1,7 @@
-this.init = function(request, output)
+function Login(){}
+
+Login.init = function(request, output)
 {
-    var instance = this;
- 
     getSession(request, function(session)
     {
         var get = getQueryParameters(request);
@@ -14,13 +14,13 @@ this.init = function(request, output)
         {
             if(data.length == 0)
             {
-                instance.loginError(request, session, adminAttempt, output);
+                Login.loginError(request, session, adminAttempt, output);
                 return;
             }
             
             if(adminAttempt && data[0].admin == 0)
             {
-                instance.loginError(request, session, adminAttempt, output);
+                Login.loginError(request, session, adminAttempt, output);
                 return;
             }
             
@@ -41,7 +41,7 @@ this.init = function(request, output)
     });
 };
 
-this.loginError = function(request, session, adminAttempt, output)
+Login.loginError = function(request, session, adminAttempt, output)
 {
     session.error = '^loc_INVALID_LOGIN^';
     editSession(request, session, [], function(data)
@@ -56,7 +56,7 @@ this.loginError = function(request, session, adminAttempt, output)
     });
 };
 
-function Login(){}
+
 
 //inheritance
 util.inherits(Login, pb.BaseController);

@@ -1,4 +1,10 @@
-this.init = function(request, output)
+/**
+ * 
+ * @copyright PencilBlue, LLC 2014 All Rights Reserved
+ */
+function Logout(){}
+
+Logout.init = function(request, output)
 {
     getSession(request, function(session)
     {
@@ -10,7 +16,7 @@ this.init = function(request, output)
     });
 };
 
-function Logout(){}
+
 
 //inheritance
 util.inherits(Logout, pb.BaseController);

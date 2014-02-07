@@ -201,7 +201,7 @@ Route.prototype.attemptDefaultRoute = function() {
             {
                 if(exists)
                 {
-                	pb.log.debug("Default Route: Loading: "+requestURL+"/index - "+(instance.constructor));
+                	pb.log.debug("Default Route: Loading: "+requestURL+"/index - ");
                     require(DOCUMENT_ROOT + '/controllers' + requestURL + '/index').init(instance.request, instance.writeResponse.bind(instance));
                 }
                 else
