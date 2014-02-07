@@ -31,6 +31,7 @@ var loc =
         SAVE: 'Save',
         SAVE_DRAFT: 'Save draft',
         CANCEL: 'Cancel',
+        EDIT: 'Edit',
         DELETE: 'Delete',
         SUBMIT: 'Submit',
         NOW: 'Now',
@@ -45,7 +46,8 @@ var loc =
         SUBMIT_COMMENT: 'Submit a comment',
         LOGIN_TO_COMMENT: 'Login to comment',
         COMMENT_SUBMITTED: 'Your comment was submitted',
-        COMMENT_ERROR: 'There was an error submitting your comment'
+        COMMENT_ERROR: 'There was an error submitting your comment',
+        DATE_ADDED: 'Date added'
     },
     error:
     {
@@ -122,7 +124,8 @@ var loc =
         CREATED: 'was created',
         ADDED: 'was added',
         EDITED: 'was edited',
-        DELETED: 'was deleted'
+        DELETED: 'was deleted',
+        NARROW_RESULTS: 'Narrow results'
     },
     sections:
     {
@@ -217,6 +220,7 @@ var loc =
         PERSONAL_INFO: 'Personal info',
         USERNAME: 'Username',
         USER_PHOTO: 'User photo',
+        NAME: 'Name',
         FIRST_NAME: 'First name',
         LAST_NAME: 'Last name',
         POSITION: 'Position',

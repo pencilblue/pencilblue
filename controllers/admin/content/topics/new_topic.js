@@ -40,10 +40,19 @@ this.init = function(request, output)
                     session = newSession;
                     result = newResult;
                     
+                    var pills = require('../topics').getPillNavOptions('new_topic');
+                    pills.unshift(
+                    {
+                        name: 'manage_topics',
+                        title: '^loc_NEW_TOPIC^',
+                        icon: 'chevron-left',
+                        href: '/admin/content/topics/manage_topics'
+                    });
+                    
                     result = result.concat(getAngularController(
                     {
                         navigation: getAdminNavigation(session, ['content', 'topics']),
-                        pills: require('../topics').getPillNavOptions('new_topic'),
+                        pills: pills,
                         tabs: tabs
                     }));
                     

@@ -12,12 +12,6 @@ this.getPillNavOptions = function(activePill)
     var pillNavOptions = 
     [
         {
-            name: 'configuration',
-            title: '^loc_CONFIGURATION^',
-            icon: 'flask',
-            href: '/admin/site_settings/configuration'
-        },
-        {
             name: 'content',
             title: '^loc_CONTENT^',
             icon: 'quote-right',

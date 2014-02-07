@@ -1,33 +1,58 @@
-<nav class="navbar navbar-default" role="navigation">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="/admin" style="padding: .4em">
+<div class="col-md-3" style="padding-left: 0">
+    <div>
+        <a class="navbar-brand" href="/admin">
             <img src="/img/logo_menu.png"></img>
         </a>
     </div>
-
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav navbar-fixed">
-            <li class="{{navItem.dropdown}} {{navItem.active}}" ng-repeat="navItem in navigation" ng-cloak>
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" ng-if="navItem.dropdown">
-                    <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}&nbsp;<span class="caret"></span>
-                </a>
-                <a href="{{navItem.href}}" ng-if="!navItem.dropdown">
-                    <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
-                </a>
-                <ul class="dropdown-menu" ng-if="navItem.dropdown">
-                    <li class="{{childItem.active}}" ng-repeat="childItem in navItem.children">
-                        <a href="{{childItem.href}}">
-                            <i class="fa fa-{{childItem.icon}}"></i>&nbsp;{{childItem.title}}
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
+    <div class="spacer"></div>
+    <div class="panel-group" id="nav_accordion">
+        <span ng-repeat="navItem in navigation">
+            <div class="panel panel-default" ng-if="!navItem.active" ng-cloak>
+                <div class="panel-heading">
+                    <a data-toggle="collapse" data-parent="#nav_accordion" href="#{{navItem.id}}_collapse" ng-if="navItem.dropdown">
+                        <div class="panel-title">
+                            <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
+                        </div>
+                    </a>
+                    <a href="{{navItem.href}}" ng-if="!navItem.dropdown">
+                        <div class="panel-title">
+                            <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
+                        </div>
+                    </a>
+                </div>
+                <div id="{{navItem.id}}_collapse" class="panel-collapse collapse" ng-if="navItem.dropdown">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li class="{{childItem.active}}" ng-repeat="childItem in navItem.children" ng-cloak>
+                            <a href="{{childItem.href}}">
+                                <i class="fa fa-{{childItem.icon}}"></i>&nbsp;{{childItem.title}}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="panel panel-primary" ng-if="navItem.active" ng-cloak>
+                <div class="panel-heading">
+                    <a data-toggle="collapse" data-parent="#nav_accordion" href="#{{navItem.id}}_collapse" ng-if="navItem.dropdown">
+                        <div class="panel-title">
+                            <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
+                        </div>
+                    </a>
+                    <a href="{{navItem.href}}" ng-if="!navItem.dropdown">
+                        <div class="panel-title">
+                            <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
+                        </div>
+                    </a>
+                </div>
+                <div id="{{navItem.id}}_collapse" class="panel-collapse collapse in" ng-if="navItem.dropdown">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li class="{{childItem.active}}" ng-repeat="childItem in navItem.children" ng-cloak>
+                            <a href="{{childItem.href}}">
+                                <i class="fa fa-{{childItem.icon}}"></i>&nbsp;{{childItem.title}}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </span>
     </div>
-</nav>
+</div>

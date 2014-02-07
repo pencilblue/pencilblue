@@ -71,10 +71,19 @@ this.init = function(request, output)
                                     session = newSession;
                                     result = newResult;
                                     
+                                    var pills = articles.getPillNavOptions('new_article');
+                                    pills.unshift(
+                                    {
+                                        name: 'manage_articles',
+                                        title: '^loc_NEW_ARTICLE^',
+                                        icon: 'chevron-left',
+                                        href: '/admin/content/articles/manage_articles'
+                                    });
+                                    
                                     result = result.concat(getAngularController(
                                     {
                                         navigation: getAdminNavigation(session, ['content', 'articles']),
-                                        pills: articles.getPillNavOptions('new_article'),
+                                        pills: pills,
                                         tabs: tabs,
                                         templates: templates,
                                         sections: sections,

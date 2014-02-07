@@ -94,10 +94,19 @@ this.init = function(request, output)
                                     session = newSession;
                                     result = newResult;
                                     
+                                    var pills = pages.getPillNavOptions('edit_page');
+                                    pills.unshift(
+                                    {
+                                        name: 'manage_pages',
+                                        title: page.headline,
+                                        icon: 'chevron-left',
+                                        href: '/admin/content/pages/manage_pages'
+                                    });
+                                    
                                     result = result.concat(getAngularController(
                                     {
                                         navigation: getAdminNavigation(session, ['content', 'pages']),
-                                        pills: pages.getPillNavOptions('edit_page'),
+                                        pills: pills,
                                         tabs: tabs,
                                         templates: templates,
                                         topics: topics, 

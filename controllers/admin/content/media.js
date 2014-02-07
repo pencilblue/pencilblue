@@ -12,14 +12,8 @@ this.getPillNavOptions = function(activePill)
     var pillNavOptions = 
     [
         {
-            name: 'manage_media',
-            title: '^loc_MANAGE_MEDIA^',
-            icon: 'list-alt',
-            href: '/admin/content/media/manage_media'
-        },
-        {
             name: 'add_media',
-            title: '^loc_ADD_MEDIA^',
+            title: '',
             icon: 'plus',
             href: '/admin/content/media/add_media'
         }

@@ -60,10 +60,20 @@ this.init = function(request, output)
                         session = newSession;
                         result = newResult;
                         
+                        var pills = require('../site_settings').getPillNavOptions('content');
+                        pills.splice(0, 1);
+                        pills.unshift(
+                        {
+                            name: 'configuration',
+                            title: '^loc_CONTENT^',
+                            icon: 'chevron-left',
+                            href: '/admin/site_settings/configuration'
+                        });
+                        
                         result = result.concat(getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['settings', 'site_settings']),
-                            pills: require('../site_settings').getPillNavOptions('content'),
+                            pills: pills,
                             tabs: tabs
                         }));
                         

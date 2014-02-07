@@ -12,14 +12,8 @@ this.getPillNavOptions = function(activePill)
     var pillNavOptions = 
     [
         {
-            name: 'section_map',
-            title: '^loc_SECTION_MAP^',
-            icon: 'sitemap',
-            href: '/admin/content/sections/section_map'
-        },
-        {
             name: 'new_section',
-            title: '^loc_NEW_SECTION^',
+            title: '',
             icon: 'plus',
             href: '/admin/content/sections/new_section'
         }

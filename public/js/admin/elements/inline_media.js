@@ -4,12 +4,12 @@ var mediaItemTemplate = '<div id="media_^media_id^" class="col-md-3 media_item">
 
 $(document).ready(function()
 {
-    $('#media .col-md-3').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
-    $('#active_media').droppable({accept: '#media .col-md-3', drop: function(event, ui)
+    $('#media .label').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
+    $('#active_media').droppable({accept: '#media .label', drop: function(event, ui)
     {
         $('#active_media').append(ui.draggable);
     }});
-    $('#inactive_media').droppable({accept: '#media .col-md-3', drop: function(event, ui)
+    $('#inactive_media').droppable({accept: '#media .label', drop: function(event, ui)
     {
         $('#inactive_media').append(ui.draggable);
     }});

@@ -68,10 +68,19 @@ this.init = function(request, output)
                         session = newSession;
                         result = newResult;
                         
+                        var pills = require('../users').getPillNavOptions('edit_user');
+                        pills.unshift(
+                        {
+                            name: 'manage_users',
+                            title: user.username,
+                            icon: 'chevron-left',
+                            href: '/admin/users/manage_users'
+                        });
+                        
                         result = result.concat(getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['users']),
-                            pills: require('../users').getPillNavOptions('edit_user'),
+                            pills: pills,
                             tabs: tabs,
                             adminOptions: instance.getAdminOptions(session), user: user
                         }));

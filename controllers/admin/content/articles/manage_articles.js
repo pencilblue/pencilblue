@@ -47,12 +47,21 @@ this.init = function(request, output)
                         session = newSession;
                         result = newResult;
                         
+                        var pills = require('../articles').getPillNavOptions('manage_articles');
+                        pills.unshift(
+                        {
+                            name: 'manage_articles',
+                            title: '^loc_MANAGE_ARTICLES^',
+                            icon: 'refresh',
+                            href: '/admin/content/articles/manage_articles'
+                        });
+                        
                         instance.getArticleAuthors(articles, function(articlesWithAuthorNames)
                         {                                
                             result = result.concat(getAngularController(
                             {
                                 navigation: getAdminNavigation(session, ['content', 'articles']),
-                                pills: require('../articles').getPillNavOptions('manage_articles'),
+                                pills: pills,
                                 articles: articlesWithAuthorNames
                             }));
                             

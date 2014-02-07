@@ -33,7 +33,7 @@ this.init = function(request, output)
         
             initLocalization(request, session, function(data)
             {
-                getHTMLTemplate('admin/content/media/manage_media', '^loc_MANAGE_MEDIA', null, function(data)
+                getHTMLTemplate('admin/content/media/manage_media', '^loc_MANAGE_MEDIA^', null, function(data)
                 {
                     result = result.concat(data);
                     
@@ -44,10 +44,19 @@ this.init = function(request, output)
                         
                         var mediaCommands = require('../media');
                         
+                        var pills = mediaCommands.getPillNavOptions('manage_media');
+                        pills.unshift(
+                        {
+                            name: 'manage_media',
+                            title: '^loc_MANAGE_MEDIA^',
+                            icon: 'refresh',
+                            href: '/admin/content/media/manage_media'
+                        });
+                        
                         result = result.concat(getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['content', 'media']),
-                            pills: mediaCommands.getPillNavOptions('manage_media'),
+                            pills: pills,
                             media: mediaCommands.formatMedia(mediaData)
                         }));
                             

@@ -9,7 +9,7 @@
 
 $(document).ready(function()
 {
-    new jNarrow('#media_search', '.media_item',
+    new jNarrow('#media_search', '.media_row',
     {
         searchChildElement: '.media_name',
         searchButton: '#media_search_button',

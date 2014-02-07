@@ -50,10 +50,20 @@ this.init = function(request, output)
                         session = newSession;
                         result = newResult;
                         
+                        var pills = require('../site_settings').getPillNavOptions('email');
+                        pills.splice(1, 1);
+                        pills.unshift(
+                        {
+                            name: 'configuration',
+                            title: '^loc_EMAIL^',
+                            icon: 'chevron-left',
+                            href: '/admin/site_settings/configuration'
+                        });
+                        
                         result = result.concat(getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['settings', 'site_settings']),
-                            pills: require('../site_settings').getPillNavOptions('email'),
+                            pills: pills,
                             tabs: tabs
                         }));
                         
