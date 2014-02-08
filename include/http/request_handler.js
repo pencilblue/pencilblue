@@ -20,6 +20,7 @@ RequestHandler.CORE_ROUTES = [
     	path: "/setup",
     	access_level: 0,
     	auth_required: false,
+    	setup_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'setup.js'),
     	content_type: 'text/html'
     },
@@ -28,6 +29,7 @@ RequestHandler.CORE_ROUTES = [
     	path: "/actions/setup",
     	access_level: 0,
     	auth_required: false,
+    	setup_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'setup.js'),
     	content_type: 'text/html'
     },
@@ -175,34 +177,34 @@ RequestHandler.prototype.handleRequest = function(){
 	this.localizationService = new pb.Localization(this.req);
     
     // /include/router.js
-	var self = this;
-	this.req.on('data', function(chunk)
-    {
-        if(typeof self.req.headers['post'] == 'undefined')
-        {
-            self.req.headers['post'] = '';
-        }
-        self.req.headers['post'] += chunk;
-    });
-    var route = new Route(this.req, this.resp);
-    route.route();
+//	var self = this;
+//	this.req.on('data', function(chunk)
+//    {
+//        if(typeof self.req.headers['post'] == 'undefined')
+//        {
+//            self.req.headers['post'] = '';
+//        }
+//        self.req.headers['post'] += chunk;
+//    });
+//    var route = new Route(this.req, this.resp);
+//    route.route();
     
     //open session
-//	var self = this;
-//    pb.session.open(this.req, function(err, session){
-//    	
-//    	//set the session id when no session has started or the current one has 
-//    	//expired.
-//    	var sc = Object.keys(cookies).length == 0;
-//    	var se = !sc && cookies.session_id != session.uid;
-//    	self.setSessionCookie =  sc || se;
-//    	if (pb.log.isSilly()) {
-//    		pb.log.silly("RequestHandler: Session ID ["+session.uid+"] Cookie SID ["+cookies.session_id+"] Created ["+sc+"] Expired ["+se+"]");
-//    	}
-//    	
-//    	//continue processing
-//    	self.onSessionRetrieved(err, session);
-//    });
+	var self = this;
+    pb.session.open(this.req, function(err, session){
+    	
+    	//set the session id when no session has started or the current one has 
+    	//expired.
+    	var sc = Object.keys(cookies).length == 0;
+    	var se = !sc && cookies.session_id != session.uid;
+    	self.setSessionCookie =  sc || se;
+    	if (pb.log.isSilly()) {
+    		pb.log.silly("RequestHandler: Session ID ["+session.uid+"] Cookie SID ["+cookies.session_id+"] Created ["+sc+"] Expired ["+se+"]");
+    	}
+    	
+    	//continue processing
+    	self.onSessionRetrieved(err, session);
+    });
 };
 
 RequestHandler.prototype.servePublicContent = function() {
@@ -212,7 +214,7 @@ RequestHandler.prototype.servePublicContent = function() {
 	var absolutePath = path.join(DOCUMENT_ROOT, 'public', urlPath);
 	fs.readFile(absolutePath, function(err, content){
 		if (err) {
-			self.server404();
+			self.serve404();
 			return;
 		}
 		
@@ -239,6 +241,11 @@ RequestHandler.prototype.servePublicContent = function() {
 	});
 };
 
+/**
+ * 
+ * @param path
+ * @returns {Boolean}
+ */
 RequestHandler.isPublicRoute = function(path){
 	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', 'favicon.ico'];
 	for (var i = 0; i < publicRoutes.length; i++) {
@@ -249,9 +256,9 @@ RequestHandler.isPublicRoute = function(path){
 	return false;
 };
 
-RequestHandler.prototype.server404 = function() {
+RequestHandler.prototype.serve404 = function() {
 	//TODO implement 404 handling
-	this.writeResponse({content: 'Url ['+this.url.href+'] could not be found on this server'});
+	this.onRenderComplete({content: 'Url ['+this.url.href+'] could not be found on this server'});
 	
 	if (pb.log.isSilly()) {
 		pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL="+this.url.href);
@@ -270,7 +277,7 @@ RequestHandler.prototype.onSessionRetrieved = function(err, session) {
 	//find the controller to hand off to
 	var route = this.getRoute(this.url.pathname);
 	if (route == null) {
-		this.server404();
+		this.serve404();
 		return;
 	}
 	this.route = route;
@@ -310,13 +317,28 @@ RequestHandler.prototype.getRoute = function(path) {
 };
 
 RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
+	var self = this;
 	
 	//check for unregistered route for theme
 	if (typeof route[activeTheme] == 'undefined') {
 		activeTheme = RequestHandler.DEFAULT_THEME;
 	}
 	
-	//TODO verify permissions
+	//do security checks
+	this.checkSecurity(activeTheme, function(err, result) {
+		
+		//all good
+		if (result.success) {
+			self.onSecurityChecksPassed(activeTheme, route);
+			return;
+		}
+		
+		//handle failures through bypassing other processing and doing output
+		self.onRenderComplete(result);
+	});	
+};
+
+RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 	
 	//extract path variables
 	var pathVars = {};
@@ -340,6 +362,83 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 	};
 	cInstance.init(props, function(){
 		self.onControllerInitialized(cInstance);
+	});
+};
+
+RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
+	var self       = this;
+	var themeRoute = this.route[activeTheme];
+	
+	//verify if setup is needed
+	var checkSystemSetup = function(callback) {
+		var result = {success: true};
+		if (themeRoute.setup_required == undefined || themeRoute.setup_required == true) {
+			pb.settings.get('system_initialized', function(err, isSetup){
+				
+				//verify system init
+				if (!isSetup) {
+					result.success = false;
+					result.redirect = '/setup';
+					cb(result, result);
+					return;
+				}
+				cb(null, result);				
+			});
+		}
+		else {
+			callback(null, result);
+		}
+	};
+	
+	var checkRequiresAuth = function(callback) {
+		
+		var result = {success: true};
+		if (themeRoute.auth_required == true) {
+
+			if (self.session.user_id == null || self.session.user_id == undefined) {
+				result.success  = false;
+				result.redirect = '/';
+				callback(result, result);
+				return;
+			}
+			callback(null, result);
+		}
+		else{
+			callback(null, result);
+		}
+	};
+	
+	var checkAdminLevel = function(callback) {
+		
+		var result = {success: true};
+		if (themeRoute.access_level != undefined) {
+
+			if (self.session.admin_level < themeRoute.access_level) {
+				result.success = false;
+				result.content = '403 Forbidden';
+				result.code    = 403;
+				callback(result, result);
+				return;
+			}
+			callback(null, result);
+		}
+		else{
+			callback(null, result);
+		}
+	};
+	
+	var tasks = [
+         checkSystemSetup,
+         checkRequiresAuth,
+         checkAdminLevel
+    ];
+	async.series(tasks, function(err, results){
+		if (err) {
+			cb(null, err);
+			return;
+		}
+		
+		cb(null, {success: true});
 	});
 };
 
