@@ -64,6 +64,38 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'logout.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/",
+    	access_level: 0,
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'index.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/sections/section_map",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections', 'section_map.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/sections/new_section",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections', 'new_section.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/sections/new_section",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'new_section.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -157,7 +189,7 @@ RequestHandler.registerRoute = function(descriptor, theme){
 	routeDescriptor[theme]            = descriptor;
 	routeDescriptor[theme].controller = require(descriptor.controller);
 	
-	pb.log.debug("RequestHandler: Registered Route - Theme ["+theme+"] Path ["+descriptor.path+"] Patthern ["+pattern+"]");
+	pb.log.debug("RequestHandler: Registered Route - Theme ["+theme+"] Path ["+descriptor.path+"] Pattern ["+pattern+"]");
 	return true;
 };
 
@@ -326,7 +358,12 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 	
 	//do security checks
 	this.checkSecurity(activeTheme, function(err, result) {
-		
+		if (pb.log.isDebug()) {
+			pb.log.debug("RequestHandler: Security Result="+result.success);
+			for (var key in result.results) {
+				pb.log.debug("RequestHandler:"+key+': '+JSON.stringify(result.results[key]));
+			}
+		}
 		//all good
 		if (result.success) {
 			self.onSecurityChecksPassed(activeTheme, route);
@@ -334,7 +371,7 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 		}
 		
 		//handle failures through bypassing other processing and doing output
-		self.onRenderComplete(result);
+		self.onRenderComplete(err);
 	});	
 };
 
@@ -379,10 +416,10 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 				if (!isSetup) {
 					result.success = false;
 					result.redirect = '/setup';
-					cb(result, result);
+					callback(result, result);
 					return;
 				}
-				cb(null, result);				
+				callback(null, result);				
 			});
 		}
 		else {
@@ -391,13 +428,14 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 	};
 	
 	var checkRequiresAuth = function(callback) {
-		
+
 		var result = {success: true};
 		if (themeRoute.auth_required == true) {
-
-			if (self.session.user_id == null || self.session.user_id == undefined) {
+			
+			if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
 				result.success  = false;
-				result.redirect = '/';
+				result.redirect = '/admin/login';
+				self.session.on_login = self.url.href;
 				callback(result, result);
 				return;
 			}
@@ -413,7 +451,7 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 		var result = {success: true};
 		if (themeRoute.access_level != undefined) {
 
-			if (self.session.admin_level < themeRoute.access_level) {
+			if (self.session.authentication.admin_level < themeRoute.access_level) {
 				result.success = false;
 				result.content = '403 Forbidden';
 				result.code    = 403;
@@ -427,18 +465,18 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 		}
 	};
 	
-	var tasks = [
-         checkSystemSetup,
-         checkRequiresAuth,
-         checkAdminLevel
-    ];
+	var tasks = {
+		checkSystemSetup: checkSystemSetup,
+        checkRequiresAuth: checkRequiresAuth,
+        checkAdminLevel: checkAdminLevel
+	};
 	async.series(tasks, function(err, results){
 		if (err) {
-			cb(null, err);
+			cb(err, {success: false, results: results});
 			return;
 		}
 		
-		cb(null, {success: true});
+		cb(null, {success: true, results: results});
 	});
 };
 
@@ -451,8 +489,15 @@ RequestHandler.prototype.onControllerInitialized = function(controller) {
 
 RequestHandler.prototype.onRenderComplete = function(data){
 	
+	//set cookie
+    var cookies = new Cookies(this.req, this.resp);
+    if (this.setSessionCookie) {
+    	cookies.set(pb.SessionHandler.COOKIE_NAME, this.session.uid, pb.SessionHandler.getSessionCookie(this.session));
+    }
+	
 	//do any necessary redirects
-	if(typeof data.redirect != "undefined") {
+	var doRedirect = typeof data.redirect != "undefined";
+	if(doRedirect) {
         this.doRedirect(data.redirect);
     }
 	else {
@@ -462,7 +507,7 @@ RequestHandler.prototype.onRenderComplete = function(data){
 	
 	//calculate response time
 	if (pb.log.isDebug()) {
-		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+"ms URL="+this.req.url);
+		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+"ms URL="+this.req.url+(doRedirect ? ' Redirect='+data.redirect : ''));
 	}
 	
 	//close session after data sent
@@ -476,12 +521,6 @@ RequestHandler.prototype.writeResponse = function(data){
     //infer a response code when not provided
     if(typeof data.code === 'undefined'){
         code = 200;
-    }
-    
-    //set cookie
-    var cookies = new Cookies(this.req, this.resp);
-    if (this.setSessionCookie) {
-    	cookies.set(pb.SessionHandler.COOKIE_NAME, this.session.uid, pb.SessionHandler.getSessionCookie(this.session));
     }
     
     // If a response code other than 200 is provided, force that code into the head

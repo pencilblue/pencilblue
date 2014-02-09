@@ -120,8 +120,12 @@ Login.prototype.doLogin = function(post, cb) {
         self.session.authentication.admin_level = user.admin;
         
         //redirect
-        var location = pb.config.siteRoot;
-        if(adminAttempt) {
+        var location = pb.config.siteRoot;console.log('S:'+JSON.stringify(self.session));
+        if (self.session.on_login != undefined) {
+        	location = self.session.on_login;
+        	delete self.session.on_login;
+        }
+        else if(adminAttempt) {
             location += '/admin';
         }
         cb(pb.RequestHandler.generateRedirect(location));
