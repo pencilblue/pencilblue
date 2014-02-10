@@ -31,14 +31,22 @@ form .error
     margin: 0;
 }
 
+#login_column
+{
+    margin: 0 auto;
+    max-width: 22em;
+}
+
 #login_logo
 {
-    padding: 1em;
+    padding: 2em 0;
+    width: 100%;
 }
 
 #top_menu
 {
     margin-bottom: 0;
+    background-color: #FFFFFF;
 }
 
 #side_menu
