@@ -31,14 +31,39 @@ form .error
     margin: 0;
 }
 
+#login_column
+{
+    margin: 0 auto;
+    max-width: 22em;
+}
+
 #login_logo
 {
-    padding: 1em;
+    padding: 2em 0;
+    width: 100%;
+}
+
+#top_menu
+{
+    margin-bottom: 0;
+    background-color: #FFFFFF;
+}
+
+#side_menu
+{
+    display: none;
+}
+
+#menu_logo
+{
+    height: 1.25em;
+    margin-top: -.375em;
 }
 
 #sub_nav
 {
     margin-bottom: .5em;
+    background-color: #00FF00;
 }
 
 .tab-content
@@ -309,4 +334,17 @@ a:hover
     -webkit-border-radius: 0 !important;
     -moz-border-radius: 0 !important;
     border-radius: 0 !important;
+}
+
+@media(min-width: 992px)
+{
+    #top_menu
+    {
+        display: none;
+    }
+    
+    #side_menu
+    {
+        display: block;
+    }
 }
