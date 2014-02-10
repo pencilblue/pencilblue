@@ -36,9 +36,26 @@ form .error
     padding: 1em;
 }
 
+#top_menu
+{
+    margin-bottom: 0;
+}
+
+#side_menu
+{
+    display: none;
+}
+
+#menu_logo
+{
+    height: 1.25em;
+    margin-top: -.375em;
+}
+
 #sub_nav
 {
     margin-bottom: .5em;
+    background-color: #00FF00;
 }
 
 .tab-content
@@ -309,4 +326,17 @@ a:hover
     -webkit-border-radius: 0 !important;
     -moz-border-radius: 0 !important;
     border-radius: 0 !important;
+}
+
+@media(min-width: 992px)
+{
+    #top_menu
+    {
+        display: none;
+    }
+    
+    #side_menu
+    {
+        display: block;
+    }
 }
