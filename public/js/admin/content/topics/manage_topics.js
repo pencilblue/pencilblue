@@ -7,6 +7,8 @@
 
 */
 
+var pagination;
+
 $(document).ready(function()
 {
     new jNarrow('#topic_search', '.topic',
@@ -17,6 +19,13 @@ $(document).ready(function()
         clearText: '<i class="fa fa-times"></i>',
     });
 });
+
+function initTopicsPagination()
+{
+    pagination = new Pagination(".topic", 75);
+    $('#topic_search').keyup(pagination.initializeElements);
+    $('#topic_search_button').click(pagination.initializeElements);
+}
 
 function confirmDeleteTopic(topicID, topicName)
 {

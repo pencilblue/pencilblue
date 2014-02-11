@@ -63,7 +63,7 @@ this.init = function(request, output)
                             navigation: getAdminNavigation(session, ['content', 'topics']),
                             pills: pills,
                             topics: topics
-                        }));
+                        }, [], 'initTopicsPagination()'));
                         
                         editSession(request, session, [], function(data)
                         {

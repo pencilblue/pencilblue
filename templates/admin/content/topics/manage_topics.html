@@ -13,11 +13,13 @@
                 </div>
             </div>
             <div class="panel-body">
-                <div id="topic_{{topic._id}}" class="label label-info topic" ng-repeat="topic in topics" ng-cloak>
+                <div id="topic_{{topic._id}}" class="label label-info topic" ng-repeat="topic in topics" on-finish-render ng-cloak>
                     <a href="javascript:confirmDeleteTopic('{{topic._id}}', '{{topic.name}}')">
                         <span class="topic_name">{{topic.name}}</span>&nbsp;<i class="fa fa-times"></i>
                     </a>
                 </div>
+                <div class="spacer"></div>
+                ^tmp_admin=elements=pagination^
             </div>
         </div>
     </div>
