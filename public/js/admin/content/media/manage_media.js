@@ -18,6 +18,13 @@ $(document).ready(function()
     });
 });
 
+function initMediaPagination()
+{
+    pagination = new Pagination(".media_row", 30);
+    $('#media_search').keyup(pagination.initializeElements);
+    $('#media_search_button').click(pagination.initializeElements);
+}
+
 function confirmDeleteMedia(siteRoot, mediaID, mediaName)
 {
     $('#delete_name').html(mediaName);

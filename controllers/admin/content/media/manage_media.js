@@ -58,7 +58,7 @@ this.init = function(request, output)
                             navigation: getAdminNavigation(session, ['content', 'media']),
                             pills: pills,
                             media: mediaCommands.formatMedia(mediaData)
-                        }));
+                        }, [], 'initMediaPagination()'));
                             
                         editSession(request, session, [], function(data)
                         {

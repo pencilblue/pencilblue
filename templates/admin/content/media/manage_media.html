@@ -2,34 +2,33 @@
 <div class="col-md-9">
     ^error_success^
     ^tmp_admin=elements=sub_nav^ 
-    <div id="media_manage">
-        <div class="input-group" style="margin-bottom: .5em">
+    <div class="input-group" style="margin-bottom: .5em">
             <input type="text" id="media_search" name="media_search" class="form-control"></input>
             <span class="input-group-btn">
                 <button id="media_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
             </span>
-        </div>
-        <table id="media_table" class="table table-responsive table-condensed">
-            <tr id="media_table_header">
-                <th></th>
-                <th>^loc_MEDIA^</th>
-                <th>^loc_DATE_ADDED^</th>
-                <th></th>
-            </tr>
-            <tr class="media_row" ng-repeat="mediaItem in media" ng-cloak>
-                <td>
-                    <a href="{{mediaItem.link}}" target="_blank">
-                        <i class="fa fa-{{mediaItem.icon}} fa-lg" style="float: right; margin-right: .5em;"></i>
-                    </a>
-                </td>
-                <td class="media_name">
-                    <a href="/admin/content/media/edit_media?id={{mediaItem._id}}">{{mediaItem.name}}</a>
-                </td>
-                <td>{{mediaItem.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-                <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
-            </tr>
-        </table>
     </div>
+    <table id="media_table" class="table table-responsive table-condensed">
+        <tr id="media_table_header">
+            <th></th>
+            <th>^loc_MEDIA^</th>
+            <th>^loc_DATE_ADDED^</th>
+            <th></th>
+        </tr>
+        <tr class="media_row" ng-repeat="mediaItem in media track by mediaItem._id" on-finish-render ng-cloak>
+            <td>
+                <a href="{{mediaItem.link}}" target="_blank">
+                    <i class="fa fa-{{mediaItem.icon}} fa-lg" style="float: right; margin-right: .5em;"></i>
+                </a>
+            </td>
+            <td>
+                <a class="media_name" href="/admin/content/media/edit_media?id={{mediaItem._id}}">{{mediaItem.name}}</a>
+            </td>
+            <td>{{mediaItem.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
+        </tr>
+    </table>
+    ^tmp_admin=elements=pagination^
     <div class="modal fade" id="confirm_delete_modal">
         <div class="modal-dialog">
             <div class="modal-content">
