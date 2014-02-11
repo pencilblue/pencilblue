@@ -17,7 +17,7 @@ function Pagination(elementClass, elementsPerPage)
         }
         currentIndex = index;
         
-        if(pages == 1)
+        if(pages <= 1)
         {
             $('#pagination').hide();
             return;
