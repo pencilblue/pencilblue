@@ -17,3 +17,17 @@ $(document).ready(function()
         clearText: '<i class="fa fa-times"></i>',
     });
 });
+
+function initUsersPagination()
+{
+    pagination = new Pagination(".user_row", 30);
+    $('#user_search').keyup(pagination.initializeElements);
+    $('#user_search_button').click(pagination.initializeElements);
+}
+
+function confirmDeleteUser(userID, userName)
+{
+    $('#delete_name').html(userName);
+    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/users/delete_user?id=' + userID + '"');
+    $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+}

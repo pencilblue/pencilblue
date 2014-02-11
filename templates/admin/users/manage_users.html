@@ -16,16 +16,34 @@
             <th>^loc_DATE_ADDED^</th>
             <th></th>
         </tr>
-        <tr class="user_row"  ng-repeat="user in users" ng-cloak>
+        <tr class="user_row" ng-repeat="user in users track by user._id" on-finish-render ng-cloak>
             <td>
                 <a href="/admin/users/edit_user?id={{user._id}}">{{user.username}}</a>
             </td>
             <td class="user_name">{{user.first_name}} {{user.last_name}}</td>
             <td>{{user.email}}</td>
             <td>{{user.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-            <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
+            <td><a href="javascript:confirmDeleteUser('{{user._id}}', '{{user.username}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
+    ^tmp_admin=elements=pagination^
+    <div class="modal fade" id="confirm_delete_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    ^loc_CONFIRM_DELETE^ <span id="delete_name" style="font-style: italic"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button type="button" id="delete_button" class="btn btn-danger">
+                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/users/manage_users.js"></script>
