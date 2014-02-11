@@ -2,6 +2,12 @@
 <div class="col-md-9">
     ^error_success^
     ^tmp_admin=elements=sub_nav^
+    <div class="input-group" style="margin-bottom: .5em">
+        <input type="text" id="article_search" name="article_search" class="form-control"></input>
+        <span class="input-group-btn">
+            <button id="article_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+        </span>
+    </div>
     <table id="articles_table" class="table table-responsive table-condensed">
         <tr id="articles_table_header">
             <th>^loc_HEADLINE^</th>
@@ -10,14 +16,15 @@
             <th>^loc_PUBLISH_DATE^</th>
             <th></th>
         </tr>
-        <tr class="article_row" ng-repeat="article in articles" ng-cloak>
-            <td><a href="/admin/content/articles/edit_article?id={{article._id}}">{{article.headline}}</a></td>
+        <tr class="article_row" ng-repeat="article in articles track by article._id" on-finish-render ng-cloak>
+            <td><a class="article_headline" href="/admin/content/articles/edit_article?id={{article._id}}">{{article.headline}}</a></td>
             <td>{{article.url}}</td>
             <td>{{article.author_name}}</td>
             <td>{{article.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td><a href="javascript:confirmDeleteArticle('{{article._id}}', '{{article.headline}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
+    ^tmp_admin=elements=pagination^
     <div class="modal fade" id="confirm_delete_modal">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -36,5 +43,6 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/content/articles/manage_articles.js"></script>
 ^tmp_admin=footer^

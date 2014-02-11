@@ -63,7 +63,7 @@ this.init = function(request, output)
                                 navigation: getAdminNavigation(session, ['content', 'articles']),
                                 pills: pills,
                                 articles: articlesWithAuthorNames
-                            }));
+                            }, [], 'initArticlesPagination()'));
                             
                             editSession(request, session, [], function(data)
                             {

@@ -17,6 +17,16 @@ function Pagination(elementClass, elementsPerPage)
         }
         currentIndex = index;
         
+        if(pages == 1)
+        {
+            $('#pagination').hide();
+            return;
+        }
+        else
+        {
+            $('#pagination').show();
+        }
+        
         if(index == 0)
         {
             var buttonsString = '<li id="pagination_left" class="disabled"><a href="#"><i class="fa fa-chevron-left"></i></a></li>';
