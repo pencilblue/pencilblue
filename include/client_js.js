@@ -16,7 +16,7 @@ global.getAngularController = function(objects, modules, directiveJS)
     }
     if(typeof directiveJS === 'undefined')
     {
-        var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ')';
+        var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ');';
     }
     else
     {
