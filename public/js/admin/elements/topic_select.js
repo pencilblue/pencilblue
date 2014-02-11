@@ -18,3 +18,10 @@ $(document).ready(function()
         clearText: '<i class="fa fa-times"></i>',
     });
 });
+
+function initTopicsPagination()
+{
+    topicsPagination = new Pagination(".topic", 75, true);
+    $('#topic_search').keyup(topicsPagination.initializeElements);
+    $('#topic_search_button').click(topicsPagination.initializeElements);
+}
