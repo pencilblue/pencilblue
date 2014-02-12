@@ -46,7 +46,7 @@ SectionMap.prototype.render = function(cb) {
                         pills: pills,
                         sections: SectionMap.getOrderedSections(sections, sectionMap)
                     };
-                    var angularData = getAngularController(objects);
+                    var angularData = pb.js.getAngularController(objects);
                     result          = result.concat(angularData);
                     
                     var content = self.localizationService.localize(['admin', 'sections'], result);

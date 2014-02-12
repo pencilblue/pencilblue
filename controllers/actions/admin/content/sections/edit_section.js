@@ -35,21 +35,20 @@ EditSection.prototype.onPostParamsRetrieved = function(post, cb){
         pb.DocumentCreator.update(post, section, ['keywords'], ['url', 'parent']);
         
         //ensure a URL was provided
-        if(!sectionDocument['url']) {
-            sectionDocument['url'] = sectionDocument['name'].toLowerCase().split(' ').join('-');
+        if(!section['url']) {
+            section['url'] = section['name'].toLowerCase().split(' ').join('-');
         }
         
         //now start validation
         //check for reserved names
-        if(sectionDocument['name'] == 'admin') {
-            formError(request, session, '^loc_EXISTING_SECTION^', '/admin/content/sections/section_map', cb);
+        if(section['name'] == 'admin') {
+            formError('^loc_EXISTING_SECTION^', '/admin/content/sections/section_map', cb);
             return;
         }
         
-        var where = {id: {$ne: section._id}, $or: [{name: sectionDocument['name']}, {url: sectionDocument['url']}]};
-        day.count('section', where, function(err, count)
-        {
-            if(count > 0) {
+        var where = {_id: {$ne: section._id}, $or: [{name: section['name']}, {url: section['url']}]};
+        dao.count('section', where, function(err, count) {
+            if(count > 0) {console.log('here');
                 self.formError('^loc_EXISTING_SECTION^', '/admin/content/sections/section_map', cb);
                 return;
             }
@@ -60,8 +59,7 @@ EditSection.prototype.onPostParamsRetrieved = function(post, cb){
                     return;
                 }
                 
-                session.success = sectionDocument.name + ' ^loc_EDITED^';
-                
+                self.session.success = section.name + ' ^loc_EDITED^';
                 self.checkForSectionMapUpdate(section, function() {                
                     cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
                 });
@@ -77,7 +75,7 @@ EditSection.prototype.getRequiredFields = function() {
 EditSection.prototype.checkForSectionMapUpdate = function(section, cb) {
 	//only check if a parent exists
     if(!section['parent']) {
-        output();
+        cb();
         return;
     }
         
@@ -85,7 +83,7 @@ EditSection.prototype.checkForSectionMapUpdate = function(section, cb) {
 
     pb.settings.get('section_map', function(err, sectionMap) {
         if(sectionMap == null) {
-            output();
+            cb();
             return;
         }
         
@@ -106,7 +104,7 @@ EditSection.prototype.checkForSectionMapUpdate = function(section, cb) {
         }
         
         if(!sectionMapElement) {
-            output();
+            cb();
             return;
         }
         

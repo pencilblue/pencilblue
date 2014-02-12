@@ -551,9 +551,12 @@ RequestHandler.prototype.onRenderComplete = function(data){
 	}
 	
 	//close session after data sent
-	pb.session.close(this.session, function(err, result) {
-		//TODO handle any errors
-	});
+	//public content doesn't require a session so in order to not error out we check if the session exists first.
+	if (this.session) {
+		pb.session.close(this.session, function(err, result) {
+			//TODO handle any errors
+		});
+	}
 };
 
 RequestHandler.prototype.writeResponse = function(data){

@@ -47,7 +47,7 @@ Util.ane = function(obj){
  */
 Util.merge = function(from, to) {
 	for (var prop in from) {
-		to[key] = from[prop];
+		to[prop] = from[prop];
 	}
 };
 

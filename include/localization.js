@@ -101,7 +101,7 @@ Localization.prototype.localize = function(sets, text){
     
     // If the localization is for HTML output, load the localization into client side JS
     if (text.indexOf('<body') > -1)  {
-        text = text.concat(includeJS(pb.config.siteRoot + '/localization/' + localizationLanguage + '.js'));
+        text = text.concat(pb.js.includeJS(pb.config.siteRoot + '/localization/' + localizationLanguage + '.js'));
     }
     
     return text;

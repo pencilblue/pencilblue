@@ -21,7 +21,7 @@ BaseController.prototype.init = function(props, cb) {
 BaseController.prototype.formError = function(message, redirectLocation, cb) {
     
 	this.session.error = message;      
-    cb(pb.RequestHandler.generateRedirect(path.join(pb.config.siteRoot, redirectLocation)));
+    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + redirectLocation));
 };
 
 BaseController.prototype.displayErrorOrSuccess = function(result, cb) {
