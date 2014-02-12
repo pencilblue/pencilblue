@@ -54,12 +54,12 @@ this.init = function(request, output)
                                 href: '/admin/content/pages/manage_pages'
                             });
                             
-                            result = result.concat(getAngularController(
+                            result = result.concat(pb.js.getAngularController(
                             {
                                 navigation: getAdminNavigation(session, ['content', 'pages']),
                                 pills: pills,
                                 pages: pagesWithAuthorNames
-                            }));
+                            }, [], 'initPagesPagination()'));
                             
                             editSession(request, session, [], function(data)
                             {

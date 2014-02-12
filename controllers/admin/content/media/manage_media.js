@@ -53,12 +53,12 @@ this.init = function(request, output)
                             href: '/admin/content/media/manage_media'
                         });
                         
-                        result = result.concat(getAngularController(
+                        result = result.concat(pb.js.getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['content', 'media']),
                             pills: pills,
                             media: mediaCommands.formatMedia(mediaData)
-                        }));
+                        }, [], 'initMediaPagination()'));
                             
                         editSession(request, session, [], function(data)
                         {

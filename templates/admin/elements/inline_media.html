@@ -13,13 +13,15 @@
         </div>
     </div>
     <div id="inactive_media" class="panel-body" style="min-height: 100px">
-        <div id="media_{{mediaItem._id}}" class="label label-default media_item" ng-repeat="mediaItem in media" ng-cloak>
+        <div id="media_{{mediaItem._id}}" class="label label-default media_item" ng-repeat="mediaItem in media track by mediaItem._id" ng-cloak>
             <i class="fa fa-bars"></i>&nbsp;
             <span class="media_name">{{mediaItem.name}}</span>
             <a href="{{mediaItem.link}}" target="_blank">
                 <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
             </a>
         </div>
+        <div class="spacer"></div>
+        <ul id="media_pagination" class="pagination"></ul>
     </div>
 </div>
 <div class="form-group">
@@ -91,10 +93,11 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
-<script type="text/javascript" src="^site_root^/js/jquery.iframe-transport.js"></script>
-<script type="text/javascript" src="^site_root^/js/jquery.fileupload.js"></script>
-<script type="text/javascript" src="^site_root^/js/admin/elements/inline_media.js"></script>
+<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
+<script type="text/javascript" src="/js/jnarrow-0.1.1.min.js"></script>
+<script type="text/javascript" src="/js/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="/js/jquery.fileupload.js"></script>
+<script type="text/javascript" src="/js/admin/elements/inline_media.js"></script>
 <script type="text/javascript">
     setupUpload('^site_root^');
 </script>

@@ -30,7 +30,7 @@ this.init = function(request, output)
                         }
                     }
                     
-                    result = result.concat(getAngularController(
+                    result = result.concat(pb.js.getAngularController(
                     {
                         navigation: getAdminNavigation(session, ['plugins', 'themes']),
                         pills: themes, themeSettingsURL: themeSettingsURL

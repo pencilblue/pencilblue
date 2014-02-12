@@ -38,7 +38,7 @@ Index.init = function(request, output)
                     {
                         contentInfo.push({name: localize(['admin'], '^loc_PAGES^'), count: pages.length, href: '/admin/content/pages/manage_pages'});
                         
-                        result = result.concat(getAngularController(
+                        result = result.concat(pb.js.getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['dashboard']),
                             contentInfo: contentInfo

@@ -73,7 +73,7 @@ this.init = function(request, output)
                                     href: '/admin/content/pages/manage_pages'
                                 });
                                 
-                                result = result.concat(getAngularController(
+                                result = result.concat(pb.js.getAngularController(
                                 {
                                     navigation: getAdminNavigation(session, ['content', 'pages']),
                                     pills: pills,
@@ -81,7 +81,7 @@ this.init = function(request, output)
                                     templates: templates,
                                     topics: topics,
                                     media: media
-                                }));
+                                }, [], 'initMediaPagination();initTopicsPagination()'));
                     
                                 editSession(request, session, [], function(data)
                                 {

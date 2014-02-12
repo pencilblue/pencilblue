@@ -58,12 +58,12 @@ this.init = function(request, output)
                             href: '/admin/content/topics/manage_topics'
                         });
                         
-                        result = result.concat(getAngularController(
+                        result = result.concat(pb.js.getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['content', 'topics']),
                             pills: pills,
                             topics: topics
-                        }));
+                        }, [], 'initTopicsPagination()'));
                         
                         editSession(request, session, [], function(data)
                         {

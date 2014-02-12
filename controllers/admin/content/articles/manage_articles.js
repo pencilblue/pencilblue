@@ -58,12 +58,12 @@ this.init = function(request, output)
                         
                         instance.getArticleAuthors(articles, function(articlesWithAuthorNames)
                         {                                
-                            result = result.concat(getAngularController(
+                            result = result.concat(pb.js.getAngularController(
                             {
                                 navigation: getAdminNavigation(session, ['content', 'articles']),
                                 pills: pills,
                                 articles: articlesWithAuthorNames
-                            }));
+                            }, [], 'initArticlesPagination()'));
                             
                             editSession(request, session, [], function(data)
                             {

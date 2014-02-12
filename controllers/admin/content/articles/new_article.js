@@ -80,7 +80,7 @@ this.init = function(request, output)
                                         href: '/admin/content/articles/manage_articles'
                                     });
                                     
-                                    result = result.concat(getAngularController(
+                                    result = result.concat(pb.js.getAngularController(
                                     {
                                         navigation: getAdminNavigation(session, ['content', 'articles']),
                                         pills: pills,
@@ -89,7 +89,7 @@ this.init = function(request, output)
                                         sections: sections,
                                         topics: topics,
                                         media: media
-                                    }));
+                                    }, [], 'initMediaPagination();initSectionsPagination();initTopicsPagination()'));
                                     
                                     editSession(request, session, [], function(data)
                                     {

@@ -23,6 +23,13 @@ $(document).ready(function()
     });
 });
 
+function initMediaPagination()
+{
+    mediaPagination = new Pagination('media_pagination', '#inactive_media .media_item', 75, true);
+    $('#media_search').keyup(mediaPagination.initializeElements);
+    $('#media_search_button').click(mediaPagination.initializeElements);
+}
+
 function setupUpload(root)
 {
     siteRoot = root;

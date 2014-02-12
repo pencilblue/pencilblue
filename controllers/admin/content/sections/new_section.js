@@ -135,7 +135,7 @@ NewSection.init = function(request, output)
                                 href: '/admin/content/sections/section_map'
                             });
                             
-                            result = result.concat(getAngularController(
+                            result = result.concat(pb.js.getAngularController(
                             {
                                 navigation: getAdminNavigation(session, ['content', 'sections']),
                                 pills: pills,
