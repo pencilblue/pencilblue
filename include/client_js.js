@@ -45,18 +45,28 @@ global.getAngularController = function(objects, modules, directiveJS)
 
 function ClientJS(){}
 
-ClientJS.getAngularController = function(objects, modules) {
-    if(typeof modules === 'undefined') {
+ClientJS.getAngularController = function(objects, modules, directiveJS) {
+    if(typeof modules === 'undefined')
+    {
         modules = [];
     }
-    var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ');';
+    if(typeof directiveJS === 'undefined')
+    {
+        var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ');';
+    }
+    else
+    {
+        var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ').directive("onFinishRender", function($timeout){return {restrict: "A",link: function(scope, element, attr){if (scope.$last === true){$timeout(function(){' + directiveJS + '})}}}});';
+    }
+                            
     
     var scopeString = '';
-    for(var key in objects) {
-        
-    	if(typeof objects[key] === 'string') {
-            
-    		if(objects[key].indexOf('function(') == 0) {
+    for(var key in objects)
+    {
+        if(typeof objects[key] === 'string')
+        {
+            if(objects[key].indexOf('function(') == 0)
+            {
                 scopeString = scopeString.concat('$scope.' + key + ' = ' + objects[key] + ';');
                 continue;
             }
