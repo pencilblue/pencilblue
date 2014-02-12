@@ -55,7 +55,7 @@ this.init = function(request, output)
                                             commentingUser = comments.getCommentingUser(session.user);
                                         }
                                 
-                                        result = result.concat(getAngularController(
+                                        result = result.concat(pb.js.getAngularController(
                                         {
                                             navigation: navigation,
                                             contentSettings: contentSettings,

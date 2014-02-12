@@ -62,7 +62,7 @@ this.init = function(request, output)
                             session = newSession;
                             result = newResult;
                             
-                            result = result.concat(getAngularController({tabs: tabs, media: media}));
+                            result = result.concat(pb.js.getAngularController({tabs: tabs, media: media}));
                     
                             editSession(request, session, [], function(data)
                             {

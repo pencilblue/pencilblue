@@ -21,7 +21,7 @@ this.init = function(request, output)
                             loggedIn = true;
                         }
                        
-                        result = result.concat(getAngularController(
+                        result = result.concat(pb.js.getAngularController(
                         {
                             navigation: navigation,
                             contentSettings: contentSettings,

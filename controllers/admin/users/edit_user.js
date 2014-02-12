@@ -77,7 +77,7 @@ this.init = function(request, output)
                             href: '/admin/users/manage_users'
                         });
                         
-                        result = result.concat(getAngularController(
+                        result = result.concat(pb.js.getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['users']),
                             pills: pills,

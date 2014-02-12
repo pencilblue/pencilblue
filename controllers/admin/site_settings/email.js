@@ -60,7 +60,7 @@ this.init = function(request, output)
                             href: '/admin/site_settings/configuration'
                         });
                         
-                        result = result.concat(getAngularController(
+                        result = result.concat(pb.js.getAngularController(
                         {
                             navigation: getAdminNavigation(session, ['settings', 'site_settings']),
                             pills: pills,
