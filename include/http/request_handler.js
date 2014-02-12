@@ -136,6 +136,14 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'edit_section.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/topics/manage_topics",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'manage_topics.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -282,7 +290,7 @@ RequestHandler.prototype.handleRequest = function(){
 RequestHandler.prototype.servePublicContent = function() {
 	
 	var self         = this;
-	var urlPath      = this.url.pathname;//.substring('/public/'.length);
+	var urlPath      = this.url.pathname;
 	var absolutePath = path.join(DOCUMENT_ROOT, 'public', urlPath);
 	fs.readFile(absolutePath, function(err, content){
 		if (err) {
@@ -298,7 +306,13 @@ RequestHandler.prototype.servePublicContent = function() {
 		//guess at content-type
 		var map = {
 			js: 'text/javascript',
-			css: 'text/css'
+			css: 'text/css',
+			png: 'image/png',
+			svg: 'image/svg+xml',
+			ico: 'image/vnd.microsoft.icon',
+			tff: 'application/octet-stream',
+			eot: 'application/vnd.ms-fontobject',
+			woff: 'application/x-font-woff'
 		};
 		var index = absolutePath.lastIndexOf('.');
 		if (index >= 0) {
