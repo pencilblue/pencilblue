@@ -20,7 +20,7 @@ $(document).ready(function()
 
 function initUsersPagination()
 {
-    pagination = new Pagination(".user_row", 30);
+    pagination = new Pagination('users_pagination', '.user_row', 30);
     $('#user_search').keyup(pagination.initializeElements);
     $('#user_search_button').click(pagination.initializeElements);
 }

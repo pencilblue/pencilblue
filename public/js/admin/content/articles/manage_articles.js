@@ -20,7 +20,7 @@ $(document).ready(function()
 
 function initArticlesPagination()
 {
-    pagination = new Pagination(".article_row", 30);
+    pagination = new Pagination('articles_pagination', '.article_row', 30);
     $('#article_search').keyup(pagination.initializeElements);
     $('#article_search_button').click(pagination.initializeElements);
 }

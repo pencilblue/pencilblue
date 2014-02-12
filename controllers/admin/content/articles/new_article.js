@@ -89,7 +89,7 @@ this.init = function(request, output)
                                         sections: sections,
                                         topics: topics,
                                         media: media
-                                    }, [], 'initTopicsPagination()'));
+                                    }, [], 'initMediaPagination();initSectionsPagination();initTopicsPagination()'));
                                     
                                     editSession(request, session, [], function(data)
                                     {

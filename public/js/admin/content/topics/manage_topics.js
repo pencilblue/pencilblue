@@ -22,7 +22,7 @@ $(document).ready(function()
 
 function initTopicsPagination()
 {
-    pagination = new Pagination(".topic", 75);
+    pagination = new Pagination('topics_pagination', '.topic', 75);
     $('#topic_search').keyup(pagination.initializeElements);
     $('#topic_search_button').click(pagination.initializeElements);
 }

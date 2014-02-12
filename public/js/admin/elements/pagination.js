@@ -1,4 +1,4 @@
-function Pagination(elementClass, elementsPerPage, skipVisible)
+function Pagination(container, elementClass, elementsPerPage, skipVisible)
 {
     var paginatedElements = [];
     var currentIndex = 0;
@@ -19,52 +19,52 @@ function Pagination(elementClass, elementsPerPage, skipVisible)
         
         if(pages <= 1)
         {
-            $('#pagination').hide();
+            $('#' + container).hide();
             return;
         }
         else
         {
-            $('#pagination').show();
+            $('#' + container).show();
         }
         
         if(index == 0)
         {
-            var buttonsString = '<li id="pagination_left" class="disabled"><a><i class="fa fa-chevron-left"></i></a></li>';
+            var buttonsString = '<li id="' + container + '_left" class="disabled"><a><i class="fa fa-chevron-left"></i></a></li>';
         }
         else
         {
-            var buttonsString = '<li id="pagination_left"><a><i class="fa fa-chevron-left"></i></a></li>';
+            var buttonsString = '<li id="' + container + '_left"><a><i class="fa fa-chevron-left"></i></a></li>';
         }
         
         for(var i = 0; i < pages; i++)
         {
             if(i == index)
             {
-                buttonsString = buttonsString.concat('<li id="pagination_' + i + '" class="active"><a>' + (i + 1) + '</a></li>');
+                buttonsString = buttonsString.concat('<li id="' + container + '_' + i + '" class="active"><a>' + (i + 1) + '</a></li>');
             }
             else
             {
-                buttonsString = buttonsString.concat('<li id="pagination_' + i + '"><a>' + (i + 1) + '</a></li>');
+                buttonsString = buttonsString.concat('<li id="' + container + '_' + i + '"><a>' + (i + 1) + '</a></li>');
             }
         }
         
         if(index >= pages - 1)
         {
-            buttonsString = buttonsString.concat('<li id="pagination_right" class="disabled"><a><i class="fa fa-chevron-right"></i></a></li>');
+            buttonsString = buttonsString.concat('<li id="' + container + '_right" class="disabled"><a><i class="fa fa-chevron-right"></i></a></li>');
         }
         else
         {
-            buttonsString = buttonsString.concat('<li id="pagination_right"><a><i class="fa fa-chevron-right"></i></a></li>');
+            buttonsString = buttonsString.concat('<li id="' + container + '_right"><a><i class="fa fa-chevron-right"></i></a></li>');
         }
         
-        $('#pagination').html(buttonsString);
+        $('#' + container).html(buttonsString);
         
         for(var i = 0; i < pages; i++)
         {
-            $('#pagination_' + i).click(instance.onPaginationButtonClick);
+            $('#' + container + '_' + i).click(instance.onPaginationButtonClick);
         }
-        $('#pagination_left').click(instance.onPaginationLeftClicked);
-        $('#pagination_right').click(instance.onPaginationRightClicked);
+        $('#' + container + '_left').click(instance.onPaginationLeftClicked);
+        $('#' + container + '_right').click(instance.onPaginationRightClicked);
         
         $(elementClass).hide();
         for(var i = index * elementsPerPage; i < index * elementsPerPage + elementsPerPage && i < paginatedElements.length; i++)
@@ -75,13 +75,13 @@ function Pagination(elementClass, elementsPerPage, skipVisible)
     
     this.onPaginationButtonClick = function(event)
     {
-        var index = parseInt($(this).attr('id').split('pagination_').join(''));
+        var index = parseInt($(this).attr('id').split(container + '_').join(''));
         instance.renderPagination(index);
     }
     
     this.onPaginationLeftClicked = function()
     {
-        if($('#pagination_left').attr('class') != 'disabled')
+        if($('#' + container + '_left').attr('class') != 'disabled')
         {
             instance.renderPagination(currentIndex - 1);
         }
@@ -89,7 +89,7 @@ function Pagination(elementClass, elementsPerPage, skipVisible)
     
     this.onPaginationRightClicked = function()
     {
-        if($('#pagination_right').attr('class') != 'disabled')
+        if($('#' + container + '_right').attr('class') != 'disabled')
         {
             instance.renderPagination(currentIndex + 1);
         }

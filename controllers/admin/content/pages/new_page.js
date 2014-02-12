@@ -81,7 +81,7 @@ this.init = function(request, output)
                                     templates: templates,
                                     topics: topics,
                                     media: media
-                                }));
+                                }, [], 'initMediaPagination();initTopicsPagination()'));
                     
                                 editSession(request, session, [], function(data)
                                 {

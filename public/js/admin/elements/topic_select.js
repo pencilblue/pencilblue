@@ -21,7 +21,7 @@ $(document).ready(function()
 
 function initTopicsPagination()
 {
-    topicsPagination = new Pagination(".topic", 75, true);
+    topicsPagination = new Pagination('topics_pagination', '#inactive_topics .topic', 75, true);
     $('#topic_search').keyup(topicsPagination.initializeElements);
     $('#topic_search_button').click(topicsPagination.initializeElements);
 }

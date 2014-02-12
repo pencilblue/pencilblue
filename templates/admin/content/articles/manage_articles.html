@@ -24,7 +24,7 @@
             <td><a href="javascript:confirmDeleteArticle('{{article._id}}', '{{article.headline}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
-    ^tmp_admin=elements=pagination^
+    <ul id="articles_pagination" class="pagination"></ul>
     <div class="modal fade" id="confirm_delete_modal">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -43,6 +43,7 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
 <script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/content/articles/manage_articles.js"></script>
 ^tmp_admin=footer^
