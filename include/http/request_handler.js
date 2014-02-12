@@ -75,6 +75,14 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
+    	path: "/admin/content/sections",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
     	path: "/admin/content/sections/section_map",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
@@ -95,6 +103,38 @@ RequestHandler.CORE_ROUTES = [
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'new_section.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/sections/section_map",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'section_map.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/sections/edit_section",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections', 'edit_section.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/actions/admin/content/sections/delete_section",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'delete_section.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/sections/edit_section",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'edit_section.js'),
     	content_type: 'text/html'
     }
 ];
@@ -511,9 +551,12 @@ RequestHandler.prototype.onRenderComplete = function(data){
 	}
 	
 	//close session after data sent
-	pb.session.close(this.session, function(err, result) {
-		//TODO handle any errors
-	});
+	//public content doesn't require a session so in order to not error out we check if the session exists first.
+	if (this.session) {
+		pb.session.close(this.session, function(err, result) {
+			//TODO handle any errors
+		});
+	}
 };
 
 RequestHandler.prototype.writeResponse = function(data){

@@ -42,6 +42,16 @@ Util.ane = function(obj){
 };
 
 /**
+ * Merges the properties from the first parameter into the second.  This 
+ * modifies the second parameter instead of creating a new object.
+ */
+Util.merge = function(from, to) {
+	for (var prop in from) {
+		to[prop] = from[prop];
+	}
+};
+
+/**
  * Empty callback function just used as a place holder if a callback is required 
  * and the result is not needed.
  */

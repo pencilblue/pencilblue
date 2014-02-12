@@ -22,12 +22,17 @@ DAO.DESC = 'desc';
  * Retrieves an object by ID
  * @param id
  * @param objectType
- * @param collection
  * @returns Promise that resolves to a 
  */
-DAO.prototype.loadById = function(id, objectType, collection){
-	collection  = typeof collection  !== 'undefined' ? collection : object_type;
-	return query(collection, {_id: ObjectId(id), object_type: objectType});
+DAO.prototype.loadById = function(id, collection, cb){
+	this.query(collection, {_id: new ObjectID(id)}, DAO.PROJECT_ALL, DAO.NATURAL_ORDER, 1).then(function(result){
+		if (util.isError(result)) {
+			cb(result, null);
+		}
+		else {
+			cb(null, result.length > 0 ? result[0] : null);
+		}
+	});
 };
 
 /**

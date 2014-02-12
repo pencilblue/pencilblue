@@ -144,6 +144,11 @@ DocumentCreator.create = function(object_type, post, csvItems, nullIfEmptyItems)
     return post;
 };
 
+DocumentCreator.update = function(post, existingObject, csvItems, nullIfEmptyItems) {
+	var newDoc = DocumentCreator.create(existingObject.object_type, post, csvItems, nullIfEmptyItems);
+	pb.utils.merge(newDoc, existingObject);
+};
+
 DocumentCreator.passwordHash = function(post){
 	if (post['password']) {
 		var whirlpool = crypto.createHash('whirlpool');
