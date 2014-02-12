@@ -1,12 +1,3 @@
-/*
-
-    Interface for changing the site configuration
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
-
-*/
-
 this.init = function(request, output)
 {
     var result = '';
