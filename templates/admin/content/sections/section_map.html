@@ -3,7 +3,7 @@
     ^error_success^
     ^tmp_admin=elements=sub_nav^
     <div id="section_map">
-        <div id="section_{{section._id}}" class="panel panel-info section" ng-repeat="section in sections" ng-cloak>
+        <div id="section_{{section._id}}" class="panel panel-info section" ng-repeat="section in sections track by section._id" ng-cloak>
             <div class="panel-heading">
                 {{section.name}}
                 <a href="javascript:confirmDeleteSection('{{section._id}}', '{{section.name}}')">
@@ -14,7 +14,7 @@
                 </a>
             </div>
             <div class="panel-body" ng-hide="section.children.length == 0">
-                <div id="subsection_{{child._id}}" class="col-md-3 subsection" ng-repeat="child in section.children">
+                <div id="subsection_{{child._id}}" class="col-md-3 subsection" ng-repeat="child in section.children track by child._id">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             {{child.name}}

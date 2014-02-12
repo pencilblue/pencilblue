@@ -63,7 +63,6 @@ this.init = function(request, output)
                             result = newResult;
                             
                             result = result.concat(getAngularController({tabs: tabs, media: media}));
-                            result = result.concat(addAngularRepeatDirective('mediaRepeatDirective', 'window.alert("poop")'));
                     
                             editSession(request, session, [], function(data)
                             {

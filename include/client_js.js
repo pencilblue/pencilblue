@@ -8,13 +8,21 @@ global.getJSTag = function(jsCode)
     return '<script type="text/javascript">' + jsCode + '</script>';
 };
 
-global.getAngularController = function(objects, modules)
+global.getAngularController = function(objects, modules, directiveJS)
 {
     if(typeof modules === 'undefined')
     {
         modules = [];
     }
-    var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ');';
+    if(typeof directiveJS === 'undefined')
+    {
+        var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ');';
+    }
+    else
+    {
+        var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ').directive("onFinishRender", function($timeout){return {restrict: "A",link: function(scope, element, attr){if (scope.$last === true){$timeout(function(){' + directiveJS + '})}}}});';
+    }
+                            
     
     var scopeString = '';
     for(var key in objects)
@@ -33,11 +41,6 @@ global.getAngularController = function(objects, modules)
     angularController = angularController.concat('function PencilBlueController($scope, $sce) {' + scopeString + '};');
     
     return getJSTag(angularController);
-};
-
-global.addAngularRepeatDirective = function(directiveName, directiveJS)
-{
-    return getJSTag('pencilblueApp.directive("' + directiveName + '", function(){return function(scope, element, attrs) {if(scope.$last){' + directiveJS + ';}};})');
 };
 
 function ClientJS(){}
@@ -76,3 +79,4 @@ ClientJS.getJSTag = function(jsCode) {
 
 //exports
 module.exports.ClientJS = ClientJS;
+}

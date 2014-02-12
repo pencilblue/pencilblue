@@ -13,11 +13,14 @@
         </div>
     </div>
     <div id="inactive_sections" class="panel-body" style="min-height: 100px">
-        <div id="section_{{section._id}}" class="label label-default section_item" ng-repeat="section in sections" ng-cloak>
+        <div id="section_{{section._id}}" class="label label-default section_item" ng-repeat="section in sections track by section._id" ng-cloak>
             <i class="fa fa-bars"></i>&nbsp;
             <span class="section_name">{{section.name}}</span>
         </div>
+        <div class="spacer"></div>
+        <ul id="sections_pagination" class="pagination"></ul>
     </div>
 </div>
+<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
 <script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
 <script type="text/javascript" src="^site_root^/js/admin/elements/section_select.js"></script>

@@ -55,7 +55,7 @@ this.init = function(request, output)
                             navigation: getAdminNavigation(session, ['users']),
                             pills: pills,
                             users: users
-                        }));
+                        }, [], 'initUsersPagination()'));
                             
                         editSession(request, session, [], function(data)
                         {

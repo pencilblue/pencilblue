@@ -51,7 +51,7 @@ this.init = function(request, output)
     
             initLocalization(request, session, function(data)
             {
-                getHTMLTemplate('admin/content/pages/edit_page', '^loc_EDIT_PAGE^', null, function(data)
+                getHTMLTemplate('admin/content/pages/edit_page', page.headline, null, function(data)
                 {
                     result = result.concat(data);
                     result = result.split('^page_id^').join(get['id']);
@@ -111,7 +111,7 @@ this.init = function(request, output)
                                         templates: templates,
                                         topics: topics, 
                                         media: media
-                                    }));
+                                    }, [], 'initMediaPagination();initTopicsPagination()'));
                         
                                     editSession(request, session, [], function(data)
                                     {

@@ -120,7 +120,7 @@ this.init = function(request, output)
                                             sections: sections,
                                             topics: topics,
                                             media: media
-                                        }));
+                                        }, [], 'initMediaPagination();initSectionsPagination();initTopicsPagination()'));
                                         
                                         editSession(request, session, [], function(data)
                                         {
