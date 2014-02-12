@@ -1,52 +1,44 @@
-this.init = function(request, output)
-{
-    var result = '';
-    var instance = this;
-    
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
-        {
-            output({redirect: pb.config.siteRoot + '/admin'});
-            return;
-        }
+/**
+ * Display's the site's config settings
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function Configuration(){};
 
-        initLocalization(request, session, function(data)
+//inheritance
+util.inherits(Configuration, pb.BaseController);
+
+Configuration.prototype.render = function(cb) {
+    var self = this;
+	var dao  = new pb.DAO();
+	pb.templates.load('admin/site_settings/configuration', '^loc_CONFIGURATION^', null, function(data) {
+        var result = data;
+        
+        result = Configuration.getConfiguration(result);
+        
+        var pills = require('../site_settings').getPillNavOptions('configuration');
+        pills.unshift(
         {
-            getHTMLTemplate('admin/site_settings/configuration', null, null, function(data)
-            {
-                result = result.concat(data);
-                
-                instance.getConfiguration(result, function(newResult)
-                {
-                    result = newResult;
-                    
-                    var pills = require('../site_settings').getPillNavOptions('configuration');
-                    pills.unshift(
-                    {
-                        name: 'configuration',
-                        title: '^loc_CONFIGURATION^',
-                        icon: 'refresh',
-                        href: '/admin/site_settings/configuration'
-                    });
-                    
-                    result = result.concat(pb.js.getAngularController(
-                    {
-                        navigation: getAdminNavigation(session, ['settings', 'site_settings']),
-                        pills: pills
-                    }));
-                    
-                    editSession(request, session, [], function(data)
-                    {
-                        output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings'], result)});
-                    });
-                });
-            });
+            name: 'configuration',
+            title: '^loc_CONFIGURATION^',
+            icon: 'refresh',
+            href: '/admin/site_settings/configuration'
         });
+        
+        var objects     = {
+            navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings']),
+            pills: pills
+        };
+        var angularData = pb.js.getAngularController(objects);
+        result          = result.concat(angularData);
+        
+        var content = self.localizationService.localize(['admin', 'settings', 'site_settings'], result);
+        cb({content: content});
     });
 }
 
-this.getConfiguration = function(result, output)
+Configuration.getConfiguration = function(result)
 {
     if(!fs.existsSync(DOCUMENT_ROOT + '/config.json'))
     {
@@ -64,5 +56,8 @@ this.getConfiguration = function(result, output)
     result = result.split('^db_name^').join(pb.config.db.name);
     result = result.split('^db_servers^').join(pb.config.db.servers.join('<br/>'));
     
-    output(result);
+    return result;
 }
+
+//exports
+module.exports = Configuration;

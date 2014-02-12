@@ -144,6 +144,14 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'manage_topics.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/site_settings/configuration",
+    	access_level: ACCESS_ADMINISTRATOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'configuration.js'),
+    	content_type: 'text/html'
     }
 ];
 
