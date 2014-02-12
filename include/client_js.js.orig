@@ -41,6 +41,12 @@ global.getAngularController = function(objects, modules, directiveJS)
     angularController = angularController.concat('function PencilBlueController($scope, $sce) {' + scopeString + '};');
     
     return getJSTag(angularController);
+<<<<<<< HEAD
+};
+
+global.addAngularRepeatDirective = function(directiveName, directiveJS)
+{
+    return getJSTag('pencilblueApp.directive("' + directiveName + '", function(){return function(scope, element, attrs) {if(scope.$last){' + directiveJS + ';}};})');
 };
 
 function ClientJS(){}
@@ -79,3 +85,6 @@ ClientJS.getJSTag = function(jsCode) {
 
 //exports
 module.exports.ClientJS = ClientJS;
+=======
+}
+>>>>>>> new_design
