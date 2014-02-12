@@ -1,11 +1,9 @@
-/*
-
-    Input for creating a new site section
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
-
-*/
+/**
+ * NewSection - Input for creating a new site section
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
 function NewSection(){}
 
 //inheritance
