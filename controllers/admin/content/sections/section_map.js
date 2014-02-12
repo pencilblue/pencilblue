@@ -1,13 +1,63 @@
-/*
+/**
+ * Organizes the site's sections via drag and drop
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function SectionMap(){}
 
-    Organizes the site's sections via drag and drop
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+//inheritance
+util.inherits(SectionMap, pb.BaseController);
 
-*/
+SectionMap.prototype.render = function(cb) {
+	var self = this;
+	var dao  = new pb.DAO();
+	dao.query('section', pb.DAO.ANYWHERE).then(function(sections) {
+		
+		//when no sections exist redirect to create page
+        if(sections.length == 0) {
+            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
+            return;
+        }
 
-this.init = function(request, output)
+        pb.settings.get('section_map', function(err, sectionMap) {
+            if(sectionMap == null) {console.log('here');
+            	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
+                return;
+            }
+            
+	        pb.templates.load('admin/content/sections/section_map', '^loc_SECTION_MAP^', null, function(data) {
+                var result = data;
+
+                self.displayErrorOrSuccess(result, function(newResult) {
+ 
+                    result    = newResult;
+                    var pills = require('../sections').getPillNavOptions('section_map');
+                    pills.unshift(
+                    {
+                        name: 'section_map',
+                        title: '^loc_SECTION_MAP^',
+                        icon: 'refresh',
+                        href: '/admin/content/sections/section_map'
+                    });
+                    
+                    var objects     = {
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'sections']),
+                        pills: pills,
+                        sections: SectionMap.getOrderedSections(sections, sectionMap)
+                    };
+                    var angularData = getAngularController(objects);
+                    result          = result.concat(angularData);
+                    
+                    var content = self.localizationService.localize(['admin', 'sections'], result);
+                    cb({content: content});
+                });
+            });
+        });
+    });
+};
+
+SectionMap.init = function(request, output)
 {
     var result = '';
     var instance = this;
@@ -64,7 +114,7 @@ this.init = function(request, output)
                             {
                                 navigation: getAdminNavigation(session, ['content', 'sections']),
                                 pills: pills,
-                                sections: instance.getOrderedSections(sections, sectionMap)
+                                sections: SectionMap.getOrderedSections(sections, sectionMap)
                             }));
                             
                             editSession(request, session, [], function(data)
@@ -77,9 +127,9 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
 
-this.getOrderedSections = function(sections, sectionMap)
+SectionMap.getOrderedSections = function(sections, sectionMap)
 {
     var orderedSections = [];
 
@@ -118,4 +168,7 @@ this.getOrderedSections = function(sections, sectionMap)
     }
     
     return orderedSections;
-}
+};
+
+//exports
+module.exports = SectionMap;

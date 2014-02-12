@@ -248,6 +248,13 @@ SessionHandler.prototype.purgeLocal = function(sessionId){
 	return doesQualify;
 };
 
+SessionHandler.prototype.getRequestCount = function(sessionId) {
+	if (this.isLocal(sessionId)) {
+		return this.localStorage[sessionId].request_count;
+	}
+	return 0;
+};
+
 /**
  * 
  * @param sessionId The ID of the session to search for

@@ -75,7 +75,6 @@ global.getHTMLTemplate = function(templateLocation, pageName, metaDesc, output)
         });
     };
 
-    pb.log.debug("Templates: "+JSON.stringify(pb.settings));
     pb.settings.get('active_theme', function(err, setting){
     	if (setting == null){
     		instance.loadTemplate();

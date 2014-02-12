@@ -3,7 +3,7 @@
  * Provides a set of utility functions used throughout the code base
  * 
  * @author Brian Hyder <brianhyder@gmail.com>
- * @copyright PencilBlue 2013, All Rights Reserved
+ * @copyright PencilBlue 2014, All Rights Reserved
  */
 function Util(){};
 
@@ -21,6 +21,15 @@ Util.onPromisesOk = function(promises, cb){
 			}
 		});
 	}
+};
+
+/**
+ * Clones an object by serializing it and then re-parsing it.  
+ * NOTE: This probably isn't very efficient.  Need to benchmark it.  
+ * WARNING: Objects with circular dependencies will cause an error to be thrown.
+ */
+Util.clone = function(object){
+    return JSON.parse(JSON.stringify(object));
 };
 
 /**
@@ -53,5 +62,3 @@ Util.TIME = {
 };
 
 module.exports = Util;
-
-// TODO: Brian, let me know how you want these functions to work, so we can put a clone function into it. For now it's in the content include.

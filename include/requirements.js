@@ -75,6 +75,7 @@ pb.security = require(DOCUMENT_ROOT+'/include/access_management.js').SecuritySer
 
 //setup request handling
 pb.BaseController = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;
+pb.FormController = require(DOCUMENT_ROOT+'/controllers/form_controller.js').FormController;
 pb.RequestHandler = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
 pb.RequestHandler.init();
 
@@ -91,7 +92,7 @@ require(DOCUMENT_ROOT+'/include/router');					// URL routing
 require(DOCUMENT_ROOT+'/include/query');					// Query parameter retrieval
 require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
 pb.DocumentCreator = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
-require(DOCUMENT_ROOT+'/include/content');			        // Content settings and functions
+pb.content         = require(DOCUMENT_ROOT+'/include/content').ContentService;			        // Content settings and functions
 require(DOCUMENT_ROOT+'/include/email');			        // Email settings and functions
 require(DOCUMENT_ROOT+'/include/templates');				// Templatizing
 pb.js = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;				// Client JS
