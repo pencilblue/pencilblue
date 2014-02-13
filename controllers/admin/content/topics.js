@@ -1,13 +1,19 @@
-/*
+/**
+ * Topics - Topics Settings
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function Topics(){}
 
-    Topics settings
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+//inheritance
+util.inherits(Topics, pb.BaseController);
 
-*/
+Topics.prototype.render = function(cb) {
+	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/topics/manage_topics'));
+};
 
-this.getPillNavOptions = function(activePill)
+Topics.getPillNavOptions = function(activePill)
 {
     var pillNavOptions = 
     [
@@ -40,7 +46,10 @@ this.getPillNavOptions = function(activePill)
     return pillNavOptions;
 };
 
-this.init = function(request, output)
+Topics.init = function(request, output)
 {
     output({redirect: pb.config.siteRoot + '/admin/content/topics/manage_topics'});
-}
+};
+
+//exports
+module.exports = Topics;

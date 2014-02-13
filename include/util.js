@@ -51,6 +51,14 @@ Util.merge = function(from, to) {
 	}
 };
 
+Util.getTasks = function (iterable, getTaskFunction) {
+	var tasks = [];
+	for (var i = 0; i < iterable.length; i++) {
+		tasks.push(getTaskFunction(iterable, i));
+	}
+	return tasks;
+};
+
 /**
  * Empty callback function just used as a place holder if a callback is required 
  * and the result is not needed.

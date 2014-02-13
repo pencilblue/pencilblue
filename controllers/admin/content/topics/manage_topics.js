@@ -12,7 +12,7 @@ util.inherits(ManageTopics, pb.BaseController);
 ManageTopics.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
-	dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
+	dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(topics) {
 		if (util.isError(topics)) {
 			//TODO handle this
 		}
@@ -35,7 +35,7 @@ ManageTopics.prototype.render = function(cb) {
         pb.templates.load('admin/content/topics/manage_topics', '^loc_MANAGE_TOPICS^', null, function(data) {
             var result = ''+data;
                 
-            self.displayErrorOrSuccess(result, function(newSession, newResult) {
+            self.displayErrorOrSuccess(result, function(newResult) {
                 result = newResult;
                 
                 var pills = require('../topics').getPillNavOptions('manage_topics');
@@ -49,7 +49,7 @@ ManageTopics.prototype.render = function(cb) {
                 
                 result = result.concat(pb.js.getAngularController(
                 {
-                    navigation: getAdminNavigation(session, ['content', 'topics']),
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'topics']),
                     pills: pills,
                     topics: topics
                 }, [], 'initTopicsPagination()'));

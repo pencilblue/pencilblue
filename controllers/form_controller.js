@@ -41,7 +41,7 @@ FormController.prototype.onPostParamsError = function(err, cb) {
  * @param cb
  */
 FormController.prototype.onPostParamsRetrieved = function(params, cb) {
-	cb({content: JSON.stringify(params)});
+	cb({content: JSON.stringify(params), content_type:'application/json'});
 };
 
 //exports

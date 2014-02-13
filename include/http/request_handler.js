@@ -168,6 +168,46 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'email.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/topics/new_topic",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'new_topic.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/topics/new_topic",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'new_topic.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/topics/import_topics",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'import_topics.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/topics/import_topics",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'import_topics.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/topics/",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -585,7 +625,7 @@ RequestHandler.prototype.onRenderComplete = function(data){
 	
 	//calculate response time
 	if (pb.log.isDebug()) {
-		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+"ms URL="+this.req.url+(doRedirect ? ' Redirect='+data.redirect : ''));
+		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+"ms URL=["+this.req.method+']'+this.req.url+(doRedirect ? ' Redirect='+data.redirect : ''));
 	}
 	
 	//close session after data sent
