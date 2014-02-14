@@ -1,3 +1,4 @@
+//TODO remove all code.  moved to base_controller
 global.prepareFormReturns = function(session, result, output)
 {
     displayErrorOrSuccess(session, result, function(newSession, newResult)

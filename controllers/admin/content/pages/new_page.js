@@ -1,16 +1,86 @@
-/*
+/**
+ * NewPage - Interface for adding a new page
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function NewPage(){}
 
-    Interface for adding a new page
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+//inheritance
+util.inherits(NewPage, pb.BaseController);
 
-*/
+NewPage.prototype.render = function(cb) {
+	var self = this;
+	
+	pb.templates.load('admin/content/pages/new_page', '^loc_NEW_PAGE^', null, function(data) {
+        var result = '' + data;
+        var tabs   =
+        [
+            {
+                active: 'active',
+                href: '#content',
+                icon: 'quote-left',
+                title: '^loc_CONTENT^'
+            },
+            {
+                href: '#media',
+                icon: 'camera',
+                title: '^loc_MEDIA^'
+            },
+            {
+                href: '#topics_dnd',
+                icon: 'tags',
+                title: '^loc_TOPICS^'
+            },
+            {
+                href: '#meta_data',
+                icon: 'tasks',
+                title: '^loc_META_DATA^'
+            }
+        ];
+        
+        var pages = require('../pages');
+        pages.getTemplates(function(templates) {
+        	
+        	var dao = new pb.DAO();
+        	dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
+        		//TODO handle errors
+        		
+                pages.getMedia(function(media) {                            
+                    self.prepareFormReturns(result, function(newResult) {
+                        result = newResult;
+                        
+                        var pills = pages.getPillNavOptions('new_page');
+                        pills.unshift(
+                        {
+                            name: 'manage_pages',
+                            title: '^loc_NEW_PAGE^',
+                            icon: 'chevron-left',
+                            href: '/admin/content/pages/manage_pages'
+                        });
+                        
+                        result = result.concat(pb.js.getAngularController(
+                        {
+                            navigation: pb.AdminNavigation.get(self.session, ['content', 'pages']),
+                            pills: pills,
+                            tabs: tabs,
+                            templates: templates,
+                            topics: topics,
+                            media: media
+                        }, [], 'initMediaPagination();initTopicsPagination()'));
+            
+                        var content = self.localizationService.localize(['admin', 'pages', 'articles', 'media'], result);
+                        cb({content: content});
+                    });
+                });
+            });
+        });
+    });
+};
 
-this.init = function(request, output)
+NewPage.init = function(request, output)
 {
     var result = '';
-    var instance = this;
     
     getSession(request, function(session)
     {
@@ -94,4 +164,7 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
+
+//exports
+module.exports = NewPage;

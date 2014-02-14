@@ -88,5 +88,28 @@ BaseController.prototype.hasRequiredParams = function(queryObject, requiredParam
     return null;
 };
 
+BaseController.prototype.prepareFormReturns = function(result, cb) {
+	var self = this;
+    this.displayErrorOrSuccess(result, function(newResult) {
+        self.checkForFormRefill(newResult, cb);
+    });
+};
+
+BaseController.prototype.setFormFieldValues = function(post) {
+    this.session.fieldValues = post;
+    return session;
+};
+
+BaseController.prototype.checkForFormRefill = function(result, cb) {
+    if(this.session.fieldValues) {
+        var formScript = pb.js.getJSTag('if(typeof refillForm !== "undefined") $(document).ready(function(){refillForm(' + JSON.stringify(this.session.fieldValues) + ')})');
+        result         = result.concat(formScript);
+        
+        delete this.session.fieldValues;
+    }
+    
+    cb(result);
+};
+
 //exports
 module.exports.BaseController = BaseController;
