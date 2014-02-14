@@ -1,73 +1,59 @@
-/*
+/**
+ * Saves the site's content settings
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function Content(){}
 
-    Saves content settings
+//inheritance
+util.inherits(Content, pb.FormController);
+
+Content.prototype.onPostParamsRetrieved = function(post, cb) {
+	var self    = this;
+	
+	post = pb.DocumentCreator.formatIntegerItems(post, ['articles_per_page', 'auto_break_articles', 'display_timestamp', 'display_hours_minutes', 'display_bylines', 'display_author_photo', 'display_author_position', 'allow_comments', 'default_comments']);
+	
+	var message = this.hasRequiredParams(post, ['articles_per_page']);
+	if(message) {
+        this.formError(message, '/admin/site_settings/content', cb);
+        return;
+    }
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2014, All rights reserved
+    post = {key: 'content_settings', value: post};
 
-*/
-
-this.init = function(request, output)
-{
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
+    var dao = new pb.DAO();
+    dao.query('setting', {key: 'content_settings'}, pb.DAO.PROJECT_ALL).then(function(data) {
+        if(data.length > 0)
         {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/site_settings/content', output);
-            return;
-        }
-    
-        var post = getPostParameters(request);
-        post = formatIntegerItems(post, ['articles_per_page', 'auto_break_articles', 'display_timestamp', 'display_hours_minutes', 'display_bylines', 'display_author_photo', 'display_author_position', 'allow_comments', 'default_comments']);
-        
-        if(message = checkForRequiredParameters(post, ['articles_per_page']))
-        {
-            formError(request, session, message, '/admin/site_settings/content', output);
-            return;
-        }
-        
-        session = setFormFieldValues(post, session);
-        
-        var settings = {key: 'content_settings', value: post};
-        var settingsDocument = createDocument('setting', settings);
-        
-        getDBObjectsWithValues({object_type: 'setting', key: 'content_settings'}, function(data)
-        {
-            if(data.length > 0)
-            {
-                editDBObject(data[0]._id, settingsDocument, [], function(data)
-                {
-                    if(data.length == 0)
-                    {
-                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/site_settings/content', output);
-                        return;
-                    }
-                    
-                    session.success = '^loc_CONTENT_SETTINGS^ ^loc_EDITED^';
-                    delete session.fieldValues;
-                    editSession(request, session, [], function(data)
-                    {        
-                        output({redirect: pb.config.siteRoot + '/admin/site_settings/content'});
-                    });
-                });
-                return;
-            }
+            var settings = data[0];
             
-            createDBObject(settingsDocument, function(data)
-            {
-                if(data.length == 0)
-                {
-                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/site_settings/content', output);
+            pb.DocumentCreator.update(post, settings);
+            
+            dao.update(settings).then(function(data) {
+                if(util.isError(data)) {
+                    self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/content', cb);
                     return;
                 }
                 
-                session.success = '^loc_CONTENT_SETTINGS^ ^loc_CREATED^';
-                delete session.fieldValues;
-                editSession(request, session, [], function(data)
-                {        
-                    output({redirect: pb.config.siteRoot + '/admin/site_settings/content'});
-                });
+                self.session.success = '^loc_CONTENT_SETTINGS^ ^loc_EDITED^';
+                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/content'));
             });
+            return;
+        }
+        
+        var settingsDocument = pb.DocumentCreator.create('settings', post);
+        dao.update(settingsDocument).then(function(result) {
+            if(util.isError(result)) {
+                self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/content', cb);
+                return;
+            }
+            
+            self.session.success = '^loc_CONTENT_SETTINGS^ ^loc_CREATED^';
+            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/content'));
         });
     });
-}
+};
+
+//exports 
+module.exports = Content;
