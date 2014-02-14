@@ -1,71 +1,56 @@
-/*
+/**
+ * Saves the site's email settings
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function Email(){}
 
-    Saves email settings
+//inheritance
+util.inherits(Email, pb.FormController);
+
+Email.prototype.onPostParamsRetrieved = function(post, cb) {
+	var self = this;
+	
+	delete post['layout_link_url'];
+    delete post['media_max_height'];
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2014, All rights reserved
-
-*/
-
-this.init = function(request, output)
-{
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
-        {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/site_settings/email', output);
-            return;
-        }
+    post = pb.DocumentCreator.formatIntegerItems(post, ['secure_connection', 'port']);
+    self.setFormFieldValues(post);
     
-        var post = getPostParameters(request);
-        
-        delete post['layout_link_url'];
-        delete post['media_max_height'];
-        
-        post = formatIntegerItems(post, ['secure_connection', 'port']);
-        
-        session = setFormFieldValues(post, session);
-        
-        var settings = {key: 'email_settings', value: post};
-        var settingsDocument = createDocument('setting', settings);
-        
-        getDBObjectsWithValues({object_type: 'setting', key: 'email_settings'}, function(data)
-        {
-            if(data.length > 0)
-            {
-                editDBObject(data[0]._id, settingsDocument, [], function(data)
-                {
-                    if(data.length == 0)
-                    {
-                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/site_settings/email', output);
-                        return;
-                    }
-                    
-                    session.success = '^loc_EMAIL_SETTINGS^ ^loc_EDITED^';
-                    delete session.fieldValues;
-                    editSession(request, session, [], function(data)
-                    {        
-                        output({redirect: pb.config.siteRoot + '/admin/site_settings/email'});
-                    });
-                });
-                return;
-            }
+    post = {key: 'email_settings', value: post};
+    
+    var dao = new pb.DAO();
+    dao.query('setting', {key: 'email_settings'}, pb.DAO.PROJECT_ALL).then(function(data) {
+        if(data.length > 0) {
+            var settings = data[0];
             
-            createDBObject(settingsDocument, function(data)
-            {
-                if(data.length == 0)
-                {
-                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/site_settings/email', output);
+            pb.DocumentCreator.update(post, settings);
+            
+            dao.update(settings).then(function(data) {
+                if(util.isError(data)) {
+                    self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/email', cb);
                     return;
                 }
                 
-                session.success = '^loc_EMAIL_SETTINGS^ ^loc_CREATED^';
-                delete session.fieldValues;
-                editSession(request, session, [], function(data)
-                {        
-                    output({redirect: pb.config.siteRoot + '/admin/site_settings/email'});
-                });
+                self.session.success = '^loc_CONTENT_SETTINGS^ ^loc_EDITED^';
+                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/email'));
             });
+            return;
+        }
+        
+        var settingsDocument = pb.DocumentCreator.create('settings', post);
+        dao.update(settingsDocument).then(function(result) {
+            if(util.isError(result)) {
+                self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/email', cb);
+                return;
+            }
+            
+            self.session.success = '^loc_CONTENT_SETTINGS^ ^loc_CREATED^';
+            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/email'));
         });
     });
 }
+
+//exports 
+module.exports = Email;

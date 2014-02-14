@@ -178,6 +178,14 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'post',
+    	path: "/actions/admin/site_settings/email",
+    	access_level: ACCESS_ADMINISTRATOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'email.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'get',
     	path: "/admin/content/topics/new_topic",
     	access_level: ACCESS_EDITOR,

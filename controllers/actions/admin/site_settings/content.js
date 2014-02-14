@@ -10,9 +10,10 @@ function Content(){}
 util.inherits(Content, pb.FormController);
 
 Content.prototype.onPostParamsRetrieved = function(post, cb) {
-	var self    = this;
+	var self = this;
 	
 	post = pb.DocumentCreator.formatIntegerItems(post, ['articles_per_page', 'auto_break_articles', 'display_timestamp', 'display_hours_minutes', 'display_bylines', 'display_author_photo', 'display_author_position', 'allow_comments', 'default_comments']);
+	self.setFormFieldValues(post);
 	
 	var message = this.hasRequiredParams(post, ['articles_per_page']);
 	if(message) {
@@ -20,12 +21,11 @@ Content.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
     
-    post = {key: 'content_settings', value: post};
+    post = {key: 'content_settings', value: post}
 
     var dao = new pb.DAO();
     dao.query('setting', {key: 'content_settings'}, pb.DAO.PROJECT_ALL).then(function(data) {
-        if(data.length > 0)
-        {
+        if(data.length > 0) {
             var settings = data[0];
             
             pb.DocumentCreator.update(post, settings);

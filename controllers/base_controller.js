@@ -97,7 +97,7 @@ BaseController.prototype.prepareFormReturns = function(result, cb) {
 
 BaseController.prototype.setFormFieldValues = function(post) {
     this.session.fieldValues = post;
-    return session;
+    return this.session;
 };
 
 BaseController.prototype.checkForFormRefill = function(result, cb) {
