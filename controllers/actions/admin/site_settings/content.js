@@ -21,37 +21,15 @@ Content.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
     
-    post = {key: 'content_settings', value: post}
-
-    var dao = new pb.DAO();
-    dao.query('setting', {key: 'content_settings'}, pb.DAO.PROJECT_ALL).then(function(data) {
-        if(data.length > 0) {
-            var settings = data[0];
-            
-            pb.DocumentCreator.update(post, settings);
-            
-            dao.update(settings).then(function(data) {
-                if(util.isError(data)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/content', cb);
-                    return;
-                }
-                
-                self.session.success = '^loc_CONTENT_SETTINGS^ ^loc_EDITED^';
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/content'));
-            });
+    pb.settings.set('content_settings', post, function(data)
+    {
+        if(util.isError(data)) {
+            self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/content', cb);
             return;
         }
         
-        var settingsDocument = pb.DocumentCreator.create('settings', post);
-        dao.update(settingsDocument).then(function(result) {
-            if(util.isError(result)) {
-                self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/content', cb);
-                return;
-            }
-            
-            self.session.success = '^loc_CONTENT_SETTINGS^ ^loc_CREATED^';
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/content'));
-        });
+        self.session.success = '^loc_CONTENT_SETTINGS^ ^loc_EDITED^';
+        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/content'));
     });
 };
 
