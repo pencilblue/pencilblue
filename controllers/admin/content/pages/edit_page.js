@@ -1,13 +1,109 @@
-/*
+/**
+ * EditPage - Interface for editing an page
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function EditPage(){}
 
-    Interface for editing an page
+//inheritance
+util.inherits(EditPage, pb.BaseController);
+
+EditPage.prototype.render = function(cb) {
+	var self = this;
+	
+	var get = this.query;
+    if(!get['id']) {
+        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
+        return;
+    }
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2014, All rights reserved
+    var dao = new pb.DAO();
+    dao.loadById('page', get.id, function(err, page) {
+        if(page == null) {
+        	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
+            return;
+        }
+        
+        page.page_media  = page.page_media.join(',');
+        page.page_topics = page.page_topics.join(',');
+        session          = setFormFieldValues(page);
+        
+        //ensure that only the author can edit page
+        //TODO should global administrator be able to do this too?
+        if(!self.session.user._id.equals(ObjectID(page.author))) {
+        	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
+            return;
+        }
 
-*/
+        pb.templates.load('admin/content/pages/edit_page', page.headline, null, function(data) {
+            var result = '' + data;
+            result     = result.split('^page_id^').join(get.id);
+            var tabs   =
+            [
+                {
+                    active: true,
+                    href: '#content',
+                    icon: 'quote-left',
+                    title: '^loc_CONTENT^'
+                },
+                {
+                    href: '#media',
+                    icon: 'camera',
+                    title: '^loc_MEDIA^'
+                },
+                {
+                    href: '#topics_dnd',
+                    icon: 'tags',
+                    title: '^loc_TOPICS^'
+                },
+                {
+                    href: '#meta_data',
+                    icon: 'tasks',
+                    title: '^loc_META_DATA^'
+                }
+            ];
+            
+            var pages = require('../pages');
+            pages.getTemplates(function(templates) {
+            	
+            	dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
+                    
+            		pages.getMedia(function(media) {                            
+                        
+            			self.prepareFormReturns(result, function(newResult) {
+                            result = newResult;
+                            
+                            var pills = pages.getPillNavOptions('edit_page');
+                            pills.unshift(
+                            {
+                                name: 'manage_pages',
+                                title: page.headline,
+                                icon: 'chevron-left',
+                                href: '/admin/content/pages/manage_pages'
+                            });
+                            
+                            result = result.concat(pb.js.getAngularController(
+                            {
+                                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages']),
+                                pills: pills,
+                                tabs: tabs,
+                                templates: templates,
+                                topics: topics, 
+                                media: media
+                            }, [], 'initMediaPagination();initTopicsPagination()'));
+                
+                            var content = self.localizationService.localize(['admin', 'pages', 'articles', 'media'], result);
+                            cb({content: content});
+                        });
+                    });
+                });
+            });
+        });
+    });
+};
 
-this.init = function(request, output)
+EditPage.init = function(request, output)
 {
     var result = '';
     var instance = this;
@@ -126,3 +222,6 @@ this.init = function(request, output)
         });
     });
 };
+
+//exports
+module.exports = EditPage;
