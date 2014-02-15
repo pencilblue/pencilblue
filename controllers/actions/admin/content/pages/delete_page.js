@@ -1,13 +1,36 @@
-/*
+/**
+ * DeletePage - Deletes pages
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function DeletePage(){}
 
-    Deletes pages
+//inheritance
+util.inherits(DeletePage, pb.BaseController);
+
+DeletePage.prototype.render = function(cb) {
+	var self = this;
+	
+	var get = this.query;
+    var message = this.hasRequiredParams(get, ['id']);
+    if (message) {
+        this.formError(message, '/admin/content/pages/manage_pages', cb);
+        return;
+    }
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2014, All rights reserved
+    var dao = new pb.DAO();
+    dao.deleteMatching(get.id, 'page').then(function(pagesDeleted) {
+        if(util.isError(pagesDeleted) || pagesDeleted <= 0) {
+            self.formError('^loc_ERROR_SAVING^', '/admin/content/pages/manage_pages', cb);
+            return;
+        }
+        session.success = page.headline + ' ^loc_DELETED^';
+        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
+    });
+};
 
-*/
-
-this.init = function(request, output)
+DeletePage.init = function(request, output)
 {
     var instance = this;
 
@@ -48,4 +71,7 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
+
+//exports
+module.exports = DeletePage;

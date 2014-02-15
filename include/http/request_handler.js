@@ -234,11 +234,51 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'post',
+    	path: "/actions/admin/content/pages/new_page",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'new_page.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'get',
     	path: "/admin/content/pages/manage_pages",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'manage_pages.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/pages/edit_page",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'edit_page.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/pages/new_page",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'new_page.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/pages/delete_page",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/plugins/themes",
+    	access_level: ACCESS_ADMINISTRATOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'themes.js'),
     	content_type: 'text/html'
     }
 ];
@@ -440,7 +480,7 @@ RequestHandler.isPublicRoute = function(path){
 
 RequestHandler.prototype.serve404 = function() {
 	//TODO implement 404 handling
-	this.onRenderComplete({content: 'Url ['+this.url.href+'] could not be found on this server'});
+	this.onRenderComplete({content: 'Url ['+this.url.href+'] could not be found on this server', code: 404});
 	
 	if (pb.log.isSilly()) {
 		pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL="+this.url.href);
@@ -673,7 +713,7 @@ RequestHandler.prototype.writeResponse = function(data){
     
     //infer a response code when not provided
     if(typeof data.code === 'undefined'){
-        code = 200;
+        data.code = 200;
     }
     
     // If a response code other than 200 is provided, force that code into the head
@@ -687,7 +727,7 @@ RequestHandler.prototype.writeResponse = function(data){
     
     //send response
     this.resp.setHeader('content-type', contentType);
-    this.resp.writeHead(code);
+    this.resp.writeHead(data.code);
     this.resp.end(data.content);
 };
 
