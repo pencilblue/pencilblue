@@ -87,6 +87,25 @@ Media.getMediaLink = function(mediaType, mediaLocation, isFile) {
     }
 };
 
+Media.getAll = function(cb) {
+
+    var dao  = new pb.DAO();
+    dao.query('media', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: 1}).then(function(media) {
+    	if (util.isError(media)) {
+    		//TODO properly handle this error
+    		pb.log.warn("Media:getAll Error not properly handled: "+media);
+    		media = [];
+    	}
+    	
+        for(var i = 0; i < media.length; i++) {
+            media[i].icon = Media.getMediaIcon(media[i].media_type);
+            media[i].link = Media.getMediaLink(media[i].media_type, media[i].location, media[i].is_file);
+        }
+        
+        cb(media);
+    });
+};
+
 Media.init = function(request, output)
 {
     output({redirect: pb.config.siteRoot + '/admin/content/media/manage_media'});

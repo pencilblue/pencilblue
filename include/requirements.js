@@ -73,6 +73,10 @@ pb.templates              = pb.TemplateServiceFactory.getService(pb.config.templ
 //setup security
 pb.security = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;
 
+//setup user service
+pb.UserService = require(DOCUMENT_ROOT+'/include/service/entities/user_service.js').UserService;
+pb.users = new pb.UserService();
+
 //setup request handling
 pb.BaseController = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;
 pb.FormController = require(DOCUMENT_ROOT+'/controllers/form_controller.js').FormController;

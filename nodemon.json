@@ -1,5 +1,5 @@
 {
-  "verbose": true,
+  "verbose": false,
   "ignore": ["public/media", ".git", "log", "node_modules/**/node_modules"],
   "execMap": {
     "rb": "ruby",
