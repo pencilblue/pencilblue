@@ -280,6 +280,62 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'themes.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/media",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/media/manage_media",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'manage_media.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/media/add_media",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'add_media.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/media/add_media",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'add_media.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/media/delete_media",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'delete_media.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/media/inline_add_media",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'inline_add_media.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/media/upload_media",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'upload_media.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -469,7 +525,7 @@ RequestHandler.prototype.servePublicContent = function() {
  * @returns {Boolean}
  */
 RequestHandler.isPublicRoute = function(path){
-	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', 'favicon.ico'];
+	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/media/', '/localization/', 'favicon.ico'];
 	for (var i = 0; i < publicRoutes.length; i++) {
 		if (path.indexOf(publicRoutes[i]) == 0) {
 			return true;
@@ -548,10 +604,10 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 	
 	//do security checks
 	this.checkSecurity(activeTheme, function(err, result) {
-		if (pb.log.isDebug()) {
-			pb.log.debug("RequestHandler: Security Result="+result.success);
+		if (pb.log.isSilly()) {
+			pb.log.silly("RequestHandler: Security Result="+result.success);
 			for (var key in result.results) {
-				pb.log.debug("RequestHandler:"+key+': '+JSON.stringify(result.results[key]));
+				pb.log.silly("RequestHandler:"+key+': '+JSON.stringify(result.results[key]));
 			}
 		}
 		//all good
@@ -697,7 +753,10 @@ RequestHandler.prototype.onRenderComplete = function(data){
 	
 	//calculate response time
 	if (pb.log.isDebug()) {
-		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+"ms URL=["+this.req.method+']'+this.req.url+(doRedirect ? ' Redirect='+data.redirect : ''));
+		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+
+				"ms URL=["+this.req.method+']'+
+				this.req.url+(doRedirect ? ' Redirect='+data.redirect : '') +
+				(data.code == undefined ? '' : ' CODE='+data.code));
 	}
 	
 	//close session after data sent
