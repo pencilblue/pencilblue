@@ -114,7 +114,7 @@ Localization.prototype.localize = function(sets, text){
  * @returns string Locale for the request
  */
 Localization.best = function(request){
-	var loc = 'en';
+	var loc = 'en-us';
 	if (request.headers[Localization.ACCEPT_LANG_HEADER]){
 		var locales = new locale.Locales(request.headers[Localization.ACCEPT_LANG_HEADER]);
 		loc = locales.best(Localization.supported);
@@ -138,7 +138,7 @@ Localization.init = function() {
 		supportedLocales.push(localeDescriptor.locale);
 	}
 	
-	pb.log.debug("Localization: Supporting - "+JSON.stringify(supportedLocales));
+	pb.log.debug("Localization: Supporting - " + JSON.stringify(supportedLocales));
 	Localization.supported = new locale.Locales(supportedLocales);
 };
 

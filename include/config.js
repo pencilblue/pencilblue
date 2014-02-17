@@ -49,10 +49,6 @@ var config = {
 	locales: {
 		supported: [
             {
-            	locale: 'en',
-            	file: path.join(DOCUMENT_ROOT, 'public', 'localization', 'en.js')
-        	},
-            {
             	locale: 'en_us',
             	file: path.join(DOCUMENT_ROOT, 'public', 'localization', 'en-us.js')
         	}

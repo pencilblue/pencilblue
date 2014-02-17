@@ -26,8 +26,15 @@ GetObjectTypeURLAvailable.prototype.render = function(cb) {
             return;
         }
         
-        cb({content: apiResponse(apiResponseCode.SUCCESS, get['url'] + ' is available', true)});
-        return;
+        dao.count('page', {url: get['url'].toLowerCase()}, function(err, count) {
+            if(count > 0) {
+                cb({content: apiResponse(apiResponseCode.SUCCESS, get['url'] + ' is not available', false)});
+                return;
+            }
+        
+            cb({content: apiResponse(apiResponseCode.SUCCESS, get['url'] + ' is available', true)});
+            return;
+        });
     });
 };
 

@@ -45,12 +45,12 @@
                             <label>^loc_VALUE^</label>
                             <div class="input-group value">
                                 <span class="input-group-addon"><i class="fa fa-bars"></i></span>
-                                <input type="text" class="form-control" placeholder="^loc_NAME^"></input>
+                                <input type="text" id="value_^index^" class="form-control" placeholder="^loc_NAME^"></input>
                                 <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">^loc_TEXT^&nbsp;<span class="caret"></span></button>
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span id="object_type_^index^">^loc_TEXT^</span>&nbsp;<span class="caret"></span></button>
                                     <ul class="dropdown-menu pull-right">
-                                        <li><a href="#">^loc_TEXT^</a></li>
-                                        <li><a href="#">^loc_NUMBER^</a></li>
+                                        <li><a href="javascript:selectObjectType('^loc_TEXT^', ^index^)">^loc_TEXT^</a></li>
+                                        <li><a href="javascript:selectObjectType('^loc_NUMBER^', ^index^)">^loc_NUMBER^</a></li>
                                     </ul>
                                 </div>
                                 <span class="input-group-btn">
@@ -64,9 +64,9 @@
                             <label>^loc_PEER_OBJECT^</label>
                             <div class="input-group peer_object">
                                 <span class="input-group-addon"><i class="fa fa-bars"></i></span>
-                                <input type="text" class="form-control" placeholder="^loc_NAME^"></input>
+                                <input type="text" id="peer_object_^index^" class="form-control" placeholder="^loc_NAME^"></input>
                                 <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span id="object_type_^index^">^loc_OBJECT_TYPE^</span>...&nbsp;<span class="caret"></span></button>
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span id="object_type_^index^">^loc_OBJECT_TYPE^</span>&nbsp;<span class="caret"></span></button>
                                     <ul class="dropdown-menu pull-right">
                                         <li><a href="javascript:selectObjectType('{{objectType}}', ^index^)" ng-repeat="objectType in objectTypes">{{objectType}}</a></li>
                                     </ul>
@@ -82,9 +82,9 @@
                             <label>^loc_CHILD_OBJECTS^</label>
                             <div class="input-group child_objects">
                                 <span class="input-group-addon"><i class="fa fa-bars"></i></span>
-                                <input type="text" class="form-control" placeholder="^loc_NAME^"></input>
+                                <input type="text" id="child_objects_^index^" class="form-control" placeholder="^loc_NAME^"></input>
                                 <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span id="object_type_^index^">^loc_OBJECT_TYPE^</span>...&nbsp;<span class="caret"></span></button>
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span id="object_type_^index^">^loc_OBJECT_TYPE^</span>&nbsp;<span class="caret"></span></button>
                                     <ul class="dropdown-menu pull-right">
                                         <li><a href="javascript:selectObjectType('{{objectType}}', ^index^)" ng-repeat="objectType in objectTypes">{{objectType}}</a></li>
                                     </ul>
@@ -99,7 +99,7 @@
                 <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/custom_objects/manage_object_types';">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
                 </button>
-                <button type="submit" class="btn btn-primary">
+                <button type="button" class="btn btn-primary" onclick="prepareNewObjectTypeSave()">
                     <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
                 </button>
             </div>

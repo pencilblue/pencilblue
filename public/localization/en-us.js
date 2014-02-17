@@ -319,7 +319,7 @@ var loc =
 //Allows for both server and client use
 if(typeof global !== 'undefined') {
  global.loc = loc;
- global.localizationLanguage = 'en';
+ global.localizationLanguage = 'en-us';
 }
 
 if(typeof module !== 'undefined') {
