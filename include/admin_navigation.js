@@ -95,6 +95,13 @@ global.defaultAdminNavigation =
                 icon: 'camera',
                 href: '/admin/content/media/manage_media',
                 access: ACCESS_WRITER
+            },
+            {
+                id: 'custom_objects',
+                title: '^loc_CUSTOM_OBJECTS^',
+                icon: 'sitemap',
+                href: '/admin/content/custom_objects/manage_object_types',
+                access: ACCESS_EDITOR
             }
         ]
     },

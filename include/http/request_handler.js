@@ -360,6 +360,41 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'new_article.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/custom_objects",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/custom_objects/manage_object_types",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_object_types.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/custom_objects/new_object_type",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/api/custom_objects/get_object_type_name_available",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_name_available.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/api/custom_objects/get_object_type_url_available",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_url_available.js'),
+    	content_type: 'text/html'
     }
 ];
 

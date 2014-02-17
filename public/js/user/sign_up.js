@@ -34,7 +34,7 @@ function resetUsernameAvailability()
 
 function validateUsername()
 {
-    if($('#username').val().length < 0)
+    if($('#username').val().length == 0)
     {
         return;
     }
