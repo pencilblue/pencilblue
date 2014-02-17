@@ -120,7 +120,7 @@ Login.prototype.doLogin = function(post, cb) {
         self.session.authentication.admin_level = user.admin;
         
         //redirect
-        var location = pb.config.siteRoot;console.log('S:'+JSON.stringify(self.session));
+        var location = pb.config.siteRoot;
         if (self.session.on_login != undefined) {
         	location = self.session.on_login;
         	delete self.session.on_login;

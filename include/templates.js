@@ -214,6 +214,34 @@ TemplateService.prototype.loadSubTemplate = function(templateString, pageName, m
     });
 };
 
+TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
+	var self = this;
+	
+	pb.settings.get('active_theme', function(err, activeTheme) {
+        if(util.isError(err) || activeTheme == null) {
+        	cb([]);
+        	return;
+        }
+        
+        var detailsLocation = path.join(DOCUMENT_ROOT, 'plugins', 'themes', activeTheme, 'details.json');
+        self.get(detailsLocation, function(err, data) {
+            if(util.isError(err) || data == null) {
+                cb('');
+                return;
+            }
+            
+            var details = '';
+            try{
+            	details = JSON.parse(data);
+            }
+            catch(e){
+            	pb.log.error('TemplateService:getTemplatesForActiveTheme: Failed to parse JSON from ['+detailsLocation+']', e);
+            }
+            cb(details.content_templates);
+        });
+    });
+};
+
 TemplateService.getDefaultPath = function(templateLocation){
 	return DOCUMENT_ROOT + '/templates/' + templateLocation + '.html';
 };

@@ -83,8 +83,8 @@ Localization.supported = null;
  * @returns The text where keys have been replaced with translated values
  */
 Localization.prototype.localize = function(sets, text){
-	if (pb.log.isDebug()) {
-		pb.log.debug('Localization: Localizing text - Locale ['+this.language+'] Sets '+JSON.stringify(sets));
+	if (pb.log.isSilly()) {
+		pb.log.silly('Localization: Localizing text - Locale ['+this.language+'] Sets '+JSON.stringify(sets));
 	}
 	
 	//get i18n from storage
