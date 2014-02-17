@@ -1,3 +1,5 @@
+var customFieldIndex = 0;
+
 $(document).ready(function()
 {
     $('#new_object_type_form').validate(
@@ -94,5 +96,17 @@ function setURLFromName()
 
 function addCustomField(templateDiv)
 {
-    $('#custom_fields_container').append($(templateDiv).html());
+    var field = $(templateDiv).html().split('^index^').join(customFieldIndex);
+    $('#custom_fields_container').append(field);
+    customFieldIndex++;
+}
+
+function removeCustomField(index)
+{
+    $('#custom_field_' + index).remove();
+}
+
+function selectObjectType(type, index)
+{
+    $('#object_type_' + index).html(type);
 }

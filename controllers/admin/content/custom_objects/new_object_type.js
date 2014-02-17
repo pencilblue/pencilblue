@@ -40,7 +40,7 @@ NewObjectType.prototype.render = function(cb) {
             // Case insensitive test for duplicate name
             for(var i =0; i < customObjectTypes.length; i++)
             {
-                objectTypes.push(customObjectTypes[i].name);
+                objectTypes.push('custom:' + customObjectTypes[i].name);
             }
         
             self.displayErrorOrSuccess(result, function(newResult) {

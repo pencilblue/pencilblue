@@ -28,20 +28,20 @@
                 </div>
                 <div class="tab-pane" id="object_fields">
                     <div id="custom_fields_container"></div>
-                    <div id="custom_field_buttons" style="margin-bottom: .5em">
+                    <div id="custom_field_buttons">
                         <label>^loc_ADD_FIELD^...</label><br/>
-                        <button type="button" class="btn btn-success" onclick="addCustomField('#value_template')">
+                        <button type="button" class="btn btn-success" onclick="addCustomField('#value_template')" style="margin-bottom: .5em">
                             <i class="fa fa-keyboard-o"></i>&nbsp;^loc_VALUE^
                         </button>
-                        <button type="button" class="btn btn-success" onclick="addCustomField('#peer_object_template')">
+                        <button type="button" class="btn btn-success" onclick="addCustomField('#peer_object_template')" style="margin-bottom: .5em">
                             <i class="fa fa-link"></i>&nbsp;^loc_PEER_OBJECT^
                         </button>
-                        <button type="button" class="btn btn-success" onclick="addCustomField('#child_objects_template')">
+                        <button type="button" class="btn btn-success" onclick="addCustomField('#child_objects_template')" style="margin-bottom: .5em">
                             <i class="fa fa-sitemap"></i>&nbsp;^loc_CHILD_OBJECTS^
                         </button>
                     </div>
                     <div id="value_template" style="display: none">
-                        <div class="form-group">
+                        <div id="custom_field_^index^" class="form-group">
                             <label>^loc_VALUE^</label>
                             <div class="input-group value">
                                 <span class="input-group-addon"><i class="fa fa-bars"></i></span>
@@ -54,43 +54,43 @@
                                     </ul>
                                 </div>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button"><i class="fa fa-times"></i></button>
+                                    <button class="btn btn-default" type="button" onclick="removeCustomField(^index^)"><i class="fa fa-times"></i></button>
                                 </span>
                             </div>
                         </div>
                     </div>
                     <div id="peer_object_template" style="display: none">
-                        <div class="form-group">
+                        <div id="custom_field_^index^" class="form-group">
                             <label>^loc_PEER_OBJECT^</label>
                             <div class="input-group peer_object">
                                 <span class="input-group-addon"><i class="fa fa-bars"></i></span>
                                 <input type="text" class="form-control" placeholder="^loc_NAME^"></input>
                                 <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">^loc_OBJECT_TYPE^...&nbsp;<span class="caret"></span></button>
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span id="object_type_^index^">^loc_OBJECT_TYPE^</span>...&nbsp;<span class="caret"></span></button>
                                     <ul class="dropdown-menu pull-right">
-                                        <li><a href="#" ng-repeat="objectType in objectTypes">{{objectType}}</a></li>
+                                        <li><a href="javascript:selectObjectType('{{objectType}}', ^index^)" ng-repeat="objectType in objectTypes">{{objectType}}</a></li>
                                     </ul>
                                 </div>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button"><i class="fa fa-times"></i></button>
+                                    <button class="btn btn-default" type="button" onclick="removeCustomField(^index^)"><i class="fa fa-times"></i></button>
                                 </span>
                             </div>
                         </div>
                     </div>
                     <div id="child_objects_template" style="display: none">
-                        <div class="form-group">
+                        <div id="custom_field_^index^" class="form-group">
                             <label>^loc_CHILD_OBJECTS^</label>
                             <div class="input-group child_objects">
                                 <span class="input-group-addon"><i class="fa fa-bars"></i></span>
                                 <input type="text" class="form-control" placeholder="^loc_NAME^"></input>
                                 <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">^loc_OBJECT_TYPE^...&nbsp;<span class="caret"></span></button>
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span id="object_type_^index^">^loc_OBJECT_TYPE^</span>...&nbsp;<span class="caret"></span></button>
                                     <ul class="dropdown-menu pull-right">
-                                        <li><a href="#" ng-repeat="objectType in objectTypes">{{objectType}}</a></li>
+                                        <li><a href="javascript:selectObjectType('{{objectType}}', ^index^)" ng-repeat="objectType in objectTypes">{{objectType}}</a></li>
                                     </ul>
                                 </div>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button"><i class="fa fa-times"></i></button>
+                                    <button class="btn btn-default" type="button" onclick="removeCustomField(^index^)"><i class="fa fa-times"></i></button>
                                 </span>
                             </div>
                         </div>
