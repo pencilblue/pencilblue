@@ -55,7 +55,7 @@ ManagePages.prototype.getPageAuthors = function(pages, cb) {
     var dao  = new pb.DAO();
     var tasks = pb.utils.getTasks(pages, function(pages, index){
     	return function(callback) {
-    		dao.loadById('user', pages[index].author, function(err, author){
+    		dao.loadById(pages[index].author, 'user', function(err, author){
     			if (util.isError(err)) {
     				callback(err, null);
     				return;
