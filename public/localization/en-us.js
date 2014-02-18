@@ -231,7 +231,9 @@ var loc =
         NUMBER: 'Number',
         PEER_OBJECT: 'Peer object',
         CHILD_OBJECTS: 'Child objects',
-        OBJECT_TYPE: 'Object type'
+        OBJECT_TYPE: 'Object type',
+        FIELD_TYPES: 'Field types',
+        DATE_CREATED: 'Date created'
     },
     users:
     {

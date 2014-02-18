@@ -12,54 +12,104 @@ util.inherits(ManageObjectTypes, pb.BaseController);
 ManageObjectTypes.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
-	dao.query('custom_object', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(customObjects) {
-		if (util.isError(customObjects)) {
+	dao.query('custom_object_type', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(customObjectTypes) {
+		if (util.isError(customObjectTypes)) {
 			//TODO handle this
 		}
 		
 		//none to manage
-        if(customObjects.length == 0) {                
+        if(customObjectTypes.length == 0) {                
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
             return;
         }
         
+        customObjectTypes = ManageObjectTypes.setFieldTypesUsed(self, customObjectTypes);
+        
         //currently, mongo cannot do case-insensitive sorts.  We do it manually 
         //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
-        topics.sort(function(a, b) {
+        customObjectTypes.sort(function(a, b) {
             var x = a['name'].toLowerCase();
             var y = b['name'].toLowerCase();
         
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
     
-        pb.templates.load('admin/content/topics/manage_topics', '^loc_MANAGE_TOPICS^', null, function(data) {
+        pb.templates.load('admin/content/custom_objects/manage_object_types', '^loc_MANAGE_OBJECT_TYPES^', null, function(data) {
             var result = ''+data;
                 
             self.displayErrorOrSuccess(result, function(newResult) {
                 result = newResult;
                 
-                var pills = require('../topics').getPillNavOptions('manage_topics');
+                var pills = require('../custom_objects').getPillNavOptions('manage_object_types');
                 pills.unshift(
                 {
-                    name: 'manage_topics',
+                    name: 'manage_object_types',
                     title: '^loc_MANAGE_OBJECT_TYPES^',
                     icon: 'refresh',
-                    href: '/admin/content/topics/manage_topics'
+                    href: '/admin/content/custom_objects/manage_object_types'
                 });
                 
                 result = result.concat(pb.js.getAngularController(
                 {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'topics']),
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects']),
                     pills: pills,
-                    topics: topics
-                }, [], 'initTopicsPagination()'));
+                    customObjectTypes: customObjectTypes
+                }, [], 'initObjectTypesPagination()'));
                 
-                var content = self.localizationService.localize(['admin', 'topics'], result);
+                var content = self.localizationService.localize(['admin', 'custom_objects'], result);
                 cb({content: content});
             });
         });
     });
 };
+
+ManageObjectTypes.setFieldTypesUsed = function(self, customObjectTypes) {
+    // Make the list of field types used in each custom object type, for display
+    for(var i = 0; i < customObjectTypes.length; i++)
+    {
+        var fieldTypesUsed = [];
+        for(var key in customObjectTypes[i].fields)
+        {
+            var fieldType = customObjectTypes[i].fields[key].field_type;
+            switch(fieldType)
+            {
+                case 'text':
+                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_TEXT^'));
+                    break;
+                case 'number':
+                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_NUMBER^'));
+                    break;
+                case 'date':
+                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_DATE^'));
+                    break;
+                case 'peer_object':
+                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_PEER_OBJECT^'));
+                    break;
+                case 'child_objects':
+                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_CHILD_OBJECTS^'));
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        for(var j = 0; j < fieldTypesUsed.length; j++)
+        {
+            for(var s = j + 1; s < fieldTypesUsed.length; s++)
+            {
+                if(fieldTypesUsed[s] == fieldTypesUsed[j])
+                {
+                    fieldTypesUsed.splice(s, 1);
+                    s--;
+                }
+            }
+        }
+        
+        customObjectTypes[i].fieldTypesUsed = fieldTypesUsed.join(', ');
+    }
+    
+    return customObjectTypes;
+}
 
 //exports
 module.exports = ManageObjectTypes;

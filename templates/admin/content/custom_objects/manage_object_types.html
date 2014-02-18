@@ -1,0 +1,49 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    <div class="input-group" style="margin-bottom: .5em">
+        <input type="text" id="object_type_search" name="object_type_search" class="form-control"></input>
+        <span class="input-group-btn">
+            <button id="object_type_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+        </span>
+    </div>
+    <table id="object_types_table" class="table table-responsive table-condensed">
+        <tr id="object_types_table_header">
+            <th>^loc_NAME^</th>
+            <th>^loc_URL_KEY^</th>
+            <th>^loc_FIELD_TYPES^</th>
+            <th>^loc_DATE_CREATED^</th>
+            <th></th>
+        </tr>
+        <tr class="object_type_row" ng-repeat="objectType in customObjectTypes track by objectType._id" on-finish-render ng-cloak>
+            <td><a class="object_type_name" href="/admin/content/object_types/edit_object_type?id={{objectType._id}}">{{objectType.name}}</a></td>
+            <td>{{objectType.url}}</td>
+            <td>{{objectType.fieldTypesUsed}}</td>
+            <td>{{objectType.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td><a href="javascript:confirmDeleteObjectType('{{objectType._id}}', '{{objectType.name}}')"><i class="fa fa-times"></i></a></td>
+        </tr>
+    </table>
+    <ul id="object_types_pagination" class="pagination"></ul>
+    <div class="modal fade" id="confirm_delete_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    ^loc_CONFIRM_DELETE^ <span id="delete_name" style="font-style: italic"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button type="button" id="delete_button" class="btn btn-danger">
+                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
+<script type="text/javascript" src="/js/jnarrow-0.1.1.min.js"></script>
+<script type="text/javascript" src="/js/admin/content/custom_objects/manage_object_types.js"></script>
+^tmp_admin=footer^
