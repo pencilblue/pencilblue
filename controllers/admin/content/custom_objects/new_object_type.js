@@ -46,7 +46,7 @@ NewObjectType.prototype.render = function(cb) {
             self.displayErrorOrSuccess(result, function(newResult) {
                 result = newResult;
                 
-                var pills = require('../custom_objects').getPillNavOptions('new_object');
+                var pills = require('../custom_objects').getPillNavOptions('new_object_type');
                 pills.unshift(
                 {
                     name: 'manage_object_types',

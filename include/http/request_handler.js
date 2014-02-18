@@ -363,6 +363,20 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
+    	path: "/api/custom_objects/get_object_type_name_available",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_name_available.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/api/custom_objects/get_object_type_url_available",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_url_available.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
     	path: "/admin/content/custom_objects",
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects.js'),
@@ -391,18 +405,26 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/api/custom_objects/get_object_type_name_available",
+    	path: "/admin/content/custom_objects/edit_object_type/:name",
     	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_name_available.js'),
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/custom_objects/edit_object_type/:id",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
     	content_type: 'text/html'
     },
     {
     	method: 'get',
-    	path: "/api/custom_objects/get_object_type_url_available",
+    	path: "/admin/content/custom_objects/manage_objects",
     	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_url_available.js'),
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_objects.js'),
     	content_type: 'text/html'
-    }
+    },
+    
 ];
 
 RequestHandler.init = function(){
@@ -457,7 +479,7 @@ RequestHandler.registerRoute = function(descriptor, theme){
 		
 		if (piece.indexOf(':') == 0) {
 			var fieldName = piece.substring(1);
-			pathVars[fieldName] = i;
+			pathVars[fieldName] = i + 1;
 			pattern += '/[A-Za-z0-9_\-]+';
 		}
 		else {
