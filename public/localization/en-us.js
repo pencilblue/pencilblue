@@ -16,6 +16,7 @@ var loc =
         NAME: 'Name',
         USERNAME: 'Username',
         PASSWORD: 'Password',
+        DATE: 'Date',
         HOME: 'Home',
         BACK_HOME: 'Go back to homepage',
         WRITER: 'Writer',

@@ -383,6 +383,13 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'post',
+    	path: "/actions/admin/content/custom_objects/new_object_type",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'get',
     	path: "/api/custom_objects/get_object_type_name_available",
     	access_level: ACCESS_EDITOR,

@@ -26,13 +26,13 @@ $(document).ready(function()
 function resetNameAvailability()
 {
     $('#name_availability_button').attr('class', 'btn btn-default');
-    $('#name_availability_button').html(loc.users.CHECK);
+    $('#name_availability_button').html(loc.generic.CHECK);
 }
 
 function resetURLAvailability()
 {
     $('#url_availability_button').attr('class', 'btn btn-default');
-    $('#url_availability_button').html(loc.users.CHECK);
+    $('#url_availability_button').html(loc.generic.CHECK);
 }
 
 function validateName()
@@ -49,14 +49,14 @@ function validateName()
             if(response.data)
             {
                 $('#name_availability_button').attr('class', 'btn btn-success');
-                $('#name_availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.users.AVAILABLE);
+                $('#name_availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.generic.AVAILABLE);
                 
                 setURLFromName();
             }
             else
             {
                 $('#name_availability_button').attr('class', 'btn btn-danger');
-                $('#name_availability_button').html('<i class="fa fa-ban"></i>&nbsp;' + loc.users.UNAVAILABLE);
+                $('#name_availability_button').html('<i class="fa fa-ban"></i>&nbsp;' + loc.generic.UNAVAILABLE);
             }
         }
     });
@@ -76,12 +76,12 @@ function validateURL()
             if(response.data)
             {
                 $('#url_availability_button').attr('class', 'btn btn-success');
-                $('#url_availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.users.AVAILABLE);
+                $('#url_availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.generic.AVAILABLE);
             }
             else
             {
                 $('#url_availability_button').attr('class', 'btn btn-danger');
-                $('#url_availability_button').html('<i class="fa fa-ban"></i>&nbsp;' + loc.users.UNAVAILABLE);
+                $('#url_availability_button').html('<i class="fa fa-ban"></i>&nbsp;' + loc.generic.UNAVAILABLE);
             }
         }
     });
@@ -114,6 +114,13 @@ function selectObjectType(type, index)
 function prepareNewObjectTypeSave()
 {
     var i = 0;
+    
+    if($('#custom_fields_container .form-group').length == 0)
+    {
+        $('#field_templates').remove();
+        $('#new_object_type_form').submit();
+        return;
+    }
 
     $('#custom_fields_container .form-group').each(function()
     {
@@ -131,13 +138,20 @@ function prepareNewObjectTypeSave()
                 switch($('#object_type_' + index).html())
                 {
                     case loc.custom_objects.NUMBER:
-                        $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="number"></input>');
+                        $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="number" style="display: none"></input>');
                         break;
                     case loc.custom_objects.TEXT:
                     default:
-                        $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="text"></input>');
+                        $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="text" style="display: none"></input>');
                         break;
                 }
+            }
+        }
+        else if(inputGroup.attr('class').indexOf('date') > -1)
+        {
+            if($('#date_' + index).val().length == 0)
+            {
+                $('#date_' + index).remove();
             }
         }
         else if(inputGroup.attr('class').indexOf('peer_object') > -1)
@@ -148,7 +162,7 @@ function prepareNewObjectTypeSave()
             }        
             else
             {
-                $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="' + $('#object_type_' + index).html() + '"></input>');
+                $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="' + $('#object_type_' + index).html() + '" style="display: none"></input>');
             }
         }
         else if(inputGroup.attr('class').indexOf('child_objects') > -1 || $('#object_type_' + index).html() == loc.custom_objects.OBJECT_TYPE)
@@ -159,13 +173,14 @@ function prepareNewObjectTypeSave()
             }
             else
             {
-                $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="' + $('#object_type_' + index).html() + '"></input>');
+                $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="' + $('#object_type_' + index).html() + '" style="display: none"></input>');
             }
         }
         
         i++;
         if(i >= $('#custom_fields_container .form-group').length)
         {
+            $('#field_templates').remove();
             $('#new_object_type_form').submit();
         }
     });
