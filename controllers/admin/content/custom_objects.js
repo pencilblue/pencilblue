@@ -18,12 +18,11 @@ CustomObjects.getPillNavOptions = function(activePill)
     var pillNavOptions = 
     [
         {
-            name: 'new_object',
+            name: 'new_object_type',
             title: '',
             icon: 'plus',
             href: '/admin/content/custom_objects/new_object_type'
         }
-        
     ];
     
     if(typeof activePill !== 'undefined')

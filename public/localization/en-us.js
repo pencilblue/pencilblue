@@ -10,6 +10,7 @@ var loc =
         RIGHT: 'Right',
         YES: 'Yes',
         NO: 'No',
+        NEW: 'New',
         LOGIN: 'Login',
         LOGOUT: 'Logout',
         SIGN_UP: 'Sign up',
@@ -36,6 +37,7 @@ var loc =
         EDIT: 'Edit',
         DELETE: 'Delete',
         SUBMIT: 'Submit',
+        SELECT: 'Select',
         NOW: 'Now',
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
@@ -50,6 +52,7 @@ var loc =
         COMMENT_SUBMITTED: 'Your comment was submitted',
         COMMENT_ERROR: 'There was an error submitting your comment',
         DATE_ADDED: 'Date added',
+        LAST_MODIFIED: 'Last modified',
         CHECK: 'Check',
         AVAILABLE: 'Available',
         UNAVAILABLE: 'Unavailable'
@@ -232,8 +235,7 @@ var loc =
         PEER_OBJECT: 'Peer object',
         CHILD_OBJECTS: 'Child objects',
         OBJECT_TYPE: 'Object type',
-        FIELD_TYPES: 'Field types',
-        DATE_CREATED: 'Date created'
+        FIELD_TYPES: 'Field types'
     },
     users:
     {
