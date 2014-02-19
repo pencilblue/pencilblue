@@ -360,6 +360,30 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'new_article.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/articles/delete_article",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/articles/edit_article",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/articles/new_article",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'new_article.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -849,6 +873,53 @@ RequestHandler.parseCookies = function(req){
         }
 	}
     return parsedCookies;
+};
+
+RequestHandler.urlExists = function(url, id, cb) {
+	var dao = new pb.DAO();
+	var getTask = function(collection) {
+		return function (callback) {
+			var where = {url: pageDocument['url']};
+			if (id) {
+				where._id = {$ne: new ObjectId(id)};
+			}
+			dao.count(collection, where, function(err, count) {
+                if(util.isError(err) || count > 0) {
+                    callback(true, count);
+                }
+                else {
+                	callback(null, count);
+                }
+			});
+		};
+		async.series([getTask('article'), getTask('page')], function(err, results){
+			cb(err, err == null);
+		});
+	};
+};
+
+RequestHandler.isAdminURL = function(url) {
+	if (url != null) {
+		
+		var index = url.indexOf('/');
+		if (index == 0 && url.length > 0) {
+			url = url.substring(1);
+		}
+		
+		var pieces = url.split('/');
+		return pieces.length > 0 && pieces[0].indexOf('admin') == 0;
+	}
+	return false;
+};
+
+RequestHandler.isSystemSafeURL = function(url, id, cb) {
+	if (url == null || RequestHandler.isAdminURL(url)) {
+		cb(null, false);
+		return;
+	}
+	RequestHandler.urlExists(url, id, function(err, exists){
+		cb(err, !exists);
+	});
 };
 
 module.exports.RequestHandler = RequestHandler;
