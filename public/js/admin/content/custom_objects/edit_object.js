@@ -36,6 +36,11 @@ function setupInputs()
                     searchText: '<i class="fa fa-search"></i>',
                     clearText: '<i class="fa fa-times"></i>',
                 });
+                
+                for(var i = 0; i < customObject[key].length; i++)
+                {
+                    $('#active_' + key).append($('#' + key + '_' + customObject[key][i]));
+                }
             }
         }
     }
@@ -57,11 +62,11 @@ function initCustomObjectsPagination()
     }
 }
 
-function prepareNewObjectSave()
+function prepareEditObjectSave()
 {
     if(!customObjectType || $('.child_objects').length == 0)
     {
-        $('#new_object_form').submit();
+        $('#edit_object_form').submit();
         return;
     }
     
@@ -76,11 +81,11 @@ function prepareNewObjectSave()
         if(activeObjectsLength == 0)
         {
             $('#' + key + '_search').remove();
-            $('#new_object_form').append('<input type="text" name="' + key + '" value="" style="display: none"></input>');
+            $('#edit_object_form').append('<input type="text" name="' + key + '" value="" style="display: none"></input>');
             fieldIndex++;
             if(fieldIndex >= $('.child_objects').length)
             {
-                $('#new_object_form').submit();
+                $('#edit_object_form').submit();
             }
             return;
         }
@@ -92,11 +97,11 @@ function prepareNewObjectSave()
             if(activeObjectIndex >= activeObjectsLength)
             {
                 $('#' + key + '_search').remove();
-                $('#new_object_form').append('<input type="text" name="' + key + '" value="' + activeObjects.join(',') + '" style="display: none"></input>');
+                $('#edit_object_form').append('<input type="text" name="' + key + '" value="' + activeObjects.join(',') + '" style="display: none"></input>');
                 fieldIndex++;
                 if(fieldIndex >= $('.child_objects').length)
                 {
-                    $('#new_object_form').submit();
+                    $('#edit_object_form').submit();
                 }
             }
         });

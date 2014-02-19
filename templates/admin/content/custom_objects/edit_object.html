@@ -1,0 +1,70 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form id="edit_object_form" method="post" action="/actions/admin/content/custom_objects/edit_object/^object_type_id^">
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="object_fields">
+                    <span ng-repeat="key in fieldOrder" ng-cloak>
+                        <div class="form-group" ng-if="customObjectType.fields[key].field_type == 'text'">
+                            <label>{{key}}</label>
+                            <input type="text" id="{{key}}" name="{{key}}" class="form-control" value="{{customObject[key]}}"></input>
+                        </div>
+                        <div class="form-group" ng-if="customObjectType.fields[key].field_type == 'number'">
+                            <label>{{key}}</label>
+                            <input type="number" id="{{key}}" name="{{key}}" class="form-control" value="{{customObject[key]}}"></input>
+                        </div>
+                        <div class="form-group" ng-if="customObjectType.fields[key].field_type == 'date'">
+                            <label>{{key}}</label>
+                            <input type="text" id="{{key}}" name="{{key}}" class="form-control" value="{{customObject[key] | date: 'yyyy-MM-dd HH:mm'}}"></input>
+                        </div>
+                        <div class="form-group" ng-if="customObjectType.fields[key].field_type == 'peer_object'">
+                            <label>{{key}}</label>
+                            <select id="{{key}}" name="{{key}}" class="form-control">
+                                <option value="">^loc_SELECT^ {{key}}...</option>
+                                <option value="{{availableObject._id}}" ng-repeat="availableObject in customObjectType.fields[key].available_objects track by availableObject._id" selected="{{(availableObject._id == customObject[key]) ? 'selected' : ''}}" ng-cloak>{{availableObject.name}}</option>
+                            </select>
+                        </div>
+                        <div id="{{key}}_draggable" class="form-group child_objects" ng-if="customObjectType.fields[key].field_type == 'child_objects'">
+                            <label>{{key}}</label>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">^loc_ACTIVE_OBJECTS^...</div>
+                                <div id="active_{{key}}" class="panel-body" style="min-height: 100px"></div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <div style="padding-bottom: .5em">^loc_INACTIVE_OBJECTS^...</div>
+                                    <div class="input-group">
+                                        <input type="text" id="{{key}}_search" name="{{key}}_search" class="form-control" placeholder="^loc_NARROW_RESULTS^..."></input>
+                                        <span class="input-group-btn">
+                                            <button id="{{key}}_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></span></button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div id="inactive_{{key}}" class="panel-body" style="min-height: 100px">
+                                    <div id="{{key}}_{{availableObject._id}}" class="label label-default child_object" ng-repeat="availableObject in customObjectType.fields[key].available_objects track by availableObject._id" on-finish-render ng-cloak>
+                                        <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="{{key}}_name">{{availableObject.name}}</span>
+                                    </div>
+                                    <div class="spacer"></div>
+                                    <ul id="{{key}}_pagination" class="pagination"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+                <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/custom_objects/manage_object_types';">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </button>
+                <button type="button" class="btn btn-primary" onclick="prepareEditObjectSave()">
+                    <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                </button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
+<script type="text/javascript" src="/js/jnarrow-0.1.1.min.js"></script>
+<script type="text/javascript" src="^site_root^/js/admin/content/custom_objects/edit_object.js"></script>
+^tmp_admin=footer^

@@ -19,7 +19,7 @@
             <td><a class="custom_object_name" href="/admin/content/custom_objects/edit_object/{{objectType.name}}/{{customObject.name}}">{{customObject.name}}</a></td>
             <td ng-if="customObjects[0].description">{{customObject.description}}</td>
             <td>{{customObject.last_modified | date: 'yyyy-MM-dd HH:mm'}}</td>
-            <td><a href="/admin/content/custom_objects/edit_custom_object/{{objectType.name}}"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a href="javascript:confirmDeleteCustomObject('{{objectType._id}}', '{{objectType.name}}')"><i class="fa fa-times"></i></a></td>
+            <td><a href="javascript:confirmDeleteCustomObject('{{customObject._id}}', '{{customObject.name}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
     <ul id="custom_objects_pagination" class="pagination"></ul>
