@@ -285,7 +285,7 @@ form .error
     padding: .5em .5em .5em 1em;
 }
 
-.topic, .media_item, .section_item
+.topic, .media_item, .section_item, .child_object
 {
     font-size: 1.05em;
     font-weight: normal;

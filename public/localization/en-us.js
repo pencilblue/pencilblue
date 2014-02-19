@@ -235,7 +235,9 @@ var loc =
         PEER_OBJECT: 'Peer object',
         CHILD_OBJECTS: 'Child objects',
         OBJECT_TYPE: 'Object type',
-        FIELD_TYPES: 'Field types'
+        FIELD_TYPES: 'Field types',
+        ACTIVE_OBJECTS: 'Drag associated objects here',
+        INACTIVE_OBJECTS: 'Drag unassociated objects here'
     },
     users:
     {

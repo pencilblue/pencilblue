@@ -74,7 +74,7 @@ NewObject.prototype.render = function(cb) {
                         tabs: tabs,
                         customObjectType: objectType,
                         fieldOrder: fieldOrder
-                    }));
+                    }, [], 'initCustomObjectsPagination()'));
                     
                     result = result.split('^object_type_id^').join(objectType._id);
                     result += pb.js.getJSTag('var customObjectType = ' + JSON.stringify(objectType));
