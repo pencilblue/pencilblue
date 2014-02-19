@@ -59,7 +59,7 @@ function initCustomObjectsPagination()
 
 function prepareNewObjectSave()
 {
-    if(!customObjectType)
+    if(!customObjectType || $('.child_objects').length == 0)
     {
         $('#new_object_form').submit();
         return;
@@ -72,12 +72,26 @@ function prepareNewObjectSave()
         var activeObjects = [];
         var activeObjectsLength = $(this).find('#active_' + key + ' .child_object').length;
         var activeObjectIndex = 0;
+        
+        if(activeObjectsLength == 0)
+        {
+            $('#' + key + '_search').remove();
+            $('#new_object_form').append('<input type="text" name="' + key + '" value="" style="display: none"></input>');
+            fieldIndex++;
+            if(fieldIndex >= $('.child_objects').length)
+            {
+                $('#new_object_form').submit();
+            }
+            return;
+        }
+        
         $(this).find('#active_' + key + ' .child_object').each(function()
         {
             activeObjects.push($(this).attr('id').split(key + '_').join(''));
             activeObjectIndex++;
             if(activeObjectIndex >= activeObjectsLength)
             {
+                $('#' + key + '_search').remove();
                 $('#new_object_form').append('<input type="text" name="' + key + '" value="' + activeObjects.join(',') + '" style="display: none"></input>');
                 fieldIndex++;
                 if(fieldIndex >= $('.child_objects').length)
