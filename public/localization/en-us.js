@@ -38,6 +38,7 @@ var loc =
         DELETE: 'Delete',
         SUBMIT: 'Submit',
         SELECT: 'Select',
+        MANAGE: 'Manage',
         NOW: 'Now',
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
@@ -237,7 +238,9 @@ var loc =
         OBJECT_TYPE: 'Object type',
         FIELD_TYPES: 'Field types',
         ACTIVE_OBJECTS: 'Drag associated objects here',
-        INACTIVE_OBJECTS: 'Drag unassociated objects here'
+        INACTIVE_OBJECTS: 'Drag unassociated objects here',
+        OBJECTS: 'objects',
+        DESCRIPTION: 'Description'
     },
     users:
     {

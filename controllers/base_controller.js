@@ -26,11 +26,11 @@ BaseController.prototype.formError = function(message, redirectLocation, cb) {
 
 BaseController.prototype.displayErrorOrSuccess = function(result, cb) {
     if(this.session['error']) {
-        result = result.split('^error_success^').join('<div class="alert alert-danger">' + this.session['error'] + '<a href="javascript:$(\'.alert-danger\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+        result = result.split('^error_success^').join('<div class="alert alert-danger error_success">' + this.session['error'] + '<a href="javascript:$(\'.alert-danger.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
         delete this.session['error'];
     }
     else if(this.session['success']) {
-        result = result.split('^error_success^').join('<div class="alert alert-success">' + this.session['success'] + '<a href="javascript:$(\'.alert-success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+        result = result.split('^error_success^').join('<div class="alert alert-success error_success">' + this.session['success'] + '<a href="javascript:$(\'.alert-success.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
         delete this.session['success'];
     }
     else {

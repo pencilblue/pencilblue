@@ -57,7 +57,7 @@ NewObject.prototype.render = function(cb) {
                             name: 'manage_objects',
                             title: '^loc_NEW^ ' + objectType.name,
                             icon: 'chevron-left',
-                            href: '/admin/content/custom_objects/manage_objects'
+                            href: '/admin/content/custom_objects/manage_objects/' + objectType.name
                         },
                         {
                             name: 'new_object',

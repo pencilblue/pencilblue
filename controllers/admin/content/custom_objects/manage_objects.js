@@ -51,27 +51,35 @@ ManageObjects.prototype.render = function(cb) {
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
             });
         
-            pb.templates.load('admin/content/custom_objects/manage_object_types', '^loc_MANAGE_OBJECT_TYPES^', null, function(data) {
+            pb.templates.load('admin/content/custom_objects/manage_objects', '^loc_MANAGE^ ' + objectType.name, null, function(data) {
                 var result = ''+data;
                     
                 self.displayErrorOrSuccess(result, function(newResult) {
                     result = newResult;
                     
-                    var pills = require('../custom_objects').getPillNavOptions('manage_object_types');
-                    pills.unshift(
-                    {
-                        name: 'manage_object_types',
-                        title: '^loc_MANAGE_OBJECT_TYPES^',
-                        icon: 'refresh',
-                        href: '/admin/content/custom_objects/manage_object_types'
-                    });
+                    var pills =
+                    [
+                        {
+                            name: 'manage_objects',
+                            title: '^loc_MANAGE^ ' + objectType.name + ' ^loc_OBJECTS^',
+                            icon: 'chevron-left',
+                            href: '/admin/content/custom_objects/manage_object_types'
+                        },
+                        {
+                            name: 'new_object',
+                            title: '',
+                            icon: 'plus',
+                            href: '/admin/content/custom_objects/new_object/' + objectType.name
+                        }
+                    ];
                     
                     result = result.concat(pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects']),
                         pills: pills,
-                        customObjects: customObjects
-                    }, [], 'initObjectTypesPagination()'));
+                        customObjects: customObjects,
+                        objectType: objectType
+                    }, [], 'initCustomObjectsPagination()'));
                     
                     var content = self.localizationService.localize(['admin', 'custom_objects'], result);
                     cb({content: content});
