@@ -46,69 +46,78 @@ NewObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
                     self.formError('^loc_EXISTING_CUSTOM_OBJECT_TYPE^', '/admin/content/custom_objects/new_object_type', cb);
                     return;
                 }
-            });
-            
-            objectTypeDocument = NewObjectType.createObjectTypeDocument(post);
-            if(!objectTypeDocument)
-            {
-                self.formError('^loc_DUPLICATE_FIELD_NAME^', '/admin/content/custom_objects/new_object_type', cb);
-                return;
-            }
-            
-            
-            dao.update(objectTypeDocument).then(function(result) {
-                if(util.isError(result)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/new_object_type', cb);
+                
+                objectTypeDocument = NewObjectType.createObjectTypeDocument(post);
+                if(!objectTypeDocument)
+                {
+                    self.formError('^loc_DUPLICATE_FIELD_NAME^', '/admin/content/custom_objects/new_object_type', cb);
                     return;
                 }
                 
-                self.session.success = objectTypeDocument.name + ' ^loc_CREATED^';
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
+                
+                dao.update(objectTypeDocument).then(function(result) {
+                    if(util.isError(result)) {
+                        self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/new_object_type', cb);
+                        return;
+                    }
+                    
+                    self.session.success = objectTypeDocument.name + ' ^loc_CREATED^';
+                    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
+                });
             });
         });
     });
 };
 
 NewObjectType.createObjectTypeDocument = function(post) {
-    var objectTypeDocument = {object_type: 'custom_object_type', name: post['name'], url: post['url'], fields: {}};
+    var objectTypeDocument = {object_type: 'custom_object_type', name: post['name'], url: post['url'], fields: {name: {field_type: 'text'}}};
     
-    for(var i = 0; i < 100; i++)
+    if(!post['field_order'])
     {
-        if(post['value_' + i])
+        return objectTypeDocument;
+    }
+    
+    fieldOrder = post['field_order'].split(',');
+    
+    for(var i = 0; i < fieldOrder.length; i++)
+    {
+        var index = fieldOrder[i];
+    
+        if(post['value_' + index])
         {
-            if(objectTypeDocument.fields[post['value_' + i]])
+            if(objectTypeDocument.fields[post['value_' + index]])
             {
-                return null;
+                continue;
             }
             
-            objectTypeDocument.fields[post['value_' + i]] = {field_type: post['field_type_' + i]};
+            objectTypeDocument.fields[post['value_' + index]] = {field_type: post['field_type_' + index]};
         }
-        else if(post['date_' + i])
+        else if(post['date_' + index])
         {
-            if(objectTypeDocument.fields[post['date_' + i]])
+            if(objectTypeDocument.fields[post['date_' + index]])
             {
-                return null;
+                continue;
             }
             
-            objectTypeDocument.fields[post['date_' + i]] = {field_type: 'date'};
+            objectTypeDocument.fields[post['date_' + index]] = {field_type: 'date'};
         }
-        else if(post['peer_object_' + i])
+        else if(post['peer_object_' + index])
         {
-            if(objectTypeDocument.fields[post['peer_object_' + i]])
+            if(objectTypeDocument.fields[post['peer_object_' + index]])
             {
-                return null;
+                continue;
             }
             
-            objectTypeDocument.fields[post['peer_object_' + i]] = {field_type: 'peer_object', object_type: post['field_type_' + i]};
+            objectTypeDocument.fields[post['peer_object_' + index]] = {field_type: 'peer_object', object_type: post['field_type_' + index]};
         }
-        else if(post['child_objects_' + i])
+        else if(post['child_objects_' + index])
         {
-            if(objectTypeDocument.fields[post['child_objects_' + i]])
+            if(objectTypeDocument.fields[post['child_objects_' + index]])
             {
-                return null;
+                continue;
             }
             
-            objectTypeDocument.fields[post['child_objects_' + i]] = {field_type: 'child_objects', object_type: post['field_type_' + i]};
+            objectTypeDocument.fields[post['child_objects_' + index]] = {field_type: 'child_objects', object_type: post['field_type_' + index]};
         }
     }
     

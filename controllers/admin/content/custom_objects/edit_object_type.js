@@ -4,22 +4,22 @@
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
-function NewObjectType(){}
+function EditObjectType(){}
 
 //inheritance
-util.inherits(NewObjectType, pb.BaseController);
+util.inherits(EditObjectType, pb.BaseController);
 
-NewObjectType.prototype.render = function(cb) {
+EditObjectType.prototype.render = function(cb) {
 	var self = this;
-	var get = this.pathVars;	
+	var vars = this.pathVars;	
 	
-    if(!get['name']) {
+    if(!vars['name']) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
         return;
     }
     
     var dao = new pb.DAO();
-    dao.query('custom_object_type', {name: get['name']}).then(function(objectTypes) {
+    dao.query('custom_object_type', {name: vars['name']}).then(function(objectTypes) {
 	    if (util.isError(objectTypes)) {
 		    //TODO handle this
 	    }
@@ -84,7 +84,7 @@ NewObjectType.prototype.render = function(cb) {
                     });
                     
                     result = result.split('^object_type_id^').join(objectType._id);
-                    result += pb.js.getJSTag('var customObjectFields = ' + JSON.stringify(objectType.fields));
+                    result += pb.js.getJSTag('var customObject = ' + JSON.stringify(objectType));
                     
                     var content = self.localizationService.localize(['admin', 'custom_objects'], result);
                     cb({content: content});
@@ -95,4 +95,4 @@ NewObjectType.prototype.render = function(cb) {
 };
 
 //exports
-module.exports = NewObjectType;
+module.exports = EditObjectType;

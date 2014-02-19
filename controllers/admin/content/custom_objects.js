@@ -21,7 +21,7 @@ CustomObjects.getPillNavOptions = function(activePill)
             name: 'new_object',
             title: '',
             icon: 'plus',
-            href: '/admin/content/custom_objects/new_object'
+            href: '/admin/content/custom_objects/new_object_type'
         }
         
     ];

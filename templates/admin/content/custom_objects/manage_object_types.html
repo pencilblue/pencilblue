@@ -17,11 +17,11 @@
             <th></th>
         </tr>
         <tr class="object_type_row" ng-repeat="objectType in customObjectTypes track by objectType._id" on-finish-render ng-cloak>
-            <td><a class="object_type_name" href="/admin/content/object_types/manage_objects?type={{objectType.name}}">{{objectType.name}}</a></td>
+            <td><a class="object_type_name" href="/admin/content/custom_objects/manage_objects/{{objectType.name}}">{{objectType.name}}</a></td>
             <td>{{objectType.url}}</td>
             <td>{{objectType.fieldTypesUsed}}</td>
             <td>{{objectType.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-            <td><a href="/admin/content/object_types/edit_object_type?type={{objectType.name}}"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a href="javascript:confirmDeleteObjectType('{{objectType._id}}', '{{objectType.name}}')"><i class="fa fa-times"></i></a></td>
+            <td><a href="/admin/content/custom_objects/edit_object_type/{{objectType.name}}"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a href="javascript:confirmDeleteObjectType('{{objectType._id}}', '{{objectType.name}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
     <ul id="object_types_pagination" class="pagination"></ul>

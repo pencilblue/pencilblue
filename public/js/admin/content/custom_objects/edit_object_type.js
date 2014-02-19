@@ -27,13 +27,20 @@ $(document).ready(function()
 
 function addInitialCustomFields()
 {
-    if(!customObjectFields)
+    if(!customObject)
     {
         return;
     }
     
+    var customObjectFields = customObject.fields;
+    
     for(var key in customObjectFields)
     {
+        if(key == 'name')
+        {
+            continue;
+        }
+    
         switch(customObjectFields[key].field_type)
         {
             case 'text':
@@ -74,6 +81,17 @@ function validateName()
         return;
     }
     
+    if(customObject)
+    {
+        if($('#name').val().toLowerCase() == customObject.name.toLowerCase())
+        {
+            $('#name_availability_button').attr('class', 'btn btn-success');
+            $('#name_availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.generic.AVAILABLE);
+            validateURL();
+            return;
+        }
+    }
+    
     $.getJSON('/api/custom_objects/get_object_type_name_available?name=' + $('#name').val(), function(response)
     {
         if(response.code == 0)
@@ -99,6 +117,16 @@ function validateURL()
     if($('#url').val().length == 0)
     {
         return;
+    }
+    
+    if(customObject)
+    {
+        if($('#url').val().toLowerCase() == customObject.url.toLowerCase())
+        {
+            $('#url_availability_button').attr('class', 'btn btn-success');
+            $('#url_availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.generic.AVAILABLE);
+            return;
+        }
     }
     
     $.getJSON('/api/custom_objects/get_object_type_url_available?url=' + $('#url').val(), function(response)
@@ -161,6 +189,7 @@ function selectObjectType(type, index)
 function prepareNewObjectTypeSave()
 {
     var i = 0;
+    var fieldOrder = [];
     
     if($('#custom_fields_container .form-group').length == 0)
     {
@@ -173,6 +202,7 @@ function prepareNewObjectTypeSave()
     {
         var index = parseInt($(this).attr('id').split('custom_field_').join(''));
         var inputGroup = $(this).find('.input-group').first();
+        fieldOrder.push(index);
         
         if(inputGroup.attr('class').indexOf('value') > -1)
         {
@@ -227,6 +257,7 @@ function prepareNewObjectTypeSave()
         i++;
         if(i >= $('#custom_fields_container .form-group').length)
         {
+            $('#edit_object_type_form').append('<input type="text" name="field_order" value="' + fieldOrder.join(',') + '" style="display: none"></input>');
             $('#field_templates').remove();
             $('#edit_object_type_form').submit();
         }

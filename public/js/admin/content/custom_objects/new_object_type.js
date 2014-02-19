@@ -114,6 +114,7 @@ function selectObjectType(type, index)
 function prepareNewObjectTypeSave()
 {
     var i = 0;
+    var fieldOrder = [];
     
     if($('#custom_fields_container .form-group').length == 0)
     {
@@ -126,6 +127,7 @@ function prepareNewObjectTypeSave()
     {
         var index = parseInt($(this).attr('id').split('custom_field_').join(''));
         var inputGroup = $(this).find('.input-group').first();
+        fieldOrder.push(index);
         
         if(inputGroup.attr('class').indexOf('value') > -1)
         {
@@ -180,6 +182,7 @@ function prepareNewObjectTypeSave()
         i++;
         if(i >= $('#custom_fields_container .form-group').length)
         {
+            $('#new_object_type_form').append('<input type="text" name="field_order" value="' + fieldOrder.join(',') + '" style="display: none"></input>');
             $('#field_templates').remove();
             $('#new_object_type_form').submit();
         }

@@ -419,7 +419,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/custom_objects/manage_objects",
+    	path: "/admin/content/custom_objects/manage_objects/:name",
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_objects.js'),
     	content_type: 'text/html'
