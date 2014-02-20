@@ -15,8 +15,8 @@ DAO.PROJECT_ALL   = {};
 DAO.ANYWHERE      = {};
 DAO.NATURAL_ORDER = [];
 
-DAO.ASC  = 'asc';
-DAO.DESC = 'desc';
+DAO.ASC  = 1;
+DAO.DESC = -1;
 
 /**
  * Retrieves an object by ID
@@ -62,7 +62,11 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
 	var cursor  = this._doQuery(entityType, where, select, orderBy, limit, offset);
 	var promise = new Promise();
 	cursor.toArray(function(err, docs){
-        promise.resolve(err ? err : docs);
+		var isError = err != null;
+        promise.resolve(isError ? err : docs);
+        if (isError) {
+        	pb.log.error('DAO: ', err.toString());
+        }
     });
 	
 	//clean up

@@ -8,7 +8,7 @@ function UserService(){}
 
 UserService.prototype.getFullName = function(userId, cb) {
 	var dao = new pb.DAO();
-	dao.loadById('user', userId, function(err, author){
+	dao.loadById(userId, 'user', function(err, author){
 		if (util.isError(err)) {
 			callback(err, null);
 			return;

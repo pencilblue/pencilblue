@@ -370,6 +370,14 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'get',
+    	path: "/admin/content/articles/edit_article",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'edit_article.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'post',
     	path: "/actions/admin/content/articles/edit_article",
     	access_level: ACCESS_EDITOR,
@@ -879,7 +887,7 @@ RequestHandler.urlExists = function(url, id, cb) {
 	var dao = new pb.DAO();
 	var getTask = function(collection) {
 		return function (callback) {
-			var where = {url: pageDocument['url']};
+			var where = {url: url};
 			if (id) {
 				where._id = {$ne: new ObjectId(id)};
 			}
@@ -892,10 +900,10 @@ RequestHandler.urlExists = function(url, id, cb) {
                 }
 			});
 		};
-		async.series([getTask('article'), getTask('page')], function(err, results){
-			cb(err, err == null);
-		});
 	};
+	async.series([getTask('article'), getTask('page')], function(err, results){
+		cb(err, err != null);
+	});
 };
 
 RequestHandler.isAdminURL = function(url) {

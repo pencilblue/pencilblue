@@ -1,103 +1,19 @@
-global.getHTMLTemplate = function(templateLocation, pageName, metaDesc, output)
-{
-    var fileLocation = DOCUMENT_ROOT + '/templates/' + templateLocation + '.html';
-    var instance = this;
-    
-    this.loadTemplate = function()
-    {
-        // Load the header template HTML and customize
-        fs.readFile(fileLocation, function(error, data)
-        {
-            if(data)
-            {
-                templateString = data.toString();
-            }
-            else
-            {
-                templateString = '';
-            }
-            
-            templateString = templateString.split('^site_name^').join(pb.config.siteName);
-            templateString = templateString.split('^site_root^').join(pb.config.siteRoot);
-            if(typeof pageName !== "undefined")
-            {
-                templateString = templateString.split('^page_name^').join(pageName);
-            }
-            else
-            {
-                templateString = templateString.split('^page_name^').join('');
-            }
-            
-            if(typeof metaDesc !== "undefined")
-            {
-                templateString = templateString.split('^meta_desc^').join(metaDesc);
-            }
-            else
-            {
-                templateString = templateString.split('^meta_desc^').join(pb.config.siteName + ' | ' + pageName);
-            }
-            
-            templateString = templateString.split('^year^').join(new Date().getFullYear());
-            
-            var subTemplateCount = templateString.split('^tmp_').length;
-            
-            if(subTemplateCount == 1)
-            {
-                output(templateString);
-                return;
-            }
-            
-            instance.loadSubTemplate(templateString, output);
-        });
-    };
-    
-    this.loadSubTemplate = function(templateString, output)
-    {
-        var instance = this;
-    
-        var startIndex = templateString.indexOf('^tmp_') + 5;
-        var endIndex = templateString.substr(startIndex).indexOf('^');
-        var templateName = templateString.substr(startIndex, endIndex);
-        
-        getHTMLTemplate(templateName.split('=').join('/'), pageName, metaDesc, function(data)
-        {
-            templateString = templateString.split('^tmp_' + templateName + '^').join(data);
-            
-            var subTemplateCount = templateString.split('^tmp_').length;
-            
-            if(subTemplateCount == 1)
-            {
-                output(templateString);
-                return;
-            }
-            
-            instance.loadSubTemplate(templateString, output);
-        });
-    };
-
-    pb.settings.get('active_theme', function(err, setting){
-    	if (setting == null){
-    		instance.loadTemplate();
-    		return;
-    	}
-    	
-    	var templatePath = DOCUMENT_ROOT + '/plugins/themes/' + setting + '/templates/' + templateLocation + '.html';
-    	fs.exists(templatePath, function(exists) {
-            if (exists) {
-                fileLocation = templatePath;
-            }
-            instance.loadTemplate();
-        });
-    });
-};
-
+/**
+ * TemplateService - Loads HTML templates
+ * @author Brian Hyder
+ * @copyright PencilBlue, LLC. 2014 All Rights Reserved
+ * @param services
+ * @param name
+ */
 function TemplateService(services, name){
 	this.services = services;
 	this.name     = name;
 }
 
+//inheritance
 util.inherits(TemplateService, pb.SimpleLayeredService);
 
+//constants
 TemplateService.SEP = '^';
 TemplateService.PREFIX = TemplateService.SEP+'tmp_';
 
