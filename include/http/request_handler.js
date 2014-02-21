@@ -392,6 +392,27 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'new_article.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/user/manage_account/change_password",
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'manage_account', 'change_password.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/user/manage_account/profile",
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'manage_account', 'profile.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/user/resend_verification",
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'resend_verification.js'),
+    	content_type: 'text/html'
     }
 ];
 

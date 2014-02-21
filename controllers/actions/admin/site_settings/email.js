@@ -28,7 +28,7 @@ Email.prototype.onPostParamsRetrieved = function(post, cb) {
         self.session.success = '^loc_EMAIL_SETTINGS^ ^loc_EDITED^';
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/email'));
     });
-}
+};
 
 //exports 
 module.exports = Email;

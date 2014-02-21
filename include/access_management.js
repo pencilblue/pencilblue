@@ -66,5 +66,11 @@ SecurityService.isAuthenticated = function(session) {
 	return SecurityService.isAuthorized(session, reqs);
 };
 
+SecurityService.encrypt = function(valStr) {
+	var whirlpool = crypto.createHash('whirlpool');
+    whirlpool.update(valStr);
+    return whirlpool.digest('hex');
+};
+
 //exports
 module.exports.SecurityService = SecurityService;

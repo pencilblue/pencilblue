@@ -1,7 +1,76 @@
-global.getEmailSettings = function(output)
-{
-    defaultEmailSettings =
-    {
+/**
+ * EmailService - Provides a simple interface for sending emails.
+ * 
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright PencilBlue, LLC 2014 All Rights Reserved
+ */
+function EmailService(){}
+
+//dependencies
+NodeMailer = require('nodemailer');
+
+EmailService.prototype.sendFromTemplate = function(options, cb){
+	var self = this;
+	
+	pb.templates.load(options.template, null, null, function(data) {
+		
+		var body = '' + data;
+		if (options.replacements) {
+			for(key in options.replacements) {
+				body =  body.split(key).join(options.replacements[key]);
+			}
+		}
+		self.send(options.from, options.to, options.subject, body, cb);
+	});
+};
+
+EmailService.prototype.send = function(from, to, subject, body, cb) {
+
+	this.getSettings(function(err, emailSettings) {
+        
+        var options = {
+            service: emailSettings.service,
+            auth:
+            {
+                user: emailSettings.username,
+                pass: emailSettings.password
+            }
+        };
+        if (emailSettings.service == 'custom') {
+        	options.host = emailSettings.host,
+        	options.secureConnection = emailSettings.secure_connection,
+        	options.port = emailSettings.port;
+        }
+        var smtpTransport = NodeMailer.createTransport("SMTP", options);
+        
+        var mailOptions =
+        {
+            from: from || (emailSettings.from_name + '<' + emailSettings.from_address + '>'),
+            to: to,
+            subject: subject,
+            html: body
+        };
+        
+        smtpTransport.sendMail(mailOptions, function(err, response) {
+            if (util.isError(err)) {
+            	pb.log.error("EmailService: Failed to send email: ", err);
+            }
+            smtpTransport.close();
+            
+            cb(err, response);
+        });
+    });
+};
+
+EmailService.prototype.getSettings = function(cb) {
+	var self = this;
+	pb.settings.get('email_settings', function(err, settings) {
+        cb(err, util.isError(err) ? self.getDefaultSettings() : settings);
+    });
+};
+
+EmailService.prototype.getDeafultSettings = function() {
+	return {
         from_name: 'pencilblue',
         from_address: 'no-reply@pencilblue.org',
         verification_subject: 'pencilblue Account Confirmation',
@@ -11,75 +80,8 @@ global.getEmailSettings = function(output)
         port: 465,
         username: '',
         password: ''
-    }
-    
-    getDBObjectsWithValues({object_type: 'setting', key: 'email_settings'}, function(data)
-    {
-        if(data.length == 0)
-        {
-            getHTMLTemplate('admin/elements/default_verification_email', null, null, function(data)
-            {
-                defaultEmailSettings.verification_content = data;
-                output(defaultEmailSettings);
-            });
-        }
-        else
-        {
-            output(data[0].value);
-        }
-    
-    });
-}
+    };
+};
 
-global.sendEmail = function(from, to, subject, body)
-{
-    getEmailSettings(function(emailSettings)
-    {
-        var nodemailer = require("nodemailer");
-        
-        if(emailSettings.service == 'custom')
-        {
-            var smtpTransport = nodemailer.createTransport("SMTP",
-            {
-                host: emailSettings.host,
-                secureConnection: emailSettings.secure_connection,
-                port: emailSettings.port,
-                auth:
-                {
-                    user: emailSettings.username,
-                    pass: emailSettings.password
-                }
-            });
-        }
-        else
-        {
-            var smtpTransport = nodemailer.createTransport("SMTP",
-            {
-                service: emailSettings.service,
-                auth:
-                {
-                    user: emailSettings.username,
-                    pass: emailSettings.password
-                }
-            });
-        }
-        
-        var mailOptions =
-        {
-            from: from,
-            to: to,
-            subject: subject,
-            html: body
-        };
-        
-        smtpTransport.sendMail(mailOptions, function(error, response)
-        {
-            if(error)
-            {
-                console.log(error);
-            }
-
-            smtpTransport.close();
-        });
-    });
-}
+//exports
+module.exports.EmailService = EmailService;
