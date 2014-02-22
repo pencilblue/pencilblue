@@ -1,72 +1,62 @@
-/*
+/**
+ * VerifyEmail - Creates a verified user
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function VerifyEmail(){}
 
-    Creates a user and sends a confirmation email, if necessary
+//inheritance
+util.inherits(VerifyEmail, pb.BaseController);
+
+VerifyEmail.prototype.render = function(cb) {
+	var self = this;
+	var get  = this.query;
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
-
-*/
-
-this.init = function(request, output)
-{ 
-    var instance = this;
-
-    getSession(request, function(session)
-    {    
-        var get = getQueryParameters(request);
-        
-        if(checkForRequiredParameters(get, ['email', 'code']))
-        {
-            formError(request, session, '^loc_INVALID_VERIFICATION^', '/user/resend_verification', output);
+    if(!this.hasRequiredParams(get, ['email', 'code'])) {
+        this.formError('^loc_INVALID_VERIFICATION^', '/user/resend_verification', cb);
+        return;
+    }
+    
+    var dao = new pb.DAO();
+    dao.count('user', {email: get.email}, function(err, count) {
+        if(count > 0) {
+            self.formError('^loc_USER_VERIFIED^', '/user/login', cb);
             return;
         }
         
-        getDBObjectsWithValues({object_type: 'user', email: get['email']}, function(data)
-        {
-            if(data.length > 0)
-            {
-                formError(request, session, '^loc_USER_VERIFIED^', '/user/login', output);
+        dao.loadByValue('email', get.email, 'unverified_user', function(err, unverifiedUser) {
+            if(unverifiedUser == null) {
+                self.formError('^loc_NOT_REGISTERED^', '/user/sign_up', cb);
                 return;
             }
             
-            getDBObjectsWithValues({object_type: 'unverified_user', email: get['email']}, function(data)
-            {
-                if(data.length == 0)
-                {
-                    formError(request, session, '^loc_NOT_REGISTERED^', '/user/sign_up', output);
-                    return;
-                }
+            if(unverifiedUser['verification_code'] != get['code']) {
+                self.formError('^loc_INVALID_VERIFICATION^', '/user/resend_verification', cb);
+                return;
+            }
+            
+            dao.deleteById(unverifiedUser._id, 'unverified_user').then(function(result)  {
+                //TODO handle error 
+            	
+            	//convert to user
+            	var user = unverifiedUser;
+                delete user._id;
+                user.object_type = 'user';
                 
-                var unverifiedUser = data[0];
-                
-                if(unverifiedUser['verification_code'] != get['code'])
-                {
-                    formError(request, session, '^loc_INVALID_VERIFICATION^', '/user/resend_verification', output);
-                    return;
-                }
-                
-                deleteMatchingDBObjects({object_type: 'unverified_user', _id: unverifiedUser._id}, function(success)
-                {
-                    var user = unverifiedUser;
-                
-                    delete user._id;
-                    delete user.created;
-                    delete user.last_modified;
-                    user.object_type = 'user';
+                dao.update(user).then(function(result) {
+                    if(util.isError(result))  {
+                        self.formError('^loc_ERROR_SAVING^', '/user/sign_up', cb);
+                        return;
+                    }
                     
-                    createDBObject(user, function(data)
-                    {
-                        if(data.length == 0)
-                        {
-                            formError(request, session, '^loc_ERROR_SAVING^', '/user/sign_up', output);
-                            return;
-                        }
-                        
-                        session.success = '^loc_EMAIL_VERIFIED^';
-                        output({redirect: pb.config.siteRoot + '/user/login'});
-                    });
+                    self.session.success = '^loc_EMAIL_VERIFIED^';
+                    self.redirect(pb.config.siteRoot + '/user/login', cb);
                 });
             });
         });
     });
-}
+};
+
+//exports
+module.exports = VerifyEmail;

@@ -410,8 +410,22 @@ RequestHandler.CORE_ROUTES = [
     {
     	method: 'post',
     	path: "/actions/user/resend_verification",
-    	auth_required: true,
+    	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'resend_verification.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/user/sign_up",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'sign_up.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/user/verify_email",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'verify_email.js'),
     	content_type: 'text/html'
     }
 ];

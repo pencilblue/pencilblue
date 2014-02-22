@@ -1,4 +1,7 @@
 /**
+ * ContentService - 
+ * 
+ * @author Brian Hyder
  * @copyright PencilBlue, LLC 2014 All Rights Reserved
  */
 function ContentService(){}

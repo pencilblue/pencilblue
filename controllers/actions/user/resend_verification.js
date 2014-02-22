@@ -40,9 +40,9 @@ ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
                     return;
                 }
                 
-                self.sendVerificationEmail(user, pb.utils.cb);
                 self.session.success = '^loc_VERIFICATION_SENT^' + user.email;
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/user/verification_sent'));
+                pb.users.sendVerificationEmail(user, pb.utils.cb);
             });
         });
     });
@@ -50,20 +50,6 @@ ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
 
 ResendVerification.prototype.getRequiredFields = function() {
 	return ['email'];
-};
-
-ResendVerification.prototype.sendVerificationEmail = function(user, cb) {
-	var options = {
-		to: user.email,
-		subject: 'pencilblue Account Confirmation',
-		template: 'admin/elements/default_verification_email',
-		replacements: {
-			'^verification_url^': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
-			'^first_name^': user.first_name,
-			'^last_name^': user.last_name
-		}
-	};
-	pb.sendFromTemplate(options, cb);
 };
 
 //exports
