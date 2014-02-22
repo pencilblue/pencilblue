@@ -1,51 +1,12 @@
 /**
+ * Login - Authenticates a non-admin user
  * 
- * @copyright PencilBlue, LLC 2014 All Rights Reserved
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
  */
 function Login(){}
 
-// Retrieve the header, body, and footer and return them to the router
-Login.init = function(request, output)
-{
-    var result = '';
-    
-    getSession(request, function(session)
-    {
-        if(userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
-        {
-            output({redirect: pb.config.siteRoot + '/admin'});
-            return;
-        }
-        else if(userIsAuthorized(session, {logged_in: true}))
-        {
-            output({redirect: pb.config.siteRoot});
-            return;
-        }
-    
-        initLocalization(request, session, function(data)
-        {
-            getHTMLTemplate('admin/login', 'Login', null, function(data)
-            {
-                result = result.concat(data);
-                
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
-                {
-                    session = newSession;
-                    result = newResult;
-                
-                    editSession(request, session, [], function(data)
-                    {
-                        output({cookie: getSessionCookie(session), content: localize(['login'], result)});
-                    });
-                });
-            });
-        });
-    });
-};
-
-
-
-//inheritance 
+//inheritance
 util.inherits(Login, pb.BaseController);
 
 

@@ -1,31 +1,33 @@
-/*
+/**
+ * Users - Users administration page
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function Users(){}
 
-    Users administration page
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+//inheritance
+util.inherits(Users, pb.BaseController);
 
-*/
+Users.prototype.render = function(cb) {
+	this.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
+};
 
-this.getPillNavOptions = function(activePill)
-{
-    var pillNavOptions = 
-    [
+Users.getPillNavOptions = function(activePill) {
+    var pillNavOptions = [
         {
             name: 'new_user',
             title: '',
             icon: 'plus',
             href: '/admin/users/new_user'
         }
-    ]
+    ];
     
-    if(typeof activePill !== 'undefined')
-    {
-        for(var i = 0; i < pillNavOptions.length; i++)
-        {
-            if(pillNavOptions[i].name == activePill)
-            {
+    if(typeof activePill !== 'undefined') {
+        for(var i = 0; i < pillNavOptions.length; i++) {
+            if(pillNavOptions[i].name == activePill) {
                 pillNavOptions[i].active = 'active';
+                break;
             }
         }
     }
@@ -33,7 +35,5 @@ this.getPillNavOptions = function(activePill)
     return pillNavOptions;
 };
 
-this.init = function(request, output)
-{
-    output({redirect: pb.config.siteRoot + '/admin/users/manage_users'});
-}
+//exports
+module.exports = Users;

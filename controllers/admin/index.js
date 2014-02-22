@@ -7,52 +7,6 @@ function Index(){}
 //inheritance
 util.inherits(Index, pb.BaseController);
 
-/**
- * Retrieve the header, body, and footer and return them to the router
- * 
- * TODO Remove this legacy code
- */ 
-Index.init = function(request, output)
-{
-    var result = '';
-    
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
-        {
-            output({redirect: pb.config.siteRoot + '/admin/login'}); 
-            return;
-        }
-    
-        initLocalization(request, session, function(data)
-        {
-            getHTMLTemplate('admin/index', '^loc_DASHBOARD^', null, function(data)
-            {
-                result = result.concat(data);
-                        
-                getDBObjectsWithValues({object_type: 'article'}, function(articles)
-                {
-                    var contentInfo = [{name: localize(['admin'], '^loc_ARTICLES^'), count: articles.length, href: '/admin/content/articles/manage_articles'}];
-                    
-                    getDBObjectsWithValues({object_type: 'page'}, function(pages)
-                    {
-                        contentInfo.push({name: localize(['admin'], '^loc_PAGES^'), count: pages.length, href: '/admin/content/pages/manage_pages'});
-                        
-                        result = result.concat(pb.js.getAngularController(
-                        {
-                            navigation: getAdminNavigation(session, ['dashboard']),
-                            contentInfo: contentInfo
-                        }));
-                        
-                        output({cookie: getSessionCookie(session), content: localize(['admin'], result)});
-                    });
-                });
-                
-            });
-        });
-    });
-};
-
 Index.prototype.render = function(cb) {
 	var self = this;
 	
@@ -92,4 +46,5 @@ Index.prototype.render = function(cb) {
     });
 };
 
+//exports
 module.exports = Index;

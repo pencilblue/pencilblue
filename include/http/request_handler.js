@@ -422,11 +422,25 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
-    	method: 'post',
+    	method: 'get',
     	path: "/actions/user/verify_email",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'verify_email.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/users",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/admin/site_settings",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings.js'),
     }
 ];
 
