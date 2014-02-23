@@ -445,6 +445,13 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object.js'),
     	content_type: 'text/html'
     },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/custom_objects/edit_object/:id",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object.js'),
+    	content_type: 'text/html'
+    }
 ];
 
 RequestHandler.init = function(){

@@ -90,7 +90,7 @@ EditObject.prototype.render = function(cb) {
                             fieldOrder: fieldOrder
                         }, [], 'initCustomObjectsPagination()'));
                         
-                        result = result.split('^object_type_id^').join(objectType._id);
+                        result = result.split('^object_id^').join(customObject._id);
                         result += pb.js.getJSTag('var customObjectType = ' + JSON.stringify(objectType));
                         result += pb.js.getJSTag('var customObject = ' + JSON.stringify(customObject));
                         
