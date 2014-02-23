@@ -92,16 +92,14 @@ util.inherits(Setup, pb.BaseController);
 
 Setup.prototype.render = function(cb) {
 	
-	var self = this;
-    var dao  = new pb.DAO();
-    
-    dao.count('user', pb.DAO.ANYWHERE, function(err, count){
+	var self = this;    
+    pb.settings.get('system_initialized', function(err, isSetup){
     	if (util.isError(err)) {
     		throw new PBError("A database connection could not be established", 500);
     	}
     	
     	//when user count is 1 or higher the system has already been initialized
-    	if (count > 0) {
+    	if (isSetup) {
     		cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot));
     		return;
     	}
@@ -156,15 +154,18 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 			function(callback) {
 				var contentSettings = Setup.getDefaultContentSettings();
 				pb.settings.set('content_settings', contentSettings, callback);
-			} 
+			},
+			function(callback) {
+				pb.settings.set('system_initialized', true, callback);
+			}
 		], 
         function(err, results){
     		if (util.isError(err)) {
-    			self.formError(request, session, '^loc_ERROR_SAVING^', '/setup', output);
+    			self.formError('^loc_ERROR_SAVING^', '/setup', output);
                 return;
     		}
     		
-    		session.success = '^loc_READY_TO_USE^';
+    		self.session.success = '^loc_READY_TO_USE^';
     		cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/login'));
 		}
     );

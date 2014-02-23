@@ -1,109 +1,62 @@
-/*
+/**
+ * ManageArticles - Displays articles for management
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function ManageArticles(){}
 
-    Displays articles for management
+//dependencies
+Articles = require('../articles.js');
+
+//inheritance
+util.inherits(ManageArticles, pb.BaseController);
+
+ManageArticles.prototype.render = function(cb) {
+	var self = this;
+	var dao  = new pb.DAO();
+	
+	var where = {};
+    if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
+        where.author = this.session.user._id.toString();
+    }
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
-
-*/
-
-this.init = function(request, output)
-{
-    var result = '';
-    var instance = this;
-    
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
-        {
-            output({redirect: pb.config.siteRoot});
+    dao.query('article', where, pb.DAO.PROJECT_ALL, {publish_date: pb.DAO.ASC}).then(function(articles) {
+        if(util.isError(articles) || articles.length <= 0) {
+            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/new_article'));
             return;
         }
-        
-        var searchObject = {object_type: 'article', $orderby: {publish_date: 1}};
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
-        {
-            searchObject.author = session.user._id.toString();
-        }
-        
-        getDBObjectsWithValues(searchObject, function(data)
-        {
-            if(data.length == 0)
-            {
-                output({redirect: pb.config.siteRoot + '/admin/content/articles/new_article'});
-                return;
-            }
+
+    	pb.templates.load('admin/content/articles/manage_articles', '^loc_MANAGE_ARTICLES^', null, function(data) {
+            var result = '' + data;
             
-            var articles = data;
-            
-            initLocalization(request, session, function(data)
-            {
-                getHTMLTemplate('admin/content/articles/manage_articles', '^loc_MANAGE_ARTICLES^', null, function(data)
+            self.displayErrorOrSuccess(result, function(newResult) {
+                result = newResult;
+                
+                var pills = Articles.getPillNavOptions('manage_articles');
+                pills.unshift(
                 {
-                    result = result.concat(data);
-                    
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
+                    name: 'manage_articles',
+                    title: '^loc_MANAGE_ARTICLES^',
+                    icon: 'refresh',
+                    href: '/admin/content/articles/manage_articles'
+                });
+                
+                pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {                                
+                    result = result.concat(pb.js.getAngularController(
                     {
-                        session = newSession;
-                        result = newResult;
-                        
-                        var pills = require('../articles').getPillNavOptions('manage_articles');
-                        pills.unshift(
-                        {
-                            name: 'manage_articles',
-                            title: '^loc_MANAGE_ARTICLES^',
-                            icon: 'refresh',
-                            href: '/admin/content/articles/manage_articles'
-                        });
-                        
-                        instance.getArticleAuthors(articles, function(articlesWithAuthorNames)
-                        {                                
-                            result = result.concat(pb.js.getAngularController(
-                            {
-                                navigation: getAdminNavigation(session, ['content', 'articles']),
-                                pills: pills,
-                                articles: articlesWithAuthorNames
-                            }, [], 'initArticlesPagination()'));
-                            
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'articles'], result)});
-                            });
-                        });
-                    });
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'articles']),
+                        pills: pills,
+                        articles: articlesWithAuthorNames
+                    }, [], 'initArticlesPagination()'));
+                    
+                    var content = self.localizationService.localize(['admin', 'articles'], result);
+                    cb({content: content});
                 });
             });
         });
     });
-}
+};
 
-this.getArticleAuthors = function(articles, output)
-{
-    var instance = this;
-
-    this.getArticleAuthor = function(index)
-    {
-        if(index >= articles.length)
-        {
-            output(articles);
-            return;
-        }
-    
-        getDBObjectsWithValues({object_type: 'user', _id: ObjectID(articles[index].author)}, function(data)
-        {
-            if(data.length == 0)
-            {
-                articles.splice(index, 1);
-                instance.getArticleAuthor(index);
-                return;
-            }
-            
-            articles[index].author_name = data[0].first_name + ' ' + data[0].last_name;
-            
-            index++;
-            instance.getArticleAuthor(index);
-        });
-    }
-    
-    instance.getArticleAuthor(0);
-}
+//exports
+module.exports = ManageArticles;

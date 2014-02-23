@@ -1,9 +1,9 @@
 function ClientJS(){}
 
 ClientJS.getAngularController = function(objects, modules, directiveJS) {
-    if(typeof modules === 'undefined')
+    if(typeof modules === 'undefined' || modules.length == 0)
     {
-        modules = [];
+        modules = ['ngRoute'];
     }
     if(typeof directiveJS === 'undefined')
     {
@@ -30,6 +30,7 @@ ClientJS.getAngularController = function(objects, modules, directiveJS) {
     }
     
     angularController = angularController.concat('function PencilBlueController($scope, $sce) {' + scopeString + '};');
+    angularController = angularController.concat('pencilblueApp.config(["$compileProvider",function(e){e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/)}]);');
     
     return pb.js.getJSTag(angularController);
 };

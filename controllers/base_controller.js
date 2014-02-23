@@ -18,19 +18,19 @@ BaseController.prototype.init = function(props, cb) {
 	cb();
 };
 
-BaseController.prototype.formError = function(request, session, message, redirectLocation, cb) {
+BaseController.prototype.formError = function(message, redirectLocation, cb) {
     
 	this.session.error = message;      
-    cb(pb.RequestHandler.generateRedirect(path.join(pb.config.siteRoot, redirectLocation)));
+    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + redirectLocation));
 };
 
 BaseController.prototype.displayErrorOrSuccess = function(result, cb) {
     if(this.session['error']) {
-        result = result.split('^error_success^').join('<div class="alert alert-danger">' + this.session['error'] + '<a href="javascript:$(\'.alert-danger\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+        result = result.split('^error_success^').join('<div class="alert alert-danger error_success">' + this.session['error'] + '<a href="javascript:$(\'.alert-danger.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
         delete this.session['error'];
     }
     else if(this.session['success']) {
-        result = result.split('^error_success^').join('<div class="alert alert-success">' + this.session['success'] + '<a href="javascript:$(\'.alert-success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+        result = result.split('^error_success^').join('<div class="alert alert-success error_success">' + this.session['success'] + '<a href="javascript:$(\'.alert-success.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
         delete this.session['success'];
     }
     else {
@@ -86,6 +86,29 @@ BaseController.prototype.hasRequiredParams = function(queryObject, requiredParam
     }
     
     return null;
+};
+
+BaseController.prototype.prepareFormReturns = function(result, cb) {
+	var self = this;
+    this.displayErrorOrSuccess(result, function(newResult) {
+        self.checkForFormRefill(newResult, cb);
+    });
+};
+
+BaseController.prototype.setFormFieldValues = function(post) {
+    this.session.fieldValues = post;
+    return this.session;
+};
+
+BaseController.prototype.checkForFormRefill = function(result, cb) {
+    if(this.session.fieldValues) {
+        var formScript = pb.js.getJSTag('if(typeof refillForm !== "undefined") $(document).ready(function(){refillForm(' + JSON.stringify(this.session.fieldValues) + ')})');
+        result         = result.concat(formScript);
+        
+        delete this.session.fieldValues;
+    }
+    
+    cb(result);
 };
 
 //exports

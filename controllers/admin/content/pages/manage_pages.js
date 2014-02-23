@@ -1,16 +1,76 @@
-/*
+/**
+ * ManagePages - Displays articles for management
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function ManagePages(){}
 
-    Displays articles for management
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+//inheritance
+util.inherits(ManagePages, pb.BaseController);
 
-*/
+ManagePages.prototype.render = function(cb) {
+	var self = this;
+	var dao  = new pb.DAO();
+	
+    dao.query('page', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {headline: pb.DAO.ASC}).then(function(pages) {
+        if(pages.length == 0) {
+            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/new_page'));
+            return;
+        }
+        
+        pb.templates.load('admin/content/pages/manage_pages', '^loc_MANAGE_PAGES^', null, function(data) {
+            var result = '' + data;
+            
+            self.displayErrorOrSuccess(result, function(newResult) {
+                result = newResult;
+                
+                self.getPageAuthors(pages, function(err, results) {
+                    
+                	var pills = require('../pages').getPillNavOptions('manage_pages');
+                    pills.unshift(
+                    {
+                        name: 'manage_pages',
+                        title: '^loc_MANAGE_PAGES^',
+                        icon: 'refresh',
+                        href: '/admin/content/pages/manage_pages'
+                    });
+                    
+                    result = result.concat(pb.js.getAngularController(
+                    {
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'pages']),
+                        pills: pills,
+                        pages: pages
+                    }, [], 'initPagesPagination()'));
+                    
+                    var content = self.localizationService.localize(['admin', 'pages'], result);
+                    cb({content: content});
+                });
+            });
+        });
+    });
+};
 
-this.init = function(request, output)
+ManagePages.prototype.getPageAuthors = function(pages, cb) {
+    var dao  = new pb.DAO();
+    var tasks = pb.utils.getTasks(pages, function(pages, index){
+    	return function(callback) {
+    		dao.loadById(pages[index].author, 'user', function(err, author){
+    			if (util.isError(err)) {
+    				callback(err, null);
+    				return;
+    			}
+    			pages[index].author_name = author.first_name + ' ' + author.last_name;
+    			callback(null, true);
+    		});
+    	};
+    });
+    async.parallelLimit(tasks, 3, cb);
+};
+
+ManagePages.init = function(request, output)
 {
     var result = '';
-    var instance = this;
     
     getSession(request, function(session)
     {
@@ -43,7 +103,7 @@ this.init = function(request, output)
                         session = newSession;
                         result = newResult;
                         
-                        instance.getPageAuthors(pages, function(pagesWithAuthorNames)
+                        ManagePages.getPageAuthors(pages, function(pagesWithAuthorNames)
                         {
                             var pills = require('../pages').getPillNavOptions('manage_pages');
                             pills.unshift(
@@ -71,9 +131,9 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
 
-this.getPageAuthors = function(pages, output)
+ManagePages.getPageAuthors = function(pages, output)
 {
     var instance = this;
 
@@ -99,7 +159,10 @@ this.getPageAuthors = function(pages, output)
             index++;
             instance.getPageAuthor(index);
         });
-    }
+    };
     
     instance.getPageAuthor(0);
-}
+};
+
+//exports
+module.exports = ManagePages;

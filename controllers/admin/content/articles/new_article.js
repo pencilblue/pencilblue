@@ -1,13 +1,113 @@
-/*
+/**
+ * NewArticle - Interface for adding a new article
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function NewArticle(){}
 
-    Interface for adding a new article
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+//dependencies
+var Articles = require('../articles.js');
+var Media    = require('../media.js');
 
-*/
+//inheritance
+util.inherits(NewArticle, pb.BaseController);
 
-this.init = function(request, output)
+NewArticle.prototype.render = function(cb) {
+	var self = this;
+	
+	pb.templates.load('admin/content/articles/new_article', '^loc_NEW_ARTICLE^', null, function(data) {
+        var result = '' + data;
+        var tabs   =
+        [
+            {
+                active: 'active',
+                href: '#content',
+                icon: 'quote-left',
+                title: '^loc_CONTENT^'
+            },
+            {
+                href: '#media',
+                icon: 'camera',
+                title: '^loc_MEDIA^'
+            },
+            {
+                href: '#sections_dnd',
+                icon: 'th-large',
+                title: '^loc_SECTIONS^'
+            },
+            {
+                href: '#topics_dnd',
+                icon: 'tags',
+                title: '^loc_TOPICS^'
+            },
+            {
+                href: '#meta_data',
+                icon: 'tasks',
+                title: '^loc_META_DATA^'
+            }
+        ];
+        
+        var dao   = new pb.DAO();
+        var tasks = {
+        	templates: function(callback) {
+        		pb.templates.getTemplatesForActiveTheme(function(templates) {
+        			callback(null, templates);
+        		});
+        	},
+        	
+        	sections: function(callback) {
+        		dao.query('section', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: 1}).then(function(sections){
+        			callback(util.isError(sections) ? sections : null, sections);
+        		});
+        	},
+        	
+        	topics: function(callback) {
+        		dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: 1}).then(function(topics){
+        			callback(util.isError(topics) ? topics : null, topics);
+        		});
+        	},
+        	
+        	media: function(callback) {
+        		Media.getAll(function(media){
+        			callback(null, media);
+        		});
+        	}
+        };
+        async.parallelLimit(tasks, 2, function(err, results){
+        	//TODO handle error
+        	
+        	self.prepareFormReturns(result, function(newResult) {
+                result = newResult;
+                
+                var pills = Articles.getPillNavOptions('new_article');
+                pills.unshift(
+                {
+                    name: 'manage_articles',
+                    title: '^loc_NEW_ARTICLE^',
+                    icon: 'chevron-left',
+                    href: '/admin/content/articles/manage_articles'
+                });
+                
+                result = result.concat(pb.js.getAngularController(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'articles']),
+                    pills: pills,
+                    tabs: tabs,
+                    templates: results.templates,
+                    sections: results.sections,
+                    topics: results.topics,
+                    media: results.media
+                }, [], 'initMediaPagination();initSectionsPagination();initTopicsPagination()'));
+                
+                var content = self.localizationService.localize(['admin', 'articles', 'media'], result);
+                cb({content: content});
+            });
+        });
+    });
+};
+
+NewArticle.init = function(request, output)
 {
     var result = '';
     var instance = this;
@@ -104,3 +204,6 @@ this.init = function(request, output)
         });
     });
 };
+
+//exports
+module.exports = NewArticle;

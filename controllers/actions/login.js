@@ -121,7 +121,11 @@ Login.prototype.doLogin = function(post, cb) {
         
         //redirect
         var location = pb.config.siteRoot;
-        if(adminAttempt) {
+        if (self.session.on_login != undefined) {
+        	location = self.session.on_login;
+        	delete self.session.on_login;
+        }
+        else if(adminAttempt) {
             location += '/admin';
         }
         cb(pb.RequestHandler.generateRedirect(location));

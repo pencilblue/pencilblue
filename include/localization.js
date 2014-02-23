@@ -83,8 +83,8 @@ Localization.supported = null;
  * @returns The text where keys have been replaced with translated values
  */
 Localization.prototype.localize = function(sets, text){
-	if (pb.log.isDebug()) {
-		pb.log.debug('Localization: Localizing text - Locale ['+this.language+'] Sets '+JSON.stringify(sets));
+	if (pb.log.isSilly()) {
+		pb.log.silly('Localization: Localizing text - Locale ['+this.language+'] Sets '+JSON.stringify(sets));
 	}
 	
 	//get i18n from storage
@@ -101,7 +101,7 @@ Localization.prototype.localize = function(sets, text){
     
     // If the localization is for HTML output, load the localization into client side JS
     if (text.indexOf('<body') > -1)  {
-        text = text.concat(includeJS(pb.config.siteRoot + '/localization/' + localizationLanguage + '.js'));
+        text = text.concat(pb.js.includeJS(pb.config.siteRoot + '/localization/' + localizationLanguage + '.js'));
     }
     
     return text;
@@ -114,7 +114,7 @@ Localization.prototype.localize = function(sets, text){
  * @returns string Locale for the request
  */
 Localization.best = function(request){
-	var loc = 'en';
+	var loc = 'en-us';
 	if (request.headers[Localization.ACCEPT_LANG_HEADER]){
 		var locales = new locale.Locales(request.headers[Localization.ACCEPT_LANG_HEADER]);
 		loc = locales.best(Localization.supported);
@@ -138,7 +138,7 @@ Localization.init = function() {
 		supportedLocales.push(localeDescriptor.locale);
 	}
 	
-	pb.log.debug("Localization: Supporting - "+JSON.stringify(supportedLocales));
+	pb.log.debug("Localization: Supporting - " + JSON.stringify(supportedLocales));
 	Localization.supported = new locale.Locales(supportedLocales);
 };
 

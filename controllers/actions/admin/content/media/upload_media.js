@@ -1,13 +1,69 @@
-/*
+/**
+ * UploadMedia - Uploads photos and video to media folder
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function UploadMedia(){}
 
-    Uploads photos and video to media folder
+//setup
+var MEDIA_DIRECTORY = DOCUMENT_ROOT + '/public/media/';
+if(!fs.existsSync(MEDIA_DIRECTORY)){
+    fs.mkdirSync(MEDIA_DIRECTORY);
+}
+
+//inheritance
+util.inherits(UploadMedia, pb.BaseController);
+
+UploadMedia.prototype.render = function(cb) {
+	var self  = this;
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+    var date = new Date();
+    var monthDir = MEDIA_DIRECTORY + date.getFullYear() + '/';
+    if(!fs.existsSync(monthDir)) {
+        fs.mkdirSync(monthDir);
+    }
+    
+    var uploadDirectory = monthDir + (date.getMonth() + 1) + '/';
+    if(!fs.existsSync(uploadDirectory)) {
+        fs.mkdirSync(uploadDirectory);
+    }        
+    
+    var filename = '';
+    var form = new formidable.IncomingForm();
+    form.on('fileBegin', function(name, file) {
+        filename = self.generateFilename(file.name);
+        file.path = uploadDirectory + filename;
+    });
 
-*/
+    form.parse(this.req, function() {
+    	
+    	var content = {
+			content: JSON.stringify({
+				filename: '/media/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + filename
+			}),
+			content_type: 'application/json'
+		};
+        cb(content);
+        return;
+    });
+};
 
-this.init = function(request, output)
+UploadMedia.prototype.generateFilename = function(originalFilename){
+	var now = new Date();
+	
+	//calculate extension
+	var ext = '';
+	var extIndex = originalFilename.lastIndexOf('.');
+	if (extIndex >= 0){
+		ext = originalFilename.substr(extIndex);
+	}
+	
+	//build file name
+    return pb.utils.uniqueId() + '-' + now.getTime() + ext;
+};
+
+UploadMedia.init = function(request, output)
 {
     var instance = this;
 
@@ -43,7 +99,7 @@ this.init = function(request, output)
         var filename;
         form.on('fileBegin', function(name, file)
         {
-            filename = instance.generateFilename(file.name);
+            filename = UploadMedia.generateFilename(file.name);
             file.path = uploadDirectory + filename;
         });
         form.on('file', function(field, file)
@@ -56,9 +112,9 @@ this.init = function(request, output)
             return;
         });
     });
-}
+};
 
-this.generateFilename = function(originalFilename)
+UploadMedia.generateFilename = function(originalFilename)
 {
     var characters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
     
@@ -70,4 +126,7 @@ this.generateFilename = function(originalFilename)
     var date = new Date();
     
     return filename + '_' + date.getTime() + originalFilename.substr(originalFilename.lastIndexOf('.'));
-}
+};
+
+//exports
+module.exports = UploadMedia;

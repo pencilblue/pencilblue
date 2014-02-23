@@ -1,13 +1,89 @@
-/*
+/**
+ * EditPage - Edits an page
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function EditPage(){}
 
-    Edits an page
+//inheritance
+util.inherits(EditPage, pb.FormController);
+
+EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
+	var self = this;
+	var get  = this.query;
+	
+	delete post['section_search'];
+    delete post['topic_search'];
+    delete post['media_search'];
+    delete post['media_url'];
+    delete post['media_type'];
+    delete post['location'];
+    delete post['thumb'];
+    delete post['media_topics'];
+    delete post['name'];
+    delete post['caption'];
+    delete post['layout_link_url'];
+    delete post['media_position'];
+    delete post['media_max_height'];
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2014, All rights reserved
+    post['author']       = self.session.user._id.toString();
+    post['publish_date'] = new Date(post['publish_date']);
+    
+    //merge in get params
+	pb.utils.merge(this.query, post);
+    
+	var message = this.hasRequiredParams(post, this.getRequiredParams());
+    if(message) {
+        this.formError(message, '/admin/content/pages/manage_pages', cb);
+        return;
+    }
+    
+    var dao = new pb.DAO();
+    dao.loadById('page', post.id, function(err, page) {
+        if(util.isError(err) || page == null) {
+            self.formError('^loc_ERROR_SAVING^', '/admin/content/pages/manage_pages', cb);
+            return;
+        }
+        
+        post['author'] = page['author'];
+        var pageDocument = pb.DocumentCreator.update(post, page, ['meta_keywords', 'page_sections', 'page_topics', 'page_media']);
+        
+        self.setFormFieldValues(post);
+        
+        var where = {_id: {$ne: page._id}, url: section['url']};
+        dao.count('page', where, function(err, count) {
+            if(util.isError(err) || count > 0) {
+                self.formError('^loc_EXISTING_URL^', '/admin/content/pages/edit_page?id=' + get['id'], cb);
+                return;
+            }
+            
+            dao.count('article', {url: pageDocument['url']}, function(err, count) {
+                if(util.isError(err) || count > 0) {
+                    self.formError('^loc_EXISTING_URL^', '/admin/content/pages', cb);
+                    return;
+                }
+            
+                dao.update(page).then(function(result) {
+                    if(util.isError(result)) {
+                        self.formError('^loc_ERROR_SAVING^', '/admin/content/pages/edit_page?id=' + get['id'], cb);
+                        return;
+                    }
+                    
+                    self.session.success = pageDocument.headline + ' ^loc_EDITED^';
+                    delete self.session.fieldValues;
+                    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
+                });
+            });
+        });
+    });
+};
 
-*/
+EditPage.prototype.getRequiredParams = function() {
+	return ['url', 'headline', 'template', 'page_layout', 'id'];
+};
 
-this.init = function(request, output)
+EditPage.init = function(request, output)
 {
     getSession(request, function(session)
     {
@@ -101,4 +177,7 @@ this.init = function(request, output)
             });
         });
     });
-}
+};
+
+//exports
+module.exports = EditPage;

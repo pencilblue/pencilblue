@@ -1,79 +1,69 @@
-/*
+/**
+ * Interface for changing the site's email configuration
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function Email(){};
 
-    Interface for changing the site configuration
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+//inheritance
+util.inherits(Email, pb.BaseController);
 
-*/
-
-this.init = function(request, output)
-{
-    var result = '';
-    var instance = this;
-    
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_ADMINISTRATOR}))
-        {
-            output({redirect: pb.config.siteRoot + '/admin'});
-            return;
-        }
-
-        initLocalization(request, session, function(data)
-        {
-            getHTMLTemplate('admin/site_settings/email', null, null, function(data)
+Email.prototype.render = function(cb) {
+    var self = this;
+	var dao  = new pb.DAO();
+	pb.templates.load('admin/site_settings/email', '^loc_EMAIL^', null, function(data) {
+        var result = data;
+        
+        var tabs =
+        [
             {
-                result = result.concat(data);
-                
-                var tabs =
-                [
-                    {
-                        active: 'active',
-                        href: '#preferences',
-                        icon: 'wrench',
-                        title: '^loc_PREFERENCES^'
-                    },
-                    {
-                        href: '#smtp',
-                        icon: 'upload',
-                        title: '^loc_SMTP^'
-                    }
-                ];
-                    
-                getEmailSettings(function(emailSettings)
-                {
-                    session = setFormFieldValues(emailSettings, session);
+                active: 'active',
+                href: '#preferences',
+                icon: 'wrench',
+                title: '^loc_PREFERENCES^'
+            },
+            {
+                href: '#smtp',
+                icon: 'upload',
+                title: '^loc_SMTP^'
+            }
+        ];
+        
+        //TODO: move email settings over to pb
+        getEmailSettings(function(emailSettings)
+        {
+            self.session = setFormFieldValues(emailSettings, self.session);
             
-                    prepareFormReturns(session, result, function(newSession, newResult)
-                    {
-                        session = newSession;
-                        result = newResult;
-                        
-                        var pills = require('../site_settings').getPillNavOptions('email');
-                        pills.splice(1, 1);
-                        pills.unshift(
-                        {
-                            name: 'configuration',
-                            title: '^loc_EMAIL^',
-                            icon: 'chevron-left',
-                            href: '/admin/site_settings/configuration'
-                        });
-                        
-                        result = result.concat(pb.js.getAngularController(
-                        {
-                            navigation: getAdminNavigation(session, ['settings', 'site_settings']),
-                            pills: pills,
-                            tabs: tabs
-                        }));
-                        
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'site_settings', 'articles'], result)});
-                        });
-                    });
+            prepareFormReturns(self.session, result, function(newSession, newResult)
+            {
+                self.session = newSession;
+                result = newResult;
+                
+                var pills = require('../site_settings').getPillNavOptions('email');
+                pills.splice(1, 1);
+                pills.unshift(
+                {
+                    name: 'configuration',
+                    title: '^loc_EMAIL^',
+                    icon: 'chevron-left',
+                    href: '/admin/site_settings/configuration'
                 });
+                
+                var objects     = {
+                    navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings']),
+                    pills: pills,
+                    tabs: tabs
+                };
+                var angularData = pb.js.getAngularController(objects);
+                result          = result.concat(angularData);
+                
+                var content = self.localizationService.localize(['admin', 'site_settings', 'articles'], result);
+                cb({content: content});
             });
         });
     });
 }
+
+//exports
+module.exports = Email;
