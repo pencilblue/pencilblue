@@ -458,6 +458,13 @@ RequestHandler.CORE_ROUTES = [
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/actions/admin/content/custom_objects/delete_object",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object.js'),
+    	content_type: 'text/html'
     }
 ];
 
