@@ -441,6 +441,27 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	access_level: ACCESS_ADMINISTRATOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/admin/users/new_user",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'new_user.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/admin/users/manage_users",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'manage_users.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/admin/users/edit_user",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'edit_user.js'),
     }
 ];
 
