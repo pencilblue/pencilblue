@@ -28,6 +28,6 @@ function initObjectTypesPagination()
 function confirmDeleteObjectType(objectTypeID, objectTypeName)
 {
     $('#delete_name').html(objectTypeName);
-    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/object_types/delete_object_type?id=' + objectTypeID + '"');
+    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/custom_objects/delete_object_type?id=' + objectTypeID + '"');
     $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
 }
