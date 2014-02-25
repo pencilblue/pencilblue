@@ -462,6 +462,20 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'edit_user.js'),
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/users/edit_user",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/users/new_user",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'new_user.js'),
     }
 ];
 

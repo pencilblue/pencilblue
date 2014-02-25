@@ -45,7 +45,45 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 		}
 	};
 	pb.sendFromTemplate(options, cb);
-}
+};
+
+UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb) {
+	this.getExistingUsernameEmailCounts(username, email, id, function(err, results) {
+		
+		var result = results == null;console.log('results='+results+' error='+err);
+		if (!result) {
+			
+			for(var key in results) {
+				result |= results[key] > 0;console.log('key='+key+' val='+results[key]+' result='+result);
+			}
+		}
+		cb(err, result);
+	});
+};
+
+UserService.prototype.getExistingUsernameEmailCounts = function(username, email, id, cb) {
+	var getWhere = function(where) {
+		if (id) {console.log('adding id'+id);
+			where._id = {$ne: new ObjectID(id)};
+		}
+	};
+	var dao   = new pb.DAO();
+	var tasks = {
+		verified_username: function(callback) {console.log('verified_username:'+username);
+			dao.count('user', getWhere({username: username}), callback);
+		},
+		verified_email: function(callback) {console.log('verified_email:'+email);
+			dao.count('user', getWhere({email: email}), callback);
+		},
+		unverified_username: function(callback) {console.log('unverified_username:'+username);
+			dao.count('unverified_user', getWhere({username: username}), callback);
+		},
+		unverified_email: function(callback) {console.log('unverified_email:'+email);
+			dao.count('unverified_user', getWhere({email: email}), callback);
+		},
+	};
+	async.series(tasks, cb);
+};
 
 //exports
 module.exports.UserService = UserService;
