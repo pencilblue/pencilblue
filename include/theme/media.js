@@ -1,6 +1,11 @@
-//TODO: add options like sizing
+/**
+ * MediaService
+ * TODO: add options like sizing
+ * TODO: move hard coded HTML to template
+ */
+function MediaService(){}
 
-this.getMediaEmbed = function(mediaObject, options)
+MediaService.getMediaEmbed = function(mediaObject, options)
 {
     switch(mediaObject.media_type)
     {
@@ -11,11 +16,11 @@ this.getMediaEmbed = function(mediaObject, options)
         case 'vimeo':
             return '<iframe src="//player.vimeo.com/video/' + mediaObject.location + '" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
         case 'daily_motion':
-            return '<iframe frameborder="0" width="480" height="270" src="http://www.dailymotion.com/embed/video/' + mediaObject.location + '"></iframe>'
+            return '<iframe frameborder="0" width="480" height="270" src="http://www.dailymotion.com/embed/video/' + mediaObject.location + '"></iframe>';
     }
-}
+};
 
-this.getMediaStyle = function(template, styleString)
+MediaService.getMediaStyle = function(template, styleString)
 {
     var styleElements = styleString.split(',');
     var containerCSS = [];
@@ -56,9 +61,9 @@ this.getMediaStyle = function(template, styleString)
     template = template.split('^media_style^').join(mediaCSS.join(';'));
     
     return template;
-}
+};
 
-this.getCarousel = function(carouselMedia, template, tagToReplace, carouselID, output)
+MediaService.getCarousel = function(carouselMedia, template, tagToReplace, carouselID, output)
 {
     var instance = this;
 
@@ -85,12 +90,12 @@ this.getCarousel = function(carouselMedia, template, tagToReplace, carouselID, o
         var carouselItems = data;
         carouselItemTemplate = '';
         
-        getHTMLTemplate('elements/carousel', null, null, function(data)
+        pb.templates.load('elements/carousel', null, null, function(data)
         {
             template = template.split(tagToReplace).join(data);
             template = template.split('^carousel_id^').join(carouselID);
             
-            getHTMLTemplate('elements/carousel/item', null, null, function(data)
+            pb.templates.load('elements/carousel/item', null, null, function(data)
             {
                 carouselItemTemplate = data;
             
@@ -126,4 +131,7 @@ this.getCarousel = function(carouselMedia, template, tagToReplace, carouselID, o
             });
         });
     });
-}
+};
+
+//exports
+module.exports = MediaService;

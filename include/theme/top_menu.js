@@ -1,5 +1,6 @@
-this.getTopMenu = function(session, output)
-{
+function TopMenuService(){}
+
+TopMenuService.getTopMenu = function(session, output) {
     var instance = this;
     
     getDBObjectsWithValues({object_type: 'pencilblue_theme_settings'}, function(data)
@@ -45,7 +46,7 @@ this.getTopMenu = function(session, output)
                     }
                     else
                     {
-                        section.dropdown = 'dropdown'
+                        section.dropdown = 'dropdown';
                     
                         if(section)
                         {
@@ -116,9 +117,9 @@ this.getTopMenu = function(session, output)
             });
         });
     });
-}
+};
 
-this.getSectionData = function(uid, sections)
+TopMenuService.getSectionData = function(uid, sections)
 {
     for(var i = 0; i < sections.length; i++)
     {
@@ -129,4 +130,7 @@ this.getSectionData = function(uid, sections)
     }
     
     return null;
-}
+};
+
+//exports
+module.exports = TopMenuService;

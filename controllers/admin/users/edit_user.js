@@ -12,7 +12,7 @@ var Users = require('../users');
 //inheritance
 util.inherits(EditUser, pb.BaseController);
 
-EditUser.prototype.render = function(cb) {console.log('here GET');
+EditUser.prototype.render = function(cb) {
 	var self = this;
 	var get  = this.query;
     if(!get.id) {

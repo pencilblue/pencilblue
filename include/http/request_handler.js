@@ -476,6 +476,34 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'new_user.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/sitemap",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'sitemap.js'),
+    	content_type: 'application/xml'
+    },
+    {
+    	method: 'get',
+    	path: "/user/sign_up",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'sign_up.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/api/user/get_username_available",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'user', 'get_username_available.js'),
+    	content_type: 'application/json'
+    },
+    {
+    	method: 'get',
+    	path: "/user/login",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'login.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -587,19 +615,6 @@ RequestHandler.prototype.handleRequest = function(){
 	
 	//get locale preference
 	this.localizationService = new pb.Localization(this.req);
-    
-    // /include/router.js
-//	var self = this;
-//	this.req.on('data', function(chunk)
-//    {
-//        if(typeof self.req.headers['post'] == 'undefined')
-//        {
-//            self.req.headers['post'] = '';
-//        }
-//        self.req.headers['post'] += chunk;
-//    });
-//    var route = new Route(this.req, this.resp);
-//    route.route();
     
     //open session
 	var self = this;
@@ -789,13 +804,13 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 };
 
 RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
-	var self       = this;
-	var themeRoute = this.route[activeTheme];
+	var self        = this;
+	this.themeRoute = this.route[activeTheme];
 	
 	//verify if setup is needed
 	var checkSystemSetup = function(callback) {
 		var result = {success: true};
-		if (themeRoute.setup_required == undefined || themeRoute.setup_required == true) {
+		if (self.themeRoute.setup_required == undefined || self.themeRoute.setup_required == true) {
 			pb.settings.get('system_initialized', function(err, isSetup){
 				
 				//verify system init
@@ -816,7 +831,7 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 	var checkRequiresAuth = function(callback) {
 
 		var result = {success: true};
-		if (themeRoute.auth_required == true) {
+		if (self.themeRoute.auth_required == true) {
 			
 			if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
 				result.success  = false;
@@ -835,9 +850,9 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 	var checkAdminLevel = function(callback) {
 		
 		var result = {success: true};
-		if (themeRoute.access_level != undefined) {
+		if (self.themeRoute.access_level != undefined) {
 
-			if (self.session.authentication.admin_level < themeRoute.access_level) {
+			if (self.session.authentication.admin_level < self.themeRoute.access_level) {
 				result.success = false;
 				result.content = '403 Forbidden';
 				result.code    = 403;
@@ -920,8 +935,8 @@ RequestHandler.prototype.writeResponse = function(data){
     if (typeof data.content_type !== 'undefined') {
     	contentType = data.content_type;
     }
-    else if (this.route && typeof this.route.content_type !== 'undefined') {
-    	contentType = this.route.content_type;
+    else if (this.themeRoute && typeof this.themeRoute.content_type != undefined) {
+    	contentType = this.themeRoute.content_type;
     }
     
     //send response

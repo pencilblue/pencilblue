@@ -76,7 +76,7 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
-SignUp.prototype.getRequriedFields = function() {
+SignUp.prototype.getRequiredFields = function() {
 	return ['username', 'email', 'password', 'confirm_password'];
 };
 

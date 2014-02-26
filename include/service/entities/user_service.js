@@ -54,7 +54,7 @@ UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb)
 		if (!result) {
 			
 			for(var key in results) {
-				result |= results[key] > 0;console.log('key='+key+' val='+results[key]+' result='+result);
+				result |= results[key] > 0;
 			}
 		}
 		cb(err, result);
@@ -69,16 +69,16 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 	};
 	var dao   = new pb.DAO();
 	var tasks = {
-		verified_username: function(callback) {console.log('verified_username:'+username);
+		verified_username: function(callback) {
 			dao.count('user', getWhere({username: username}), callback);
 		},
-		verified_email: function(callback) {console.log('verified_email:'+email);
+		verified_email: function(callback) {
 			dao.count('user', getWhere({email: email}), callback);
 		},
-		unverified_username: function(callback) {console.log('unverified_username:'+username);
+		unverified_username: function(callback) {
 			dao.count('unverified_user', getWhere({username: username}), callback);
 		},
-		unverified_email: function(callback) {console.log('unverified_email:'+email);
+		unverified_email: function(callback) {
 			dao.count('unverified_user', getWhere({email: email}), callback);
 		},
 	};
