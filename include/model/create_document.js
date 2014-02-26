@@ -150,10 +150,8 @@ DocumentCreator.update = function(post, existingObject, csvItems, nullIfEmptyIte
 };
 
 DocumentCreator.passwordHash = function(post){
-	if (post['password']) {
-		var whirlpool = crypto.createHash('whirlpool');
-	    whirlpool.update(post.password);
-	    post['password'] = whirlpool.digest('hex');
+	if (post.password) {
+		post.password = pb.security.encrypt(post.password);
 	    
 	    if(post['confirm_password']) {
 	        delete post['confirm_password'];

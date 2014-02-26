@@ -1,6 +1,12 @@
-this.getArticles = function(section, topic, article, page, output)
-{
-    var comments = require('./comments');
+function ArticleService(){}
+
+//dependencies
+var Comments = require('./comments');
+var Media    = require('./media');
+
+ArticleService.getArticles = function(section, topic, article, page, output) {
+    
+	var comments = require('./comments');
     var singleItem = false;
     var instance = this;
 
@@ -26,33 +32,25 @@ this.getArticles = function(section, topic, article, page, output)
     }
     searchObject.publish_date = {$lt: new Date()};
     
-    getContentSettings(function(contentSettings)
-    {
-        getDBObjectsWithValues(searchObject, function(data)
-        {
-            if(data.length == 0)
-            {
+    pb.content.getSettings(function(err, contentSettings) {
+        
+    	var dao = new pb.DAO();
+    	dao.query(searchObject.object_type, searchObject).then(function(articles) {
+            if(articles.length == 0) {
                 output('^loc_NO_ARTICLES^');
                 return;
             }
-            
-            var articles = data;
-            var authorIDs = [];
-                
-            for(var i = 0; i < articles.length; i++)
-            {
-                authorIDs.push({_id: ObjectID(articles[i].author)});
+
+            var authorIDs = [];  
+            for(var i = 0; i < articles.length; i++) {
+                authorIDs.push(new ObjectID(articles[i].author));
             }
             
-            getDBObjectsWithValues({object_type: 'user', $or: authorIDs}, function(data)
-            {
-                if(data.length == 0)
-                {
+            dao.query('user', {_id: {$in: authorIDs}}).then(function(authors) {
+                if(authors.length == 0) {
                     output('^loc_NO_ARTICLES^');
                     return;
                 }
-                
-                authors = data;
                 
                 var subInstance = this;
                 
@@ -130,26 +128,23 @@ this.getArticles = function(section, topic, article, page, output)
                             });
                             break;
                     }
-                }
+                };
                 
                 this.loadArticle(0, output);
             });
         });
     });
-}
+};
 
-this.getTemplates = function(output)
-{
-    getHTMLTemplate('elements/article', [], [], function(articleTemplate)
-    {
-        getHTMLTemplate('elements/article/byline', [], [], function(bylineTemplate)
-        {
-            output(articleTemplate, bylineTemplate);
+ArticleService.getTemplates = function(cb) {
+    pb.templates.load('elements/article', [], [], function(articleTemplate) {
+        pb.templates.load('elements/article/byline', [], [], function(bylineTemplate) {
+            cb(articleTemplate, bylineTemplate);
         });
     });
-}
+};
 
-this.loadMedia = function(articlesLayout, output)
+ArticleService.loadMedia = function(articlesLayout, output)
 {
     var media = require('./media');
     var mediaTemplate = '';
@@ -186,7 +181,7 @@ this.loadMedia = function(articlesLayout, output)
             
             instance.replaceMediaTag(layout);
         });
-    }
+    };
     
     this.replaceCarouselTag = function(layout)
     {
@@ -201,16 +196,15 @@ this.loadMedia = function(articlesLayout, output)
         var mediaIDs = layout.substr(startIndex, endIndex).split('-');
         
         media.getCarousel(mediaIDs, layout, layout.substr(startIndex - 18, endIndex + 19), layout.substr(startIndex - 17, endIndex + 17), instance.replaceCarouselTag);
-    }
+    };
     
-    getHTMLTemplate('elements/media', null, null, function(data)
-    {
+    pb.templates.load('elements/media', null, null, function(data) {
         mediaTemplate = data;
         instance.replaceMediaTag(articlesLayout);
     });
-}
+};
 
-this.getCommenters = function(index, comments, contentSettings, output)
+ArticleService.getCommenters = function(index, comments, contentSettings, output)
 {
     if(index >= comments.length)
     {
@@ -244,4 +238,7 @@ this.getCommenters = function(index, comments, contentSettings, output)
         index++;
         instance.getCommenters(index, comments, contentSettings, output);
     });
-}
+};
+
+//exports
+module.exports = ArticleService;

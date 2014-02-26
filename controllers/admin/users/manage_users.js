@@ -1,69 +1,54 @@
-/*
+/**
+ * ManageUsers - Interface for managing users
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function ManageUsers(){}
 
-    Interface for managing users
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+//dependencies
+var Users = require('../users');
 
-*/
+//inheritance
+util.inherits(ManageUsers, pb.BaseController);
 
-this.init = function(request, output)
-{
-    var result = '';
-    var instance = this;
-    
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
-        {
-            output({redirect: pb.config.siteRoot + '/admin'});
+ManageUsers.prototype.render = function(cb) {
+	var self = this;
+	var dao  = new pb.DAO();
+	dao.query('user', {admin: {$lte: self.session.authentication.user.admin}}).then(function(users) {
+        if(util.isError(users) || users.length == 0) {
+            self.redirect(pb.config.siteRoot + '/admin', cb);
             return;
         }
-        
-        getDBObjectsWithValues({object_type: 'user', admin: {$lte: session.user.admin}}, function(data)
-        {
-            if(data.length == 0)
-            {
-                output({redirect: pb.config.siteRoot + '/admin'});
-                return;
-            }
+
+        pb.templates.load('admin/users/manage_users', '^loc_MANAGE_USERS^', null, function(data){
+            var result = '' + data;
             
-            var users = data;
-    
-            initLocalization(request, session, function(data)
-            {
-                getHTMLTemplate('admin/users/manage_users', '^loc_MANAGE_USERS^', null, function(data)
+            self.displayErrorOrSuccess(result, function(newResult) {
+                result = newResult;
+                
+                var pills = Users.getPillNavOptions('manage_users');
+                pills.unshift(
                 {
-                    result = result.concat(data);
-                    
-                    displayErrorOrSuccess(session, result, function(newSession, newResult)
-                    {
-                        session = newSession;
-                        result = newResult;
-                        
-                        var pills = require('../users').getPillNavOptions('manage_users');
-                        pills.unshift(
-                        {
-                            name: 'manage_users',
-                            title: '^loc_MANAGE_USERS^',
-                            icon: 'refresh',
-                            href: '/admin/users/manage_users'
-                        });
-                        
-                        result = result.concat(pb.js.getAngularController(
-                        {
-                            navigation: getAdminNavigation(session, ['users']),
-                            pills: pills,
-                            users: users
-                        }, [], 'initUsersPagination()'));
-                            
-                        editSession(request, session, [], function(data)
-                        {
-                            output({cookie: getSessionCookie(session), content: localize(['admin', 'users'], result)});
-                        });
-                    });
+                    name: 'manage_users',
+                    title: '^loc_MANAGE_USERS^',
+                    icon: 'refresh',
+                    href: '/admin/users/manage_users'
                 });
+                
+                result = result.concat(pb.js.getAngularController(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['users']),
+                    pills: pills,
+                    users: users
+                }, [], 'initUsersPagination()'));
+                    
+                var content = self.localizationService.localize(['admin', 'users'], result);
+                cb({content: content});
             });
         });
     });
-}
+};
+
+//exports
+module.exports = ManageUsers;

@@ -1,26 +1,34 @@
-this.init = function(request, output)
-{
-    var instance = this;
- 
-    getSession(request, function(session)
-    {
-        var get = getQueryParameters(request);
-        
-        if(message = checkForRequiredParameters(get, ['username']))
-        {
-            output({content: apiResponse(apiResponseCode.FAILURE, 'username missing from request')});
+/**
+ * UsernameAvailable - Interface for signing a user up
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function UsernameAvailable(){}
+
+//inheritance
+util.inherits(UsernameAvailable, pb.BaseController);
+
+UsernameAvailable.prototype.render = function(cb) {
+	var self = this;
+	var get  = this.query;
+    
+	var message = this.hasRequiredParams(get, ['username']);
+    if(message) {
+        cb({content: apiResponse(apiResponseCode.FAILURE, 'username missing from request')});
+        return;
+    }
+    
+    pb.users.isUserNameOrEmailTaken(get.username, '', null, function(error, isTaken) {
+        if(isTaken) {
+            cb({content: apiResponse(apiResponseCode.SUCCESS, get.username + ' is not available', false)});
             return;
         }
         
-        getDBObjectsWithValues({object_type: 'user', username: get['username'].toLowerCase()}, function(data)
-        {
-            if(data.length == 0)
-            {
-                output({content: apiResponse(apiResponseCode.SUCCESS, get['username'] + ' is available', true)});
-                return;
-            }
-            
-            output({content: apiResponse(apiResponseCode.SUCCESS, get['username'] + ' is not available', false)});
-        });
-    });
-}
+        
+        cb({content: apiResponse(apiResponseCode.SUCCESS, get.username + ' is available', true)});
+    });	
+};
+
+//exports
+module.exports = UsernameAvailable;

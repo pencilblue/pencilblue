@@ -1,59 +1,43 @@
-/*
+/**
+ * Profile - Edits a user
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function Profile(){}
 
-    Edit a user
+//inheritance
+util.inherits(Profile, pb.FormController);
+
+Profile.prototype.onPostParamsRetrieved = function(post, cb) {
+	var self = this;
+	
+	post['photo'] = post['uploaded_image'];
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
-
-*/
-
-this.init = function(request, output)
-{
-    getSession(request, function(session)
-    {    
-        var post = getPostParameters(request);
-        
-        post['photo'] = post['uploaded_image'];
-        
-        delete post['uploaded_image'];
-        delete post['image_url'];
-        
-        if(!userIsAuthorized(session, {logged_in: true}))
-        {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/user/manage_account', output);
+    delete post['uploaded_image'];
+    delete post['image_url'];
+    
+    var dao = new pb.DAO();
+    dao.loadById(session.authentication.user_id, 'user', function(err, user) {
+        if(util.isError(err) || user == null) {
+            self.formError('^loc_ERROR_SAVING^', '/user/manage_account', cb);
             return;
         }
-        
-        getDBObjectsWithValues({object_type: 'user', _id: session.user._id}, function(data)
-        {
-            if(data.length == 0)
-            {
-                formError(request, session, '^loc_ERROR_SAVING^', '/user/manage_account', output);
+
+        //update the document
+        pb.DocumentCreator.update(post, user);
+        dao.update(user).then(function(result) {
+            if(util.isError(result)) {
+                self.formError('^loc_ERROR_SAVING^', '/user/manage_account', cb);
                 return;
             }
             
-            var user = data[0];
-            
-            for(var key in post)
-            {
-                session.user[key] = post[key];
-                user[key] = post[key];
-            }
-            
-            editDBObject(user._id, user, [], function(data)
-            {
-                if(data.length == 0)
-                {
-                    formError(request, session, '^loc_ERROR_SAVING^', '/user/manage_account', output);
-                    return;
-                }
-                
-                session.success = '^loc_PROFILE_EDITED^';
-                editSession(request, session, [], function(data)
-                {        
-                    output({redirect: pb.config.siteRoot + '/user/manage_account'});
-                });
-            });
+            self.session.authentication.user = user;
+            session.success = '^loc_PROFILE_EDITED^';
+            cb(pb.RequestHandler.redirect(pb.config.siteRoot + '/user/manage_account'));
         });
     });
-}
+};
+
+//exports
+module.exports = Profile;

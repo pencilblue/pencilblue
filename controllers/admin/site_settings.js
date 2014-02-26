@@ -1,16 +1,20 @@
-/*
+/**
+ * SiteSettings - Settings administration page
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function SiteSettings(){}
 
-    Settings administration page
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2014, All rights reserved
+//inheritance
+util.inherits(SiteSettings, pb.BaseController);
 
-*/
+SiteSettings.prototype.render = function(cb) {
+	this.redirect(pb.config.siteRoot + '/admin/site_settings/configuration', cb);
+};
 
-this.getPillNavOptions = function(activePill)
-{
-    var pillNavOptions = 
-    [
+SiteSettings.getPillNavOptions = function(activePill) {
+    var pillNavOptions = [
         {
             name: 'content',
             title: '^loc_CONTENT^',
@@ -23,23 +27,18 @@ this.getPillNavOptions = function(activePill)
             icon: 'envelope',
             href: '/admin/site_settings/email'
         }
-    ]
+    ];
     
-    if(typeof activePill !== 'undefined')
-    {
-        for(var i = 0; i < pillNavOptions.length; i++)
-        {
-            if(pillNavOptions[i].name == activePill)
-            {
+    if(typeof activePill !== 'undefined') {
+        for(var i = 0; i < pillNavOptions.length; i++) {
+            if(pillNavOptions[i].name == activePill) {
                 pillNavOptions[i].active = 'active';
+                break;
             }
         }
     }
-    
     return pillNavOptions;
 };
 
-this.init = function(request, output)
-{
-    output({redirect: pb.config.siteRoot + '/admin/site_settings/configuration'});
-}
+//exports
+module.exports = SiteSettings;

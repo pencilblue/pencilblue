@@ -15,8 +15,8 @@ DAO.PROJECT_ALL   = {};
 DAO.ANYWHERE      = {};
 DAO.NATURAL_ORDER = [];
 
-DAO.ASC  = 'asc';
-DAO.DESC = 'desc';
+DAO.ASC  = 1;
+DAO.DESC = -1;
 
 /**
  * Retrieves an object by ID
@@ -25,7 +25,17 @@ DAO.DESC = 'desc';
  * @returns Promise that resolves to a 
  */
 DAO.prototype.loadById = function(id, collection, cb){
-	this.query(collection, {_id: new ObjectID(id)}, DAO.PROJECT_ALL, DAO.NATURAL_ORDER, 1).then(function(result){
+	this.loadByValues(DAO.getIDWhere(id), collection, cb);
+};
+
+DAO.prototype.loadByValue = function(key, val, collection, cb) {
+	var where = {};
+	where[key] = value;
+	this.loadByValues(where, collection, cb);
+};
+
+DAO.prototype.loadByValues = function(where, collection, cb) {
+	this.query(collection, where, DAO.PROJECT_ALL, DAO.NATURAL_ORDER, 1).then(function(result){
 		if (util.isError(result)) {
 			cb(result, null);
 		}
@@ -62,7 +72,11 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
 	var cursor  = this._doQuery(entityType, where, select, orderBy, limit, offset);
 	var promise = new Promise();
 	cursor.toArray(function(err, docs){
-        promise.resolve(err ? err : docs);
+		var isError = err != null;
+        promise.resolve(isError ? err : docs);
+        if (isError) {
+        	pb.log.error('DAO: ', err.toString());
+        }
     });
 	
 	//clean up

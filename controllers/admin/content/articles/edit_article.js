@@ -1,138 +1,71 @@
-/*
+/**
+ * EditArticle - Interface for editing an article
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function EditArticle(){}
 
-    Interface for editing an article
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2014, All rights reserved
+//dependencies
+NewArticle = require('./new_article.js');
+Articles   = require('../articles.js');
+Media      = require('../media.js');
 
-*/
+//inheritance
+util.inherits(EditArticle, NewArticle);
 
-this.init = function(request, output)
-{
-    var result = '';
-    var instance = this;
-    
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
-        {
-            output({redirect: pb.config.siteRoot});
+EditArticle.prototype.render = function(cb) {
+	var self = this;
+	var get  = this.query;
+    if(!get.id)  {
+        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
+        return;
+    }
+    var dao = new pb.DAO();
+    dao.loadById(get.id, 'article', function(err, article) {
+        if(util.isError(err) || article == null) {
+        	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
             return;
         }
         
-        var get = getQueryParameters(request);
-        if(!get['id'])
-        {
-            output({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
-            return;
-        }
-        
-        getDBObjectsWithValues({object_type: 'article', _id: ObjectID(get['id'])}, function(data)
-        {
-            if(data.length == 0)
-            {
+        if(!pb.security.isAuthorized(self.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
+            if(!self.session.authentication.user_id.equals(article.author)) {
                 output({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
                 return;
             }
-            
-            var article = data[0];
-            article.article_media = article.article_media.join(',');
-            article.article_sections = article.article_sections.join(',');
-            article.article_topics = article.article_topics.join(',');
-            session = setFormFieldValues(article, session);
-            
-            if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
-            {
-                if(!session.user._id.equals(ObjectID(article.author)))
-                {
-                    output({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
-                    return;
-                }
-            }
-    
-            initLocalization(request, session, function(data)
-            {
-                getHTMLTemplate('admin/content/articles/edit_article', '^loc_EDIT^ ' + article.headline, null, function(data)
-                {
-                    result = result.concat(data);
-                    result = result.split('^article_id^').join(get['id']);
-                    
-                    var tabs =
-                    [
-                        {
-                            active: 'active',
-                            href: '#content',
-                            icon: 'quote-left',
-                            title: '^loc_CONTENT^'
-                        },
-                        {
-                            href: '#media',
-                            icon: 'camera',
-                            title: '^loc_MEDIA^'
-                        },
-                        {
-                            href: '#sections_dnd',
-                            icon: 'th-large',
-                            title: '^loc_SECTIONS^'
-                        },
-                        {
-                            href: '#topics_dnd',
-                            icon: 'tags',
-                            title: '^loc_TOPICS^'
-                        },
-                        {
-                            href: '#meta_data',
-                            icon: 'tasks',
-                            title: '^loc_META_DATA^'
-                        }
-                    ];
-                    
-                    var articles = require('../articles');
-                
-                    articles.getTemplates(function(templates)
-                    {                        
-                        getDBObjectsWithValues({object_type: 'section', $orderby: {name: 1}}, function(sections)
-                        {
-                            getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
-                            {
-                                articles.getMedia(function(media)
-                                {                            
-                                    prepareFormReturns(session, result, function(newSession, newResult)
-                                    {
-                                        session = newSession;
-                                        result = newResult;
-                                        
-                                        var pills = articles.getPillNavOptions('edit_article');
-                                        pills.unshift(
-                                        {
-                                            name: 'manage_articles',
-                                            title: article.headline,
-                                            icon: 'chevron-left',
-                                            href: '/admin/content/articles/manage_articles'
-                                        });
-                                        
-                                        result = result.concat(pb.js.getAngularController(
-                                        {
-                                            navigation: getAdminNavigation(session, ['content', 'articles']),
-                                            pills: pills,
-                                            tabs: tabs,
-                                            templates: templates,
-                                            sections: sections,
-                                            topics: topics,
-                                            media: media
-                                        }, [], 'initMediaPagination();initSectionsPagination();initTopicsPagination()'));
-                                        
-                                        editSession(request, session, [], function(data)
-                                        {
-                                            output({content: localize(['admin', 'articles', 'media'], result)});
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
+        }
+        
+        self.article = article;
+        article.article_media    = article.article_media.join(',');
+        article.article_sections = article.article_sections.join(',');
+        article.article_topics   = article.article_topics.join(',');
+        self.setFormFieldValues(article);
+
+        //call the parent function
+        EditArticle.super_.prototype.render.apply(self, [cb]);
     });
 };
+
+EditArticle.prototype.getBreadCrum = function() {
+	return {
+        name: 'manage_articles',
+        title: this.article.headline,
+        icon: 'chevron-left',
+        href: '/admin/content/articles/manage_articles'
+    };
+};
+
+EditArticle.prototype.getActivePill = function() {
+	return 'edit_article';
+};
+
+EditArticle.prototype.getPageTitle = function() {
+	return '^loc_EDIT^ ' + this.article.headline;
+};
+
+EditArticle.prototype.getTemplateLocation = function() {
+	return 'admin/content/articles/edit_article';
+};
+
+//exports
+module.exports = EditArticle;
