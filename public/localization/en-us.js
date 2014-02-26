@@ -10,11 +10,14 @@ var loc =
         RIGHT: 'Right',
         YES: 'Yes',
         NO: 'No',
+        NEW: 'New',
         LOGIN: 'Login',
         LOGOUT: 'Logout',
         SIGN_UP: 'Sign up',
+        NAME: 'Name',
         USERNAME: 'Username',
         PASSWORD: 'Password',
+        DATE: 'Date',
         HOME: 'Home',
         BACK_HOME: 'Go back to homepage',
         WRITER: 'Writer',
@@ -34,6 +37,8 @@ var loc =
         EDIT: 'Edit',
         DELETE: 'Delete',
         SUBMIT: 'Submit',
+        SELECT: 'Select',
+        MANAGE: 'Manage',
         NOW: 'Now',
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
@@ -47,7 +52,11 @@ var loc =
         LOGIN_TO_COMMENT: 'Login to comment',
         COMMENT_SUBMITTED: 'Your comment was submitted',
         COMMENT_ERROR: 'There was an error submitting your comment',
-        DATE_ADDED: 'Date added'
+        DATE_ADDED: 'Date added',
+        LAST_MODIFIED: 'Last modified',
+        CHECK: 'Check',
+        AVAILABLE: 'Available',
+        UNAVAILABLE: 'Unavailable'
     },
     error:
     {
@@ -95,6 +104,7 @@ var loc =
         SECTIONS: 'Sections',
         TOPICS: 'Topics',
         MEDIA: 'Media',
+        CUSTOM_OBJECTS: 'Custom objects',
         PLUGINS: 'Plugins',
         THEMES: 'Themes',
         LAYOUT: 'Layout',
@@ -125,7 +135,8 @@ var loc =
         ADDED: 'was added',
         EDITED: 'was edited',
         DELETED: 'was deleted',
-        NARROW_RESULTS: 'Narrow results'
+        NARROW_RESULTS: 'Narrow results',
+        URL_KEY: 'URL Key'
     },
     sections:
     {
@@ -134,7 +145,6 @@ var loc =
         EDIT_SECTION: 'Edit section',
         SECTION_NAME: 'Section name',
         DESCRIPTION: 'Description',
-        URL_KEY: 'URL Key',
         PARENT_SECTION: 'Parent section',
         EXISTING_SECTION: 'A section with this name already exists',
         SECTION_MAP_SAVED: 'The section map was successfully saved'
@@ -212,6 +222,26 @@ var loc =
         SELECT_MEDIA: 'Select media to insert (multiple selections will create a carousel)',
         ASSOCIATE_MEDIA: 'Associate media with the article'
     },
+    custom_objects:
+    {
+        MANAGE_OBJECT_TYPES: 'Manage object types',
+        NEW_OBJECT_TYPE: 'New object type',
+        MANAGE_OBJECTS: 'Manage objects',
+        NEW_OBJECT: 'New object',
+        FIELDS: 'Fields',
+        ADD_FIELD: 'Add a field',
+        VALUE: 'Value',
+        TEXT: 'text',
+        NUMBER: 'number',
+        PEER_OBJECT: 'Peer object',
+        CHILD_OBJECTS: 'Child objects',
+        OBJECT_TYPE: 'Object type',
+        FIELD_TYPES: 'Field types',
+        ACTIVE_OBJECTS: 'Drag associated objects here',
+        INACTIVE_OBJECTS: 'Drag unassociated objects here',
+        OBJECTS: 'objects',
+        DESCRIPTION: 'Description'
+    },
     users:
     {
         MANAGE_USERS: 'Manage users',
@@ -220,7 +250,6 @@ var loc =
         PERSONAL_INFO: 'Personal info',
         USERNAME: 'Username',
         USER_PHOTO: 'User photo',
-        NAME: 'Name',
         FIRST_NAME: 'First name',
         LAST_NAME: 'Last name',
         POSITION: 'Position',
@@ -237,9 +266,6 @@ var loc =
         USER_EDITED: 'The user was successfully edited',
         CREATE_ACCOUNT: 'Create an account',
         LOGIN_EXISTING: 'Login to an existing account',
-        CHECK: 'Check',
-        AVAILABLE: 'Available',
-        UNAVAILABLE: 'Unavailable',
         VERIFICATION_SENT: 'Verification sent',
         YOUR_VERIFICATION: 'A verification email has been sent',
         CHECK_INBOX: 'Please check your inbox and click the link provided',
@@ -303,7 +329,7 @@ var loc =
 //Allows for both server and client use
 if(typeof global !== 'undefined') {
  global.loc = loc;
- global.localizationLanguage = 'en';
+ global.localizationLanguage = 'en-us';
 }
 
 if(typeof module !== 'undefined') {

@@ -25,9 +25,9 @@ function initPagesPagination()
     $('#page_search_button').click(pagination.initializeElements);
 }
 
-function confirmDeletePage(siteRoot, pageID, pageName)
+function confirmDeletePage(pageID, pageName)
 {
     $('#delete_name').html(pageName);
-    $('#delete_button').attr('onclick', 'window.location = "' + siteRoot + '/actions/admin/content/pages/delete_page?id=' + pageID + '"');
+    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/pages/delete_page?id=' + pageID + '"');
     $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
 }

@@ -367,6 +367,12 @@ RequestHandler.CORE_ROUTES = [
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/api/custom_objects/get_object_type_name_available",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_name_available.js'),
     	content_type: 'text/html'
     },
     {
@@ -398,6 +404,32 @@ RequestHandler.CORE_ROUTES = [
     	path: "/actions/user/manage_account/change_password",
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'manage_account', 'change_password.js'),
+    },
+    {
+    	path: "/api/custom_objects/get_object_type_url_available",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_url_available.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/custom_objects",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/custom_objects/manage_object_types",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_object_types.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/custom_objects/new_object_type",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
     	content_type: 'text/html'
     },
     {
@@ -412,6 +444,18 @@ RequestHandler.CORE_ROUTES = [
     	path: "/actions/user/resend_verification",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'resend_verification.js'),
+    },
+    {
+    	path: "/actions/admin/content/custom_objects/new_object_type",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/custom_objects/edit_object_type/:name",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
     	content_type: 'text/html'
     },
     {
@@ -419,6 +463,11 @@ RequestHandler.CORE_ROUTES = [
     	path: "/actions/user/sign_up",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'sign_up.js'),
+    },
+    {
+    	path: "/actions/admin/content/custom_objects/edit_object_type/:id",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
     	content_type: 'text/html'
     },
     {
@@ -426,6 +475,11 @@ RequestHandler.CORE_ROUTES = [
     	path: "/actions/user/verify_email",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'verify_email.js'),
+    },
+    {
+    	path: "/actions/admin/content/custom_objects/delete_object_type",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object_type.js'),
     	content_type: 'text/html'
     },
     {
@@ -489,6 +543,39 @@ RequestHandler.CORE_ROUTES = [
     	path: "/user/sign_up",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'sign_up.js'),
+    },
+    {
+    	path: "/admin/content/custom_objects/manage_objects/:name",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_objects.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/custom_objects/new_object/:type",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/custom_objects/new_object/:type_id",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'new_object.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/content/custom_objects/edit_object/:type/:name",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/custom_objects/edit_object/:id",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object.js'),
     	content_type: 'text/html'
     },
     {
@@ -503,6 +590,11 @@ RequestHandler.CORE_ROUTES = [
     	path: "/user/login",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'login.js'),
+    },
+    {
+    	path: "/actions/admin/content/custom_objects/delete_object",
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object.js'),
     	content_type: 'text/html'
     }
 ];
@@ -559,7 +651,7 @@ RequestHandler.registerRoute = function(descriptor, theme){
 		
 		if (piece.indexOf(':') == 0) {
 			var fieldName = piece.substring(1);
-			pathVars[fieldName] = i;
+			pathVars[fieldName] = i + 1;
 			pattern += '/[A-Za-z0-9_\-]+';
 		}
 		else {
@@ -915,7 +1007,8 @@ RequestHandler.prototype.onRenderComplete = function(data){
 	}
 	
 	//close session after data sent
-	//public content doesn't require a session so in order to not error out we check if the session exists first.
+	//public content doesn't require a session so in order to not error out we 
+	//check if the session exists first.
 	if (this.session) {
 		pb.session.close(this.session, function(err, result) {
 			//TODO handle any errors
@@ -935,7 +1028,7 @@ RequestHandler.prototype.writeResponse = function(data){
     if (typeof data.content_type !== 'undefined') {
     	contentType = data.content_type;
     }
-    else if (this.themeRoute && typeof this.themeRoute.content_type != undefined) {
+    else if (this.themeRoute && this.themeRoute.content_type != undefined) {
     	contentType = this.themeRoute.content_type;
     }
     
