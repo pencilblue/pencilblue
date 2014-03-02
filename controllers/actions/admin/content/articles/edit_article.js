@@ -27,7 +27,7 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
     delete post['media_position'];
     delete post['media_max_height'];
     
-    post['author']       = session['user']._id.toString();
+    post['author']       = this.session.authentication.user_id;
     post['publish_date'] = new Date(post['publish_date']);
     
     //add get params to post
@@ -42,7 +42,7 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao = new pb.DAO();
     dao.loadById(post.id, 'article', function(err, article) {
         if(util.isError(err) || article == null) {
-            self.formError('^loc_ERROR_SAVING^', '/admin/content/article/manage_articles', cb);
+            self.formError('^loc_ERROR_SAVING^', '/admin/content/articles/manage_articles', cb);
             return;
         }
         
@@ -63,9 +63,9 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
                     return;
                 }
                 
-                self.session.success = articleDocument.headline + ' ^loc_EDITED^';
-                delete session.fieldValues;
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
+                self.session.success = article.headline + ' ^loc_EDITED^';
+                delete self.session.fieldValues;
+                self.redirect(pb.config.siteRoot + '/admin/content/articles/manage_articles', cb);
             });
         });
     });

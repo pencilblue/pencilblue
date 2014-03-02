@@ -259,6 +259,14 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
+    	path: "/actions/admin/content/pages/edit_page",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'edit_page.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
     	path: "/actions/admin/content/pages/new_page",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
@@ -372,6 +380,7 @@ RequestHandler.CORE_ROUTES = [
     	method: 'get',
     	path: "/api/custom_objects/get_object_type_name_available",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_name_available.js'),
     	content_type: 'text/html'
     },
@@ -408,12 +417,14 @@ RequestHandler.CORE_ROUTES = [
     {
     	path: "/api/custom_objects/get_object_type_url_available",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_url_available.js'),
     	content_type: 'text/html'
     },
     {
     	method: 'get',
     	path: "/admin/content/custom_objects",
+    	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects.js'),
     	content_type: 'text/html'
@@ -422,6 +433,7 @@ RequestHandler.CORE_ROUTES = [
     	method: 'get',
     	path: "/admin/content/custom_objects/manage_object_types",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_object_types.js'),
     	content_type: 'text/html'
     },
@@ -429,6 +441,7 @@ RequestHandler.CORE_ROUTES = [
     	method: 'get',
     	path: "/admin/content/custom_objects/new_object_type",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
     	content_type: 'text/html'
     },
@@ -455,6 +468,7 @@ RequestHandler.CORE_ROUTES = [
     	method: 'get',
     	path: "/admin/content/custom_objects/edit_object_type/:name",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
     	content_type: 'text/html'
     },
@@ -467,6 +481,7 @@ RequestHandler.CORE_ROUTES = [
     {
     	path: "/actions/admin/content/custom_objects/edit_object_type/:id",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
     	content_type: 'text/html'
     },
@@ -479,6 +494,7 @@ RequestHandler.CORE_ROUTES = [
     {
     	path: "/actions/admin/content/custom_objects/delete_object_type",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object_type.js'),
     	content_type: 'text/html'
     },
@@ -547,6 +563,7 @@ RequestHandler.CORE_ROUTES = [
     {
     	path: "/admin/content/custom_objects/manage_objects/:name",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_objects.js'),
     	content_type: 'text/html'
     },
@@ -554,6 +571,7 @@ RequestHandler.CORE_ROUTES = [
     	method: 'get',
     	path: "/admin/content/custom_objects/new_object/:type",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object.js'),
     	content_type: 'text/html'
     },
@@ -561,6 +579,7 @@ RequestHandler.CORE_ROUTES = [
     	method: 'post',
     	path: "/actions/admin/content/custom_objects/new_object/:type_id",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'new_object.js'),
     	content_type: 'text/html'
     },
@@ -568,6 +587,7 @@ RequestHandler.CORE_ROUTES = [
     	method: 'get',
     	path: "/admin/content/custom_objects/edit_object/:type/:name",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object.js'),
     	content_type: 'text/html'
     },
@@ -575,6 +595,7 @@ RequestHandler.CORE_ROUTES = [
     	method: 'post',
     	path: "/actions/admin/content/custom_objects/edit_object/:id",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object.js'),
     	content_type: 'text/html'
     },
@@ -594,8 +615,15 @@ RequestHandler.CORE_ROUTES = [
     {
     	path: "/actions/admin/content/custom_objects/delete_object",
     	access_level: ACCESS_EDITOR,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object.js'),
     	content_type: 'text/html'
+    },
+    {
+    	path: "/feed",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'feed.js'),
+    	content_type: 'application/xml'
     }
 ];
 
@@ -1081,7 +1109,7 @@ RequestHandler.urlExists = function(url, id, cb) {
 		return function (callback) {
 			var where = {url: url};
 			if (id) {
-				where._id = {$ne: new ObjectId(id)};
+				where._id = {$ne: new ObjectID(id)};
 			}
 			dao.count(collection, where, function(err, count) {
                 if(util.isError(err) || count > 0) {

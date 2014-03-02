@@ -25,10 +25,10 @@ NewPage.prototype.onPostParamsRetrieved = function(post, cb) {
     delete post['media_position'];
     delete post['media_max_height'];
     
-    post['author']       = self.session.user._id.toString();
+    post['author']       = self.session.authentication.user_id;
     post['publish_date'] = new Date(post['publish_date']);
     
-    session = setFormFieldValues(post, session);
+    this.session = this.setFormFieldValues(post);
     
     var message = this.hasRequiredParams(post, ['url', 'headline', 'template', 'page_layout']);
     if(message) {

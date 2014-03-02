@@ -6,6 +6,10 @@
  */
 function NewPage(){}
 
+//dependencies
+var Media = require('../media.js');
+var Pages = require('../pages');
+
 //inheritance
 util.inherits(NewPage, pb.BaseController);
 
@@ -39,18 +43,17 @@ NewPage.prototype.render = function(cb) {
             }
         ];
         
-        var pages = require('../pages');
-        pages.getTemplates(function(templates) {
+        pb.templates.getTemplatesForActiveTheme(function(templates) {
         	
         	var dao = new pb.DAO();
         	dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
         		//TODO handle errors
         		
-                pages.getMedia(function(media) {                            
+        		Media.getAll(function(media){                            
                     self.prepareFormReturns(result, function(newResult) {
                         result = newResult;
                         
-                        var pills = pages.getPillNavOptions('new_page');
+                        var pills = Pages.getPillNavOptions('new_page');
                         pills.unshift(
                         {
                             name: 'manage_pages',
@@ -71,94 +74,6 @@ NewPage.prototype.render = function(cb) {
             
                         var content = self.localizationService.localize(['admin', 'pages', 'articles', 'media'], result);
                         cb({content: content});
-                    });
-                });
-            });
-        });
-    });
-};
-
-NewPage.init = function(request, output)
-{
-    var result = '';
-    
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
-        {
-            output({redirect: pb.config.siteRoot + '/admin'});
-            return;
-        }
-    
-        initLocalization(request, session, function(data)
-        {
-            getHTMLTemplate('admin/content/pages/new_page', '^loc_NEW_PAGE^', null, function(data)
-            {
-                result = result.concat(data);
-                
-                var tabs =
-                [
-                    {
-                        active: 'active',
-                        href: '#content',
-                        icon: 'quote-left',
-                        title: '^loc_CONTENT^'
-                    },
-                    {
-                        href: '#media',
-                        icon: 'camera',
-                        title: '^loc_MEDIA^'
-                    },
-                    {
-                        href: '#topics_dnd',
-                        icon: 'tags',
-                        title: '^loc_TOPICS^'
-                    },
-                    {
-                        href: '#meta_data',
-                        icon: 'tasks',
-                        title: '^loc_META_DATA^'
-                    }
-                ];
-                
-                var pages = require('../pages');
-                    
-                pages.getTemplates(function(templates)
-                {
-                    getDBObjectsWithValues({object_type: 'topic', $orderby: {name: 1}}, function(topics)
-                    {
-                        pages.getMedia(function(media)
-                        {                            
-                            prepareFormReturns(session, result, function(newSession, newResult)
-                            {
-                                session = newSession;
-                                result = newResult;
-                                
-                                var pills = pages.getPillNavOptions('new_page');
-                                pills.unshift(
-                                {
-                                    name: 'manage_pages',
-                                    title: '^loc_NEW_PAGE^',
-                                    icon: 'chevron-left',
-                                    href: '/admin/content/pages/manage_pages'
-                                });
-                                
-                                result = result.concat(pb.js.getAngularController(
-                                {
-                                    navigation: getAdminNavigation(session, ['content', 'pages']),
-                                    pills: pills,
-                                    tabs: tabs,
-                                    templates: templates,
-                                    topics: topics,
-                                    media: media
-                                }, [], 'initMediaPagination();initTopicsPagination()'));
-                    
-                                editSession(request, session, [], function(data)
-                                {
-                                    output({content: localize(['admin', 'pages', 'articles', 'media'], result)});
-                                });
-                            });
-                        });
                     });
                 });
             });
