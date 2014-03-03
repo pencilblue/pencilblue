@@ -18,23 +18,29 @@ NewArticle.prototype.render = function(cb) {
 	
 	var title = this.getPageTitle();
 	pb.templates.load(this.getTemplateLocation(), title, null, function(data) {
-        var result = '' + data;
-        var tabs   = self.getTabs();
-        
-        self.gatherData(function(err, results){
-        	//TODO handle error
-        	
-        	self.prepareFormReturns(result, function(newResult) {
-                result = newResult;
-                
-                var pills = self.getPills();
-                result    = result.concat(self.getAngularController(pills, tabs, results));
-                
-                var content = self.localizationService.localize(['admin', 'articles', 'media'], result);
-                cb({content: content});
-            });
-        });
+		self.onTemplateRetrieved('' + data, function(err, data) {console.log('here');
+	        var result = '' + data;
+	        var tabs   = self.getTabs();
+	        
+	        self.gatherData(function(err, results){
+	        	//TODO handle error
+	        	
+	        	self.prepareFormReturns(result, function(newResult) {
+	                result = newResult;
+	                
+	                var pills = self.getPills();
+	                result    = result.concat(self.getAngularController(pills, tabs, results));
+	                
+	                var content = self.localizationService.localize(['admin', 'articles', 'media'], result);
+	                cb({content: content});
+	            });
+	        });
+		});
     });
+};
+
+NewArticle.prototype.onTemplateRetrieved = function(template, cb) {console.log('new');
+	cb(null, template);
 };
 
 NewArticle.prototype.getAngularController = function(pills, tabs, data) {

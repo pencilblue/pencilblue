@@ -6,6 +6,10 @@
  */
 function EditPage(){}
 
+//dependencies
+var Media = require('../media.js');
+var Pages = require('../pages');
+
 //inheritance
 util.inherits(EditPage, pb.BaseController);
 
@@ -13,13 +17,13 @@ EditPage.prototype.render = function(cb) {
 	var self = this;
 	
 	var get = this.query;
-    if(!get['id']) {
+    if(!get.id) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
         return;
     }
     
-    var dao = new pb.DAO();
-    dao.loadById('page', get.id, function(err, page) {
+    var dao = new pb.DAO();console.log('GET.ID='+get.id);
+    dao.loadById(get.id, 'page', function(err, page) {
         if(page == null) {
         	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
             return;
@@ -27,12 +31,12 @@ EditPage.prototype.render = function(cb) {
         
         page.page_media  = page.page_media.join(',');
         page.page_topics = page.page_topics.join(',');
-        session          = setFormFieldValues(page);
+        self.session     = self.setFormFieldValues(page);
         
         //ensure that only the author can edit page
         //TODO should global administrator be able to do this too?
-        if(!self.session.user._id.equals(ObjectID(page.author))) {
-        	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
+        if(self.session.authentication.user_id !== page.author) {
+        	self.redirect(pb.config.siteRoot + '/admin/content/pages/manage_pages', cb);
             return;
         }
 
@@ -64,17 +68,16 @@ EditPage.prototype.render = function(cb) {
                 }
             ];
             
-            var pages = require('../pages');
-            pages.getTemplates(function(templates) {
+            pb.templates.getTemplatesForActiveTheme(function(templates) {
             	
             	dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
                     
-            		pages.getMedia(function(media) {                            
+            		Media.getAll(function(media) {                            
                         
             			self.prepareFormReturns(result, function(newResult) {
                             result = newResult;
                             
-                            var pills = pages.getPillNavOptions('edit_page');
+                            var pills = Pages.getPillNavOptions('edit_page');
                             pills.unshift(
                             {
                                 name: 'manage_pages',

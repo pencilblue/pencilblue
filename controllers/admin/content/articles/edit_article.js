@@ -24,13 +24,13 @@ EditArticle.prototype.render = function(cb) {
     var dao = new pb.DAO();
     dao.loadById(get.id, 'article', function(err, article) {
         if(util.isError(err) || article == null) {
-        	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
+        	self.redirect(pb.config.siteRoot + '/admin/content/articles/manage_articles', cb);
             return;
         }
         
         if(!pb.security.isAuthorized(self.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
             if(!self.session.authentication.user_id.equals(article.author)) {
-                output({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
+                cb({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
                 return;
             }
         }
@@ -44,6 +44,10 @@ EditArticle.prototype.render = function(cb) {
         //call the parent function
         EditArticle.super_.prototype.render.apply(self, [cb]);
     });
+};
+
+EditArticle.prototype.onTemplateRetrieved = function(template, cb) {console.log('edit');
+	cb(null, template.split('^article_id^').join(this.query.id));
 };
 
 EditArticle.prototype.getBreadCrum = function() {
