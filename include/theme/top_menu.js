@@ -1,68 +1,55 @@
 function TopMenuService(){}
 
-TopMenuService.getTopMenu = function(session, output) {
-    var instance = this;
-    
-    getDBObjectsWithValues({object_type: 'pencilblue_theme_settings'}, function(data)
-    {
+TopMenuService.getTopMenu = function(session, localizationService, cb) {
+    var self = this;
+    var dao  = new pb.DAO();
+    dao.query('pencilblue_theme_settings').then(function(data) {
         var themeSettings;
         
-        if(data.length == 0)
-        {
-            themeSettings =
-            {
+        if(util.isError(data) || data.length == 0) {
+            themeSettings = {
                 site_logo: pb.config.siteRoot + '/img/logo_menu.png',
                 carousel_media: []
             };
         }
-        else
-        {
+        else {
             themeSettings = data[0];
         }
 
-        getDBObjectsWithValues({object_type: 'setting', key: 'section_map'}, function(data)
-        {            
-            var sectionMap = [];
-            if (data.length > 0) {
-            	sectionMap = data[0]['value'];
+        pb.settings.get('section_map', function(err, sectionMap) {            
+            if (util.isError(err) || sectionMap == null) {
+            	sectionMap = [];
             }
             
             var formattedSections = [];
-            getDBObjectsWithValues({object_type: 'section'}, function(data)
-            {
-                var sections = data;
+            dao.query('section').then(function(sections) {
+                //TODO handle error
                         
-                for(var i = 0; i < sectionMap.length; i++)
-                {
-                    var section = instance.getSectionData(sectionMap[i].uid, sections);
+                for(var i = 0; i < sectionMap.length; i++) {
+                    var section = self.getSectionData(sectionMap[i].uid, sections);
                     
-                    if(sectionMap[i].children.length == 0)
-                    {
-                        if(section)
-                        {
+                    if(sectionMap[i].children.length == 0) {
+                        if(section) {
                             //TODO: figure out how to tell if were in one of these sections
                             formattedSections.push(section);
                         }
                     }
-                    else
-                    {
+                    else {
                         section.dropdown = 'dropdown';
                     
-                        if(section)
-                        {
-                            var sectionHome = clone(section);
-                            if(typeof loc !== 'undefined')
-                            {
-                                sectionHome.name = sectionHome.name + ' ' + localize([], '^loc_HOME^');
+                        if(section) {
+                            var sectionHome = pb.utils.clone(section);
+                            if(typeof loc !== 'undefined') {
+                            	
+                                sectionHome.name = sectionHome.name + ' ' + localizationService.localize([], '^loc_HOME^');
                             }
                             delete sectionHome.children;
                         
                             section.children = [sectionHome];
                             
-                            for(var j = 0; j < sectionMap[i].children.length; j++)
-                            {
-                                var child = instance.getSectionData(sectionMap[i].children[j].uid, sections);
-                                child.url = section.url + '/' + child.url;
+                            for(var j = 0; j < sectionMap[i].children.length; j++) {
+                                var child = self.getSectionData(sectionMap[i].children[j].uid, sections);
+                                child.url = pb.utils.urlJoin('section', child.url);
                                 section.children.push(child);
                             }
                             
@@ -112,19 +99,17 @@ TopMenuService.getTopMenu = function(session, output) {
                         }
                     }
                     
-                    output(themeSettings, formattedSections, accountButtons);
+                    cb(themeSettings, formattedSections, accountButtons);
                 });
             });
         });
     });
 };
 
-TopMenuService.getSectionData = function(uid, sections)
-{
-    for(var i = 0; i < sections.length; i++)
-    {
-        if(sections[i]._id.equals(ObjectID(uid)))
-        {
+TopMenuService.getSectionData = function(uid, sections) {
+    for(var i = 0; i < sections.length; i++) {
+        if(sections[i]._id.equals(ObjectID(uid))) {
+        	sections[i].url = pb.utils.urlJoin('section', sections[i].url);
             return sections[i];
         }
     }

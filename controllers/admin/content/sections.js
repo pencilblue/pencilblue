@@ -17,7 +17,7 @@ function Section(){}
 util.inherits(Section, pb.BaseController);
 
 Section.prototype.render = function(cb) {
-	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/topics/section_map'));
+	this.redirect(pb.config.siteRoot + '/admin/content/topics/section_map', cb);
 };
 
 Section.getPillNavOptions = function(activePill) {
@@ -39,11 +39,6 @@ Section.getPillNavOptions = function(activePill) {
         }
     }
     return pillNavOptions;
-};
-
-//legacy code to be removed
-Section.init = function(request, output) {
-    output({redirect: pb.config.siteRoot + '/admin/content/topics/section_map'});
 };
 
 //exports

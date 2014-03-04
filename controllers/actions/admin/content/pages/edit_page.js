@@ -28,6 +28,7 @@ EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
     
     post['author']       = self.session.authentication.user_id.toString();
     post['publish_date'] = new Date(post['publish_date']);
+    post['page_layout']  = decodeURIComponent(post['page_layout']);
     
     //merge in get params
 	pb.utils.merge(this.query, post);

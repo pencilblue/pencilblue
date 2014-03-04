@@ -1,60 +1,55 @@
-this.init = function(request, output)
-{
-    var instance = this;
- 
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true}))
-        {
-            output({content: apiResponse(apiResponseCode.FAILURE, 'insufficient credentials')});
+/**
+ * NewComment - Controller to add a comment
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function NewComment(){}
+
+//dependencies
+var BaseController = pb.BaseController;
+
+//inheritance
+util.inherits(NewComment, pb.FormController);
+
+NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
+	var self = this;
+	
+	pb.content.getSettings(function(err, contentSettings) {
+		if(!contentSettings.allow_comments) {
+            cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'commenting not allowed'), code: 400});
             return;
         }
         
-        getContentSettings(function(contentSettings)
-        {
-            if(!contentSettings.allow_comments)
-            {
-                output({content: apiResponse(apiResponseCode.FAILURE, 'commenting not allowed')});
-                return;
-            }
-    
-            var post = getPostParameters(request);
-            
-            if(message = checkForRequiredParameters(post, ['article', 'content']))
-            {
-                output({content: apiResponse(apiResponseCode.FAILURE, 'parameters missing')});
+		var message = self.hasRequiredParams(post, ['article', 'content']);
+        if (message) {
+        	cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'parameters missing'), code: 400});
+            return;
+        }
+        
+        var dao = new pb.DAO();
+        dao.loadById(post.article, 'article', function(err, article) {
+            if(util.isError(err) || article == null) {
+            	cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'article does not exist'), code: 400});
                 return;
             }
             
-            getDBObjectsWithValues({object_type: 'article', _id: ObjectID(post['article'])}, function(data)
-            {
-                if(data.length == 0)
-                {
-                    output({content: apiResponse(apiResponseCode.FAILURE, 'article does not exist')});
+            var commentDocument       = pb.DocumentCreator.create('comment', post);
+            commentDocument.commenter = self.session.authentication.user_id;
+            
+            dao.update(commentDocument).then(function(data) {
+                if (util.isError(data)) {
+                	cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'error saving'), code: 500});
                     return;
                 }
-                
-                var commentDocument = createDocument('comment', post);
-                commentDocument.commenter = session.user._id.toString();
-                
-                createDBObject(commentDocument, function(data)
-                {
-                    if(data.length == 0)
-                    {
-                        output({content: apiResponse(apiResponseCode.FAILURE, 'error saving')});
-                        return;
-                    }
-                    
-                    initLocalization(request, session, function(localization)
-                    {
-                        var timestamp = getTimestampText(data.created, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format);
-                        
-                        data.timestamp = localize(['timestamp'], timestamp);
-                    
-                        output({content: apiResponse(apiResponseCode.SUCCESS, 'comment created' , data)});
-                    });
-                });
+
+                var timestamp  = pb.content.getTimestampText(commentDocument.created, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format);
+                commentDocument.timestamp = self.localizationService.localize(['timestamp'], timestamp);
+				cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, 'comment created' , commentDocument)});
             });
         });
-    });
-}
+	});
+};
+
+//exports
+module.exports = NewComment;
