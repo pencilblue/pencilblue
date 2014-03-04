@@ -37,9 +37,9 @@ NewPage.prototype.render = function(cb) {
                 title: '^loc_TOPICS^'
             },
             {
-                href: '#meta_data',
+                href: '#seo',
                 icon: 'tasks',
-                title: '^loc_META_DATA^'
+                title: '^loc_SEO^'
             }
         ];
         

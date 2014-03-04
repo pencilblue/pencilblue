@@ -28,6 +28,7 @@ var loc =
         COLUMN_INCHES: 'column inches',
         CONTENT: 'Content',
         META_DATA: 'Meta data',
+        SEO: 'SEO',
         FORM_INCOMPLETE: 'The form is incomplete',
         ERROR_SAVING: 'There was an error saving',
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
