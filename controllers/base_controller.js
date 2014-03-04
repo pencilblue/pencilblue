@@ -8,6 +8,9 @@
  */
 function BaseController(){};
 
+BaseController.API_SUCCESS = 0;
+BaseController.API_FAILURE = 1;
+
 BaseController.prototype.init = function(props, cb) {
 	this.req                 = props.request;
 	this.res                 = props.response;
@@ -113,6 +116,27 @@ BaseController.prototype.checkForFormRefill = function(result, cb) {
 
 BaseController.prototype.redirect = function(location, cb){
 	cb(pb.RequestHandler.generateRedirect(location));
+};
+
+BaseController.apiResponse = function(cd, msg, dta) {
+    if(typeof msg === 'undefined') {
+        switch(cd) {
+            case apiResponseCode.FAILURE:
+                msg = 'FAILURE';
+                break;
+            case apiResponseCode.SUCCESS:
+                msg = 'SUCCESS';
+                break;
+            default:
+                msg = '';
+                break;
+        }
+    }
+    if(typeof dta === 'undefined') {
+        dta = null;
+    }
+    var response = {code: cd, message: msg, data: dta};
+    return JSON.stringify(response);
 };
 
 //exports

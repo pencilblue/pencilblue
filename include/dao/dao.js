@@ -30,7 +30,7 @@ DAO.prototype.loadById = function(id, collection, cb){
 
 DAO.prototype.loadByValue = function(key, val, collection, cb) {
 	var where = {};
-	where[key] = value;
+	where[key] = val;
 	this.loadByValues(where, collection, cb);
 };
 

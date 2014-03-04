@@ -27,8 +27,9 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
     delete post['media_position'];
     delete post['media_max_height'];
     
-    post['author']       = this.session.authentication.user_id;
-    post['publish_date'] = new Date(post['publish_date']);
+    post['author']         = this.session.authentication.user_id;
+    post['publish_date']   = new Date(post['publish_date']);
+    post['article_layout'] = decodeURIComponent(post['article_layout']);
     
     //add get params to post
     pb.utils.merge(get, post);

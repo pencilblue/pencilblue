@@ -620,10 +620,32 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'get',
     	path: "/feed",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'feed.js'),
     	content_type: 'application/xml'
+    },
+    {
+    	method: 'get',
+    	path: "/section/:customUrl",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'section.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/article/:customUrl",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'article.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/api/comments/new_comment",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'comments', 'new_comment.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -776,6 +798,8 @@ RequestHandler.prototype.servePublicContent = function() {
 			css: 'text/css',
 			png: 'image/png',
 			svg: 'image/svg+xml',
+			jpg: 'image/jpeg',
+			gif: 'image/gif',
 			ico: 'image/vnd.microsoft.icon',
 			tff: 'application/octet-stream',
 			eot: 'application/vnd.ms-fontobject',

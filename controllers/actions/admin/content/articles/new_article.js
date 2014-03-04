@@ -26,8 +26,9 @@ NewArticle.prototype.onPostParamsRetrieved = function(post, cb) {
     delete post['media_position'];
     delete post['media_max_height'];
 
-    post['author']       = this.session.authentication.user_id;
-    post['publish_date'] = new Date(post['publish_date']);
+    post['author']         = this.session.authentication.user_id;
+    post['publish_date']   = new Date(post['publish_date']);
+    post['article_layout'] = decodeURIComponent(post['article_layout']);
     
     this.setFormFieldValues(post);
     
@@ -38,8 +39,7 @@ NewArticle.prototype.onPostParamsRetrieved = function(post, cb) {
     }
     
     var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords', 'article_sections', 'article_topics', 'article_media']);
-    console.log('here');
-    pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {console.log('here2');
+    pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {
         if(util.isError(err) || !isSafe)  {
             self.formError('^loc_EXISTING_URL^', '/admin/content/articles/new_article', cb);
             return;

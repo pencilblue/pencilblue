@@ -41,7 +41,7 @@ ContentService.getDefaultSettings = function() {
  * 
  */
 ContentService.getTimestampText = function(date, format, displayTime, timeFormat) {
-	global.getTimestampText(date, format, displayTime, timeFormat);
+	return global.getTimestampText(date, format, displayTime, timeFormat);
 };
 
 //exports

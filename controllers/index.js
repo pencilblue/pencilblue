@@ -18,10 +18,10 @@ util.inherits(Index, pb.BaseController);
 Index.prototype.render = function(cb) {
 	var self = this;
 	
-	pb.templates.load('index', '^loc_HOME^', null, function(data) {
+	pb.templates.load('index', this.getPageTitle(), null, function(data) {
         var result = data;
                         
-        TopMenu.getTopMenu(self.session, function(themeSettings, navigation, accountButtons) {
+        TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
 
             var section = self.req.pencilblue_section || null;
             var topic   = self.req.pencilblue_topic   || null;
@@ -37,9 +37,9 @@ Index.prototype.render = function(cb) {
                             
                             var loggedIn       = false;
                             var commentingUser = {};
-                            if(self.session.user) {
+                            if(self.session.authentication.user) {
                                 loggedIn       = true;
-                                commentingUser = Comments.getCommentingUser(session.user);
+                                commentingUser = Comments.getCommentingUser(self.session.authentication.user);
                             }
                     
                             var objects = {
@@ -67,6 +67,10 @@ Index.prototype.render = function(cb) {
             });
         });
     });
+};
+
+Index.prototype.getPageTitle = function() {
+	return '^loc_HOME^';
 };
 
 //exports

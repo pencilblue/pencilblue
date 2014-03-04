@@ -41,9 +41,45 @@ Util.ane = function(obj){
 	}
 };
 
+Util.urlJoin = function() {
+	var url = '';
+	for ( var i = 0; i < arguments.length; i++) {
+		var segment = arguments[i];
+		if (typeof segment !== 'string') {
+			throw new TypeError('Arguments to path.join must be strings');
+		}
+		if (segment) {
+			if (!url) {
+				url += segment;
+			} else {
+				url += '/' + segment;
+			}
+		}
+	}
+	return url;
+};
+
+Util.getCustomUrl = function(prefix, url) {
+	var index = prefix.lastIndexOf('/');
+	if (index != prefix.length - 1) {
+		prefix += '/';
+	}
+	
+	index = url.lastIndexOf(prefix);
+	if (index < 0) {
+		return null;
+	}
+	
+	//check for prefix at the end
+	if (index == url.length - 1) {
+		return '';
+	}
+	return url.substring(index + 1);
+};
+
 /**
- * Merges the properties from the first parameter into the second.  This 
- * modifies the second parameter instead of creating a new object.
+ * Merges the properties from the first parameter into the second. This modifies
+ * the second parameter instead of creating a new object.
  */
 Util.merge = function(from, to) {
 	for (var prop in from) {
