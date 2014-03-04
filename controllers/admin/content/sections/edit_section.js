@@ -37,9 +37,9 @@ EditSection.prototype.render = function(cb) {
                     title: '^loc_SETTINGS^'
                 },
                 {
-                    href: '#section_meta_data',
+                    href: '#section_seo',
                     icon: 'tasks',
-                    title: '^loc_META_DATA^'
+                    title: '^loc_SEO^'
                 }
             ];
             
@@ -146,9 +146,9 @@ this.init = function(request, output)
                             title: '^loc_SETTINGS^'
                         },
                         {
-                            href: '#section_meta_data',
+                            href: '#section_seo',
                             icon: 'tasks',
-                            title: '^loc_META_DATA^'
+                            title: '^loc_SEO^'
                         }
                     ];
                     

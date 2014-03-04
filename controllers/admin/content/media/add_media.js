@@ -46,14 +46,14 @@ AddMedia.prototype.render = function(cb) {
                     icon: 'chevron-left',
                     href: '/admin/content/media/manage_media'
                 });
-            
-                result = result.concat(pb.js.getAngularController(
-                {
+                
+                var objects = {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'media']),
                     pills: pills,
                     tabs: tabs,
                     topics: topics
-                }));
+                }
+                result = result.concat(pb.js.getAngularController(objects, [], 'initTopicsPagination()'));
             
                 var content = self.localizationService.localize(['admin', 'media'], result);
                 cb({content: content});
