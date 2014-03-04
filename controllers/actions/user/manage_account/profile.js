@@ -18,7 +18,7 @@ Profile.prototype.onPostParamsRetrieved = function(post, cb) {
     delete post['image_url'];
     
     var dao = new pb.DAO();
-    dao.loadById(session.authentication.user_id, 'user', function(err, user) {
+    dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
         if(util.isError(err) || user == null) {
             self.formError('^loc_ERROR_SAVING^', '/user/manage_account', cb);
             return;
@@ -33,8 +33,8 @@ Profile.prototype.onPostParamsRetrieved = function(post, cb) {
             }
             
             self.session.authentication.user = user;
-            session.success = '^loc_PROFILE_EDITED^';
-            cb(pb.RequestHandler.redirect(pb.config.siteRoot + '/user/manage_account'));
+            self.session.success = '^loc_PROFILE_EDITED^';
+            self.redirect(pb.config.siteRoot + '/user/manage_account', cb);
         });
     });
 };

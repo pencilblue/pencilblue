@@ -11,7 +11,6 @@ util.inherits(Content, pb.BaseController);
 
 Content.prototype.render = function(cb) {
     var self = this;
-	var dao  = new pb.DAO();
 	pb.templates.load('admin/site_settings/content', '^loc_CONTENT^', null, function(data) {
         var result = data;
         
@@ -71,7 +70,7 @@ Content.prototype.render = function(cb) {
             });
         });
     });
-}
+};
 
 //exports
 module.exports = Content;

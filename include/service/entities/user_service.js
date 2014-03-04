@@ -31,6 +31,28 @@ UserService.prototype.getAuthors = function(objArry, cb){
     async.parallelLimit(tasks, 3, cb);
 };
 
+/**
+ * 
+ * @param currId The ID of the authenticated user triggering this call
+ * @param cb
+ */
+UserService.prototype.getEditorSelectList = function(currId, cb) {
+    var dao     = new pb.DAO();
+	var editors = [];
+	dao.query('user', {admin: {$gt: ACCESS_WRITER}}, {_id: 1, first_name: 1, last_name: 1}).then(function(data){
+        
+		for(var i = 0; i < data.length; i++) {
+            
+			var editor = {_id: data[0]._id, name: data[0].first_name + ' ' + data[0].last_name};
+            if(currId == data[i]._id.toString()) {
+                editor.selected = 'selected';
+            }
+            editors.push(editor);
+        }
+        cb(editors);
+    });
+};
+
 UserService.prototype.sendVerificationEmail = function(user, cb) {
 	cb = cb || pb.utils.cb;
 	
@@ -50,7 +72,7 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb) {
 	this.getExistingUsernameEmailCounts(username, email, id, function(err, results) {
 		
-		var result = results == null;console.log('results='+results+' error='+err);
+		var result = results == null;
 		if (!result) {
 			
 			for(var key in results) {
@@ -63,7 +85,7 @@ UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb)
 
 UserService.prototype.getExistingUsernameEmailCounts = function(username, email, id, cb) {
 	var getWhere = function(where) {
-		if (id) {console.log('adding id'+id);
+		if (id) {
 			where._id = {$ne: new ObjectID(id)};
 		}
 	};

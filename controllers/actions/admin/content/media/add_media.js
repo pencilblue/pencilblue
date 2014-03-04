@@ -49,43 +49,5 @@ AddMedia.prototype.genReturnVal = function(result) {
 	return pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/add_media');
 };
 
-AddMedia.init = function(request, output)
-{
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_WRITER}))
-        {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/content/media/add_media', output);
-            return;
-        }
-    
-        var post = getPostParameters(request);
-        delete post['topic_search'];
-        
-        if(message = checkForRequiredParameters(post, ['media_type', 'location', 'name', 'caption']))
-        {
-            formError(request, session, message, '/admin/content/media/add_media', output);
-            return;
-        }
-        
-        var mediaDocument = createDocument('media', post, ['media_topics'], ['is_file']);
-        
-        createDBObject(mediaDocument, function(data)
-        {
-            if(data.length == 0)
-            {
-                formError(request, session, '^loc_ERROR_SAVING^', '/admin/content/media/add_media', output);
-                return;
-            }
-            
-            session.success = mediaDocument.name + ' ^loc_ADDED^';
-            editSession(request, session, [], function(data)
-            {        
-                output({redirect: pb.config.siteRoot + '/admin/content/media/add_media'});
-            });
-        });
-    });
-};
-
 //exports
 module.exports = AddMedia;

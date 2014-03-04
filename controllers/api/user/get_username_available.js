@@ -10,7 +10,6 @@ function UsernameAvailable(){}
 util.inherits(UsernameAvailable, pb.BaseController);
 
 UsernameAvailable.prototype.render = function(cb) {
-	var self = this;
 	var get  = this.query;
     
 	var message = this.hasRequiredParams(get, ['username']);

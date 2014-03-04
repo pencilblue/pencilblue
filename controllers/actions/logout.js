@@ -4,20 +4,6 @@
  */
 function Logout(){}
 
-Logout.init = function(request, output)
-{
-    getSession(request, function(session)
-    {
-        delete session.user;
-        editSession(request, session, [], function(data)
-        {
-            output({redirect: pb.config.siteRoot});
-        });
-    });
-};
-
-
-
 //inheritance
 util.inherits(Logout, pb.BaseController);
 

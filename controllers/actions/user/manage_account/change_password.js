@@ -19,7 +19,7 @@ ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
     }
     
     var where = {
-		_id: session.user._id, 
+		_id: self.session.authentication.user._id, 
 		password: pb.security.encrypt(post['old_password'])
 	};        
     delete post['old_password'];

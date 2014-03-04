@@ -1,46 +1,31 @@
-/*
+/**
+ * ChangePassword - Allows the user to change their password
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function ChangePassword(){}
 
-    Interface for changing your password
+//inheritance
+util.inherits(ChangePassword, pb.BaseController);
+
+ChangePassword.prototype.render = function(cb) {
+	var self = this;
+	
+	this.setFormFieldValues(this.session.authentication.user);
+    this.session.account_subsection = 'change_password';
     
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
-
-*/
-
-this.init = function(request, output)
-{
-    var result = '';
-    var instance = this;
-    
-    getSession(request, function(session)
-    {
-        initLocalization(request, session, function(data)
-        {
-            if(!userIsAuthorized(session, {logged_in: true}))
-            {
-                output({content: getJSTag('window.location = "' + pb.config.siteRoot + '"')});
-                return;
-            }
-            
-            session = setFormFieldValues(session.user, session);
-            
-            session.account_subsection = 'change_password';
-            
-            getHTMLTemplate('user/manage_account/change_password', null, null, function(data)
-            {
-                result = result.concat(data);
-                
-                displayErrorOrSuccess(session, result, function(newSession, newResult)
-                {
-                    session = newSession;
-                    result = newResult;
-                
-                    editSession(request, session, [], function(data)
-                    {
-                        output({cookie: getSessionCookie(session), content: localize(['users'], result)});
-                    });
-                });
-            });
+    pb.templates.load('user/manage_account/change_password', null, null, function(data) {
+        var result = '' + data;
+        
+        self.displayErrorOrSuccess(result, function(newResult) {
+            result = newResult;
+        
+            var content = self.localizationService.localize(['users'], result);
+            cb({content: content});
         });
     });
-}
+};
+
+//exports
+module.exports = ChangePassword;

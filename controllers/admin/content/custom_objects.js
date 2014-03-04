@@ -39,10 +39,5 @@ CustomObjects.getPillNavOptions = function(activePill)
     return pillNavOptions;
 };
 
-CustomObjects.init = function(request, output)
-{
-    output({redirect: pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'});
-};
-
 //exports
 module.exports = CustomObjects;

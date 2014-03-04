@@ -18,8 +18,7 @@ Email.prototype.onPostParamsRetrieved = function(post, cb) {
     post = pb.DocumentCreator.formatIntegerItems(post, ['secure_connection', 'port']);
     self.setFormFieldValues(post);
     
-    pb.settings.set('email_settings', post, function(data)
-    {
+    pb.settings.set('email_settings', post, function(data) {
         if(util.isError(data)) {
             self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/content', cb);
             return;
