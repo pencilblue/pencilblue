@@ -30,7 +30,7 @@ Email.prototype.render = function(cb) {
         ];
         
         //TODO: move email settings over to pb
-        getEmailSettings(function(emailSettings)
+        pb.email.getSettings(function(emailSettings)
         {
             self.session = setFormFieldValues(emailSettings, self.session);
             
