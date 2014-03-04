@@ -132,7 +132,7 @@ function checkForNewArticleSave()
 
 function buildSections(output)
 {
-    var sectionElements = $('#active_sections').find('.section');
+    var sectionElements = $('#active_sections').find('.section_item');
     sectionElementCount = 0;
     sectionsArray = [];
     

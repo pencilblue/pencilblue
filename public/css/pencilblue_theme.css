@@ -24,16 +24,18 @@ form .error
 }
 
 #nav_desktop .navbar .nav,
-#nav_desktop .navbar .nav > li {
-  float:none;
-  display:inline-block;
-  *display:inline; /* ie7 fix */
-  *zoom:1; /* hasLayout ie7 trigger */
-  vertical-align: top;
+#nav_desktop .navbar .nav > li
+{
+    float:none;
+    display:inline-block;
+    *display:inline; /* ie7 fix */
+    *zoom:1; /* hasLayout ie7 trigger */
+    vertical-align: top;
 }
 
-#nav_desktop .navbar-inner {
-  text-align:center;
+#nav_desktop .navbar-inner
+{
+    text-align:center;
 }
 
 #index_carousel .item
@@ -111,7 +113,7 @@ form .error
     max-width: 100%;
 }
 
-.media_embed img
+.media_embed img, .media_embed iframe
 {
     border-radius: .25em .25em 0 0;
     max-width: 100%;
@@ -134,7 +136,7 @@ form .error
 {
     .navbar-collapse
     {
-        padding-left: 0;
+        padding: 0;
     }
     
     #navbar_brand_mobile, #nav_items_mobile
