@@ -11,7 +11,6 @@ util.inherits(Email, pb.BaseController);
 
 Email.prototype.render = function(cb) {
     var self = this;
-	var dao  = new pb.DAO();
 	pb.templates.load('admin/site_settings/email', '^loc_EMAIL^', null, function(data) {
         var result = data;
         
@@ -63,7 +62,7 @@ Email.prototype.render = function(cb) {
             });
         });
     });
-}
+};
 
 //exports
 module.exports = Email;

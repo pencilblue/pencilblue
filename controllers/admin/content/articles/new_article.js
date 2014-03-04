@@ -18,7 +18,7 @@ NewArticle.prototype.render = function(cb) {
 	
 	var title = this.getPageTitle();
 	pb.templates.load(this.getTemplateLocation(), title, null, function(data) {
-		self.onTemplateRetrieved('' + data, function(err, data) {console.log('here');
+		self.onTemplateRetrieved('' + data, function(err, data) {
 	        var result = '' + data;
 	        var tabs   = self.getTabs();
 	        
@@ -39,7 +39,7 @@ NewArticle.prototype.render = function(cb) {
     });
 };
 
-NewArticle.prototype.onTemplateRetrieved = function(template, cb) {console.log('new');
+NewArticle.prototype.onTemplateRetrieved = function(template, cb) {
 	cb(null, template);
 };
 

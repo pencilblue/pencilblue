@@ -643,8 +643,29 @@ RequestHandler.CORE_ROUTES = [
     {
     	method: 'post',
     	path: "/api/comments/new_comment",
-    	auth_required: false,
+    	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'comments', 'new_comment.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/user/manage_account/change_password",
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account', 'change_password.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/user/manage_account",
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/user/manage_account/profile",
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account', 'profile.js'),
     	content_type: 'text/html'
     }
 ];

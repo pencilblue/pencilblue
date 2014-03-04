@@ -9,7 +9,7 @@ function EditUser(){}
 //inheritance
 util.inherits(EditUser, pb.FormController);
 
-EditUser.prototype.onPostParamsRetrieved = function(post, cb) {console.log('edit post')
+EditUser.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var get  = this.query;
 	
@@ -42,13 +42,13 @@ EditUser.prototype.onPostParamsRetrieved = function(post, cb) {console.log('edit
         
         pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
             if(util.isError(err) || isTaken) {
-                self.formError('^loc_EXISTING_USERNAME^', '/admin/users/edit_user?id=' + get.id, cb);console.log('here');
+                self.formError('^loc_EXISTING_USERNAME^', '/admin/users/edit_user?id=' + get.id, cb);
                 return;
             }
             
             dao.update(user).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/users/edit_user?id=' + get.id, cb);console.log('here2');
+                    self.formError('^loc_ERROR_SAVING^', '/admin/users/edit_user?id=' + get.id, cb);
                     return;
                 }
                 

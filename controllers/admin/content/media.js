@@ -106,10 +106,5 @@ Media.getAll = function(cb) {
     });
 };
 
-Media.init = function(request, output)
-{
-    output({redirect: pb.config.siteRoot + '/admin/content/media/manage_media'});
-};
-
 //exports
 module.exports = Media;

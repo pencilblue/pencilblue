@@ -21,8 +21,7 @@ Content.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
     
-    pb.settings.set('content_settings', post, function(data)
-    {
+    pb.settings.set('content_settings', post, function(data) {
         if(util.isError(data)) {
             self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/content', cb);
             return;

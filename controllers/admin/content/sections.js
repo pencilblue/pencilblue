@@ -1,26 +1,18 @@
-/*
-
-    
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    
-
-*/
 /**
  * Pages administration page
  * @author Blake Callens <blake.callens@gmail.com>
  * @copyright PencilBlue 2013, All rights reserved
  */
-function Section(){}
+function Sections(){}
 
 //inheritance
-util.inherits(Section, pb.BaseController);
+util.inherits(Sections, pb.BaseController);
 
-Section.prototype.render = function(cb) {
+Sections.prototype.render = function(cb) {
 	this.redirect(pb.config.siteRoot + '/admin/content/topics/section_map', cb);
 };
 
-Section.getPillNavOptions = function(activePill) {
+Sections.getPillNavOptions = function(activePill) {
     var pillNavOptions = [
         {
             name: 'new_section',
@@ -42,4 +34,4 @@ Section.getPillNavOptions = function(activePill) {
 };
 
 //exports
-module.exports = Section;
+module.exports = Sections;

@@ -46,7 +46,7 @@ EditArticle.prototype.render = function(cb) {
     });
 };
 
-EditArticle.prototype.onTemplateRetrieved = function(template, cb) {console.log('edit');
+EditArticle.prototype.onTemplateRetrieved = function(template, cb) {
 	cb(null, template.split('^article_id^').join(this.query.id));
 };
 

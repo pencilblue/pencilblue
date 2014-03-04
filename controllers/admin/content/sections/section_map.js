@@ -21,7 +21,7 @@ SectionMap.prototype.render = function(cb) {
         }
 
         pb.settings.get('section_map', function(err, sectionMap) {
-            if(sectionMap == null) {console.log('here');
+            if(sectionMap == null) {
             	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
                 return;
             }
@@ -57,107 +57,27 @@ SectionMap.prototype.render = function(cb) {
     });
 };
 
-SectionMap.init = function(request, output)
-{
-    var result = '';
-    var instance = this;
+SectionMap.getOrderedSections = function(sections, sectionMap) {
     
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
-        {
-            output({redirect: pb.config.siteRoot + '/admin'});
-            return;
-        }
+	var orderedSections = [];
+    for(var i = 0; i < sectionMap.length; i++) {
         
-        getDBObjectsWithValues({object_type: 'section'}, function(data)
-        {
-            if(data.length == 0)
-            {
-                output({redirect: pb.config.siteRoot + '/admin/content/sections/new_section'});
-                return;
-            }
-            
-            var sections = data;
-            
-            getDBObjectsWithValues({object_type: 'setting', key: 'section_map'}, function(data)
-            {
-                if(data.length == 0)
-                {
-                    output({redirect: pb.config.siteRoot + '/admin/content/sections/new_section'});
-                    return;
-                }
-                
-                var sectionMap = data[0].value;
-        
-                initLocalization(request, session, function(data)
-                {
-                    getHTMLTemplate('admin/content/sections/section_map', '^loc_SECTION_MAP^', null, function(data)
-                    {
-                        result = result.concat(data);
-                                
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
-                        {
-                            session = newSession;
-                            result = newResult;
-                            
-                            var pills = require('../sections').getPillNavOptions('section_map');
-                            pills.unshift(
-                            {
-                                name: 'section_map',
-                                title: '^loc_SECTION_MAP^',
-                                icon: 'refresh',
-                                href: '/admin/content/sections/section_map'
-                            });
-                            
-                            result = result.concat(pb.js.getAngularController(
-                            {
-                                navigation: getAdminNavigation(session, ['content', 'sections']),
-                                pills: pills,
-                                sections: SectionMap.getOrderedSections(sections, sectionMap)
-                            }));
-                            
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['admin', 'sections'], result)});
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    });
-};
-
-SectionMap.getOrderedSections = function(sections, sectionMap)
-{
-    var orderedSections = [];
-
-    for(var i = 0; i < sectionMap.length; i++)
-    {
-        var parentSection = null;
-        
-        for(var j = 0; j < sections.length; j++)
-        {
-            if(sectionMap[i].uid == sections[j]._id)
-            {
-                parentSection = sections[j];
+    	var parentSection = null;
+        for(var j = 0; j < sections.length; j++) {
+            if(sectionMap[i].uid == sections[j]._id) {
+                parentSection          = sections[j];
                 parentSection.children = [];
                 break;
             }
         }
         
-        if(!parentSection)
-        {
+        if(!parentSection) {
             continue;
         }
         
-        for(var o = 0; o < sectionMap[i].children.length; o++)
-        {
-            for(var j = 0; j < sections.length; j++)
-            {
-                if(sectionMap[i].children[o].uid == sections[j]._id)
-                {
+        for(var o = 0; o < sectionMap[i].children.length; o++) {
+            for(var j = 0; j < sections.length; j++) {
+                if(sectionMap[i].children[o].uid == sections[j]._id) {
                     parentSection.children.push(sections[j]);
                     break;
                 }

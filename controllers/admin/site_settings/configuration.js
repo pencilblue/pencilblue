@@ -36,7 +36,7 @@ Configuration.prototype.render = function(cb) {
         var content = self.localizationService.localize(['admin', 'settings', 'site_settings'], result);
         cb({content: content});
     });
-}
+};
 
 Configuration.getConfiguration = function(result)
 {
@@ -57,7 +57,7 @@ Configuration.getConfiguration = function(result)
     result = result.split('^db_servers^').join(pb.config.db.servers.join('<br/>'));
     
     return result;
-}
+};
 
 //exports
 module.exports = Configuration;

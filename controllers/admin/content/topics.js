@@ -13,8 +13,7 @@ Topics.prototype.render = function(cb) {
 	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/topics/manage_topics'));
 };
 
-Topics.getPillNavOptions = function(activePill)
-{
+Topics.getPillNavOptions = function(activePill) {
     var pillNavOptions = 
     [
         {
@@ -32,23 +31,15 @@ Topics.getPillNavOptions = function(activePill)
         
     ];
     
-    if(typeof activePill !== 'undefined')
-    {
-        for(var i = 0; i < pillNavOptions.length; i++)
-        {
-            if(pillNavOptions[i].name == activePill)
-            {
+    if(typeof activePill !== 'undefined') {
+        for(var i = 0; i < pillNavOptions.length; i++) {
+            if(pillNavOptions[i].name == activePill) {
                 pillNavOptions[i].active = 'active';
             }
         }
     }
     
     return pillNavOptions;
-};
-
-Topics.init = function(request, output)
-{
-    output({redirect: pb.config.siteRoot + '/admin/content/topics/manage_topics'});
 };
 
 //exports
