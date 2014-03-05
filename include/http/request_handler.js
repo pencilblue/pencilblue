@@ -667,6 +667,28 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account', 'profile.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/user/resend_verification",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'resend_verification.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/user/verification_sent",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'verification_sent.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/plugins/themes/pencilblue_settings",
+    	auth_required: true,
+    	access_level: ACCESS_MANAGING_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'plugins', 'themes', 'pencilblue', 'controllers', 'admin', 'pencilblue_settings.js'),
+    	content_type: 'text/html'
     }
 ];
 
@@ -766,6 +788,9 @@ RequestHandler.registerRoute = function(descriptor, theme){
 
 RequestHandler.prototype.handleRequest = function(){
 	
+	//get locale preference
+	this.localizationService = new pb.Localization(this.req);
+	
 	//fist things first check for public resource
 	if (RequestHandler.isPublicRoute(this.url.pathname)) {
 		this.servePublicContent();
@@ -775,9 +800,6 @@ RequestHandler.prototype.handleRequest = function(){
 	//check for session cookie
 	var cookies = RequestHandler.parseCookies(this.req);
 	this.req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
-	
-	//get locale preference
-	this.localizationService = new pb.Localization(this.req);
     
     //open session
 	var self = this;
@@ -856,7 +878,10 @@ RequestHandler.isPublicRoute = function(path){
 
 RequestHandler.prototype.serve404 = function() {
 	//TODO implement 404 handling
-	this.onRenderComplete({content: 'Url ['+this.url.href+'] could not be found on this server', code: 404});
+	var NotFound  = require('../../controllers/error/404.js');
+	var cInstance = new NotFound();
+	this.doRender({}, cInstance);
+	//this.onRenderComplete({content: 'Url ['+this.url.href+'] could not be found on this server', code: 404});
 	
 	if (pb.log.isSilly()) {
 		pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL="+this.url.href);
@@ -951,10 +976,14 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 	}
 	
 	//execute controller
-	var self            = this;
+
 	var ControllerType  = route[activeTheme].controller;
 	var cInstance       = new ControllerType();
-	
+	this.doRender(pathVars, cInstance);
+};
+
+RequestHandler.prototype.doRender = function(pathVars, cInstance) {
+	var self  = this;
 	var props = {
 		request: this.req,
 		response: this.resp,

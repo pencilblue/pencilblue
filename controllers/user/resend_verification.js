@@ -1,56 +1,46 @@
-/*
+/**
+ * ResendVerification - Form for resending a verification email
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function ResendVerification(){}
 
-    Form for resending a verification email
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2014, All rights reserved
+//inheritance
+util.inherits(ResendVerification, pb.BaseController);
 
-*/
+ResendVerification.prototype.render = function(cb) {
+	var self = this;
+	
+	pb.content.getSettings(function(err, contentSettings) {
 
-this.init = function(request, output)
-{
-    var result = '';
-    
-    getContentSettings(function(contentSettings)
-    {
-        if(!contentSettings.allow_comments || !contentSettings.require_verification)
-        {
-            output({redirect: pb.config.siteRoot});
+        if(!contentSettings.allow_comments || !contentSettings.require_verification) {
+            self.redirect(pb.config.siteRoot, cb);
             return;
         }   
         
-        getSession(request, function(session)
-        {    
-            initLocalization(request, session, function(data)
-            {
-                getHTMLTemplate('user/resend_verification', '^loc_RESEND_VERIFICATION^', null, function(data)
-                {
-                    result = result.concat(data);
+        pb.templates.load('user/resend_verification', '^loc_RESEND_VERIFICATION^', null, function(data) {
+            var result = '' + data;
+            
+            var dao = new pb.DAO();
+            dao.query('pencilblue_theme_settings'),then(function(data) {
+                if(util.isError(data) || data.length == 0) {
+                    result = result.split('^site_logo^').join(pb.config.siteRoot + '/img/logo_menu.png');
+                }
+                else {
+                    result = result.split('^site_logo^').join(data[0].site_logo);
+                }
+            
+                self.displayErrorOrSuccess(result, function(newResult) {
+                    result = newResult;
                     
-                    getDBObjectsWithValues({object_type: 'pencilblue_theme_settings'}, function(data)
-                    {
-                        if(data.length == 0)
-                        {
-                            result = result.split('^site_logo^').join(pb.config.siteRoot + '/img/logo_menu.png');
-                        }
-                        else
-                        {
-                            result = result.split('^site_logo^').join(data[0].site_logo);
-                        }
-                    
-                        displayErrorOrSuccess(session, result, function(newSession, newResult)
-                        {
-                            session = newSession;
-                            result = newResult;
-                            
-                            editSession(request, session, [], function(data)
-                            {
-                                output({cookie: getSessionCookie(session), content: localize(['users'], result)});
-                            });
-                        });
-                    });
+                    var content = self.localizationService.localize(['users'], result);
+                     cb({content: content});
                 });
             });
         });
     });
-}
+};
+
+//exports
+module.exports = ResendVerification;

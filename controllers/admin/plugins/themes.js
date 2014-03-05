@@ -58,7 +58,7 @@ Themes.prototype.getThemes = function(cb) {
             	var themeData = JSON.parse(fs.readFileSync(details));
                 if(themeData.settings) {
                     
-                	var controllerPath = subDirPath + '/controllers' + themeData.settings + '.js';
+                	var controllerPath = path.join(subDirPath, themeData.settings_controller);
                 	if(fs.existsSync(controllerPath)) {
                         themes.push(
                         {
