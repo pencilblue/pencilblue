@@ -81,11 +81,11 @@ Login.prototype.doLogin = function(post, cb) {
 Login.prototype.loginError = function(adminAttempt, cb) {
     this.session.error = '^loc_INVALID_LOGIN^';
     if(adminAttempt){
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/login'));
+        this.redirect(pb.config.siteRoot + '/admin/login', cb);
         return;
     }
     
-    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/login'));
+    this.redirect(pb.config.siteRoot + '/user/login', cb);
 };
 
 //exports

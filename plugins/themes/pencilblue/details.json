@@ -3,7 +3,8 @@
     "plugin_type": "theme",
     "name": "pencilblue",
     "icon": "pencil",
-    "settings": "/admin/pencilblue_settings",
+    "settings_controller": "/controllers/admin/pencilblue_settings.js",
+    "settings": "/admin/plugins/themes/pencilblue_settings",
     "content_templates":
     [
         {

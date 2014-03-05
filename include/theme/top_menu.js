@@ -58,13 +58,12 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
                     }
                 }
                 
-                getContentSettings(function(contentSettings)
-                {
+                pb.content.getSettings(function(err, contentSettings) {
                     var accountButtons = [];
                 
                     if(contentSettings.allow_comments)
                     {
-                        if(session.user)
+                        if(session && session.authentication && session.authentication.user)
                         {
                             accountButtons =
                             [

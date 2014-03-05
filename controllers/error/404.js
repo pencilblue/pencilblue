@@ -6,19 +6,28 @@
  */
 function NotFound(){}
 
-//inheritance
+//dependencies
 var TopMenu = require('../../include/theme/top_menu');
 
+//inheritance
+util.inherits(NotFound, pb.BaseController);
+
 NotFound.prototype.render = function(cb) {
+	var self = this;
 	
 	pb.templates.load('error/404', '404', null, function(data) {
-        result = result.concat(data);
+        var result = '' + data;
         
-        pb.content.getSettings(function(contentSettings) {
-            TopMenu.getTopMenu(session, function(themeSettings, navigation, accountButtons) {
+        pb.content.getSettings(function(err, contentSettings) {
+            TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
                 
-            	var loggedIn = session.authentication.user ? true : false;
-                result       = result.concat(pb.js.getAngularController(
+            	var loggedIn = false;
+            	if (self.session && self.session.authentication) {
+            		if (self.session.authentication.user) {
+            			loggedIn = true;
+            		}
+            	} 
+                result = result.concat(pb.js.getAngularController(
                 {
                     navigation: navigation,
                     contentSettings: contentSettings,
@@ -28,7 +37,7 @@ NotFound.prototype.render = function(cb) {
                 }));
                 
                 var content = self.localizationService.localize(['error'], result);
-                cb({content: content});
+                cb({content: content, code: 404, content_type: 'text/html'});
             });
         });
     });
