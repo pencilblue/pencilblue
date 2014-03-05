@@ -71,7 +71,7 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 
 UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb) {
 	this.getExistingUsernameEmailCounts(username, email, id, function(err, results) {
-		
+
 		var result = results == null;
 		if (!result) {
 			
@@ -88,6 +88,7 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 		if (id) {
 			where._id = {$ne: new ObjectID(id)};
 		}
+		return where;
 	};
 	var dao   = new pb.DAO();
 	var tasks = {
