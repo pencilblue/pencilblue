@@ -26,16 +26,21 @@ form .error
 #nav_desktop .navbar .nav,
 #nav_desktop .navbar .nav > li
 {
-    float:none;
-    display:inline-block;
-    *display:inline; /* ie7 fix */
-    *zoom:1; /* hasLayout ie7 trigger */
+    float: none;
+    display: inline-block;
+    *display: inline; /* ie7 fix */
+    *zoom: 1; /* hasLayout ie7 trigger */
     vertical-align: top;
 }
 
 #nav_desktop .navbar-inner
 {
-    text-align:center;
+    text-align: center;
+}
+
+#nav_desktop .navbar-inner li
+{
+    text-align: left;
 }
 
 #index_carousel .item
@@ -133,12 +138,7 @@ form .error
 }
 
 @media(min-width: 768px)
-{
-    .navbar-collapse
-    {
-        padding: 0;
-    }
-    
+{    
     #navbar_brand_mobile, #nav_items_mobile
     {
         display: none;
@@ -146,6 +146,7 @@ form .error
     
     #nav_desktop
     {
+        margin: 0;
         display: block;
     }
 }
