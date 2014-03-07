@@ -568,6 +568,21 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	path: "/admin/content/custom_objects/sort_objects/:name",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'sort_objects.js'),
+    	content_type: 'text/html'
+    },
+    {
+        method: 'post',
+    	path: "/actions/admin/content/custom_objects/sort_objects/:type_id",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'sort_objects.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'get',
     	path: "/admin/content/custom_objects/new_object/:type",
     	access_level: ACCESS_EDITOR,

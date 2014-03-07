@@ -70,6 +70,7 @@ Index.prototype.render = function(cb) {
 };
 
 Index.prototype.getPageTitle = function() {
+	return pb.config.siteName;
 	return '^loc_HOME^';
 };
 
