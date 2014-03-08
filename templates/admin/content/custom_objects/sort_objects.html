@@ -1,0 +1,28 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    <div id="objects_sort" class="panel panel-default">
+        <div class="panel-heading">
+            Drag the objects to sort them...
+        </div>
+        <div class="panel-body">
+            <div id="object_{{customObject._id}}" class="label label-default custom_object" ng-repeat="customObject in customObjects track by customObject._id" ng-cloak>
+                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="object_name">{{customObject.name}}</span>
+            </div>
+            <div class="spacer"></div>
+        </div>
+    </div>
+    <form id="sort_objects_form" method="post" action="^site_root^/actions/admin/content/custom_objects/sort_objects/^object_type_id^">
+        <fieldset>
+            <button type="button" class="btn btn-default" onclick="window.location = '/admin/content/custom_objects/manage_objects/^object_type_name^';">
+                <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+            </button>
+            <button type="button" class="btn btn-primary" onclick="prepareSortObjectsSave()">
+                <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+            </button>
+        </fieldset>
+    </form>
+</div>
+<script type="text/javascript" src="/js/admin/content/custom_objects/sort_objects.js"></script>
+^tmp_admin=footer^

@@ -46,12 +46,12 @@ function validateUsername()
             if(response.data)
             {
                 $('#availability_button').attr('class', 'btn btn-success');
-                $('#availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.users.AVAILABLE);
+                $('#availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.generic.AVAILABLE);
             }
             else
             {
                 $('#availability_button').attr('class', 'btn btn-danger');
-                $('#availability_button').html('<i class="fa fa-ban"></i>&nbsp;' + loc.users.UNAVAILABLE);
+                $('#availability_button').html('<i class="fa fa-ban"></i>&nbsp;' + loc.generic.UNAVAILABLE);
             }
         }
     });

@@ -1,15 +1,15 @@
 /**
- * Manage custom objects via a table
+ * Sort custom objects via drag and drop
  * 
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
-function ManageObjects() {}
+function SortObjects() {}
 
 //inheritance
-util.inherits(ManageObjects, pb.BaseController);
+util.inherits(SortObjects, pb.BaseController);
 
-ManageObjects.prototype.render = function(cb) {
+SortObjects.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
     if(!vars['name']) {
@@ -77,8 +77,8 @@ ManageObjects.prototype.render = function(cb) {
                     sortedObjects.concat(customObjects);
                     customObjects = sortedObjects;
                 }
-            
-                pb.templates.load('admin/content/custom_objects/manage_objects', '^loc_MANAGE^ ' + objectType.name, null, function(data) {
+        
+                pb.templates.load('admin/content/custom_objects/sort_objects', '^loc_MANAGE^ ' + objectType.name, null, function(data) {
                     var result = ''+data;
                         
                     self.displayErrorOrSuccess(result, function(newResult) {
@@ -88,15 +88,9 @@ ManageObjects.prototype.render = function(cb) {
                         [
                             {
                                 name: 'manage_objects',
-                                title: '^loc_MANAGE^ ' + objectType.name + ' ^loc_OBJECTS^',
+                                title: '^loc_SORT^ ' + objectType.name + ' ^loc_OBJECTS^',
                                 icon: 'chevron-left',
-                                href: '/admin/content/custom_objects/manage_object_types'
-                            },
-                            {
-                                name: 'sort_objects',
-                                title: '',
-                                icon: 'sort-amount-desc',
-                                href: '/admin/content/custom_objects/sort_objects/' + objectType.name
+                                href: '/admin/content/custom_objects/manage_objects/' + objectType.name
                             },
                             {
                                 name: 'new_object',
@@ -112,7 +106,10 @@ ManageObjects.prototype.render = function(cb) {
                             pills: pills,
                             customObjects: customObjects,
                             objectType: objectType
-                        }, [], 'initCustomObjectsPagination()'));
+                        }));
+                        
+                        result = result.split('^object_type_id^').join(objectType._id);
+                        result = result.split('^object_type_name^').join(objectType.name);
                         
                         var content = self.localizationService.localize(['admin', 'custom_objects'], result);
                         cb({content: content});
@@ -124,4 +121,4 @@ ManageObjects.prototype.render = function(cb) {
 };
 
 //exports
-module.exports = ManageObjects;
+module.exports = SortObjects;
