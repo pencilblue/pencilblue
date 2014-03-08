@@ -704,12 +704,20 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'verification_sent.js'),
     	content_type: 'text/html'
     },
-    {
+    {//TODO Refactor theme settings so that it is consistent across all themes and registered as part of the plugin framework
     	method: 'get',
     	path: "/admin/plugins/themes/pencilblue_settings",
     	auth_required: true,
     	access_level: ACCESS_MANAGING_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'plugins', 'themes', 'pencilblue', 'controllers', 'admin', 'pencilblue_settings.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/plugins/themes/pencilblue_settings",
+    	auth_required: true,
+    	access_level: ACCESS_MANAGING_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'plugins', 'themes', 'pencilblue', 'controllers', 'actions', 'admin', 'pencilblue_settings.js'),
     	content_type: 'text/html'
     }
 ];

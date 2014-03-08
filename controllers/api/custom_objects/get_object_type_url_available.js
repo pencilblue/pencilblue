@@ -15,24 +15,24 @@ GetObjectTypeURLAvailable.prototype.render = function(cb) {
 	
 	if(!get['url'] || get['url'].length == 0)
 	{
-	    cb({content: apiResponse(apiResponseCode.FAILURE, 'url was not passed')});
+	    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'url was not passed')});
         return;
 	}
 
     var dao = new pb.DAO();
     dao.count('custom_object_type', {url: get['url'].toLowerCase()}, function(err, count) {
         if(count > 0) {
-            cb({content: apiResponse(apiResponseCode.SUCCESS, get['url'] + ' is not available', false)});
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get['url'] + ' is not available', false)});
             return;
         }
         
         dao.count('page', {url: get['url'].toLowerCase()}, function(err, count) {
             if(count > 0) {
-                cb({content: apiResponse(apiResponseCode.SUCCESS, get['url'] + ' is not available', false)});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get['url'] + ' is not available', false)});
                 return;
             }
         
-            cb({content: apiResponse(apiResponseCode.SUCCESS, get['url'] + ' is available', true)});
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get['url'] + ' is available', true)});
             return;
         });
     });

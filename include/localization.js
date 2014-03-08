@@ -1,68 +1,9 @@
-global.initLocalization = function(request, session, output)
-{
-    var getParameters = getQueryParameters(request);
-    if(getParameters['language'])
-    {
-        session.language = getParameters['language'];
-    }
-    else if(!session.language)
-    {
-        session.language = 'en-us';
-    }
-    
-    fs.exists(DOCUMENT_ROOT + 'public/localization/' + session.language + '.js', function(exists)
-    {
-        if(!exists)
-        {
-            session.language = 'en-us';
-        }
-        
-        require('./../public/localization/' + session.language);
-        
-        pb.settings.get('active_theme', function(activeTheme) {
-            
-        	if(activeTheme != null)  {
-                
-        		if(fs.existsSync(DOCUMENT_ROOT + '/plugins/themes/' + activeTheme + '/public/loc/' + session.language + '.js')) {
-                    require('./../plugins/themes/' + data[0]['value'] + '/public/loc/' + session.language);
-                }
-            }
-        
-            editSession(request, session, [], function(data) {
-                output(true);
-            });
-        });
-    });
-};
-
-global.localize = function(sets, text)
-{
-    for(var key in loc.generic)
-    {
-        text = text.split('^loc_' + key + '^').join(loc.generic[key]);
-    }
-    
-    for(var i = 0; i < sets.length; i++)
-    {
-        for(var key in loc[sets[i]])
-        {
-            text = text.split('^loc_' + key + '^').join(loc[sets[i]][key]);
-        }
-    }
-    
-    // If the localization is for HTML output, load the localization into client side JS
-    if(text.indexOf('<body') > -1)
-    {
-        text = text.concat(pb.js.includeJS(pb.config.siteRoot + '/localization/' + localizationLanguage + '.js'));
-    }
-    
-    return text;
-};
-
 /**
  * Localization - Provides functions to translate items based on keys.  Also 
  * assists in the determination of the best language for the given user.
- * @param locale
+ * 
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright PencilBlue, LLC. 2014 All Rights Reserved
  */
 function Localization(request){
 	this.language = Localization.best(request).toString().toLowerCase();

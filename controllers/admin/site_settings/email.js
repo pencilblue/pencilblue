@@ -29,14 +29,10 @@ Email.prototype.render = function(cb) {
             }
         ];
         
-        //TODO: move email settings over to pb
-        pb.email.getSettings(function(emailSettings)
-        {
-            self.session = setFormFieldValues(emailSettings, self.session);
+        pb.email.getSettings(function(emailSettings) {
+            self.setFormFieldValues(emailSettings);
             
-            prepareFormReturns(self.session, result, function(newSession, newResult)
-            {
-                self.session = newSession;
+            self.prepareFormReturns(result, function(newResult) {
                 result = newResult;
                 
                 var pills = require('../site_settings').getPillNavOptions('email');
