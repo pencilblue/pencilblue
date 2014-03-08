@@ -49,7 +49,6 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
                             
                             for(var j = 0; j < sectionMap[i].children.length; j++) {
                                 var child = self.getSectionData(sectionMap[i].children[j].uid, sections);
-                                child.url = pb.utils.urlJoin('section', child.url);
                                 section.children.push(child);
                             }
                             
