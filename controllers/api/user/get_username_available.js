@@ -14,18 +14,17 @@ UsernameAvailable.prototype.render = function(cb) {
     
 	var message = this.hasRequiredParams(get, ['username']);
     if(message) {
-        cb({content: apiResponse(apiResponseCode.FAILURE, 'username missing from request')});
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'username missing from request')});
         return;
     }
     
     pb.users.isUserNameOrEmailTaken(get.username, '', null, function(error, isTaken) {
         if(isTaken) {
-            cb({content: apiResponse(apiResponseCode.SUCCESS, get.username + ' is not available', false)});
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.username + ' is not available', false)});
             return;
         }
         
-        
-        cb({content: apiResponse(apiResponseCode.SUCCESS, get.username + ' is available', true)});
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.username + ' is available', true)});
     });	
 };
 

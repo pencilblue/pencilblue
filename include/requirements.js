@@ -105,8 +105,6 @@ pb.content         = require(DOCUMENT_ROOT+'/include/content').ContentService;		
 pb.js              = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
 pb.AdminNavigation = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
 require(DOCUMENT_ROOT+'/include/error_success');			// Error and Success Message Handling
-require(DOCUMENT_ROOT+'/include/form');			            // Retrieving of form data through sessions
-require(DOCUMENT_ROOT+'/include/api/response');			    // API response formatting
 
 //Export system object
 module.exports = pb;

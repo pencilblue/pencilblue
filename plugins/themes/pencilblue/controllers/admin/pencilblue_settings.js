@@ -33,7 +33,7 @@ PencilblueSettings.prototype.render = function(cb) {
                 settings.carousel = settings.carousel_media.join(',');
             }
             
-            self.session = self.setFormFieldValues(settings);
+            self.setFormFieldValues(settings);
             result = result.split('^image_title^').join('^loc_SITE_LOGO^');
             result = result.split('^uploaded_image^').join(settings.site_logo);
             

@@ -31,7 +31,7 @@ EditPage.prototype.render = function(cb) {
         
         page.page_media  = page.page_media.join(',');
         page.page_topics = page.page_topics.join(',');
-        self.session     = self.setFormFieldValues(page);
+        self.setFormFieldValues(page);
         
         //ensure that only the author can edit page
         //TODO should global administrator be able to do this too?

@@ -15,7 +15,7 @@ GetObjectTypeNameAvailable.prototype.render = function(cb) {
 	
 	if(!get['name'] || get['name'].length == 0)
 	{
-	    cb({content: apiResponse(apiResponseCode.FAILURE, 'name was not passed')});
+	    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'name was not passed')});
         return;
 	}
 
@@ -27,7 +27,7 @@ GetObjectTypeNameAvailable.prototype.render = function(cb) {
 		
 		//none to manage
         if(customObjectTypes.length == 0) {                
-            cb({content: apiResponse(apiResponseCode.SUCCESS, get['name'] + ' is available', true)});
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get['name'] + ' is available', true)});
             return;
         }
         
@@ -36,12 +36,12 @@ GetObjectTypeNameAvailable.prototype.render = function(cb) {
         {
             if(get['name'].toLowerCase() == customObjectTypes[i].name.toLowerCase())
             {
-                cb({content: apiResponse(apiResponseCode.SUCCESS, get['name'] + ' is not available', false)});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get['name'] + ' is not available', false)});
                 return;
             }
         }
         
-        cb({content: apiResponse(apiResponseCode.SUCCESS, get['name'] + ' is available', true)});
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get['name'] + ' is available', true)});
         return;
     });
 };

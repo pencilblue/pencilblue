@@ -6,70 +6,57 @@
     @copyright PencilBlue 2013, All rights reserved
 
 */
+/**
+ * PencilBlueSettings - 
+ * 
+ * @author Blake Callens <blake.callens@gmail.com>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+function PencilBlueSettings(){}
 
-this.init = function(request, output)
-{
-    getSession(request, function(session)
-    {
-        if(!userIsAuthorized(session, {logged_in: true, admin_level: ACCESS_EDITOR}))
-        {
-            formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/plugins/themes', output);
-            return;
-        }
-    
-        var post = getPostParameters(request);
-        
-        post['site_logo'] = post['uploaded_image'];
-        
-        delete post['uploaded_image'];
-        delete post['media_search'];
-        delete post['image_url'];
-        
-        if(message = checkForRequiredParameters(post, ['site_logo']))
-        {
-            formError(request, session, message, '/admin/plugins/themes', output);
-            return;
-        }
-        
-        var pencilblueSettingsDocument = createDocument('pencilblue_theme_settings', post, ['carousel_media']);
-        
-        getDBObjectsWithValues({object_type: 'pencilblue_theme_settings'}, function(data)
-        {
-            if(data.length > 0)
-            {
-                editDBObject(data[0]._id, pencilblueSettingsDocument, [], function(data)
-                {
-                    if(data.length == 0)
-                    {
-                        formError(request, session, '^loc_ERROR_SAVING^', '/admin/plugins/themes', output);
-                        return;
-                    }
-                    
-                    session.success = '^loc_PENCILBLUE_SETTINGS_SAVED^';
-                    
-                    editSession(request, session, [], function(data)
-                    {        
-                        output({redirect: pb.config.siteRoot + '/admin/plugins/themes'});
-                    });
-                });
-                return;
-            }
-            
-            createDBObject(pencilblueSettingsDocument, function(data)
-            {
-                if(data.length == 0)
-                {
-                    formError(request, session, '^loc_ERROR_SAVING^', '/admin/plugins/themes', output);
-                    return;
-                }
-                
-                session.success = '^loc_PENCILBLUE_SETTINGS_SAVED^';
-                
-                editSession(request, session, [], function(data)
-                {        
-                    output({redirect: pb.config.siteRoot + '/admin/plugins/themes'});
-                });
-            });
-        });
-    });
-}
+//inheritance
+util.inherits(PencilBlueSettings, pb.FormController);
+
+PencilBlueSettings.prototype.onPostParamsRetrieved = function(post, cb) {
+	var self = this;
+	
+	 post['site_logo'] = post['uploaded_image'];
+     
+     delete post['uploaded_image'];
+     delete post['media_search'];
+     delete post['image_url'];
+     
+     var message = this.hasRequiredParams(post, ['site_logo']);
+     if(message) {
+         this.formError(message, '/admin/plugins/themes', cb);
+         return;
+     }
+     
+     var dao = new pb.DAO();
+     dao.query('pencilblue_theme_settings').then(function(data){
+    	 if (util.isError(data)) {
+    		 //TODO handle error
+    	 }
+    	 
+    	 var settings = null;
+    	 if (data.length > 0) {
+    		 settings = data[0];
+    		 pb.DocumentCreator.update(post, settings, ['carousel_media']);
+    	 }
+    	 else {
+    		 settings = pb.DocumentCreator.create('pencilblue_theme_settings', post, ['carousel_media']);
+    	 }
+    	 
+    	 dao.update(settings).then(function(result){
+    		if (util.isError(result)) {
+    			self.formError('^loc_ERROR_SAVING^', '/admin/plugins/themes', cb);
+    		}
+    		 
+    		self.session.success = '^loc_PENCILBLUE_SETTINGS_SAVED^';
+    		self.redirect(pb.config.siteRoot + '/admin/plugins/themes', cb);
+    	 });
+     });
+};
+
+//exports
+module.exports = PencilBlueSettings;

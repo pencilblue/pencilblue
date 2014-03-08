@@ -29,7 +29,7 @@ NewPage.prototype.onPostParamsRetrieved = function(post, cb) {
     post['publish_date'] = new Date(post['publish_date']);
     post['page_layout']  = decodeURIComponent(post['page_layout']);
     
-    this.session = this.setFormFieldValues(post);
+    this.setFormFieldValues(post);
     
     var message = this.hasRequiredParams(post, ['url', 'headline', 'template', 'page_layout']);
     if(message) {
