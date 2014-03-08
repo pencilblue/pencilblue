@@ -1,5 +1,5 @@
 /**
- * Article - Responsible for looking up a specific article and rendering it.
+ * Section - Responsible for looking up a specific section and rendering it.
  * 
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright PencilBlue, LLC. 2014 All Rights Reserved

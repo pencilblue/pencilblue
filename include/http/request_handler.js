@@ -656,6 +656,13 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'get',
+    	path: "/page/:customUrl",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'page.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'post',
     	path: "/api/comments/new_comment",
     	auth_required: true,
