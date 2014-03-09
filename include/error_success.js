@@ -1,10 +1,3 @@
-global.formError = function(request, session, message, redirectLocation, output) {
-    
-	session.error = message;
-    editSession(request, session, [], function(data) {        
-        output({redirect: pb.config.siteRoot + redirectLocation});
-    });
-};
 
 global.displayErrorOrSuccess = function(session, result, output) {
     if(session['error']) {

@@ -48,31 +48,13 @@ NewUser.prototype.render = function(cb) {
                 navigation: pb.AdminNavigation.get(self.session, ['users']),
                 pills: pills,
                 tabs: tabs,
-                adminOptions: NewUser.getAdminOptions(self.session)
+                adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
             }));
             
             var content = self.localizationService.localize(['admin', 'users', 'media'], result);
             cb({content: content});
         });
     });
-};
-
-
-NewUser.getAdminOptions = function(session) {
-    var adminOptions = [
-        {name: localize([], '^loc_READER^'), value: ACCESS_USER},
-        {name: localize([], '^loc_WRITER^'), value: ACCESS_WRITER},
-        {name: localize([], '^loc_EDITOR^'), value: ACCESS_EDITOR}
-    ];
-    
-    if(session.authentication.user.admin >= ACCESS_MANAGING_EDITOR) {
-        adminOptions.push({name: localize([], '^loc_MANAGING_EDITOR^'), value: ACCESS_MANAGING_EDITOR});
-    }
-    if(session.authentication.user.admin >= ACCESS_ADMINISTRATOR) {
-        adminOptions.push({name: localize([], '^loc_ADMINISTRATOR^'), value: ACCESS_ADMINISTRATOR});
-    }
-    
-    return adminOptions;
 };
 
 //exports

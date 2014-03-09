@@ -1,88 +1,3 @@
-
-global.getSession = function (request, output) {
-    
-    var sessionID = SessionHandler.getSessionIdFromCookie(request);
-    if(sessionID){
-    	
-    	var clientID = getClientID(request);
-    	var criteria = {
-			object_type: 'session', 
-			ip: request.connection.remoteAddress, 
-			client_id: clientID, 
-			uid: sessionID
-		};
-        getDBObjectsWithValues(criteria, function(data){
-            if(data.length == 0) {
-                createSession(request, output);
-                return;
-            }
-            output(data[0]);
-        });
-    }
-    else
-    {
-        createSession(request, output);
-    }
-    
-    deleteMatchingDBObjects({object_type: 'session', timeout: {$lte: new Date()}}, function(data){});
-};
-
-createSession = function(request, output)
-{
-    var clientID = getClientID(request);
-    var sessionTimeout = new Date();
-    sessionTimeout.setTime(sessionTimeout.getTime() + (24 * 60 * 60 * 1000));
-    
-    uniqueID(function(unique)
-    {
-        createDBObject({object_type: 'session', ip: request.connection.remoteAddress, client_id: clientID, uid: unique, timeout: sessionTimeout}, function(data)
-        {
-            output(data);
-        });
-    });
-};
-
-global.editSession = function(request, session, unsets, output)
-{
-    getDBObjectsWithValues({object_type: 'session', uid: session.uid}, function(data)
-    {
-        if(data.length == 0)
-        {
-            createSession(request, output);
-            return;
-        }
-        
-        editDBObject(data[0]._id, session, unsets, function(data)
-        {
-            output(data[0]);
-        });
-    });
-    
-    deleteMatchingDBObjects({object_type: 'session', timeout: {$lte: new Date()}}, function(data){});
-};
-
-global.closeSession = function(session, output)
-{
-    deleteDBObject(session._id, 'session', output);
-};
-
-global.getClientID = function(request)
-{
-    var whirlpool = crypto.createHash('whirlpool');
-    whirlpool.update(request.connection.remoteAddress + request.headers['user-agent']);
-    var clientID = whirlpool.digest('hex');
-    
-    return clientID;
-};
-
-global.getSessionCookie = function(session)
-{
-    return {session_id: session.uid, path: '/', expires: '0'};
-};
-
-//types
-var SessionStore = null;
-
 /**
  * SessionHandler - Responsible for managing user sessions
  * 
@@ -100,6 +15,10 @@ function SessionHandler(){
 	this.localStorage = {};
 };
 
+//private static variables
+var SessionStore = null;
+
+//constants
 SessionHandler.HANDLER_PATH   = path.join(DOCUMENT_ROOT, 'include', 'session', 'storage', path.sep);
 SessionHandler.HANDLER_SUFFIX = '_session_store.js';
 SessionHandler.SID_KEY        = 'uid';
@@ -262,22 +181,6 @@ SessionHandler.prototype.getRequestCount = function(sessionId) {
  */
 SessionHandler.prototype.isLocal = function(sessionId){
 	return this.localStorage.hasOwnProperty(sessionId);
-};
-
-SessionHandler.prototype.getSession = function(request, output){
-	global.getSession(request, output);
-};
-
-SessionHandler.prototype.createSession = function(request, output){
-	global.createSession(request, output);
-};
-
-SessionHandler.prototype.editSession = function(request, session, unsets, output){
-	global.editSession(request, session, usets, output);
-};
-
-SessionHandler.prototype.closeSession = function(session, output){
-	global.closeSession(session, output);
 };
 
 /**

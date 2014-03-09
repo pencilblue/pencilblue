@@ -40,11 +40,9 @@ Content.prototype.render = function(cb) {
         ];
         
         pb.content.getSettings(function(err, contentSettings) {
-            self.session = setFormFieldValues(contentSettings, self.session);
+            self.setFormFieldValues(contentSettings);
             
-            prepareFormReturns(self.session, result, function(newSession, newResult)
-            {
-                self.session = newSession;
+            self.prepareFormReturns(result, function(newResult) {
                 result = newResult;
                 
                 var pills = require('../site_settings').getPillNavOptions('content');
