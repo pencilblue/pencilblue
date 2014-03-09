@@ -105,6 +105,62 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
     });
 };
 
+TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
+{
+    pb.templates.load('elements/top_menu/link', null, null, function(linkTemplate) {
+        pb.templates.load('elements/top_menu/dropdown', null, null, function(dropdownTemplate) {
+            pb.templates.load('elements/top_menu/account_button', null, null, function(accountButtonTemplate) {
+                var bootstrapNav = '';
+                for(var i = 0; i < navigation.length; i++)
+                {
+                    if(navigation[i].dropdown)
+                    {
+                        var subNav = '';
+                        for(var j = 0; j < navigation[i].children.length; j++)
+                        {
+                            var childItem = linkTemplate;
+                            childItem = childItem.split('^active^').join((navigation[i].children[j].active) ? 'active' : '');
+                            childItem = childItem.split('^url^').join((navigation[i].children[j].url.indexOf('http://') > -1 || navigation[i].children[j].url.indexOf('https://') > -1) ? navigation[i].children[j].url : '/' + navigation[i].children[j].url);
+                            childItem = childItem.split('^name^').join(navigation[i].children[j].name);
+                            
+                            subNav = subNav.concat(childItem);
+                        }
+                        
+                        var dropdown = dropdownTemplate;
+                        dropdown = dropdown.split('^navigation^').join(subNav);
+                        dropdown = dropdown.split('^active^').join((navigation[i].active) ? 'active' : '');
+                        dropdown = dropdown.split('^name^').join(navigation[i].name);
+                        
+                        bootstrapNav = bootstrapNav.concat(dropdown);
+                    }
+                    else
+                    {
+                        var linkItem = linkTemplate;
+                        linkItem = linkItem.split('^active^').join((navigation[i].active) ? 'active' : '');
+                        linkItem = linkItem.split('^url^').join((navigation[i].url.indexOf('http://') > -1 || navigation[i].url.indexOf('https://') > -1) ? navigation[i].url : '/' + navigation[i].url);
+                        linkItem = linkItem.split('^name^').join(navigation[i].name);
+                        
+                        bootstrapNav = bootstrapNav.concat(linkItem);
+                    }
+                }
+                
+                var buttons = '';
+                for(var i = 0; i < accountButtons.length; i++)
+                {
+                    var button = accountButtonTemplate;
+                    button = button.split('^active^').join((accountButtons[i].active) ? 'active' : '');
+                    button = button.split('^url^').join(accountButtons[i].href);
+                    button = button.split('^icon^').join(accountButtons[i].icon);
+                    
+                    buttons = buttons.concat(button);
+                }
+                
+                cb(bootstrapNav, buttons);
+            });
+        });
+    });
+}
+
 TopMenuService.getSectionData = function(uid, sections) {
     for(var i = 0; i < sections.length; i++) {
         if(sections[i]._id.equals(ObjectID(uid))) {

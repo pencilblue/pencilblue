@@ -22,44 +22,47 @@ Index.prototype.render = function(cb) {
         var result = data;
                         
         TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
+            TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons)
+            {
+                result = result.split('^navigation^').join(navigation);
+                result = result.split('^account_buttons^').join(accountButtons);
 
-            var section = self.req.pencilblue_section || null;
-            var topic   = self.req.pencilblue_topic   || null;
-            var article = self.req.pencilblue_article || null;
-            var page    = self.req.pencilblue_page    || null;
-            
-            Articles.getArticles(section, topic, article, page, function(articles) {
-                Media.getCarousel(themeSettings.carousel_media, result, '^carousel^', 'index_carousel', function(newResult) {
-                    pb.content.getSettings(function(err, contentSettings) {
-                        
-                        Comments.getCommentsTemplate(contentSettings, function(commentsTemplate) {
-                            result = result.split('^comments^').join(commentsTemplate);
+                var section = self.req.pencilblue_section || null;
+                var topic   = self.req.pencilblue_topic   || null;
+                var article = self.req.pencilblue_article || null;
+                var page    = self.req.pencilblue_page    || null;
+                
+                Articles.getArticles(section, topic, article, page, function(articles) {
+                    Media.getCarousel(themeSettings.carousel_media, result, '^carousel^', 'index_carousel', function(newResult) {
+                        pb.content.getSettings(function(err, contentSettings) {
                             
-                            var loggedIn       = false;
-                            var commentingUser = {};
-                            if(self.session.authentication.user) {
-                                loggedIn       = true;
-                                commentingUser = Comments.getCommentingUser(self.session.authentication.user);
-                            }
-                    
-                            var objects = {
-                                navigation: navigation,
-                                contentSettings: contentSettings,
-                                loggedIn: loggedIn,
-                                commentingUser: commentingUser,
-                                themeSettings: themeSettings,
-                                accountButtons: accountButtons,
-                                articles: articles,
-                                trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
-                            };
-                            var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
-                            result = result.concat(angularData);
-                        
-                            pb.templates.load('footer', null, null, function(data) {
+                            Comments.getCommentsTemplate(contentSettings, function(commentsTemplate) {
+                                result = result.split('^comments^').join(commentsTemplate);
                                 
-                            	result = result.concat(data);
-                                var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
-                                cb({content: content});
+                                var loggedIn       = false;
+                                var commentingUser = {};
+                                if(self.session.authentication.user) {
+                                    loggedIn       = true;
+                                    commentingUser = Comments.getCommentingUser(self.session.authentication.user);
+                                }
+                        
+                                var objects = {
+                                    contentSettings: contentSettings,
+                                    loggedIn: loggedIn,
+                                    commentingUser: commentingUser,
+                                    themeSettings: themeSettings,
+                                    articles: articles,
+                                    trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+                                };
+                                var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
+                                result = result.concat(angularData);
+                            
+                                pb.templates.load('footer', null, null, function(data) {
+                                    
+                                	result = result.concat(data);
+                                    var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
+                                    cb({content: content});
+                                });
                             });
                         });
                     });
