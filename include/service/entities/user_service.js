@@ -21,8 +21,8 @@ UserService.prototype.getFullName = function(userId, cb) {
 
 UserService.prototype.getFormattedName = function(user) {
 	var name = user.username;
-	if (user.firstName) {
-		name = user.firstName + ' ' + user.lastName;
+	if (user.first_name) {
+		name = user.first_name + ' ' + user.last_name;
 	}
 	return name;
 };

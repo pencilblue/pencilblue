@@ -49,47 +49,7 @@ ContentService.getTimestampTextFromSettings = function(date, contentSettings) {
  * 
  */
 ContentService.getTimestampText = function(date, format, displayTime, timeFormat) {
-	return global.getTimestampText(date, format, displayTime, timeFormat);
-};
-
-//exports
-module.exports.ContentService = ContentService;
-
-//legacy code to be removed post-conversion
-global.getContentSettings = function(output)
-{
-    defaultContentSettings =
-    {
-        articles_per_page: 5,
-        auto_break_articles: 0,
-        display_timestamp: 1,
-        date_format: 'M dd, YYYY',
-        display_hours_minutes: 1,
-        time_format: '12',
-        display_bylines: 1,
-        display_author_photo: 1,
-        display_author_position: 1,
-        allow_comments: 1,
-        default_comments: 1,
-        require_verification: 0
-    };
-    
-    getDBObjectsWithValues({object_type: 'setting', key: 'content_settings'}, function(data)
-    {
-        if(data.length == 0)
-        {
-            output(defaultContentSettings);
-        }
-        else
-        {
-            output(data[0].value);
-        }
-    
-    });
-};
-
-global.getTimestampText = function(date, format, displayTime, timeFormat) {
-    var dateString = format;
+	var dateString = format;
     var monthNames = [
       '^loc_JAN^', 
       '^loc_FEB^', 
@@ -140,8 +100,5 @@ global.getTimestampText = function(date, format, displayTime, timeFormat) {
     return dateString;
 };
 
-//TODO: remove after coversion complete
-global.clone = function(object)
-{
-    return JSON.parse(JSON.stringify(object));
-};
+//exports
+module.exports.ContentService = ContentService;

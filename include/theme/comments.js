@@ -1,3 +1,9 @@
+/**
+ * CommentService - 
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC.
+ */
 function CommentService(){}
 
 CommentService.getCommentsTemplate = function(contentSettings, output) {
@@ -12,7 +18,11 @@ CommentService.getCommentsTemplate = function(contentSettings, output) {
 };
 
 CommentService.getCommentingUser = function(user) {
-    return {photo: user.photo, name: (user.first_name) ? user.first_name + ' ' + user.last_name : user.username, position: user.position};
+    return {
+    	photo: user.photo, 
+    	name: pb.users.getFormattedName(user), 
+    	position: user.position
+	};
 };
 
 //exports

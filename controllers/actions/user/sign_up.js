@@ -33,7 +33,7 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
         	collection      = 'unverified_user';
         	successRedirect = '/user/verification_sent';
         	successMsg      = '^loc_VERIFICATION_SENT^' + post.email;
-        	post['verification_code'] = uniqueID();
+        	post['verification_code'] = pb.utils.uniqueId();
         }
         
         var user = pb.DocumentCreator.create(collection, post);

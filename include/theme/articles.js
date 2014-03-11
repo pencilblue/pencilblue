@@ -1,3 +1,9 @@
+/**
+ * ArticleService - 
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC.
+ */
 function ArticleService(){}
 
 //dependencies
@@ -39,7 +45,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
                 authorIDs.push(new ObjectID(articles[i].author));
             }
             
-            dao.query('user', {_id: {$in: authorIDs}}).then(function(authors) {
+            dao.query('user', pb.DAO.getIDInWhere(articles, 'author')).then(function(authors) {
                 if(authors.length == 0) {
                     output('^loc_NO_ARTICLES^');
                     return;
@@ -57,7 +63,6 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
                     
                     if(contentSettings.display_bylines && searchObject.object_type == 'article') {
                         
-                    	var byline = '';
                         for(var j = 0; j < authors.length; j++) {
                             
                         	if(authors[j]._id.equals(ObjectID(articles[index].author))) {
