@@ -40,6 +40,14 @@ ContentService.getDefaultSettings = function() {
 /**
  * 
  */
+ContentService.getTimestampTextFromSettings = function(date, contentSettings) {
+	return ContentService.getTimestampText(date, contentSettings.date_format, 
+    		contentSettings.display_hours_minutes, contentSettings.time_format);
+};
+
+/**
+ * 
+ */
 ContentService.getTimestampText = function(date, format, displayTime, timeFormat) {
 	return global.getTimestampText(date, format, displayTime, timeFormat);
 };
