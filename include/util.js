@@ -104,7 +104,7 @@ Util.cb = function(err, result){
 };
 
 Util.uniqueId = function(){
-	return global.uniqueID();
+	return new ObjectID();
 };
 
 Util.TIME = {

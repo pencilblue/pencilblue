@@ -1,3 +1,9 @@
+/**
+ * TopMenuService - 
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC.
+ */
 function TopMenuService(){}
 
 TopMenuService.getTopMenu = function(session, localizationService, cb) {
@@ -60,12 +66,9 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
                 pb.content.getSettings(function(err, contentSettings) {
                     var accountButtons = [];
                 
-                    if(contentSettings.allow_comments)
-                    {
-                        if(session && session.authentication && session.authentication.user)
-                        {
-                            accountButtons =
-                            [
+                    if(contentSettings.allow_comments) {
+                        if(session && session.authentication && session.authentication.user) {
+                            accountButtons = [
                                 {
                                     icon: 'user',
                                     href: '/user/manage_account'
@@ -81,8 +84,7 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
                             ];
                             
                         }
-                        else
-                        {
+                        else {
                             accountButtons =
                             [
                                 {

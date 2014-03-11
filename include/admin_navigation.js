@@ -1,57 +1,13 @@
-global.getAdminNavigation = function(session, activeMenuItems) {
-    return removeUnauthorizedAdminNavigation(session, clone(defaultAdminNavigation), activeMenuItems);
-};
+/**
+ * AdminNavigation - 
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC.
+ */
+function AdminNavigation(){}
 
-global.removeUnauthorizedAdminNavigation = function(session, adminNavigation, activeItems) {
-    
-	for (var i = 0; i < adminNavigation.length; i++) {
-        if (typeof adminNavigation[i].access !== 'undefined') {
-            
-        	if (!userIsAuthorized(session, {admin_level: adminNavigation[i].access})) {
-                adminNavigation.splice(i, 1);
-                i--;
-                continue;
-            }
-        }
-        
-        for (var o = 0; o < activeItems.length; o++) {
-            if (activeItems[o] == adminNavigation[i].id) {
-                adminNavigation[i].active = 'active';
-                break;
-            }
-        }
-        
-        if (typeof adminNavigation[i].children !== 'undefined') {
-            if (adminNavigation[i].children.length > 0) {
-                adminNavigation[i].dropdown = 'dropdown';
-                
-                for (var j = 0; j < adminNavigation[i].children.length; j++) {
-                    
-                	if (typeof adminNavigation[i].children[j].access !== 'undefined') {
-                        
-                		if (!userIsAuthorized(session, {admin_level: adminNavigation[i].children[j].access})) {
-                            adminNavigation[i].children.splice(j, 1);
-                            j--;
-                            continue;
-                        }
-                    }
-                    
-                    for (var o = 0; o < activeItems.length; o++) {
-                        if (activeItems[o] == adminNavigation[i].children[j].id) {
-                            adminNavigation[i].children[j].active = 'active';
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    return adminNavigation;
-};
-
-// Defines the default admin nav
-global.defaultAdminNavigation =
+//constants
+var defaultAdminNavigation =
 [
     {
         id: 'content',
@@ -181,12 +137,10 @@ global.defaultAdminNavigation =
     }
 ];
 
-function AdminNavigation(){}
-
 AdminNavigation.get = function(session, activeMenuItems) {
     return AdminNavigation.removeUnauthorized(
     		session, 
-    		clone(defaultAdminNavigation), 
+    		pb.utils.clone(defaultAdminNavigation), 
     		activeMenuItems
 	);
 };

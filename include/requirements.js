@@ -96,15 +96,10 @@ pb.EmailService = require(DOCUMENT_ROOT+'/include/email').EmailService;
 pb.email        = new pb.EmailService();
 
 //system requires
-require(DOCUMENT_ROOT+'/include/response_head');			//ContentType responses
-require(DOCUMENT_ROOT+'/include/router');					// URL routing
-require(DOCUMENT_ROOT+'/include/query');					// Query parameter retrieval
-require(DOCUMENT_ROOT+'/include/unique_id');				// Unique ID
 pb.DocumentCreator = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
 pb.content         = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions			        
 pb.js              = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
 pb.AdminNavigation = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
-require(DOCUMENT_ROOT+'/include/error_success');			// Error and Success Message Handling
 
 //Export system object
 module.exports = pb;

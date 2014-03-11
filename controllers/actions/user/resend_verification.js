@@ -32,7 +32,7 @@ ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
                 return;
             }
             
-           user.verification_code = uniqueID();
+           user.verification_code = pb.utils.uniqueId();
                 
            dao.update(user).then(function(result) {
                 if(util.isError(result)) {

@@ -213,6 +213,30 @@ DAO.getIDWhere = function(oid){
 };
 
 /**
+ * 
+ * @param objArray
+ * @param idProp
+ * @returns {___anonymous5988_6021}
+ */
+DAO.getIDInWhere = function(objArray, idProp) {
+	var idArray = [];  
+    for(var i = 0; i < objArray.length; i++) {
+    	
+    	var rawId;
+    	if (idProp) {
+    		rawId = objArray[i][idProp];
+    	}
+    	else{
+    		rawId = objArray[i];
+    	}
+    	idArray.push(new ObjectID(rawId));
+    }
+    return {
+    	_id: {$in: idArray}
+    };
+};
+
+/**
  * Updates a DB object with a created time stamp and last modified time stamp.
  * @param dbObject
  */

@@ -1,3 +1,9 @@
+/**
+ * ArticleService - 
+ * 
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC.
+ */
 function ArticleService(){}
 
 //dependencies
@@ -5,27 +11,20 @@ var Comments = require('./comments');
 var Media    = require('./media');
 
 ArticleService.getArticles = function(section, topic, article, page, output) {
-    
-	var comments = require('./comments');
-    var singleItem = false;
     var instance = this;
 
     var searchObject = {object_type: 'article'};
-    if(section)
-    {
+    if(section) {
         searchObject.article_sections = section;
     }
-    else if(topic)
-    {
+    else if(topic) {
         searchObject.article_topics = topic;
     }
-    else if(article)
-    {
+    else if(article) {
         singleItem = true;
         searchObject._id = ObjectID(article);
     }
-    else if(page)
-    {
+    else if(page) {
         singleItem = true;
         searchObject.object_type = 'page';
         searchObject._id = ObjectID(page);
@@ -46,7 +45,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
                 authorIDs.push(new ObjectID(articles[i].author));
             }
             
-            dao.query('user', {_id: {$in: authorIDs}}).then(function(authors) {
+            dao.query('user', pb.DAO.getIDInWhere(articles, 'author')).then(function(authors) {
                 if(authors.length == 0) {
                     output('^loc_NO_ARTICLES^');
                     return;
@@ -54,48 +53,42 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
                 
                 var subInstance = this;
                 
-                this.loadArticle = function(index, output)
-                {
-                    if(index >= articles.length)
-                    {
+                this.loadArticle = function(index, output) {
+                    if(index >= articles.length) {
                         output(articles);
                         return;
                     }
                     
                     var article = articles[index];
                     
-                    if(contentSettings.display_bylines && searchObject.object_type == 'article')
-                    {
-                        var byline = '';
-                        for(var j = 0; j < authors.length; j++)
-                        {
-                            if(authors[j]._id.equals(ObjectID(articles[index].author)))
-                            {
-                                if(authors[j].photo && contentSettings.display_author_photo)
-                                {
+                    if(contentSettings.display_bylines && searchObject.object_type == 'article') {
+                        
+                        for(var j = 0; j < authors.length; j++) {
+                            
+                        	if(authors[j]._id.equals(ObjectID(articles[index].author))) {
+                                if(authors[j].photo && contentSettings.display_author_photo) {
                                     article.author_photo = authors[j].photo;
                                 }
-                                else
-                                {
+                                else {
                                     article.media_body_style = 'height: auto';
                                 }
                                 
-                                article.author_name = (authors[j].first_name) ? authors[j].first_name + ' ' + authors[j].last_name : authors[j].username;
+                                article.author_name     = pb.users.getFormattedName(authors[j]);
                                 article.author_position = (authors[j].position && contentSettings.display_author_position) ? authors[j].position : '';
                             }
                         }
                     }
                     
-                    if(contentSettings.display_timestamp && searchObject.object_type == 'article')
-                    {
-                        article.timestamp = getTimestampText(article.publish_date, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format);
+                    if(contentSettings.display_timestamp && searchObject.object_type == 'article') {
+                        article.timestamp = pb.content.getTimestampTextFromSettings(
+                        		article.publish_date, 
+                        		contentSettings
+                		);
                     }
                     
-                    switch(searchObject.object_type)
-                    {
+                    switch(searchObject.object_type) {
                         case 'page':
-                            article.layout = instance.loadMedia(article.page_layout, function(newLayout)
-                            {
+                            article.layout = instance.loadMedia(article.page_layout, function(newLayout) {
                                 article.layout = newLayout;
                                 delete article.page_layout;
                                 
@@ -105,22 +98,21 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
                             break;
                         case 'article':
                         default:
-                            article.layout = instance.loadMedia(article.article_layout, function(newLayout)
-                            {
+                            article.layout = instance.loadMedia(article.article_layout, function(newLayout) {
                                 article.layout = newLayout;
                                 delete article.article_layout;
                                 
                                 index++;
-                                getDBObjectsWithValues({object_type: 'comment', article: article._id.toString(), $orderby: {created: 1}}, function(comments)
-                                {
-                                    if(comments.length == 0)
-                                    {
+                                
+                                var where = pb.DAO.getIDWhere(article._id);
+                                var order = {created: pb.DAO.ASC};
+                                dao.query('comment', where, pb.DAO.PROJECT_ALL, order).then(function(comments) {
+                                    if(util.isError(comments) || comments.length == 0) {
                                         subInstance.loadArticle(index, output);
                                         return;
                                     }
                                 
-                                    instance.getCommenters(0, comments, contentSettings, function(commentsWithCommenters)
-                                    {
+                                    instance.getCommenters(0, comments, contentSettings, function(commentsWithCommenters) {
                                         article.comments = commentsWithCommenters;
                                         subInstance.loadArticle(index, output);
                                     });
@@ -144,37 +136,31 @@ ArticleService.getTemplates = function(cb) {
     });
 };
 
-ArticleService.loadMedia = function(articlesLayout, output)
-{
-    var media = require('./media');
+ArticleService.loadMedia = function(articlesLayout, output) {
+    var instance      = this;
     var mediaTemplate = '';
-    var instance = this;
 
-    this.replaceMediaTag = function(layout)
-    {
-        if(layout.indexOf('^media_display_') == -1)
-        {
+    this.replaceMediaTag = function(layout) {
+        if(layout.indexOf('^media_display_') == -1) {
             instance.replaceCarouselTag(layout);
             return;
         }
         
-        var startIndex = layout.indexOf('^media_display_') + 15;
-        var endIndex = layout.substr(startIndex).indexOf('^');
-        var mediaProperties = layout.substr(startIndex, endIndex).split('/');
-        var mediaID = mediaProperties[0];
+        var startIndex       = layout.indexOf('^media_display_') + 15;
+        var endIndex         = layout.substr(startIndex).indexOf('^');
+        var mediaProperties  = layout.substr(startIndex, endIndex).split('/');
+        var mediaID          = mediaProperties[0];
         var mediaStyleString = mediaProperties[1];
         
-        getDBObjectsWithValues({object_type: 'media', _id: ObjectID(mediaID)}, function(data)
-        {
-            if(data.length == 0)
-            {
+        var dao = new pb.DAO();
+        dao.loadById(mediaID, 'media', function(err, data) {
+            if(util.isError(err) || data.length == 0) {
                 layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join('');
             }
-            else
-            {
-                var mediaEmbed = mediaTemplate.split('^media^').join(media.getMediaEmbed(data[0]));
-                mediaEmbed = mediaEmbed.split('^caption^').join(data[0].caption);
-                mediaEmbed = media.getMediaStyle(mediaEmbed, mediaStyleString);
+            else { 
+                var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data[0]));
+                mediaEmbed     = mediaEmbed.split('^caption^').join(data[0].caption);
+                mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString);
                 
                 layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);
             }
@@ -183,19 +169,19 @@ ArticleService.loadMedia = function(articlesLayout, output)
         });
     };
     
-    this.replaceCarouselTag = function(layout)
-    {
-        if(layout.indexOf('^carousel_display_') == -1)
-        {
+    this.replaceCarouselTag = function(layout) {
+        if(layout.indexOf('^carousel_display_') == -1) {
             output(layout);
             return;
         }
         
         var startIndex = layout.indexOf('^carousel_display_') + 18;
-        var endIndex = layout.substr(startIndex).indexOf('^');
-        var mediaIDs = layout.substr(startIndex, endIndex).split('-');
+        var endIndex   = layout.substr(startIndex).indexOf('^');
+        var mediaIDs   = layout.substr(startIndex, endIndex).split('-');
         
-        media.getCarousel(mediaIDs, layout, layout.substr(startIndex - 18, endIndex + 19), layout.substr(startIndex - 17, endIndex + 17), instance.replaceCarouselTag);
+        var tagToReplace = layout.substr(startIndex - 18, endIndex + 19);
+        var carouselID   = layout.substr(startIndex - 17, endIndex + 17);
+        Media.getCarousel(mediaIDs, layout, tagToReplace, carouselID, instance.replaceCarouselTag);
     };
     
     pb.templates.load('elements/media', null, null, function(data) {
@@ -204,34 +190,28 @@ ArticleService.loadMedia = function(articlesLayout, output)
     });
 };
 
-ArticleService.getCommenters = function(index, comments, contentSettings, output)
-{
-    if(index >= comments.length)
-    {
+ArticleService.getCommenters = function(index, comments, contentSettings, output) {
+    if(index >= comments.length) {
         output(comments);
         return;
     }
 
     var instance = this;
     
-    getDBObjectsWithValues({object_type: 'user', _id: ObjectID(comments[index].commenter)}, function(data)
-    {
-        if(data.length == 0)
-        {
+    var dao = new pb.DAO();
+    dao.loadById(comments[index].commenter, 'user', function(err, commenter) {
+        if(util.isError(err) || commenter == null) {
             comments.splice(index, 1);
             instance.getCommenters(index, comments, contentSettings, output);
             return;
         }
         
-        var commenter = data[0];
-        comments[index].commenter_name = (commenter.first_name) ? commenter.first_name + ' ' + commenter.last_name : commenter.username;
-        comments[index].timestamp = getTimestampText(comments[index].created, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format);
-        if(commenter.photo)
-        {
+        comments[index].commenter_name = pb.users.getFormattedName(commenter);
+        comments[index].timestamp      = pb.content.getTimestampTextFromSettings(comments[index].created, contentSettings);
+        if(commenter.photo) {
             comments[index].commenter_photo = commenter.photo;
         }
-        if(commenter.position)
-        {
+        if(commenter.position) {
             comments[index].commenter_position = commenter.position;
         }
         
