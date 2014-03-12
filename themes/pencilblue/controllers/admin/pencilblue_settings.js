@@ -7,7 +7,7 @@
 function PencilblueSettings(){}
 
 //dependencies
-var Media =  require('../../../../../controllers/admin/content/media');
+var Media =  require('../../../../controllers/admin/content/media');
 
 //inheritance
 util.inherits(PencilblueSettings, pb.BaseController);

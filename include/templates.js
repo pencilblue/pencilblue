@@ -163,7 +163,7 @@ TemplateService.getDefaultPath = function(templateLocation){
 };
 
 TemplateService.getCustomPath = function(themeName, templateLocation){
-	return DOCUMENT_ROOT + '/plugins/themes/' + themeName + '/templates/' + templateLocation + '.html';
+	return DOCUMENT_ROOT + '/themes/' + themeName + '/templates/' + templateLocation + '.html';
 };
 
 TemplateService.getPlaceholder = function(name){

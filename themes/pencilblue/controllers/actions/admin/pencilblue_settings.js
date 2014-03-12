@@ -1,11 +1,3 @@
-/*
-
-    Saves pencilblue theme settings
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
-
-*/
 /**
  * PencilBlueSettings - 
  * 
