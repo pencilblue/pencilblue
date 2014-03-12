@@ -41,7 +41,7 @@ Index.prototype.render = function(cb) {
                                 result = result.split('^meta_desc^').join(metaDescription);
                                 result = result.split('^meta_title^').join(metaTitle);
                                 result = result.split('^meta_lang^').join(localizationLanguage);
-                                result = result.split('^current_url^').join('');
+                                result = result.split('^current_url^').join(self.req.url);
                                 
                                 Comments.getCommentsTemplate(contentSettings, function(commentsTemplate) {
                                     result = result.split('^comments^').join(commentsTemplate);
