@@ -20,24 +20,29 @@ NotFound.prototype.render = function(cb) {
         
         pb.content.getSettings(function(err, contentSettings) {
             TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
-                
-            	var loggedIn = false;
-            	if (self.session && self.session.authentication) {
-            		if (self.session.authentication.user) {
-            			loggedIn = true;
-            		}
-            	} 
-                result = result.concat(pb.js.getAngularController(
+                TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons)
                 {
-                    navigation: navigation,
-                    contentSettings: contentSettings,
-                    loggedIn: loggedIn,
-                    themeSettings: themeSettings,
-                    accountButtons: accountButtons
-                }));
-                
-                var content = self.localizationService.localize(['error'], result);
-                cb({content: content, code: 404, content_type: 'text/html'});
+                    result = result.split('^navigation^').join(navigation);
+                    result = result.split('^account_buttons^').join(accountButtons);
+                    
+                	var loggedIn = false;
+                	if (self.session && self.session.authentication) {
+                		if (self.session.authentication.user) {
+                			loggedIn = true;
+                		}
+                	} 
+                    result = result.concat(pb.js.getAngularController(
+                    {
+                        navigation: navigation,
+                        contentSettings: contentSettings,
+                        loggedIn: loggedIn,
+                        themeSettings: themeSettings,
+                        accountButtons: accountButtons
+                    }));
+                    
+                    var content = self.localizationService.localize(['error'], result);
+                    cb({content: content, code: 404, content_type: 'text/html'});
+                });
             });
         });
     });
