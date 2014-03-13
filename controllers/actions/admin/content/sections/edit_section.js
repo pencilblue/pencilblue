@@ -27,7 +27,7 @@ EditSection.prototype.onPostParamsRetrieved = function(post, cb){
     	//TODO handle error
     	
         if(section == null) {
-            self.formError('^loc_ERROR_SAVING^', '/admin/content/sections/section_map', output);
+            self.formError('^loc_ERROR_SAVING^', '/admin/content/sections/section_map', cb);
             return;
         }
 

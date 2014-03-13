@@ -80,7 +80,7 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 		], 
         function(err, results){
     		if (util.isError(err)) {
-    			self.formError('^loc_ERROR_SAVING^', '/setup', output);
+    			self.formError('^loc_ERROR_SAVING^', '/setup', cb);
                 return;
     		}
     		

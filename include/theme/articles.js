@@ -220,5 +220,59 @@ ArticleService.getCommenters = function(index, comments, contentSettings, output
     });
 };
 
+ArticleService.getMetaInfo = function(article, cb)
+{
+    var keywords = article.meta_keywords || [];
+    var topics = article.article_topics || article.page_topics || [];
+    var instance = this;
+    
+    this.loadTopic = function(index)
+    {
+        if(index >= topics.length)
+        {
+            var description = '';
+            if(article.meta_desc)
+            {
+                description = article.meta_desc;
+            }
+            else if(article.layout)
+            {
+                description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
+            }
+        
+            cb(keywords.join(','), description, (article.seo_title.length > 0) ? article.seo_title : article.headline);
+            return;
+        }
+        
+        var dao  = new pb.DAO();
+        dao.query('topic', {_id: ObjectID(topics[index])}).then(function(topics) {
+            if(util.isError(topics) || topics.length == 0) {
+                index++;
+                instance.loadTopic(index);
+                return;
+            }
+            
+            var topicName = topics[0].name;
+            var keywordMatch = false;
+            
+            for(var i = 0; i < keywords.length; i++) {
+                if(topicName == keywords[i]) {
+                    keywordMatch = true;
+                    break;
+                }
+            }
+            
+            if(!keywordMatch)
+            {
+                keywords.push(topicName);
+            }
+            index++;
+            instance.loadTopic(index);
+        });
+    }
+    
+    this.loadTopic(0);
+}
+
 //exports
 module.exports = ArticleService;
