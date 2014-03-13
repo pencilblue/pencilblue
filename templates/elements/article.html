@@ -1,3 +1,6 @@
+<div id="no_articles" ng-if="articles.length == 0">
+    ^loc_NO_ARTICLES^
+</div>
 <div id="article_{{article._id}}" class="article" article-index="{{$index}}" ng-repeat="article in articles" ng-cloak>
     <div class="col-md-8 col-md-offset-2">
         <h1>{{article.headline}}</h1>

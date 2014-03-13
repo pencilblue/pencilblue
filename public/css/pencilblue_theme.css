@@ -85,6 +85,12 @@ form .error
     margin: 0 auto;
 }
 
+#no_articles
+{
+    font-size: 1.25em;
+    text-align: center;
+}
+
 .article
 {
     font-size: 1.125em;

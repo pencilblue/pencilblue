@@ -36,7 +36,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
     	var dao = new pb.DAO();
     	dao.query(searchObject.object_type, searchObject).then(function(articles) {
             if(articles.length == 0) {
-                output('^loc_NO_ARTICLES^');
+                output([]);
                 return;
             }
 
@@ -47,7 +47,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
             
             dao.query('user', pb.DAO.getIDInWhere(articles, 'author')).then(function(authors) {
                 if(authors.length == 0) {
-                    output('^loc_NO_ARTICLES^');
+                    output([]);
                     return;
                 }
                 
@@ -222,6 +222,12 @@ ArticleService.getCommenters = function(index, comments, contentSettings, output
 
 ArticleService.getMetaInfo = function(article, cb)
 {
+    if(typeof article === 'undefined')
+    {
+        cb('', '', '');
+        return;
+    }
+
     var keywords = article.meta_keywords || [];
     var topics = article.article_topics || article.page_topics || [];
     var instance = this;
