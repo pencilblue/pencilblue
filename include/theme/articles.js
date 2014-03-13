@@ -154,12 +154,12 @@ ArticleService.loadMedia = function(articlesLayout, output) {
         
         var dao = new pb.DAO();
         dao.loadById(mediaID, 'media', function(err, data) {
-            if(util.isError(err) || data.length == 0) {
+            if(util.isError(err) || !data) {
                 layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join('');
             }
-            else { 
-                var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data[0]));
-                mediaEmbed     = mediaEmbed.split('^caption^').join(data[0].caption);
+            else {
+                var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data));
+                mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
                 mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString);
                 
                 layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);

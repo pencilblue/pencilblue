@@ -34,7 +34,7 @@ MediaService.getMediaStyle = function(template, styleString) {
         
         switch(styleSetting[0]) {
             case 'position':
-                MediaService.onSytleSettingPosition(containerCSS, styleSetting[1]);
+                MediaService.onStyleSettingPosition(containerCSS, styleSetting[1]);
                 break;
             
             case 'maxheight':
