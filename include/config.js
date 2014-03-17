@@ -36,7 +36,7 @@ var config = {
 		port: 6379
 	},
 	session: {
-		storage: /*"redis"*/"mongo",
+		storage: "redis",
 		timeout: 600000
 	},
 	logging: {

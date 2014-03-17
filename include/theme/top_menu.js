@@ -30,7 +30,6 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
             var formattedSections = [];
             dao.query('section').then(function(sections) {
                 //TODO handle error
-                        
                 for(var i = 0; i < sectionMap.length; i++) {
                     var section = self.getSectionData(sectionMap[i].uid, sections);
                     
@@ -121,7 +120,7 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                         {
                             var childItem = linkTemplate;
                             childItem = childItem.split('^active^').join((navigation[i].children[j].active) ? 'active' : '');
-                            childItem = childItem.split('^url^').join((navigation[i].children[j].url.indexOf('http://') > -1 || navigation[i].children[j].url.indexOf('https://') > -1) ? navigation[i].children[j].url : '/' + navigation[i].children[j].url);
+                            childItem = childItem.split('^url^').join(navigation[i].children[j].url);
                             childItem = childItem.split('^name^').join(navigation[i].children[j].name);
                             
                             subNav = subNav.concat(childItem);
@@ -138,7 +137,7 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                     {
                         var linkItem = linkTemplate;
                         linkItem = linkItem.split('^active^').join((navigation[i].active) ? 'active' : '');
-                        linkItem = linkItem.split('^url^').join((navigation[i].url.indexOf('http://') > -1 || navigation[i].url.indexOf('https://') > -1) ? navigation[i].url : '/' + navigation[i].url);
+                        linkItem = linkItem.split('^url^').join(navigation[i].url);
                         linkItem = linkItem.split('^name^').join(navigation[i].name);
                         
                         bootstrapNav = bootstrapNav.concat(linkItem);
@@ -165,7 +164,10 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
 TopMenuService.getSectionData = function(uid, sections) {
     for(var i = 0; i < sections.length; i++) {
         if(sections[i]._id.equals(ObjectID(uid))) {
-        	sections[i].url = pb.utils.urlJoin('section', sections[i].url);
+            if(sections[i].url.indexOf('http://') == -1 && sections[i].url.indexOf('https://') == -1)
+            {
+        	    sections[i].url = pb.utils.urlJoin('/section', sections[i].url);
+    	    }
             return sections[i];
         }
     }
