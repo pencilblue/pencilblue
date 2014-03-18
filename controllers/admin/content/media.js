@@ -59,6 +59,8 @@ Media.getMediaIcon = function(mediaType) {
             return 'play-circle-o';
         case 'vine':
             return 'twitter'; //vine icon slated for fontawesome 4.1.0
+        case 'instagram':
+            return 'instagram';
         default:
             return 'question';
             break;
@@ -75,6 +77,8 @@ Media.getMediaLink = function(mediaType, mediaLocation, isFile) {
             return 'http://dailymotion.com/video/' + mediaLocation;
         case 'vine':
             return 'https://vine.co/v/' + mediaLocation;
+        case 'instagram':
+            return 'http://instagram.com/p/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':

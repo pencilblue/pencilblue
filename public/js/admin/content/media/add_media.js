@@ -168,6 +168,20 @@ function validateMediaURL(mediaURL, isFile)
         setMediaValues(isFile, 'vine', videoID);
         previewVine(videoID);
     }
+    else if(mediaURL.indexOf('instagram.com') != -1)
+    {
+        if(mediaURL.substr(mediaURL.length - 1) == '/')
+        {
+            mediaURL = mediaURL.substr(0, mediaURL.length - 1);
+        }
+        var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
+        if(videoID.indexOf('&') != -1)
+        {
+            videoID = videoID.substr(0, videoID.indexOf('&'));
+        }
+        setMediaValues(isFile, 'instagram', videoID);
+        previewInstagram(videoID);
+    }
 }
 
 function setMediaValues(isFile, type, location)
@@ -210,6 +224,9 @@ function getMediaThumb(type, location, output)
         case 'vine':
             output('');
             break;
+        case 'instagram':
+            output('');
+            break;
         default:
             return '';
             break;
@@ -244,6 +261,11 @@ function previewDailyMotion(videoID)
 function previewVine(videoID)
 {
     $('#media_display').html('<iframe class="vine-embed" src="https://vine.co/v/' + videoID + '/embed/simple" width="300" height="300"  frameborder="0"></iframe>');
+}
+
+function previewInstagram(videoID)
+{
+    $('#media_display').html('<iframe src="//instagram.com/p/' + videoID + '/embed/" width="300" height="350" frameborder="0" scrolling="no" allowtransparency="true"></iframe>');
 }
 
 // Saving -----------------------------------

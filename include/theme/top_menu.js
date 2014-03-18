@@ -162,9 +162,10 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
 }
 
 TopMenuService.getSectionData = function(uid, sections) {
+    var self = this;
     for(var i = 0; i < sections.length; i++) {
         if(sections[i]._id.equals(ObjectID(uid))) {
-            if(sections[i].url.indexOf('http://') == -1 && sections[i].url.indexOf('https://') == -1)
+            if(!pb.utils.isExternalUrl(sections[i].url, self.req))
             {
         	    sections[i].url = pb.utils.urlJoin('/section', sections[i].url);
     	    }
