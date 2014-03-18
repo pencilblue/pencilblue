@@ -140,7 +140,7 @@ function buildTopics(output)
 
 function buildMedia(output)
 {
-    var mediaElements = $('#active_media').find('.col-md-3');
+    var mediaElements = $('#active_media').find('.media_item');
     mediaElementCount = 0;
     mediaArray = [];
     
