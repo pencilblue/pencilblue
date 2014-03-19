@@ -77,6 +77,25 @@ Util.getCustomUrl = function(prefix, url) {
 	return url.substring(index + 1);
 };
 
+Util.isExternalUrl = function(urlStr, request) {
+    var obj = url.parse(urlStr);
+    var reqUrl = null;
+    
+    if(!obj.host)
+    {
+        return false;
+    }
+    
+    if(request) {
+        reqUrl = url.parse(request.url);
+    }
+    else {
+        reqUrl = url.parse(pb.config.siteRoot);
+    }
+
+    return reqUrl.host !== obj.host;
+}
+
 /**
  * Merges the properties from the first parameter into the second. This modifies
  * the second parameter instead of creating a new object.

@@ -266,7 +266,7 @@ function addLayoutLink()
 
 function getLayoutMediaOptions()
 {
-    var activeMedia = $('#active_media .col-md-3');
+    var activeMedia = $('#active_media .media_item');
     if(activeMedia.length == 0)
     {
         return '<a href="javascript:associateMedia()">' + loc.articles.ASSOCIATE_MEDIA + '</a><br/>&nbsp;';

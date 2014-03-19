@@ -13,28 +13,10 @@
 
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul id="nav_items_mobile" class="nav navbar-nav navbar-fixed">
-            <li class="{{navItem.dropdown}} {{navItem.active}}" ng-repeat="navItem in navigation" ng-cloak>
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" ng-if="navItem.dropdown">
-                    {{navItem.name}}&nbsp;<span class="caret"></span>
-                </a>
-                <a href="/{{navItem.url}}" ng-if="!navItem.dropdown">
-                    {{navItem.name}}
-                </a>
-                <ul class="dropdown-menu" ng-if="navItem.dropdown">
-                    <li class="{{childItem.active}}" ng-repeat="childItem in navItem.children">
-                        <a href="/{{childItem.url}}">
-                            {{childItem.name}}
-                        </a>
-                    </li>
-                </ul>
-            </li>
+            ^navigation^
         </ul>
         <ul class="nav navbar-nav navbar-right" ng-cloak>
-            <li ng-repeat="accountButton in accountButtons" ng-cloak>
-                <a href="{{accountButton.href}}">
-                    <i class="fa fa-{{accountButton.icon}} fa-lg"></i>
-                </a>
-            </li>
+            ^account_buttons^
         </ul>
     </div>
 </nav>
@@ -46,21 +28,7 @@
         <nav class="navbar navbar-default" role="navigation" style="margin-bottom: 0">
             <div class="navbar-inner">
                 <ul class="nav navbar-nav">
-                    <li class="{{navItem.dropdown}} {{navItem.active}}" ng-repeat="navItem in navigation" ng-cloak>
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" ng-if="navItem.dropdown">
-                            {{navItem.name}}&nbsp;<span class="caret"></span>
-                        </a>
-                        <a href="/{{navItem.url}}" ng-if="!navItem.dropdown">
-                            {{navItem.name}}
-                        </a>
-                        <ul class="dropdown-menu" ng-if="navItem.dropdown">
-                            <li class="{{childItem.active}}" ng-repeat="childItem in navItem.children">
-                                <a href="/{{childItem.url}}">
-                                    {{childItem.name}}
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    ^navigation^
                 </ul>
             </div>
         </nav>

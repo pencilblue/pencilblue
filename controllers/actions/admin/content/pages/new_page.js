@@ -41,7 +41,7 @@ NewPage.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao          = new pb.DAO();
     dao.count('page', {url: pageDocument['url']}, function(err, count) {
         if(util.isError(err) || count > 0) {
-            self.formError('^loc_EXISTING_URL^', '/admin/content/pages/new_page', output);
+            self.formError('^loc_EXISTING_URL^', '/admin/content/pages/new_page', cb);
             return;
         }
         

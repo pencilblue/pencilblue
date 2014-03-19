@@ -24,7 +24,7 @@ NewSection.prototype.onPostParamsRetrieved = function(post, cb) {
     
     //check for reserved sections
     if(sectionDocument['name'] == 'admin') {
-        this.formError('^loc_EXISTING_SECTION^', '/admin/content/sections/new_section', output);
+        this.formError('^loc_EXISTING_SECTION^', '/admin/content/sections/new_section', cb);
         return;
     }
     
@@ -34,13 +34,13 @@ NewSection.prototype.onPostParamsRetrieved = function(post, cb) {
     	
     	//make sure there isn't an existing section with the given name or URL
     	if (count > 0) {
-            self.formError('^loc_EXISTING_SECTION^', '/admin/content/sections/new_section', output);
+            self.formError('^loc_EXISTING_SECTION^', '/admin/content/sections/new_section', cb);
             return;
         }
         
     	dao.update(sectionDocument).then(function(data) {
             if(util.isError(data)) {
-                self.formError('^loc_ERROR_SAVING^', '/admin/content/sections/new_section', output);
+                self.formError('^loc_ERROR_SAVING^', '/admin/content/sections/new_section', cb);
                 return;
             }
             

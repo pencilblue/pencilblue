@@ -36,7 +36,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
     	var dao = new pb.DAO();
     	dao.query(searchObject.object_type, searchObject).then(function(articles) {
             if(articles.length == 0) {
-                output('^loc_NO_ARTICLES^');
+                output([]);
                 return;
             }
 
@@ -47,7 +47,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
             
             dao.query('user', pb.DAO.getIDInWhere(articles, 'author')).then(function(authors) {
                 if(authors.length == 0) {
-                    output('^loc_NO_ARTICLES^');
+                    output([]);
                     return;
                 }
                 
@@ -154,12 +154,12 @@ ArticleService.loadMedia = function(articlesLayout, output) {
         
         var dao = new pb.DAO();
         dao.loadById(mediaID, 'media', function(err, data) {
-            if(util.isError(err) || data.length == 0) {
+            if(util.isError(err) || !data) {
                 layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join('');
             }
-            else { 
-                var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data[0]));
-                mediaEmbed     = mediaEmbed.split('^caption^').join(data[0].caption);
+            else {
+                var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data));
+                mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
                 mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString);
                 
                 layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);
@@ -219,6 +219,66 @@ ArticleService.getCommenters = function(index, comments, contentSettings, output
         instance.getCommenters(index, comments, contentSettings, output);
     });
 };
+
+ArticleService.getMetaInfo = function(article, cb)
+{
+    if(typeof article === 'undefined')
+    {
+        cb('', '', '');
+        return;
+    }
+
+    var keywords = article.meta_keywords || [];
+    var topics = article.article_topics || article.page_topics || [];
+    var instance = this;
+    
+    this.loadTopic = function(index)
+    {
+        if(index >= topics.length)
+        {
+            var description = '';
+            if(article.meta_desc)
+            {
+                description = article.meta_desc;
+            }
+            else if(article.layout)
+            {
+                description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
+            }
+        
+            cb(keywords.join(','), description, (article.seo_title.length > 0) ? article.seo_title : article.headline);
+            return;
+        }
+        
+        var dao  = new pb.DAO();
+        dao.query('topic', {_id: ObjectID(topics[index])}).then(function(topics) {
+            if(util.isError(topics) || topics.length == 0) {
+                index++;
+                instance.loadTopic(index);
+                return;
+            }
+            
+            var topicName = topics[0].name;
+            var keywordMatch = false;
+            
+            for(var i = 0; i < keywords.length; i++) {
+                if(topicName == keywords[i]) {
+                    keywordMatch = true;
+                    break;
+                }
+            }
+            
+            if(!keywordMatch)
+            {
+                keywords.push(topicName);
+            }
+            index++;
+            instance.loadTopic(index);
+        });
+    }
+    
+    this.loadTopic(0);
+}
 
 //exports
 module.exports = ArticleService;

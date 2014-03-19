@@ -21,6 +21,12 @@ MediaService.getMediaEmbed = function(mediaObject, options) {
         
         case 'daily_motion':
             return '<iframe frameborder="0" width="480" height="270" src="http://www.dailymotion.com/embed/video/' + mediaObject.location + '"></iframe>';
+            
+        case 'vine':
+            return '<iframe class="vine-embed" src="https://vine.co/v/' + mediaObject.location + '/embed/simple" width="400" height="400"  frameborder="0"></iframe>';
+            
+        case 'instagram':
+            return '<iframe src="//instagram.com/p/' + mediaObject.location + '/embed/" width="400" height="475" frameborder="0" scrolling="no" allowtransparency="true"></iframe>';
     }
 };
 
@@ -34,7 +40,7 @@ MediaService.getMediaStyle = function(template, styleString) {
         
         switch(styleSetting[0]) {
             case 'position':
-                MediaService.onSytleSettingPosition(containerCSS, styleSetting[1]);
+                MediaService.onStyleSettingPosition(containerCSS, styleSetting[1]);
                 break;
             
             case 'maxheight':
