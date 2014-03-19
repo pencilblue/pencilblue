@@ -16,6 +16,20 @@ $(document).ready(function()
         searchText: '<i class="fa fa-search"></i>',
         clearText: '<i class="fa fa-times"></i>',
     });
+    
+    new TableSort(
+    {
+        table: '#media_table',
+        rowClass: '.media_row',
+        sortFields:
+        [
+            {
+                header: '#media_name_header',
+                textContainer: '.media_name',
+                sortType: 'alpha'
+            }
+        ]
+    });
 });
 
 function initMediaPagination()
