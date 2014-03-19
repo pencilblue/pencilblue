@@ -56,8 +56,10 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 		[
 			function(callback) {
 				var userDocument = pb.DocumentCreator.create('user', post);
-				createDBObject(userDocument, function(data) {
-					if (data.length == 0) {
+				
+				var dao = new pb.DAO();
+				dao.update(userDocument).then(function(data) {
+					if (util.isError(data)) {
 						callback(new PBError("Failed to persist user object", 500), null);
 						return;
 					}

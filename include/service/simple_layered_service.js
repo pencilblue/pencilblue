@@ -1,21 +1,28 @@
 /**
- * SimpleObjectService
+ * SimpleLayeredService - 
+ * 
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright PencilBlue, LLC. 2014 All Rights Reserved
  */
 function SimpleLayeredService(services, name){
 	this.services = services;
 	this.name     = name ? name : 'SimpleLayeredService';
 	
 	if (pb.log.isDebug()) {
-		var serviceTypes = [];
-		for (var i = 0; i < this.services.length; i++){
-			serviceTypes.push(this.services[i].type);
-		}
-		
-		if (pb.log.isDebug()) {
-			pb.log.debug(name+": Initialized with layers - "+JSON.stringify(serviceTypes));
-		}
+		this.logInitialization();
 	}
 }
+
+SimpleLayeredService.prototype.logInitialization = function() {
+	var serviceTypes = [];
+	for (var i = 0; i < this.services.length; i++){
+		serviceTypes.push(this.services[i].type);
+	}
+	
+	if (pb.log.isDebug()) {
+		pb.log.debug(this.name+": Initialized with layers - "+JSON.stringify(serviceTypes));
+	}
+};
 
 /**
  * Retrieves the setting value from various storage areas.

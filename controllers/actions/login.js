@@ -42,16 +42,16 @@ Login.prototype.doLogin = function(post, cb) {
 	};
 	
 	//search for user
-	getDBObjectsWithValues(query, function(data) {
+	var dao = new pb.DAO();
+	dao.loadByValues(query, 'user', function(err, user) {
 		
 		//user does not exist
-        if(data.length == 0)  {
+        if(util.isError(err) || user == null)  {
             self.loginError(adminAttempt, cb);
             return;
         }
         
         //user exists but their credentials are not high enough
-        var user = data[0];
         if(adminAttempt && user.admin == ACCESS_USER) {
             self.loginError(adminAttempt, cb);
             return;
