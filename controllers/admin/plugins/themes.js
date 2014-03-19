@@ -10,7 +10,7 @@ function Themes(){}
 util.inherits(Themes, pb.BaseController);
 
 //constants
-var PATH_TO_THEME_DIR = DOCUMENT_ROOT + '/themes/';
+var PATH_TO_THEME_DIR = DOCUMENT_ROOT + '/plugins/';
 
 Themes.prototype.render = function(cb) {
 	var self = this;

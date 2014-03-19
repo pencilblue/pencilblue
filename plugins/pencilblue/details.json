@@ -1,0 +1,18 @@
+{
+    "uid": "pencilblue",
+    "name": "PencilBlue",
+    "icon": "pencil",
+    "settings_controller": "/controllers/admin/pencilblue_settings.js",
+    "settings": "/admin/plugins/themes/pencilblue_settings",
+    "content_templates":
+    [
+        {
+            "file": "index",
+            "name": "Default"
+        },
+        {
+            "file": "index",
+            "name": "Same as Default"
+        }
+    ]
+}

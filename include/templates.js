@@ -139,7 +139,7 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
         	return;
         }
         
-        var detailsLocation = path.join(DOCUMENT_ROOT, 'plugins', 'themes', activeTheme, 'details.json');
+        var detailsLocation = path.join(DOCUMENT_ROOT, 'plugins', activeTheme, 'details.json');
         self.get(detailsLocation, function(err, data) {
             if(util.isError(err) || data == null) {
                 cb('');
@@ -159,11 +159,11 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
 };
 
 TemplateService.getDefaultPath = function(templateLocation){
-	return DOCUMENT_ROOT + '/templates/' + templateLocation + '.html';
+	return path.join(DOCUMENT_ROOT, 'templates', templateLocation + '.html');
 };
 
 TemplateService.getCustomPath = function(themeName, templateLocation){
-	return DOCUMENT_ROOT + '/themes/' + themeName + '/templates/' + templateLocation + '.html';
+	return path.join(DOCUMENT_ROOT, 'plugins', themeName, 'templates', templateLocation + '.html');
 };
 
 TemplateService.getPlaceholder = function(name){
