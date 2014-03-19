@@ -45,9 +45,6 @@ pb.dbm = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
 //setup system class types
 pb.DAO = require(DOCUMENT_ROOT+'/include/dao/dao');
 
-//setup DBObject Service
-pb.dbobject = new (require(DOCUMENT_ROOT+'/include/model/db_object').DBObjectService);	
-
 //setup the session handler
 pb.SessionHandler = require(DOCUMENT_ROOT+'/include/session/session.js');
 pb.session        = new pb.SessionHandler();
@@ -56,11 +53,13 @@ pb.session        = new pb.SessionHandler();
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
 
 //setup object services
-pb.SimpleLayeredService = require(DOCUMENT_ROOT+'/include/service/simple_layered_service.js').SimpleLayeredService;
-pb.MemoryEntityService  = require(DOCUMENT_ROOT+'/include/service/memory_entity_service.js').MemoryEntityService;
-pb.CacheEntityService   = require(DOCUMENT_ROOT+'/include/service/cache_entity_service.js').CacheEntityService;
-pb.DBEntityService      = require(DOCUMENT_ROOT+'/include/service/db_entity_service.js').DBEntityService;
-pb.FSEntityService      = require(DOCUMENT_ROOT+'/include/service/fs_entity_service.js').FSEntityService;
+pb.SimpleLayeredService         = require(DOCUMENT_ROOT+'/include/service/simple_layered_service.js').SimpleLayeredService;
+pb.MemoryEntityService          = require(DOCUMENT_ROOT+'/include/service/memory_entity_service.js').MemoryEntityService;
+pb.CacheEntityService           = require(DOCUMENT_ROOT+'/include/service/cache_entity_service.js').CacheEntityService;
+pb.DBEntityService              = require(DOCUMENT_ROOT+'/include/service/db_entity_service.js').DBEntityService;
+pb.FSEntityService              = require(DOCUMENT_ROOT+'/include/service/fs_entity_service.js').FSEntityService;
+pb.JSONFSEntityService          = require(DOCUMENT_ROOT+'/include/service/json_fs_entity_service.js').JSONFSEntityService;
+pb.ReadOnlySimpleLayeredService = require(DOCUMENT_ROOT+'/include/service/read_only_simple_layered_service.js').ReadOnlySimpleLayeredService;
 
 //setup settings service
 pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').SettingServiceFactory;
@@ -76,6 +75,10 @@ pb.security = require(DOCUMENT_ROOT+'/include/access_management.js').SecuritySer
 //setup user service
 pb.UserService = require(DOCUMENT_ROOT+'/include/service/entities/user_service.js').UserService;
 pb.users = new pb.UserService();
+
+//setup theme service
+pb.ThemeService = require(DOCUMENT_ROOT+'/include/service/entities/theme_service.js').ThemeService;
+pb.themes = new pb.ThemeService(pb.config.themes.use_memory, pb.config.themes.use_cache);
 
 //setup request handling
 pb.BaseController   = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;

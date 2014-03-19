@@ -235,7 +235,7 @@ function getMediaThumb(type, location, output)
 
 function previewImage(mediaURL)
 {
-    $('#media_display').html('<img src="' + mediaURL + '" style="max-height: 200px;"></img>');
+    $('#media_display').html('<img src="' + mediaURL + '" style="max-height: 200px;"/>');
 }
 
 function previewHTML5Video(mediaURL, codec)

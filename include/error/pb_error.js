@@ -20,10 +20,12 @@ util.inherits(PBError, Error);
  */
 PBError.prototype.setLocalizatonKey = function(key){
 	this.localizationKey = key;
+	return this;
 };
 
 PBError.prototype.setSource = function(err){
 	this.source = err;
+	return this;
 };
 
 //exports

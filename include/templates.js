@@ -188,7 +188,7 @@ TemplateServiceFactory.getService = function(useMemory, useCache) {
 		services.push(new pb.CacheEntityService(objType));
 	}
 	
-	//always add db service
+	//always add fs service
 	services.push(new pb.FSEntityService(objType));
 	
 	return new TemplateService(services, 'TemplateService' + count++);
