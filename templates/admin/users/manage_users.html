@@ -10,19 +10,19 @@
     </div>
     <table id="users_table" class="table table-responsive table-condensed">
         <tr id="users_table_header">
-            <th>^loc_USERNAME^</th>
-            <th>^loc_NAME^</th>
-            <th>^loc_EMAIL^</th>
-            <th>^loc_DATE_ADDED^</th>
+            <th id="user_username_header">^loc_USERNAME^</th>
+            <th id="user_name_header">^loc_NAME^</th>
+            <th id="user_email_header">^loc_EMAIL^</th>
+            <th id="user_date_header">^loc_DATE_ADDED^</th>
             <th></th>
         </tr>
         <tr class="user_row" ng-repeat="user in users track by user._id" on-finish-render ng-cloak>
             <td>
-                <a href="/admin/users/edit_user?id={{user._id}}">{{user.username}}</a>
+                <a class="user_username" href="/admin/users/edit_user?id={{user._id}}">{{user.username}}</a>
             </td>
             <td class="user_name">{{user.first_name}} {{user.last_name}}</td>
-            <td>{{user.email}}</td>
-            <td>{{user.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td class="user_email">{{user.email}}</td>
+            <td class="user_date">{{user.created | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td><a href="javascript:confirmDeleteUser('{{user._id}}', '{{user.username}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
@@ -46,6 +46,7 @@
     </div>
 </div>
 <script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
-<script type="text/javascript" src="^site_root^/js/admin/users/manage_users.js"></script>
+<script type="text/javascript" src="/js/jnarrow-0.1.1.min.js"></script>
+<script type="text/javascript" src="/js/table_sort.js"></script>
+<script type="text/javascript" src="/js/admin/users/manage_users.js"></script>
 ^tmp_admin=footer^

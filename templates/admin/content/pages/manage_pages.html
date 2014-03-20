@@ -10,17 +10,17 @@
     </div>
     <table id="pages_table" class="table table-responsive table-condensed">
         <tr id="pages_table_header">
-            <th>^loc_HEADLINE^</th>
-            <th>^loc_PAGE_URL^</th>
-            <th>^loc_AUTHOR^</th>
-            <th>^loc_PUBLISH_DATE^</th>
+            <th id="page_headline_header">^loc_HEADLINE^</th>
+            <th id="page_url_header">^loc_PAGE_URL^</th>
+            <th id="page_author_header">^loc_AUTHOR^</th>
+            <th id="page_date_header">^loc_PUBLISH_DATE^</th>
             <th></th>
         </tr>
         <tr class="page_row" ng-repeat="page in pages track by page._id" on-finish-render ng-cloak>
             <td><a class="page_headline" href="/admin/content/pages/edit_page?id={{page._id}}">{{page.headline}}</a></td>
-            <td>{{page.url}}</td>
-            <td>{{page.author_name}}</td>
-            <td>{{page.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td class="page_url">{{page.url}}</td>
+            <td class="page_author">{{page.author_name}}</td>
+            <td class="page_date">{{page.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
@@ -45,5 +45,6 @@
 </div>
 <script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
 <script type="text/javascript" src="/js/jnarrow-0.1.1.min.js"></script>
+<script type="text/javascript" src="/js/table_sort.js"></script>
 <script type="text/javascript" src="/js/admin/content/pages/manage_pages.js"></script>
 ^tmp_admin=footer^

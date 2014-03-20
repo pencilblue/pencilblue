@@ -7,6 +7,8 @@
 
 */
 
+var tableSort;
+
 $(document).ready(function()
 {
     new jNarrow('#custom_object_search', '.custom_object_row',
@@ -16,6 +18,27 @@ $(document).ready(function()
         searchText: '<i class="fa fa-search"></i>',
         clearText: '<i class="fa fa-times"></i>',
     });
+    
+    tableSort = new TableSort(
+    {
+        table: '#custom_objects_table',
+        rowClass: '.custom_object_row',
+        sortFields:
+        [
+            {
+                header: '#custom_object_name_header',
+                textContainer: '.custom_object_name'
+            },
+            {
+                header: '#custom_object_description_header',
+                textContainer: '.custom_object_description'
+            },
+            {
+                header: '#custom_object_date_header',
+                textContainer: '.custom_object_date'
+            }
+        ]
+    });
 });
 
 function initCustomObjectsPagination()
@@ -23,6 +46,8 @@ function initCustomObjectsPagination()
     pagination = new Pagination('custom_objects_pagination', '.custom_object_row', 30);
     $('#custom_object_search').keyup(pagination.initializeElements);
     $('#custom_object_search_button').click(pagination.initializeElements);
+    
+    tableSort.pagination = pagination;
 }
 
 function confirmDeleteCustomObject(objectTypeID, objectTypeName)

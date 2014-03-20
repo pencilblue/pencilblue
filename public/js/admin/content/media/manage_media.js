@@ -27,18 +27,16 @@ $(document).ready(function()
         [
             {
                 header: '#media_name_header',
-                textContainer: '.media_name',
-                sortType: 'alpha'
+                textContainer: '.media_name'
             },
             {
                 header: '#media_caption_header',
-                textContainer: '.media_caption',
-                sortType: 'alpha'
+                textContainer: '.media_caption'
             },
             {
                 header: '#media_date_header',
                 textContainer: '.media_date',
-                sortType: 'other'
+                default: true
             }
         ]
     });

@@ -89,59 +89,37 @@ function TableSort(opts)
     
     this.switchSortIcon = function(field)
     {
+        for(var i = 0; i < this.options.sortFields.length; i++)
+        {
+            $(this.options.sortFields[i].header + ' i').remove();
+            $(this.options.sortFields[i].header).append('<i class="fa fa-sort text-muted"></i>');
+        }
+    
         $(field.header + ' i').remove();
     
         if(field.sortAsc)
         {
-            switch(field.sortType)
-            {
-                case 'alpha':
-                    $(field.header).append('<i class="fa fa-sort-alpha-desc"></i>');
-                    break;
-                case 'number':
-                    $(field.header).append('<i class="fa fa-sort-numeric-desc"></i>');
-                    break;
-                default:
-                    $(field.header).append('<i class="fa fa-sort-amount-desc"></i>');
-                    break;
-            }
-            
+            $(field.header).append('<i class="fa fa-sort-asc"></i>');
             field.sortAsc = false;
         }
         else
         {
-            switch(field.sortType)
-            {
-                case 'alpha':
-                    $(field.header).append('<i class="fa fa-sort-alpha-asc"></i>');
-                    break;
-                case 'number':
-                    $(field.header).append('<i class="fa fa-sort-numeric-asc"></i>');
-                    break;
-                default:
-                    $(field.header).append('<i class="fa fa-sort-amount-asc"></i>');
-                    break;
-            }
-            
+            $(field.header).append('<i class="fa fa-sort-desc"></i>');
             field.sortAsc = true;
         }
     }
     
     for(var i = 0; i < this.options.sortFields.length; i++)
     {
-        this.options.sortFields[i].sortAsc = true;
-    
-        switch(this.options.sortFields[i].sortType)
+        if(!this.options.sortFields[i].default)
         {
-            case 'alpha':
-                $(this.options.sortFields[i].header).append('&nbsp;<i class="fa fa-sort-alpha-asc"></i>');
-                break;
-            case 'number':
-                $(this.options.sortFields[i].header).append('&nbsp;<i class="fa fa-sort-numeric-asc"></i>');
-                break;
-            default:
-                $(this.options.sortFields[i].header).append('&nbsp;<i class="fa fa-sort-amount-asc"></i>');
-                break;
+            $(this.options.sortFields[i].header).append('&nbsp;<i class="fa fa-sort text-muted"></i>');
+            this.options.sortFields[i].sortAsc = true;
+        }
+        else
+        {
+            $(this.options.sortFields[i].header).append('&nbsp;<i class="fa fa-sort-asc"></i>');
+            this.options.sortFields[i].sortAsc = false;
         }
         
         $(this.options.sortFields[i].header).css({cursor: 'pointer'});
