@@ -10,15 +10,15 @@
     </div>
     <table id="custom_objects_table" class="table table-responsive table-condensed">
         <tr id="custom_objects_table_header">
-            <th>^loc_NAME^</th>
-            <th ng-if="customObjects[0].description">^loc_DESCRIPTION^</th>
-            <th>^loc_LAST_MODIFIED^</th>
+            <th id="custom_object_name_header">^loc_NAME^</th>
+            <th id="custom_object_description_header" ng-if="customObjects[0].description">^loc_DESCRIPTION^</th>
+            <th id="custom_object_date_header">^loc_LAST_MODIFIED^</th>
             <th></th>
         </tr>
         <tr class="custom_object_row" ng-repeat="customObject in customObjects track by customObject._id" on-finish-render ng-cloak>
             <td><a class="custom_object_name" href="/admin/content/custom_objects/edit_object/{{objectType.name}}/{{customObject.name}}">{{customObject.name}}</a></td>
-            <td ng-if="customObjects[0].description">{{customObject.description}}</td>
-            <td>{{customObject.last_modified | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td class="custom_object_description" ng-if="customObjects[0].description">{{customObject.description}}</td>
+            <td class="custom_object_date">{{customObject.last_modified | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td><a href="javascript:confirmDeleteCustomObject('{{customObject._id}}', '{{customObject.name}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
@@ -43,5 +43,6 @@
 </div>
 <script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
 <script type="text/javascript" src="/js/jnarrow-0.1.1.min.js"></script>
+<script type="text/javascript" src="/js/table_sort.js"></script>
 <script type="text/javascript" src="/js/admin/content/custom_objects/manage_objects.js"></script>
 ^tmp_admin=footer^

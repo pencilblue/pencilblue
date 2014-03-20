@@ -7,6 +7,8 @@
 
 */
 
+var tableSort;
+
 $(document).ready(function()
 {
     new jNarrow('#article_search', '.article_row',
@@ -16,6 +18,32 @@ $(document).ready(function()
         searchText: '<i class="fa fa-search"></i>',
         clearText: '<i class="fa fa-times"></i>',
     });
+    
+    tableSort = new TableSort(
+    {
+        table: '#articles_table',
+        rowClass: '.article_row',
+        sortFields:
+        [
+            {
+                header: '#article_headline_header',
+                textContainer: '.article_headline'
+            },
+            {
+                header: '#article_url_header',
+                textContainer: '.article_url'
+            },
+            {
+                header: '#article_author_header',
+                textContainer: '.article_author'
+            },
+            {
+                header: '#article_date_header',
+                textContainer: '.article_date',
+                default: true
+            }
+        ]
+    });
 });
 
 function initArticlesPagination()
@@ -23,6 +51,8 @@ function initArticlesPagination()
     pagination = new Pagination('articles_pagination', '.article_row', 30);
     $('#article_search').keyup(pagination.initializeElements);
     $('#article_search_button').click(pagination.initializeElements);
+    
+    tableSort.pagination = pagination;
 }
 
 function confirmDeleteArticle(articleID, articleName)

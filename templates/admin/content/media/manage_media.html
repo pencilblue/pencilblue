@@ -11,8 +11,9 @@
     <table id="media_table" class="table table-responsive table-condensed">
         <tr id="media_table_header">
             <th></th>
-            <th>^loc_MEDIA^</th>
-            <th>^loc_DATE_ADDED^</th>
+            <th id="media_name_header">^loc_MEDIA^</th>
+            <th id="media_caption_header">^loc_CAPTION^</th>
+            <th id="media_date_header">^loc_DATE_ADDED^</th>
             <th></th>
         </tr>
         <tr class="media_row" ng-repeat="mediaItem in media track by mediaItem._id" on-finish-render ng-cloak>
@@ -24,7 +25,8 @@
             <td>
                 <a class="media_name" href="/admin/content/media/edit_media?id={{mediaItem._id}}">{{mediaItem.name}}</a>
             </td>
-            <td>{{mediaItem.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td class="media_caption">{{mediaItem.caption}}</td>
+            <td class="media_date">{{mediaItem.created | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
@@ -48,6 +50,7 @@
     </div>
 </div>
 <script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="^site_root^/js/jnarrow-0.1.1.min.js"></script>
-<script type="text/javascript" src="^site_root^/js/admin/content/media/manage_media.js"></script>
+<script type="text/javascript" src="/js/jnarrow-0.1.1.min.js"></script>
+<script type="text/javascript" src="/js/table_sort.js"></script>
+<script type="text/javascript" src="/js/admin/content/media/manage_media.js"></script>
 ^tmp_admin=footer^
