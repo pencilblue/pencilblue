@@ -7,6 +7,8 @@
 
 */
 
+var tableSort;
+
 $(document).ready(function()
 {
     new jNarrow('#media_search', '.media_row',
@@ -17,7 +19,7 @@ $(document).ready(function()
         clearText: '<i class="fa fa-times"></i>',
     });
     
-    new TableSort(
+    tableSort = new TableSort(
     {
         table: '#media_table',
         rowClass: '.media_row',
@@ -27,6 +29,16 @@ $(document).ready(function()
                 header: '#media_name_header',
                 textContainer: '.media_name',
                 sortType: 'alpha'
+            },
+            {
+                header: '#media_caption_header',
+                textContainer: '.media_caption',
+                sortType: 'alpha'
+            },
+            {
+                header: '#media_date_header',
+                textContainer: '.media_date',
+                sortType: 'other'
             }
         ]
     });
@@ -37,6 +49,8 @@ function initMediaPagination()
     pagination = new Pagination('media_pagination', '.media_row', 30);
     $('#media_search').keyup(pagination.initializeElements);
     $('#media_search_button').click(pagination.initializeElements);
+    
+    tableSort.pagination = pagination;
 }
 
 function confirmDeleteMedia(siteRoot, mediaID, mediaName)
