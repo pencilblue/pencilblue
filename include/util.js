@@ -130,6 +130,10 @@ Util.isObject = function(value) {
 	return value != undefined && value != null && typeof value === 'object';
 };
 
+Util.isString = function(value) {
+	return value != undefined && value != null && typeof value === 'object';
+};
+
 Util.TIME = {
 	
 	MILLIS_PER_SEC: 1000,
