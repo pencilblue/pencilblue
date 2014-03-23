@@ -94,7 +94,7 @@ Util.isExternalUrl = function(urlStr, request) {
     }
 
     return reqUrl.host !== obj.host;
-}
+};
 
 /**
  * Merges the properties from the first parameter into the second. This modifies
@@ -131,7 +131,7 @@ Util.isObject = function(value) {
 };
 
 Util.isString = function(value) {
-	return value != undefined && value != null && typeof value === 'object';
+	return value != undefined && value != null && typeof value === 'string';
 };
 
 Util.TIME = {
