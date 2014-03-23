@@ -45,6 +45,9 @@ pb.dbm = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
 //setup system class types
 pb.DAO = require(DOCUMENT_ROOT+'/include/dao/dao');
 
+//setup validation services
+pb.validation = require(DOCUMENT_ROOT+'/include/validation/validation_service.js');
+
 //setup the session handler
 pb.SessionHandler = require(DOCUMENT_ROOT+'/include/session/session.js');
 pb.session        = new pb.SessionHandler();
@@ -103,6 +106,10 @@ pb.DocumentCreator = require(DOCUMENT_ROOT+'/include/model/create_document.js').
 pb.content         = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions			        
 pb.js              = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
 pb.AdminNavigation = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
+
+//create plugin service
+pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_service.js');
+pb.plugins       = new pb.PluginService();
 
 //Export system object
 module.exports = pb;

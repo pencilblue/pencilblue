@@ -1,20 +1,20 @@
 {
     "uid": "sample",
     "name": "Sample Plugin",
-	"description": "This is a sample description just to give an idea of what this field should contain.  Provide details about the overall goal of the plugin along with any details information"
+	"description": "This is a sample description just to give an idea of what this field should contain.  Provide details about the overall goal of the plugin along with any details information",
     "version": "0.0.1",
-	"icon": "/imgs/icon.ico",
+	"icon": "/imgs/sample.ico",
 	"author": {
 		"name": "John Doe",
 		"email": "john.doe@customdev.com",
-		"website": "www.customdev.com",
+		"website": "http://www.customdev.com",
 		"contributors": [
 			{
 				"name": "Jane Doe",
 				"email": "jane.doe@customdev.com"
 			}
 		]
-	}
+	},
     "settings": [
 		{
 			"name": "pencilblue_sample_number_setting",
@@ -33,9 +33,9 @@
 	},
 	"main_module": {
 		"path": "sample.js"
-	}
+	},
 	"theme": {
-		"settings": {
+		"settings": [
 			{
 				"name": "pencilblue_sample_theme_number_setting",
 				"value": 456
@@ -44,7 +44,7 @@
 				"name": "pencilblue_sample_theme_string_setting",
 				"value": "789"
 			}
-		},
+		],
 		"content_templates":
 		[
 			{
