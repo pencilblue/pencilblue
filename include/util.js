@@ -134,6 +134,36 @@ Util.isString = function(value) {
 	return value != undefined && value != null && typeof value === 'string';
 };
 
+Util.getDirectories = function(dirPath, cb) {
+	
+	var dirs = [];
+	fs.readdir(dirPath, function(err, files) {
+		if (util.isError(err)) {
+			cb(err, null);
+			return;
+		}
+		
+		var tasks = pb.utils.getTasks(files, function(files, index) {
+			return function(callback) {
+				
+				var fullPath = path.join(dirPath, files[index]);
+				fs.stat(fullPath, function(err, stat) {
+					if (util.isError(err)) {
+						pb.log.error("Failed to get stats on file ["+fullPath+"]: "+err);
+					}
+					else if (stat.isDirectory()) {
+						dirs.push(fullPath);
+					}
+					callback(err, null);
+				});
+			};
+		});
+		async.parallel(tasks, function(err, results) {
+			cb(err, dirs);
+		});
+	});
+};
+
 Util.TIME = {
 	
 	MILLIS_PER_SEC: 1000,

@@ -12,6 +12,10 @@ PluginService.getPublicPath = function(pluginDirName) {
 	return path.join(PLUGINS_DIR, pluginDirName, PUBLIC_DIR_NAME);
 };
 
+PluginService.getPluginsDir = function() {
+	return PLUGINS_DIR;
+};
+
 /**
  * Constructs the path to a specific plugin's details.json file
  * @return {string} The absolute file path to the details.json file for a plugin
@@ -307,6 +311,64 @@ PluginService.validateSetting = function(setting, position) {
 	}
 
 	return errors;
+};
+
+PluginService.getServices = function(pathToPlugin, cb) {
+	var servicesDir = path.join(pathToPlugin, 'services');
+	
+	fs.readdir(servicesDir, function(err, files) {
+		
+		var services = {};
+		var tasks = pb.utils.getTasks(files, function(files, index) {
+			return function(callback) {
+				
+				var pathToService = path.join(servicesDir, files[index]);
+				PluginService.loadService(pathToService, function(err, service) {
+					if (!util.isError(err)) {
+					
+						var name = PluginService.getServiceName(pathToService, service);
+						services[name] = service;
+					}
+					callback(null, true);
+				});
+			};
+		});
+		async.parallel(tasks, function(err, results) {
+			cb(err, services);
+		});
+	});
+};
+
+PluginService.loadService = function(pathToService, cb) {
+	try {
+		pb.log.debug("PluginService: Attempting to load service ["+pathToService+"]");
+		var service = require(pathToService);
+		
+		pb.log.debug("PluginService: Initializing service ["+pathToService+"]");
+		service.init(function(err, result) {
+			cb(err, service);
+		});
+	}
+	catch(e){
+		pb.log.error("PluginService: Failed to load service: ["+pathToService+"]: "+e.stack);
+		cb(e, null);
+	}
+};
+
+PluginService.getServiceName = function(pathToService, service) {
+	var name = 'UNKNOWN';
+	if (service && typeof service.getName === 'function') {
+		name = service.getName();
+	}
+	else {
+		var pieces = pathToService.split(path.sep);
+		name       = pieces[pieces.length - 1];
+		var index  = name.lastIndexOf('.');
+		if (index > 0) {
+			name = name.substring(0, index);
+		}
+	}
+	return name;
 };
 
 //exports

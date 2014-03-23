@@ -43,5 +43,15 @@ module.exports = {
 				test.done();
 			});
 		});
+	},
+	
+	testGetServices: function(test) {
+		
+		var pathToPlugin = path.join(pb.PluginService.getPluginsDir(), 'sample');
+		pb.PluginService.getServices(pathToPlugin, function(err, services) {
+			test.ok(err == null);
+			test.ok(services.text_creater != null);
+			test.done();
+		});
 	}
 };
