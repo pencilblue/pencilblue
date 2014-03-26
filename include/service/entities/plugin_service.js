@@ -1,12 +1,80 @@
 /**
- *
+ * PluginService - Provides functions for interacting with plugins.  
+ * Install/uninstall, setting retrieval, plugin retrieval, etc.
+ * 
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC. All Rights Reserved
  */
-function PluginService(){}
+function PluginService(){
+	
+	//construct settings services
+	var caching = pb.config.plugins.caching;
+	this.pluginSettingsService = PluginService.genSettingsService('plugin_settings', caching.useMemory, caching.useCache, 'PluginSettingService');
+	this.themeSettingsService  = PluginService.genSettingsService('theme_settings', caching.useMemory, caching.useCache, 'ThemeSettingService');
+}
 
 //constants
 var PLUGINS_DIR       = path.join(DOCUMENT_ROOT, 'plugins');
 var DETAILS_FILE_NAME = 'details.json';
 var PUBLIC_DIR_NAME   = 'public';
+
+PluginService.prototype.getSetting = function(settingName, pluginName, cb) {
+	this.getSettngs(pluginName, function(err, settings) {
+		if (util.isError(err)) {
+			cb(err, null);
+			return;
+		}
+		
+		cb(err, settings ? settings[settingName] : null);
+	});
+};
+
+PluginService.prototype.getSettings = function(pluginName, cb) {
+	this.pluginSettingsService.get(pluginName, cb);
+};
+
+PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
+	throw new Error("not implemented");
+	
+	//verify plugin installed/loaded
+	//load settings
+		//if not exist then fail
+		//otherwise set the value
+		//call setSettings
+};
+
+PluginService.prototype.getThemeSetting = function(settingName, pluginName, cb) {
+	this.getThemeSettngs(pluginName, function(err, settings) {
+		if (util.isError(err)) {
+			cb(err, null);
+			return;
+		}
+		
+		cb(err, settings ? settings[settingName] : null);
+	});
+};
+
+PluginService.prototype.getThemeSettings = function(pluginName, cb) {
+	this.themeSettingsService.get(pluginName, cb);
+};
+
+PluginService.genSettingsService = function(objType, useMemory, useCache, serviceName) {
+	
+	//add in-memory service
+	var services = [];
+	if (useMemory){
+		services.push(new pb.MemoryEntityService(objType));
+	}
+	
+	//add cache service
+	if (useCache) {
+		services.push(new pb.CacheEntityService(objType));
+	}
+	
+	//always add DB
+	services.push(new pb.DBEntityService(objType, 'plugin_name', 'settings'));
+	return new pb.ReadOnlySimpleLayeredService(services, serviceName);
+};
 
 PluginService.getPublicPath = function(pluginDirName) {
 	return path.join(PLUGINS_DIR, pluginDirName, PUBLIC_DIR_NAME);
