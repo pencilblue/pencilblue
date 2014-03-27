@@ -34,13 +34,99 @@ PluginService.prototype.getSettings = function(pluginName, cb) {
 };
 
 PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
-	throw new Error("not implemented");
+	var self = this;
 	
-	//verify plugin installed/loaded
-	//load settings
-		//if not exist then fail
-		//otherwise set the value
-		//call setSettings
+	//error checking
+	if (!PluginService.validateSettingValue(value)) {
+		cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
+	}
+	if (!pb.validation.validateNonEmptyStr(name, true)) {
+		cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
+	}
+	
+	//retrieve the settings to modify
+	this.getSettings(pluginName, function(err, settings) {
+		if (util.isError(err) || !settings) {
+			cb(err, false);
+			return;
+		}
+		
+		settings[name] = value;
+		self.setSettings(settings, pluginName, cb);
+	});
+};
+
+PluginService.prototype.setSettings = function(settings, pluginName, cb) {
+	var self = this;
+	
+	//error checking
+	if (!settings) {
+		cb(new Error("PluginService: The settings object is required when making changes to plugin settings"), false);
+		return;
+	}
+	if (!pluginName) {
+		cb(new Error("PluginService: The plugin name is required when making changes to plugin settings"), false);
+		return;
+	}
+	
+	this.isInstalled(pluginName, function(err, isInstalled) {
+		if (util.isError(err) || !isInstalled) {
+			cb(err, false);
+			return;
+		}
+		
+		self.pluginSettingsService.set(pluginName, settings, function(err, result) {
+			cb(err, !util.isError(err) && result);
+		});
+	});
+};
+
+PluginService.prototype.setThemeSetting = function(name, value, pluginName, cb) {
+	var self = this;
+	
+	//error checking
+	if (!PluginService.validateSettingValue(value)) {
+		cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
+	}
+	if (!pb.validation.validateNonEmptyStr(name, true)) {
+		cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
+	}
+	
+	//retrieve the settings to modify
+	this.getThemeSettings(pluginName, function(err, settings) {
+		if (util.isError(err) || !settings) {
+			cb(err, false);
+			return;
+		}
+		
+		settings[name] = value;
+		self.setThemeSettings(settings, pluginName, cb);
+	});
+};
+
+PluginService.prototype.setThemeSettings = function(settings, pluginName, cb) {
+	var self = this;
+	
+	//error checking
+	if (!settings) {
+		cb(new Error("PluginService: The settings object is required when making changes to theme settings"), false);
+		return;
+	}
+	if (!pluginName) {
+		cb(new Error("PluginService: The plugin name is required when making changes to theme settings"), false);
+		return;
+	}
+	
+	this.isInstalled(pluginName, function(err, isInstalled) {
+		if (util.isError(err) || !isInstalled) {
+			cb(err, false);
+			return;
+		}
+		
+		self.themeSettingsService.set(pluginName, settings, function(err, result) {
+			cb(err, !util.isError(err) && result);
+		});
+	});
 };
 
 PluginService.prototype.getThemeSetting = function(settingName, pluginName, cb) {
@@ -56,6 +142,24 @@ PluginService.prototype.getThemeSetting = function(settingName, pluginName, cb) 
 
 PluginService.prototype.getThemeSettings = function(pluginName, cb) {
 	this.themeSettingsService.get(pluginName, cb);
+};
+
+PluginService.prototype.isInstalled = function(pluginIdentifer, cb) {
+	this.getPlugin(pluginIdentifier, function(err, plugin) {
+		cb(err, plugin ? true : false);
+	});
+};
+
+PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
+	var where = {};
+	if (pluginIdentifier instanceof ObjectID) {
+		where._id = pluginIdentifier;
+	}
+	else {
+		where.name = pluginIdentifier;
+	}
+	var dao = new pb.DAO();
+	dao.loadByValues(where, 'plugin', cb);
 };
 
 PluginService.genSettingsService = function(objType, useMemory, useCache, serviceName) {
@@ -74,6 +178,90 @@ PluginService.genSettingsService = function(objType, useMemory, useCache, servic
 	//always add DB
 	services.push(new pb.DBEntityService(objType, 'plugin_name', 'settings'));
 	return new pb.ReadOnlySimpleLayeredService(services, serviceName);
+};
+
+PluginService.prototype.resetSettings = function(details, pluginName, cb) {
+	var self = this;
+	
+	//retrieve plugin to prove it exists (plus we need the id)
+	this.getPlugin(pluginName, function(err, plugin) {
+		if (util.isError(err) || !plugin) {
+			cb(err, false);
+			return;
+		}
+		
+		//remove any existing settings
+		self.pluginSettingsService.purge(pluginName, function (err, result) {
+			if (util.isError(err) || !result) {
+				cb(err, false);
+				return;
+			}
+			
+			//build the object to persist
+			var baseDoc  = {
+				plugin_name: plugin.name,
+				plugin_id: plugin_id.toString(),
+				settings: details.settings	
+			};
+			var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
+			
+			//save it
+			var dao      = new pb.DAO();
+			dao.update(settings).then(function(result) {
+				if (util.isError(result)) {
+					cb(result, false);
+				}
+				else {
+					cb(null, true);
+				}
+			});
+		});
+	});
+};
+
+PluginService.prototype.resetThemeSettings = function(details, pluginName, cb) {
+	var self = this;
+	
+	//error checking
+	if (!details.theme || !details.theme.settings) {
+		cb(new Error("PluginService: Settings are required when attempting to reset a plugin's theme settings"), false);
+		return;
+	}
+	
+	//retrieve plugin to prove it exists (plus we need the id)
+	this.getPlugin(pluginName, function(err, plugin) {
+		if (util.isError(err) || !plugin) {
+			cb(err, false);
+			return;
+		}
+		
+		//remove any existing settings
+		self.themeSettingsService.purge(pluginName, function (err, result) {
+			if (util.isError(err) || !result) {
+				cb(err, false);
+				return;
+			}
+			
+			//build the object to persist
+			var baseDoc  = {
+				plugin_name: plugin.name,
+				plugin_id: plugin_id.toString(),
+				settings: details.settings	
+			};
+			var settings = pb.DocumentCreator.create('theme_settings', baseDoc);
+			
+			//save it
+			var dao      = new pb.DAO();
+			dao.update(settings).then(function(result) {
+				if (util.isError(result)) {
+					cb(result, false);
+				}
+				else {
+					cb(null, true);
+				}
+			});
+		});
+	});
 };
 
 PluginService.getPublicPath = function(pluginDirName) {
@@ -370,7 +558,7 @@ PluginService.validateSetting = function(setting, position) {
 		}
 		
 		//validate value
-		if (!setting.value || (!pb.utils.isString(setting.value) && isNaN(setting.value))) {
+		if (!PluginService.validateSettingValue(setting.value)) {
 			errors.push(new Error("The setting value at position "+position+" must be provided"));
 		}
 	}
@@ -379,6 +567,10 @@ PluginService.validateSetting = function(setting, position) {
 	}
 
 	return errors;
+};
+
+PluginService.validateSettingValue = function(value) {
+	return pb.utils.isString(setting.value) || !isNaN(setting.value);
 };
 
 PluginService.getServices = function(pathToPlugin, cb) {
