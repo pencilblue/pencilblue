@@ -18,6 +18,14 @@ var PLUGINS_DIR       = path.join(DOCUMENT_ROOT, 'plugins');
 var DETAILS_FILE_NAME = 'details.json';
 var PUBLIC_DIR_NAME   = 'public';
 
+/**
+ * Retrieves a single setting for the specified plugin.  
+ * @param settingName The name of the setting to retrieve
+ * @param pluginName The name of the plugin who owns the setting
+ * @param cb A callback that provides two parameters: cb(error, settingValue). 
+ * Null is returned if the setting does not exist or the specified plugin is not 
+ * installed.
+ */
 PluginService.prototype.getSetting = function(settingName, pluginName, cb) {
 	this.getSettngs(pluginName, function(err, settings) {
 		if (util.isError(err)) {
@@ -29,10 +37,24 @@ PluginService.prototype.getSetting = function(settingName, pluginName, cb) {
 	});
 };
 
+/**
+ * Retrieves all of the settings for the specfied plugin.
+ * @param pluginName The name of the plugin who's settings are being requested
+ * @param cb A callback that provides two parameters: cb(error, settings).  
+ * Null is provided in the event that the plugin is not installed.
+ */
 PluginService.prototype.getSettings = function(pluginName, cb) {
 	this.pluginSettingsService.get(pluginName, cb);
 };
 
+/**
+ * Replaces a single setting for the specified plugin
+ * @param name The name of the setting to change
+ * @param value The new value for the setting
+ * @param pluginName The plugin who's setting is being changed.
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the setting was persisted successfully, FALSE if not.
+ */
 PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
 	var self = this;
 	
@@ -56,6 +78,14 @@ PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
 	});
 };
 
+/**
+ * Replaces the settings for the specified plugin.  
+ * 
+ * @param settings The settings object to be validated and persisted
+ * @param pluginName The name of the plugin who's settings are being represented
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the settings were persisted successfully, FALSE if not.
+ */
 PluginService.prototype.setSettings = function(settings, pluginName, cb) {
 	var self = this;
 	
@@ -81,6 +111,14 @@ PluginService.prototype.setSettings = function(settings, pluginName, cb) {
 	});
 };
 
+/**
+ * Replaces a single theme setting for the specified plugin
+ * @param name The name of the setting to change
+ * @param value The new value for the setting
+ * @param pluginName The plugin who's setting is being changed.
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the setting was persisted successfully, FALSE if not.
+ */
 PluginService.prototype.setThemeSetting = function(name, value, pluginName, cb) {
 	var self = this;
 	
@@ -104,6 +142,14 @@ PluginService.prototype.setThemeSetting = function(name, value, pluginName, cb) 
 	});
 };
 
+/**
+ * Replaces the theme settings for the specified plugin.  
+ * 
+ * @param settings The settings object to be validated and persisted
+ * @param pluginName The name of the plugin who's settings are being represented
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the settings were persisted successfully, FALSE if not.
+ */
 PluginService.prototype.setThemeSettings = function(settings, pluginName, cb) {
 	var self = this;
 	
