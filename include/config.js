@@ -62,9 +62,11 @@ var config = {
 		use_memory: true,
 		use_cache: true
 	},
-	themes: {
-		use_memory: true,
-		use_cache: true
+	plugins: {
+		caching: {
+			use_memory: true,
+			use_cache: true,
+		}
 	}
 };
     

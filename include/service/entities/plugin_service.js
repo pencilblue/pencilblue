@@ -1,17 +1,384 @@
 /**
- *
+ * PluginService - Provides functions for interacting with plugins.  
+ * Install/uninstall, setting retrieval, plugin retrieval, etc.
+ * 
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC. All Rights Reserved
  */
-function PluginService(){}
+function PluginService(){
+	
+	//construct settings services
+	var caching = pb.config.plugins.caching;
+	this.pluginSettingsService = PluginService.genSettingsService('plugin_settings', caching.useMemory, caching.useCache, 'PluginSettingService');
+	this.themeSettingsService  = PluginService.genSettingsService('theme_settings', caching.useMemory, caching.useCache, 'ThemeSettingService');
+}
 
 //constants
 var PLUGINS_DIR       = path.join(DOCUMENT_ROOT, 'plugins');
 var DETAILS_FILE_NAME = 'details.json';
 var PUBLIC_DIR_NAME   = 'public';
 
+/**
+ * Retrieves a single setting for the specified plugin.  
+ * @param settingName The name of the setting to retrieve
+ * @param pluginName The name of the plugin who owns the setting
+ * @param cb A callback that provides two parameters: cb(error, settingValue). 
+ * Null is returned if the setting does not exist or the specified plugin is not 
+ * installed.
+ */
+PluginService.prototype.getSetting = function(settingName, pluginName, cb) {
+	this.getSettngs(pluginName, function(err, settings) {
+		if (util.isError(err)) {
+			cb(err, null);
+			return;
+		}
+		
+		cb(err, settings ? settings[settingName] : null);
+	});
+};
+
+/**
+ * Retrieves all of the settings for the specfied plugin.
+ * @param pluginName The name of the plugin who's settings are being requested
+ * @param cb A callback that provides two parameters: cb(error, settings).  
+ * Null is provided in the event that the plugin is not installed.
+ */
+PluginService.prototype.getSettings = function(pluginName, cb) {
+	this.pluginSettingsService.get(pluginName, cb);
+};
+
+/**
+ * Replaces a single setting for the specified plugin
+ * @param name The name of the setting to change
+ * @param value The new value for the setting
+ * @param pluginName The plugin who's setting is being changed.
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the setting was persisted successfully, FALSE if not.
+ */
+PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
+	var self = this;
+	
+	//error checking
+	if (!PluginService.validateSettingValue(value)) {
+		cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
+	}
+	if (!pb.validation.validateNonEmptyStr(name, true)) {
+		cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
+	}
+	
+	//retrieve the settings to modify
+	this.getSettings(pluginName, function(err, settings) {
+		if (util.isError(err) || !settings) {
+			cb(err, false);
+			return;
+		}
+		
+		settings[name] = value;
+		self.setSettings(settings, pluginName, cb);
+	});
+};
+
+/**
+ * Replaces the settings for the specified plugin.  
+ * 
+ * @param settings The settings object to be validated and persisted
+ * @param pluginName The name of the plugin who's settings are being represented
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the settings were persisted successfully, FALSE if not.
+ */
+PluginService.prototype.setSettings = function(settings, pluginName, cb) {
+	var self = this;
+	
+	//error checking
+	if (!settings) {
+		cb(new Error("PluginService: The settings object is required when making changes to plugin settings"), false);
+		return;
+	}
+	if (!pluginName) {
+		cb(new Error("PluginService: The plugin name is required when making changes to plugin settings"), false);
+		return;
+	}
+	
+	this.isInstalled(pluginName, function(err, isInstalled) {
+		if (util.isError(err) || !isInstalled) {
+			cb(err, false);
+			return;
+		}
+		
+		self.pluginSettingsService.set(pluginName, settings, function(err, result) {
+			cb(err, !util.isError(err) && result);
+		});
+	});
+};
+
+/**
+ * Replaces a single theme setting for the specified plugin
+ * @param name The name of the setting to change
+ * @param value The new value for the setting
+ * @param pluginName The plugin who's setting is being changed.
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the setting was persisted successfully, FALSE if not.
+ */
+PluginService.prototype.setThemeSetting = function(name, value, pluginName, cb) {
+	var self = this;
+	
+	//error checking
+	if (!PluginService.validateSettingValue(value)) {
+		cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
+	}
+	if (!pb.validation.validateNonEmptyStr(name, true)) {
+		cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
+	}
+	
+	//retrieve the settings to modify
+	this.getThemeSettings(pluginName, function(err, settings) {
+		if (util.isError(err) || !settings) {
+			cb(err, false);
+			return;
+		}
+		
+		settings[name] = value;
+		self.setThemeSettings(settings, pluginName, cb);
+	});
+};
+
+/**
+ * Replaces the theme settings for the specified plugin.  
+ * 
+ * @param settings The settings object to be validated and persisted
+ * @param pluginName The name of the plugin who's settings are being represented
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the settings were persisted successfully, FALSE if not.
+ */
+PluginService.prototype.setThemeSettings = function(settings, pluginName, cb) {
+	var self = this;
+	
+	//error checking
+	if (!settings) {
+		cb(new Error("PluginService: The settings object is required when making changes to theme settings"), false);
+		return;
+	}
+	if (!pluginName) {
+		cb(new Error("PluginService: The plugin name is required when making changes to theme settings"), false);
+		return;
+	}
+	
+	this.isInstalled(pluginName, function(err, isInstalled) {
+		if (util.isError(err) || !isInstalled) {
+			cb(err, false);
+			return;
+		}
+		
+		self.themeSettingsService.set(pluginName, settings, function(err, result) {
+			cb(err, !util.isError(err) && result);
+		});
+	});
+};
+
+/**
+ * Retrieves a single theme setting value.
+ * @param settingName The name of the setting
+ * @param pluginName The plugin to retrieve the setting from
+ * @param cb A callback that provides two parameters: cb(error, settingValue)
+ */
+PluginService.prototype.getThemeSetting = function(settingName, pluginName, cb) {
+	this.getThemeSettngs(pluginName, function(err, settings) {
+		if (util.isError(err)) {
+			cb(err, null);
+			return;
+		}
+		
+		cb(err, settings ? settings[settingName] : null);
+	});
+};
+
+/**
+ * Retrieves the theme settings for the specified plugin
+ * @param pluginName The name of the plugin
+ * @param cb A callback that provides two parameters: cb(err, settingsObject)
+ */
+PluginService.prototype.getThemeSettings = function(pluginName, cb) {
+	this.themeSettingsService.get(pluginName, cb);
+};
+
+/**
+ * Indicates if a plugin by the specified identifier is installed.
+ * @param pluginIdentifer The identifier can either be an ObjectID or the 
+ * plugin name
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the plugin is installed, FALSE if not.
+ */
+PluginService.prototype.isInstalled = function(pluginIdentifer, cb) {
+	this.getPlugin(pluginIdentifier, function(err, plugin) {
+		cb(err, plugin ? true : false);
+	});
+};
+
+/**
+ * Retrieves a plugin descriptor (plugin document)
+ * @param pluginIdentifier The identifier can either be an ObjectID or the 
+ * plugin name
+ * @param cb A callback that provides two parameters: cb(error, plugin).  If the 
+ * plugin does exist null is provided.
+ */
+PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
+	var where = {};
+	if (pluginIdentifier instanceof ObjectID) {
+		where._id = pluginIdentifier;
+	}
+	else {
+		where.name = pluginIdentifier;
+	}
+	var dao = new pb.DAO();
+	dao.loadByValues(where, 'plugin', cb);
+};
+
+/**
+ * Convenience function to generate a service to handle settings for a plugin.
+ * @param objType The type of object that will be dealt with.  (plugin_settings, 
+ * theme_settings)
+ * 
+ * @param useMemory {Boolean} Indicates if the generated layered service should 
+ * use an in memory service.
+ * @param useCache {Boolean} Indicates if the generated layered service should 
+ * use a cache service.
+ * @param serviceName The name of the service
+ * @returns {SimpleLayeredService}
+ */
+PluginService.genSettingsService = function(objType, useMemory, useCache, serviceName) {
+	
+	//add in-memory service
+	var services = [];
+	if (useMemory){
+		services.push(new pb.MemoryEntityService(objType));
+	}
+	
+	//add cache service
+	if (useCache) {
+		services.push(new pb.CacheEntityService(objType));
+	}
+	
+	//always add DB
+	services.push(new pb.DBEntityService(objType, 'plugin_name', 'settings'));
+	return new pb.SimpleLayeredService(services, serviceName);
+};
+
+/**
+ * Loads the settings from a details object and persists them in the DB.  Any 
+ * existing settings for the plugin are deleted before the new settings are 
+ * persisted.
+ * @param details The details object to extract the settings from
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
+ */
+PluginService.prototype.resetSettings = function(details, cb) {
+	var self = this;
+	
+	//retrieve plugin to prove it exists (plus we need the id)
+	var pluginName = details.uid;
+	this.getPlugin(pluginName, function(err, plugin) {
+		if (util.isError(err) || !plugin) {
+			cb(err ? err : new Error("The plugin "+pluginName+"is not installed"), false);
+			return;
+		}
+		
+		//remove any existing settings
+		self.pluginSettingsService.purge(pluginName, function (err, result) {
+			if (util.isError(err) || !result) {
+				cb(err, false);
+				return;
+			}
+			
+			//build the object to persist
+			var baseDoc  = {
+				plugin_name: plugin.name,
+				plugin_id: plugin_id.toString(),
+				settings: details.settings	
+			};
+			var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
+			
+			//save it
+			var dao      = new pb.DAO();
+			dao.update(settings).then(function(result) {
+				if (util.isError(result)) {
+					cb(result, false);
+				}
+				else {
+					cb(null, true);
+				}
+			});
+		});
+	});
+};
+
+/**
+ * Loads the Theme settings from a details object and persists them in the DB.  Any 
+ * existing theme settings for the plugin are deleted before the new settings 
+ * are persisted. If the plugin does not have a theme then false is provided in 
+ * the callback.
+ * @param details The details object to extract the settings from
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
+ * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
+ */
+PluginService.prototype.resetThemeSettings = function(details, cb) {
+	var self = this;
+	
+	//error checking
+	var pluginName = details.uid;
+	if (!details.theme || !details.theme.settings) {
+		cb(new Error("PluginService: Settings are required when attempting to reset a plugin's theme settings"), false);
+		return;
+	}
+	
+	//retrieve plugin to prove it exists (plus we need the id)
+	this.getPlugin(pluginName, function(err, plugin) {
+		if (util.isError(err) || !plugin) {
+			cb(err, false);
+			return;
+		}
+		
+		//remove any existing settings
+		self.themeSettingsService.purge(pluginName, function (err, result) {
+			if (util.isError(err) || !result) {
+				cb(err, false);
+				return;
+			}
+			
+			//build the object to persist
+			var baseDoc  = {
+				plugin_name: plugin.name,
+				plugin_id: plugin_id.toString(),
+				settings: details.settings	
+			};
+			var settings = pb.DocumentCreator.create('theme_settings', baseDoc);
+			
+			//save it
+			var dao      = new pb.DAO();
+			dao.update(settings).then(function(result) {
+				if (util.isError(result)) {
+					cb(result, false);
+				}
+				else {
+					cb(null, true);
+				}
+			});
+		});
+	});
+};
+
+/**
+ * Retrieves the absolute file path to a plugin's public directory
+ * @param pluginDirName The name of the directory that contains the intended 
+ * plugin
+ * @returns {string} the absolute file path to a plugin's public directory
+ */
 PluginService.getPublicPath = function(pluginDirName) {
 	return path.join(PLUGINS_DIR, pluginDirName, PUBLIC_DIR_NAME);
 };
 
+/**
+ * @returns {string} The absolute file path to the plugins directory
+ */
 PluginService.getPluginsDir = function() {
 	return PLUGINS_DIR;
 };
@@ -24,6 +391,11 @@ PluginService.getDetailsPath = function(pluginDirName) {
 	return path.join(PLUGINS_DIR, pluginDirName, DETAILS_FILE_NAME);
 };
 
+/**
+ * Attempts to load and parse the details.json file for a plugin. 
+ * @param filePath The absolute path to the details.json file
+ * @param cb A callback that provides two parameters: cb(error, detailsObject)
+ */
 PluginService.loadDetailsFile = function(filePath, cb) {
 	fs.readFile(filePath, function(err, data){
 		if (util.isError(err)) {
@@ -41,6 +413,15 @@ PluginService.loadDetailsFile = function(filePath, cb) {
 	});
 };
 
+/**
+ * Validates a plugin's details.json file.  
+ * 
+ * @param details The details object to validate
+ * @param pluginDirName The name of the directory containing the original 
+ * details.json file that the details object was derived from.
+ * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).  
+ * TRUE if the details object passes validation, FALSE if not.
+ */
 PluginService.validateDetails = function(details, pluginDirName, cb) {
 	if (!details) {
 		cb(new Error("Details cannot be null"), false);
@@ -262,6 +643,15 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 	cb(error, !isError);
 };
 
+/**
+ * Validates the path to the plugin's icon file.  The path is considered valid 
+ * if the path to a valid file.  The path may be absolute or relative to the 
+ * plugin's public directory.
+ * 
+ * @param iconPath The path to the icon (image) file
+ * @param pluginDirName The name of the directory housing the plugin
+ * @returns {Boolean} TRUE if the path is valid, FALSE if not
+ */
 PluginService.validateIconPath = function(iconPath, pluginDirName) {
 	var pluginPublicIcon = path.join(PluginService.getPublicPath(pluginDirName), iconPath);
 	var paths            = [pluginPublicIcon, iconPath];
@@ -274,9 +664,18 @@ PluginService.validateIconPath = function(iconPath, pluginDirName) {
 	return false;
 };
 
+/**
+ * Validates the path of a main module file.  The path is considered valid if 
+ * the path points to JS file.  The path may be absolute or relative to the 
+ * specific plugin directory.
+ * 
+ * @param mmPath The relative or absolute path to the main module file
+ * @param pluginDirName The name of the directory housing the plugin
+ * @returns {Boolean} TRUE if the path is valid, FALSE if not
+ */
 PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
-	var pluginPublicIcon = path.join(PLUGINS_DIR, pluginDirName, mmPath);
-	var paths            = [pluginPublicIcon, mmPath];
+	var pluginMM = path.join(PLUGINS_DIR, pluginDirName, mmPath);
+	var paths    = [pluginMM, mmPath];
 	
 	for (var i = 0; i < paths.length; i++) {
 		try {console.log(paths[i]);
@@ -287,6 +686,15 @@ PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
 	return false;
 };
 
+/**
+ * Validates a setting from a details.json file. 
+ *  
+ * @param setting The setting to validate
+ * @param position The position in the settings array where the setting resides 
+ * as a 0 based index.
+ * @returns {Array} The array of errors that were generated.  If no errors were 
+ * produced an empty array is returned.
+ */
 PluginService.validateSetting = function(setting, position) {
 	
 	//setup
@@ -302,7 +710,7 @@ PluginService.validateSetting = function(setting, position) {
 		}
 		
 		//validate value
-		if (!setting.value || (!pb.utils.isString(setting.value) && isNaN(setting.value))) {
+		if (!PluginService.validateSettingValue(setting.value)) {
 			errors.push(new Error("The setting value at position "+position+" must be provided"));
 		}
 	}
@@ -313,10 +721,32 @@ PluginService.validateSetting = function(setting, position) {
 	return errors;
 };
 
+/**
+ * Validates a details.json file's setting value.  The value is required to be a 
+ * string or a number.  Null, undefined, Arrays, Objects, and prototypes are NOT 
+ * allowed.
+ * 
+ * @param value The value to validate
+ * @returns {Boolean} TRUE if the value is valid, FALSE if not
+ */
+PluginService.validateSettingValue = function(value) {
+	return pb.utils.isString(value) || !isNaN(value);
+};
+
+/**
+ * Retrieves all services (initialized).  The services are provided in the 
+ * callback.
+ * 
+ * @param pathToPlugin The absolute file path to the specific plugin directory.
+ * @param cb A callback that provides two parameters: cb(error, servicesHash);
+ */
 PluginService.getServices = function(pathToPlugin, cb) {
 	var servicesDir = path.join(pathToPlugin, 'services');
 	
 	fs.readdir(servicesDir, function(err, files) {
+		if (util.isError(err)) {
+			cb(err, null);
+		}
 		
 		var services = {};
 		var tasks = pb.utils.getTasks(files, function(files, index) {
@@ -339,6 +769,14 @@ PluginService.getServices = function(pathToPlugin, cb) {
 	});
 };
 
+/**
+ * Loads a plugin service and initializes it.  The service is required to 
+ * implement an "init" function. The service is then provided as a parameter in 
+ * the callback.
+ * 
+ * @param pathToService The absolute file path to the service javascript file.
+ * @param cb A callback that provides two parameters: cb(error, initializedService)
+ */
 PluginService.loadService = function(pathToService, cb) {
 	try {
 		pb.log.debug("PluginService: Attempting to load service ["+pathToService+"]");
@@ -355,6 +793,16 @@ PluginService.loadService = function(pathToService, cb) {
 	}
 };
 
+/**
+ * Derives the name of a plugin service instance.  The function attempts to get 
+ * the name of the service by looking to see if the service has implemented the 
+ * getName function.  If it has not then the service name is set to be the file 
+ * name minus any extension.
+ * 
+ * @param pathToService The file path to the service
+ * @param service The service prototype
+ * @returns {String} The derived service name
+ */
 PluginService.getServiceName = function(pathToService, service) {
 	var name = 'UNKNOWN';
 	if (service && typeof service.getName === 'function') {

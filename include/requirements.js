@@ -79,10 +79,6 @@ pb.security = require(DOCUMENT_ROOT+'/include/access_management.js').SecuritySer
 pb.UserService = require(DOCUMENT_ROOT+'/include/service/entities/user_service.js').UserService;
 pb.users = new pb.UserService();
 
-//setup theme service
-pb.ThemeService = require(DOCUMENT_ROOT+'/include/service/entities/theme_service.js').ThemeService;
-pb.themes = new pb.ThemeService(pb.config.themes.use_memory, pb.config.themes.use_cache);
-
 //setup request handling
 pb.BaseController   = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;
 pb.FormController   = require(DOCUMENT_ROOT+'/controllers/form_controller.js').FormController;

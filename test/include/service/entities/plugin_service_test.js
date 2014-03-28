@@ -11,7 +11,9 @@ require('../../../base_test');
 module.exports = {
 	
 	setUp: function(cb){
-		cb();
+		pb.dbm.getDB().then(function(result){
+			cb();
+		});
 	},
 
 	tearDown: function(cb){
@@ -25,7 +27,7 @@ module.exports = {
 		pb.PluginService.loadDetailsFile(detailsPath, function(err, details) {
 			test.ok(err == null);
 			if (err != null) {
-				pb.log.error("Failed to get details: " + err);
+				pb.log.error("Failed to get details: " + err.stack);
 			}
 			
 			pb.PluginService.validateDetails(details, pluginDirName, function(errs, result) {
@@ -49,9 +51,9 @@ module.exports = {
 		
 		var pathToPlugin = path.join(pb.PluginService.getPluginsDir(), 'sample');
 		pb.PluginService.getServices(pathToPlugin, function(err, services) {
-			test.ok(err == null);
+			test.equals(null, err);
 			test.ok(services.text_creater != null);
 			test.done();
 		});
-	}
+	},
 };
