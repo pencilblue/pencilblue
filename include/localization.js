@@ -61,6 +61,14 @@ Localization.prototype.get = function(key, defaultVal) {
 		pb.log.silly('Localization: Localizing key ['+key+'] - Locale ['+this.language+']');
 	}
 	
+	//error checking
+	if (typeof key !== 'string') {
+		return null;
+	}
+	
+	//check for old style key
+	key = key.replace('^loc_', '').replace('^', '');
+	
 	//get i18n from storage
 	var tmp;
 	var val = null;
