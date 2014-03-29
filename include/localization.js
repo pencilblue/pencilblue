@@ -49,6 +49,37 @@ Localization.prototype.localize = function(sets, text){
 };
 
 /**
+ * Translates a single key.  The key should not be enclosed by the special '^' 
+ * character.
+ * 
+ * @param key
+ * @param defaultVal
+ * @returns
+ */
+Localization.prototype.get = function(key, defaultVal) {
+	if (pb.log.isSilly()) {
+		pb.log.silly('Localization: Localizing key ['+key+'] - Locale ['+this.language+']');
+	}
+	
+	//get i18n from storage
+	var tmp;
+	var val = null;
+	var loc = Localization.storage[this.language];
+	for (var category in loc) {
+		tmp = loc[category][key];
+		if (tmp !== undefined) {
+			val = tmp;
+			break;
+		}
+	}
+	
+	if (val === null) {
+		val = defaultVal ? defaultVal : key;
+	}
+	return val;
+};
+
+/**
  * Determines the best language to send a user based on the 'accept-language' 
  * header in the request
  * @param request The request object
@@ -56,7 +87,11 @@ Localization.prototype.localize = function(sets, text){
  */
 Localization.best = function(request){
 	var loc = 'en-us';
-	if (request.headers[Localization.ACCEPT_LANG_HEADER]){
+	if (typeof request == 'string') {
+		var locales = new locale.Locales(request);
+		loc = locales.best(Localization.supported);
+	}
+	else if (request.headers[Localization.ACCEPT_LANG_HEADER]){
 		var locales = new locale.Locales(request.headers[Localization.ACCEPT_LANG_HEADER]);
 		loc = locales.best(Localization.supported);
 	}
