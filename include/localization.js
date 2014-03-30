@@ -6,7 +6,7 @@
  * @copyright PencilBlue, LLC. 2014 All Rights Reserved
  */
 function Localization(request){
-	this.language = Localization.best(request).toString().toLowerCase();
+	this.language = Localization.best(request).toString().toLowerCase().replace('-', '_');
 }
 
 Localization.SEP                = '^';
@@ -29,7 +29,7 @@ Localization.prototype.localize = function(sets, text){
 	}
 	
 	//get i18n from storage
-	var loc = Localization.storage[this.language];
+	var loc = Localization.storage[this.language];if (loc === undefined) {throw new Error("Failed to set a language. LANG="+util.inspect(this.language));}
     for (var key in loc.generic) {
         text = text.split('^loc_' + key + '^').join(loc.generic[key]);
     }

@@ -16,8 +16,20 @@ BaseController.prototype.init = function(props, cb) {
 	this.res                 = props.response;
 	this.session             = props.session;
 	this.localizationService = props.localization_service;
+	this.ls                  = this.localizationService;
 	this.pathVars            = props.path_vars;
 	this.query               = props.query;
+	this.pageName            = '';
+	
+	var self = this;
+	this.templateService     = new pb.TemplateService(this.localizationService);
+	this.templateService.registerLocal('error_success', function(flag, cb) {
+		self.displayErrorOrSuccessCallback(flag, cb);
+	});
+	this.templateService.registerLocal('page_name', function(flag, cb) {
+		cb(null, self.getPageName());
+	});
+	this.ts = this.templateService;
 	cb();
 };
 
@@ -27,6 +39,25 @@ BaseController.prototype.formError = function(message, redirectLocation, cb) {
     cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + redirectLocation));
 };
 
+BaseController.prototype.displayErrorOrSuccessCallback = function(flag, cb) {
+    if(this.session['error']) {
+    	var error = this.session['error'];
+        delete this.session['error'];
+        cb(null, '<div class="alert alert-danger error_success">' + this.localizationService.get(error) + '<a href="javascript:$(\'.alert-danger.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+    }
+    else if(this.session['success']) {
+    	var success = this.session['success'];
+        delete this.session['success'];
+        cb(null, '<div class="alert alert-success error_success">' + this.localizationService.get(success) + '<a href="javascript:$(\'.alert-success.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+    }
+    else {
+        cb(null, '');
+    }
+};
+
+/**
+ * TODO - Remove after localization and templating refactor
+ */
 BaseController.prototype.displayErrorOrSuccess = function(result, cb) {
     if(this.session['error']) {
         result = result.split('^error_success^').join('<div class="alert alert-danger error_success">' + this.session['error'] + '<a href="javascript:$(\'.alert-danger.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
@@ -41,6 +72,19 @@ BaseController.prototype.displayErrorOrSuccess = function(result, cb) {
     }
     
     cb(result);
+};
+
+/**
+ * Provides a page title.  This is picked up by the template engine when the 
+ * ^page_name^ key is found in a template.
+ * @returns {String} The title for the page
+ */
+BaseController.prototype.getPageName = function() {
+	return this.pageName;
+};
+
+BaseController.prototype.setPageName = function(pageName) {
+	this.pageName = pageName;
 };
 
 BaseController.prototype.getPostParams = function(cb) {
@@ -75,16 +119,16 @@ BaseController.prototype.hasRequiredParams = function(queryObject, requiredParam
 	for (var i = 0; i < requiredParameters.length; i++) {
         
 		if (typeof queryObject[requiredParameters[i]] === 'undefined') {
-            return '^loc_FORM_INCOMPLETE^';
+            return this.localizationService.get('FORM_INCOMPLETE');
         }
         else if (queryObject[requiredParameters[i]].length == 0) {
-            return '^loc_FORM_INCOMPLETE^';
+        	return this.localizationService.get('FORM_INCOMPLETE');
         }
     }
     
     if(queryObject['password'] && queryObject['confirm_password']) {
         if(queryObject['password'] != queryObject['confirm_password']) {
-            return '^loc_PASSWORD_MISMATCH^';
+            return this.localizationService.get('PASSWORD_MISMATCH');
         }
     }
     

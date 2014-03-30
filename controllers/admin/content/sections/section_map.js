@@ -6,6 +6,9 @@
  */
 function SectionMap(){}
 
+//dependencies
+var Sections = require('../sections');
+
 //inheritance
 util.inherits(SectionMap, pb.BaseController);
 
@@ -26,32 +29,28 @@ SectionMap.prototype.render = function(cb) {
                 return;
             }
             
-	        pb.templates.load('admin/content/sections/section_map', '^loc_SECTION_MAP^', null, function(data) {
+            self.setPageName(self.ls.get('SECTION_MAP'));
+	        self.ts.load('admin/content/sections/section_map', function(err, data) {
                 var result = data;
 
-                self.displayErrorOrSuccess(result, function(newResult) {
- 
-                    result    = newResult;
-                    var pills = require('../sections').getPillNavOptions('section_map');
-                    pills.unshift(
-                    {
-                        name: 'section_map',
-                        title: '^loc_SECTION_MAP^',
-                        icon: 'refresh',
-                        href: '/admin/content/sections/section_map'
-                    });
-                    
-                    var objects     = {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'sections']),
-                        pills: pills,
-                        sections: SectionMap.getOrderedSections(sections, sectionMap)
-                    };
-                    var angularData = pb.js.getAngularController(objects);
-                    result          = result.concat(angularData);
-                    
-                    var content = self.localizationService.localize(['admin', 'sections'], result);
-                    cb({content: content});
+                var pills = Sections.getPillNavOptions('section_map');
+                pills.unshift(
+                {
+                    name: 'section_map',
+                    title: self.ls.get('SECTION_MAP'),
+                    icon: 'refresh',
+                    href: '/admin/content/sections/section_map'
                 });
+                
+                var objects     = {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
+                    pills: pills,
+                    sections: SectionMap.getOrderedSections(sections, sectionMap)
+                };
+                var angularData = pb.js.getAngularController(objects);
+                result          = result.concat(angularData);
+                
+                cb({content: result});
             });
         });
     });

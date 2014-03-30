@@ -1107,8 +1107,10 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 
 RequestHandler.prototype.onControllerInitialized = function(controller) {
 	var self = this;
-	controller.render(function(result){
-		self.onRenderComplete(result);
+	process.nextTick(function() {
+		controller.render(function(result){
+			self.onRenderComplete(result);
+		});
 	});
 };
 

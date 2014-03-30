@@ -26,53 +26,49 @@ EditSection.prototype.render = function(cb) {
         }
         
         section.keywords = section.keywords.join(',');
-        pb.templates.load('admin/content/sections/edit_section', '^loc_EDIT_SECTION^', null, function(data) {
-            var result = data.split('^section_id^').join(section._id);
+        self.setPageName(self.ls.get('EDIT_SECTION'));
+        self.ts.registerLocal('section_id', section._id);
+        self.ts.load('admin/content/sections/edit_section', function(err, data) {
+            var result = data;
             var tabs   =
             [
                 {
                     active: 'active',
                     href: '#section_settings',
                     icon: 'cog',
-                    title: '^loc_SETTINGS^'
+                    title: self.ls.get('SETTINGS')
                 },
                 {
                     href: '#section_seo',
                     icon: 'tasks',
-                    title: '^loc_SEO^'
+                    title: self.ls.get('SEO')
                 }
             ];
-            
-            self.displayErrorOrSuccess(result, function(newResult) {
-                result = newResult;
                 
-            	dao.query('section', {parent: null}, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(parents) {                            
+        	dao.query('section', {parent: null}, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(parents) {                            
+                
+        		pb.users.getEditorSelectList(self.session.authentication.user_id, function(editors) {
                     
-            		pb.users.getEditorSelectList(self.session.authentication.user_id, function(editors) {
-                        
-            			var pills = require('../sections').getPillNavOptions('new_section');
-                        pills.unshift(
-                        {
-                            name: 'manage_topics',
-                            title: '^loc_NEW_SECTION^',
-                            icon: 'chevron-left',
-                            href: '/admin/content/sections/section_map'
-                        });
-                        
-                        var objects = {
-                            navigation: pb.AdminNavigation.get(self.session, ['content', 'sections']),
-                            pills: pills,
-                            tabs: tabs,
-                            parents: parents,
-                            editors: editors,
-                            section: section
-                        };
-                        var angularData = pb.js.getAngularController(objects);
-                        result = result.concat(angularData);
-                    
-                        var content = self.localizationService.localize(['admin', 'sections'], result);
-                        cb({content: content});
+        			var pills = require('../sections').getPillNavOptions('new_section');
+                    pills.unshift(
+                    {
+                        name: 'manage_topics',
+                        title: self.ls.get('NEW_SECTION'),
+                        icon: 'chevron-left',
+                        href: '/admin/content/sections/section_map'
                     });
+                    
+                    var objects = {
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
+                        pills: pills,
+                        tabs: tabs,
+                        parents: parents,
+                        editors: editors,
+                        section: section
+                    };
+                    var angularData = pb.js.getAngularController(objects);
+                    result          = result.concat(angularData);
+                    cb({content: result});
                 });
             });
         });
