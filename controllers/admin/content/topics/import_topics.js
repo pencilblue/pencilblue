@@ -1,6 +1,11 @@
 /**
- * ImportTopics - Interface for importing topics CSV
+ * Interface for importing topics CSV
  * 
+ * @class ImportTopics
+ * @constuctor
+ * @extends BaseController
+ * @module Controllers
+ * @submodule Admin
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -12,6 +17,11 @@ var Topics = require('../topics');
 //inheritance
 util.inherits(ImportTopics, pb.BaseController);
 
+/**
+ * @method render
+ * @see BaseController.render()
+ * @param cb
+ */
 ImportTopics.prototype.render = function(cb) {
 	var self = this;
 	

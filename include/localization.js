@@ -1,7 +1,9 @@
 /**
- * Localization - Provides functions to translate items based on keys.  Also 
+ * Provides functions to translate items based on keys.  Also 
  * assists in the determination of the best language for the given user.
  * 
+ * @class Localization
+ * @constructor
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright PencilBlue, LLC. 2014 All Rights Reserved
  */
@@ -19,6 +21,8 @@ Localization.supported = null;
 /**
  * Localizes a string by searching for keys within the template and replacing 
  * them with the specified values.
+ * 
+ * @method localize
  * @param sets
  * @param text
  * @returns The text where keys have been replaced with translated values
@@ -52,6 +56,7 @@ Localization.prototype.localize = function(sets, text){
  * Translates a single key.  The key should not be enclosed by the special '^' 
  * character.
  * 
+ * @method get
  * @param key
  * @param defaultVal
  * @returns
@@ -90,6 +95,9 @@ Localization.prototype.get = function(key, defaultVal) {
 /**
  * Determines the best language to send a user based on the 'accept-language' 
  * header in the request
+ * 
+ * @static
+ * @method best
  * @param request The request object
  * @returns string Locale for the request
  */
@@ -110,6 +118,9 @@ Localization.best = function(request){
  * Initializes the location.  Loads all language packs into memory for fast 
  * retrieval and sets the supported locales for determining what language to 
  * send the user based on their list of acceptable languages.
+ * 
+ * @static
+ * @method init
  */
 Localization.init = function() {
 	var supportedLocales = [];

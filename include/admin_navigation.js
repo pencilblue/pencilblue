@@ -1,12 +1,19 @@
 /**
- * AdminNavigation - 
+ * Provides function to construct the structure needed to display the navigation 
+ * in the Admin section of the application.
  * 
+ * @class AdminNavigation
+ * @constructor
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright 2014 PencilBlue, LLC.
  */
 function AdminNavigation(){}
 
 //constants
+/**
+ * @private
+ * @property defaultAdminNavigation
+ */
 var defaultAdminNavigation =
 [
     {
@@ -137,6 +144,12 @@ var defaultAdminNavigation =
     }
 ];
 
+/**
+ * @private
+ * @method getDefaultNavigation
+ * @param {Localization} ls
+ * @return {object} 
+ */
 function getDefaultNavigation(ls) {
 	return [
         {
@@ -268,6 +281,15 @@ function getDefaultNavigation(ls) {
     ];
 }
 
+/**
+ * 
+ * @static
+ * @method get
+ * @param {object} session
+ * @param {array} activeMenuItems
+ * @param {Localization} ls
+ * @returns {object}
+ */
 AdminNavigation.get = function(session, activeMenuItems, ls) {
     return AdminNavigation.removeUnauthorized(
     		session, 
@@ -276,6 +298,15 @@ AdminNavigation.get = function(session, activeMenuItems, ls) {
 	);
 };
 
+/**
+ * 
+ * @static
+ * @method removeUnathorized
+ * @param session
+ * @param adminNavigation
+ * @param activeItems
+ * @returns {object}
+ */
 AdminNavigation.removeUnauthorized = function(session, adminNavigation, activeItems) {
 	for (var i = 0; i < adminNavigation.length; i++) {
         if (typeof adminNavigation[i].access !== 'undefined') {
