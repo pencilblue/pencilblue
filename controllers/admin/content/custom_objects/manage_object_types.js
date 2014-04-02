@@ -34,7 +34,8 @@ ManageObjectTypes.prototype.render = function(cb) {
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
     
-        pb.templates.load('admin/content/custom_objects/manage_object_types', '^loc_MANAGE_OBJECT_TYPES^', null, function(data) {
+        self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
+        self.ts.load('admin/content/custom_objects/manage_object_types', function(err, data) {
             var result = ''+data;
                 
             self.displayErrorOrSuccess(result, function(newResult) {
@@ -44,20 +45,19 @@ ManageObjectTypes.prototype.render = function(cb) {
                 pills.unshift(
                 {
                     name: 'manage_object_types',
-                    title: '^loc_MANAGE_OBJECT_TYPES^',
+                    title: self.ls.get('MANAGE_OBJECT_TYPES'),
                     icon: 'refresh',
                     href: '/admin/content/custom_objects/manage_object_types'
                 });
                 
                 result = result.concat(pb.js.getAngularController(
                 {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects']),
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                     pills: pills,
                     customObjectTypes: customObjectTypes
                 }, [], 'initObjectTypesPagination()'));
                 
-                var content = self.localizationService.localize(['admin', 'custom_objects'], result);
-                cb({content: content});
+                cb({content: result});
             });
         });
     });
@@ -65,40 +65,34 @@ ManageObjectTypes.prototype.render = function(cb) {
 
 ManageObjectTypes.setFieldTypesUsed = function(self, customObjectTypes) {
     // Make the list of field types used in each custom object type, for display
-    for(var i = 0; i < customObjectTypes.length; i++)
-    {
+    for(var i = 0; i < customObjectTypes.length; i++) {
         var fieldTypesUsed = [];
-        for(var key in customObjectTypes[i].fields)
-        {
+        for(var key in customObjectTypes[i].fields) {
             var fieldType = customObjectTypes[i].fields[key].field_type;
-            switch(fieldType)
-            {
+            switch(fieldType) {
                 case 'text':
-                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_TEXT^'));
+                    fieldTypesUsed.push(self.ls.get('TEXT'));
                     break;
                 case 'number':
-                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_NUMBER^'));
+                    fieldTypesUsed.push(self.ls.get('NUMBER'));
                     break;
                 case 'date':
-                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_DATE^'));
+                    fieldTypesUsed.push(self.ls.get('DATE'));
                     break;
                 case 'peer_object':
-                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_PEER_OBJECT^'));
+                    fieldTypesUsed.push(self.ls.get('PEER_OBJECT'));
                     break;
                 case 'child_objects':
-                    fieldTypesUsed.push(self.localizationService.localize(['custom_objects'], '^loc_CHILD_OBJECTS^'));
+                    fieldTypesUsed.push(self.ls.get('CHILD_OBJECTS'));
                     break;
                 default:
                     break;
             }
         }
         
-        for(var j = 0; j < fieldTypesUsed.length; j++)
-        {
-            for(var s = j + 1; s < fieldTypesUsed.length; s++)
-            {
-                if(fieldTypesUsed[s] == fieldTypesUsed[j])
-                {
+        for(var j = 0; j < fieldTypesUsed.length; j++) {
+            for(var s = j + 1; s < fieldTypesUsed.length; s++) {
+                if(fieldTypesUsed[s] == fieldTypesUsed[j]) {
                     fieldTypesUsed.splice(s, 1);
                     s--;
                 }
@@ -109,7 +103,7 @@ ManageObjectTypes.setFieldTypesUsed = function(self, customObjectTypes) {
     }
     
     return customObjectTypes;
-}
+};
 
 //exports
 module.exports = ManageObjectTypes;

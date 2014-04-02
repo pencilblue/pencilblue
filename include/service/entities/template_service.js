@@ -259,8 +259,8 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
         	return;
         }
         
-        var detailsLocation = pb.PluginService.getDetailsPath(activeTheme);
-        self.get(detailsLocation, function(err, data) {
+        var detailsLocation = pb.PluginService.getDetailsPath(activeTheme);console.log(detailsLocation);
+        TEMPLATE_LOADER.get(detailsLocation, function(err, data) {
             if(util.isError(err) || data == null) {
                 cb(err, []);
                 return;

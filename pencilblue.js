@@ -45,7 +45,7 @@ function initServer(){
 	log.debug('Starting server...');
 	pb.server = http.createServer(onHttpConnect);
 	
-	pb.server.listen(pb.config.sitePort, pb.config.siteIP);
+	pb.server.listen(pb.config.sitePort);
 	log.info(pb.config.siteName + ' running on ' + pb.config.siteRoot);
 }
 

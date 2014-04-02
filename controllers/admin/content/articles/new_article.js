@@ -16,8 +16,7 @@ util.inherits(NewArticle, pb.BaseController);
 NewArticle.prototype.render = function(cb) {
 	var self  = this;
 	
-	var title = this.getPageTitle();
-	pb.templates.load(this.getTemplateLocation(), title, null, function(data) {
+	this.ts.load(this.getTemplateLocation(), function(err, data) {
 		self.onTemplateRetrieved('' + data, function(err, data) {
 	        var result = '' + data;
 	        var tabs   = self.getTabs();
@@ -31,8 +30,7 @@ NewArticle.prototype.render = function(cb) {
 	                var pills = self.getPills();
 	                result    = result.concat(self.getAngularController(pills, tabs, results));
 	                
-	                var content = self.localizationService.localize(['admin', 'articles', 'media'], result);
-	                cb({content: content});
+	                cb({content: result});
 	            });
 	        });
 		});
@@ -45,7 +43,7 @@ NewArticle.prototype.onTemplateRetrieved = function(template, cb) {
 
 NewArticle.prototype.getAngularController = function(pills, tabs, data) {
 	var objects = {
-        navigation: pb.AdminNavigation.get(this.session, ['content', 'articles']),
+        navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
         pills: pills,
         tabs: tabs,
         templates: data.templates,
@@ -69,7 +67,7 @@ NewArticle.prototype.getPills = function() {
 NewArticle.prototype.getBreadCrum = function() {
 	return {
         name: 'manage_articles',
-        title: '^loc_NEW_ARTICLE^',
+        title: this.ls.get('NEW_ARTICLE'),
         icon: 'chevron-left',
         href: '/admin/content/articles/manage_articles'
     };
@@ -80,7 +78,7 @@ NewArticle.prototype.getActivePill = function() {
 };
 
 NewArticle.prototype.getPageTitle = function() {
-	return '^loc_NEW_ARTICLE^';
+	return this.ls.get('NEW_ARTICLE');
 };
 
 NewArticle.prototype.getTemplateLocation = function() {
@@ -88,10 +86,11 @@ NewArticle.prototype.getTemplateLocation = function() {
 };
 
 NewArticle.prototype.gatherData = function(cb) {
+	var self  = this;
 	var dao   = new pb.DAO();
     var tasks = {
     	templates: function(callback) {
-    		pb.templates.getTemplatesForActiveTheme(function(templates) {
+    		self.ts.getTemplatesForActiveTheme(function(err, templates) {
     			callback(null, templates);
     		});
     	},
@@ -123,27 +122,27 @@ NewArticle.prototype.getTabs = function() {
             active: 'active',
             href: '#content',
             icon: 'quote-left',
-            title: '^loc_CONTENT^'
+            title: this.ls.get('CONTENT')
         },
         {
             href: '#media',
             icon: 'camera',
-            title: '^loc_MEDIA^'
+            title: this.ls.get('MEDIA^')
         },
         {
             href: '#sections_dnd',
             icon: 'th-large',
-            title: '^loc_SECTIONS^'
+            title: this.ls.get('SECTIONS^')
         },
         {
             href: '#topics_dnd',
             icon: 'tags',
-            title: '^loc_TOPICS^'
+            title: this.ls.get('TOPICS^')
         },
         {
             href: '#seo',
             icon: 'tasks',
-            title: '^loc_SEO^'
+            title: this.ls.get('SEO^')
         }
     ];
 };

@@ -64,7 +64,7 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
                     return;
                 }
                 
-                self.session.success = article.headline + ' ^loc_EDITED^';
+                self.session.success = article.headline + ' ' + self.ls.get('EDITED');
                 delete self.session.fieldValues;
                 self.redirect(pb.config.siteRoot + '/admin/content/articles/manage_articles', cb);
             });
