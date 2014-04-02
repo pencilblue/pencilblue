@@ -21,31 +21,28 @@ ManageMedia.prototype.render = function(cb) {
             return;
         }
     
-        pb.templates.load('admin/content/media/manage_media', '^loc_MANAGE_MEDIA^', null, function(data) {
+        var title = self.ls.get('MANAGE_MEDIA');
+        self.setPageName(title);
+        self.ts.load('admin/content/media/manage_media', function(err, data) {
            var result = '' + data;
-            
-            self.displayErrorOrSuccess(result, function(newResult) {
-                result = newResult;
                 
-                var pills = Media.getPillNavOptions('manage_media');
-                pills.unshift(
-                {
-                    name: 'manage_media',
-                    title: '^loc_MANAGE_MEDIA^',
-                    icon: 'refresh',
-                    href: '/admin/content/media/manage_media'
-                });
-                
-                result = result.concat(pb.js.getAngularController(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'media']),
-                    pills: pills,
-                    media: Media.formatMedia(mediaData)
-                }, [], 'initMediaPagination()'));
-                    
-                var content = self.localizationService.localize(['admin', 'media'], result);
-                cb({content: content});
+            var pills = Media.getPillNavOptions('manage_media');
+            pills.unshift(
+            {
+                name: 'manage_media',
+                title: title,
+                icon: 'refresh',
+                href: '/admin/content/media/manage_media'
             });
+            
+            result = result.concat(pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
+                pills: pills,
+                media: Media.formatMedia(mediaData)
+            }, [], 'initMediaPagination()'));
+                
+            cb({content: result});
         });
     });
 };

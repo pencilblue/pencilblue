@@ -12,7 +12,8 @@ util.inherits(NewObjectType, pb.BaseController);
 NewObjectType.prototype.render = function(cb) {
 	var self = this;
 	
-	pb.templates.load('admin/content/custom_objects/new_object_type', '^loc_NEW_OBJECT^', null, function(data) {
+	this.setPageName(this.ls.get('NEW_OBJECT'));
+	this.ts.load('admin/content/custom_objects/new_object_type', function(err, data) {
         var result = ''+data;
         var tabs   =
         [
@@ -20,12 +21,12 @@ NewObjectType.prototype.render = function(cb) {
                 active: 'active',
                 href: '#object_settings',
                 icon: 'cog',
-                title: '^loc_SETTINGS^'
+                title: self.ls.get('SETTINGS')
             },
             {
                 href: '#object_fields',
                 icon: 'list-ul',
-                title: '^loc_FIELDS^'
+                title: self.ls.get('loc_FIELDS')
             }
         ];
         
@@ -38,34 +39,28 @@ NewObjectType.prototype.render = function(cb) {
 		    }
             
             // Case insensitive test for duplicate name
-            for(var i =0; i < customObjectTypes.length; i++)
-            {
+            for(var i =0; i < customObjectTypes.length; i++) {
                 objectTypes.push('custom:' + customObjectTypes[i].name);
             }
-        
-            self.displayErrorOrSuccess(result, function(newResult) {
-                result = newResult;
                 
-                var pills = require('../custom_objects').getPillNavOptions('new_object_type');
-                pills.unshift(
-                {
-                    name: 'manage_object_types',
-                    title: '^loc_NEW_OBJECT_TYPE^',
-                    icon: 'chevron-left',
-                    href: '/admin/content/custom_objects/manage_object_types'
-                });
-                
-                result = result + pb.js.getAngularController(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects']),
-                    pills: pills,
-                    tabs: tabs,
-                    objectTypes: objectTypes
-                });
-                
-                var content = self.localizationService.localize(['admin', 'custom_objects'], result);
-                cb({content: content});
+            var pills = require('../custom_objects').getPillNavOptions('new_object_type');
+            pills.unshift(
+            {
+                name: 'manage_object_types',
+                title: self.ls.get('NEW_OBJECT_TYPE'),
+                icon: 'chevron-left',
+                href: '/admin/content/custom_objects/manage_object_types'
             });
+            
+            result = result + pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                pills: pills,
+                tabs: tabs,
+                objectTypes: objectTypes
+            });
+            
+            cb({content: result});
         });
     });
 };

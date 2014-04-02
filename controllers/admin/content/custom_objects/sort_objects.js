@@ -60,13 +60,10 @@ SortObjects.prototype.render = function(cb) {
                 else
                 {
                     var customObjectSort = customObjectSorts[0].sorted_objects;
-                    var sortedObjects = [];
-                    for(var i = 0; i < customObjectSort.length; i++)
-                    {
-                        for(var j = 0; j < customObjects.length; j++)
-                        {
-                            if(customObjects[j]._id.equals(ObjectID(customObjectSort[i])))
-                            {
+                    var sortedObjects    = [];
+                    for (var i = 0; i < customObjectSort.length; i++) {
+                        for (var j = 0; j < customObjects.length; j++) {
+                            if (customObjects[j]._id.equals(ObjectID(customObjectSort[i]))) {
                                 sortedObjects.push(customObjects[j]);
                                 customObjects.splice(j, 1);
                                 break;
@@ -78,42 +75,38 @@ SortObjects.prototype.render = function(cb) {
                     customObjects = sortedObjects;
                 }
         
-                pb.templates.load('admin/content/custom_objects/sort_objects', '^loc_MANAGE^ ' + objectType.name, null, function(data) {
+		        self.setPageName(self.ls.get('MANAGE') + ' ' + objectType.name);
+		        self.ts.registerLocal('object_type_id', objectType._id);
+                self.ts.registerLocal('object_type_name', objectType.name);
+                self.ts.load('admin/content/custom_objects/sort_objects', function(err, data) {
                     var result = ''+data;
                         
-                    self.displayErrorOrSuccess(result, function(newResult) {
-                        result = newResult;
-                        
-                        var pills =
-                        [
-                            {
-                                name: 'manage_objects',
-                                title: '^loc_SORT^ ' + objectType.name + ' ^loc_OBJECTS^',
-                                icon: 'chevron-left',
-                                href: '/admin/content/custom_objects/manage_objects/' + objectType.name
-                            },
-                            {
-                                name: 'new_object',
-                                title: '',
-                                icon: 'plus',
-                                href: '/admin/content/custom_objects/new_object/' + objectType.name
-                            }
-                        ];
-                        
-                        result = result.concat(pb.js.getAngularController(
+                    var pills =
+                    [
                         {
-                            navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects']),
-                            pills: pills,
-                            customObjects: customObjects,
-                            objectType: objectType
-                        }));
-                        
-                        result = result.split('^object_type_id^').join(objectType._id);
-                        result = result.split('^object_type_name^').join(objectType.name);
-                        
-                        var content = self.localizationService.localize(['admin', 'custom_objects'], result);
-                        cb({content: content});
-                    });
+                            name: 'manage_objects',
+                            title: self.ls.get('SORT') + ' ' + objectType.name + ' ' + self.ls.get('OBJECTS'),
+                            icon: 'chevron-left',
+                            href: '/admin/content/custom_objects/manage_objects/' + objectType.name
+                        },
+                        {
+                            name: 'new_object',
+                            title: '',
+                            icon: 'plus',
+                            href: '/admin/content/custom_objects/new_object/' + objectType.name
+                        }
+                    ];
+                    
+                    result = result.concat(pb.js.getAngularController(
+                    {
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                        pills: pills,
+                        customObjects: customObjects,
+                        objectType: objectType
+                    }));
+                    
+                    var content = self.localizationService.localize(['admin', 'custom_objects'], result);
+                    cb({content: content});
                 });
             });
         });

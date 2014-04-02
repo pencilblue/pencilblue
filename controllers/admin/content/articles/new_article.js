@@ -1,6 +1,10 @@
 /**
- * NewArticle - Interface for adding a new article
+ * Interface for adding a new article
  * 
+ * @class NewArticle
+ * @constructor
+ * @module Controllers
+ * @submodule Admin
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
