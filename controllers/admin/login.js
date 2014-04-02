@@ -22,13 +22,9 @@ Login.prototype.render = function(cb) {
         return;
     }
 
-    var self = this;
-    pb.templates.load('admin/login', 'Login', null, function(data) {
-
-        self.displayErrorOrSuccess(data, function(result) {
-        	var content = self.localizationService.localize(['login'], result);
-        	cb({content: content});
-        });
+    this.setPageName(' - Login');
+    this.templateService.load('admin/login',  function(err, data) {
+    	cb({content: data});
     });
 };
 

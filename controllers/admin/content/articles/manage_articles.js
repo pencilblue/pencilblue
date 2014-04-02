@@ -27,32 +27,30 @@ ManageArticles.prototype.render = function(cb) {
             return;
         }
 
-    	pb.templates.load('admin/content/articles/manage_articles', '^loc_MANAGE_ARTICLES^', null, function(data) {
+        var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
+        self.setPageName(manageArticlesStr);
+    	self.ts.load('admin/content/articles/manage_articles',  function(err, data) {
             var result = '' + data;
             
-            self.displayErrorOrSuccess(result, function(newResult) {
-                result = newResult;
                 
-                var pills = Articles.getPillNavOptions('manage_articles');
-                pills.unshift(
+            var pills = Articles.getPillNavOptions('manage_articles');
+            pills.unshift(
+            {
+                name: 'manage_articles',
+                title: manageArticlesStr,
+                icon: 'refresh',
+                href: '/admin/content/articles/manage_articles'
+            });
+            
+            pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {                                
+                result = result.concat(pb.js.getAngularController(
                 {
-                    name: 'manage_articles',
-                    title: '^loc_MANAGE_ARTICLES^',
-                    icon: 'refresh',
-                    href: '/admin/content/articles/manage_articles'
-                });
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
+                    pills: pills,
+                    articles: articlesWithAuthorNames
+                }, [], 'initArticlesPagination()'));
                 
-                pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {                                
-                    result = result.concat(pb.js.getAngularController(
-                    {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'articles']),
-                        pills: pills,
-                        articles: articlesWithAuthorNames
-                    }, [], 'initArticlesPagination()'));
-                    
-                    var content = self.localizationService.localize(['admin', 'articles'], result);
-                    cb({content: content});
-                });
+                cb({content: result});
             });
         });
     });

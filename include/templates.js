@@ -166,10 +166,6 @@ TemplateService.getCustomPath = function(themeName, templateLocation){
 	return path.join(DOCUMENT_ROOT, 'plugins', themeName, 'templates', templateLocation + '.html');
 };
 
-TemplateService.getPlaceholder = function(name){
-	return TemplateService.SEP+name+TemplateService.SEP;
-};
-
 function TemplateServiceFactory(){}
 
 var count = 1;

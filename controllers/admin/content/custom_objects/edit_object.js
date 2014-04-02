@@ -43,7 +43,9 @@ EditObject.prototype.render = function(cb) {
                 
                 var customObject = customObjects[0];
                 
-                pb.templates.load('admin/content/custom_objects/edit_object', '^loc_EDIT^ ' + customObject.name, null, function(data) {
+                self.setPageName(self.ls.get('EDIT') + ' ' + customObject.name);
+                self.ts.registerLocal('object_id', customObject._id);
+                self.ts.load('admin/content/custom_objects/edit_object',  function(err, data) {
                     var result = ''+data;
                     var tabs   =
                     [
@@ -51,52 +53,45 @@ EditObject.prototype.render = function(cb) {
                             active: 'active',
                             href: '#object_fields',
                             icon: 'list-ul',
-                            title: '^loc_FIELDS^'
+                            title: self.ls.get('FIELDS')
                         }
                     ];
                     
                     var fieldOrder = [];
-                    for(var key in objectType.fields)
-                    {
+                    for(var key in objectType.fields) {
                         fieldOrder.push(key);
                     }
                         
-                    self.displayErrorOrSuccess(result, function(newResult) {
-                        result = newResult;
-                        
-                        var pills =
-                        [
-                            {
-                                name: 'manage_objects',
-                                title: '^loc_NEW^ ' + objectType.name,
-                                icon: 'chevron-left',
-                                href: '/admin/content/custom_objects/manage_objects/' + objectType.name
-                            },
-                            {
-                                name: 'new_object',
-                                title: '',
-                                icon: 'plus',
-                                href: '/admin/content/custom_objects/new_object/' + objectType.name
-                            }
-                        ];
-                        
-                        result = result.concat(pb.js.getAngularController(
+                    var pills =
+                    [
                         {
-                            navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects']),
-                            pills: pills,
-                            tabs: tabs,
-                            customObjectType: objectType,
-                            customObject: customObject,
-                            fieldOrder: fieldOrder
-                        }, [], 'initCustomObjectsPagination()'));
-                        
-                        result = result.split('^object_id^').join(customObject._id);
-                        result += pb.js.getJSTag('var customObjectType = ' + JSON.stringify(objectType));
-                        result += pb.js.getJSTag('var customObject = ' + JSON.stringify(customObject));
-                        
-                        var content = self.localizationService.localize(['admin', 'custom_objects'], result);
-                        cb({content: content});
-                    });
+                            name: 'manage_objects',
+                            title: self.ls.get('NEW') +' ' + objectType.name,
+                            icon: 'chevron-left',
+                            href: '/admin/content/custom_objects/manage_objects/' + objectType.name
+                        },
+                        {
+                            name: 'new_object',
+                            title: '',
+                            icon: 'plus',
+                            href: '/admin/content/custom_objects/new_object/' + objectType.name
+                        }
+                    ];
+                    
+                    result = result.concat(pb.js.getAngularController(
+                    {
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                        pills: pills,
+                        tabs: tabs,
+                        customObjectType: objectType,
+                        customObject: customObject,
+                        fieldOrder: fieldOrder
+                    }, [], 'initCustomObjectsPagination()'));
+                    
+                    result += pb.js.getJSTag('var customObjectType = ' + JSON.stringify(objectType));
+                    result += pb.js.getJSTag('var customObject = ' + JSON.stringify(customObject));
+
+                    cb({content: result});
                 });
             });
         });
@@ -107,30 +102,25 @@ EditObject.loadFieldOptions = function(dao, objectType, cb) {
     var self = this;
     var keys = [];
     
-    for(var key in objectType.fields)
-    {
+    for(var key in objectType.fields) {
         keys.push(key);
     }
     
-    this.loadObjectOptions = function(index)
-    {
-        if(index >= keys.length)
-        {
+    this.loadObjectOptions = function(index) {
+        if(index >= keys.length) {
             cb(objectType);
             return;
         }
         
         var key = keys[index];
         
-        if(objectType.fields[key].field_type != 'peer_object' && objectType.fields[key].field_type != 'child_objects')
-        {
+        if(objectType.fields[key].field_type != 'peer_object' && objectType.fields[key].field_type != 'child_objects') {
             index++;
             self.loadObjectOptions(index);
             return;
         }
         
-        if(objectType.fields[key].object_type.indexOf('custom:') > -1)
-        {
+        if(objectType.fields[key].object_type.indexOf('custom:') > -1) {
             var customObjectTypeName = objectType.fields[key].object_type.split('custom:').join('');
             dao.query('custom_object_type', {name: customObjectTypeName}).then(function(customObjectTypes)
             {
@@ -180,10 +170,10 @@ EditObject.loadFieldOptions = function(dao, objectType, cb) {
 	        index++;
 	        self.loadObjectOptions(index);
 	    });
-    }
+    };
     
     this.loadObjectOptions(0);
-}
+};
 
 //exports
 module.exports = EditObject;

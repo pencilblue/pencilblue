@@ -1,12 +1,14 @@
 /**
- * Localization - Provides functions to translate items based on keys.  Also 
+ * Provides functions to translate items based on keys.  Also 
  * assists in the determination of the best language for the given user.
  * 
+ * @class Localization
+ * @constructor
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright PencilBlue, LLC. 2014 All Rights Reserved
  */
 function Localization(request){
-	this.language = Localization.best(request).toString().toLowerCase();
+	this.language = Localization.best(request).toString().toLowerCase().replace('-', '_');
 }
 
 Localization.SEP                = '^';
@@ -19,6 +21,8 @@ Localization.supported = null;
 /**
  * Localizes a string by searching for keys within the template and replacing 
  * them with the specified values.
+ * 
+ * @method localize
  * @param sets
  * @param text
  * @returns The text where keys have been replaced with translated values
@@ -29,7 +33,7 @@ Localization.prototype.localize = function(sets, text){
 	}
 	
 	//get i18n from storage
-	var loc = Localization.storage[this.language];
+	var loc = Localization.storage[this.language];if (loc === undefined) {throw new Error("Failed to set a language. LANG="+util.inspect(this.language));}
     for (var key in loc.generic) {
         text = text.split('^loc_' + key + '^').join(loc.generic[key]);
     }
@@ -49,14 +53,61 @@ Localization.prototype.localize = function(sets, text){
 };
 
 /**
+ * Translates a single key.  The key should not be enclosed by the special '^' 
+ * character.
+ * 
+ * @method get
+ * @param key
+ * @param defaultVal
+ * @returns
+ */
+Localization.prototype.get = function(key, defaultVal) {
+	if (pb.log.isSilly()) {
+		pb.log.silly('Localization: Localizing key ['+key+'] - Locale ['+this.language+']');
+	}
+	
+	//error checking
+	if (typeof key !== 'string') {
+		return null;
+	}
+	
+	//check for old style key
+	key = key.replace('^loc_', '').replace('^', '');
+	
+	//get i18n from storage
+	var tmp;
+	var val = null;
+	var loc = Localization.storage[this.language];
+	for (var category in loc) {
+		tmp = loc[category][key];
+		if (tmp !== undefined) {
+			val = tmp;
+			break;
+		}
+	}
+	
+	if (val === null) {
+		val = defaultVal ? defaultVal : key;
+	}
+	return val;
+};
+
+/**
  * Determines the best language to send a user based on the 'accept-language' 
  * header in the request
+ * 
+ * @static
+ * @method best
  * @param request The request object
  * @returns string Locale for the request
  */
 Localization.best = function(request){
 	var loc = 'en-us';
-	if (request.headers[Localization.ACCEPT_LANG_HEADER]){
+	if (typeof request == 'string') {
+		var locales = new locale.Locales(request);
+		loc = locales.best(Localization.supported);
+	}
+	else if (request.headers[Localization.ACCEPT_LANG_HEADER]){
 		var locales = new locale.Locales(request.headers[Localization.ACCEPT_LANG_HEADER]);
 		loc = locales.best(Localization.supported);
 	}
@@ -67,6 +118,9 @@ Localization.best = function(request){
  * Initializes the location.  Loads all language packs into memory for fast 
  * retrieval and sets the supported locales for determining what language to 
  * send the user based on their list of acceptable languages.
+ * 
+ * @static
+ * @method init
  */
 Localization.init = function() {
 	var supportedLocales = [];

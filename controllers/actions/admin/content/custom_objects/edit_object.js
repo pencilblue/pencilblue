@@ -52,7 +52,7 @@ EditObject.prototype.onPostParamsRetrieved = function(post, cb) {
 		    {
                 if(!isValidName)
                 {
-                    self.formError('^loc_EXISTING_OBJECT^', '/admin/content/custom_objects/edit_object/' + customObjectType.name + '/' + customObject.name, cb);
+                    self.formError(self.ls.get('EXISTING_OBJECT'), '/admin/content/custom_objects/edit_object/' + customObjectType.name + '/' + customObject.name, cb);
                     return;
                 }
 	            
@@ -72,10 +72,8 @@ EditObject.prototype.onPostParamsRetrieved = function(post, cb) {
 	                        post[key] = new Date(post[key]);
 	                    }
 	                }
-	                else if(customObjectType.fields[key].field_type == 'child_objects')
-	                {
-	                    if(post[key])
-	                    {
+	                else if(customObjectType.fields[key].field_type == 'child_objects') {
+	                    if(post[key]) {
 	                        post[key] = post[key].split(',');
 	                    }
 	                }
@@ -87,11 +85,11 @@ EditObject.prototype.onPostParamsRetrieved = function(post, cb) {
                 
                 dao.update(customObjectDocument).then(function(result) {
                     if(util.isError(result)) {
-                        self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/edit_object/' + customObjectType.name + '/' + customObject.name, cb);
+                        self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/edit_object/' + customObjectType.name + '/' + customObject.name, cb);
                         return;
                     }
                     
-                    self.session.success = customObjectDocument.name + ' ^loc_EDIT^';
+                    self.session.success = customObjectDocument.name + ' ' + self.ls.get('EDITED');
                     cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_objects/' + customObjectType.name));
                 });
             });
@@ -115,7 +113,7 @@ EditObject.validateName = function(dao, post, customObject, cb) {
     });
     
     cb(true);
-}
+};
 
 //exports 
 module.exports = EditObject;

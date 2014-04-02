@@ -45,31 +45,27 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
 			    //TODO handle this
 		    }
 		    
-		    if(post['name'].toLowerCase() != originalObjectType.name.toLowerCase())
-            {
+		    if(post['name'].toLowerCase() != originalObjectType.name.toLowerCase()) {
                 // Case insensitive test for duplicate name
-                for(var i =0; i < customObjectTypes.length; i++)
-                {
-                    if(post['name'].toLowerCase() == customObjectTypes[i].name.toLowerCase())
-                    {
-                        self.formError('^loc_EXISTING_CUSTOM_OBJECT_TYPE^', '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
+                for(var i =0; i < customObjectTypes.length; i++) {
+                    if(post['name'].toLowerCase() == customObjectTypes[i].name.toLowerCase()) {
+                        self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
                         return;
                     }
                 }
             }
             
-            if(post['url'].toLowerCase() != originalObjectType.url.toLowerCase())
-            {
+            if(post['url'].toLowerCase() != originalObjectType.url.toLowerCase()) {
                 // Check for duplicate url
                 dao.count('custom_object_type', {url: post['url'].toLowerCase()}, function(err, count) {
                     if(count > 0) {
-                        self.formError('^loc_EXISTING_CUSTOM_OBJECT_TYPE^', '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
+                        self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
                         return;
                     }
                     
                     dao.count('page', {url: post['url'].toLowerCase()}, function(err, count) {
                         if(count > 0) {
-                            self.formError('^loc_EXISTING_CUSTOM_OBJECT_TYPE^', '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
+                            self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
                             return;
                         }
                         
@@ -82,14 +78,13 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
                                 return;
                             }
                             
-                            self.session.success = objectTypeDocument.name + ' ^loc_EDITED^';
+                            self.session.success = objectTypeDocument.name + ' ' + self.ls.get('EDITED');
                             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/edit_object_type/' + post['name']));
                         });
                     });
                 });
             }
-            else
-            {
+            else {
                 objectTypeDocument = EditObjectType.createObjectTypeDocument(post);
                 objectTypeDocument._id = originalObjectType._id;
                     
@@ -99,7 +94,7 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
                         return;
                     }
                     
-                    self.session.success = objectTypeDocument.name + ' ^loc_EDITED^';
+                    self.session.success = objectTypeDocument.name + ' ' + self.ls.get('EDITED');
                     cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/edit_object_type/' + post['name']));
                 });
             }
@@ -110,8 +105,7 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
 EditObjectType.createObjectTypeDocument = function(post) {
     var objectTypeDocument = {object_type: 'custom_object_type', name: post['name'], url: post['url'], fields: {name: {field_type: 'text'}}};
     
-    if(!post['field_order'])
-    {
+    if(!post['field_order']) {
         return objectTypeDocument;
     }
     

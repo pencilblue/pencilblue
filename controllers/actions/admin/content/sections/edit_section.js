@@ -49,17 +49,17 @@ EditSection.prototype.onPostParamsRetrieved = function(post, cb){
         var where = {_id: {$ne: section._id}, $or: [{name: section['name']}, {url: section['url']}]};
         dao.count('section', where, function(err, count) {
             if(count > 0) {
-                self.formError('^loc_EXISTING_SECTION^', '/admin/content/sections/section_map', cb);
+                self.formError('EXISTING_SECTION^', '/admin/content/sections/section_map', cb);
                 return;
             }
             
             dao.update(section).then(function(data) {
                 if(util.isError(data)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/content/sections/section_map', cb);
+                    self.formError('ERROR_SAVING^', '/admin/content/sections/section_map', cb);
                     return;
                 }
                 
-                self.session.success = section.name + ' ^loc_EDITED^';
+                self.session.success = section.name + ' ' + self.ls.get('EDITED');
                 self.checkForSectionMapUpdate(section, function() {                
                     cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
                 });
