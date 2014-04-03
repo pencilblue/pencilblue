@@ -136,10 +136,7 @@ BaseController.prototype.hasRequiredParams = function(queryObject, requiredParam
 };
 
 BaseController.prototype.prepareFormReturns = function(result, cb) {
-	var self = this;
-    this.displayErrorOrSuccess(result, function(newResult) {
-        self.checkForFormRefill(newResult, cb);
-    });
+	this.checkForFormRefill(result, cb);
 };
 
 BaseController.prototype.setFormFieldValues = function(post) {

@@ -6,13 +6,17 @@
  */
 function NewTopic(){}
 
+//dependencies
+var Topics = require('../topics');
+
 //inheritance
 util.inherits(NewTopic, pb.BaseController);
 
 NewTopic.prototype.render = function(cb) {
 	var self = this;
 	
-	pb.templates.load('admin/content/topics/new_topic', '^loc_NEW_TOPIC^', null, function(data) {
+	this.setPageName(self.ls.get('NEW_TOPIC'));
+	this.ts.load('admin/content/topics/new_topic', function(err, data) {
         var result = ''+data;
         var tabs   =
         [
@@ -20,32 +24,27 @@ NewTopic.prototype.render = function(cb) {
                 active: 'active',
                 href: '#topic_settings',
                 icon: 'cog',
-                title: '^loc_SETTINGS^'
+                title: self.ls.get('SETTINGS')
             }
         ];
-        
-        self.displayErrorOrSuccess(result, function(newResult) {
-            result = newResult;
             
-            var pills = require('../topics').getPillNavOptions('new_topic');
-            pills.unshift(
-            {
-                name: 'manage_topics',
-                title: '^loc_NEW_TOPIC^',
-                icon: 'chevron-left',
-                href: '/admin/content/topics/manage_topics'
-            });
-            
-            result = result + pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'topics']),
-                pills: pills,
-                tabs: tabs
-            });
-            
-            var content = self.localizationService.localize(['admin', 'topics'], result);
-            cb({content: content});
+        var pills = Topics.getPillNavOptions('new_topic');
+        pills.unshift(
+        {
+            name: 'manage_topics',
+            title: self.getPageName(),
+            icon: 'chevron-left',
+            href: '/admin/content/topics/manage_topics'
         });
+        
+        result = result + pb.js.getAngularController(
+        {
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
+            pills: pills,
+            tabs: tabs
+        });
+        
+        cb({content: result});
     });
 };
 

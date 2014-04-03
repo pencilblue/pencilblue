@@ -6,12 +6,17 @@
  */
 function Content(){};
 
+//dependencies
+var SiteSettings = require('../site_settings');
+
 //inheritance
 util.inherits(Content, pb.BaseController);
 
 Content.prototype.render = function(cb) {
     var self = this;
-	pb.templates.load('admin/site_settings/content', '^loc_CONTENT^', null, function(data) {
+    
+    this.setPageName(self.ls.get('CONTENT'));
+	this.ts.load('admin/site_settings/content', function(err, data) {
         var result = data;
         
         var tabs =
@@ -20,51 +25,50 @@ Content.prototype.render = function(cb) {
                 active: 'active',
                 href: '#articles',
                 icon: 'files-o',
-                title: '^loc_ARTICLES^'
+                title: self.ls.get('ARTICLES')
             },
             {
                 href: '#timestamp',
                 icon: 'clock-o',
-                title: '^loc_TIMESTAMP^'
+                title: self.ls.get('TIMESTAMP')
             },
             {
                 href: '#authors',
                 icon: 'user',
-                title: '^loc_AUTHOR^'
+                title: self.ls.get('AUTHOR')
             },
             {
                 href: '#comments',
                 icon: 'comment',
-                title: '^loc_COMMENTS^'
+                title: self.ls.get('COMMENTS')
             }
         ];
         
         pb.content.getSettings(function(err, contentSettings) {
             self.setFormFieldValues(contentSettings);
             
-            self.prepareFormReturns(result, function(newResult) {
+            self.checkForFormRefill(result, function(newResult) {
                 result = newResult;
                 
-                var pills = require('../site_settings').getPillNavOptions('content');
+                var pills = SiteSettings.getPillNavOptions('content', self.ls);
                 pills.splice(0, 1);
                 pills.unshift(
                 {
                     name: 'configuration',
-                    title: '^loc_CONTENT^',
+                    title: self.getPageName(),
                     icon: 'chevron-left',
                     href: '/admin/site_settings/configuration'
                 });
                 
                 var objects     = {
-                    navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings']),
+                    navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
                     pills: pills,
                     tabs: tabs
                 };
                 var angularData = pb.js.getAngularController(objects);
                 result          = result.concat(angularData);
-                
-                var content = self.localizationService.localize(['admin', 'site_settings'], result);
-                cb({content: content});
+
+                cb({content: result});
             });
         });
     });

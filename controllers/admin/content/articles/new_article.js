@@ -28,7 +28,7 @@ NewArticle.prototype.render = function(cb) {
 	        self.gatherData(function(err, results){
 	        	//TODO handle error
 	        	
-	        	self.prepareFormReturns(result, function(newResult) {
+	        	self.checkForFormRefill(result, function(newResult) {
 	                result = newResult;
 	                
 	                var pills = self.getPills();

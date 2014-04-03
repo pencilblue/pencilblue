@@ -15,7 +15,8 @@ var PATH_TO_THEME_DIR = DOCUMENT_ROOT + '/plugins/';
 Themes.prototype.render = function(cb) {
 	var self = this;
 	
-	pb.templates.load('admin/plugins/themes', 'Themes', null, function(data) {
+	this.setPageName('Themes');
+	self.ts.load('admin/plugins/themes', function(err, data) {
         var result = '' + data;
             
         self.getThemes(function(themes) {
@@ -31,13 +32,12 @@ Themes.prototype.render = function(cb) {
             
             result = result.concat(pb.js.getAngularController(
             {
-                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes']),
+                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes'], self.ls),
                 pills: themes, 
                 themeSettingsURL: themeSettingsURL
             }));
                    
-            var content = self.localizationService.localize(['admin', 'themes'], result);
-            cb({content: content});
+            cb({content: result});
         });
     });
 };
@@ -65,8 +65,8 @@ Themes.prototype.getThemes = function(cb) {
             	catch(e){
             		pb.log.warn("Themes: Failed to parse details file:"+subDirPath);
             	}
-            	
-                if(themeData.settings) {
+
+                if(themeData.settings && typeof themeData.settings_controller === 'string') {
                     
                 	var controllerPath = path.join(subDirPath, themeData.settings_controller);
                 	if(fs.existsSync(controllerPath)) {
@@ -80,15 +80,15 @@ Themes.prototype.getThemes = function(cb) {
                         });
                     }
                 	else {
-                		pb.log.warn("Themes: Failed to parse details file:"+subDirPath);
+                		pb.log.warn("Themes: Failed to parse details file: [%s]", details);
                 	}
                 }
                 else {
-                	pb.log.warn("Themes: Failed to retrieve settings from details file:"+subDirPath);
+                	pb.log.warn("Themes: Failed to retrieve settings from details file: [%s]", details);
                 }
             }
             else {
-            	pb.log.warn("Themes: Failed to read details file: "+subDirPath);
+            	pb.log.warn("Themes: Failed to read details file: [%s]", details);
             }
         }
         

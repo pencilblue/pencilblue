@@ -16,7 +16,8 @@ util.inherits(NewPage, pb.BaseController);
 NewPage.prototype.render = function(cb) {
 	var self = this;
 	
-	pb.templates.load('admin/content/pages/new_page', '^loc_NEW_PAGE^', null, function(data) {
+	this.setPageName(self.ls.get('NEW_PAGE'));
+	self.ts.load('admin/content/pages/new_page', function(err, data) {
         var result = '' + data;
         var tabs   =
         [
@@ -24,47 +25,47 @@ NewPage.prototype.render = function(cb) {
                 active: 'active',
                 href: '#content',
                 icon: 'quote-left',
-                title: '^loc_CONTENT^'
+                title: self.ls.get('CONTENT')
             },
             {
                 href: '#media',
                 icon: 'camera',
-                title: '^loc_MEDIA^'
+                title: self.ls.get('MEDIA')
             },
             {
                 href: '#topics_dnd',
                 icon: 'tags',
-                title: '^loc_TOPICS^'
+                title: self.ls.get('TOPICS')
             },
             {
                 href: '#seo',
                 icon: 'tasks',
-                title: '^loc_SEO^'
+                title: self.ls.get('SEO')
             }
         ];
         
-        pb.templates.getTemplatesForActiveTheme(function(templates) {
+        self.ts.getTemplatesForActiveTheme(function(templates) {
         	
         	var dao = new pb.DAO();
         	dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
         		//TODO handle errors
         		
         		Media.getAll(function(media){                            
-                    self.prepareFormReturns(result, function(newResult) {
+                    self.checkForFormRefill(result, function(newResult) {
                         result = newResult;
                         
                         var pills = Pages.getPillNavOptions('new_page');
                         pills.unshift(
                         {
                             name: 'manage_pages',
-                            title: '^loc_NEW_PAGE^',
+                            title: self.getPageName(),
                             icon: 'chevron-left',
                             href: '/admin/content/pages/manage_pages'
                         });
                         
                         result = result.concat(pb.js.getAngularController(
                         {
-                            navigation: pb.AdminNavigation.get(self.session, ['content', 'pages']),
+                            navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                             pills: pills,
                             tabs: tabs,
                             templates: templates,
@@ -72,8 +73,7 @@ NewPage.prototype.render = function(cb) {
                             media: media
                         }, [], 'initMediaPagination();initTopicsPagination()'));
             
-                        var content = self.localizationService.localize(['admin', 'pages', 'articles', 'media'], result);
-                        cb({content: content});
+                        cb({content: result});
                     });
                 });
             });

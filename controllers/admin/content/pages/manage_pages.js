@@ -6,6 +6,9 @@
  */
 function ManagePages(){}
 
+//dependencies
+var Pages = require('../pages');
+
 //inheritance
 util.inherits(ManagePages, pb.BaseController);
 
@@ -19,33 +22,30 @@ ManagePages.prototype.render = function(cb) {
             return;
         }
         
-        pb.templates.load('admin/content/pages/manage_pages', '^loc_MANAGE_PAGES^', null, function(data) {
+        var title = self.ls.get('MANAGE_PAGES');
+        self.setPageName(title);
+        self.ts.load('admin/content/pages/manage_pages', function(err, data) {
             var result = '' + data;
-            
-            self.displayErrorOrSuccess(result, function(newResult) {
-                result = newResult;
                 
-                pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-                    
-                	var pills = require('../pages').getPillNavOptions('manage_pages');
-                    pills.unshift(
-                    {
-                        name: 'manage_pages',
-                        title: '^loc_MANAGE_PAGES^',
-                        icon: 'refresh',
-                        href: '/admin/content/pages/manage_pages'
-                    });
-                    
-                    result = result.concat(pb.js.getAngularController(
-                    {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'pages']),
-                        pills: pills,
-                        pages: pages
-                    }, [], 'initPagesPagination()'));
-                    
-                    var content = self.localizationService.localize(['admin', 'pages'], result);
-                    cb({content: content});
+            pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
+                
+            	var pills = Pages.getPillNavOptions('manage_pages');
+                pills.unshift(
+                {
+                    name: 'manage_pages',
+                    title: title,
+                    icon: 'refresh',
+                    href: '/admin/content/pages/manage_pages'
                 });
+                
+                result = result.concat(pb.js.getAngularController(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
+                    pills: pills,
+                    pages: pages
+                }, [], 'initPagesPagination()'));
+
+                cb({content: result});
             });
         });
     });
