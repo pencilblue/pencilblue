@@ -6,54 +6,53 @@
  */
 function NewUser(){}
 
+//var dependencies
+var Users = require('../users');
+
 //inheritance
 util.inherits(NewUser, pb.BaseController);
 
 NewUser.prototype.render = function(cb) {
 	var self = this;
 	
-	pb.templates.load('admin/users/new_user', '^loc_NEW_USER^', null, function(data) {
-        var result = ('' + data)
-        	.split('^image_title^').join('^loc_USER_PHOTO^')
-        	.split('^uploaded_image^').join('');
+	this.setPageName(self.ls.get('NEW_USER'));
+	this.ts.registerLocal('image_title', this.ls.get('USER_PHOTO'));
+	this.ts.registerLocal('uploaded_image', '');
+	this.ts.load('admin/users/new_user', function(err, data) {
+        var result = '' + data;
         
         var tabs = [
             {
                 active: 'active',
                 href: '#account_info',
                 icon: 'cog',
-                title: '^loc_ACCOUNT_INFO^'
+                title: self.ls.get('ACCOUNT_INFO')
             },
             {
                 href: '#personal_info',
                 icon: 'user',
-                title: '^loc_PERSONAL_INFO^'
+                title: self.ls.get('PERSONAL_INFO')
             }
         ];
-    
-        self.displayErrorOrSuccess(result, function(newResult) {
-            result = newResult;
             
-            var pills = require('../users').getPillNavOptions('new_user');
-            pills.unshift(
-            {
-                name: 'manage_users',
-                title: '^loc_NEW_USER^',
-                icon: 'chevron-left',
-                href: '/admin/users/manage_users'
-            });
-            
-            result = result.concat(pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['users']),
-                pills: pills,
-                tabs: tabs,
-                adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
-            }));
-            
-            var content = self.localizationService.localize(['admin', 'users', 'media'], result);
-            cb({content: content});
+        var pills = Users.getPillNavOptions('new_user');
+        pills.unshift(
+        {
+            name: 'manage_users',
+            title: self.getPageName(),
+            icon: 'chevron-left',
+            href: '/admin/users/manage_users'
         });
+        
+        result = result.concat(pb.js.getAngularController(
+        {
+            navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
+            pills: pills,
+            tabs: tabs,
+            adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
+        }));
+
+        cb({content: result});
     });
 };
 

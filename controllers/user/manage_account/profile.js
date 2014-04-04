@@ -15,18 +15,14 @@ Profile.prototype.render = function(cb) {
 	this.setFormFieldValues(this.session.authentication.user);
     this.session.account_subsection = 'profile';
     
-    pb.templates.load('user/manage_account/profile', null, null, function(data) {
+    var user = this.session.authentication.user;
+    this.ts.registerLocal('image_title', this.ls.get('USER_PHOTO'));
+    this.ts.registerLocal('uploaded_image', user.photo ? user.photo : '');
+    this.ts.load('user/manage_account/profile', function(err, data) {
         var result = '' + data;
         
-        var user = self.session.authentication.user;
-        result = result.split('^image_title^').join('^loc_USER_PHOTO^');
-        result = result.split('^uploaded_image^').join((user.photo) ? user.photo : '');
-        
-        self.prepareFormReturns(result, function(newResult) {
-            result = newResult;
-            
-            var content = self.localizationService.localize(['users', 'media'], result);
-            cb({content: content});
+        self.checkForFormRefill(result, function(newResult) {
+            cb({content: newResult});
         });
     });
 };

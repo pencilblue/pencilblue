@@ -18,25 +18,23 @@ VerificationSent.prototype.render = function(cb) {
             return;
         }   
         
-        pb.templates.load('user/verification_sent', '^loc_VERIFICATION_SENT^', null, function(data) {
-            var result = '' + data;
-            
-            var dao = new pb.DAO();
+        self.setPageName(self.ls.get('VERIFICATION_SENT'));
+        self.ts.registerLocal('site_logo', function(flag, cb) {
+    		
+    		var dao = new pb.DAO();
             dao.query('pencilblue_theme_settings').then(function(data) {
-                if(data.length == 0) {
-                    result = result.split('^site_logo^').join(pb.config.siteRoot + '/img/logo_menu.png');
-                }
-                else {
-                    result = result.split('^site_logo^').join(data[0].site_logo);
-                }
-            
-                self.displayErrorOrSuccess(result, function(newResult) {
-                    result = newResult;
-                    
-                    var content = self.localizationService.localize(['users'], result);
-                    cb({content: content});
-                });
-            });;
+            	var logoPath;
+    	        if(data && data.length == 0) {
+    	            logoPath = path.join(pb.config.siteRoot, 'img', 'logo_menu.png');
+    	        }
+    	        else {
+    	            logoPath = data[0].site_logo;
+    	        }
+    	        cb(util.isError(data) ? data : null, logoPath);
+            });
+    	});
+        self.ts.load('user/verification_sent', function(err, data) {
+            cb({content: data});
         });
     });
 };

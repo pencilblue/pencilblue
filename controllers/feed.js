@@ -13,55 +13,55 @@ var Articles = require('../include/theme/articles');
 util.inherits(Feed, pb.BaseController);
 
 Feed.prototype.render = function(cb) {
+	var self = this;
 	
-	pb.templates.load('xml_feeds/rss', null, null, function(data) {
-        var result = ('' + data).split('^language^').join((pb.config.defaultLanguage) ? pb.config.defaultLanguage : 'en-us');
-    
-        pb.templates.load('xml_feeds/rss/item', null, null, function(itemTemplate) {
-            var items = '';
-        
-            var dao = new pb.DAO();
-            
-            var where = {publish_date: {$lte: new Date()}};
-            var sort  = {publish_date: pb.DAO.DESC};
-            dao.query('article', where, pb.DAO.PROJECT_ALL, sort).then(function(articles) {
-                
-            	pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
-                    articles = articlesWithAuthorNames;
-                    
-                    Feed.getSectionNames(articles, function(articlesWithSectionNames) {
-                        articles = articlesWithSectionNames;
-                        
-                        Feed.getMedia(articles, function(articlesWithMedia) {
-                            articles = articlesWithMedia;
-                            
-                            for(var i = 0; i < articles.length && i < 100; i++) {
-                                if(i == 0) {
-                                    result = result.split('^last_build^').join(Feed.getRSSDate(articles[i].publish_date));
-                                }
-                                
-                                var item = itemTemplate.split('^url^').join('/article/' + articles[i].url);
-                                item = item.split('^title^').join(articles[i].headline);
-                                item = item.split('^pub_date^').join(Feed.getRSSDate(articles[i].publish_date));
-                                item = item.split('^author^').join(articles[i].author_name);
-                                item = item.split('^description^').join((articles[i].meta_desc) ? articles[i].meta_desc : articles[i].subheading);
-                                item = item.split('^content^').join(articles[i].article_layout);
-                                
-                                var categories = '';
-                                for(var j = 0; j < articles[i].section_names.length; j++) {
-                                    categories = categories.concat('<category>' + articles[i].section_names[j] + '</category>');
-                                }
-                                item  = item.split('^categories^').join(categories);
-                                items = items.concat(item);
-                            }
-                            
-                            result = result.split('^items^').join(items);    
-                            cb({content: result});
-                        });
-                    });
-                });
-            });
+	this.ts.registerLocal('language', pb.config.defaultLanguage ? pb.config.defaultLanguage : 'en-us');
+	this.ts.registerLocal('items', function(flag, cb){
+		
+		var dao   = new pb.DAO();
+        var where = {publish_date: {$lte: new Date()}};
+        var sort  = {publish_date: pb.DAO.DESC};
+        dao.query('article', where, pb.DAO.PROJECT_ALL, sort).then(function(articles) {
+		
+			pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
+	            articles = articlesWithAuthorNames;
+	            
+	            Feed.getSectionNames(articles, function(articlesWithSectionNames) {
+	                articles = articlesWithSectionNames;
+	                
+	                Feed.getMedia(articles, function(articlesWithMedia) {
+	                    articles = articlesWithMedia;
+	                    
+	                    
+	                    var tasks = pb.utils.getTasks(articles, function(articles, i) {
+	                    	return function(callback) {
+	                    		
+	                    		self.ts.registerLocal('url', '/article/' + articles[i].url);
+	                    		self.ts.registerLocal('title', articles[i].headline);
+	                    		self.ts.registerLocal('pub_date', Feed.getRSSDate(articles[i].publish_date));
+	                    		self.ts.registerLocal('author', articles[i].author_name);
+	                    		self.ts.registerLocal('description', articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading);
+	                    		self.ts.registerLocal('content', articles[i].article_layout);
+	                    		self.ts.registerLocal('categories', function(flag, cb) {
+	                    			var categories = '';
+	                                for(var j = 0; j < articles[i].section_names.length; j++) {
+	                                    categories = categories.concat('<category>' + articles[i].section_names[j] + '</category>');
+	                                }
+	                                cb(null, categories);
+	                    		});
+	                    		self.ts.load('xml_feeds/rss/item', callback);
+	                    	};
+	                    });
+	                    async.series(tasks, function(err, results) {
+	                    	cb(err, results.join(''));
+	                    });
+	                });
+	            });
+			});
         });
+	});
+	self.ts.load('xml_feeds/rss', function(err, data) {
+		cb({content: data});
     });
 };
 
