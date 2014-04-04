@@ -27,15 +27,19 @@ util.inherits(HelloWorld, pb.BaseController);
  *  makes no guarantees.
  */
 HelloWorld.prototype.render = function(cb) {
+	var self = this;
+	
 	var content = {
 		content_type: "text/html",
 		code: 200
 	};
-	pb.templates.load(path.join('sample', 'index'), "Hello World", null, function(template) {
+	
+	textCreater.getText(function(err, text){
 		
-		textCreater.getText(function(err, text){
-			
-			template = template.split('^sample_text^').join(text);
+		self.setPageName('Hello World');
+		self.ts.registerLocal('sample_text', text);
+		self.ts.load(path.join('sample', 'index'), function(err, template) {
+
 			content.content = template;
 			cb(content);
 		});

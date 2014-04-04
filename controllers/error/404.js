@@ -25,7 +25,7 @@ NotFound.prototype.render = function(cb) {
                 self.ts.registerLocal('account_buttons', accountButtons);
                 self.ts.load('error/404', function(err, data) {
                     var result = '' + data;
-                
+
                     result = result.concat(pb.js.getAngularController(
                     {
                         navigation: navigation,
@@ -35,8 +35,7 @@ NotFound.prototype.render = function(cb) {
                         accountButtons: accountButtons
                     }));
                     
-                    var content = self.localizationService.localize(['error'], result);
-                    cb({content: content, code: 404, content_type: 'text/html'});
+                    cb({content: result, code: 404, content_type: 'text/html'});
                 });
             });
         });

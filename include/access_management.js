@@ -38,6 +38,9 @@ SecurityService.isAuthorized = function(session, requirements) {
 };
 
 SecurityService.isAuthenticated = function(session) {
+	if (typeof session !== 'object') {
+		return false;
+	}
 	var reqs = {};
 	reqs[SecurityService.AUTHENTICATED] = true;
 	return SecurityService.isAuthorized(session, reqs);

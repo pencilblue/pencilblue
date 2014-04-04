@@ -27,17 +27,9 @@ Setup.prototype.render = function(cb) {
 };
 
 Setup.prototype.doSetup = function(cb) {
-	var self = this;
-	pb.templates.load('setup', 'Setup', null, function(data) {
-        var result = data;
-        
-        self.displayErrorOrSuccess(result, function(newResult) {
-            result = newResult;
-        
-            var sets    = ['setup', 'users'];
-            var content = self.localizationService.localize(sets, result);
-            cb({content: content});
-        });
+	this.setPageName('Setup');
+	this.ts.load('setup', function(err, data) {
+        cb({content: data});
     });
 };
 
