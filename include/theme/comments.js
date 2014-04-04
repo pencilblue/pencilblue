@@ -12,7 +12,9 @@ CommentService.getCommentsTemplate = function(contentSettings, output) {
         return;
     }
 
-    pb.templates.load('elements/comments', null, null, function(data) {
+    //TODO move this out of here.
+    var ts = new pb.TemplateService();
+    ts.load('elements/comments', function(err, data) {
         output(data);
     });
 };

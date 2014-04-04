@@ -69,8 +69,6 @@ pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').
 pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
 
 //setup template service
-pb.TemplateServiceFactory = require(DOCUMENT_ROOT+'/include/templates.js').TemplateServiceFactory;
-pb.templates              = pb.TemplateServiceFactory.getService(pb.config.templates.use_memory, pb.config.templates.use_cache);
 pb.TemplateService = require(DOCUMENT_ROOT+'/include/service/entities/template_service.js');
 
 //setup security

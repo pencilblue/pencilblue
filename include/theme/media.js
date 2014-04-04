@@ -97,11 +97,12 @@ MediaService.getCarousel = function(carouselMedia, template, tagToReplace, carou
             return;
         }
         
-        pb.templates.load('elements/carousel', null, null, function(data) {
+        var ts = new pb.TemplateService();
+        ts.load('elements/carousel', function(err, data) {
             template = template.split(tagToReplace).join(data);
             template = template.split('^carousel_id^').join(carouselID);
             
-            pb.templates.load('elements/carousel/item', null, null, function(data) {
+            ts.load('elements/carousel/item', function(err, data) {
                 var carouselItemTemplate = '' + data;
             
                 var carouselIndicators = '';

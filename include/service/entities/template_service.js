@@ -199,7 +199,7 @@ TemplateService.prototype.processFlag = function(flag, cb) {
 		if (pb.log.isSilly()) {
 			pb.log.silly("TemplateService: Failed to process flag [%s]", flag);
 		}
-		cb(null, flag);
+		cb(null, '^'+flag+'^');
 	}
 };
 
@@ -251,7 +251,6 @@ TemplateService.prototype.registerLocal = function(key, callbackFunctionOrValue)
  * @param cb
  */
 TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
-	var self = this;
 	
 	pb.settings.get('active_theme', function(err, activeTheme) {
         if(util.isError(err) || activeTheme == null) {

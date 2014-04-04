@@ -129,8 +129,9 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
 };
 
 ArticleService.getTemplates = function(cb) {
-    pb.templates.load('elements/article', [], [], function(articleTemplate) {
-        pb.templates.load('elements/article/byline', [], [], function(bylineTemplate) {
+	var ts = new pb.TemplateService();
+    ts.load('elements/article', function(err, articleTemplate) {
+        ts.load('elements/article/byline', function(err, bylineTemplate) {
             cb(articleTemplate, bylineTemplate);
         });
     });
@@ -184,7 +185,9 @@ ArticleService.loadMedia = function(articlesLayout, output) {
         Media.getCarousel(mediaIDs, layout, tagToReplace, carouselID, instance.replaceCarouselTag);
     };
     
-    pb.templates.load('elements/media', null, null, function(data) {
+    //TODO move this out of here
+    var ts = new pb.TemplateService();
+    ts.load('elements/media', function(err, data) {
         mediaTemplate = data;
         instance.replaceMediaTag(articlesLayout);
     });
@@ -275,10 +278,10 @@ ArticleService.getMetaInfo = function(article, cb)
             index++;
             instance.loadTopic(index);
         });
-    }
+    };
     
     this.loadTopic(0);
-}
+};
 
 //exports
 module.exports = ArticleService;

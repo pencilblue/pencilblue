@@ -107,10 +107,12 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
 
 TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
 {
-    pb.templates.load('elements/top_menu/link', null, null, function(linkTemplate) {
-        pb.templates.load('elements/top_menu/dropdown', null, null, function(dropdownTemplate) {
-            pb.templates.load('elements/top_menu/account_button', null, null, function(accountButtonTemplate) {
-                var bootstrapNav = '';
+	var ts = new pb.TemplateService();
+    ts.load('elements/top_menu/link', function(err, linkTemplate) {
+        ts.load('elements/top_menu/dropdown', function(err, dropdownTemplate) {
+            ts.load('elements/top_menu/account_button', function(err, accountButtonTemplate) {
+                
+            	var bootstrapNav = '';
                 for(var i = 0; i < navigation.length; i++)
                 {
                     if(navigation[i].dropdown)
@@ -159,7 +161,7 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
             });
         });
     });
-}
+};
 
 TopMenuService.getSectionData = function(uid, sections) {
     var self = this;
