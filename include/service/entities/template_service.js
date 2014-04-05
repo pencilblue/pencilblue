@@ -227,11 +227,15 @@ TemplateService.prototype.handleTemplateReplacement = function(flag, cb) {
  * @param cb
  */
 TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
+	var self    = this;
+	var handler = function(err, content) {
+		self.process(content, cb);
+	};
 	if (typeof replacement === 'function') {
-		replacement(flag, cb);
+		replacement(flag, handler);
 	}
 	else {
-		cb(null, replacement);
+		handler(null, replacement);
 	}
 };
 
