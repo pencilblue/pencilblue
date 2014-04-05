@@ -41,7 +41,7 @@ PencilBlueSettings.prototype.onPostParamsRetrieved = function(post, cb) {
     	 
     	 dao.update(settings).then(function(result){
     		if (util.isError(result)) {
-    			self.formError('^loc_ERROR_SAVING^', '/admin/plugins/themes', cb);
+    			self.formError(self.ls.get('ERROR_SAVING'), '/admin/plugins/themes', cb);
     		}
     		 
     		self.session.success = '^loc_PENCILBLUE_SETTINGS_SAVED^';

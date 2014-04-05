@@ -11,15 +11,16 @@ NodeMailer = require('nodemailer');
 
 EmailService.prototype.sendFromTemplate = function(options, cb){
 	var self = this;
+	var ts   = new pb.TemplateService();
 	
-	pb.templates.load(options.template, null, null, function(data) {
+	if (options.replacements) {
+		for(key in options.replacements) {
+			ts.registerLocal(key, options.replacements[key]);
+		}
+	}
+	ts.load(options.template, function(data) {
 		
 		var body = '' + data;
-		if (options.replacements) {
-			for(key in options.replacements) {
-				body =  body.split(key).join(options.replacements[key]);
-			}
-		}
 		self.send(options.from, options.to, options.subject, body, cb);
 	});
 };

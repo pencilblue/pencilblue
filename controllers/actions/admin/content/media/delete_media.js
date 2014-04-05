@@ -22,11 +22,11 @@ DeleteMedia.prototype.onPostParamsRetrieved = function(post, cb) {
      var dao = new pb.DAO();
      dao.deleteById(get.id, 'media').then(function(recordsDeleted) {
          if(recordsDeleted <= 0) {
-             self.formError('^loc_ERROR_SAVING^', '/admin/content/media/manage_media', cb);
+             self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/media/manage_media', cb);
              return;
          }
          
-         session.success = media.name + ' ^loc_DELETED^';
+         session.success = media.name + ' ' + self.ls.get('DELETED');
          cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/manage_media'));
      });
 };

@@ -20,7 +20,7 @@ Profile.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao = new pb.DAO();
     dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
         if(util.isError(err) || user == null) {
-            self.formError('^loc_ERROR_SAVING^', '/user/manage_account', cb);
+            self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
             return;
         }
 
@@ -28,12 +28,12 @@ Profile.prototype.onPostParamsRetrieved = function(post, cb) {
         pb.DocumentCreator.update(post, user);
         dao.update(user).then(function(result) {
             if(util.isError(result)) {
-                self.formError('^loc_ERROR_SAVING^', '/user/manage_account', cb);
+                self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
                 return;
             }
             
             self.session.authentication.user = user;
-            self.session.success = '^loc_PROFILE_EDITED^';
+            self.session.success = self.ls.get('PROFILE_EDITED');
             self.redirect(pb.config.siteRoot + '/user/manage_account', cb);
         });
     });

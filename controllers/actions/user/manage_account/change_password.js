@@ -27,18 +27,18 @@ ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao = new pb.DAO();
     dao.loadByValues(where, 'user', function(err, user) {
         if(util.isError(err) || user == null) {
-            self.formError('^loc_INVALID_PASSWORD^', '/user/manage_account', cb);
+            self.formError(self.ls.get('INVALID_PASSWORD'), '/user/manage_account', cb);
             return;
         }
         
         pb.DocumentCreator.update(post, user);
         dao.update(user).then(function(result) {
             if(util.isError(result)) {
-                self.formError('^loc_ERROR_SAVING^', '/user/manage_account', cb);
+                self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
                 return;
             }
             
-            self.session.success = '^loc_PASSWORD_CHANGED^';
+            self.session.success = self.ls.get('PASSWORD_CHANGED');
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/user/manage_account'));
         });
     });

@@ -38,7 +38,7 @@ SortObjects.prototype.onPostParamsRetrieved = function(post, cb) {
 	
 	    if(sortDocument.sorted_objects.length == 0)
 	    {
-	        self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/sort_objects/' + customObjectType.name, cb);
+	        self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/sort_objects/' + customObjectType.name, cb);
             return;
 	    }
 
@@ -54,11 +54,11 @@ SortObjects.prototype.onPostParamsRetrieved = function(post, cb) {
                 
             dao.update(sortDocument).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/sort_objects/' + customObjectType.name, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/sort_objects/' + customObjectType.name, cb);
                     return;
                 }
                 
-                self.session.success = customObjectType.name + ' ^loc_SORT_SAVED^';
+                self.session.success = customObjectType.name + ' ' + self.ls.get('SORT_SAVED');
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_objects/' + customObjectType.name));
             });
         });

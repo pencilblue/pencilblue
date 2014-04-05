@@ -23,9 +23,9 @@ Localization.supported = null;
  * them with the specified values.
  * 
  * @method localize
- * @param sets
- * @param text
- * @returns The text where keys have been replaced with translated values
+ * @param {array} sets
+ * @param {string} text
+ * @returns {string} The text where keys have been replaced with translated values
  */
 Localization.prototype.localize = function(sets, text){
 	if (pb.log.isSilly()) {
@@ -57,9 +57,9 @@ Localization.prototype.localize = function(sets, text){
  * character.
  * 
  * @method get
- * @param key
- * @param defaultVal
- * @returns
+ * @param {string} key
+ * @param {string} defaultVal
+ * @returns {string}
  */
 Localization.prototype.get = function(key, defaultVal) {
 	if (pb.log.isSilly()) {
@@ -98,8 +98,8 @@ Localization.prototype.get = function(key, defaultVal) {
  * 
  * @static
  * @method best
- * @param request The request object
- * @returns string Locale for the request
+ * @param {Request} request The request object
+ * @returns {string} Locale for the request
  */
 Localization.best = function(request){
 	var loc = 'en-us';

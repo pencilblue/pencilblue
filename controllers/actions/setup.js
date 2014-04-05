@@ -42,6 +42,7 @@ Setup.prototype.doSetup = function(cb) {
 };
 
 Setup.prototype.onPostParamsRetrieved = function(post, cb) {
+	var self = this;
 	
 	var reqParams = ['username', 'email', 'password', 'confirm_password'];
 	var message   = this.hasRequiredParams(post, reqParams);
@@ -82,11 +83,11 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 		], 
         function(err, results){
     		if (util.isError(err)) {
-    			self.formError('^loc_ERROR_SAVING^', '/setup', cb);
+    			self.formError(self.ls.get('ERROR_SAVING'), '/setup', cb);
                 return;
     		}
     		
-    		self.session.success = '^loc_READY_TO_USE^';
+    		self.session.success = self.ls.get('READY_TO_USE');
     		cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/login'));
 		}
     );

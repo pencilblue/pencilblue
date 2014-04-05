@@ -23,25 +23,25 @@ NewUser.prototype.onPostParamsRetrieved = function(post, cb) {
     }
     
     if(!pb.security.isAuthorized(this.session, {admin_level: post['admin']})) {
-        this.formError('^loc_INSUFFICIENT_CREDENTIALS^', '/admin/users/new_user', cb);
+        this.formError(self.ls.get('INSUFFICIENT_CREDENTIALS'), '/admin/users/new_user', cb);
         return;
     }
     
     var user = pb.DocumentCreator.create('user', post);
     pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
         if(util.isError(err) || isTaken) {
-            self.formError('^loc_EXISTING_USERNAME^', '/admin/users/new_user', cb);
+            self.formError(self.ls.get('EXISTING_USERNAME'), '/admin/users/new_user', cb);
             return;
         }
         
         var dao = new pb.DAO();
         dao.update(user).then(function(result) {
             if(util.isError(result)) {
-                self.formError('^loc_ERROR_SAVING^', '/admin/users/new_user', cb);
+                self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/new_user', cb);
                 return;
             }
             
-            self.session.success = '^loc_USER_CREATED^';
+            self.session.success = self.ls.get('USER_CREATED');
             self.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
         });
     });

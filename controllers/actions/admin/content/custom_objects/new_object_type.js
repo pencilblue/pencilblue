@@ -25,11 +25,10 @@ NewObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
 		}
         
         // Case insensitive test for duplicate name
-        for(var i =0; i < customObjectTypes.length; i++)
-        {
+        for(var i =0; i < customObjectTypes.length; i++) {
             if(post['name'].toLowerCase() == customObjectTypes[i].name.toLowerCase())
             {
-                self.formError('^loc_EXISTING_CUSTOM_OBJECT_TYPE^', '/admin/content/custom_objects/new_object_type', cb);
+                self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/new_object_type', cb);
                 return;
             }
         }
@@ -37,31 +36,31 @@ NewObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
         // Check for duplicate url
         dao.count('custom_object_type', {url: post['url'].toLowerCase()}, function(err, count) {
             if(count > 0) {
-                self.formError('^loc_EXISTING_CUSTOM_OBJECT_TYPE^', '/admin/content/custom_objects/new_object_type', cb);
+                self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/new_object_type', cb);
                 return;
             }
             
             dao.count('page', {url: post['url'].toLowerCase()}, function(err, count) {
                 if(count > 0) {
-                    self.formError('^loc_EXISTING_CUSTOM_OBJECT_TYPE^', '/admin/content/custom_objects/new_object_type', cb);
+                    self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/new_object_type', cb);
                     return;
                 }
                 
                 objectTypeDocument = NewObjectType.createObjectTypeDocument(post);
                 if(!objectTypeDocument)
                 {
-                    self.formError('^loc_DUPLICATE_FIELD_NAME^', '/admin/content/custom_objects/new_object_type', cb);
+                    self.formError(self.ls.get('DUPLICATE_FIELD_NAME'), '/admin/content/custom_objects/new_object_type', cb);
                     return;
                 }
                 
                 
                 dao.update(objectTypeDocument).then(function(result) {
                     if(util.isError(result)) {
-                        self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/new_object_type', cb);
+                        self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/new_object_type', cb);
                         return;
                     }
                     
-                    self.session.success = objectTypeDocument.name + ' ^loc_CREATED^';
+                    self.session.success = objectTypeDocument.name + ' ' + self.ls.get('CREATED');
                     cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
                 });
             });
@@ -122,7 +121,7 @@ NewObjectType.createObjectTypeDocument = function(post) {
     }
     
     return objectTypeDocument;
-}
+};
 
 //exports 
 module.exports = NewObjectType;

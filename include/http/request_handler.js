@@ -907,11 +907,10 @@ RequestHandler.isPublicRoute = function(path){
 };
 
 RequestHandler.prototype.serve404 = function() {
-	//TODO implement 404 handling
+
 	var NotFound  = require('../../controllers/error/404.js');
 	var cInstance = new NotFound();
 	this.doRender({}, cInstance);
-	//this.onRenderComplete({content: 'Url ['+this.url.href+'] could not be found on this server', code: 404});
 	
 	if (pb.log.isSilly()) {
 		pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL="+this.url.href);
@@ -1006,7 +1005,6 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 	}
 	
 	//execute controller
-
 	var ControllerType  = route[activeTheme].controller;
 	var cInstance       = new ControllerType();
 	this.doRender(pathVars, cInstance);

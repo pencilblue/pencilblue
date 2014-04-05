@@ -64,7 +64,7 @@ EditArticle.prototype.getActivePill = function() {
 };
 
 EditArticle.prototype.getPageTitle = function() {
-	return '^loc_EDIT^ ' + this.article.headline;
+	return this.ls.get('EDIT') + ' ' + this.article.headline;
 };
 
 EditArticle.prototype.getTemplateLocation = function() {

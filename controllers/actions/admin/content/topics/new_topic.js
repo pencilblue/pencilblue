@@ -20,18 +20,18 @@ NewTopic.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao = new pb.DAO();
     dao.count('topic', {name: post.name}, function(err, count) {
         if(count > 0) {
-            self.formError('^loc_EXISTING_TOPIC^', '/admin/content/topics/new_topic', cb);
+            self.formError(self.ls.get('EXISTING_TOPIC'), '/admin/content/topics/new_topic', cb);
             return;
         }
         
         var topicDocument = pb.DocumentCreator.create('topic', post);
         dao.update(topicDocument).then(function(result) {
             if(util.isError(result)) {
-                self.formError('^loc_ERROR_SAVING^', '/admin/content/topics/new_topic', cb);
+                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/topics/new_topic', cb);
                 return;
             }
             
-            self.session.success = topicDocument.name + ' ^loc_CREATED^';
+            self.session.success = topicDocument.name + ' ' + self.ls.get('CREATED');
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/topics/new_topic'));
         });
     });

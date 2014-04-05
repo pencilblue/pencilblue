@@ -1,6 +1,10 @@
 /**
- * NewArticle - Interface for adding a new article
+ * Interface for adding a new article
  * 
+ * @class NewArticle
+ * @constructor
+ * @module Controllers
+ * @submodule Admin
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -24,7 +28,7 @@ NewArticle.prototype.render = function(cb) {
 	        self.gatherData(function(err, results){
 	        	//TODO handle error
 	        	
-	        	self.prepareFormReturns(result, function(newResult) {
+	        	self.checkForFormRefill(result, function(newResult) {
 	                result = newResult;
 	                
 	                var pills = self.getPills();

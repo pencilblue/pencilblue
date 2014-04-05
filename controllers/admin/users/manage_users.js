@@ -21,31 +21,27 @@ ManageUsers.prototype.render = function(cb) {
             return;
         }
 
-        pb.templates.load('admin/users/manage_users', '^loc_MANAGE_USERS^', null, function(data){
+        self.setPageName(self.ls.get('MANAGE_USERS'));
+        self.ts.load('admin/users/manage_users', function(err, data){
             var result = '' + data;
-            
-            self.displayErrorOrSuccess(result, function(newResult) {
-                result = newResult;
                 
-                var pills = Users.getPillNavOptions('manage_users');
-                pills.unshift(
-                {
-                    name: 'manage_users',
-                    title: '^loc_MANAGE_USERS^',
-                    icon: 'refresh',
-                    href: '/admin/users/manage_users'
-                });
-                
-                result = result.concat(pb.js.getAngularController(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['users']),
-                    pills: pills,
-                    users: users
-                }, [], 'initUsersPagination()'));
-                    
-                var content = self.localizationService.localize(['admin', 'users'], result);
-                cb({content: content});
+            var pills = Users.getPillNavOptions('manage_users');
+            pills.unshift(
+            {
+                name: 'manage_users',
+                title: self.getPageName(),
+                icon: 'refresh',
+                href: '/admin/users/manage_users'
             });
+            
+            result = result.concat(pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
+                pills: pills,
+                users: users
+            }, [], 'initUsersPagination()'));
+                
+            cb({content: result});
         });
     });
 };

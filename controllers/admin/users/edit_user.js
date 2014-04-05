@@ -28,50 +28,46 @@ EditUser.prototype.render = function(cb) {
         }
 
         delete user.password;
-        pb.templates.load('admin/users/edit_user', null, null, function(data) {
-            var result = ('' + data)
-            	.split('^user_id^').join(user._id)
-            	.split('^image_title^').join('^loc_USER_PHOTO^')
-            	.split('^uploaded_image^').join((user.photo) ? user.photo : '');
+        self.setPageName('Edit User');
+        self.ts.registerLocal('user_id', user._id);
+        self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
+        self.ts.registerLocal('uploaded_image', user.photo ? user.photo : '');
+        self.ts.load('admin/users/edit_user', function(err, data) {
+            var result = '' + data;
             
             var tabs = [
                 {
                     active: 'active',
                     href: '#account_info',
                     icon: 'cog',
-                    title: '^loc_ACCOUNT_INFO^'
+                    title: self.ls.get('ACCOUNT_INFO')
                 },
                 {
                     href: '#personal_info',
                     icon: 'user',
-                    title: '^loc_PERSONAL_INFO^'
+                    title: self.ls.get('PERSONAL_INFO')
                 }
             ];
-            
-            self.displayErrorOrSuccess(result, function(newResult) {
-                result = newResult;
                 
-                var pills = Users.getPillNavOptions('edit_user');
-                pills.unshift(
-                {
-                    name: 'manage_users',
-                    title: user.username,
-                    icon: 'chevron-left',
-                    href: '/admin/users/manage_users'
-                });
-                
-                result = result.concat(pb.js.getAngularController(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['users']),
-                    pills: pills,
-                    tabs: tabs,
-                    adminOptions: pb.users.getAdminOptions(self.session, self.localizationService), 
-                    user: user
-                }));
-                   
-                var content = self.localizationService.localize(['admin', 'users', 'media'], result);
-                cb({content: content});
+            var pills = Users.getPillNavOptions('edit_user');
+            pills.unshift(
+            {
+                name: 'manage_users',
+                title: user.username,
+                icon: 'chevron-left',
+                href: '/admin/users/manage_users'
             });
+            
+            result = result.concat(pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
+                pills: pills,
+                tabs: tabs,
+                adminOptions: pb.users.getAdminOptions(self.session, self.localizationService), 
+                user: user
+            }));
+               
+            cb({content: result});
         });
     });
 };

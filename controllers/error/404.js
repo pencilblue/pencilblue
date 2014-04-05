@@ -15,33 +15,27 @@ util.inherits(NotFound, pb.BaseController);
 NotFound.prototype.render = function(cb) {
 	var self = this;
 	
-	pb.templates.load('error/404', '404', null, function(data) {
-        var result = '' + data;
-        
-        pb.content.getSettings(function(err, contentSettings) {
-            TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
-                TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons)
-                {
-                    result = result.split('^navigation^').join(navigation);
-                    result = result.split('^account_buttons^').join(accountButtons);
-                    
-                	var loggedIn = false;
-                	if (self.session && self.session.authentication) {
-                		if (self.session.authentication.user) {
-                			loggedIn = true;
-                		}
-                	} 
+	this.setPageName('404');
+    pb.content.getSettings(function(err, contentSettings) {
+        TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
+            TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
+                
+                //load template
+                self.ts.registerLocal('navigation', navigation);
+                self.ts.registerLocal('account_buttons', accountButtons);
+                self.ts.load('error/404', function(err, data) {
+                    var result = '' + data;
+
                     result = result.concat(pb.js.getAngularController(
                     {
                         navigation: navigation,
                         contentSettings: contentSettings,
-                        loggedIn: loggedIn,
+                        loggedIn: pb.security.isAuthenticated(self.session),
                         themeSettings: themeSettings,
                         accountButtons: accountButtons
                     }));
                     
-                    var content = self.localizationService.localize(['error'], result);
-                    cb({content: content, code: 404, content_type: 'text/html'});
+                    cb({content: result, code: 404, content_type: 'text/html'});
                 });
             });
         });

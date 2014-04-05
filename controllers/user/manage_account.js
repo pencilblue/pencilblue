@@ -12,28 +12,32 @@ util.inherits(ManageAccount, pb.FormController);
 ManageAccount.prototype.render = function(cb) {
 	var self = this;
 	
-	pb.templates.load('user/manage_account', '^loc_MANAGE_ACCOUNT^', null, function(data) {
+	this.setPageName(this.ls.get('MANAGE_ACCOUNT'));
+	this.ts.registerLocal('site_logo', function(flag, cb) {
+		
+		var dao = new pb.DAO();
+        dao.query('pencilblue_theme_settings').then(function(data) {
+        	var logoPath;
+	        if(data && data.length == 0) {
+	            logoPath = path.join(pb.config.siteRoot, 'img', 'logo_menu.png');
+	        }
+	        else {
+	            logoPath = data[0].site_logo;
+	        }
+	        cb(util.isError(data) ? data : null, logoPath);
+        });
+	});
+	this.ts.load('user/manage_account', function(err, data) {
         var result = '' + data;
         
-        var dao = new pb.DAO();
-        dao.query('pencilblue_theme_settings').then(function(data) {
-            if(util.isError(data) || data.length == 0) {
-                result = result.split('^site_logo^').join(pb.config.siteRoot + '/img/logo_menu.png');
-            }
-            else {
-                result = result.split('^site_logo^').join(data[0].site_logo);
-            }
-        
-            if(self.session.account_subsection) {
-                result = result.concat(pb.js.getJSTag('loadAccountContent("' + pb.config.siteRoot + '/user/manage_account", "' + self.session.account_subsection + '")'));
-            }
-            else {
-                result = result.concat(pb.js.getJSTag('loadAccountContent("' + pb.config.siteRoot + '/user/manage_account", "profile")'));
-            }
-        
-            var content = self.localizationService.localize(['users'], result);
-            cb({content: content});
-        });
+        if(self.session.account_subsection) {
+            result = result.concat(pb.js.getJSTag('loadAccountContent("' + pb.config.siteRoot + '/user/manage_account", "' + self.session.account_subsection + '")'));
+        }
+        else {
+            result = result.concat(pb.js.getJSTag('loadAccountContent("' + pb.config.siteRoot + '/user/manage_account", "profile")'));
+        }
+
+        cb({content: result});
     });
 };
 

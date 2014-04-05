@@ -6,12 +6,17 @@
  */
 function Email(){};
 
+//dependencies
+var SiteSettings = require('../site_settings');
+
 //inheritance
 util.inherits(Email, pb.BaseController);
 
 Email.prototype.render = function(cb) {
     var self = this;
-	pb.templates.load('admin/site_settings/email', '^loc_EMAIL^', null, function(data) {
+    
+    this.setPageName(self.ls.get('EMAIL'));
+	this.ts.load('admin/site_settings/email', function(err, data) {
         var result = data;
         
         var tabs =
@@ -20,41 +25,40 @@ Email.prototype.render = function(cb) {
                 active: 'active',
                 href: '#preferences',
                 icon: 'wrench',
-                title: '^loc_PREFERENCES^'
+                title: self.ls.get('PREFERENCES')
             },
             {
                 href: '#smtp',
                 icon: 'upload',
-                title: '^loc_SMTP^'
+                title: self.ls.get('SMTP')
             }
         ];
         
         pb.email.getSettings(function(emailSettings) {
             self.setFormFieldValues(emailSettings);
             
-            self.prepareFormReturns(result, function(newResult) {
+            self.checkForFormRefill(result, function(newResult) {
                 result = newResult;
                 
-                var pills = require('../site_settings').getPillNavOptions('email');
+                var pills = SiteSettings.getPillNavOptions('email', self.ls);
                 pills.splice(1, 1);
                 pills.unshift(
                 {
                     name: 'configuration',
-                    title: '^loc_EMAIL^',
+                    title: self.getPageName(),
                     icon: 'chevron-left',
                     href: '/admin/site_settings/configuration'
                 });
                 
                 var objects     = {
-                    navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings']),
+                    navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
                     pills: pills,
                     tabs: tabs
                 };
                 var angularData = pb.js.getAngularController(objects);
                 result          = result.concat(angularData);
                 
-                var content = self.localizationService.localize(['admin', 'site_settings', 'articles'], result);
-                cb({content: content});
+                cb({content: result});
             });
         });
     });

@@ -27,14 +27,14 @@ EditUser.prototype.onPostParamsRetrieved = function(post, cb) {
 
     
     if(!pb.security.isAuthorized(this.session, {admin_level: post['admin']})) {
-        this.formError(request, session, '^loc_INSUFFICIENT_CREDENTIALS^', '/admin/users/manage_users', cb);
+        this.formError(request, session, self.ls.get('INSUFFICIENT_CREDENTIALS'), '/admin/users/manage_users', cb);
         return;
     }
     
     var dao = new pb.DAO();
     dao.loadById(post.id, 'user', function(err, user) {
         if(util.isError(err) || user == null) {
-            self.formError('^loc_ERROR_SAVING^', '/admin/users/manage_users', cb);
+            self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/manage_users', cb);
             return;
         }
         
@@ -42,17 +42,17 @@ EditUser.prototype.onPostParamsRetrieved = function(post, cb) {
         
         pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
             if(util.isError(err) || isTaken) {
-                self.formError('^loc_EXISTING_USERNAME^', '/admin/users/edit_user?id=' + get.id, cb);
+                self.formError(self.ls.get('EXISTING_USERNAME'), '/admin/users/edit_user?id=' + get.id, cb);
                 return;
             }
             
             dao.update(user).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/users/edit_user?id=' + get.id, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/edit_user?id=' + get.id, cb);
                     return;
                 }
                 
-                self.session.success = '^loc_USER_EDITED^';
+                self.session.success = self.ls.get('USER_EDITED');
                 self.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
             });
         });

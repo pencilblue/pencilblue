@@ -13,8 +13,7 @@ NewObject.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var vars = this.pathVars;
 	
-	if(!vars['type_id'])
-	{
+	if(!vars['type_id']) {
 	    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
 	    return;
 	}
@@ -48,7 +47,7 @@ NewObject.prototype.onPostParamsRetrieved = function(post, cb) {
 		
 		    if(customObjects.length > 0)
 		    {
-		        self.formError('^loc_EXISTING_CUSTOM_OBJECT^', '/admin/content/custom_objects/new_object/' + customObjectType.name, cb);
+		        self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT'), '/admin/content/custom_objects/new_object/' + customObjectType.name, cb);
                 return;
 		    }
 		    
@@ -82,11 +81,11 @@ NewObject.prototype.onPostParamsRetrieved = function(post, cb) {
             
             dao.update(customObjectDocument).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/new_object/' + customObjectType.name, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/new_object/' + customObjectType.name, cb);
                     return;
                 }
                 
-                self.session.success = customObjectDocument.name + ' ^loc_CREATED^';
+                self.session.success = customObjectDocument.name + ' ' + self.ls.get('CREATED');
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object/' + customObjectType.name));
             });
         });

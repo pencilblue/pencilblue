@@ -18,7 +18,7 @@ util.inherits(Index, pb.BaseController);
 Index.prototype.render = function(cb) {
 	var self = this;
 	
-	pb.templates.load('index', this.getPageTitle(), '^meta_desc^', function(data) {
+	this.ts.load('index', function(err, data) {
         var result = data;
                         
         TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
@@ -64,7 +64,7 @@ Index.prototype.render = function(cb) {
                                     var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
                                     result = result.concat(angularData);
                                 
-                                    pb.templates.load('footer', null, null, function(data) {
+                                    self.ts.load('footer', function(err, data) {
                                         
                                     	result = result.concat(data);
                                         var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
@@ -80,9 +80,8 @@ Index.prototype.render = function(cb) {
     });
 };
 
-Index.prototype.getPageTitle = function() {
+Index.prototype.getPageName = function() {
 	return pb.config.siteName;
-	return '^loc_HOME^';
 };
 
 //exports

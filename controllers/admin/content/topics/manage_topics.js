@@ -6,6 +6,9 @@
  */
 function ManageTopics() {}
 
+//dependencies
+var Topics = require('../topics');
+
 //inheritance
 util.inherits(ManageTopics, pb.BaseController);
 
@@ -32,31 +35,27 @@ ManageTopics.prototype.render = function(cb) {
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
     
-        pb.templates.load('admin/content/topics/manage_topics', '^loc_MANAGE_TOPICS^', null, function(data) {
+        self.setPageName(self.ls.get('MANAGE_TOPICS'));
+        self.ts.load('admin/content/topics/manage_topics', function(err, data) {
             var result = ''+data;
                 
-            self.displayErrorOrSuccess(result, function(newResult) {
-                result = newResult;
-                
-                var pills = require('../topics').getPillNavOptions('manage_topics');
-                pills.unshift(
-                {
-                    name: 'manage_topics',
-                    title: '^loc_MANAGE_TOPICS^',
-                    icon: 'refresh',
-                    href: '/admin/content/topics/manage_topics'
-                });
-                
-                result = result.concat(pb.js.getAngularController(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'topics']),
-                    pills: pills,
-                    topics: topics
-                }, [], 'initTopicsPagination()'));
-                
-                var content = self.localizationService.localize(['admin', 'topics'], result);
-                cb({content: content});
+            var pills = Topics.getPillNavOptions('manage_topics');
+            pills.unshift(
+            {
+                name: 'manage_topics',
+                title: self.getPageName(),
+                icon: 'refresh',
+                href: '/admin/content/topics/manage_topics'
             });
+            
+            result = result.concat(pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
+                pills: pills,
+                topics: topics
+            }, [], 'initTopicsPagination()'));
+
+            cb({content: result});
         });
     });
 };

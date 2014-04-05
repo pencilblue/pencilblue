@@ -35,11 +35,11 @@ DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
         
         dao.deleteById(get.id, 'custom_object_type').then(function(recordsDeleted) {
             if(recordsDeleted <= 0) {
-                self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/manage_object_types', cb);
+                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/manage_object_types', cb);
                 return;
             }
 
-            self.session.success = customObjectType.name + ' ^loc_DELETED^';
+            self.session.success = customObjectType.name + ' ' + self.ls.get('DELETED');
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
         });
     });

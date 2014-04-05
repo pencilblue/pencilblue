@@ -30,7 +30,11 @@ NewObject.prototype.render = function(cb) {
         }
         
         NewObject.loadFieldOptions(dao, customObjectTypes[0], function(objectType) {
-            pb.templates.load('admin/content/custom_objects/new_object', '^loc_NEW^ ' + objectType.name, null, function(data) {
+        	
+        	var title = self.ls.get('NEW') + ' ' + objectType.name;
+        	self.setPageName(title);
+        	self.ts.registerLocal('object_type_id', objectType._id);
+            self.ts.load('admin/content/custom_objects/new_object', function(err, data) {
                 var result = ''+data;
                 var tabs   =
                 [
@@ -38,7 +42,7 @@ NewObject.prototype.render = function(cb) {
                         active: 'active',
                         href: '#object_fields',
                         icon: 'list-ul',
-                        title: '^loc_FIELDS^'
+                        title: self.ls.get('FIELDS')
                     }
                 ];
                 
@@ -48,40 +52,34 @@ NewObject.prototype.render = function(cb) {
                     fieldOrder.push(key);
                 }
                     
-                self.displayErrorOrSuccess(result, function(newResult) {
-                    result = newResult;
-                    
-                    var pills =
-                    [
-                        {
-                            name: 'manage_objects',
-                            title: '^loc_NEW^ ' + objectType.name,
-                            icon: 'chevron-left',
-                            href: '/admin/content/custom_objects/manage_objects/' + objectType.name
-                        },
-                        {
-                            name: 'new_object',
-                            title: '',
-                            icon: 'plus',
-                            href: '/admin/content/custom_objects/new_object/' + objectType.name
-                        }
-                    ];
-                    
-                    result = result.concat(pb.js.getAngularController(
+                var pills =
+                [
                     {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects']),
-                        pills: pills,
-                        tabs: tabs,
-                        customObjectType: objectType,
-                        fieldOrder: fieldOrder
-                    }, [], 'initCustomObjectsPagination()'));
-                    
-                    result = result.split('^object_type_id^').join(objectType._id);
-                    result += pb.js.getJSTag('var customObjectType = ' + JSON.stringify(objectType));
-                    
-                    var content = self.localizationService.localize(['admin', 'custom_objects'], result);
-                    cb({content: content});
-                });
+                        name: 'manage_objects',
+                        title: title,
+                        icon: 'chevron-left',
+                        href: '/admin/content/custom_objects/manage_objects/' + objectType.name
+                    },
+                    {
+                        name: 'new_object',
+                        title: '',
+                        icon: 'plus',
+                        href: '/admin/content/custom_objects/new_object/' + objectType.name
+                    }
+                ];
+                
+                result = result.concat(pb.js.getAngularController(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                    pills: pills,
+                    tabs: tabs,
+                    customObjectType: objectType,
+                    fieldOrder: fieldOrder
+                }, [], 'initCustomObjectsPagination()'));
+                
+                result += pb.js.getJSTag('var customObjectType = ' + JSON.stringify(objectType));
+
+                cb({content: result});
             });
         });
     });
@@ -164,10 +162,10 @@ NewObject.loadFieldOptions = function(dao, objectType, cb) {
 	        index++;
 	        self.loadObjectOptions(index);
 	    });
-    }
+    };
     
     this.loadObjectOptions(0);
-}
+};
 
 //exports
 module.exports = NewObject;

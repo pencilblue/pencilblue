@@ -6,57 +6,49 @@
  */
 function Configuration(){};
 
+//dependencies
+var SiteSettings = require('../site_settings');
+
 //inheritance
 util.inherits(Configuration, pb.BaseController);
 
 Configuration.prototype.render = function(cb) {
     var self = this;
-	var dao  = new pb.DAO();
-	pb.templates.load('admin/site_settings/configuration', '^loc_CONFIGURATION^', null, function(data) {
+
+    this.setPageName(self.ls.get('CONFIGURATION'));
+    this.ts.registerLocal('document_root', pb.config.docRoot);
+    this.ts.registerLocal('site_ip', pb.config.siteIP);
+    this.ts.registerLocal('site_port', pb.config.sitePort);
+    this.ts.registerLocal('db_type', pb.config.db.type);
+    this.ts.registerLocal('db_servers', pb.config.db.servers.join('<br/>'));
+    this.ts.registerLocal('edit_instructions', function(flag, cb) {
+    	var content ='';
+        if(!fs.existsSync(DOCUMENT_ROOT + '/config.json')) {
+            content = '<div class="alert alert-info">'+self.ls.get('EDIT_CONFIGURATION')+'</div>';
+        }
+        cb(null, content);
+    });
+	this.ts.load('admin/site_settings/configuration', function(err, data) {
         var result = data;
         
-        result = Configuration.getConfiguration(result);
-        
-        var pills = require('../site_settings').getPillNavOptions('configuration');
+        var pills = SiteSettings.getPillNavOptions('configuration', self.ls);
         pills.unshift(
         {
             name: 'configuration',
-            title: '^loc_CONFIGURATION^',
+            title: self.getPageName(),
             icon: 'refresh',
             href: '/admin/site_settings/configuration'
         });
         
         var objects     = {
-            navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings']),
+            navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
             pills: pills
         };
         var angularData = pb.js.getAngularController(objects);
         result          = result.concat(angularData);
-        
-        var content = self.localizationService.localize(['admin', 'settings', 'site_settings'], result);
-        cb({content: content});
+
+        cb({content: result});
     });
-};
-
-Configuration.getConfiguration = function(result)
-{
-    if(!fs.existsSync(DOCUMENT_ROOT + '/config.json'))
-    {
-        result = result.split('^edit_instructions^').join('<div class="alert alert-info">^loc_EDIT_CONFIGURATION^</div>');
-    }
-    else
-    {
-        result = result.split('^edit_instructions^').join('');
-    }
-
-    result = result.split('^document_root^').join(pb.config.docRoot);
-    result = result.split('^site_ip^').join(pb.config.siteIP);
-    result = result.split('^site_port^').join(pb.config.sitePort);
-    result = result.split('^db_type^').join(pb.config.db.type);
-    result = result.split('^db_name^').join(pb.config.db.name);
-    result = result.split('^db_servers^').join(pb.config.db.servers.join('<br/>'));
-    
-    return result;
 };
 
 //exports

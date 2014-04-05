@@ -43,7 +43,7 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao = new pb.DAO();
     dao.loadById(post.id, 'article', function(err, article) {
         if(util.isError(err) || article == null) {
-            self.formError('^loc_ERROR_SAVING^', '/admin/content/articles/manage_articles', cb);
+            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/manage_articles', cb);
             return;
         }
         
@@ -54,13 +54,13 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
         
         pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
             if(error != null || exists || article.url.indexOf('/admin') == 0) {
-                self.formError('^loc_EXISTING_URL^', '/admin/content/articles/edit_article?id=' + get.id, cb);
+                self.formError(self.ls.get('EXISTING_URL'), '/admin/content/articles/edit_article?id=' + get.id, cb);
                 return;
             }
         
             dao.update(article).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/content/articles/edit_article?id=' + get.id, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/edit_article?id=' + get.id, cb);
                     return;
                 }
                 

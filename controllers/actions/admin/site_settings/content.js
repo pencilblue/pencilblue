@@ -23,11 +23,11 @@ Content.prototype.onPostParamsRetrieved = function(post, cb) {
     
     pb.settings.set('content_settings', post, function(data) {
         if(util.isError(data)) {
-            self.formError('^loc_ERROR_SAVING^', '/admin/site_settings/content', cb);
+            self.formError(self.ls.get('ERROR_SAVING'), '/admin/site_settings/content', cb);
             return;
         }
         
-        self.session.success = '^loc_CONTENT_SETTINGS^ ^loc_EDITED^';
+        self.session.success = self.ls.get('CONTENT_SETTINGS') + ' ' + self.ls.get('EDITED');
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/content'));
     });
 };

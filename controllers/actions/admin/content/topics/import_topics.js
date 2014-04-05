@@ -23,7 +23,7 @@ ImportTopics.prototype.render = function(cb) {
     	
         fs.readFile(files[0].path, function(err, data) {
             if(util.isError(err)) {
-                self.formError('^loc_ERROR_SAVING^', '/admin/content/topics/import_topics', cb);
+                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/topics/import_topics', cb);
                 return;
             }
             

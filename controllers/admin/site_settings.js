@@ -13,17 +13,24 @@ SiteSettings.prototype.render = function(cb) {
 	this.redirect(pb.config.siteRoot + '/admin/site_settings/configuration', cb);
 };
 
-SiteSettings.getPillNavOptions = function(activePill) {
+/**
+ * @static
+ * @method
+ * @param {string} activePill The name of the active pill
+ * @param {Localization} ls LocalizationService for Translation
+ * @returns {Array}
+ */
+SiteSettings.getPillNavOptions = function(activePill, ls) {
     var pillNavOptions = [
         {
             name: 'content',
-            title: '^loc_CONTENT^',
+            title: ls.get('CONTENT'),
             icon: 'quote-right',
             href: '/admin/site_settings/content'
         },
         {
             name: 'email',
-            title: '^loc_EMAIL^',
+            title: ls.get('EMAIL'),
             icon: 'envelope',
             href: '/admin/site_settings/email'
         }
