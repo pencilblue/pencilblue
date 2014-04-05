@@ -7,7 +7,7 @@
  * encoded.  Any reserved characters must be manually encoded by any flag 
  * call backs.
  * 
- * @class - TemplateService
+ * @class TemplateService
  * @constructor
  * @module Service
  * @submodule Entities

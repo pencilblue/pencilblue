@@ -105,8 +105,7 @@ SortObjects.prototype.render = function(cb) {
                         objectType: objectType
                     }));
                     
-                    var content = self.localizationService.localize(['admin', 'custom_objects'], result);
-                    cb({content: content});
+                    cb({content: result});
                 });
             });
         });
