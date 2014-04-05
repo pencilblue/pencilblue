@@ -24,7 +24,7 @@ NewSection.prototype.onPostParamsRetrieved = function(post, cb) {
     
     //check for reserved sections
     if(sectionDocument['name'] == 'admin') {
-        this.formError('^loc_EXISTING_SECTION^', '/admin/content/sections/new_section', cb);
+        this.formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/new_section', cb);
         return;
     }
     
@@ -34,17 +34,17 @@ NewSection.prototype.onPostParamsRetrieved = function(post, cb) {
     	
     	//make sure there isn't an existing section with the given name or URL
     	if (count > 0) {
-            self.formError('^loc_EXISTING_SECTION^', '/admin/content/sections/new_section', cb);
+            self.formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/new_section', cb);
             return;
         }
         
     	dao.update(sectionDocument).then(function(data) {
             if(util.isError(data)) {
-                self.formError('^loc_ERROR_SAVING^', '/admin/content/sections/new_section', cb);
+                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/new_section', cb);
                 return;
             }
             
-            self.session.success = sectionDocument.name + ' ^loc_CREATED^';
+            self.session.success = sectionDocument.name + ' ' + self.ls.get('CREATED');
             
             self.checkForSectionMap(sectionDocument, function() {                
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));

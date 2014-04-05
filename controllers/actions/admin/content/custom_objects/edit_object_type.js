@@ -74,7 +74,7 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
                     
                         dao.update(objectTypeDocument).then(function(result) {
                             if(util.isError(result)) {
-                                self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
+                                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
                                 return;
                             }
                             
@@ -90,7 +90,7 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
                     
                 dao.update(objectTypeDocument).then(function(result) {
                     if(util.isError(result)) {
-                        self.formError('^loc_ERROR_SAVING^', '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
+                        self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
                         return;
                     }
                     

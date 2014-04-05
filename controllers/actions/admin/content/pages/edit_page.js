@@ -42,7 +42,7 @@ EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao = new pb.DAO();
     dao.loadById(post.id, 'page', function(err, page) {
         if(util.isError(err) || page == null) {
-            self.formError('^loc_ERROR_SAVING^', '/admin/content/pages/manage_pages', cb);
+            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/manage_pages', cb);
             return;
         }
         
@@ -53,17 +53,17 @@ EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
         
         pb.RequestHandler.urlExists(page.url, post.id, function(err, exists) {
             if(util.isError(err) || exists) {
-                self.formError('^loc_EXISTING_URL^', '/admin/content/pages/edit_page?id=' + post.id, cb);
+                self.formError(self.ls.get('EXISTING_URL'), '/admin/content/pages/edit_page?id=' + post.id, cb);
                 return;
             }
             
             dao.update(page).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/content/pages/edit_page?id=' + post.id, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/edit_page?id=' + post.id, cb);
                     return;
                 }
                 
-                self.session.success = page.headline + ' ^loc_EDITED^';
+                self.session.success = page.headline + ' ' + self.ls.get('EDITED');
                 delete self.session.fieldValues;
                 self.redirect(pb.config.siteRoot + '/admin/content/pages/manage_pages', cb);
             });

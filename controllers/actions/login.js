@@ -79,7 +79,7 @@ Login.prototype.doLogin = function(post, cb) {
 };
 
 Login.prototype.loginError = function(adminAttempt, cb) {
-    this.session.error = '^loc_INVALID_LOGIN^';
+    this.session.error = this.ls.get('INVALID_LOGIN');
     if(adminAttempt){
         this.redirect(pb.config.siteRoot + '/admin/login', cb);
         return;

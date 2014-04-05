@@ -112,7 +112,7 @@ DeleteController.prototype.getDataOnSuccess = function(results) {
 };
 
 DeleteController.prototype.getDefaultErrorMessage = function() {
-	return '^loc_ERROR_SAVING^';
+	return this.ls.get('ERROR_SAVING');
 };
 
 //exports

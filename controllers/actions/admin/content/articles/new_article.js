@@ -41,18 +41,18 @@ NewArticle.prototype.onPostParamsRetrieved = function(post, cb) {
     var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords', 'article_sections', 'article_topics', 'article_media']);
     pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {
         if(util.isError(err) || !isSafe)  {
-            self.formError('^loc_EXISTING_URL^', '/admin/content/articles/new_article', cb);
+            self.formError(self.ls.get('EXISTING_URL'), '/admin/content/articles/new_article', cb);
             return;
         }
     
         var dao = new pb.DAO();
         dao.update(articleDocument).then(function(result) {
             if(util.isError(result))  {
-                self.formError('^loc_ERROR_SAVING^', '/admin/content/articles/new_article', cb);
+                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/new_article', cb);
                 return;
             }
             
-            self.session.success = articleDocument.headline + ' ^loc_CREATED^';
+            self.session.success = articleDocument.headline + ' ' + self.ls.get('CREATED');
             delete self.session.fieldValues;
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
         });

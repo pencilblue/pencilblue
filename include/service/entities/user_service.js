@@ -40,18 +40,18 @@ UserService.prototype.getAuthors = function(objArry, cb){
     async.parallelLimit(tasks, 3, cb);
 };
 
-UserService.prototype.getAdminOptions = function(session, localizationService) {
+UserService.prototype.getAdminOptions = function(session, ls) {
 	var adminOptions = [
-        {name: localizationService.localize([], '^loc_READER^'), value: ACCESS_USER},
-        {name: localizationService.localize([], '^loc_WRITER^'), value: ACCESS_WRITER},
-        {name: localizationService.localize([], '^loc_EDITOR^'), value: ACCESS_EDITOR}
+        {name: ls.get('READER'), value: ACCESS_USER},
+        {name: ls.get('WRITER'), value: ACCESS_WRITER},
+        {name: ls.get('EDITOR'), value: ACCESS_EDITOR}
     ];
     
     if(session.authentication.user.admin >= ACCESS_MANAGING_EDITOR) {
-        adminOptions.push({name: localizationService.localize([], '^loc_MANAGING_EDITOR^'), value: ACCESS_MANAGING_EDITOR});
+        adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: ACCESS_MANAGING_EDITOR});
     }
     if(session.authentication.user.admin >= ACCESS_ADMINISTRATOR) {
-        adminOptions.push({name: localizationService.localize([], '^loc_ADMINISTRATOR^'), value: ACCESS_ADMINISTRATOR});
+        adminOptions.push({name: ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR});
     }
     
     return adminOptions;

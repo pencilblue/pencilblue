@@ -41,23 +41,23 @@ NewPage.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao          = new pb.DAO();
     dao.count('page', {url: pageDocument['url']}, function(err, count) {
         if(util.isError(err) || count > 0) {
-            self.formError('^loc_EXISTING_URL^', '/admin/content/pages/new_page', cb);
+            self.formError(self.ls.get('EXISTING_URL'), '/admin/content/pages/new_page', cb);
             return;
         }
         
         dao.count('article', {url: pageDocument['url']}, function(err, count) {
         	if(util.isError(err) || count > 0) {
-                self.formError('^loc_EXISTING_URL^', '/admin/content/pages/new_page', cb);
+                self.formError(self.ls.get('EXISTING_URL'), '/admin/content/pages/new_page', cb);
                 return;
             }            
         
         	dao.update(pageDocument).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError('^loc_ERROR_SAVING^', '/admin/content/pages/new_page', cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/new_page', cb);
                     return;
                 }
                 
-                self.session.success = pageDocument.headline + ' ^loc_CREATED^';
+                self.session.success = pageDocument.headline + ' ' + self.ls.get('CREATED');
                 delete self.session.fieldValues;
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
             });

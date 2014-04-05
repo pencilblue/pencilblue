@@ -14,25 +14,25 @@ VerifyEmail.prototype.render = function(cb) {
 	var get  = this.query;
     
     if(!this.hasRequiredParams(get, ['email', 'code'])) {
-        this.formError('^loc_INVALID_VERIFICATION^', '/user/resend_verification', cb);
+        this.formError(self.ls.get('INVALID_VERIFICATION'), '/user/resend_verification', cb);
         return;
     }
     
     var dao = new pb.DAO();
     dao.count('user', {email: get.email}, function(err, count) {
         if(count > 0) {
-            self.formError('^loc_USER_VERIFIED^', '/user/login', cb);
+            self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
             return;
         }
         
         dao.loadByValue('email', get.email, 'unverified_user', function(err, unverifiedUser) {
             if(unverifiedUser == null) {
-                self.formError('^loc_NOT_REGISTERED^', '/user/sign_up', cb);
+                self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
                 return;
             }
             
             if(unverifiedUser['verification_code'] != get['code']) {
-                self.formError('^loc_INVALID_VERIFICATION^', '/user/resend_verification', cb);
+                self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/resend_verification', cb);
                 return;
             }
             
@@ -46,11 +46,11 @@ VerifyEmail.prototype.render = function(cb) {
                 
                 dao.update(user).then(function(result) {
                     if(util.isError(result))  {
-                        self.formError('^loc_ERROR_SAVING^', '/user/sign_up', cb);
+                        self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
                         return;
                     }
                     
-                    self.session.success = '^loc_EMAIL_VERIFIED^';
+                    self.session.success = self.ls.get('EMAIL_VERIFIED');
                     self.redirect(pb.config.siteRoot + '/user/login', cb);
                 });
             });

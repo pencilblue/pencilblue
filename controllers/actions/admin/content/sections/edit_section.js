@@ -27,7 +27,7 @@ EditSection.prototype.onPostParamsRetrieved = function(post, cb){
     	//TODO handle error
     	
         if(section == null) {
-            self.formError('^loc_ERROR_SAVING^', '/admin/content/sections/section_map', cb);
+            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
             return;
         }
 
@@ -42,20 +42,20 @@ EditSection.prototype.onPostParamsRetrieved = function(post, cb){
         //now start validation
         //check for reserved names
         if(section['name'] == 'admin') {
-            formError('^loc_EXISTING_SECTION^', '/admin/content/sections/section_map', cb);
+            formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/section_map', cb);
             return;
         }
         
         var where = {_id: {$ne: section._id}, $or: [{name: section['name']}, {url: section['url']}]};
         dao.count('section', where, function(err, count) {
             if(count > 0) {
-                self.formError('EXISTING_SECTION^', '/admin/content/sections/section_map', cb);
+                self.formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/section_map', cb);
                 return;
             }
             
             dao.update(section).then(function(data) {
                 if(util.isError(data)) {
-                    self.formError('ERROR_SAVING^', '/admin/content/sections/section_map', cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
                     return;
                 }
                 

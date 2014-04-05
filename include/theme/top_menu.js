@@ -46,7 +46,7 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
                             var sectionHome = pb.utils.clone(section);
                             if(typeof loc !== 'undefined') {
                             	
-                                sectionHome.name = sectionHome.name + ' ' + localizationService.localize([], '^loc_HOME^');
+                                sectionHome.name = sectionHome.name + ' ' + localizationService.get('HOME');
                             }
                             delete sectionHome.children;
                         

@@ -28,11 +28,11 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
     	
     	var collection      = 'user';
     	var successRedirect = '/user/login';
-    	var successMsg      = '^loc_ACCOUNT_CREATED^';
+    	var successMsg      = self.ls.get('ACCOUNT_CREATED');
         if(contentSettings.require_verification) {
         	collection      = 'unverified_user';
         	successRedirect = '/user/verification_sent';
-        	successMsg      = '^loc_VERIFICATION_SENT^' + post.email;
+        	successMsg      = self.ls.get('VERIFICATION_SENT') + post.email;
         	post['verification_code'] = pb.utils.uniqueId();
         }
         
@@ -47,10 +47,10 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
             //check for validation failures
             var errMsg = null;
             if (results.verified_username > 0 || results.unverified_username > 0) {
-            	errMsg = '^loc_EXISTING_EMAIL^';
+            	errMsg = self.ls.get('EXISTING_EMAIL');
             }
             else if (results.verified_email > 0 || results.unverified_email > 0) {
-            	errMsg = '^loc_EXISTING_EMAIL^';
+            	errMsg = self.ls.get('EXISTING_EMAIL');
             }
             
             if (errMsg) {
@@ -60,7 +60,7 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
             
             dao.update(user).then(function(data) {
                 if(util.isError(data)) {
-                    self.formError(request, session, '^loc_ERROR_SAVING^', '/user/sign_up', cb);
+                    self.formError(request, session, self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
                     return;
                 }
                 

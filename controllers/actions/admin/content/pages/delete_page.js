@@ -22,10 +22,10 @@ DeletePage.prototype.render = function(cb) {
     var dao = new pb.DAO();
     dao.deleteMatching(get.id, 'page').then(function(pagesDeleted) {
         if(util.isError(pagesDeleted) || pagesDeleted <= 0) {
-            self.formError('^loc_ERROR_SAVING^', '/admin/content/pages/manage_pages', cb);
+            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/manage_pages', cb);
             return;
         }
-        session.success = page.headline + ' ^loc_DELETED^';
+        session.success = page.headline + ' ' + self.ls.get('DELETED');
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
     });
 };

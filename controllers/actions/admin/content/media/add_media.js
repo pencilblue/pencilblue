@@ -24,7 +24,7 @@ AddMedia.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao = new pb.DAO();
     dao.update(mediaDocument).then(function(result) {
         if (util.isError(result)) {
-            self.formError('^loc_ERROR_SAVING^', self.getFormErrorRedirect(), cb);
+            self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(), cb);
             return;
         }
         
@@ -34,7 +34,7 @@ AddMedia.prototype.onPostParamsRetrieved = function(post, cb) {
 };
 
 AddMedia.prototype.onSaveSuccessful = function(mediaDocument) {
-	self.session.success = mediaDocument.name + ' ^loc_ADDED^';
+	self.session.success = mediaDocument.name + ' ' + self.ls.get('ADDED');
 };
 
 AddMedia.prototype.getRequiredParams = function() {
