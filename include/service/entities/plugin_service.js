@@ -2,6 +2,10 @@
  * PluginService - Provides functions for interacting with plugins.  
  * Install/uninstall, setting retrieval, plugin retrieval, etc.
  * 
+ * @class PluginService
+ * @constructor
+ * @module Service
+ * @submodule Entities
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright 2014 PencilBlue, LLC. All Rights Reserved
  */
@@ -20,9 +24,11 @@ var PUBLIC_DIR_NAME   = 'public';
 
 /**
  * Retrieves a single setting for the specified plugin.  
- * @param settingName The name of the setting to retrieve
- * @param pluginName The name of the plugin who owns the setting
- * @param cb A callback that provides two parameters: cb(error, settingValue). 
+ * 
+ * @method getSetting
+ * @param {string} settingName The name of the setting to retrieve
+ * @param {string} pluginName The name of the plugin who owns the setting
+ * @param {function} cb A callback that provides two parameters: cb(error, settingValue). 
  * Null is returned if the setting does not exist or the specified plugin is not 
  * installed.
  */
@@ -39,6 +45,8 @@ PluginService.prototype.getSetting = function(settingName, pluginName, cb) {
 
 /**
  * Retrieves all of the settings for the specfied plugin.
+ * 
+ * @method getSettings
  * @param pluginName The name of the plugin who's settings are being requested
  * @param cb A callback that provides two parameters: cb(error, settings).  
  * Null is provided in the event that the plugin is not installed.
@@ -49,6 +57,8 @@ PluginService.prototype.getSettings = function(pluginName, cb) {
 
 /**
  * Replaces a single setting for the specified plugin
+ * 
+ * @method setSetting
  * @param name The name of the setting to change
  * @param value The new value for the setting
  * @param pluginName The plugin who's setting is being changed.
@@ -81,6 +91,7 @@ PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
 /**
  * Replaces the settings for the specified plugin.  
  * 
+ * @method setSettings
  * @param settings The settings object to be validated and persisted
  * @param pluginName The name of the plugin who's settings are being represented
  * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
@@ -113,6 +124,8 @@ PluginService.prototype.setSettings = function(settings, pluginName, cb) {
 
 /**
  * Replaces a single theme setting for the specified plugin
+ * 
+ * @method setThemeSetting
  * @param name The name of the setting to change
  * @param value The new value for the setting
  * @param pluginName The plugin who's setting is being changed.
@@ -145,8 +158,9 @@ PluginService.prototype.setThemeSetting = function(name, value, pluginName, cb) 
 /**
  * Replaces the theme settings for the specified plugin.  
  * 
+ * @method setThemeSettings
  * @param settings The settings object to be validated and persisted
- * @param pluginName The name of the plugin who's settings are being represented
+ * @param pluginName The uid of the plugin who's settings are being represented
  * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
  * TRUE if the settings were persisted successfully, FALSE if not.
  */
@@ -177,7 +191,9 @@ PluginService.prototype.setThemeSettings = function(settings, pluginName, cb) {
 
 /**
  * Retrieves a single theme setting value.
- * @param settingName The name of the setting
+ * 
+ * @method getThemeSetting
+ * @param settingName The uid of the setting
  * @param pluginName The plugin to retrieve the setting from
  * @param cb A callback that provides two parameters: cb(error, settingValue)
  */
@@ -194,7 +210,9 @@ PluginService.prototype.getThemeSetting = function(settingName, pluginName, cb) 
 
 /**
  * Retrieves the theme settings for the specified plugin
- * @param pluginName The name of the plugin
+ * 
+ * @method getThemeSettings
+ * @param pluginName The uid of the plugin
  * @param cb A callback that provides two parameters: cb(err, settingsObject)
  */
 PluginService.prototype.getThemeSettings = function(pluginName, cb) {
@@ -203,12 +221,14 @@ PluginService.prototype.getThemeSettings = function(pluginName, cb) {
 
 /**
  * Indicates if a plugin by the specified identifier is installed.
+ * 
+ * @method isInstalled
  * @param pluginIdentifer The identifier can either be an ObjectID or the 
  * plugin name
  * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
  * TRUE if the plugin is installed, FALSE if not.
  */
-PluginService.prototype.isInstalled = function(pluginIdentifer, cb) {
+PluginService.prototype.isInstalled = function(pluginIdentifier, cb) {
 	this.getPlugin(pluginIdentifier, function(err, plugin) {
 		cb(err, plugin ? true : false);
 	});
@@ -216,6 +236,8 @@ PluginService.prototype.isInstalled = function(pluginIdentifer, cb) {
 
 /**
  * Retrieves a plugin descriptor (plugin document)
+ * 
+ * @method getPlugin
  * @param pluginIdentifier The identifier can either be an ObjectID or the 
  * plugin name
  * @param cb A callback that provides two parameters: cb(error, plugin).  If the 
@@ -227,7 +249,7 @@ PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
 		where._id = pluginIdentifier;
 	}
 	else {
-		where.name = pluginIdentifier;
+		where.uid = pluginIdentifier;
 	}
 	var dao = new pb.DAO();
 	dao.loadByValues(where, 'plugin', cb);
@@ -235,9 +257,11 @@ PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
 
 /**
  * Convenience function to generate a service to handle settings for a plugin.
+ * 
+ * @static
+ * @method genSettingsService
  * @param objType The type of object that will be dealt with.  (plugin_settings, 
  * theme_settings)
- * 
  * @param useMemory {Boolean} Indicates if the generated layered service should 
  * use an in memory service.
  * @param useCache {Boolean} Indicates if the generated layered service should 
@@ -267,6 +291,8 @@ PluginService.genSettingsService = function(objType, useMemory, useCache, servic
  * Loads the settings from a details object and persists them in the DB.  Any 
  * existing settings for the plugin are deleted before the new settings are 
  * persisted.
+ * 
+ * @method resetSettings
  * @param details The details object to extract the settings from
  * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
  * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
@@ -292,7 +318,8 @@ PluginService.prototype.resetSettings = function(details, cb) {
 			//build the object to persist
 			var baseDoc  = {
 				plugin_name: plugin.name,
-				plugin_id: plugin_id.toString(),
+				plugin_uid: plugin.uid,
+				plugin_id: plugin._id.toString(),
 				settings: details.settings	
 			};
 			var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
@@ -316,6 +343,8 @@ PluginService.prototype.resetSettings = function(details, cb) {
  * existing theme settings for the plugin are deleted before the new settings 
  * are persisted. If the plugin does not have a theme then false is provided in 
  * the callback.
+ * 
+ * @method resetThemeSettings
  * @param details The details object to extract the settings from
  * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE). 
  * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
@@ -347,7 +376,8 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 			//build the object to persist
 			var baseDoc  = {
 				plugin_name: plugin.name,
-				plugin_id: plugin_id.toString(),
+				plugin_uid: plugin.uid,
+				plugin_id: plugin._id.toString(),
 				settings: details.settings	
 			};
 			var settings = pb.DocumentCreator.create('theme_settings', baseDoc);
@@ -367,7 +397,149 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 };
 
 /**
+ * Installs a plugin by stepping through a series of steps that must be 
+ * completed in order.  There is currently no fallback plan for a failed install.
+ * In order for a plugin to be fully installed it must perform the following 
+ * actions without error:
+ * <ol>
+ * <li>Load and parse the plugin's details.json file</li>
+ * <li>Pass validation</li>
+ * <li>Must not already be installed</li>
+ * <li>Successfully register itself with the system</li>
+ * <li>Successfully load any plugin settings</li>
+ * <li>Successfully load any theme settings</li>
+ * <li>Successfully execute the plugin's onInstall function</li>
+ * <li>Successfully initialize the plugin for runtime</li>
+ * </ol>
+ * @method installPlugin
+ * @param {string} pluginDirName The name of the directory that contains the 
+ * plugin and its details.json file.
+ * @param {function} cb A callback that provides two parameters: cb(err, TRUE/FALSE)
+ */
+PluginService.prototype.installPlugin = function(pluginDirName, cb) {
+	var self            = this;
+	var detailsFilePath = PluginService.getDetailsPath(pluginDirName);
+	var details         = null;
+	
+	pb.log.info("PluginService: Beginning install of %s", pluginDirName);
+	var tasks = [
+	             
+         //load the details file
+         function(callback) {
+        	 pb.log.info("PluginService: Attempting to load details.json file for %s", pluginDirName);
+        	 
+			PluginService.loadDetailsFile(detailsFilePath, function(err, loadedDetails) {
+				details = loadedDetails;
+				callback(err, null);
+			});
+         },
+         
+         //validate the details
+         function(callback) {
+        	 pb.log.info("PluginService: Validating details of %s", pluginDirName);
+        	 
+        	 PluginService.validateDetails(details, pluginDirName, callback);
+         },
+         
+         //verify that the plugin is not installed
+         function(callback) {
+        	 pb.log.info("PluginService: Verifying that plugin %s is not already installed", details.uid);
+        	 
+        	 self.isInstalled(details.uid, function(err, isInstalled){
+        		if (util.isError(err)) {
+        			callback(err, isInstalled);
+        		} 
+        		else {
+        			callback(isInstalled ? new Error('PluginService: The '+details.uid+' plugin is already installed') : null, isInstalled);
+        		}
+        	 });
+         },
+         
+        //create plugin entry
+        function(callback) {
+        	 pb.log.info("PluginService: Setting system install flags for %s", details.uid);
+        	 var plugin = pb.DocumentCreator.create('plugin', pb.utils.clone(details));
+        	 var dao    = new pb.DAO();
+        	 dao.update(plugin).then(function(result) {
+        		callback(util.isError(result) ? result : null, result);
+        	 });
+         },
+         
+         //load plugin settings
+         function(callback) {
+        	 pb.log.info("PluginService: Adding settings for %s", details.uid);
+        	 self.resetSettings(details, callback);
+         },
+         
+         //load theme settings
+         function(callback) {
+        	 if (details.theme && details.theme.settings) {
+        		 pb.log.info("PluginService: Adding theme settings for %s", details.uid);
+        		 
+        		 self.resetThemeSettings(details, callback);
+        	 }
+        	 else {
+        		 callback(null, null);
+        	 }
+         },
+         
+        //call plugin's onInstall function
+        function(callback) {
+        	 
+            var pluginMM = path.join(PLUGINS_DIR, pluginDirName, details.main_module.path);
+    		var paths    = [pluginMM, details.main_module.path];
+        		
+    		var mainModule = null;
+			for (var i = 0; i < paths.length; i++) {
+				try {
+					mainModule = require(paths[i]);
+					break;
+				}
+				catch(e) {}
+			}
+    		
+    		if (mainModule !== null && typeof mainModule.onInstall === 'function') {
+    			pb.log.info("PluginService: Executing %s 'onInstall' function", details.uid);
+    			mainModule.onInstall(callback);
+    		}
+    		else {
+    			pb.log.warn("PluginService: Plugin %s did not provide an 'onInstall' function.", details.uid);
+    			callback(null, false);
+    		}
+        },
+         
+         //do plugin initialization
+         function(callback) {
+        	pb.log.info("PluginService: Initializing %s", details.uid);
+        	self.initPlugin(details.uid, callback); 
+         },
+         
+         //notify cluster of plugin install
+         function(callback) {
+        	 pb.log.warn("PluginService: Cluster Notification for install of %s is not yet supported", pluginDirName);
+        	 //TODO PluginInstall Notifications across cluster
+        	callback(null, null); 
+         }
+	];
+	async.series(tasks, function(err, results) {
+		cb(err, !util.isError(err));
+	});
+};
+
+/**
+ * Initializes a plugin during startup or just after a plugin has been installed.
+ * @param {string} pluginName
+ * @param {function} cb
+ */
+PluginService.prototype.initPlugin = function(pluginName, cb) {
+	process.nextTick(function(){cb(null, true);});
+};
+
+/**
  * Retrieves the absolute file path to a plugin's public directory
+ * 
+ * @static
+ * @method getPublicPath
  * @param pluginDirName The name of the directory that contains the intended 
  * plugin
  * @returns {string} the absolute file path to a plugin's public directory
@@ -678,7 +850,7 @@ PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
 	var paths    = [pluginMM, mmPath];
 	
 	for (var i = 0; i < paths.length; i++) {
-		try {console.log(paths[i]);
+		try {
 			return require(paths[i]) ? true : false;
 		}
 		catch(e) {}

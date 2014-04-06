@@ -12,12 +12,32 @@ module.exports = {
 	
 	setUp: function(cb){
 		pb.dbm.getDB().then(function(result){
-			cb();
+			var dao = new pb.DAO();
+			var tasks = [
+	            function(callback){
+	            	dao.deleteMatching({plugin_name: 'sample'}, 'theme_settings').then(function(result){
+	            		callback(null, null);
+	            	});
+	            },
+	            function(callback){
+	            	dao.deleteMatching({plugin_name: 'sample'}, 'plugin_settings').then(function(result){
+	            		callback(null, null);
+	            	});
+	            },
+	            function(callback){
+	            	dao.deleteMatching({uid: 'sample'}, 'plugin').then(function(result){
+	            		callback(null, null);
+	            	});
+	            },            
+	        ];
+			async.parallel(tasks, function(err, result) {
+				cb();
+			});
 		});
 	},
 
 	tearDown: function(cb){
-		cb();
+		pb.utils.onPromisesOk(pb.dbm.shutdown(), cb);
 	},
 	
 	testValidateValidDetailsJSONFile: function(test) {
@@ -53,6 +73,15 @@ module.exports = {
 		pb.PluginService.getServices(pathToPlugin, function(err, services) {
 			test.equals(null, err);
 			test.ok(services.text_creater != null);
+			test.done();
+		});
+	},
+	
+	testInstall: function(test) {
+		
+		pb.plugins.installPlugin('sample', function(err, result) {
+			test.equals(null, err);
+			test.ok(result);
 			test.done();
 		});
 	},
