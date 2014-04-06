@@ -21,20 +21,20 @@ DeleteSection.prototype.render = function(cb) {
 	var dao = new pb.DAO();
 	dao.loadById(this.query.id, 'section', function(err, section) {
         if(section == null) {
-            self.formError(self.ls.get('_ERROR_SAVING'), '/admin/content/sections/section_map', cb);
+            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
             return;
         }
         
         //delete the section
-        var where = {$or: [{_id: ObjectID(get['id'])}, {parent: get['id']}]};
+        var where = {$or: [{_id: ObjectID(self.query['id'])}, {parent: self.query['id']}]};
         dao.deleteMatching(where, 'section').then(function(result) {
         	if(result < 1) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
                 return;
             }
         	
-            session.success = section.name + ' ' + self.ls.get('DELETED');
-            self.updateSectionMap(this.query.id, function(err, result) {
+            self.session.success = section.name + ' ' + self.ls.get('DELETED');
+            self.updateSectionMap(self.query.id, function(err, result) {
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
             });
         });
