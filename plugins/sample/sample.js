@@ -14,7 +14,7 @@ function SamplePlugin(){}
  * The result is ignored
  */
 SamplePlugin.onInstall = function(cb) {
-	
+	cb(null, true);
 };
 
 /**
@@ -26,7 +26,7 @@ SamplePlugin.onInstall = function(cb) {
  * The result is ignored
  */
 SamplePlugin.onUninstall = function(cb) {
-	
+	cb(null, true);
 };
 
 /**
@@ -38,7 +38,7 @@ SamplePlugin.onUninstall = function(cb) {
  * The result is ignored
  */
 SamplePlugin.onStartup = function(cb) {
-	
+	cb(null, true);
 };
 
 /**
@@ -49,7 +49,7 @@ SamplePlugin.onStartup = function(cb) {
  * The result is ignored
  */
 SamplePlugin.onShutdown = function(cb) {
-	
+	cb(null, true);
 };
 
 //exports

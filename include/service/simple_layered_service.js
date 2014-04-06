@@ -109,15 +109,11 @@ SimpleLayeredService.prototype.set = function(key, value, cb){
  * @param cb
  */
 SimpleLayeredService.prototype.purge = function(key, cb){
-	var tasks = [];
-	for (var i = 0; i < this.services.length; i++){
-		var task = function(index){
-			return function(callback) {
-				this.services[index].purge(key, callback);
-			};
+	var tasks = pb.utils.getTasks(this.services, function(services, i) {
+		return function(callback) {
+			services[i].purge(key, callback);
 		};
-		tasks.push(task(i));
-	}
+	});
 	async.series(tasks, cb);
 };
 
