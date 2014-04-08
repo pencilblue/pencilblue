@@ -85,4 +85,15 @@ module.exports = {
 			test.done();
 		});
 	},
+	
+//	testInitPlugins: function(test) {
+//		
+//		pb.plugins.installPlugin('sample', function(err, result) {
+//			pb.plugins.initPlugins(function(err, result) {
+//				test.equals(null, err);
+//				test.ok(result);
+//				test.done();
+//			});
+//		});
+//	},
 };

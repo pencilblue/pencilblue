@@ -22,6 +22,9 @@ var PLUGINS_DIR       = path.join(DOCUMENT_ROOT, 'plugins');
 var DETAILS_FILE_NAME = 'details.json';
 var PUBLIC_DIR_NAME   = 'public';
 
+//statics
+var ACTIVE_PLUGINS = {};
+
 /**
  * Retrieves a single setting for the specified plugin.  
  * 
@@ -420,6 +423,7 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
 	var self            = this;
 	var detailsFilePath = PluginService.getDetailsPath(pluginDirName);
 	var details         = null;
+	var plugin          = null;
 	
 	pb.log.info("PluginService: Beginning install of %s", pluginDirName);
 	var tasks = [
@@ -458,10 +462,15 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
         //create plugin entry
         function(callback) {
         	 pb.log.info("PluginService: Setting system install flags for %s", details.uid);
-        	 var plugin = pb.DocumentCreator.create('plugin', pb.utils.clone(details));
-        	 var dao    = new pb.DAO();
-        	 dao.update(plugin).then(function(result) {
-        		callback(util.isError(result) ? result : null, result);
+        	 
+        	 var clone     = pb.utils.clone(details);
+        	 clone.dirName = pluginDirName;
+        	 
+        	 var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
+        	 var dao              = new pb.DAO();
+        	 dao.update(pluginDescriptor).then(function(result) {
+        		 plugin = pluginDescriptor;
+        		 callback(util.isError(result) ? result : null, result);
         	 });
          },
          
@@ -486,18 +495,7 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
         //call plugin's onInstall function
         function(callback) {
         	 
-            var pluginMM = path.join(PLUGINS_DIR, pluginDirName, details.main_module.path);
-    		var paths    = [pluginMM, details.main_module.path];
-        		
-    		var mainModule = null;
-			for (var i = 0; i < paths.length; i++) {
-				try {
-					mainModule = require(paths[i]);
-					break;
-				}
-				catch(e) {}
-			}
-    		
+            var mainModule = PluginService.loadMainModule(pluginDirName, details.main_module.path);
     		if (mainModule !== null && typeof mainModule.onInstall === 'function') {
     			pb.log.info("PluginService: Executing %s 'onInstall' function", details.uid);
     			mainModule.onInstall(callback);
@@ -511,7 +509,7 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
          //do plugin initialization
          function(callback) {
         	pb.log.info("PluginService: Initializing %s", details.uid);
-        	self.initPlugin(details.uid, callback); 
+        	self.initPlugin(plugin, callback); 
          },
          
          //notify cluster of plugin install
@@ -526,13 +524,164 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
 	});
 };
 
+PluginService.prototype.initPlugins = function(cb) {
+	pb.log.debug('PluginService: Beginning plugin initilization...');
+	
+	var self = this;
+	var dao  = new pb.DAO();
+	dao.query('plugin').then(function(plugins) {
+		if (util.isError(plugins)) {
+			cb(plugins, null);
+			return;
+		}
+		else if (!util.isArray(plugins)) {
+			var err = new Error('An array of plugins was expected but found ['+(typeof plugins)+']['+util.inspect(plugins)+'] instead.');
+			pb.log.error('PluginService %s', err.stack);
+			cb(err, plugins);
+			return;
+		}
+		
+		//make sure there are plugins to initialize
+		if (plugins.length === 0) {
+			pb.log.debug('PluginService: No plugins are installed');
+			cb(null, true);
+			return;
+		}
+		var tasks  = pb.utils.getTasks(plugins, function(plugins, i) {
+			return function(callback) {
+				
+				try {
+					self.initPlugin(plugins[i], function(err, didInitialize) {
+						process.nextTick(function() {
+							callback(null, {plugin: plugins[i], error: err, initialized: didInitialize});
+						});
+					});
+				}
+				catch(err) {
+					callback(null, {plugin: plugins[i], error: err, initialized: false});
+				}
+			};
+		});
+		async.parallel(tasks, function(err, results) {
+
+			for (var i = 0; i < results.length; i++) {
+				
+				var result = results[i];
+				if (result.initialized === true) {
+					pb.log.debug('PluginService: Plugin [%s] was successfully initialized', result.plugin.name);
+				}
+				else {
+					pb.log.warn('PluginService: Plugin [%s] failed to initialize.', result.plugin.name);
+				}
+				if (result.error) {
+					pb.log.error('PluginService: The following error was produced while initializing the %s plugin: %s', result.plugin.name, result.error.stack);
+				}
+			}
+			
+			cb(err, true);
+		});
+	});
+};
+
 /**
  * Initializes a plugin during startup or just after a plugin has been installed.
- * @param {string} pluginName
+ * @param {plugin} pluginName
  * @param {function} cb
  */
-PluginService.prototype.initPlugin = function(pluginName, cb) {
-	process.nextTick(function(){cb(null, true);});
+PluginService.prototype.initPlugin = function(plugin, cb) {
+	if (typeof plugin !== 'object') {
+		cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initilize the plugin'), null);
+		return;
+	}
+	
+	pb.log.info("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
+	
+	var details = null;
+	var tasks   = [
+	             
+         //load the details file
+         function(callback) {
+        	 pb.log.debug("PluginService:[INIT] Attempting to load details.json file for %s", plugin.name);
+        	 
+			PluginService.loadDetailsFile(PluginService.getDetailsPath(plugin.dirName), function(err, loadedDetails) {
+				details = loadedDetails;
+				callback(err, null);
+			});
+         },
+         
+         //validate the details
+         function(callback) {
+        	 pb.log.debug("PluginService:[INIT] Validating details of %s", plugin.name);
+        	 
+        	 PluginService.validateDetails(details, plugin.dirName, callback);
+         },
+         
+         //check for discrepencies
+         function(callback) {
+        	 if (plugin.uid != details.uid) {
+        		 pb.log.warn('PluginService:[INIT] The UID [%s] for plugin %s does not match what was found in the details.json file [%s].  The details file takes precendence.', plugin.uid, plugin.name, details.uid);
+        	 }
+        	 process.nextTick(function() {callback(null, true);});
+         },
+         
+         //register plugin & load main module
+         function(callback) {
+        	 
+        	 var mainModule = PluginService.loadMainModule(plugin.dirName, details.main_module.path);
+        	 ACTIVE_PLUGINS[details.uid] = {
+    			 main_module: mainModule
+        	 };
+        	 process.nextTick(function() {callback(null, true);});
+         },
+         
+         //call plugin's onStartup function
+         function(callback) {
+        	var mainModule = ACTIVE_PLUGINS[details.uid].main_module;
+        	if (typeof mainModule.onStartup === 'function') {
+        		mainModule.onStartup(callback);
+        	}
+        	else {
+        		pb.log.warn("PluginService: Plugin %s did not provide an 'onStartup' function.", details.uid);
+        		callback(null, false);
+        	}
+         },
+         
+         //load services
+         function(callback) {
+        	 PluginService.getServices(path.join(PLUGINS_DIR, plugin.dirName), function(err, services) {
+        		 ACTIVE_PLUGINS[details.uid].services = services;
+        		 callback(err, util.isError(err));
+        	 });
+         },
+         
+         //process routes
+         function(callback) {
+        	 PluginService.loadControllers(path.join(PLUGIN_DIR, plugin.dirName), details.uid, callback);
+         },
+         
+         //process localization
+         function(callback) {
+        	 //TODO implement plugin specific localization
+        	 pb.log.warn('PluginService: Plugin specific localization is not yet supported');
+        	 callback(null, false);
+         }
+    ];
+	async.series(tasks, cb);
+};
+
+PluginService.loadMainModule = function(pluginDirName, pathToModule) {
+	var pluginMM = path.join(PLUGINS_DIR, pluginDirName, pathToModule);
+	var paths    = [pluginMM, pathToModule];
+		
+	var mainModule = null;
+	for (var i = 0; i < paths.length; i++) {
+		try {
+			mainModule = require(paths[i]);
+			break;
+		}
+		catch(e) {}
+	}
+	return mainModule;
 };
 
 /**
@@ -846,16 +995,7 @@ PluginService.validateIconPath = function(iconPath, pluginDirName) {
  * @returns {Boolean} TRUE if the path is valid, FALSE if not
  */
 PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
-	var pluginMM = path.join(PLUGINS_DIR, pluginDirName, mmPath);
-	var paths    = [pluginMM, mmPath];
-	
-	for (var i = 0; i < paths.length; i++) {
-		try {
-			return require(paths[i]) ? true : false;
-		}
-		catch(e) {}
-	}	
-	return false;
+	return PluginService.loadMainModule(pluginDirName, mmPath) !== null;
 };
 
 /**
@@ -931,6 +1071,9 @@ PluginService.getServices = function(pathToPlugin, cb) {
 						var name = PluginService.getServiceName(pathToService, service);
 						services[name] = service;
 					}
+					else {
+						pb.log.warn('PluginService: Failed to load service at [%s]', pathToService);
+					}
 					callback(null, true);
 				});
 			};
@@ -962,6 +1105,75 @@ PluginService.loadService = function(pathToService, cb) {
 	catch(e){
 		pb.log.error("PluginService: Failed to load service: ["+pathToService+"]: "+e.stack);
 		cb(e, null);
+	}
+};
+
+PluginService.loadControllers = function(pathToPlugin, pluginUid, cb) {
+	var controllersDir = path.join(pathToPlugin, 'controllers');
+	
+	fs.readdir(controllersDir, function(err, files) {
+		if (util.isError(err)) {
+			cb(err, null);
+		}
+
+		var tasks = pb.utils.getTasks(files, function(files, index) {
+			return function(callback) {
+				
+				var pathToController = path.join(controllersDir, files[index]);
+				PluginService.loadController(pathToController, pluginUid, function(err, service) {
+					if (util.isError(err)) {
+						pb.log.warn('PluginService: Failed to load controller at [%s]: %s', pathToController, err.stack);
+					}
+					callback(null, util.isError(err));
+				});
+			};
+		});
+		async.parallel(tasks, function(err, results) {
+			cb(err, services);
+		});
+	});
+};
+
+PluginService.loadController = function(pathToController, pluginUid, cb) {
+	try {
+		
+		//load the controller type
+		var ControllerPrototype = require(pathToController);
+		
+		//ensure we can get the routes
+		if (typeof ControllerPrototype.getRoutes !== 'function'){
+			throw new Error('Controller at ['+pathToController+'] does not implement function "getRoutes"');
+		}
+		
+		//get the routes
+		ControllerPrototype.getRoutes(function(err, routes) {
+			if (util.isError(err)) {
+				cb(err, null);
+				return;
+			}
+			else if (!util.isArray(routes)) {
+				cb(new Error('Controller at ['+pathToController+'] did not return an array of routes'), null);
+				return;
+			}
+			
+			//attempt to register route
+			for(var i = 0; i < routes.length; i++) {
+				var route        = routes[i];
+				route.controller = pathToController;
+				var result       = pb.RequestHandler.registerRoute(route, pluginUid);
+				
+				//verify registration
+				if (!result) {
+					pb.log.warn('PluginService: Failed to register route [%s] for controller at [%s]', util.inspect(route), pathToController);
+				}
+			}
+			
+			//do callback
+			callback(null, true);
+		});
+	}
+	catch(err) {
+		cb(err, null);
 	}
 };
 
