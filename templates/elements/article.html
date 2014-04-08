@@ -3,7 +3,8 @@
 </div>
 <div id="article_{{article._id}}" class="article" article-index="{{$index}}" ng-repeat="article in articles" ng-cloak>
     <div class="col-md-8 col-md-offset-2">
-        <h1>{{article.headline}}</h1>
+        <h1 ng-if="articles.length > 1"><a ng-href="/article/{{article.url}}">{{article.headline}}</a></h1>
+        <h1 ng-if="articles.length == 1">{{article.headline}}</h1>
         <h3 ng-if="article.subheading.length > 0">{{article.subheading}}</h3>
         <div class="article_body">
             <div class="media byline" ng-if="contentSettings.display_bylines && article.object_type == 'article'">
