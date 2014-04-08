@@ -64,12 +64,8 @@ Index.prototype.render = function(cb) {
                                     var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
                                     result = result.concat(angularData);
                                 
-                                    self.ts.load('footer', function(err, data) {
-                                        
-                                    	result = result.concat(data);
-                                        var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
-                                        cb({content: content});
-                                    });
+                                    var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
+                                    cb({content: content});
                                 });
                             });
                         });
