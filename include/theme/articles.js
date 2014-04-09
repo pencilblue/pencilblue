@@ -27,6 +27,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
     else if(page) {
         singleItem = true;
         searchObject.object_type = 'page';
+        searchObject.draft = {$ne: 1};
         searchObject._id = ObjectID(page);
     }
     searchObject.publish_date = {$lt: new Date()};

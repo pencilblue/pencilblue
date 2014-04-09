@@ -47,6 +47,7 @@ EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
         }
         
         post['author'] = page['author'];
+        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']); 
         pb.DocumentCreator.update(post, page, ['meta_keywords', 'page_sections', 'page_topics', 'page_media']);
         
         self.setFormFieldValues(post);
