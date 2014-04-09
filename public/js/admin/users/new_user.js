@@ -35,8 +35,13 @@ $(document).ready(function()
     });
 });
 
-function checkPasswordMatch()
+function checkPasswordMatch(keepType)
 {
+    if(typeof keepType === 'undefined')
+    {
+        $('#password').attr('type', 'password');
+    }
+
     if($('#password').val() != $('#confirm_password').val() || $('#password').val().length == 0)
     {
         $('#password_check').attr('class', 'fa fa-thumbs-down');
@@ -59,7 +64,8 @@ function generatePassword()
         password = password.concat(characters[parseInt(Math.random() * characters.length)]);
     }
     
+    $('#password').attr('type', 'text');
     $('#password').val(password);
     $('#confirm_password').val(password);
-    checkPasswordMatch();
+    checkPasswordMatch(true);
 }
