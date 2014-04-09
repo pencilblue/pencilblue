@@ -77,7 +77,7 @@ function getExtraZero(dateNumber)
     return dateNumber;
 }
 
-function checkForEditArticleSave()
+function checkForEditArticleSave(draft)
 {
     // We need to remove other fieldsets so the form data isn't duplicated
     $('.modal-body fieldset').remove();
@@ -116,6 +116,8 @@ function checkForEditArticleSave()
                 }
             
                 $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
+                
+                $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
                 
                 $('#edit_article_form').submit();
             });

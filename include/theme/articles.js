@@ -13,7 +13,7 @@ var Media    = require('./media');
 ArticleService.getArticles = function(section, topic, article, page, output) {
     var instance = this;
 
-    var searchObject = {object_type: 'article'};
+    var searchObject = {object_type: 'article', draft: {$ne: 1}};
     if(section) {
         searchObject.article_sections = section;
     }
