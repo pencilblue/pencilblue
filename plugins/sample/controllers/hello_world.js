@@ -9,8 +9,7 @@
 function HelloWorld(){}
 
 //dependencies
-var samplePlugin = pb.plugins.sample;
-var textCreater  = samplePlugin.text_creater;
+var textCreater  = pb.plugins.getService('text_creater', 'sample');
 
 //inheritance
 util.inherits(HelloWorld, pb.BaseController);
@@ -44,7 +43,6 @@ HelloWorld.prototype.render = function(cb) {
 			cb(content);
 		});
 	});
-	cb(content);
 };
 
 /**

@@ -7,46 +7,57 @@ global.pb = require('./include/requirements');
  * connection pool to the core DB.
  */
 var init = function(){
-	
-	//start core db
-	initDBConnections();
-	
-	//start server
-	initServer();
-	
-	//set event listeners
-	registerSystemForEvents();
+	var tasks = [
+         initDBConnections, 
+         initServer, 
+         function(cb) {
+         	pb.plugins.initPlugins(cb);
+         },
+         registerSystemForEvents
+     ];
+	async.series(tasks, function(err, results) {
+		if (util.isError(err)) {
+			process.exit(1);
+		}
+	});
 };
 
 /**
  * Attempts to initialize a connection pool to the core database
  */
-function initDBConnections(){
+function initDBConnections(cb){
 	//setup database connection to core database
 	pb.dbm.getDB(pb.config.db.name).then(function(result){
-		if (typeof result !== 'Error') {
-			if (result.databaseName == undefined){
-				throw new Error("Failed to establish a connection to: "+pb.config.db.name);
-			}
-			
-			log.debug('Established connection to DB: ' + result.databaseName);
-			mongoDB = result;
+		if (util.isError(result)) {
+			cb(result, false);
+		}
+		else if (!result.databaseName) {
+			cb(new Error("Failed to establish a connection to: "+pb.config.db.name), false);
 		}
 		else {
-			throw err;
+			log.debug('Established connection to DB: ' + result.databaseName);
+			mongoDB = result;
+			cb(null, true);
 		}
 	});
-}
+};
 
 /**
  * Initializes the server
  */
-function initServer(){
+function initServer(cb){
 	log.debug('Starting server...');
-	pb.server = http.createServer(onHttpConnect);
 	
-	pb.server.listen(pb.config.sitePort);
-	log.info(pb.config.siteName + ' running on ' + pb.config.siteRoot);
+	try{
+		pb.server = http.createServer(onHttpConnect);
+		pb.server.listen(pb.config.sitePort, function() {
+			log.info(pb.config.siteName + ' running on ' + pb.config.siteRoot);
+			cb(null, true);
+		});
+	}
+	catch(e) {
+		cb(e, false);
+	}
 }
 
 function onHttpConnect(req, resp){
@@ -57,16 +68,22 @@ function onHttpConnect(req, resp){
 /**
  * Registers for process level events
  */
-function registerSystemForEvents(){
+function registerSystemForEvents(cb){
 	
 	//shutdown hook
-	process.openStdin();
-	process.on('SIGINT', function () {
-		pb.log.info('Shutting down...');
-	  	pb.dbm.shutdown();
-	  	pb.cache.quit();
-	  	pb.session.shutdown();
-	});
+	try {
+		process.openStdin();
+		process.on('SIGINT', function () {
+			pb.log.info('Shutting down...');
+		  	pb.dbm.shutdown();
+		  	pb.cache.quit();
+		  	pb.session.shutdown();
+		});
+		cb(null, true);
+	}
+	catch(e) {
+		cb(e, false);
+	}
 }
 
 //start up sequence

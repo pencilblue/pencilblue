@@ -571,7 +571,7 @@ PluginService.prototype.initPlugins = function(cb) {
 					pb.log.debug('PluginService: Plugin [%s] was successfully initialized', result.plugin.name);
 				}
 				else {
-					pb.log.warn('PluginService: Plugin [%s] failed to initialize.', result.plugin.name);
+					pb.log.warn('PluginService: Plugin [%s] failed to initialize.'+result.initialized, result.plugin.name);
 				}
 				if (result.error) {
 					pb.log.error('PluginService: The following error was produced while initializing the %s plugin: %s', result.plugin.name, result.error.stack);
@@ -656,7 +656,7 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
          
          //process routes
          function(callback) {
-        	 PluginService.loadControllers(path.join(PLUGIN_DIR, plugin.dirName), details.uid, callback);
+        	 PluginService.loadControllers(path.join(PLUGINS_DIR, plugin.dirName), details.uid, callback);
          },
          
          //process localization
@@ -666,7 +666,18 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
         	 callback(null, false);
          }
     ];
-	async.series(tasks, cb);
+	async.series(tasks, function(err, results) {
+		cb(err, !util.isError(err));
+	});
+};
+
+PluginService.prototype.getService = function(serviceName, pluginUid) {
+	if (ACTIVE_PLUGINS[pluginUid]) {
+		if (ACTIVE_PLUGINS[pluginUid].services && ACTIVE_PLUGINS[pluginUid].services[serviceName]) {
+			return ACTIVE_PLUGINS[pluginUid].services[serviceName];
+		}
+	}
+	return null;
 };
 
 PluginService.loadMainModule = function(pluginDirName, pathToModule) {
@@ -1129,7 +1140,7 @@ PluginService.loadControllers = function(pathToPlugin, pluginUid, cb) {
 			};
 		});
 		async.parallel(tasks, function(err, results) {
-			cb(err, services);
+			cb(err, results);
 		});
 	});
 };
@@ -1169,7 +1180,7 @@ PluginService.loadController = function(pathToController, pluginUid, cb) {
 			}
 			
 			//do callback
-			callback(null, true);
+			cb(null, true);
 		});
 	}
 	catch(err) {

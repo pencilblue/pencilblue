@@ -35,7 +35,7 @@ TextCreaterService.getText = function(cb) {
 	
 	var text = "";
     for (var i = 0; i < 5; i++) {
-        text += possible.charAt(Math.floor(Math.random() * POSSIBLE.length));
+        text += POSSIBLE.charAt(Math.floor(Math.random() * POSSIBLE.length));
     }
     cb(null, text);
 };
