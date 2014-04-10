@@ -39,11 +39,6 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
                 output([]);
                 return;
             }
-
-            var authorIDs = [];  
-            for(var i = 0; i < articles.length; i++) {
-                authorIDs.push(new ObjectID(articles[i].author));
-            }
             
             dao.query('user', pb.DAO.getIDInWhere(articles, 'author')).then(function(authors) {
                 if(authors.length == 0) {
@@ -54,7 +49,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
                 var subInstance = this;
                 
                 this.loadArticle = function(index, output) {
-                    if(index >= articles.length) {
+                    if(index >= articles.length) {console.log('EndingLoadArticle:'+index);
                         output(articles);
                         return;
                     }
@@ -98,7 +93,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
                             break;
                         case 'article':
                         default:
-                            article.layout = instance.loadMedia(article.article_layout, function(newLayout) {
+                            instance.loadMedia(article.article_layout, function(newLayout) {
                                 article.layout = newLayout;
                                 delete article.article_layout;
                                 
@@ -121,7 +116,7 @@ ArticleService.getArticles = function(section, topic, article, page, output) {
                             break;
                     }
                 };
-                
+                pb.log.debug('About to load articles');
                 this.loadArticle(0, output);
             });
         });

@@ -11,6 +11,7 @@ var TopMenu  = require('../include/theme/top_menu');
 var Articles = require('../include/theme/articles');
 var Media    = require('../include/theme/media');
 var Comments = require('../include/theme/comments');
+var ArticleService = require('../include/service/entities/article_service');
 
 //inheritance
 util.inherits(Index, pb.BaseController);
@@ -31,8 +32,9 @@ Index.prototype.render = function(cb) {
                 var topic   = self.req.pencilblue_topic   || null;
                 var article = self.req.pencilblue_article || null;
                 var page    = self.req.pencilblue_page    || null;
-                
-                Articles.getArticles(section, topic, article, page, function(articles) {
+                pb.log.debug('indexhere:'+self.req.uid);
+                var service = new ArticleService();
+                service.find({},/*Articles.getArticles(section, topic, article, page, */function(err, articles) {console.log('afterissue:'+self.req.uid);
                     Media.getCarousel(themeSettings.carousel_media, result, '^carousel^', 'index_carousel', function(newResult) {
                         pb.content.getSettings(function(err, contentSettings) {
                             Articles.getMetaInfo(articles[0], function(metaKeywords, metaDescription, metaTitle) {
