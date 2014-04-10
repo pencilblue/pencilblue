@@ -1,15 +1,25 @@
-function ArticleService(){}
+function ArticleService(){
+	this.object_type = 'article';
+}
+
+ArticleService.prototype.getContentType = function() {
+	return this.object_type;
+};
+
+ArticleService.prototype.setContentType = function(type) {
+	this.object_type = type;
+};
 
 ArticleService.prototype.findById = function(articleId, cb) {
 	this.find(pb.DAO.getIDWhere(articleId), cb);
 };
 
 ArticleService.prototype.findBySection = function(sectionId, cb) {
-	this.find({article_sections: section}, cb);
+	this.find({article_sections: sectionId}, cb);
 };
 
 ArticleService.prototype.findByTopic = function(topicId, cb) {
-	this.find({article_topics: section}, cb);
+	this.find({article_topics: topicId}, cb);
 };
 
 ArticleService.prototype.find = function(where, cb) {
@@ -17,7 +27,7 @@ ArticleService.prototype.find = function(where, cb) {
 	
 	var dao = new pb.DAO();
 	where.publish_date = {$lt: new Date()};
-	dao.query('article', where).then(function(articles) {
+	dao.query(this.getContentType(), where).then(function(articles) {
 		if (util.isError(articles)) {
 			cb(articles, []);
 			return;
@@ -49,54 +59,62 @@ ArticleService.prototype.find = function(where, cb) {
 };
 
 ArticleService.prototype.processArticleForDisplay = function(article, authors, contentSettings, cb) {
+	var self = this;
 	
-	if(contentSettings.display_bylines) {
-        
-        for(var j = 0; j < authors.length; j++) {
-            
-        	if(authors[j]._id.equals(ObjectID(article.author))) {
-                if(authors[j].photo && contentSettings.display_author_photo) {
-                    article.author_photo = authors[j].photo;
-                }
-                else {
-                    article.media_body_style = 'height: auto';
-                }
-                
-                article.author_name     = pb.users.getFormattedName(authors[j]);
-                article.author_position = (authors[j].position && contentSettings.display_author_position) ? authors[j].position : '';
-                break;
-            }
-        }
-    }
+	if (this.getContentType() === 'article') {
+		if(contentSettings.display_bylines) {
+	        
+	        for(var j = 0; j < authors.length; j++) {
+	            
+	        	if(authors[j]._id.equals(ObjectID(article.author))) {
+	                if(authors[j].photo && contentSettings.display_author_photo) {
+	                    article.author_photo = authors[j].photo;
+	                }
+	                else {
+	                    article.media_body_style = 'height: auto';
+	                }
+	                
+	                article.author_name     = pb.users.getFormattedName(authors[j]);
+	                article.author_position = (authors[j].position && contentSettings.display_author_position) ? authors[j].position : '';
+	                break;
+	            }
+	        }
+	    }
+	    
+	    if(contentSettings.display_timestamp ) {
+	        article.timestamp = pb.content.getTimestampTextFromSettings(
+	        		article.publish_date, 
+	        		contentSettings
+			);
+	    }
+	}
     
-    if(contentSettings.display_timestamp) {
-        article.timestamp = pb.content.getTimestampTextFromSettings(
-        		article.publish_date, 
-        		contentSettings
-		);
-    }
-    
-    article.layout = article.article_layout;
-    //cb(null, null);
+    article.layout  = article.article_layout;
     var mediaLoader = new MediaLoader();
-    mediaLoader.start(article.article_layout, function(err, newLayout) {
+    mediaLoader.start(article[this.getContentType()+'_layout'], function(err, newLayout) {
         article.layout = newLayout;
         delete article.article_layout;
         
-        var where = pb.DAO.getIDWhere(article._id);
-        var order = {created: pb.DAO.ASC};
-        var dao   = new pb.DAO();
-        dao.query('comment', where, pb.DAO.PROJECT_ALL, order).then(function(comments) {
-            if(util.isError(comments) || comments.length == 0) {
-                cb(null, null);
-                return;
-            }
-        
-            instance.getCommenters(0, comments, contentSettings, function(commentsWithCommenters) {
-                article.comments = commentsWithCommenters;
-                cb(null, null);
-            });
-        });
+        if (self.getContentType() === 'article') {
+	        
+        	var where = pb.DAO.getIDWhere(article._id);
+	        var order = {created: pb.DAO.ASC};
+	        var dao   = new pb.DAO();
+	        dao.query('comment', where, pb.DAO.PROJECT_ALL, order).then(function(comments) {
+	            if(util.isError(comments) || comments.length == 0) {
+	                cb(null, null);
+	                return;
+	            }
+	        
+	            instance.getCommenters(0, comments, contentSettings, function(commentsWithCommenters) {
+	                article.comments = commentsWithCommenters;
+	                cb(null, null);
+	            });
+	        });
+        }
+        else {
+        	cb(null, null);
+        }
     });
 };
 
