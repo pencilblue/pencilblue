@@ -817,7 +817,7 @@ RequestHandler.registerRoute = function(descriptor, theme){
 };
 
 RequestHandler.prototype.handleRequest = function(){
-	
+		
 	//get locale preference
 	this.localizationService = new pb.Localization(this.req);
 	
@@ -1113,11 +1113,16 @@ RequestHandler.prototype.onControllerInitialized = function(controller) {
 };
 
 RequestHandler.prototype.onRenderComplete = function(data){
-	
+
 	//set cookie
     var cookies = new Cookies(this.req, this.resp);
     if (this.setSessionCookie) {
-    	cookies.set(pb.SessionHandler.COOKIE_NAME, this.session.uid, pb.SessionHandler.getSessionCookie(this.session));
+    	try{
+    		cookies.set(pb.SessionHandler.COOKIE_NAME, this.session.uid, pb.SessionHandler.getSessionCookie(this.session));
+    	}
+    	catch(e){
+    		pb.log.error('RequestHandler: %s', e.stack);
+    	}
     }
 	
 	//do any necessary redirects
@@ -1165,9 +1170,16 @@ RequestHandler.prototype.writeResponse = function(data){
     }
     
     //send response
-    this.resp.setHeader('content-type', contentType);
-    this.resp.writeHead(data.code);
-    this.resp.end(data.content);
+    //the catch allows us to prevent any plugins that callback trwice from 
+    //screwing us over due to the attempt to write headers twice.
+    try {
+    	this.resp.setHeader('content-type', contentType);
+    	this.resp.writeHead(data.code);
+    	this.resp.end(data.content);
+    }
+    catch(e) {
+    	pb.log.error('RequestHandler: '+e.stack);
+    }
 };
 
 

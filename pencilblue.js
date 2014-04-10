@@ -50,6 +50,10 @@ function initServer(){
 }
 
 function onHttpConnect(req, resp){
+	if (pb.log.isSilly()) {
+		req.uid = new ObjectID();
+		pb.log.silly('New Request: '+req.uid);
+	}
     var handler = new pb.RequestHandler(pb.server, req, resp);
     handler.handleRequest();
 }
