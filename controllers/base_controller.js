@@ -43,12 +43,12 @@ BaseController.prototype.displayErrorOrSuccessCallback = function(flag, cb) {
     if(this.session['error']) {
     	var error = this.session['error'];
         delete this.session['error'];
-        cb(null, '<div class="alert alert-danger error_success">' + this.localizationService.get(error) + '<a href="javascript:$(\'.alert-danger.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+        cb(null, '<div class="alert alert-danger error_success">' + this.localizationService.get(error) + '<a href="#" onclick="$(\'.alert-danger.error_success\').remove()"><i class="fa fa-times" style="float: right;"></i></a></div>');
     }
     else if(this.session['success']) {
     	var success = this.session['success'];
         delete this.session['success'];
-        cb(null, '<div class="alert alert-success error_success">' + this.localizationService.get(success) + '<a href="javascript:$(\'.alert-success.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+        cb(null, '<div class="alert alert-success error_success">' + this.localizationService.get(success) + '<a href="#" onclick="$(\'.alert-success.error_success\').remove()"><i class="fa fa-times" style="float: right;"></i></a></div>');
     }
     else {
         cb(null, '');
