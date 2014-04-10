@@ -97,7 +97,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
         
         if (self.getContentType() === 'article') {
 	        
-        	var where = pb.DAO.getIDWhere(article._id);
+        	var where = {article: article._id.toString()};
 	        var order = {created: pb.DAO.ASC};
 	        var dao   = new pb.DAO();
 	        dao.query('comment', where, pb.DAO.PROJECT_ALL, order).then(function(comments) {
@@ -106,7 +106,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
 	                return;
 	            }
 	        
-	            instance.getCommenters(0, comments, contentSettings, function(commentsWithCommenters) {
+	            self.getCommenters(comments, contentSettings, function(err, commentsWithCommenters) {
 	                article.comments = commentsWithCommenters;
 	                cb(null, null);
 	            });
@@ -133,6 +133,130 @@ ArticleService.prototype.getArticleAuthors = function(articles, cb) {
 		}
 		cb(null, authors);
 	});
+};
+
+ArticleService.prototype.getCommenters = function(comments, contentSettings, cb) {
+ 
+	//callback for iteration to handle setting the commenter attributes
+    var processComment = function(comment, commenter) {
+    	comment.commenter_name = 'Anonymous';
+    	comment.timestamp      = pb.content.getTimestampTextFromSettings(comment.created, contentSettings);
+    	
+    	if (commenter) {
+	    	comment.commenter_name = pb.users.getFormattedName(commenter);
+	        if(commenter.photo) {
+	        	comment.commenter_photo = commenter.photo;
+	        }
+	        if(commenter.position) {
+	        	comment.commenter_position = commenter.position;
+	        }
+    	}
+    };
+    
+    var processedComments = [];
+    var users             = {};
+    var tasks             = pb.utils.getTasks(comments, function(comments, i) {
+    	return function(callback) {
+    		
+    		var comment   = comments[i];
+    		if (!comment.commenter || users[comment.commenter]) {
+    			
+    			//user already commented so pull locally
+    			processComment(comment, users[comment.commenter]);
+    			processedComments.push(comment);
+    			callback(null, true);
+    			return;
+    		}
+    		
+    		//user has not already commented so load
+    		var dao = new pb.DAO();
+    	    dao.loadById(comment.commenter, 'user', function(err, commenter) {
+    	        if(util.isError(err) || commenter == null) {
+    	        	callback(null, false);
+    	            return;
+    	        }
+    	        
+    	        //process the comment
+    	        users[commenter._id.toString()] = commenter;
+    	        processComment(comment, commenter);
+    			processedComments.push(comment);
+    			
+    			callback(null, true);
+    	    });
+    	};
+    });
+    async.series(tasks, function(err, result) {
+    	cb(err, processedComments);
+    });
+};
+
+ArticleService.prototype.getTemplates = function(cb) {
+	var ts = new pb.TemplateService();
+    ts.load('elements/article', function(err, articleTemplate) {
+        ts.load('elements/article/byline', function(err, bylineTemplate) {
+            cb(articleTemplate, bylineTemplate);
+        });
+    });
+};
+
+ArticleService.getMetaInfo = function(article, cb)
+{
+    if(typeof article === 'undefined')
+    {
+        cb('', '', '');
+        return;
+    }
+
+    var keywords = article.meta_keywords || [];
+    var topics = article.article_topics || article.page_topics || [];
+    var instance = this;
+    
+    this.loadTopic = function(index)
+    {
+        if(index >= topics.length)
+        {
+            var description = '';
+            if(article.meta_desc)
+            {
+                description = article.meta_desc;
+            }
+            else if(article.layout)
+            {
+                description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
+            }
+        
+            cb(keywords.join(','), description, (article.seo_title.length > 0) ? article.seo_title : article.headline);
+            return;
+        }
+        
+        var dao  = new pb.DAO();
+        dao.query('topic', {_id: ObjectID(topics[index])}).then(function(topics) {
+            if(util.isError(topics) || topics.length == 0) {
+                index++;
+                instance.loadTopic(index);
+                return;
+            }
+            
+            var topicName = topics[0].name;
+            var keywordMatch = false;
+            
+            for(var i = 0; i < keywords.length; i++) {
+                if(topicName == keywords[i]) {
+                    keywordMatch = true;
+                    break;
+                }
+            }
+            
+            if(!keywordMatch)
+            {
+                keywords.push(topicName);
+            }
+            index++;
+            instance.loadTopic(index);
+        });
+    };
+    
+    this.loadTopic(0);
 };
 
 /**
@@ -225,4 +349,5 @@ MediaLoader.prototype.replaceCarouselTag = function(layout, mediaTemplate, cb) {
 };
 
 //exports
-module.exports = ArticleService;
+module.exports.ArticleService = ArticleService;
+module.exports.MediaLoader    = MediaLoader;

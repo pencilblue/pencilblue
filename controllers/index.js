@@ -7,11 +7,10 @@
 function Index(){}
 
 //dependencies
-var TopMenu  = require('../include/theme/top_menu');
-var Articles = require('../include/theme/articles');
-var Media    = require('../include/theme/media');
-var Comments = require('../include/theme/comments');
-var ArticleService = require('../include/service/entities/article_service');
+var TopMenu        = require('../include/theme/top_menu');
+var Media          = require('../include/theme/media');
+var Comments       = require('../include/theme/comments');
+var ArticleService = require('../include/service/entities/article_service').ArticleService;
 
 //inheritance
 util.inherits(Index, pb.BaseController);
@@ -64,8 +63,10 @@ Index.prototype.processArticles = function(result, articles, themeSettings, cb) 
 	var self = this;
 	
 	Media.getCarousel(themeSettings.carousel_media, result, '^carousel^', 'index_carousel', function(newResult) {
+		
         pb.content.getSettings(function(err, contentSettings) {
-            Articles.getMetaInfo(articles[0], function(metaKeywords, metaDescription, metaTitle) {
+        	
+        	ArticleService.getMetaInfo(articles[0], function(metaKeywords, metaDescription, metaTitle) {
                 
                 result = result.split('^meta_keywords^').join(metaKeywords);
                 result = result.split('^meta_desc^').join(metaDescription);
