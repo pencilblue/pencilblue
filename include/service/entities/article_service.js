@@ -2,6 +2,9 @@ function ArticleService(){
 	this.object_type = 'article';
 }
 
+//dependencies
+var Media = require('../../theme/media');
+
 ArticleService.prototype.getContentType = function() {
 	return this.object_type;
 };
@@ -318,7 +321,7 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
         if(util.isError(err) || !data) {
             layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join('');
         }
-        else {
+        else {console.log('here');
             var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data));
             mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
             mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString);
