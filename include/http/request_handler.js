@@ -897,7 +897,7 @@ RequestHandler.prototype.servePublicContent = function() {
  * @returns {Boolean}
  */
 RequestHandler.isPublicRoute = function(path){
-	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/media/', '/localization/', 'favicon.ico'];
+	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/media/', '/localization/', '/favicon.ico'];
 	for (var i = 0; i < publicRoutes.length; i++) {
 		if (path.indexOf(publicRoutes[i]) == 0) {
 			return true;
