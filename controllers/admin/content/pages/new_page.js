@@ -44,7 +44,7 @@ NewPage.prototype.render = function(cb) {
             }
         ];
         
-        self.ts.getTemplatesForActiveTheme(function(templates) {
+        self.ts.getTemplatesForActiveTheme(function(err, templates) {
         	
         	var dao = new pb.DAO();
         	dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
