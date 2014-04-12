@@ -1,33 +1,33 @@
 <div class="spacer" style="height: 1em"></div>
-<div id="comments_{{$index}}" class="panel panel-default comments_container">
+<div id="comments_^article_index^" class="panel panel-default comments_container">
     <div class="panel-heading">
-        <a data-toggle="collapse" data-parent="#comments_{{$index}}" href="#comments_collapse_{{$index}}">
+        <a data-toggle="collapse" data-parent="#comments_^article_index^" href="#comments_collapse_^article_index^">
             <i class="fa fa-comments"></i>&nbsp;
-            <span ng-if="article.comments">^loc_COMMENTS^ ({{article.comments.length}})</span>
-            <span ng-if="!article.comments">^loc_COMMENTS^ (0)</span>
+            <span ng-if="articles[^article_index^].comments">^loc_COMMENTS^ ({{articles[^article_index^].comments.length}})</span>
+            <span ng-if="!articles[^article_index^].comments">^loc_COMMENTS^ (0)</span>
         </a>
     </div>
-    <div id="comments_collapse_{{$index}}" class="panel-collapse collapse">
+    <div id="comments_collapse_^article_index^" class="panel-collapse collapse">
         <div class="panel-body">
-            <div id="submit_comment_{{$index}}" class="panel panel-default comments_container" ng-if="loggedIn">
+            <div id="submit_comment_^article_index^" class="panel panel-default comments_container" ng-if="loggedIn">
                 <div class="panel-heading">
-                    <a data-toggle="collapse" data-parent="#submit_comment_{{$index}}" href="#submit_comment_collapse_{{$index}}">
+                    <a data-toggle="collapse" data-parent="#submit_comment_^article_index^" href="#submit_comment_collapse_^article_index^">
                         <i class="fa fa-comment"></i>&nbsp;^loc_SUBMIT_COMMENT^
                     </a>
                 </div>
-                <div id="submit_comment_collapse_{{$index}}" class="panel-collapse collapse">
+                <div id="submit_comment_collapse_^article_index^" class="panel-collapse collapse">
                     <div class="panel-body">
                         <form class="comment_form">
                             <fieldset>
-                                <div id="comment_error_{{$index}}" class="panel panel-danger" style="display: none">
+                                <div id="comment_error_^article_index^" class="panel panel-danger" style="display: none">
                                     <div class="panel-heading">
                                         ^loc_COMMENT_ERROR^
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <textarea id="comment_content_{{$index}}" name="comment_content" class="form-control"></textarea>
+                                    <textarea id="comment_content_^article_index^" name="comment_content" class="form-control"></textarea>
                                 </div>
-                                <button id="comment_submit_button_{{$index}}" type="button" class="btn btn-primary" onclick="submitComment($(this))">
+                                <button id="comment_submit_button_^article_index^" type="button" class="btn btn-primary" onclick="submitComment($(this))">
                                     <i class="fa fa-quote-right"></i>&nbsp;^loc_SUBMIT^
                                 </button>
                             </fieldset>
@@ -42,15 +42,15 @@
                     </button>
                 </a>
             </div>
-            <div id="comment_submitting_{{$index}}" class="row-fluid" style="display: none">
+            <div id="comment_submitting_^article_index^" class="row-fluid" style="display: none">
                 <div class="col-md-4 col-md-offset-4">
                     <div class="progress progress-striped active">
                         <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
                     </div>
                 </div>
             </div>
-            <div id="comment_container_{{$index}}">
-                <div class="well comment" ng-repeat="comment in article.comments">
+            <div id="comment_container_^article_index^">
+                <div class="well comment" ng-repeat="comment in articles[^article_index^].comments">
                     <span class="pull-left" ng-if="comment.commenter_photo">
                         <img class="media-object" ng-src="{{comment.commenter_photo}}" style="width: 3em; margin: 0 .5em .5em 0"></img>
                     </span>
@@ -66,7 +66,7 @@
         </div>
     </div>
 </div>
-<div id="user_comment_{{$index}}" style="display: none">
+<div id="user_comment_^article_index^" style="display: none">
     <div class="well comment">
         <span class="pull-left" ng-if="commentingUser.photo">
             <img class="media-object" ng-src="{{commentingUser.photo}}" style="width: 3em; margin: 0 .5em .5em 0"></img>

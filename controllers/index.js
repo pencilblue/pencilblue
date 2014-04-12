@@ -75,7 +75,6 @@ Index.prototype.processArticles = function(result, articles, themeSettings, cb) 
                 result = result.split('^current_url^').join(self.req.url);
                 
                 Comments.getCommentsTemplate(contentSettings, function(commentsTemplate) {
-                    result = result.split('^comments^').join(commentsTemplate);
                     
                     var loggedIn       = false;
                     var commentingUser = {};
@@ -83,25 +82,96 @@ Index.prototype.processArticles = function(result, articles, themeSettings, cb) 
                         loggedIn       = true;
                         commentingUser = Comments.getCommentingUser(self.session.authentication.user);
                     }
+                    
+                    self.getArticlesHTML(articles, commentsTemplate, contentSettings, function(articlesHTML) {
+                        result = result.split('^articles^').join(articlesHTML);
             
-                    var objects = {
-                        contentSettings: contentSettings,
-                        loggedIn: loggedIn,
-                        commentingUser: commentingUser,
-                        themeSettings: themeSettings,
-                        articles: articles,
-                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
-                    };
-                    var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
-                    result = result.concat(angularData);
-                
-                    var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
-                    cb({content: content});
+                        var objects = {
+                            contentSettings: contentSettings,
+                            loggedIn: loggedIn,
+                            commentingUser: commentingUser,
+                            themeSettings: themeSettings,
+                            articles: articles,
+                            trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+                        };
+                        var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
+                        result = result.concat(angularData);
+                    
+                        var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
+                        cb({content: content});
+                    });
                 });
             });
         });
     });
 };
+
+Index.prototype.getArticlesHTML = function(articles, commentsTemplate, contentSettings, cb) {
+    var self = this;
+    var articleTemplate = '';
+    var bylineTemplate = '';
+    
+    self.ts.load('elements/article', function(err, data) {
+        articleTemplate = data;
+        self.ts.load('elements/article/byline', function(err, data) {
+            bylineTemplate = data;
+                
+            if(!self.req.pencilblue_page) {
+                if(contentSettings.display_bylines) {
+                    articleTemplate = articleTemplate.split('^byline^').join(bylineTemplate);
+                }
+                else {
+                    articleTemplate = articleTemplate.split('^byline^').join('');
+                }
+            }
+            else {
+                articleTemplate = articleTemplate.split('^byline^').join('');
+            }
+            
+            articleTemplate = articleTemplate.split('^comments^').join(commentsTemplate);
+            
+            var result = '';
+            for(var i = 0; i < articles.length; i++)
+            {
+                var articleHTML = articleTemplate.split('^article_id^').join(articles[i]._id.toString());
+                articleHTML = articleHTML.split('^article_index^').join(i.toString());
+                articleHTML = articleHTML.split('^article_url^').join(articles[i].url);
+                articleHTML = articleHTML.split('^author_photo^').join(articles[i].author_photo);
+                articleHTML = articleHTML.split('^author_name^').join(articles[i].author_name);
+                articleHTML = articleHTML.split('^author_position^').join(articles[i].author_position);
+                
+                if(articles.length > 1) {
+                    articleHTML = articleHTML.split('^article_headline^').join('<a href="' + pb.config.siteRoot + '/article/' + articles[i].url + '">' + articles[i].headline + '</a>');
+                }
+                else {
+                    articleHTML = articleHTML.split('^article_headline^').join(articles[i].headline);
+                }
+                
+                if(articles[i].subheading) {
+                    articleHTML = articleHTML.split('^article_subheading^').join(articles[i].subheading);
+                    articleHTML = articleHTML.split('^article_subheading_display^').join('');
+                }
+                else {
+                    articleHTML = articleHTML.split('^article_subheading_display^').join('display: none');
+                }
+                
+                if(contentSettings.display_timestamp) {
+                    articleHTML = articleHTML.split('^article_timestamp^').join(articles[i].timestamp);
+                    articleHTML = articleHTML.split('^article_timestamp_display^').join('');
+                }
+                else {
+                    articleHTML = articleHTML.split('^article_timestamp_display^').join('display: none');
+                }
+                
+                articleHTML = articleHTML.split('^article_layout^').join(articles[i].layout);
+                
+                result = result.concat(articleHTML);
+            }
+            
+            cb(result);
+        });
+    });
+}
 
 Index.prototype.getPageName = function() {
 	return pb.config.siteName;

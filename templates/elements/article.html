@@ -1,23 +1,11 @@
-<div id="no_articles" ng-if="articles.length == 0">
-    ^loc_NO_ARTICLES^
-</div>
-<div id="article_{{article._id}}" class="article" article-index="{{$index}}" ng-repeat="article in articles" ng-cloak>
+<div id="article_^article_id^" class="article" article-index="^article_index^">
     <div class="col-md-8 col-md-offset-2">
-        <h1 ng-if="articles.length > 1"><a ng-href="/article/{{article.url}}">{{article.headline}}</a></h1>
-        <h1 ng-if="articles.length == 1">{{article.headline}}</h1>
-        <h3 ng-if="article.subheading.length > 0">{{article.subheading}}</h3>
+        <h1>^article_headline^</h1>
+        <h3 style="^article_subheading_display^">^article_subheading^</h3>
         <div class="article_body">
-            <div class="media byline" ng-if="contentSettings.display_bylines && article.object_type == 'article'">
-                <span class="pull-left" ng-if="article.author_photo">
-                    <img class="media-object" ng-src="{{article.author_photo}}" style="width: 5em"></img>
-                </span>
-                <div class="media-body" style="{{article.media_body_style}}">
-                    <h4 class="media-heading">{{article.author_name}}</h4>
-                    {{article.author_position}}
-                </div>
-            </div>
-            <div class="timestamp" ng-if="article.timestamp">{{article.timestamp}}</div>
-            <span ng-bind-html="trustHTML(article.layout)"></span>
+            ^byline^
+            <div class="timestamp" style="^article_timestamp_display^">^article_timestamp^</div>
+            ^article_layout^
         </div>
         ^comments^
         <div class="spacer"></div>
