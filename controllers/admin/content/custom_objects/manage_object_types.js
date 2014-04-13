@@ -35,30 +35,25 @@ ManageObjectTypes.prototype.render = function(cb) {
         });
     
         self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
-        self.ts.load('admin/content/custom_objects/manage_object_types', function(err, data) {
-            var result = ''+data;
-                
-            self.displayErrorOrSuccess(result, function(newResult) {
-                result = newResult;
-                
-                var pills = require('../custom_objects').getPillNavOptions('manage_object_types');
-                pills.unshift(
-                {
-                    name: 'manage_object_types',
-                    title: self.ls.get('MANAGE_OBJECT_TYPES'),
-                    icon: 'refresh',
-                    href: '/admin/content/custom_objects/manage_object_types'
-                });
-                
-                result = result.concat(pb.js.getAngularController(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                    pills: pills,
-                    customObjectTypes: customObjectTypes
-                }, [], 'initObjectTypesPagination()'));
-                
-                cb({content: result});
+        self.ts.load('admin/content/custom_objects/manage_object_types', function(err, result) {
+
+            var pills = require('../custom_objects').getPillNavOptions('manage_object_types');
+            pills.unshift(
+            {
+                name: 'manage_object_types',
+                title: self.ls.get('MANAGE_OBJECT_TYPES'),
+                icon: 'refresh',
+                href: '/admin/content/custom_objects/manage_object_types'
             });
+            
+            result = result.concat(pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                pills: pills,
+                customObjectTypes: customObjectTypes
+            }, [], 'initObjectTypesPagination()'));
+            
+            cb({content: result});
         });
     });
 };

@@ -265,7 +265,7 @@ function getDefaultNavigation(ls) {
                     id: 'account',
                     title: ls.get('ACCOUNT'),
                     icon: 'user',
-                    href: '#',
+                    href: '/user/manage_account',
                     access: ACCESS_WRITER
                 },
                 {

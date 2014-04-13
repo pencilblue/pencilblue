@@ -26,8 +26,7 @@ ImportTopics.prototype.render = function(cb) {
 	var self = this;
 	
 	this.setPageName(this.ls.get('NEW_TOPIC'));
-	this.ts.load('admin/content/topics/import_topics', function(err, data) {
-        var result = '' + data;
+	this.ts.load('admin/content/topics/import_topics', function(err, result) {
         var tabs   =
         [
             {
@@ -37,28 +36,24 @@ ImportTopics.prototype.render = function(cb) {
                 title: self.ls.get('LOAD_FILE')
             }
         ];
-        
-        self.displayErrorOrSuccess(result, function(newResult) {
-            result = newResult;
             
-            var pills = Topics.getPillNavOptions('import_topics');
-            pills.unshift(
-            {
-                name: 'manage_topics',
-                title: self.ls.get('IMPORT_TOPICS'),
-                icon: 'chevron-left',
-                href: '/admin/content/topics/manage_topics'
-            });
-            
-            result = result.concat(pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-                pills: pills,
-                tabs: tabs
-            }));
-
-            cb({content: result});
+        var pills = Topics.getPillNavOptions('import_topics');
+        pills.unshift(
+        {
+            name: 'manage_topics',
+            title: self.ls.get('IMPORT_TOPICS'),
+            icon: 'chevron-left',
+            href: '/admin/content/topics/manage_topics'
         });
+        
+        result = result.concat(pb.js.getAngularController(
+        {
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
+            pills: pills,
+            tabs: tabs
+        }));
+
+        cb({content: result});
     });
 };
 
