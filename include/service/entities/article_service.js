@@ -68,13 +68,11 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
 		if(contentSettings.display_bylines) {
 	        
 	        for(var j = 0; j < authors.length; j++) {
-	            
+
 	        	if(authors[j]._id.equals(ObjectID(article.author))) {
 	                if(authors[j].photo && contentSettings.display_author_photo) {
-	                    article.author_photo = authors[j].photo;
-	                }
-	                else {
-	                    article.media_body_style = 'height: auto';
+	                    article.author_photo     = authors[j].photo;
+	                    article.media_body_style = '';
 	                }
 	                
 	                article.author_name     = pb.users.getFormattedName(authors[j]);

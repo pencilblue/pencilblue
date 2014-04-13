@@ -26,7 +26,7 @@ NewObjectType.prototype.render = function(cb) {
             {
                 href: '#object_fields',
                 icon: 'list-ul',
-                title: self.ls.get('loc_FIELDS')
+                title: self.ls.get('FIELDS')
             }
         ];
         
