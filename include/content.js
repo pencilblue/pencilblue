@@ -13,6 +13,7 @@ ContentService.getSettings = function(cb){
 	pb.settings.get('content_settings', function(err, settings){
 		if (settings == null) {
 			settings = ContentService.getDefaultSettings();
+			pb.settings.set('content_settings', settings, pb.utils.cb);
 		}
 		cb(err, settings);
 	});
@@ -30,10 +31,12 @@ ContentService.getDefaultSettings = function() {
         display_hours_minutes: 1,
         time_format: '12',
         display_bylines: 1,
-        display_writer_photo: 1,
-        display_writer_position: 1,
+        display_author_photo: 1,
+        display_author_position: 1,
         allow_comments: 1,
-        default_comments: 1
+        default_comments: 1,
+        require_account: 0,
+        require_verification: 0
     };
 };
 

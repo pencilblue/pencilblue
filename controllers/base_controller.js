@@ -11,6 +11,12 @@ function BaseController(){};
 BaseController.API_SUCCESS = 0;
 BaseController.API_FAILURE = 1;
 
+var FORM_REFILL_PATTERN = 'if(typeof refillForm !== "undefined") {' + "\n" +
+	'$(document).ready(function(){'+ "\n" + 
+		'refillForm(%s)});}';
+
+var ALERT_PATTERN = '<div class="alert %s error_success">%s<a href="javascript:$(\'.alert-danger.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>';
+
 BaseController.prototype.init = function(props, cb) {
 	this.req                 = props.request;
 	this.res                 = props.response;
@@ -23,14 +29,30 @@ BaseController.prototype.init = function(props, cb) {
 	
 	var self = this;
 	this.templateService     = new pb.TemplateService(this.localizationService);
+	this.templateService.registerLocal('locale', this.ls.language);
 	this.templateService.registerLocal('error_success', function(flag, cb) {
 		self.displayErrorOrSuccessCallback(flag, cb);
 	});
 	this.templateService.registerLocal('page_name', function(flag, cb) {
 		cb(null, self.getPageName());
 	});
+	this.templateService.registerLocal('localization_script', function(flag, cb) {
+		self.requiresClientLocalizationCallback(flag, cb);
+	});
 	this.ts = this.templateService;
 	cb();
+};
+
+BaseController.prototype.requiresClientLocalization = function() {
+	return true;
+};
+
+BaseController.prototype.requiresClientLocalizationCallback = function(flag, cb) {
+	var val = '';
+	if (this.requiresClientLocalization()) {
+		val = pb.js.includeJS(pb.utils.urlJoin('/localization', this.ls.language.replace('_', '-') + '.js'));
+	}
+	cb(null, val);
 };
 
 BaseController.prototype.formError = function(message, redirectLocation, cb) {
@@ -43,35 +65,16 @@ BaseController.prototype.displayErrorOrSuccessCallback = function(flag, cb) {
     if(this.session['error']) {
     	var error = this.session['error'];
         delete this.session['error'];
-        cb(null, '<div class="alert alert-danger error_success">' + this.localizationService.get(error) + '<a href="javascript:$(\'.alert-danger.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+        cb(null, util.format(ALERT_PATTERN, 'alert-danger', this.localizationService.get(error)));
     }
     else if(this.session['success']) {
     	var success = this.session['success'];
         delete this.session['success'];
-        cb(null, '<div class="alert alert-success error_success">' + this.localizationService.get(success) + '<a href="javascript:$(\'.alert-success.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
+        cb(null, util.format(ALERT_PATTERN, 'alert-success', this.localizationService.get(success)));
     }
     else {
         cb(null, '');
     }
-};
-
-/**
- * TODO - Remove after localization and templating refactor
- */
-BaseController.prototype.displayErrorOrSuccess = function(result, cb) {
-    if(this.session['error']) {
-        result = result.split('^error_success^').join('<div class="alert alert-danger error_success">' + this.session['error'] + '<a href="javascript:$(\'.alert-danger.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
-        delete this.session['error'];
-    }
-    else if(this.session['success']) {
-        result = result.split('^error_success^').join('<div class="alert alert-success error_success">' + this.session['success'] + '<a href="javascript:$(\'.alert-success.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>');
-        delete this.session['success'];
-    }
-    else {
-        result = result.split('^error_success^').join('');
-    }
-    
-    cb(result);
 };
 
 /**
@@ -135,10 +138,6 @@ BaseController.prototype.hasRequiredParams = function(queryObject, requiredParam
     return null;
 };
 
-BaseController.prototype.prepareFormReturns = function(result, cb) {
-	this.checkForFormRefill(result, cb);
-};
-
 BaseController.prototype.setFormFieldValues = function(post) {
     this.session.fieldValues = post;
     return this.session;
@@ -146,7 +145,8 @@ BaseController.prototype.setFormFieldValues = function(post) {
 
 BaseController.prototype.checkForFormRefill = function(result, cb) {
     if(this.session.fieldValues) {
-        var formScript = pb.js.getJSTag('if(typeof refillForm !== "undefined") $(document).ready(function(){refillForm(' + JSON.stringify(this.session.fieldValues) + ')})');
+    	var content    = util.format(FORM_REFILL_PATTERN, JSON.stringify(this.session.fieldValues));
+        var formScript = pb.js.getJSTag(content);
         result         = result.concat(formScript);
         
         delete this.session.fieldValues;

@@ -18,13 +18,12 @@ util.inherits(Index, pb.BaseController);
 Index.prototype.render = function(cb) {
 	var self = this;
 	
-	this.ts.load('index', function(err, data) {
-        var result = data;
-                        
-        TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
-            TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
-                result = result.split('^navigation^').join(navigation);
-                result = result.split('^account_buttons^').join(accountButtons);
+	TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
+        TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
+			
+        	self.ts.registerLocal('navigation', navigation);
+        	self.ts.registerLocal('account_buttons', accountButtons);
+        	self.ts.load('index', function(err, result) {
                 
                 //create callback to be issued by all the find calls
                 var articleCallback = function(err, articles) {
@@ -38,7 +37,7 @@ Index.prototype.render = function(cb) {
                 var page    = self.req.pencilblue_page    || null;
                 
                 var service = new ArticleService();
-                if(section) {pb.log.debug('section=%s to=%s', util.inspect(section), typeof section);
+                if(section) {
                     service.findBySection(section, articleCallback);
                 }
                 else if(topic) {
@@ -171,7 +170,7 @@ Index.prototype.getArticlesHTML = function(articles, commentsTemplate, contentSe
             cb(result);
         });
     });
-}
+};
 
 Index.prototype.getPageName = function() {
 	return pb.config.siteName;
