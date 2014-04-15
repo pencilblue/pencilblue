@@ -121,6 +121,24 @@ function validateMediaURL(mediaURL, isFile)
         setMediaValues(isFile, 'instagram', videoID);
         previewInstagram(videoID);
     }
+    else if(mediaURL.indexOf('slideshare.net') != -1)
+    {
+        if(mediaURL.substr(mediaURL.length - 1) == '/')
+        {
+            mediaURL = mediaURL.substr(0, mediaURL.length - 1);
+        }
+        $.getJSON('http://www.slideshare.net/api/oembed/2?url=' + mediaURL + '&format=jsonp&callback=?', function(data)
+        {
+            var slideshowID = data.slideshow_id;
+            if(!slideshowID)
+            {
+                $('#media_modal').modal('hide');
+                return;
+            }
+            setMediaValues(isFile, 'slideshare', slideshowID);
+            previewSlideshare(slideshowID);
+        });
+    }
 }
 
 function getMediaThumb(type, location, output)
@@ -150,6 +168,9 @@ function getMediaThumb(type, location, output)
             break;
         case 'instagram':
             output('');
+            break;
+        case 'slideshare':
+            output(location);
             break;
         default:
             return '';
@@ -190,4 +211,9 @@ function previewVine(videoID)
 function previewInstagram(videoID)
 {
     $('#media_display').html('<iframe src="//instagram.com/p/' + videoID + '/embed/" width="300" height="350" frameborder="0" scrolling="no" allowtransparency="true"></iframe>');
+}
+
+function previewSlideshare(slideshowID)
+{
+    $('#media_display').html('<iframe src="http://www.slideshare.net/slideshow/embed_code/' + slideshowID + '" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" allowfullscreen></iframe>');
 }

@@ -1,6 +1,6 @@
 var siteRoot;
 var saveMediaURL;
-var mediaItemTemplate = '<div id="media_^media_id^" class="label label-default media_item"><i class="fa fa-bars"></i>&nbsp;<span class="media_name">^media_name^</span><a href="^media_link^" target="_blank"><i class="fa fa-^media_icon^"></i>&nbsp;</a></div>'
+var mediaItemTemplate = '<div id="media_^media_id^" class="label label-default media_item"><i class="fa fa-bars"></i>&nbsp;<span class="media_name">^media_name^</span><a href="^media_link^" target="_blank">&nbsp;<i class="fa fa-^media_icon^"></i></a></div>'
 
 $(document).ready(function()
 {
@@ -131,6 +131,8 @@ function getMediaIcon(mediaType)
             return 'twitter'; //vine icon slated for fontawesome 4.1.0
         case 'instagram':
             return 'instagram';
+        case 'slideshare':
+            return 'list-alt';
         default:
             return 'question';
             break;
@@ -152,6 +154,10 @@ function getMediaLink(mediaType, mediaLocation, isFile)
             return 'https://vine.co/v/' + mediaLocation;
         case 'instagram':
             return 'http://instagram.com/p/' + mediaLocation;
+        case 'instagram':
+            return 'http://instagram.com/p/' + mediaLocation;
+        case 'slideshare':
+            return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':

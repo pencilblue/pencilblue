@@ -61,6 +61,8 @@ Media.getMediaIcon = function(mediaType) {
             return 'twitter'; //vine icon slated for fontawesome 4.1.0
         case 'instagram':
             return 'instagram';
+        case 'slideshare':
+            return 'list-alt';
         default:
             return 'question';
             break;
@@ -79,6 +81,8 @@ Media.getMediaLink = function(mediaType, mediaLocation, isFile) {
             return 'https://vine.co/v/' + mediaLocation;
         case 'instagram':
             return 'http://instagram.com/p/' + mediaLocation;
+        case 'slideshare':
+            return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':
