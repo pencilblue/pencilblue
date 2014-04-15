@@ -15,7 +15,7 @@ var FORM_REFILL_PATTERN = 'if(typeof refillForm !== "undefined") {' + "\n" +
 	'$(document).ready(function(){'+ "\n" + 
 		'refillForm(%s)});}';
 
-var ALERT_PATTERN = '<div class="alert %s error_success">%s<a href="javascript:$(\'.alert-danger.error_success\').hide()"><i class="fa fa-times" style="float: right;"></i></a></div>';
+var ALERT_PATTERN = '<div class="alert %s error_success">%s<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
 
 BaseController.prototype.init = function(props, cb) {
 	this.req                 = props.request;
