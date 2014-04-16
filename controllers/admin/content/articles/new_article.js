@@ -33,7 +33,7 @@ NewArticle.prototype.render = function(cb) {
 	                
 	                var pills = self.getPills();
 	                result    = result.concat(self.getAngularController(pills, tabs, results));
-	                
+	                 
 	                cb({content: result});
 	            });
 	        });

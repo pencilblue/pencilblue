@@ -1,6 +1,6 @@
 var siteRoot;
 var saveMediaURL;
-var mediaItemTemplate = '<div id="media_^media_id^" class="col-md-3 media_item"><div class="panel panel-info"><div class="panel-heading"><div style="font-size: 1.5em"><i class="fa fa-bars"></i>&nbsp;^media_icon^&nbsp;<a href="javascript:window.open(\'^media_link^\', \'_blank\')"><i class="fa fa-eye" style="float: right; margin-right: .5em;"></i></a></div> <div class="media_name">^media_name^</div></div><div class="panel-footer"><span class="media_caption">^media_caption^</span></div></div></div>';
+var mediaItemTemplate = '<div id="media_^media_id^" class="label label-default media_item"><i class="fa fa-bars"></i>&nbsp;<span class="media_name">^media_name^</span><a href="^media_link^" target="_blank">&nbsp;<i class="fa fa-^media_icon^"></i></a></div>'
 
 $(document).ready(function()
 {
@@ -72,105 +72,6 @@ function showMediaModal(subsection)
     $('#media_modal').modal({backdrop: 'static', keyboard: true});
 }
 
-function validateMediaURL(mediaURL, isFile)
-{
-    if(mediaURL.length == 0)
-    {
-        return;
-    }
-    
-    var fileType = mediaURL.substr(mediaURL.lastIndexOf('.') + 1);
-    
-    switch(fileType)
-    {
-        case 'jpg':
-        case 'jpeg':
-        case 'png':
-        case 'gif':
-        case 'svg':
-            setMediaValues(isFile, 'image', mediaURL);
-            previewImage(mediaURL);
-            return;
-        case 'mp4':
-            setMediaValues(isFile, 'video/mp4', mediaURL);
-            previewHTML5Video(mediaURL, 'video/mp4');
-            return;
-        case 'webm':
-            setMediaValues(isFile, 'video/webm', mediaURL);
-            previewHTML5Video(mediaURL, 'video/webm');
-            return;
-        case 'ogv':
-            setMediaValues(isFile, 'video/ogg', mediaURL);
-            previewHTML5Video(mediaURL, 'video/ogg');
-            return;
-        default:
-            break;
-    }
-    
-    if(mediaURL.indexOf('youtube.com') != -1)
-    {
-        if(mediaURL.indexOf('v=') != -1)
-        {
-            var videoID = mediaURL.substr(mediaURL.indexOf('v=') + 2);
-            if(videoID.indexOf('&') != -1)
-            {
-                videoID = videoID.substr(0, videoID.indexOf('&'));
-            }
-            setMediaValues(isFile, 'youtube', videoID);
-            previewYouTube(videoID);
-        }
-    }
-    else if(mediaURL.indexOf('youtu.be') != -1)
-    {
-        if(mediaURL.indexOf('/') != -1)
-        {
-            var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-            if(videoID.indexOf('&') != -1)
-            {
-                videoID = videoID.substr(0, videoID.indexOf('&'));
-            }
-            setMediaValues(isFile, 'youtube', videoID);
-            previewYouTube(videoID);
-        }
-    }
-    else if(mediaURL.indexOf('vimeo.com') != -1)
-    {
-        if(mediaURL.indexOf('/') != -1)
-        {
-            var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-            if(videoID.indexOf('&') != -1)
-            {
-                videoID = videoID.substr(0, videoID.indexOf('&'));
-            }
-            setMediaValues(isFile, 'vimeo', videoID);
-            previewVimeo(videoID);
-        }
-    }
-    else if(mediaURL.indexOf('dailymotion.com/video/') != -1)
-    {
-        var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-        if(videoID.indexOf('&') != -1)
-        {
-            videoID = videoID.substr(0, videoID.indexOf('&'));
-        }
-        setMediaValues(isFile, 'daily_motion', videoID);
-        previewDailyMotion(videoID);
-    }
-    else if(mediaURL.indexOf('dai.ly') != -1)
-    {
-        if(mediaURL.indexOf('/') != -1)
-        {
-            var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-            if(videoID.indexOf('&') != -1)
-            {
-                videoID = videoID.substr(0, videoID.indexOf('&'));
-            }
-            setMediaValues(isFile, 'daily_motion', videoID);
-            previewDailyMotion(videoID);
-        }
-    }
-}
-
 function setMediaValues(isFile, type, location)
 {
     $('#is_file').prop('checked', isFile);
@@ -185,59 +86,6 @@ function setMediaValues(isFile, type, location)
     });
 }
 
-function getMediaThumb(type, location, output)
-{
-    switch(type)
-    {
-        case 'image':
-        case 'video/mp4':
-        case 'video/webm':
-        case 'video/ogg':
-            output(location);
-            break;
-        case 'youtube':
-            output('http://img.youtube.com/vi/' + location + '/0.jpg');
-            break;
-        case 'vimeo':
-            $.getJSON('http://vimeo.com/api/v2/video/' + location + '.json', function(data)
-            {
-                output(data[0].thumbnail_medium);
-            });
-            break;
-        case 'daily_motion':
-            output('http://www.dailymotion.com/thumbnail/video/' + location);
-            break;
-        default:
-            return '';
-            break;
-    }
-}
-
-function previewImage(mediaURL)
-{
-    $('#media_display').html('<img src="' + mediaURL + '" style="max-height: 200px;"/>');
-}
-
-function previewHTML5Video(mediaURL, codec)
-{
-    $('#media_display').html('<video style="max-height: 300px;" controls><source src="' + mediaURL + '" type="' + codec + '"></video>');
-}
-
-function previewYouTube(videoID)
-{
-    $('#media_display').html('<iframe width="420" height="315" src="//www.youtube.com/embed/' + videoID + '" frameborder="0" allowfullscreen></iframe>');
-}
-
-function previewVimeo(videoID)
-{
-    $('#media_display').html('<iframe src="//player.vimeo.com/video/' + videoID + '" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
-}
-
-function previewDailyMotion(videoID)
-{
-    $('#media_display').html('<iframe frameborder="0" width="480" height="270" src="http://www.dailymotion.com/embed/video/' + videoID + '"></iframe>');
-}
-
 // Saving -----------------------------------
 
 function checkForAddMediaSave()
@@ -246,10 +94,8 @@ function checkForAddMediaSave()
     {
         $('#media_topics').val(topicsCSV);
         
-        $.post(saveMediaURL, $('#media_modal fieldset').serialize(), function(data)
-        {
-            var newMedia = JSON.parse(data);
-            
+        $.post(saveMediaURL, $('#media_modal fieldset').serialize(), function(newMedia)
+        {            
             var mediaItemElement = mediaItemTemplate.split('^media_id^').join(newMedia._id.toString());
             mediaItemElement = mediaItemElement.split('^media_name^').join(newMedia.name);
             mediaItemElement = mediaItemElement.split('^media_icon^').join(getMediaIcon(newMedia.media_type));
@@ -267,27 +113,28 @@ function getMediaIcon(mediaType)
 {
     var iconID = '';
 
-    switch(mediaType)
-    {
+    switch(mediaType) {
         case 'image':
-            iconID = 'picture-o';
+            return 'picture-o';
             break;
         case 'video/mp4':
         case 'video/webm':
         case 'video/ogg':
-            iconID = 'film';
-            break;
+            return 'film';
         case 'youtube':
-            iconID = 'youtube';
-            break;
+            return 'youtube';
         case 'vimeo':
-            iconID = 'vimeo-square';
-            break;
+            return 'vimeo-square';
         case 'daily_motion':
-            iconID = 'play-circle-o';
-            break;
+            return 'play-circle-o';
+        case 'vine':
+            return 'twitter'; //vine icon slated for fontawesome 4.1.0
+        case 'instagram':
+            return 'instagram';
+        case 'slideshare':
+            return 'list-alt';
         default:
-            iconID = 'question';
+            return 'question';
             break;
     }
     
@@ -296,22 +143,28 @@ function getMediaIcon(mediaType)
 
 function getMediaLink(mediaType, mediaLocation, isFile)
 {
-    switch(mediaType)
-    {
+    switch(mediaType) {
         case 'youtube':
             return 'http://youtube.com/watch/?v=' + mediaLocation;
         case 'vimeo':
             return 'http://vimeo.com/' + mediaLocation;
         case 'daily_motion':
             return 'http://dailymotion.com/video/' + mediaLocation;
+        case 'vine':
+            return 'https://vine.co/v/' + mediaLocation;
+        case 'instagram':
+            return 'http://instagram.com/p/' + mediaLocation;
+        case 'instagram':
+            return 'http://instagram.com/p/' + mediaLocation;
+        case 'slideshare':
+            return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':
         case 'video/ogg':
         default:
-            if(isFile)
-            {
-                return siteRoot + mediaLocation;
+            if(isFile) {
+                return pb.config.siteRoot + mediaLocation;
             }
             return mediaLocation;
     }

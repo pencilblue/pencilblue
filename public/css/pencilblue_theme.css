@@ -16,7 +16,7 @@ a:hover
 {
     color: #5D5D5D;
     text-decoration: none;
-    outline.none;
+    outline: none;
 }
 
 .spacer
@@ -108,8 +108,8 @@ form .error
 
 .byline
 {
-    float: left;
     margin: 0 1em .5em 0;
+    min-width: 16em;
 }
 
 .byline .pull-left
@@ -156,7 +156,9 @@ form .error
     padding: .5em;
     font-size: .9em;
     border-radius: 0 0 .25em .25em;
-    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
 
 #login_logo
@@ -221,6 +223,14 @@ footer
     width: 100%;
     font-size: .9em;
     text-align: center;
+}
+
+@media(min-width: 480px)
+{
+    .byline
+    {
+        float: left;
+    }
 }
 
 @media(min-width: 768px)

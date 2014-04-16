@@ -37,6 +37,7 @@ NewPage.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
     
+    post = pb.DocumentCreator.formatIntegerItems(post, ['draft']); 
     var pageDocument = pb.DocumentCreator.create('page', post, ['meta_keywords', 'page_topics', 'page_media']);
     var dao          = new pb.DAO();
     dao.count('page', {url: pageDocument['url']}, function(err, count) {

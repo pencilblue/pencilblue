@@ -27,7 +27,7 @@
             </td>
             <td class="media_caption">{{mediaItem.caption}}</td>
             <td class="media_date">{{mediaItem.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-            <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
+            <td><a href="javascript:confirmDeleteMedia('{{mediaItem._id}}', '{{mediaItem.name}}')"><i class="fa fa-times"></i></a></td>
         </tr>
     </table>
     <ul id="media_pagination" class="pagination"></ul>

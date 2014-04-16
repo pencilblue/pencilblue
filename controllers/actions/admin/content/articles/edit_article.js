@@ -49,6 +49,7 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
         
         //TODO should we keep track of contributors (users who edit)?
         post['author']      = article['author'];
+        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
         pb.DocumentCreator.update(post, article, ['meta_keywords', 'article_sections', 'article_topics', 'article_media']);
         self.setFormFieldValues(post);
         

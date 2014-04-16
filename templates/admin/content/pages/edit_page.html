@@ -70,19 +70,14 @@
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
                 </button>&nbsp;
                 <div class="btn-group dropup">
-                    <button type="button" class="btn btn-primary" onclick="checkForEditPageSave()">
+                    <button type="button" class="btn btn-primary" onclick="checkForEditPageSave(false)">
                         <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                        <span class="caret"></span>
-                        <span class="sr-only">Toggle Dropdown</span>
+                        <i class="fa fa-sm fa-chevron-up"></i>
                     </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#">
-                                <i class="fa fa-paperclip"></i>&nbsp;^loc_SAVE_DRAFT^
-                            </a>
-                        </li>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="javascript:checkForEditPageSave(true)">^loc_SAVE_DRAFT^</a></li>
                     </ul>
                 </div>
             </div>

@@ -35,7 +35,7 @@ EditArticle.prototype.render = function(cb) {
             }
         }
         
-        self.article = article;
+        self.article             = article;
         article.article_media    = article.article_media.join(',');
         article.article_sections = article.article_sections.join(',');
         article.article_topics   = article.article_topics.join(',');

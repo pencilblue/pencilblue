@@ -11,7 +11,7 @@ function calculateColumnInches()
     var wordCount = $('#layout_editable').text().split(' ').length;
     var columnInches = (Math.floor(wordCount / 4) * 0.1).toFixed(1);
     
-    $('#column_inches').html('(' + columnInches + ' ' + loc.generic.COLUMN_INCHES + ')');
+    //$('#column_inches').html('(' + columnInches + ' ' + loc.generic.COLUMN_INCHES + ')');
 }
 
 function toggleLayoutFullscreen()

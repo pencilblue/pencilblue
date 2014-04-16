@@ -111,7 +111,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 		cursor.limit(limit);
 	}
 	
-	if(pb.log.isDebug()){
+	if(pb.log.isSilly()){
 		var query = "DAO: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
 		if (typeof orderBy !== 'undefined') {
 			query += " ORDER BY "+JSON.stringify(orderBy);
@@ -119,7 +119,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 		if (typeof limit !== 'undefined') {
 			query += " LIMITY "+JSON.stringify(limit)+", OFFSET "+offset;
 		}
-		pb.log.debug(query);
+		pb.log.silly(query);
 	}
 	return cursor;
 };

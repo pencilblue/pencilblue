@@ -7,7 +7,7 @@
 function Feed(){}
 
 //dependencies
-var Articles = require('../include/theme/articles');
+var MediaLoader = require('../include/service/entities/article_service').MediaLoader;
 
 //inheritance
 util.inherits(Feed, pb.BaseController);
@@ -26,10 +26,10 @@ Feed.prototype.render = function(cb) {
 			pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
 	            articles = articlesWithAuthorNames;
 	            
-	            Feed.getSectionNames(articles, function(articlesWithSectionNames) {
+	            self.getSectionNames(articles, function(articlesWithSectionNames) {
 	                articles = articlesWithSectionNames;
 	                
-	                Feed.getMedia(articles, function(articlesWithMedia) {
+	                self.getMedia(articles, function(articlesWithMedia) {
 	                    articles = articlesWithMedia;
 	                    
 	                    
@@ -42,12 +42,12 @@ Feed.prototype.render = function(cb) {
 	                    		self.ts.registerLocal('author', articles[i].author_name);
 	                    		self.ts.registerLocal('description', articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading);
 	                    		self.ts.registerLocal('content', articles[i].article_layout);
-	                    		self.ts.registerLocal('categories', function(flag, cb) {
+	                    		self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
 	                    			var categories = '';
 	                                for(var j = 0; j < articles[i].section_names.length; j++) {
 	                                    categories = categories.concat('<category>' + articles[i].section_names[j] + '</category>');
 	                                }
-	                                cb(null, categories);
+	                                onFlagProccessed(null, categories);
 	                    		});
 	                    		self.ts.load('xml_feeds/rss/item', callback);
 	                    	};
@@ -66,7 +66,7 @@ Feed.prototype.render = function(cb) {
 };
 
 
-Feed.getSectionNames = function(articles, cb) {
+Feed.prototype.getSectionNames = function(articles, cb) {
 	
 	var dao = new pb.DAO();
 	dao.query('section', pb.DAO.ANYWHERE, {name: 1}, {parent: 1}).then(function(sections) {
@@ -93,23 +93,21 @@ Feed.getSectionNames = function(articles, cb) {
     });
 };
 
-Feed.getMedia = function(articles, cb) {
-    var self = this;
+Feed.prototype.getMedia = function(articles, cb) {
     
-    this.addMediaToLayout = function(index) {
-        if(index >= articles.length) {
-            cb(articles);
-            return;
-        }
-    
-        Articles.loadMedia(articles[index].article_layout, function(layout) {
-            articles[index].article_layout = layout;
-            index++;
-            self.addMediaToLayout(index);
-        });
-    };
-    
-    self.addMediaToLayout(0);
+    var tasks = pb.utils.getTasks(articles, function(articles, i) {
+    	return function (callback) {
+    		
+    		var mediaLoader = new MediaLoader();
+    	    mediaLoader.start(articles[i].article_layout, function(err, newLayout) {
+    	        articles[i].layout = newLayout;
+    	        callback(null, articles[i]);
+    	    });
+    	};
+    });
+    async.series(tasks, function(err, articles) {
+    	cb(articles);
+    });
 };
 
 Feed.getRSSDate = function(date) {

@@ -38,6 +38,7 @@ NewArticle.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
     
+    post = pb.DocumentCreator.formatIntegerItems(post, ['draft']); 
     var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords', 'article_sections', 'article_topics', 'article_media']);
     pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {
         if(util.isError(err) || !isSafe)  {

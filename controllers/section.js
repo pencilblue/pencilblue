@@ -30,7 +30,7 @@ Section.prototype.render = function(cb) {
 };
 
 Section.prototype.getPageTitle = function() {
-	return section.name;
+	return this.section.name;
 };
 
 //exports
