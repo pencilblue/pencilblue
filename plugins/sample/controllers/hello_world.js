@@ -35,11 +35,15 @@ HelloWorld.prototype.render = function(cb) {
 	
 	textCreater.getText(function(err, text){
 		
-		self.setPageName('Hello World');
+		self.setPageName(self.ls.get('SAMPLE_HELLO_WORLD'));
 		self.ts.registerLocal('sample_text', text);
 		self.ts.load(path.join('sample', 'index'), function(err, template) {
-
-			content.content = template;
+			if (util.isError(err)) {
+				content.content = '<html><head><title>'+self.getPageName()+'</title></head><body><pre>'+err.stack+'</pre></body></html>';
+			}
+			else {
+				content.content = template;console.log(template);
+			}
 			cb(content);
 		});
 	});

@@ -589,6 +589,8 @@ PluginService.prototype.initPlugins = function(cb) {
  * @param {function} cb
  */
 PluginService.prototype.initPlugin = function(plugin, cb) {
+	var self = this;
+	
 	if (typeof plugin !== 'object') {
 		cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initilize the plugin'), null);
 		return;
@@ -661,13 +663,70 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
          
          //process localization
          function(callback) {
-        	 //TODO implement plugin specific localization
-        	 pb.log.warn('PluginService: Plugin specific localization is not yet supported');
-        	 callback(null, false);
+        	 
+        	 self.getLocalizations(plugin.dirName, function(err, localizations) {
+        		 for (var locale in localizations) {
+        			 if (pb.log.isDebug()) {
+        				 pb.log.debug('PluginService:[%s] Registering localizations for locale [%s]', details.uid, locale);
+        			 }
+        			 
+        			 var result = pb.Localization.registerLocalizations(locale, localizations[locale]);
+        			 if (!result && pb.log.isDebug()) {
+        				 pb.log.debug('PluginService:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', details.uid, locale);
+        			 }
+        		 }
+        		 callback(null, !util.isError(err));
+        	 });
          }
     ];
 	async.series(tasks, function(err, results) {
+		//cleanup on error
+		if (util.isError(err) && details && details.uid) {
+			delete ACTIVE_PLUGINS[details.uid];
+		}
+		
+		//callback with final result
 		cb(err, !util.isError(err));
+	});
+};
+
+PluginService.prototype.getLocalizations = function(pluginDirName, cb) {
+	var localizationDir = path.join(PluginService.getPublicPath(pluginDirName), 'localization');
+	
+	fs.readdir(localizationDir, function(err, files) {
+		if (util.isError(err)) {
+			cb(err, null);
+			return;
+		}
+		
+		var localizations = {};
+		var tasks = pb.utils.getTasks(files, function(files, index) {
+			return function(callback) {
+				
+				var pathToLocalization = path.join(localizationDir, files[index]);
+				fs.readFile(pathToLocalization, function(err, json) {
+					if (!util.isError(err)) {
+						
+						//attempt to parse JSON and set service
+						try {
+							var localization    = JSON.parse(json);
+							var name            = PluginService.getServiceName(pathToLocalization);
+							localizations[name] = localization;
+						}
+						catch(e) {
+							pb.log.warn('PluginService:[%s] Failed to parse localization JSON file at [%s]. %s', pluginDirName, pathToLocalization, e.stack);
+						}
+					}
+					else {
+						pb.log.warn('PluginService:[%s] Failed to load localization JSON file at [%s]', pluginDirName, pathToLocalization);
+					}
+					callback(null, true);
+				});
+			};
+		});
+		async.parallel(tasks, function(err, results) {
+			cb(err, localizations);
+		});
 	});
 };
 
@@ -1069,6 +1128,7 @@ PluginService.getServices = function(pathToPlugin, cb) {
 	fs.readdir(servicesDir, function(err, files) {
 		if (util.isError(err)) {
 			cb(err, null);
+			return;
 		}
 		
 		var services = {};

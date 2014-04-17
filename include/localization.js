@@ -127,14 +127,71 @@ Localization.init = function() {
 	Localization.storage = {};
 	for (var i = 0; i < pb.config.locales.supported.length; i++) {
 		
+		var obj              = {generic: {}};
 		var localeDescriptor = pb.config.locales.supported[i];
-		Localization.storage[localeDescriptor.locale.toLowerCase()] = require(localeDescriptor.file);
-		
+		try {
+			obj = require(localeDescriptor.file);
+		}
+		catch(e) {
+			pb.log.warn('Localization: Failed to load core localization file [%s]. Localization may be provided by a plugin', localeDescriptor.file);
+		}
+		Localization.storage[localeDescriptor.locale.toLowerCase()] = obj;
 		supportedLocales.push(localeDescriptor.locale);
 	}
 	
 	pb.log.debug("Localization: Supporting - " + JSON.stringify(supportedLocales));
 	Localization.supported = new locale.Locales(supportedLocales);
+};
+
+Localization.isSupported = function(locale) {
+	if (!locale) {
+		return false;
+	}
+	return Localization.getLocalizationPackage(locale) !== undefined;
+};
+
+Localization.getLocalizationPackage = function(locale) {
+	if (!locale) {
+		return null;
+	}
+	return Localization.storage[locale.replace('-', '_').toLowerCase()];
+};
+
+Localization.registerLocalizations = function(locale, localizations) {
+	if (!Localization.isSupported(locale)) {
+		return false;
+	}
+	for (var key in localizations) {
+		Localization.registerLocalization(locale, key, localizations[key]);
+	}
+	return true;
+};
+
+Localization.registerLocalization = function(locale, key, value) {
+	if (!Localization.isSupported(locale)) {
+		return false;
+	}
+	else if (typeof key !== 'string' || typeof value !== 'string') {
+		return false;
+	}
+	
+	var wasSet    = false;
+	var localeObj = Localization.getLocalizationPackage(locale);
+	for (var localizationArea in localeObj) {
+		
+		if (localeObj[localizationArea][key] !== undefined) {
+			localeObj[localizationArea][key] = value;
+			wasSet = true;
+			break;
+		}
+	}
+	
+	//the key was not already found in the core set so just add it to the 
+	//generic block.  All plugin localizations will end up here.
+	if (!wasSet) {
+		localeObj.generic[key] = value;
+	}
+	return true;
 };
 
 //exports
