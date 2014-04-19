@@ -9,8 +9,7 @@
 function HelloWorld(){}
 
 //dependencies
-var samplePlugin = pb.plugins.sample;
-var textCreater  = samplePlugin.text_creater;
+var textCreater  = pb.plugins.getService('text_creater', 'sample');
 
 //inheritance
 util.inherits(HelloWorld, pb.BaseController);
@@ -35,16 +34,22 @@ HelloWorld.prototype.render = function(cb) {
 	};
 	
 	textCreater.getText(function(err, text){
+		if (pb.log.isDebug()) {
+			pb.log.debug('HelloWorld: Retrieved [%s] from text service.', text);
+		}
 		
-		self.setPageName('Hello World');
+		self.setPageName(self.ls.get('SAMPLE_HELLO_WORLD'));
 		self.ts.registerLocal('sample_text', text);
 		self.ts.load(path.join('sample', 'index'), function(err, template) {
-
-			content.content = template;
+			if (util.isError(err)) {
+				content.content = '<html><head><title>'+self.getPageName()+'</title></head><body><pre>'+err.stack+'</pre></body></html>';
+			}
+			else {
+				content.content = template;
+			}
 			cb(content);
 		});
 	});
-	cb(content);
 };
 
 /**

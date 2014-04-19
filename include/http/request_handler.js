@@ -800,7 +800,8 @@ RequestHandler.registerRoute = function(descriptor, theme){
 		routeDescriptor = {
 			pattern: pattern,
 			path_vars: pathVars,
-			expression: new RegExp(pattern)
+			expression: new RegExp(pattern),
+			themes: {}
 		};
 		
 		//set them in storage
@@ -809,13 +810,32 @@ RequestHandler.registerRoute = function(descriptor, theme){
 	}
 	
 	//set the descriptor for the theme and load the controller type
-	routeDescriptor[theme]            = descriptor;
-	routeDescriptor[theme].controller = require(descriptor.controller);
+	routeDescriptor.themes[theme]            = descriptor;
+	routeDescriptor.themes[theme].controller = require(descriptor.controller);
 	
 	pb.log.debug("RequestHandler: Registered Route - Theme ["+theme+"] Path ["+descriptor.path+"] Pattern ["+pattern+"]");
 	return true;
 };
 
+/**
+ * Processes a request:
+ * <ol>
+ * 	<li>Initialize localization</li>
+ * 	<li>if Public Route:
+ * 		<ol>
+ * 			<li>If Valid Content
+ * 				<ol><li>Serve Public Content</li></ol>
+ * 			</li>
+ * 			<li>Else Serve 404</li>
+ * 		</ol>
+ * 	</li>
+ * 	<li>Else Parse Cookies</li>
+ * 	<li>Open/Create a session</li>
+ * 	<li>Get Route</li>
+ * 	
+ * </ol>
+ * @method handleRequest
+ */
 RequestHandler.prototype.handleRequest = function(){
 		
 	//get locale preference
@@ -972,8 +992,24 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 	var self = this;
 	
 	//check for unregistered route for theme
-	if (typeof route[activeTheme] == 'undefined') {
+	if (typeof route.themes[activeTheme] === 'undefined') {
+		
+		//try default route
 		activeTheme = RequestHandler.DEFAULT_THEME;
+		if (typeof route.themes[activeTheme] === 'undefined') {
+			
+			//custom route, just pull from first found
+			for(var theme in route.themes) {
+				activeTheme = theme;
+				break;
+			}
+		}
+	}
+	
+	//sanity check
+	if (typeof route.themes[activeTheme] === 'undefined') {
+		this.serve404();
+		return;
 	}
 	
 	//do security checks
@@ -1005,7 +1041,7 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 	}
 	
 	//execute controller
-	var ControllerType  = route[activeTheme].controller;
+	var ControllerType  = route.themes[activeTheme].controller;
 	var cInstance       = new ControllerType();
 	this.doRender(pathVars, cInstance);
 };
@@ -1027,7 +1063,7 @@ RequestHandler.prototype.doRender = function(pathVars, cInstance) {
 
 RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 	var self        = this;
-	this.themeRoute = this.route[activeTheme];
+	this.themeRoute = this.route.themes[activeTheme];
 	
 	//verify if setup is needed
 	var checkSystemSetup = function(callback) {
