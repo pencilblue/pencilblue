@@ -26,6 +26,9 @@ function TemplateService(localizationService){
 		this.localizationService = localizationService;
 	}
 	
+	//set the prioritized template as not specified
+	this.theme = null;
+	
 	//ensure template loader is initialized
 	if (TEMPLATE_LOADER === null) {
 		var objType  = 'template';
@@ -65,6 +68,58 @@ var GLOBAL_CALLBACKS = {
 	site_name: pb.config.siteName
 };
 
+TemplateService.prototype.setTheme = function(theme) {
+	this.theme = theme;
+};
+
+TemplateService.prototype.getTheme = function() {
+	return this.theme;
+};
+
+TemplateService.prototype.getTemplateContentsByPriority = function(relativePath, cb) {
+	
+	//build set of paths to search through
+	var hintedTheme   = this.getTheme();
+	var paths         = [];
+	if (hintedTheme) {
+		paths.push(TemplateService.getCustomPath(this.getTheme(), relativePath));
+	}
+	pb.settings.get('active_theme', function(err, activeTheme){
+		if (activeTheme !== null) {
+			paths.push(TemplateService.getCustomPath(activeTheme, relativePath));
+		}
+		
+		var activePlugins = pb.plugins.getActivePluginNames();
+		for (var i = 0; i < activePlugins.length; i++) {
+			if (hintedTheme !== activePlugins[i] && 'pencilblue' !== activePlugins[i]) {
+				paths.push(TemplateService.getCustomPath(activePlugins[i], relativePath));
+			}
+		}
+		paths.push(TemplateService.getDefaultPath(relativePath));
+		
+		//iterate over paths until a valid template is found
+		var i        = 0;
+		var doLoop   = true;
+		var template = null;
+		async.whilst(
+			function(){return i < paths.length && doLoop;},
+			function(callback) {
+	    		
+	    		//attempt to load template
+	    		TEMPLATE_LOADER.get(paths[i], function(err, templateData){
+					template = templateData;
+					doLoop   = template === null;
+					i++;
+					callback();
+				});
+			},
+			function(err) {
+				cb(err, template);
+			}
+		);
+	});
+};
+
 /**
  * Loads a template file along with any encountered sub-template files and 
  * processes any flags.  The call back provides any error encountered and a 
@@ -81,46 +136,55 @@ var GLOBAL_CALLBACKS = {
  */
 TemplateService.prototype.load = function(templateLocation, cb) {
 	
-var fileLocation = TemplateService.getDefaultPath(templateLocation);
+//var fileLocation = TemplateService.getDefaultPath(templateLocation);
 	var self = this;
+//	
+//	//check for an active theme
+//    pb.settings.get('active_theme', function(err, setting){
+//    	if (setting == null){
+//    		if (pb.log.isSilly()) {
+//				pb.log.silly("TemplateService: No Theme Template. Loading default template [%s]", fileLocation);
+//			}
+//    		
+//    		//just load default template
+//    		TEMPLATE_LOADER.get(fileLocation, function(err, defaultTemplateData){
+//				self.process(defaultTemplateData, cb);
+//			});
+//    		return;
+//    	}
+//    	
+//    	//check if custom these exists
+//    	var templatePath = TemplateService.getCustomPath(setting, templateLocation);    	
+//    	TEMPLATE_LOADER.get(templatePath, function(err, customTemplateData) {
+//    		
+//    		//custom template wasn't found
+//    		if(customTemplateData == null) {
+//    			if (pb.log.isSilly()) {
+//    				pb.log.silly("TemplateService: Loading default template [%s]", fileLocation);
+//    			}
+//    			
+//    			//just load default template
+//    			TEMPLATE_LOADER.get(fileLocation, function(err, defaultTemplateData){
+//    				self.process(defaultTemplateData, cb);
+//    			});
+//    		}
+//    		else{
+//    			if (pb.log.isSilly()) {
+//    				pb.log.silly("TemplateService: Loaded themed [%s] template [%s]", setting, fileLocation);
+//    			}
+//    			self.process(customTemplateData, cb);
+//    		}
+//    	});
+//    });
 	
-	//check for an active theme
-    pb.settings.get('active_theme', function(err, setting){
-    	if (setting == null){
-    		if (pb.log.isSilly()) {
-				pb.log.silly("TemplateService: No Theme Template. Loading default template [%s]", fileLocation);
-			}
-    		
-    		//just load default template
-    		TEMPLATE_LOADER.get(fileLocation, function(err, defaultTemplateData){
-				self.process(defaultTemplateData, cb);
-			});
-    		return;
-    	}
-    	
-    	//check if custom these exists
-    	var templatePath = TemplateService.getCustomPath(setting, templateLocation);    	
-    	TEMPLATE_LOADER.get(templatePath, function(err, customTemplateData) {
-    		
-    		//custom template wasn't found
-    		if(customTemplateData == null) {
-    			if (pb.log.isSilly()) {
-    				pb.log.silly("TemplateService: Loading default template [%s]", fileLocation);
-    			}
-    			
-    			//just load default template
-    			TEMPLATE_LOADER.get(fileLocation, function(err, defaultTemplateData){
-    				self.process(defaultTemplateData, cb);
-    			});
-    		}
-    		else{
-    			if (pb.log.isSilly()) {
-    				pb.log.silly("TemplateService: Loaded themed [%s] template [%s]", setting, fileLocation);
-    			}
-    			self.process(customTemplateData, cb);
-    		}
-    	});
-    });
+	this.getTemplateContentsByPriority(templateLocation, function(err, templateContents) {
+		if (util.isError(err)) {
+			cb(err, templateContents);
+			return;
+		}
+		
+		self.process(templateContents, cb);
+	});
 };
 
 /**

@@ -25,6 +25,10 @@ var PUBLIC_DIR_NAME   = 'public';
 //statics
 var ACTIVE_PLUGINS = {};
 
+PluginService.prototype.getActivePluginNames = function() {
+	return Object.keys(ACTIVE_PLUGINS);
+};
+
 /**
  * Retrieves a single setting for the specified plugin.  
  * 
