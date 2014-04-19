@@ -62,20 +62,46 @@ var TEMPLATE_LOADER = null;
 /**
  * A container that provides the mapping for global call backs.  These should 
  * only be added to at the start of the application or on plugin install/update.
+ * 
+ * @private
+ * @property
  */
 var GLOBAL_CALLBACKS = {
 	site_root: pb.config.siteRoot,
 	site_name: pb.config.siteName
 };
 
+/**
+ * Sets the prioritized theme to use when loading templates
+ * @method setTheme
+ * @param {string} theme The name of the theme.
+ */
 TemplateService.prototype.setTheme = function(theme) {
 	this.theme = theme;
 };
 
+/**
+ * @method getTheme
+ * @returns {string} The prioritized theme to use when loading templates
+ */
 TemplateService.prototype.getTheme = function() {
 	return this.theme;
 };
 
+/**
+ * Retrieves the raw template based on a priority.  The path to the template is 
+ * derived from the specified relative path and the following order of 
+ * directories:
+ * <ol>
+ * <li>The theme provided by "getTheme" if not null</li>
+ * <li>The globally set active_theme</li>
+ * <li>Iterates over the list of active plugins looking for the template</li>
+ * <li>The system template directory</li>
+ * </ol>
+ * @method getTemplateContentsByPriority
+ * @param {string} relativePath
+ * @param {function} cb
+ */
 TemplateService.prototype.getTemplateContentsByPriority = function(relativePath, cb) {
 	
 	//build set of paths to search through
@@ -126,57 +152,13 @@ TemplateService.prototype.getTemplateContentsByPriority = function(relativePath,
  * second parameter that is the transformed content.
  * 
  * @method load
- * @param {string} templateLocation The relative location of the template file 
- * in regards to one of the following locations:
- * <ol>
- * <li>pencilblue/templates/</>
- * <li>pencilblue/plugins/[active-theme]/templates/</li>
- * </ol>
+ * @see TemplateService#getTemplateContentsByPriority
+ * @param {string} templateLocation The relative location of the template file.
  * @param {function} cb A call back that provides two parameters: cb(error, content)
  */
 TemplateService.prototype.load = function(templateLocation, cb) {
 	
-//var fileLocation = TemplateService.getDefaultPath(templateLocation);
 	var self = this;
-//	
-//	//check for an active theme
-//    pb.settings.get('active_theme', function(err, setting){
-//    	if (setting == null){
-//    		if (pb.log.isSilly()) {
-//				pb.log.silly("TemplateService: No Theme Template. Loading default template [%s]", fileLocation);
-//			}
-//    		
-//    		//just load default template
-//    		TEMPLATE_LOADER.get(fileLocation, function(err, defaultTemplateData){
-//				self.process(defaultTemplateData, cb);
-//			});
-//    		return;
-//    	}
-//    	
-//    	//check if custom these exists
-//    	var templatePath = TemplateService.getCustomPath(setting, templateLocation);    	
-//    	TEMPLATE_LOADER.get(templatePath, function(err, customTemplateData) {
-//    		
-//    		//custom template wasn't found
-//    		if(customTemplateData == null) {
-//    			if (pb.log.isSilly()) {
-//    				pb.log.silly("TemplateService: Loading default template [%s]", fileLocation);
-//    			}
-//    			
-//    			//just load default template
-//    			TEMPLATE_LOADER.get(fileLocation, function(err, defaultTemplateData){
-//    				self.process(defaultTemplateData, cb);
-//    			});
-//    		}
-//    		else{
-//    			if (pb.log.isSilly()) {
-//    				pb.log.silly("TemplateService: Loaded themed [%s] template [%s]", setting, fileLocation);
-//    			}
-//    			self.process(customTemplateData, cb);
-//    		}
-//    	});
-//    });
-	
 	this.getTemplateContentsByPriority(templateLocation, function(err, templateContents) {
 		if (util.isError(err)) {
 			cb(err, templateContents);
@@ -390,7 +372,7 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
         	return;
         }
         
-        var detailsLocation = pb.PluginService.getDetailsPath(activeTheme);console.log(detailsLocation);
+        var detailsLocation = pb.PluginService.getDetailsPath(activeTheme);
         TEMPLATE_LOADER.get(detailsLocation, function(err, data) {
             if(util.isError(err) || data == null) {
                 cb(err, []);

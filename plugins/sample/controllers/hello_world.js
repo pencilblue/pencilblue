@@ -34,6 +34,9 @@ HelloWorld.prototype.render = function(cb) {
 	};
 	
 	textCreater.getText(function(err, text){
+		if (pb.log.isDebug()) {
+			pb.log.debug('HelloWorld: Retrieved [%s] from text service.', text);
+		}
 		
 		self.setPageName(self.ls.get('SAMPLE_HELLO_WORLD'));
 		self.ts.registerLocal('sample_text', text);
@@ -42,7 +45,7 @@ HelloWorld.prototype.render = function(cb) {
 				content.content = '<html><head><title>'+self.getPageName()+'</title></head><body><pre>'+err.stack+'</pre></body></html>';
 			}
 			else {
-				content.content = template;console.log(template);
+				content.content = template;
 			}
 			cb(content);
 		});

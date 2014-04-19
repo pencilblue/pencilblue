@@ -25,6 +25,12 @@ var PUBLIC_DIR_NAME   = 'public';
 //statics
 var ACTIVE_PLUGINS = {};
 
+/**
+ * Retrieves the names of the active plugins for this instance 
+ * @method getActivePluginNames
+ * @returns {array} An array that contain the names of the plugins that 
+ * initialized successfully within this instance.
+ */
 PluginService.prototype.getActivePluginNames = function() {
 	return Object.keys(ACTIVE_PLUGINS);
 };
