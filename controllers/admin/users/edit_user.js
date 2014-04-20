@@ -52,6 +52,13 @@ EditUser.prototype.render = function(cb) {
             var pills = Users.getPillNavOptions('edit_user');
             pills.unshift(
             {
+                name: 'change_password',
+                title: loc.users.PASSWORD,
+                icon: 'key',
+                href: '/admin/users/change_password/' + user._id.toString()
+            });
+            pills.unshift(
+            {
                 name: 'manage_users',
                 title: user.username,
                 icon: 'chevron-left',

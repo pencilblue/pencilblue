@@ -600,7 +600,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/custom_objects/edit_object/:type/:name",
+    	path: "/admin/content/custom_objects/edit_object/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object.js'),

@@ -12,37 +12,37 @@ util.inherits(EditObject, pb.BaseController);
 EditObject.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
-    if(!vars['type'] || !vars['name']) {
+    if(!vars['id']) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
         return;
     }
 	
 	var dao  = new pb.DAO();
-	dao.query('custom_object_type', {name: vars['type']}).then(function(customObjectTypes) {
-		if (util.isError(customObjectTypes)) {
+	dao.query('custom_object', {_id: ObjectID(vars['id'])}).then(function(customObjects) {
+		if (util.isError(customObjects)) {
 			//TODO handle this
 		}
 		
 		//none to manage
-        if(customObjectTypes.length == 0) {                
+        if(customObjects.length == 0) {                
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
             return;
         }
         
-        EditObject.loadFieldOptions(dao, customObjectTypes[0], function(objectType) {
-            dao.query('custom_object', {type: objectType._id.toString(), name: vars['name']}).then(function(customObjects) {
-		        if (util.isError(customObjectTypes)) {
-			        //TODO handle this
-		        }
-		
-		        //none to manage
-                if(customObjects.length == 0) {                
-                    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_objects/' + objectType.name));
-                    return;
-                }
-                
-                var customObject = customObjects[0];
-                
+        var customObject = customObjects[0];
+        
+        dao.query('custom_object_type', {_id: ObjectID(customObject.type)}).then(function(customObjectTypes) {
+	        if (util.isError(customObjectTypes)) {
+		        //TODO handle this
+	        }
+	
+	        //none to manage
+            if(customObjectTypes.length == 0) {                
+                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+                return;
+            }
+        
+            EditObject.loadFieldOptions(dao, customObjectTypes[0], function(objectType) {             
                 self.setPageName(self.ls.get('EDIT') + ' ' + customObject.name);
                 self.ts.registerLocal('object_id', customObject._id);
                 self.ts.load('admin/content/custom_objects/edit_object',  function(err, data) {
