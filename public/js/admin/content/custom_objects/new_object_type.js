@@ -10,11 +10,6 @@ $(document).ready(function()
             {
                 minlength: 2,
                 required: true
-            },
-            url:
-            {
-                minlength: 2,
-                required: true
             }
         }
     });
@@ -27,12 +22,6 @@ function resetNameAvailability()
 {
     $('#name_availability_button').attr('class', 'btn btn-default');
     $('#name_availability_button').html(loc.generic.CHECK);
-}
-
-function resetURLAvailability()
-{
-    $('#url_availability_button').attr('class', 'btn btn-default');
-    $('#url_availability_button').html(loc.generic.CHECK);
 }
 
 function validateName()
@@ -50,8 +39,6 @@ function validateName()
             {
                 $('#name_availability_button').attr('class', 'btn btn-success');
                 $('#name_availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.generic.AVAILABLE);
-                
-                setURLFromName();
             }
             else
             {
@@ -60,38 +47,6 @@ function validateName()
             }
         }
     });
-}
-
-function validateURL()
-{
-    if($('#url').val().length == 0)
-    {
-        return;
-    }
-    
-    $.getJSON('/api/custom_objects/get_object_type_url_available?url=' + $('#url').val(), function(response)
-    {
-        if(response.code == 0)
-        {
-            if(response.data)
-            {
-                $('#url_availability_button').attr('class', 'btn btn-success');
-                $('#url_availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.generic.AVAILABLE);
-            }
-            else
-            {
-                $('#url_availability_button').attr('class', 'btn btn-danger');
-                $('#url_availability_button').html('<i class="fa fa-ban"></i>&nbsp;' + loc.generic.UNAVAILABLE);
-            }
-        }
-    });
-}
-
-function setURLFromName()
-{
-    var url = $('#name').val().toLowerCase().split(' ').join('_');
-    $('#url').val(url);
-    validateURL();
 }
 
 function addCustomField(templateDiv)
