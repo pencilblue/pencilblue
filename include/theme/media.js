@@ -27,6 +27,8 @@ MediaService.getMediaEmbed = function(mediaObject, options) {
             
         case 'instagram':
             return '<iframe src="//instagram.com/p/' + mediaObject.location + '/embed/" width="400" height="475" frameborder="0" scrolling="no" allowtransparency="true"></iframe>';
+        case 'slideshare':
+            return '<iframe src="http://www.slideshare.net/slideshow/embed_code/' + mediaObject.location + '" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" allowfullscreen></iframe>';
     }
 };
 
