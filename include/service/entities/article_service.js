@@ -25,12 +25,13 @@ ArticleService.prototype.findByTopic = function(topicId, cb) {
 	this.find({article_topics: topicId}, cb);
 };
 
-ArticleService.prototype.find = function(where, cb) {
+ArticleService.prototype.find = function(where,  cb) {
 	var self = this;
 	
-	var dao = new pb.DAO();
+	var dao   = new pb.DAO();
+	var order = [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]];
 	where.publish_date = {$lt: new Date()};
-	dao.query(this.getContentType(), where).then(function(articles) {
+	dao.query(this.getContentType(), where, pb.DAO.SELECT_ALL, order).then(function(articles) {
 		if (util.isError(articles)) {
 			cb(articles, []);
 			return;
