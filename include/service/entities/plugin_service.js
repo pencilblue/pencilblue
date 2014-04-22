@@ -446,7 +446,7 @@ PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
          
          //unregister routes
          function(callback) {
-        	 var routesRemoved = pb.RequestHandler.unregisterThemeRoutes();
+        	 var routesRemoved = pb.RequestHandler.unregisterThemeRoutes(plugin.uid);
         	 pb.log.debug('PluginService:[%s] Unregistered %d routes', pluginUid, routesRemoved);
         	 process.nextTick(function(){callback(null, true);});
          },
@@ -463,14 +463,14 @@ PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
          
          //remove settings
          function(callback) {
-     		self.pluginSettingsService.purge(pluginName, function (err, result) {
+     		self.pluginSettingsService.purge(pluginUid, function (err, result) {
      			callback(err, !util.isError(err) && result);
      		});
          },
          
          //remove theme settings
          function(callback) {
-     		self.themeSettingsService.purge(pluginName, function (err, result) {
+     		self.themeSettingsService.purge(pluginUid, function (err, result) {
      			callback(err, !util.isError(err) && result);
      		});
          },

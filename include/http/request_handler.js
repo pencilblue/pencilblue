@@ -748,8 +748,10 @@ RequestHandler.isValidRoute = function(descriptor) {
 RequestHandler.unregisterThemeRoutes = function(theme) {
 	
 	var routesRemoved = 0;
-	for (var i = 0; i < RequestHandler.storage; i++) {
-		if (RequestHandler.unregisterRoute(RequestHandler.storage[i].path, theme)) {
+	for (var i = 0; i < RequestHandler.storage.length; i++) {
+		var path   = RequestHandler.storage[i].path;
+		var result = RequestHandler.unregisterRoute(path, theme);
+		if (result) {
 			routesRemoved++;
 		}
 	}
@@ -781,6 +783,7 @@ RequestHandler.unregisterRoute = function(path, theme) {
 	
 	//remove from service
 	delete descriptor.themes[theme];
+	return true;
 };
 
 RequestHandler.registerRoute = function(descriptor, theme){
