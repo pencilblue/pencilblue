@@ -146,6 +146,14 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'post',
+    	path: "/actions/admin/content/topics/delete_topic/:id",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'delete_topic.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'get',
     	path: "/admin/site_settings/configuration",
     	access_level: ACCESS_ADMINISTRATOR,
