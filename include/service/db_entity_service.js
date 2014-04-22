@@ -44,7 +44,7 @@ DBEntityService.prototype.set = function(key, value, cb) {
 	where[this.keyField] = key;
 	
 	var self = this;
-	dao.query('setting', where).then(function(result){
+	dao.query(this.objType, where).then(function(result){
 		if (util.isError(result)) {
 			cb(result, null);
 			return;
@@ -85,7 +85,7 @@ DBEntityService.prototype.set = function(key, value, cb) {
 DBEntityService.prototype.purge = function(key, cb) {
 	var dao              = new pb.DAO();
 	var where            = {};
-	where[this.keyField] = key;
+	where[this.valueField] = key;
 	dao.deleteMatching(where, this.objType).then(function(result){
 		if (util.isError(result)) {
 			cb(result, null);

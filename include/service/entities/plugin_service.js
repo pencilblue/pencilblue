@@ -409,6 +409,99 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 	});
 };
 
+PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
+	var self = this;
+	
+	//log start of operation
+	if (pb.log.isDebug()) {
+		pb.log.debug("PluginService:[%s] Attempting uninstall", pluginUid);
+	}
+	
+	//construct sequential tasks
+	var plugin = null;
+	var tasks = [
+	         
+         //load plugin
+         function(callback) {
+        	 pb.log.debug('PluginService:[%s] Attempting to load plugin ', pluginUid);
+        	 self.getPlugin(pluginUid, function(err, pluginObj) {
+        		plugin = pluginObj;
+        		callback(err, !util.isError(err));
+        	 });
+         },
+         
+         //call onUninstall
+         function(callback) {
+        	 var mm = ACTIVE_PLUGINS[pluginUid].main_module;
+        	 if (typeof mm.onUninstall === 'function') {
+        		 pb.log.debug('PluginService:[%s] Calling plugin onUnstall', pluginUid);
+        		 
+        		 mm.onUninstall(callback);
+        	 }
+        	 else {
+        		 pb.log.debug('PluginService:[%s] Plugin onUnstall function does not exist.  Skipping.', pluginUid);
+        		 callback(null, true);
+        	 }
+         },
+         
+         //unregister routes
+         function(callback) {
+        	 var routesRemoved = pb.RequestHandler.unregisterThemeRoutes(plugin.uid);
+        	 pb.log.debug('PluginService:[%s] Unregistered %d routes', pluginUid, routesRemoved);
+        	 process.nextTick(function(){callback(null, true);});
+         },
+         
+         //remove localization
+         function(callback) {
+        	 //TODO refactor localization to figure out how to remove only those 
+        	 //that were overriden. For now any overriden localizations will be 
+        	 //left until the server cycles.  This is not ideal but will suffice 
+        	 //for most use cases.  The only affected use case is if a default 
+        	 //label is overriden.
+        	 process.nextTick(function(){callback(null, false);});
+         },
+         
+         //remove settings
+         function(callback) {
+     		self.pluginSettingsService.purge(pluginUid, function (err, result) {
+     			callback(err, !util.isError(err) && result);
+     		});
+         },
+         
+         //remove theme settings
+         function(callback) {
+     		self.themeSettingsService.purge(pluginUid, function (err, result) {
+     			callback(err, !util.isError(err) && result);
+     		});
+         },
+         
+         //remove plugin record from "plugin" collection
+         function(callback) {
+        	 var dao = new pb.DAO();
+        	 dao.deleteById(plugin._id, 'plugin').then(function(result) {
+        		var error = util.isError(result) ? result : null;
+        		callback(error, error == null);
+        	 });
+         },
+         
+         //roll over to default theme
+         function(callback) {
+        	pb.settings.set('active_theme', 'pencilblue', function(err, result) {
+        		callback(err, result ? true : false);
+        	}); 
+         },
+         
+         //remove from ACTIVE_PLUGINS//unregister services
+         function(callback) {
+        	 delete ACTIVE_PLUGINS[pluginUid];
+        	 process.nextTick(function(){callback(null, false);});
+         }
+    ];
+	async.series(tasks, function(err, results) {
+		cb(err, !util.isError(err));
+	});
+};
+
 /**
  * Installs a plugin by stepping through a series of steps that must be 
  * completed in order.  There is currently no fallback plan for a failed install.
