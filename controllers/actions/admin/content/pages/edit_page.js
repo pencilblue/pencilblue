@@ -11,6 +11,7 @@ util.inherits(EditPage, pb.FormController);
 
 EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
+	var vars = this.pathVars;
 	
 	delete post['section_search'];
     delete post['topic_search'];
@@ -31,7 +32,7 @@ EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
     post['page_layout']  = decodeURIComponent(post['page_layout']);
     
     //merge in get params
-	pb.utils.merge(this.query, post);
+	pb.utils.merge(vars, post);
     
 	var message = this.hasRequiredParams(post, this.getRequiredParams());
     if(message) {
@@ -54,19 +55,19 @@ EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
         
         pb.RequestHandler.urlExists(page.url, post.id, function(err, exists) {
             if(util.isError(err) || exists) {
-                self.formError(self.ls.get('EXISTING_URL'), '/admin/content/pages/edit_page?id=' + post.id, cb);
+                self.formError(self.ls.get('EXISTING_URL'), '/admin/content/pages/edit_page/' + post.id, cb);
                 return;
             }
             
             dao.update(page).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/edit_page?id=' + post.id, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/edit_page/' + post.id, cb);
                     return;
                 }
                 
                 self.session.success = page.headline + ' ' + self.ls.get('EDITED');
                 delete self.session.fieldValues;
-                self.redirect(pb.config.siteRoot + '/admin/content/pages/manage_pages', cb);
+                self.redirect(pb.config.siteRoot + '/admin/content/pages/edit_page/' + post.id, cb);
             });
         });
     });

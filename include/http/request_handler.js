@@ -259,7 +259,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/pages/edit_page",
+    	path: "/admin/content/pages/edit_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'edit_page.js'),
@@ -267,7 +267,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/pages/edit_page",
+    	path: "/actions/admin/content/pages/edit_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'edit_page.js'),
@@ -283,7 +283,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/pages/delete_page",
+    	path: "/actions/admin/content/pages/delete_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),
