@@ -77,14 +77,14 @@ module.exports = {
 		});
 	},
 	
-	testInstall: function(test) {
-		
-		pb.plugins.installPlugin('sample', function(err, result) {
-			test.equals(null, err);
-			test.ok(result);
-			test.done();
-		});
-	},
+//	testInstall: function(test) {
+//		
+//		pb.plugins.installPlugin('sample', function(err, result) {
+//			test.equals(null, err);
+//			test.ok(result);
+//			test.done();
+//		});
+//	},
 	
 //	testInitPlugins: function(test) {
 //		
@@ -96,4 +96,12 @@ module.exports = {
 //			});
 //		});
 //	},
+	
+	testUninstall: function(test) {
+		
+		pb.plugins.unInstallPlugin('sample', function(err, results) {
+			test.equals(err, null);
+			test.done();
+		});
+	}
 };

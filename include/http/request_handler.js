@@ -745,6 +745,44 @@ RequestHandler.isValidRoute = function(descriptor) {
 		   typeof descriptor.path != 'undefined';
 };
 
+RequestHandler.unregisterThemeRoutes = function(theme) {
+	
+	var routesRemoved = 0;
+	for (var i = 0; i < RequestHandler.storage; i++) {
+		if (RequestHandler.unregisterRoute(RequestHandler.storage[i].path, theme)) {
+			routesRemoved++;
+		}
+	}
+	return routesRemoved;
+};
+
+RequestHandler.unregisterRoute = function(path, theme) {
+
+	//get the pattern to check for
+	var pattern    = null;
+	var patternObj = RequestHandler.getRoutePattern(path);
+	if (patternObj) {
+		pattern = patternObj.pattern;
+	}
+	else {//invalid path provided
+		return false;
+	}
+	
+	//check if that pattern is registered for any theme
+	if (RequestHandler.index[pattern] === undefined) {
+		return false;
+	}
+	
+	//check for theme
+	var descriptor = RequestHandler.storage[RequestHandler.index[pattern]];
+	if (!descriptor.themes[theme]) {
+		return false;
+	}
+	
+	//remove from service
+	delete descriptor.themes[theme];
+};
+
 RequestHandler.registerRoute = function(descriptor, theme){
 	//validate route
 	if (!RequestHandler.isValidRoute(descriptor)) {
@@ -757,8 +795,52 @@ RequestHandler.registerRoute = function(descriptor, theme){
 		descriptor.method = descriptor.method.toUpperCase();
 	}
 	
+	//get pattern and path variables
+	var patternObj = RequestHandler.getRoutePattern(descriptor.path);
+	var pathVars   = patternObj.pathVars;
+	var pattern    = patternObj.pattern;
+	
+	//insert it
+	var routeDescriptor = null;
+	if (RequestHandler.index[pattern] !== undefined) {
+		
+		//exists so find it
+		for (var i = 0; i < RequestHandler.storage.length; i++) {
+			var route = RequestHandler.storage[i];
+			if (route.pattern == pattern) {
+				routeDescriptor = route;
+				break;
+			}
+		}
+	}
+	else{//does not exist so create it
+		routeDescriptor = {
+			path: patternObj.path,
+			pattern: pattern,
+			path_vars: pathVars,
+			expression: new RegExp(pattern),
+			themes: {}
+		};
+		
+		//set them in storage
+		RequestHandler.index[pattern] = RequestHandler.storage.length;
+		RequestHandler.storage.push(routeDescriptor);
+	}
+	
+	//set the descriptor for the theme and load the controller type
+	routeDescriptor.themes[theme]            = descriptor;
+	routeDescriptor.themes[theme].controller = require(descriptor.controller);
+	
+	pb.log.debug("RequestHandler: Registered Route - Theme ["+theme+"] Path ["+descriptor.path+"] Pattern ["+pattern+"]");
+	return true;
+};
+
+RequestHandler.getRoutePattern = function(path) {
+	if (!path) {
+		return null;
+	}
+	
 	//clean up path
-	var path = descriptor.path;
 	if (path.indexOf('/') == 0) {
 		path = path.substring(1);
 	}
@@ -766,6 +848,7 @@ RequestHandler.registerRoute = function(descriptor, theme){
 		path = path.substring(0, path.length - 1);
 	}
 	
+	//construct the pattern & extract path variables
 	var pathVars = {};
 	var pattern = '^';
 	var pathPieces = path.split('/');
@@ -783,38 +866,11 @@ RequestHandler.registerRoute = function(descriptor, theme){
 	}
 	pattern += '[/]{0,1}$';
 	
-	//insert it
-	var routeDescriptor = null;
-	if (RequestHandler.index[pattern] == true) {
-		
-		//exists so find it
-		for (var i = 0; i < RequestHandler.storage.length; i++) {
-			var route = RequestHandler.storage[i];
-			if (route.pattern == pattern) {
-				routeDescriptor = route;
-				break;
-			}
-		}
-	}
-	else{//does not exist so create it
-		routeDescriptor = {
-			pattern: pattern,
-			path_vars: pathVars,
-			expression: new RegExp(pattern),
-			themes: {}
-		};
-		
-		//set them in storage
-		RequestHandler.storage.push(routeDescriptor);
-		RequestHandler.index[pattern] = true;
-	}
-	
-	//set the descriptor for the theme and load the controller type
-	routeDescriptor.themes[theme]            = descriptor;
-	routeDescriptor.themes[theme].controller = require(descriptor.controller);
-	
-	pb.log.debug("RequestHandler: Registered Route - Theme ["+theme+"] Path ["+descriptor.path+"] Pattern ["+pattern+"]");
-	return true;
+	return {
+		path: path,
+		pattern: pattern,
+		pathVars: pathVars
+	};
 };
 
 /**
