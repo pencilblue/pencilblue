@@ -379,7 +379,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/articles/delete_article",
+    	path: "/actions/admin/content/articles/delete_article/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
@@ -394,7 +394,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/articles/edit_article",
+    	path: "/admin/content/articles/edit_article/:id",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'edit_article.js'),
@@ -402,7 +402,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/articles/edit_article",
+    	path: "/actions/admin/content/articles/edit_article/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),

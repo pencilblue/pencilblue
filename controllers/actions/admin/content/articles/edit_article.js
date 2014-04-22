@@ -11,7 +11,7 @@ util.inherits(EditArticle, pb.FormController);
 
 EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
-	var get  = this.query;
+	var vars = this.pathVars;
     
     delete post['section_search'];
     delete post['topic_search'];
@@ -31,8 +31,8 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
     post['publish_date']   = new Date(post['publish_date']);
     post['article_layout'] = decodeURIComponent(post['article_layout']);
     
-    //add get params to post
-    pb.utils.merge(get, post);
+    //add vars to post
+    pb.utils.merge(vars, post);
     
     var message = this.hasRequiredParams(post, this.getRequiredFields());
     if (message) {
@@ -55,19 +55,19 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
         
         pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
             if(error != null || exists || article.url.indexOf('/admin') == 0) {
-                self.formError(self.ls.get('EXISTING_URL'), '/admin/content/articles/edit_article?id=' + get.id, cb);
+                self.formError(self.ls.get('EXISTING_URL'), '/admin/content/articles/edit_article/' + post.id, cb);
                 return;
             }
         
             dao.update(article).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/edit_article?id=' + get.id, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/edit_article/' + post.id, cb);
                     return;
                 }
                 
                 self.session.success = article.headline + ' ' + self.ls.get('EDITED');
                 delete self.session.fieldValues;
-                self.redirect(pb.config.siteRoot + '/admin/content/articles/manage_articles', cb);
+                self.redirect(pb.config.siteRoot + '/admin/content/articles/edit_article/' + post.id, cb);
             });
         });
     });
