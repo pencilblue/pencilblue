@@ -11,9 +11,10 @@ util.inherits(EditSection, pb.FormController);
 
 EditSection.prototype.onPostParamsRetrieved = function(post, cb){
 	var self = this; 
+	var vars = this.pathVars;
 	
 	//merge in get params
-	pb.utils.merge(this.query, post);
+	pb.utils.merge(this.pathVars, post);
 	
 	//verify required parameters exist
 	var message = this.hasRequiredParams(post, this.getRequiredFields());

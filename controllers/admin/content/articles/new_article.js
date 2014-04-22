@@ -32,7 +32,7 @@ NewArticle.prototype.render = function(cb) {
 	                result = newResult;
 	                
 	                var pills = self.getPills();
-	                result    = result.concat(self.getAngularController(pills, tabs, results));
+	                result    = result.split('^angular_script^').join(self.getAngularController(pills, tabs, results));
 	                 
 	                cb({content: result});
 	            });

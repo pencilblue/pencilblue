@@ -115,7 +115,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/sections/edit_section",
+    	path: "/admin/content/sections/edit_section/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections', 'edit_section.js'),
@@ -123,7 +123,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/actions/admin/content/sections/delete_section",
+    	path: "/actions/admin/content/sections/delete_section/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'delete_section.js'),
@@ -131,7 +131,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/sections/edit_section",
+    	path: "/actions/admin/content/sections/edit_section/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'edit_section.js'),
