@@ -51,7 +51,7 @@ AddMedia.prototype.render = function(cb) {
                 tabs: tabs,
                 topics: topics
             };
-            result = result.concat(pb.js.getAngularController(objects, [], 'initTopicsPagination()'));
+            result = result.split('^angular_script^').join(pb.js.getAngularController(objects, [], 'initTopicsPagination()'));
 
             cb({content: result});
         });

@@ -11,22 +11,22 @@ util.inherits(DeleteMedia, pb.FormController);
 
 DeleteMedia.prototype.onPostParamsRetrieved = function(post, cb) {
     var self = this;
-    var get  = this.query;
+    var vars = this.pathVars;
 
-    var message = this.hasRequiredParams(get, ['id']);
+    var message = this.hasRequiredParams(vars, ['id']);
     if(message) {
         this.formError(message, '/admin/content/media/manage_media', cb);
         return;
     }
      
     var dao = new pb.DAO();
-    dao.query('media', {_id: ObjectID(get.id)}).then(function(mediaData) {
+    dao.query('media', {_id: ObjectID(vars['id'])}).then(function(mediaData) {
         if(util.isError(mediaData) || mediaData.length == 0) {
             self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/media/manage_media', cb);
             return;
         }
         
-        dao.deleteById(get.id, 'media').then(function(recordsDeleted) {
+        dao.deleteById(vars['id'], 'media').then(function(recordsDeleted) {
             if(recordsDeleted <= 0) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/media/manage_media', cb);
                 return;
