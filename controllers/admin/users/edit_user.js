@@ -14,14 +14,14 @@ util.inherits(EditUser, pb.BaseController);
 
 EditUser.prototype.render = function(cb) {
 	var self = this;
-	var get  = this.query;
-    if(!get.id) {
+	var vars = this.pathVars;
+    if(!vars.id) {
         this.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
         return;
     }
     
     var dao = new pb.DAO();
-    dao.loadById(get.id, 'user', function(err, user) {
+    dao.loadById(vars['id'], 'user', function(err, user) {
         if(util.isError(err) || user == null) {
             self.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
             return;
@@ -65,7 +65,7 @@ EditUser.prototype.render = function(cb) {
                 href: '/admin/users/manage_users'
             });
             
-            result = result.concat(pb.js.getAngularController(
+            result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
                 pills: pills,

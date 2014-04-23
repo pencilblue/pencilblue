@@ -552,17 +552,31 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/users/edit_user",
+    	path: "/admin/users/edit_user/:id",
     	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'edit_user.js'),
     },
     {
     	method: 'post',
-    	path: "/actions/admin/users/edit_user",
+    	path: "/actions/admin/users/edit_user/:id",
     	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/admin/users/change_password/:id",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'change_password.js'),
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/users/change_password/:id",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'change_password.js'),
     },
     {
     	method: 'post',
