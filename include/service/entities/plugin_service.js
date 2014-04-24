@@ -409,6 +409,111 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 	});
 };
 
+PluginService.prototype.getActivePlugins = function(cb) {
+	
+	var where = {uid: {'$in': this.getActivePluginNames()}};
+	var order = {created: pb.DAO.ASC};
+	var dao   = new pb.DAO();
+	dao.query('plugin', where, pb.DAO.SELECT_ALL, order).then(function(results) {
+		if (util.isError(results)) {
+			cb(results, null);
+		}
+		else {
+			cb(null, results);
+		}
+	});
+};
+
+PluginService.prototype.getInactivePlugins = function(cb) {
+	var where = {uid: {'$nin': this.getActivePluginNames()}};
+	var order = {created: pb.DAO.ASC};
+	var dao   = new pb.DAO();
+	dao.query('plugin', where, pb.DAO.SELECT_ALL, order).then(function(results) {
+		if (util.isError(results)) {
+			cb(results, null);
+		}
+		else {
+			cb(null, results);
+		}
+	});
+};
+
+PluginService.prototype.getAvailablePlugins = function(cb) {
+	
+	pb.utils.getDirectories(PluginService.getPluginsDir(), function(err, directories) {
+		if (util.isError(err)) {
+			cb(err, null);
+			return;
+		}
+		
+		var plugins   = [];
+		var tasks     = pb.utils.getTasks(directories, function(directories, i) {
+			return function(callback) {
+				
+				//skip pencilblue
+				var parts   = directories[i].split(path.sep);
+				var dirName = parts[parts.length - 1];
+				if (dirName === 'pencilblue') {
+					callback(null, true);
+					return;
+				}
+				
+				var detailsFilePath = path.join(directories[i], DETAILS_FILE_NAME);
+				PluginService.loadDetailsFile(detailsFilePath, function(err, details) {
+					if (util.isError(err)) {
+						plugins.push({
+							uid: dirName, 
+							dirName: dirName, 
+							message: "An invalid details file was provided for plugin. "+err.stack
+						});
+						callback(null, false);
+						return;
+					}
+					
+					PluginService.validateDetails(details, dirName, function(err, result) {
+						if (util.isError(err)) {
+							plugins.push({
+								uid: dirName, 
+								dirName: dirName, 
+								message: "The plugin details file failed validation ",
+								validationErrors: err.validationErrors
+							});
+							callback(null, false);
+							return;
+						}
+						
+						details.dirName = dirName;
+						plugins.push(details);
+						callback(null, true);
+					});
+				});
+			};
+		});
+		async.series(tasks, function(err, results) {
+			cb(err, plugins);
+		});
+	});
+};
+
+PluginService.prototype.getPluginMap = function(cb) {
+	var self  = this;
+	var tasks = {
+         
+         active: function(callback) {
+        	 self.getActivePlugins(callback);
+         },
+         
+         inactive: function(callback) {
+        	 self.getInactivePlugins(callback);
+         },
+         
+         available: function(callback) {
+        	 self.getAvailablePlugins(callback);
+         }
+	};
+	async.series(tasks, cb);
+};
+
 PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
 	var self = this;
 	
