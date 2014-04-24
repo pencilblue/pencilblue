@@ -90,4 +90,22 @@ module.exports = {
 			});
 		});
 	},
+	
+	testGetPluginMap: function(test) {
+		
+		pb.plugins.getPluginMap(function(err, map) {
+			test.equals(null, err);
+			test.ok(map.active);
+			test.ok(map.inactive);
+			test.ok(map.available);
+			if (map.active && map.inactive && map.available) {
+				test.equals(map.active.length, 0);
+				test.equals(map.inactive.length, 0);
+				test.equals(map.available.length, 1);
+				test.equals(map.available[0].uid, 'sample');
+				test.equals(map.available[0].message, undefined);
+			}
+			test.done();
+		});
+	}
 };
