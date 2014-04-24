@@ -31,7 +31,7 @@ Index.prototype.render = function(cb) {
                         contentInfo: contentInfo
                     }
                 );
-                result = result.concat(angular);
+                result = result.split('^angular_script^').join(angular);
                 
                 cb({content: result});
             });

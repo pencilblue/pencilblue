@@ -115,7 +115,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/sections/edit_section",
+    	path: "/admin/content/sections/edit_section/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections', 'edit_section.js'),
@@ -123,7 +123,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/actions/admin/content/sections/delete_section",
+    	path: "/actions/admin/content/sections/delete_section/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'delete_section.js'),
@@ -131,7 +131,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/sections/edit_section",
+    	path: "/actions/admin/content/sections/edit_section/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'edit_section.js'),
@@ -143,6 +143,14 @@ RequestHandler.CORE_ROUTES = [
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'manage_topics.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/topics/delete_topic/:id",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'delete_topic.js'),
     	content_type: 'text/html'
     },
     {
@@ -251,7 +259,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/pages/edit_page",
+    	path: "/admin/content/pages/edit_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'edit_page.js'),
@@ -259,7 +267,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/pages/edit_page",
+    	path: "/actions/admin/content/pages/edit_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'edit_page.js'),
@@ -275,7 +283,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/pages/delete_page",
+    	path: "/actions/admin/content/pages/delete_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),
@@ -322,8 +330,24 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'get',
+    	path: "/admin/content/media/edit_media/:id",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'edit_media.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'post',
-    	path: "/actions/admin/content/media/delete_media",
+    	path: "/actions/admin/content/media/edit_media/:id",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'edit_media.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/media/delete_media/:id",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'delete_media.js'),
@@ -371,7 +395,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/articles/delete_article",
+    	path: "/actions/admin/content/articles/delete_article/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
@@ -386,7 +410,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/articles/edit_article",
+    	path: "/admin/content/articles/edit_article/:id",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'edit_article.js'),
@@ -394,7 +418,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/articles/edit_article",
+    	path: "/actions/admin/content/articles/edit_article/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),
@@ -528,17 +552,31 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/users/edit_user",
+    	path: "/admin/users/edit_user/:id",
     	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'edit_user.js'),
     },
     {
     	method: 'post',
-    	path: "/actions/admin/users/edit_user",
+    	path: "/actions/admin/users/edit_user/:id",
     	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/admin/users/change_password/:id",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'change_password.js'),
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/users/change_password/:id",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'change_password.js'),
     },
     {
     	method: 'post',

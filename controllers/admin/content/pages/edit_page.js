@@ -15,15 +15,15 @@ util.inherits(EditPage, pb.BaseController);
 
 EditPage.prototype.render = function(cb) {
 	var self = this;
+	var vars = this.pathVars;
 	
-	var get = this.query;
-    if(!get.id) {
+    if(!vars['id']) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
         return;
     }
     
     var dao = new pb.DAO();
-    dao.loadById(get.id, 'page', function(err, page) {
+    dao.loadById(vars['id'], 'page', function(err, page) {
         if(page == null) {
         	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
             return;
@@ -41,7 +41,7 @@ EditPage.prototype.render = function(cb) {
         }
 
         self.setPageName(page.headline);
-        self.ts.registerLocal('page_id', get.id);
+        self.ts.registerLocal('page_id', vars['id']);
         self.ts.load('admin/content/pages/edit_page', function(err, data) {
             var result = '' + data;
             var tabs   =
@@ -87,7 +87,7 @@ EditPage.prototype.render = function(cb) {
                                 href: '/admin/content/pages/manage_pages'
                             });
                             
-                            result = result.concat(pb.js.getAngularController(
+                            result = result.split('^angular_script^').join(pb.js.getAngularController(
                             {
                                 navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                                 pills: pills,

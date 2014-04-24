@@ -43,7 +43,7 @@ ManageArticles.prototype.render = function(cb) {
             });
             
             pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {                                
-                result = result.concat(pb.js.getAngularController(
+                result = result.split('^angular_script^').join(pb.js.getAngularController(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
                     pills: pills,

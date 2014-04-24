@@ -35,7 +35,7 @@ ManageMedia.prototype.render = function(cb) {
                 href: '/admin/content/media/manage_media'
             });
             
-            result = result.concat(pb.js.getAngularController(
+            result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
                 pills: pills,

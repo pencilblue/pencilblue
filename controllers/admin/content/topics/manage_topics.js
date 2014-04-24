@@ -48,7 +48,7 @@ ManageTopics.prototype.render = function(cb) {
                 href: '/admin/content/topics/manage_topics'
             });
             
-            result = result.concat(pb.js.getAngularController(
+            result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
                 pills: pills,

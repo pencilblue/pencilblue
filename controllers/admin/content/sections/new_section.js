@@ -54,7 +54,7 @@ NewSection.prototype.render = function(cb) {
                     editors: editors
                 };
                 var angularData = pb.js.getAngularController(objects);
-                result          = result.concat(angularData);
+                result          = result.split('^angular_script^').join(angularData);
                 cb({content: result});
             });
         });

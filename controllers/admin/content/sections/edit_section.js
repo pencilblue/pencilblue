@@ -11,15 +11,16 @@ util.inherits(EditSection, pb.BaseController);
 
 EditSection.prototype.render = function(cb) {
 	var self = this;
+	var vars = this.pathVars;
 	
 	//make sure an ID was passed
-    if(!this.query.id) {
+    if(!vars['id']) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/sections/section_map'));
         return;
     }
     
     var dao = new pb.DAO();
-    dao.loadById(this.query.id, 'section', function(err, section) {
+    dao.loadById(vars['id'], 'section', function(err, section) {
         if(section == null) {
         	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/sections/section_map'));
             return;
@@ -67,7 +68,7 @@ EditSection.prototype.render = function(cb) {
                         section: section
                     };
                     var angularData = pb.js.getAngularController(objects);
-                    result          = result.concat(angularData);
+                    result          = result.split('^angular_script^').join(angularData);
                     cb({content: result});
                 });
             });

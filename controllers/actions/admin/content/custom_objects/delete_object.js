@@ -11,16 +11,16 @@ util.inherits(DeleteObject, pb.FormController);
 
 DeleteObject.prototype.onPostParamsRetrieved = function(post, cb) {
     var self = this;
-    var get  = this.query;
+    var vars = this.pathVars;
 
-    var message = this.hasRequiredParams(get, ['id']);
+    var message = this.hasRequiredParams(vars, ['id']);
     if(message) {
         this.formError(message, '/admin/content/custom_objects/manage_object_types', cb);
         return;
     }
 
     var dao = new pb.DAO();
-    dao.query('custom_object', {_id: ObjectID(get['id'])}).then(function(customObjects) {
+    dao.query('custom_object', {_id: ObjectID(vars['id'])}).then(function(customObjects) {
         if (util.isError(customObjects)) {
             //TODO handle this
         }
@@ -46,7 +46,7 @@ DeleteObject.prototype.onPostParamsRetrieved = function(post, cb) {
             
             customObjectType = customObjectTypes[0];
             
-            dao.deleteById(get.id, 'custom_object').then(function(recordsDeleted) {
+            dao.deleteById(vars['id'], 'custom_object').then(function(recordsDeleted) {
                 if(recordsDeleted <= 0) {
                     self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/manage_objects/' + customObjectType.name, cb);
                     return;

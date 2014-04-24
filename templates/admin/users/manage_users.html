@@ -18,7 +18,7 @@
         </tr>
         <tr class="user_row" ng-repeat="user in users track by user._id" on-finish-render ng-cloak>
             <td>
-                <a class="user_username" href="/admin/users/edit_user?id={{user._id}}">{{user.username}}</a>
+                <a class="user_username" ng-href="/admin/users/edit_user/{{user._id}}">{{user.username}}</a>
             </td>
             <td class="user_name">{{user.first_name}} {{user.last_name}}</td>
             <td class="user_email">{{user.email}}</td>

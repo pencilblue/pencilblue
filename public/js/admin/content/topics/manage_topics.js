@@ -30,6 +30,6 @@ function initTopicsPagination()
 function confirmDeleteTopic(topicID, topicName)
 {
     $('#delete_name').html(topicName);
-    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/topics/delete_topic?id=' + topicID + '"');
+    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/topics/delete_topic/' + topicID + '"');
     $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
 }

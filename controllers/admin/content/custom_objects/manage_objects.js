@@ -105,7 +105,7 @@ ManageObjects.prototype.render = function(cb) {
                         }
                     ];
                     
-                    result = result.concat(pb.js.getAngularController(
+                    result = result.split('^angular_script^').join(pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                         pills: pills,

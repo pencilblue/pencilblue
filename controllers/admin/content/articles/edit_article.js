@@ -16,13 +16,13 @@ util.inherits(EditArticle, NewArticle);
 
 EditArticle.prototype.render = function(cb) {
 	var self = this;
-	var get  = this.query;
-    if(!get.id)  {
+	var vars = this.pathVars;
+    if(!vars['id'])  {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
         return;
     }
     var dao = new pb.DAO();
-    dao.loadById(get.id, 'article', function(err, article) {
+    dao.loadById(vars['id'], 'article', function(err, article) {
         if(util.isError(err) || article == null) {
         	self.redirect(pb.config.siteRoot + '/admin/content/articles/manage_articles', cb);
             return;

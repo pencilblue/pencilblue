@@ -58,6 +58,6 @@ function initPagesPagination()
 function confirmDeletePage(pageID, pageName)
 {
     $('#delete_name').html(pageName);
-    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/pages/delete_page?id=' + pageID + '"');
+    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/pages/delete_page/' + pageID + '"');
     $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
 }
