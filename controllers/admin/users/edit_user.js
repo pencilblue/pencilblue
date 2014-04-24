@@ -50,13 +50,24 @@ EditUser.prototype.render = function(cb) {
             ];
                 
             var pills = Users.getPillNavOptions('edit_user');
-            pills.unshift(
-            {
-                name: 'change_password',
-                title: loc.users.PASSWORD,
-                icon: 'key',
-                href: '/admin/users/change_password/' + user._id.toString()
-            });
+            if(self.session.authentication.user_id == vars['id']) {
+                pills.unshift(
+                {
+                    name: 'change_password',
+                    title: loc.users.CHANGE_PASSWORD,
+                    icon: 'key',
+                    href: '/admin/users/change_password/' + user._id.toString()
+                });
+            }
+            else if(self.session.authentication.admin_level >= ACCESS_MANAGING_EDITOR) {
+                pills.unshift(
+                {
+                    name: 'reset_password',
+                    title: loc.users.RESET_PASSWORD,
+                    icon: 'key',
+                    href: '/actions/admin/users/send_password_reset/' + user._id.toString()
+                });
+            }
             pills.unshift(
             {
                 name: 'manage_users',
