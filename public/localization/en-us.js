@@ -272,7 +272,7 @@ var loc =
         USER_EDITED: 'The user was successfully edited',
         CREATE_ACCOUNT: 'Create an account',
         LOGIN_EXISTING: 'Login to an existing account',
-        VERIFICATION_SENT: 'Verification sent',
+        VERIFICATION_SENT: 'Verification email sent to',
         YOUR_VERIFICATION: 'A verification email has been sent',
         CHECK_INBOX: 'Please check your inbox and click the link provided',
         RESEND_VERIFICATION: 'Resend the verification email',
