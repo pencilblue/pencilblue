@@ -260,6 +260,7 @@ var loc =
         PASSWORD: 'Password',
         CHANGE_PASSWORD: 'Change password',
         RESET_PASSWORD: 'Reset password',
+        CURRENT_PASSWORD: 'Current password',
         CONFIRM_PASSWORD: 'Confirm password',
         GENERATE: 'Generate',
         USER_TYPE: 'User type',
@@ -285,7 +286,7 @@ var loc =
         PROFILE_EDITED: 'Your profile was successfully edited',
         OLD_PASSWORD: 'Old password',
         NEW_PASSWORD: 'New password',
-        INVALID_PASSWORD: 'Invalid old password',
+        INVALID_PASSWORD: 'Invalid current password',
         PASSWORD_CHANGED: 'Your password was successfully changed'
     },
     site_settings:

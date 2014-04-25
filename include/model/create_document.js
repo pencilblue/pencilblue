@@ -31,13 +31,16 @@ DocumentCreator.update = function(post, existingObject, csvItems, nullIfEmptyIte
 };
 
 DocumentCreator.passwordHash = function(post){
-	if (post.password) {
-		post.password = pb.security.encrypt(post.password);
-	    
-	    if(post['confirm_password']) {
-	        delete post['confirm_password'];
-	    }
-	}
+    for(var key in post) {
+        if(key.indexOf('password') > -1)
+        {
+            post[key] = pb.security.encrypt(post[key]);
+        }
+    }
+    
+    if(post['confirm_password']) {
+        delete post['confirm_password'];
+    }
 };
 
 DocumentCreator.emailFormatting = function(post){

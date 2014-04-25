@@ -39,10 +39,10 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
                             formattedSections.push(section);
                         }
                     }
-                    else {
-                        section.dropdown = 'dropdown';
-                    
+                    else {                    
                         if(section) {
+                            section.dropdown = 'dropdown';
+                        
                             var sectionHome = pb.utils.clone(section);
                             if(typeof loc !== 'undefined') {
                             	
@@ -120,6 +120,10 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                         var subNav = '';
                         for(var j = 0; j < navigation[i].children.length; j++)
                         {
+                            if(!navigation[i].children[j]) {
+                                continue;
+                            }
+                        
                             var childItem = linkTemplate;
                             childItem = childItem.split('^active^').join((navigation[i].children[j].active) ? 'active' : '');
                             childItem = childItem.split('^url^').join(navigation[i].children[j].url);
