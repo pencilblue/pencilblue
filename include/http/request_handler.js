@@ -15,6 +15,15 @@ RequestHandler.storage = [];
 RequestHandler.index   = {};
 
 RequestHandler.CORE_ROUTES = [
+	{
+		method: 'get',
+		path: "/public/:plugin/*",
+		access_level: 0,
+		auth_required: false,
+		setup_required: false,
+		controller: path.join(DOCUMENT_ROOT, 'controllers', 'public.js'),
+		content_type: 'text/html'
+	},
     {
     	method: 'get',
     	path: "/setup",
@@ -928,11 +937,14 @@ RequestHandler.prototype.handleRequest = function(){
     });
 };
 
-RequestHandler.prototype.servePublicContent = function() {
+RequestHandler.prototype.servePublicContent = function(absolutePath) {
 	
-	var self         = this;
-	var urlPath      = this.url.pathname;
-	var absolutePath = path.join(DOCUMENT_ROOT, 'public', urlPath);
+	//check for provided path, then default if necessary
+	if (absolutePath === undefined) {
+		absolutePath = path.join(DOCUMENT_ROOT, 'public', this.url.pathname);
+	}
+	
+	var self = this;
 	fs.readFile(absolutePath, function(err, content){
 		if (err) {
 			self.serve404();
@@ -1108,6 +1120,7 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 RequestHandler.prototype.doRender = function(pathVars, cInstance) {
 	var self  = this;
 	var props = {
+	    request_handler: this,
 		request: this.req,
 		response: this.resp,
 		session: this.session,
