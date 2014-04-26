@@ -19,6 +19,14 @@ $(document).ready(function()
     $('#username').focus();
 });
 
+function checkForLogin(event)
+{
+    if(event.keyCode == 13)
+    {
+        login();
+    }
+}
+
 function login()
 {
     $('#password').rules('add',

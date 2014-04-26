@@ -30,11 +30,11 @@
                             <fieldset>
                                 <div class="form-group">
                                     <label>^loc_USERNAME_OR_EMAIL^</label>
-                                    <input type="text" id="username" name="username" class="form-control"></input>
+                                    <input type="text" id="username" name="username" class="form-control" onkeyup="checkForLogin(event)"></input>
                                 </div>
                                 <div class="form-group">
                                     <label>^loc_PASSWORD^</label>
-                                    <input type="password" id="password" name="password" class="form-control"></input>
+                                    <input type="password" id="password" name="password" class="form-control" onkeyup="checkForLogin(event)"></input>
                                 </div>
                                 <input type="button" class="btn btn-lg btn-primary btn-block" value="^loc_LOGIN^" onclick="login()">
                                 <div class="forgot_password">
