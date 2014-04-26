@@ -14,7 +14,7 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
         
         if(util.isError(data) || data.length == 0) {
             themeSettings = {
-                site_logo: pb.config.siteRoot + '/img/logo_menu.png',
+                site_logo: pb.config.siteRoot + '/img/pb_logo.png',
                 carousel_media: []
             };
         }
