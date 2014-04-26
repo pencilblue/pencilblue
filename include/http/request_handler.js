@@ -50,6 +50,14 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'post',
+    	path: "/actions/forgot_password",
+    	access_level: 0,
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'forgot_password.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'get',
     	path: "/admin",
     	access_level: ACCESS_WRITER,

@@ -78,6 +78,13 @@ form .error
     width: 100%;
 }
 
+.forgot_password
+{
+    font-size: .9em;
+    margin-top: .5em;
+    text-align: right;
+}
+
 #top_menu
 {
     margin-bottom: 0;

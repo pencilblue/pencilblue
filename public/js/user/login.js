@@ -16,3 +16,21 @@ $(document).ready(function()
         }
     });
 });
+
+function login()
+{
+    $('#password').rules('add',
+    {
+        required: true
+    });
+    $('#login_form').attr('action', '/actions/login');
+    $('#login_form').submit();
+}
+
+function forgotPassword()
+{
+    $('#password').rules('remove');
+    
+    $('#login_form').attr('action', '/actions/forgot_password');
+    $('#login_form').submit();
+}

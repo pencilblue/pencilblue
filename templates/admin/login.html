@@ -8,14 +8,14 @@
         <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
         <meta name="robots" content="noindex">
         
-        <link rel="stylesheet" type="text/css" href="^site_root^/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="^site_root^/css/admin.css">
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="/css/admin.css">
         
-        <script type="text/javascript" src="^site_root^/js/jquery-1.11.0.min.js"></script>
-        <script type="text/javascript" src="^site_root^/js/jquery.validate.min.js"></script>
-        <script type="text/javascript" src="^site_root^/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/js/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
+        <script type="text/javascript" src="/js/bootstrap.min.js"></script>
         
-        <script type="text/javascript" src="^site_root^/js/admin/login.js"></script>
+        <script type="text/javascript" src="/js/admin/login.js"></script>
     </head>
     <body>
         <div class="container">
@@ -24,9 +24,9 @@
                     ^error_success^
                     <div id="login_column">
                         <div>
-                            <img id="login_logo" src="^site_root^/img/pb_logo.png"></img>
+                            <img id="login_logo" src="/img/pb_logo.png"></img>
                         </div>
-                        <form id="login_form" method="post" action="^site_root^/actions/login?admin_attempt=1">
+                        <form id="login_form" method="post" action="/actions/login?admin_attempt=1">
                             <fieldset>
                                 <div class="form-group">
                                     <label>^loc_USERNAME_OR_EMAIL^</label>
@@ -36,7 +36,10 @@
                                     <label>^loc_PASSWORD^</label>
                                     <input type="password" id="password" name="password" class="form-control"></input>
                                 </div>
-                                <input type="submit" class="btn btn-lg btn-primary btn-block" value="^loc_LOGIN^">
+                                <input type="button" class="btn btn-lg btn-primary btn-block" value="^loc_LOGIN^" onclick="login()">
+                                <div class="forgot_password">
+                                    <a href="javascript:forgotPassword()">I forgot my password</a>
+                                </div>
                             </fieldset>
                         </form>
                     </div>
