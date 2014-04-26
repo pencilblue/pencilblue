@@ -60,7 +60,7 @@ ForgotPassword.prototype.onPostParamsRetrieved = function(post, cb) {
                     return;
                 }
                 
-                self.session.success = self.ls.get('VERIFICATION_SENT') + ' ' + user.email;
+                self.session.success = self.ls.get('YOUR_VERIFICATION');
                 cb(pb.RequestHandler.generateRedirect(returnURL));
                 pb.users.sendPasswordResetEmail(user, pb.utils.cb);
             });
