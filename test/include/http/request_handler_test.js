@@ -84,12 +84,12 @@ module.exports = {
             	url: 'http://localhost:8080/public/sample/test.jpg',
             	expect: true
             },
-//            {
-//            	path: '/public/:plugin/*',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080/public/sample/imgs/test.jpg',
-//            	expect: true
-//            },
+            {
+            	path: '/public/:plugin/*',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/public/sample/imgs/test.jpg',
+            	expect: true
+            },
 //            {
 //            	path: '/public/:plugin/*',
 //            	controller: DOCUMENT_ROOT+'/controllers/setup.js',

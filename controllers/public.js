@@ -14,14 +14,15 @@ var BaseController = pb.BaseController;
 util.inherits(PluginPublicContentController, BaseController);
 
 
-PluginPublicContentController.prototype.render = function(cb) {console.log('here');
-	var plugin = this.pathVars.plugin;
+PluginPublicContentController.prototype.render = function(cb) {
+	var plugin          = this.pathVars.plugin;
+	var pathParts       = this.req.url.split('/');
+	pathParts.splice(0, 3);
 	
-	var pathParts       = this.url.pathname.split('/');
-	var postPluginPath  = pathParts.splice(0, 2).join(path.sep);
+	var postPluginPath  = pathParts.join(path.sep);
 	var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
 	var resourcePath    = path.join(pluginPublicDir, postPluginPath);
-	this.reqHandler.serverPublicContent(resourcePath);
+	this.reqHandler.servePublicContent(resourcePath);
 };
 
 //exports

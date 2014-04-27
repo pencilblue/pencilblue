@@ -417,6 +417,10 @@ PluginService.getActivePluginPublicDir = function(pluginUid) {
 	return publicPath;
 };
 
+PluginService.genPublicPath = function(plugin, relativePathToMedia) {
+	return pb.utils.urlJoin('/public', plugin, relativePathToMedia);
+};
+
 PluginService.prototype.getActivePlugins = function(cb) {
 	
 	var where = {uid: {'$in': this.getActivePluginNames()}};

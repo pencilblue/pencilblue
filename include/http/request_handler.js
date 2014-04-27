@@ -873,6 +873,9 @@ RequestHandler.getRoutePattern = function(path) {
 			pattern += '/[A-Za-z0-9_\-]+';
 		}
 		else {
+			if (piece.indexOf('*') >= 0) {
+				piece = piece.replace(/\*/g, '.*');
+			}
 			pattern += '/'+piece;
 		}
 	}

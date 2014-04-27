@@ -83,7 +83,6 @@ pb.BaseController   = require(DOCUMENT_ROOT+'/controllers/base_controller.js').B
 pb.FormController   = require(DOCUMENT_ROOT+'/controllers/form_controller.js').FormController;
 pb.DeleteController = require(DOCUMENT_ROOT+'/controllers/delete_controller.js').DeleteController;
 pb.RequestHandler   = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
-pb.RequestHandler.init();
 
 //setup errors
 global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js');
