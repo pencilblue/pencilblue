@@ -24,60 +24,60 @@ module.exports = {
 	
 	testRegisterRoute: function(test){
 		var tests = [
-//            {
-//            	path: '/setup',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080/setup',
-//            	expect: true
-//            },
-//            {
-//            	path: '/setup/',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080/setup',
-//            	expect: true
-//            },
-//            {
-//            	path: '/setup',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080/setup/',
-//            	expect: true
-//            },
-//            {
-//            	path: '/setup/',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080/setup/',
-//            	expect: true
-//            },
-//            {
-//            	path: '/',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080/',
-//            	expect: true
-//            },
-//            {
-//            	path: '/',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080',
-//            	expect: true
-//            },
-//            {
-//            	path: '/hello',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080',
-//            	expect: false
-//            },
-//            {
-//            	path: '/:hello',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080/world',
-//            	expect: true
-//            },
-//            {
-//            	path: '/:hello/what/up',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080/world_donkey-kong/what/up/',
-//            	expect: true
-//            },
+            {
+            	path: '/setup',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/setup',
+            	expect: true
+            },
+            {
+            	path: '/setup/',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/setup',
+            	expect: true
+            },
+            {
+            	path: '/setup',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/setup/',
+            	expect: true
+            },
+            {
+            	path: '/setup/',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/setup/',
+            	expect: true
+            },
+            {
+            	path: '/',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/',
+            	expect: true
+            },
+            {
+            	path: '/',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080',
+            	expect: true
+            },
+            {
+            	path: '/hello',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080',
+            	expect: false
+            },
+            {
+            	path: '/:hello',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/world',
+            	expect: true
+            },
+            {
+            	path: '/:hello/what/up',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/world_donkey-kong/what/up/',
+            	expect: true
+            },
             {
             	path: '/public/:plugin/*',
             	controller: DOCUMENT_ROOT+'/controllers/setup.js',
@@ -90,15 +90,14 @@ module.exports = {
             	url: 'http://localhost:8080/public/sample/imgs/test.jpg',
             	expect: true
             },
-//            {
-//            	path: '/public/:plugin/*',
-//            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
-//            	url: 'http://localhost:8080/public/sample/js/homepage/rockstar.js',
-//            	expect: true
-//            }
+            {
+            	path: '/public/:plugin/*',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/public/sample/js/homepage/rockstar.js',
+            	expect: true
+            }
         ];
 		
-		//TODO add code that replaces '*' with '.*'
 		for (var i = 0; i < tests.length; i++) {
 			pb.RequestHandler.storage = [];
 			pb.RequestHandler.index   = {};
