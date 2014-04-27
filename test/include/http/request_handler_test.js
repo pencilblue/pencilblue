@@ -77,9 +77,26 @@ module.exports = {
             	controller: DOCUMENT_ROOT+'/controllers/setup.js',
             	url: 'http://localhost:8080/world_donkey-kong/what/up/',
             	expect: true
+            },
+            {
+            	path: '/public/:plugin/*',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/public/sample/test.jpg',
+            	expect: true
+            },
+            {
+            	path: '/public/:plugin/*',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/public/sample/imgs/test.jpg',
+            	expect: true
+            },
+            {
+            	path: '/public/:plugin/*',
+            	controller: DOCUMENT_ROOT+'/controllers/setup.js',
+            	url: 'http://localhost:8080/public/sample/js/homepage/rockstar.js',
+            	expect: true
             }
         ];
-		
 		
 		for (var i = 0; i < tests.length; i++) {
 			pb.RequestHandler.storage = [];
@@ -91,7 +108,7 @@ module.exports = {
 			var success  = pb.RequestHandler.registerRoute(testcase, pb.RequestHandler.DEFAULT_THEME);
 			test.ok(success);
 			var actual = rh.getRoute(rh.url.pathname);
-			test.equal(testcase.expect, actual != null);
+			test.equal(testcase.expect, actual != null, util.format("Failed to assert that the result of path [%s] against url [%s]", testcase.path, testcase.url));
 		}
 		test.done();
 	},

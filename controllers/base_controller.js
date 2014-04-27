@@ -18,6 +18,7 @@ var FORM_REFILL_PATTERN = 'if(typeof refillForm !== "undefined") {' + "\n" +
 var ALERT_PATTERN = '<div class="alert %s error_success">%s<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
 
 BaseController.prototype.init = function(props, cb) {
+	this.reqHandler          = props.request_handler;
 	this.req                 = props.request;
 	this.res                 = props.response;
 	this.session             = props.session;

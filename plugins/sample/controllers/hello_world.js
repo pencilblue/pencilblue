@@ -9,7 +9,8 @@
 function HelloWorld(){}
 
 //dependencies
-var textCreater  = pb.plugins.getService('text_creater', 'sample');
+var PluginService = pb.PluginService;
+var textCreater   = pb.plugins.getService('text_creater', 'sample');
 
 //inheritance
 util.inherits(HelloWorld, pb.BaseController);
@@ -39,6 +40,7 @@ HelloWorld.prototype.render = function(cb) {
 		}
 		
 		self.setPageName(self.ls.get('SAMPLE_HELLO_WORLD'));
+		self.ts.registerLocal('sample_plugin_icon', PluginService.genPublicPath('sample', 'imgs/sample.ico'));
 		self.ts.registerLocal('sample_text', text);
 		self.ts.load(path.join('sample', 'index'), function(err, template) {
 			if (util.isError(err)) {

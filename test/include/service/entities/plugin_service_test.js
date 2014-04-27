@@ -77,20 +77,6 @@ module.exports = {
 		});
 	},
 	
-	testInstallAndUninstall: function(test) {
-		
-		pb.plugins.installPlugin('sample', function(err, result) {
-			test.equals(null, err);
-			test.ok(result);
-			
-			pb.plugins.uninstallPlugin('sample', function(err, result) {
-				test.equals(err, null);
-				test.ok(result);
-				test.done();
-			});
-		});
-	},
-	
 	testGetPluginMap: function(test) {
 		
 		pb.plugins.getPluginMap(function(err, map) {
@@ -107,5 +93,19 @@ module.exports = {
 			}
 			test.done();
 		});
-	}
+	},
+	
+	testInstallAndUninstall: function(test) {
+		
+		pb.plugins.installPlugin('sample', function(err, result) {
+			test.equals(null, err);
+			test.ok(result);
+			
+			pb.plugins.uninstallPlugin('sample', function(err, result) {
+				test.equals(err, null);
+				test.ok(result);
+				test.done();
+			});
+		});
+	},
 };
