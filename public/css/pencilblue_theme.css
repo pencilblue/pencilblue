@@ -172,6 +172,13 @@ form .error
     max-width: 100%;
 }
 
+.forgot_password
+{
+    font-size: .9em;
+    margin-top: .5em;
+    text-align: right;
+}
+
 /* BUTTONS */
 .btn-primary
 {

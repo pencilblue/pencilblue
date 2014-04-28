@@ -84,7 +84,7 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 	
 	var options = {
 		to: user.email,
-		subject: 'pencilblue Account Confirmation',
+		subject: pb.config.siteName + ' Account Confirmation',
 		template: 'admin/elements/default_verification_email',
 		replacements: {
 			'^verification_url^': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
@@ -92,7 +92,23 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 			'^last_name^': user.last_name
 		}
 	};
-	pb.sendFromTemplate(options, cb);
+	pb.email.sendFromTemplate(options, cb);
+};
+
+UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
+	cb = cb || pb.utils.cb;
+	
+	var options = {
+		to: user.email,
+		subject: pb.config.siteName + ' Password Reset',
+		template: 'admin/elements/password_reset_email',
+		replacements: {
+			'^verification_url^': pb.config.siteRoot + '/user/reset_password?email=' + user.email + '&code=' + passwordReset.verification_code,
+			'^first_name^': user.first_name,
+			'^last_name^': user.last_name
+		}
+	};
+	pb.email.sendFromTemplate(options, cb);
 };
 
 UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb) {

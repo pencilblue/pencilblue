@@ -54,6 +54,6 @@ function initMediaPagination()
 function confirmDeleteMedia(mediaID, mediaName)
 {
     $('#delete_name').html(mediaName);
-    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/media/delete_media?id=' + mediaID + '"');
+    $('#delete_button').attr('onclick', 'window.location = "/actions/admin/content/media/delete_media/' + mediaID + '"');
     $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
 }

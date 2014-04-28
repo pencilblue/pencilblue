@@ -8,6 +8,7 @@ global.pb = require('./include/requirements');
  */
 var init = function(){
 	var tasks = [
+         initRequestHandler,
          initDBConnections, 
          initServer, 
          function(cb) {
@@ -21,6 +22,11 @@ var init = function(){
 		}
 	});
 };
+
+function initRequestHandler(cb) {
+	pb.RequestHandler.init();
+	cb(null, true);
+}
 
 /**
  * Attempts to initialize a connection pool to the core database

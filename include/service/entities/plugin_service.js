@@ -409,6 +409,18 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 	});
 };
 
+PluginService.getActivePluginPublicDir = function(pluginUid) {
+	var publicPath = null;
+	if (ACTIVE_PLUGINS[pluginUid]) {
+		publicPath = ACTIVE_PLUGINS[pluginUid].public_dir;
+	}
+	return publicPath;
+};
+
+PluginService.genPublicPath = function(plugin, relativePathToMedia) {
+	return pb.utils.urlJoin('/public', plugin, relativePathToMedia);
+};
+
 PluginService.prototype.getActivePlugins = function(cb) {
 	
 	var where = {uid: {'$in': this.getActivePluginNames()}};
@@ -839,7 +851,8 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
         	 
         	 var mainModule = PluginService.loadMainModule(plugin.dirName, details.main_module.path);
         	 ACTIVE_PLUGINS[details.uid] = {
-    			 main_module: mainModule
+    			 main_module: mainModule,
+    			 public_dir: PluginService.getPublicPath(plugin.dirName)
         	 };
         	 process.nextTick(function() {callback(null, true);});
          },

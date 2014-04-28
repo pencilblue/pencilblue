@@ -11,7 +11,9 @@ util.inherits(DeleteSection, pb.BaseController);
 
 DeleteSection.prototype.render = function(cb) {
 	var self    = this;
-	var message = this.hasRequiredParams(this.query, ['id']);
+	var vars    = this.pathVars;
+	
+	var message = this.hasRequiredParams(vars, ['id']);
 	if (message) {
         this.formError(message, '/admin/content/sections/section_map', cb);
         return;
@@ -19,14 +21,14 @@ DeleteSection.prototype.render = function(cb) {
     
 	//ensure existence
 	var dao = new pb.DAO();
-	dao.loadById(this.query.id, 'section', function(err, section) {
+	dao.loadById(vars['id'], 'section', function(err, section) {
         if(section == null) {
             self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
             return;
         }
         
         //delete the section
-        var where = {$or: [{_id: ObjectID(self.query['id'])}, {parent: self.query['id']}]};
+        var where = {$or: [{_id: ObjectID(vars['id'])}, {parent: vars['id']}]};
         dao.deleteMatching(where, 'section').then(function(result) {
         	if(result < 1) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
@@ -34,7 +36,7 @@ DeleteSection.prototype.render = function(cb) {
             }
         	
             self.session.success = section.name + ' ' + self.ls.get('DELETED');
-            self.updateSectionMap(self.query.id, function(err, result) {
+            self.updateSectionMap(vars['id'], function(err, result) {
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
             });
         });
@@ -62,6 +64,8 @@ DeleteSection.prototype.updateSectionMap = function(removeID, cb) {
                 }
             }
         }
+        
+        console.log(sectionMap);
         
         pb.settings.set('section_map', sectionMap, cb);
     });

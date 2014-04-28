@@ -15,6 +15,15 @@ RequestHandler.storage = [];
 RequestHandler.index   = {};
 
 RequestHandler.CORE_ROUTES = [
+	{
+		method: 'get',
+		path: "/public/:plugin/*",
+		access_level: 0,
+		auth_required: false,
+		setup_required: false,
+		controller: path.join(DOCUMENT_ROOT, 'controllers', 'public.js'),
+		content_type: 'text/html'
+	},
     {
     	method: 'get',
     	path: "/setup",
@@ -47,6 +56,14 @@ RequestHandler.CORE_ROUTES = [
     	access_level: 0,
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'login.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/forgot_password",
+    	access_level: 0,
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'forgot_password.js'),
     	content_type: 'text/html'
     },
     {
@@ -115,7 +132,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/sections/edit_section",
+    	path: "/admin/content/sections/edit_section/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections', 'edit_section.js'),
@@ -123,7 +140,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/actions/admin/content/sections/delete_section",
+    	path: "/actions/admin/content/sections/delete_section/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'delete_section.js'),
@@ -131,7 +148,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/sections/edit_section",
+    	path: "/actions/admin/content/sections/edit_section/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'edit_section.js'),
@@ -143,6 +160,14 @@ RequestHandler.CORE_ROUTES = [
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'manage_topics.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/topics/delete_topic/:id",
+    	access_level: ACCESS_EDITOR,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'delete_topic.js'),
     	content_type: 'text/html'
     },
     {
@@ -251,7 +276,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/pages/edit_page",
+    	path: "/admin/content/pages/edit_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'edit_page.js'),
@@ -259,7 +284,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/pages/edit_page",
+    	path: "/actions/admin/content/pages/edit_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'edit_page.js'),
@@ -275,7 +300,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/pages/delete_page",
+    	path: "/actions/admin/content/pages/delete_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),
@@ -322,8 +347,24 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'get',
+    	path: "/admin/content/media/edit_media/:id",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'edit_media.js'),
+    	content_type: 'text/html'
+    },
+    {
     	method: 'post',
-    	path: "/actions/admin/content/media/delete_media",
+    	path: "/actions/admin/content/media/edit_media/:id",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'edit_media.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/content/media/delete_media/:id",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'delete_media.js'),
@@ -371,7 +412,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/articles/delete_article",
+    	path: "/actions/admin/content/articles/delete_article/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
@@ -386,7 +427,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/articles/edit_article",
+    	path: "/admin/content/articles/edit_article/:id",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'edit_article.js'),
@@ -394,7 +435,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/articles/edit_article",
+    	path: "/actions/admin/content/articles/edit_article/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),
@@ -528,17 +569,38 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/users/edit_user",
+    	path: "/admin/users/edit_user/:id",
     	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'edit_user.js'),
     },
     {
     	method: 'post',
-    	path: "/actions/admin/users/edit_user",
+    	path: "/actions/admin/users/edit_user/:id",
     	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/admin/users/change_password/:id",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'change_password.js'),
+    },
+    {
+    	method: 'post',
+    	path: "/actions/admin/users/change_password/:id",
+    	auth_required: true,
+    	access_level: ACCESS_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'change_password.js'),
+    },
+    {
+    	method: 'get',
+    	path: "/actions/admin/users/send_password_reset/:id",
+    	auth_required: true,
+    	access_level: ACCESS_MANAGING_EDITOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
     },
     {
     	method: 'post',
@@ -864,6 +926,9 @@ RequestHandler.getRoutePattern = function(path) {
 			pattern += '/[A-Za-z0-9_\-]+';
 		}
 		else {
+			if (piece.indexOf('*') >= 0) {
+				piece = piece.replace(/\*/g, '.*');
+			}
 			pattern += '/'+piece;
 		}
 	}
@@ -928,11 +993,14 @@ RequestHandler.prototype.handleRequest = function(){
     });
 };
 
-RequestHandler.prototype.servePublicContent = function() {
+RequestHandler.prototype.servePublicContent = function(absolutePath) {
 	
-	var self         = this;
-	var urlPath      = this.url.pathname;
-	var absolutePath = path.join(DOCUMENT_ROOT, 'public', urlPath);
+	//check for provided path, then default if necessary
+	if (absolutePath === undefined) {
+		absolutePath = path.join(DOCUMENT_ROOT, 'public', this.url.pathname);
+	}
+	
+	var self = this;
 	fs.readFile(absolutePath, function(err, content){
 		if (err) {
 			self.serve404();
@@ -1108,6 +1176,7 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 RequestHandler.prototype.doRender = function(pathVars, cInstance) {
 	var self  = this;
 	var props = {
+	    request_handler: this,
 		request: this.req,
 		response: this.resp,
 		session: this.session,

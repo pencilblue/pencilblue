@@ -17,7 +17,7 @@
             <th></th>
         </tr>
         <tr class="article_row" ng-repeat="article in articles track by article._id" on-finish-render ng-cloak>
-            <td><a class="article_headline" href="/admin/content/articles/edit_article?id={{article._id}}">{{article.headline}}</a></td>
+            <td><a class="article_headline" ng-href="/admin/content/articles/edit_article/{{article._id}}">{{article.headline}}</a></td>
             <td class="article_url">{{article.url}}</td>
             <td class="article_author">{{article.author_name}}</td>
             <td class="article_date">{{article.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>

@@ -47,8 +47,9 @@ SectionMap.prototype.render = function(cb) {
                     pills: pills,
                     sections: SectionMap.getOrderedSections(sections, sectionMap)
                 };
+                
                 var angularData = pb.js.getAngularController(objects);
-                result          = result.concat(angularData);
+                result          = result.split('^angular_script^').join(angularData);
                 
                 cb({content: result});
             });
@@ -57,7 +58,7 @@ SectionMap.prototype.render = function(cb) {
 };
 
 SectionMap.getOrderedSections = function(sections, sectionMap) {
-    
+    console.log(sections);
 	var orderedSections = [];
     for(var i = 0; i < sectionMap.length; i++) {
         

@@ -56,7 +56,7 @@ Email.prototype.render = function(cb) {
                     tabs: tabs
                 };
                 var angularData = pb.js.getAngularController(objects);
-                result          = result.concat(angularData);
+                result          = result.split('^angular_script^').join(angularData);
                 
                 cb({content: result});
             });
