@@ -16,6 +16,23 @@ global.ACCESS_ADMINISTRATOR   = 4;
 SecurityService.AUTHENTICATED = 'authenticated';
 SecurityService.ADMIN_LEVEL   = 'admin_level';
 
+SecurityService.getRoleName = function(accessLevel) {
+	switch(accessLevel) {
+	case ACCESS_USER:
+		return 'ACCESS_USER';
+	case ACCESS_WRITER:
+		return 'ACCESS_WRITER';
+	case ACCESS_EDITOR:
+		return 'ACCESS_EDITOR';
+	case ACCESS_MANAGING_EDITOR:
+		return 'ACCESS_MANAGING_EDITOR';
+	case ACCESS_ADMINISTRATOR:
+		return 'ACCESS_ADMINISTRATOR';
+	default:
+		throw new PBError(util.format("An invalid access level [%s] was provided", accessLevel), 500);
+	}
+};
+
 
 SecurityService.isAuthorized = function(session, requirements) {
 	
