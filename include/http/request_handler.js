@@ -436,15 +436,31 @@ RequestHandler.CORE_ROUTES = [
     {
     	method: 'post',
     	path: "/actions/admin/content/articles/edit_article/:id",
-    	access_level: ACCESS_EDITOR,
+    	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),
     	content_type: 'text/html'
     },
     {
     	method: 'post',
+    	path: "/api/admin/content/articles/save_draft/:id",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'articles', 'save_draft.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/preview/:type/:id",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'preview.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
     	path: "/actions/admin/content/articles/new_article",
-    	access_level: ACCESS_EDITOR,
+    	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'new_article.js'),
     	content_type: 'text/html'

@@ -34,6 +34,7 @@ var loc =
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
         SAVE: 'Save',
         SAVE_DRAFT: 'Save draft',
+        PREVIEW: 'Preview',
         CANCEL: 'Cancel',
         EDIT: 'Edit',
         DELETE: 'Delete',
