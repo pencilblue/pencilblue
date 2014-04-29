@@ -37,9 +37,8 @@ Index.prototype.render = function(cb) {
                 var page    = self.req.pencilblue_page    || null;
                 
                 var service = new ArticleService();
-                console.log(self.req.pencilblue_preview);
                 if(self.req.pencilblue_preview) {
-                    if(page || article) {
+                    if(self.req.pencilblue_preview == page || article) {
                         if(page) {
                             service.setContentType('page');
                         }

@@ -24,7 +24,7 @@ Preview.prototype.render = function(cb) {
 			return;
 		}
 		
-		self.req.pencilblue_preview = true;
+		self.req.pencilblue_preview = item._id.toString();
 		switch(vars['type']) {
 		    case 'page':
 		        self.req.pencilblue_page = item._id.toString();
