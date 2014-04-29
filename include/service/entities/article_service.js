@@ -31,6 +31,9 @@ ArticleService.prototype.find = function(where,  cb) {
 	var dao   = new pb.DAO();
 	var order = [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]];
 	where.publish_date = {$lt: new Date()};
+	if(!where.draft) {
+	    where.draft = 0;
+    }
 	dao.query(this.getContentType(), where, pb.DAO.SELECT_ALL, order).then(function(articles) {
 		if (util.isError(articles)) {
 			cb(articles, []);
