@@ -34,6 +34,29 @@ SecurityService.getRoleName = function(accessLevel) {
 };
 
 
+SecurityService.authenticateSession = function(session, options, authenticator, cb){
+	var doAuthentication = function(session, options, authenticator, cb) {
+		authenticator.authenticate(options, function(err, user) {
+			if (util.isError(err) || user == null) {
+				cb(err, user);
+				return;
+			}
+			
+			//remove password from data to be cached
+	        delete user.password;
+	        
+	        //build out session object
+	        user.permissions                   = pb.PluginService.getPermissionsForRole(user.admin);
+	        session.authentication.user        = user;
+	        session.authentication.user_id     = user._id.toString();
+	        session.authentication.admin_level = user.admin;
+	        cb(null, user);
+		});
+	};
+	doAuthentication(session, options, authenticator, cb);
+};
+
+
 SecurityService.isAuthorized = function(session, requirements) {
 	
 	//check if authentication is required

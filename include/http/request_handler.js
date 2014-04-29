@@ -1064,6 +1064,19 @@ RequestHandler.prototype.serve404 = function() {
 	}
 };
 
+/**
+ * TODO Church this up a bit.  Make it a template and controller like 404.
+ * TODO install an encoder entity since node prints out function names in angle brackets
+ * @param err
+ */
+RequestHandler.prototype.serveError = function(err) {
+	var data = {
+		content: '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>'+(err ? err.stack : '')+'</pre></body></html>',
+		code: 500
+	};
+	this.onRenderComplete(data);
+};
+
 RequestHandler.prototype.onSessionRetrieved = function(err, session) {
 	if (err) {
 		this.onErrorOccurred(err);
@@ -1236,7 +1249,7 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 	var checkAdminLevel = function(callback) {
 		
 		var result = {success: true};
-		if (self.themeRoute.access_level != undefined) {
+		if (self.themeRoute.access_level !== undefined) {
 
 			if (self.session.authentication.admin_level < self.themeRoute.access_level) {
 				result.success = false;
@@ -1252,10 +1265,38 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 		}
 	};
 	
+	var checkPermissions = function(callback) {
+		
+		var result   = {success: true};
+		var reqPerms = self.themeRoute.permissions;
+		var auth     = self.session.authentication;
+		if (auth && auth.user && auth.access_level !== ACCESS_ADMINISTRATOR && auth.user.permissisions && util.isArray(reqPerms)) {
+			
+			var permMap = self.session.authentication.user.permissions;
+			pb.log.info('RP='+JSON.stringify(reqPerms));
+			pb.log.info('PM='+JSON.stringify(permMap));
+			for(var i = 0; i < reqPerms.length; i++) {
+				
+				if (!permMap[reqPerms[i]]) {
+					result.success = false;
+					result.content = '403 Forbidden';
+					result.code    = 403;
+					callback(result, result);
+					return;
+				}
+			}
+			callback(null, result);
+		}
+		else{
+			callback(null, result);
+		}
+	};
+	
 	var tasks = {
 		checkSystemSetup: checkSystemSetup,
         checkRequiresAuth: checkRequiresAuth,
-        checkAdminLevel: checkAdminLevel
+        checkAdminLevel: checkAdminLevel,
+        checkPermissions: checkPermissions
 	};
 	async.series(tasks, function(err, results){
 		if (err) {
@@ -1270,9 +1311,15 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 RequestHandler.prototype.onControllerInitialized = function(controller) {
 	var self = this;
 	process.nextTick(function() {
-		controller.render(function(result){
-			self.onRenderComplete(result);
-		});
+		try {
+			controller.render(function(result){
+				self.onRenderComplete(result);
+			});
+		}
+		catch(err) {
+			pb.log.error(err.toString()+"\n"+err.stack);
+			self.serveError(err);
+		}
 	});
 };
 

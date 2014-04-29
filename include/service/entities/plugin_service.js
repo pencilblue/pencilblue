@@ -413,14 +413,14 @@ PluginService.getPermissionsForRole = function(role) {
 	if (!isNaN(role)) {
 		role = pb.security.getRoleName(role);
 	}
-	
-	var perms = {};
+
+	var perms = {};pb.log.info('ROLE='+role+' APS='+util.inspect(ACTIVE_PLUGINS['sample']));
 	for(var pluginUid in ACTIVE_PLUGINS) {
 		var permissions = ACTIVE_PLUGINS[pluginUid].permissions;
 		if (permissions) {
 			
-			var permsAtLevel = permissions[role];
-			if (permsAtLevel) {
+			var permsAtLevel = permissions[role];pb.log.info('ROLE='+role+' PAL='+util.inspect(permsAtLevel));
+			if (permsAtLevel) {pb.log.info('doing merge');
 				pb.utils.merge(permsAtLevel, perms);
 			}
 		}

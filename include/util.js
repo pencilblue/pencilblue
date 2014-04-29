@@ -124,6 +124,7 @@ Util.arrayToHash = function(array, defaultVal) {
 	for(var i = 0; i < array.length; i++) {
 		hash[array[i]] = defaultVal;
 	}
+	return hash;
 };
 
 /**

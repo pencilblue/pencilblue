@@ -71,7 +71,7 @@ HelloWorld.getRoutes = function(cb) {
 		{
 	    	method: 'get',
 	    	path: "/sample",
-	    	auth_required: false,
+	    	auth_required: true,
 	    	access_level: ACCESS_USER,
 	    	permissions: ["sample_view"],
 	    	content_type: 'text/html'
