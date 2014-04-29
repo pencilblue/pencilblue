@@ -42,12 +42,14 @@ EditArticle.prototype.render = function(cb) {
         self.setFormFieldValues(article);
 
         //call the parent function
+        self.setPageName(article.headline);
+        self.ts.registerLocal('article_id', vars.id);
         EditArticle.super_.prototype.render.apply(self, [cb]);
     });
 };
 
 EditArticle.prototype.onTemplateRetrieved = function(template, cb) {
-	cb(null, template.split('^article_id^').join(this.query.id));
+	cb(null, template);
 };
 
 EditArticle.prototype.getBreadCrum = function() {

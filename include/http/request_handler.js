@@ -1273,8 +1273,6 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 		if (auth && auth.user && auth.access_level !== ACCESS_ADMINISTRATOR && auth.user.permissisions && util.isArray(reqPerms)) {
 			
 			var permMap = self.session.authentication.user.permissions;
-			pb.log.info('RP='+JSON.stringify(reqPerms));
-			pb.log.info('PM='+JSON.stringify(permMap));
 			for(var i = 0; i < reqPerms.length; i++) {
 				
 				if (!permMap[reqPerms[i]]) {

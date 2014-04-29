@@ -58,7 +58,7 @@ SectionMap.prototype.render = function(cb) {
 };
 
 SectionMap.getOrderedSections = function(sections, sectionMap) {
-    console.log(sections);
+
 	var orderedSections = [];
     for(var i = 0; i < sectionMap.length; i++) {
         
