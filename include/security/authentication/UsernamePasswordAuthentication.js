@@ -23,7 +23,7 @@ UsernamePasswordAuthentication.prototype.authenticate = function(credentials, cb
 	//check for required access level
 	if (!isNaN(credentials.access_level)) {
 		query.admin = {
-			'$gt': credentials.access_level
+			'$gte': credentials.access_level
 		};
 	}
 	

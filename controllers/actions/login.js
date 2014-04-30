@@ -17,8 +17,8 @@ Login.prototype.onPostParamsRetrieved = function(post, cb) {
     var adminAttempt = this.query['admin_attempt'] ? true : false;
     
     var options = post;
-    options.access_level = ACCESS_USER;
-    pb.security.authenticateSession(this.session, post, new FormAuthentication(), function(err, user) {
+    options.access_level = adminAttempt ? ACCESS_WRITER : ACCESS_USER;
+    pb.security.authenticateSession(this.session, options, new FormAuthentication(), function(err, user) {
     	if(util.isError(err) || user == null)  {
             self.loginError(adminAttempt, cb);
             return;
