@@ -222,9 +222,27 @@ function asyncEditArticleSave(cb)
         }
         else
         {
+            $('#draft_time').show().html(getDraftTime());
             cb(true);
         }
     });
+}
+
+function getDraftTime()
+{
+    var date = new Date();
+    var hour = date.getHours();
+    if(hour < 10)
+    {
+        hour = '0' + hour;
+    }
+    var minutes = date.getMinutes();
+    if(minutes < 10)
+    {
+        minutes = '0' + minutes;
+    }
+    
+    return hour + ':' + minutes;
 }
 
 function previewArticle(draft)
