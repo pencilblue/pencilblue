@@ -409,6 +409,25 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 	});
 };
 
+PluginService.getPermissionsForRole = function(role) {
+	if (!isNaN(role)) {
+		role = pb.security.getRoleName(role);
+	}
+
+	var perms = {};
+	for(var pluginUid in ACTIVE_PLUGINS) {
+		var permissions = ACTIVE_PLUGINS[pluginUid].permissions;
+		if (permissions) {
+			
+			var permsAtLevel = permissions[role];
+			if (permsAtLevel) {pb.log.info('doing merge');
+				pb.utils.merge(permsAtLevel, perms);
+			}
+		}
+	}
+	return perms;
+};
+
 PluginService.getActivePluginPublicDir = function(pluginUid) {
 	var publicPath = null;
 	if (ACTIVE_PLUGINS[pluginUid]) {
@@ -849,10 +868,20 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
          //register plugin & load main module
          function(callback) {
         	 
+        	 //convert perm array to hash
+        	 var map = {};
+        	 if (plugin.permissions) {
+        		 for (var role in plugin.permissions) {
+        			 map[role] = pb.utils.arrayToHash(plugin.permissions[role]);
+        		 }
+        	 }
+        	 
+        	 //create cached active plugin structure
         	 var mainModule = PluginService.loadMainModule(plugin.dirName, details.main_module.path);
         	 ACTIVE_PLUGINS[details.uid] = {
     			 main_module: mainModule,
-    			 public_dir: PluginService.getPublicPath(plugin.dirName)
+    			 public_dir: PluginService.getPublicPath(plugin.dirName),
+    			 permissions: map
         	 };
         	 process.nextTick(function() {callback(null, true);});
          },

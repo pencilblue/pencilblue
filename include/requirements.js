@@ -72,7 +72,9 @@ pb.settings              = pb.SettingServiceFactory.getService(pb.config.setting
 pb.TemplateService = require(DOCUMENT_ROOT+'/include/service/entities/template_service.js');
 
 //setup security
-pb.security = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;
+pb.security                       = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;
+pb.UsernamePasswordAuthentication = require(DOCUMENT_ROOT+'/include/security/authentication/UsernamePasswordAuthentication.js');
+pb.FormAuthentication             = require(DOCUMENT_ROOT+'/include/security/authentication/FormAuthentication.js');
 
 //setup user service
 pb.UserService = require(DOCUMENT_ROOT+'/include/service/entities/user_service.js').UserService;

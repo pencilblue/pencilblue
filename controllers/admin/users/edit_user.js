@@ -19,7 +19,7 @@ EditUser.prototype.render = function(cb) {
         this.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
         return;
     }
-    
+
     var dao = new pb.DAO();
     dao.loadById(vars['id'], 'user', function(err, user) {
         if(util.isError(err) || user == null) {
@@ -31,7 +31,7 @@ EditUser.prototype.render = function(cb) {
         self.setPageName('Edit User');
         self.ts.registerLocal('user_id', user._id);
         self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
-        self.ts.registerLocal('uploaded_image', user.photo ? user.photo : '');
+        self.ts.registerLocal('uploaded_image', (user.photo ? user.photo : ''));
         self.ts.load('admin/users/edit_user', function(err, data) {
             var result = '' + data;
             
@@ -84,7 +84,7 @@ EditUser.prototype.render = function(cb) {
                 adminOptions: pb.users.getAdminOptions(self.session, self.localizationService), 
                 user: user
             }));
-               
+            
             cb({content: result});
         });
     });

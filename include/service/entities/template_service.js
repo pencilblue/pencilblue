@@ -270,30 +270,35 @@ TemplateService.prototype.processFlag = function(flag, cb) {
 	var self = this;
 	
 	//check local
-	var tmp;
-	if (tmp = this.localCallbacks[flag]) {//local callbacks
-		self.handleReplacement(flag, tmp, cb);
-		return;
-	}
-	else if (tmp = GLOBAL_CALLBACKS[flag]) {//global callbacks
-		self.handleReplacement(flag, tmp, cb);
-		return;
-	}
-	else if (flag.indexOf(LOCALIZATION_PREFIX) == 0 && this.localizationService) {//localization
-		cb(null, this.localizationService.get(flag.substring(LOCALIZATION_PREFIX_LEN)));
-	}
-	else if (flag.indexOf(TEMPLATE_PREFIX) == 0) {//sub-templates
-		this.handleTemplateReplacement(flag, function(err, template) {
-			cb(null, template);
-		});
-	}
-	else {
-		//log result
-		if (pb.log.isSilly()) {
-			pb.log.silly("TemplateService: Failed to process flag [%s]", flag);
+	var doFlagProcessing = function(flag, cb) {
+		var tmp;
+		if (tmp = self.localCallbacks[flag]) {//local callbacks
+			self.handleReplacement(flag, tmp, cb);
+			return;
 		}
-		cb(null, '^'+flag+'^');
-	}
+		else if (tmp = GLOBAL_CALLBACKS[flag]) {//global callbacks
+			self.handleReplacement(flag, tmp, cb);
+			return;
+		}
+		else if (flag.indexOf(LOCALIZATION_PREFIX) == 0 && self.localizationService) {//localization
+			cb(null, self.localizationService.get(flag.substring(LOCALIZATION_PREFIX_LEN)));
+			return;
+		}
+		else if (flag.indexOf(TEMPLATE_PREFIX) == 0) {//sub-templates
+			self.handleTemplateReplacement(flag, function(err, template) {
+				cb(null, template);
+			});
+			return;
+		}
+		else {
+			//log result
+			if (pb.log.isSilly()) {
+				pb.log.silly("TemplateService: Failed to process flag [%s]", flag);
+			}
+			cb(null, '^'+flag+'^');
+		}
+	};
+	doFlagProcessing(flag, cb);
 };
 
 /**
@@ -333,8 +338,17 @@ TemplateService.prototype.handleTemplateReplacement = function(flag, cb) {
 TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
 	var self    = this;
 	var handler = function(err, content) {
-		self.process(content, cb);
+		
+		//prevent infinite loops
+		if (pb.utils.isString(content) && content.indexOf('^'+flag+'^') >= 0) {
+			cb(err, content);
+		}
+		else {
+			self.process(content, cb);
+		}
 	};
+	
+	//do replacement
 	if (typeof replacement === 'function') {
 		replacement(flag, handler);
 	}

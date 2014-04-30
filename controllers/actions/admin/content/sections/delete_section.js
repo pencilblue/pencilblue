@@ -65,8 +65,6 @@ DeleteSection.prototype.updateSectionMap = function(removeID, cb) {
             }
         }
         
-        console.log(sectionMap);
-        
         pb.settings.set('section_map', sectionMap, cb);
     });
 };

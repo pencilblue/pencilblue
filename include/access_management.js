@@ -16,6 +16,46 @@ global.ACCESS_ADMINISTRATOR   = 4;
 SecurityService.AUTHENTICATED = 'authenticated';
 SecurityService.ADMIN_LEVEL   = 'admin_level';
 
+SecurityService.getRoleName = function(accessLevel) {
+	switch(accessLevel) {
+	case ACCESS_USER:
+		return 'ACCESS_USER';
+	case ACCESS_WRITER:
+		return 'ACCESS_WRITER';
+	case ACCESS_EDITOR:
+		return 'ACCESS_EDITOR';
+	case ACCESS_MANAGING_EDITOR:
+		return 'ACCESS_MANAGING_EDITOR';
+	case ACCESS_ADMINISTRATOR:
+		return 'ACCESS_ADMINISTRATOR';
+	default:
+		throw new PBError(util.format("An invalid access level [%s] was provided", accessLevel), 500);
+	}
+};
+
+
+SecurityService.authenticateSession = function(session, options, authenticator, cb){
+	var doAuthentication = function(session, options, authenticator, cb) {
+		authenticator.authenticate(options, function(err, user) {
+			if (util.isError(err) || user == null) {
+				cb(err, user);
+				return;
+			}
+			
+			//remove password from data to be cached
+	        delete user.password;
+	        
+	        //build out session object
+	        user.permissions                   = pb.PluginService.getPermissionsForRole(user.admin);
+	        session.authentication.user        = user;
+	        session.authentication.user_id     = user._id.toString();
+	        session.authentication.admin_level = user.admin;
+	        cb(null, user);
+		});
+	};
+	doAuthentication(session, options, authenticator, cb);
+};
+
 
 SecurityService.isAuthorized = function(session, requirements) {
 	

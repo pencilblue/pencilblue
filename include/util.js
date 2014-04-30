@@ -114,6 +114,19 @@ Util.getTasks = function (iterable, getTaskFunction) {
 	return tasks;
 };
 
+Util.arrayToHash = function(array, defaultVal) {
+	if (!util.isArray(array)) {
+		return null;
+	}
+	
+	defaultVal = defaultVal || true;
+	var hash = {};
+	for(var i = 0; i < array.length; i++) {
+		hash[array[i]] = defaultVal;
+	}
+	return hash;
+};
+
 /**
  * Empty callback function just used as a place holder if a callback is required 
  * and the result is not needed.

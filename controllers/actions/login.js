@@ -4,68 +4,27 @@
  */
 function Login(){}
 
+//dependencies
+var FormController     = pb.FormController;
+var FormAuthentication = pb.FormAuthentication;
+
 //inheritance
-util.inherits(Login, pb.BaseController);
+util.inherits(Login, FormController);
 
 
-Login.prototype.render = function(cb) {
-	var self = this;
-    this.getPostParams(function(err, post){
-    	if (util.isError(err)) {
-			//TODO implement error handler
-			pb.log.warn("ActinosSetup: Unimplemented error condition!");
-			cb({content: 'Implement me!', code: 500});
-			return;
-		}
-    	
-    	self.doLogin(post, cb);
-    });
-    
-};
-
-Login.prototype.doLogin = function(post, cb) {
+Login.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self         = this;
     var adminAttempt = this.query['admin_attempt'] ? true : false;
-	var userDocument = pb.DocumentCreator.create('user', post);
-	
-	var query = {
-		object_type : 'user',
-		$or : [ 
-	        {
-	        	username : userDocument['username']
-	        }, 
-	        {
-	        	email : userDocument['username']
-	        } 
-        ],
-		password : userDocument['password']
-	};
-	
-	//search for user
-	var dao = new pb.DAO();
-	dao.loadByValues(query, 'user', function(err, user) {
-		
-		//user does not exist
-        if(util.isError(err) || user == null)  {
+    
+    var options = post;
+    options.access_level = adminAttempt ? ACCESS_WRITER : ACCESS_USER;
+    pb.security.authenticateSession(this.session, options, new FormAuthentication(), function(err, user) {
+    	if(util.isError(err) || user == null)  {
             self.loginError(adminAttempt, cb);
             return;
         }
-        
-        //user exists but their credentials are not high enough
-        if(adminAttempt && user.admin == ACCESS_USER) {
-            self.loginError(adminAttempt, cb);
-            return;
-        }
-        
-        //remove password from data to be cached
-        delete user.password;
-        
-        //build out session object
-        self.session.authentication.user        = user;
-        self.session.authentication.user_id     = user._id.toString();
-        self.session.authentication.admin_level = user.admin;
-        
-        //redirect
+    	
+    	//redirect
         var location = pb.config.siteRoot;
         if (self.session.on_login != undefined) {
         	location = self.session.on_login;
