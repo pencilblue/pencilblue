@@ -28,6 +28,8 @@ var formRefillOptions =
     }
 ];
 
+var autoSaveTimeout;
+
 $(document).ready(function()
 {    
     $('#edit_article_form').validate(
@@ -51,6 +53,11 @@ $(document).ready(function()
         language: 'en',
         format: 'Y-m-d H:m'
     });
+    
+    if($('#save_draft_button').position())
+    {
+        resetAutoSaveTimeout();
+    }
 });
 
 function setPublishDateToNow()
@@ -223,9 +230,16 @@ function asyncEditArticleSave(cb)
         else
         {
             $('#draft_time').show().html(getDraftTime());
+            resetAutoSaveTimeout();
             cb(true);
         }
     });
+}
+
+function resetAutoSaveTimeout()
+{
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout('autoSaveDraft()', 60000);
 }
 
 function getDraftTime()
@@ -253,5 +267,17 @@ function previewArticle(draft)
     {
         $('#preview_button i').attr('class', 'fa fa-eye');
         window.open('/preview/article' + document.URL.substr(document.URL.lastIndexOf('/')));
+    });
+}
+
+function autoSaveDraft()
+{
+    $('#preview_button i').attr('class', 'fa fa-spinner fa-spin');
+    $('#save_draft_button_button i').attr('class', 'fa fa-spinner fa-spin');
+
+    checkForEditArticleSave(true, function(success)
+    {
+        $('#preview_button i').attr('class', 'fa fa-eye');
+        $('#save_draft_button_button i').attr('class', 'fa fa-save');
     });
 }

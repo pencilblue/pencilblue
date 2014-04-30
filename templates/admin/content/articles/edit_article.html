@@ -80,7 +80,7 @@
                     <button type="button" class="btn btn-primary" onclick="checkForEditArticleSave(false)" ng-if="!article.draft">
                         <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="checkForEditArticleSave(true)" ng-if="article.draft">
+                    <button id="save_draft_button" type="button" class="btn btn-primary" onclick="checkForEditArticleSave(true)" ng-if="article.draft">
                         <i class="fa fa-save"></i>&nbsp;^loc_SAVE_DRAFT^
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
