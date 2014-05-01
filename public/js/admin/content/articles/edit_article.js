@@ -28,6 +28,8 @@ var formRefillOptions =
     }
 ];
 
+var autoSaveTimeout;
+
 $(document).ready(function()
 {    
     $('#edit_article_form').validate(
@@ -51,6 +53,11 @@ $(document).ready(function()
         language: 'en',
         format: 'Y-m-d H:m'
     });
+    
+    if($('#save_draft_button').position())
+    {
+        resetAutoSaveTimeout();
+    }
 });
 
 function setPublishDateToNow()
@@ -77,16 +84,17 @@ function getExtraZero(dateNumber)
     return dateNumber;
 }
 
-function checkForEditArticleSave(draft)
+function checkForEditArticleSave(draft, cb)
 {
     // We need to remove other fieldsets so the form data isn't duplicated
     $('.modal-body fieldset').remove();
+    $('fieldset .additions').html('');
 
     buildSections(function(sectionsCSV)
     {
         if(!$('#article_sections').position())
         {
-            $('fieldset').append('<input type="text" id="article_sections" name="article_sections" value="' + sectionsCSV + '" style="display: none"></input>');
+            $('fieldset .additions').append('<input type="text" id="article_sections" name="article_sections" value="' + sectionsCSV + '"></input>');
         }
         else
         {
@@ -97,7 +105,7 @@ function checkForEditArticleSave(draft)
         {
             if(!$('#article_topics').position())
             {
-                $('fieldset').append('<input type="text" id="article_topics" name="article_topics" value="' + topicsCSV + '" style="display: none"></input>');
+                $('fieldset .additions').append('<input type="text" id="article_topics" name="article_topics" value="' + topicsCSV + '"></input>');
             }
             else
             {
@@ -108,18 +116,25 @@ function checkForEditArticleSave(draft)
             {
                 if(!$('#article_media').position())
                 {
-                    $('fieldset').append('<input type="text" id="article_media" name="article_media" value="' + mediaCSV + '" style="display: none"></input>');
+                    $('fieldset .additions').append('<input type="text" id="article_media" name="article_media" value="' + mediaCSV + '"></input>');
                 }
                 else
                 {
                     $('#article_media').val(mediaCSV);
                 }
             
-                $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
+                $('fieldset .additions').append('<textarea id="article_layout" name="article_layout">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
                 
-                $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
+                $('fieldset .additions').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '"></input>');
                 
-                $('#edit_article_form').submit();
+                if(typeof cb === 'undefined')
+                {
+                    $('#edit_article_form').submit();
+                }
+                else
+                {
+                    asyncEditArticleSave(cb);
+                }
             });
         });
     });
@@ -194,5 +209,75 @@ function buildMedia(output)
         {
             output(mediaArray.join(','));
         }
+    });
+}
+
+function asyncEditArticleSave(cb)
+{
+    var formData = $('#edit_article_form').serialize();
+    $.post('/api/admin/content/articles/save_draft' + document.URL.substr(document.URL.lastIndexOf('/')) , formData, function(data)
+    {
+        var result = JSON.parse(data);
+        
+        if(!result)
+        {
+            cb(false);
+        }
+        else if(result.code > 0)
+        {
+            cb(false);
+        }
+        else
+        {
+            $('#draft_time').show().html(getDraftTime());
+            resetAutoSaveTimeout();
+            cb(true);
+        }
+    });
+}
+
+function resetAutoSaveTimeout()
+{
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout('autoSaveDraft()', 60000);
+}
+
+function getDraftTime()
+{
+    var date = new Date();
+    var hour = date.getHours();
+    if(hour < 10)
+    {
+        hour = '0' + hour;
+    }
+    var minutes = date.getMinutes();
+    if(minutes < 10)
+    {
+        minutes = '0' + minutes;
+    }
+    
+    return hour + ':' + minutes;
+}
+
+function previewArticle(draft)
+{
+    $('#preview_button i').attr('class', 'fa fa-spinner fa-spin');
+
+    checkForEditArticleSave(draft, function(success)
+    {
+        $('#preview_button i').attr('class', 'fa fa-eye');
+        window.open('/preview/article' + document.URL.substr(document.URL.lastIndexOf('/')));
+    });
+}
+
+function autoSaveDraft()
+{
+    $('#preview_button i').attr('class', 'fa fa-spinner fa-spin');
+    $('#save_draft_button_button i').attr('class', 'fa fa-spinner fa-spin');
+
+    checkForEditArticleSave(true, function(success)
+    {
+        $('#preview_button i').attr('class', 'fa fa-eye');
+        $('#save_draft_button_button i').attr('class', 'fa fa-save');
     });
 }

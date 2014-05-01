@@ -31,6 +31,9 @@ ArticleService.prototype.find = function(where,  cb) {
 	var dao   = new pb.DAO();
 	var order = [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]];
 	where.publish_date = {$lt: new Date()};
+	if(!where.draft) {
+	    where.draft = 0;
+    }
 	dao.query(this.getContentType(), where, pb.DAO.SELECT_ALL, order).then(function(articles) {
 		if (util.isError(articles)) {
 			cb(articles, []);
@@ -98,7 +101,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
         delete article.article_layout;
         
         if (self.getContentType() === 'article') {
-	        
+	        console.log('got here');
         	var where = {article: article._id.toString()};
 	        var order = {created: pb.DAO.ASC};
 	        var dao   = new pb.DAO();

@@ -31,6 +31,8 @@ var formRefillOptions =
     }
 ];
 
+var autoSaveTimeout;
+
 $(document).ready(function()
 {
     $('#edit_page_form').validate(
@@ -54,6 +56,11 @@ $(document).ready(function()
         language: 'en',
         format: 'Y-m-d H:m'
     });
+    
+    if($('#save_draft_button').position())
+    {
+        resetAutoSaveTimeout();
+    }
 });
 
 function setPublishDateToNow()
@@ -80,7 +87,7 @@ function getExtraZero(dateNumber)
     return dateNumber;
 }
 
-function checkForEditPageSave(draft)
+function checkForEditPageSave(draft, cb)
 {
     // We need to remove other fieldsets so the form data isn't duplicated
     $('.modal-body fieldset').remove();
@@ -111,7 +118,14 @@ function checkForEditPageSave(draft)
             
             $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
             
-            $('#edit_page_form').submit();
+            if(typeof cb === 'undefined')
+            {
+                $('#edit_page_form').submit();
+            }
+            else
+            {
+                asyncEditPageSave(cb);
+            }
         });
     });
 }
@@ -161,5 +175,75 @@ function buildMedia(output)
         {
             output(mediaArray.join(','));
         }
+    });
+}
+
+function asyncEditPageSave(cb)
+{
+    var formData = $('#edit_page_form').serialize();
+    $.post('/api/admin/content/pages/save_draft' + document.URL.substr(document.URL.lastIndexOf('/')) , formData, function(data)
+    {
+        var result = JSON.parse(data);
+        
+        if(!result)
+        {
+            cb(false);
+        }
+        else if(result.code > 0)
+        {
+            cb(false);
+        }
+        else
+        {
+            $('#draft_time').show().html(getDraftTime());
+            resetAutoSaveTimeout();
+            cb(true);
+        }
+    });
+}
+
+function resetAutoSaveTimeout()
+{
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout('autoSaveDraft()', 60000);
+}
+
+function getDraftTime()
+{
+    var date = new Date();
+    var hour = date.getHours();
+    if(hour < 10)
+    {
+        hour = '0' + hour;
+    }
+    var minutes = date.getMinutes();
+    if(minutes < 10)
+    {
+        minutes = '0' + minutes;
+    }
+    
+    return hour + ':' + minutes;
+}
+
+function previewPage(draft)
+{
+    $('#preview_button i').attr('class', 'fa fa-spinner fa-spin');
+
+    checkForEditPageSave(draft, function(success)
+    {
+        $('#preview_button i').attr('class', 'fa fa-eye');
+        window.open('/preview/page' + document.URL.substr(document.URL.lastIndexOf('/')));
+    });
+}
+
+function autoSaveDraft()
+{
+    $('#preview_button i').attr('class', 'fa fa-spinner fa-spin');
+    $('#save_draft_button_button i').attr('class', 'fa fa-spinner fa-spin');
+
+    checkForEditPageSave(true, function(success)
+    {
+        $('#preview_button i').attr('class', 'fa fa-eye');
+        $('#save_draft_button_button i').attr('class', 'fa fa-save');
     });
 }
