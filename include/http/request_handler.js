@@ -805,6 +805,13 @@ RequestHandler.CORE_ROUTES = [
     	access_level: ACCESS_MANAGING_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'pencilblue_settings.js'),
     	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/api/content/get_articles",
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'get_articles.js'),
+    	content_type: 'application/json'
     }
 ];
 
