@@ -94,7 +94,8 @@ EditPage.prototype.render = function(cb) {
                                 tabs: tabs,
                                 templates: templates,
                                 topics: topics, 
-                                media: media
+                                media: media,
+                                page: page
                             }, [], 'initMediaPagination();initTopicsPagination()'));
 
                             cb({content: result});

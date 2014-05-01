@@ -292,6 +292,14 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'post',
+    	path: "/api/admin/content/pages/save_draft/:id",
+    	access_level: ACCESS_WRITER,
+    	auth_required: true,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'pages', 'save_draft.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
     	path: "/actions/admin/content/pages/new_page",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
