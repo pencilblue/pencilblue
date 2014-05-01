@@ -58,10 +58,23 @@ var loc =
         LAST_MODIFIED: 'Last modified',
         CHECK: 'Check',
         AVAILABLE: 'Available',
-        UNAVAILABLE: 'Unavailable'
+        UNAVAILABLE: 'Unavailable',
+    	INSTALLED_ON: 'Installed On',
+		VERSION: 'Version',
+		ACTIVE_PLUGINS: 'Active Plugins',
+		INACTIVE_PLUGINS: 'Inactive Plugins',
+		AVAILABLE_PLUGINS: 'Available Plugins',
+		RESET_SETTINGS: 'Reset Settings',
+		UNINSTALL: 'Uninstall',
+		INSTALL: 'Install',
+		ACTIVE_PLUGIN_DESCRIPTION: 'Plugins that you have already installed and started up successfully when the system started.',
+		INACTIVE_PLUGIN_DESCRIPTION: 'Plugins that are installed or partially installed but failed to start properly.',
+		AVAILABLE_PLUGIN_DESCRIPTION: 'Plugins that are available are downloaded and are ready to be installed.',		
+		PLEASE_WAIT: 'Please Wait',
     },
     error:
     {
+    	ERROR: 'Error',
         PAGE_NOT_FOUND: 'The page can not be found'
     },
     timestamp:
