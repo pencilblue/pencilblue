@@ -101,7 +101,6 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
         delete article.article_layout;
         
         if (self.getContentType() === 'article') {
-	        console.log('got here');
         	var where = {article: article._id.toString()};
 	        var order = {created: pb.DAO.ASC};
 	        var dao   = new pb.DAO();
