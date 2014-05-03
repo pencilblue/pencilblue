@@ -436,6 +436,10 @@ PluginService.getActivePluginPublicDir = function(pluginUid) {
 	return publicPath;
 };
 
+PluginService.isActivePlugin = function(uid) {
+	return ACTIVE_PLUGINS[uid] !== undefined;
+};
+
 PluginService.genPublicPath = function(plugin, relativePathToMedia) {
 	return pb.utils.urlJoin('/public', plugin, relativePathToMedia);
 };
@@ -469,7 +473,17 @@ PluginService.prototype.getInactivePlugins = function(cb) {
 	});
 };
 
-PluginService.prototype.getAvailablePlugins = function(cb) {
+PluginService.prototype.getAvailablePlugins = function(active, inactive, cb) {
+	if (util.isArray(active)) {
+		active = pb.utils.arrayToHash(active, function(active, i) {
+			return active[i] ? active[i].uid : '';
+		});
+	}
+	if (util.isArray(inactive)) {
+		inactive = pb.utils.arrayToHash(inactive, function(inactive, i) {
+			return inactive[i] ? inactive[i].uid : '';
+		});
+	}
 	
 	pb.utils.getDirectories(PluginService.getPluginsDir(), function(err, directories) {
 		if (util.isError(err)) {
@@ -512,7 +526,10 @@ PluginService.prototype.getAvailablePlugins = function(cb) {
 							callback(null, false);
 							return;
 						}
-						
+						else if ( (active && active[details.uid]) || (inactive && inactive[details.uid])) {
+							callback(null, true);
+							return;
+						}
 						details.dirName = dirName;
 						plugins.push(details);
 						callback(null, true);
@@ -536,13 +553,19 @@ PluginService.prototype.getPluginMap = function(cb) {
          
          inactive: function(callback) {
         	 self.getInactivePlugins(callback);
-         },
-         
-         available: function(callback) {
-        	 self.getAvailablePlugins(callback);
          }
 	};
-	async.series(tasks, cb);
+	async.series(tasks, function(err, results) {
+		if (util.isError(err)) {
+			cb(err, results);
+			return;
+		}
+		
+		self.getAvailablePlugins(results.active, results.inactive, function(err, available) {
+			results.available = available;
+			cb(err, results);
+		});
+	});
 };
 
 PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
@@ -561,8 +584,16 @@ PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
          function(callback) {
         	 pb.log.debug('PluginService:[%s] Attempting to load plugin ', pluginUid);
         	 self.getPlugin(pluginUid, function(err, pluginObj) {
+        		if (util.isError(err)) {
+        			callback(err, false);
+        			return;
+        		}
+        		else if (!pluginObj) {
+        			callback(new Error("The ["+pluginUid+"] plugin is not installed"), false);
+        			return;
+        		}
         		plugin = pluginObj;
-        		callback(err, !util.isError(err));
+        		callback(err, true);
         	 });
          },
          
@@ -693,9 +724,10 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
         			callback(err, isInstalled);
         		} 
         		else {
-        			callback(isInstalled ? new Error('PluginService: The '+details.uid+' plugin is already installed') : null, isInstalled);
-        		}
-        	 });
+        			err = isInstalled ? (new Error('PluginService: The '+details.uid+' plugin is already installed')) : null;
+        			callback(err, isInstalled);
+                }
+             });
          },
          
         //create plugin entry
@@ -758,7 +790,7 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
         	callback(null, null); 
          }
 	];
-	async.series(tasks, function(err, results) {
+	async.series(tasks, function(err, results) {console.log(JSON.stringify(err));
 		cb(err, !util.isError(err));
 	});
 };

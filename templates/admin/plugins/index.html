@@ -1,4 +1,5 @@
 ^tmp_admin=head^
+<script src="/js/admin/plugins/index.js"></script>
 <div class="col-md-9">
     ^error_success^
     ^tmp_admin=elements=sub_nav^
@@ -15,8 +16,8 @@
             <td class="installed_version">{{installed.version}}</td>
             <td class="installed_on_date">{{installed.created | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td>
-                <a href="#resetsettings" onclick="javascript:resetSettings('{{installed.uid}}');">^loc_RESET_SETTINGS^</a> | 
-                <a href="#uninstall" onclick="javascript:uninstallPlugin('{{installed.uid}}');">^loc_UNINSTALL^</a>
+                <a href="javascript:resetSettings('{{installed.uid}}');">^loc_RESET_SETTINGS^</a> | 
+                <a href="javascript:uninstallPlugin('{{installed.uid}}')">^loc_UNINSTALL^</a>
             </td>
         </tr>
     </table>
@@ -35,8 +36,8 @@
             <td class="inactive_description">{{inactive.description}}</td>
             <td class="inactive_on_date">{{inactive.created | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td>
-                <a href="#resetsettings" onclick="javascript:resetSettings('{{inactive.uid}}');">^loc_RESET_SETTINGS^</a> | 
-                <a href="#uninstall" onclick="javascript:uninstallPlugin('{{inactive.uid}}');">^loc_UNINSTALL^</a>
+                <a href="javascript:resetSettings('{{inactive.uid}}');">^loc_RESET_SETTINGS^</a> | 
+                <a href="javascript:uninstallPlugin('{{inactive.uid}}');">^loc_UNINSTALL^</a>
             </td>
         </tr>
     </table>
@@ -53,7 +54,7 @@
             <td><a ng-href="/admin/plugins/view/{{available._id}}">{{available.uid}}</a></td>
             <td class="available_description">{{available.description}}</td>
             <td>
-                <a href="#uninstall" onclick="javascript:installPlugin('{{inactive.uid}}');">^loc_UNINSTALL^</a>
+                <a href="javascript:installPlugin('{{available.uid}}');">^loc_INSTALL^</a>
             </td>
         </tr>
     </table>
@@ -64,18 +65,16 @@
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <button type="button" onclick="javascript:window.location.reload();" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title" id="modal_label">^loc_PLEASE_WAIT^...</h4>
         </div>
         <div class="loading-modal-content">
-	        <div class="progress progress-striped active">
-			  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-			  </div>
+	        <div id="progress_bar" class="progress progress-striped active">
+			  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
 			</div>
+			<textarea id="progress_console" rows="5" disabled style="width:100%"></textarea>
 		</div>
     </div>
   </div>
 </div>
-
-<script src="/js/admin/plugins/index.js"></script>
 ^tmp_admin=footer^

@@ -11,7 +11,7 @@ PluginsIndex.prototype.render = function(cb) {
 	var self = this;
 	
 	//get the data
-	var map = pb.plugins.getPluginMap(function(err, map) {
+	pb.plugins.getPluginMap(function(err, map) {
 		if (util.isError(err)) {
 			self.reqHandler.serveError(err);
 			return;
@@ -22,6 +22,8 @@ PluginsIndex.prototype.render = function(cb) {
             {
                 navigation: pb.AdminNavigation.get(self.session, ['plugins'], self.ls),
                 installedPlugins: map.active,
+                inactivePlugins: map.inactive,
+                availablePlugins: map.available
             }, 
             []
         );
