@@ -4,17 +4,7 @@
 	"description": "This is a sample description just to give an idea of what this field should contain.  Provide details about the overall goal of the plugin along with any details information",
     "version": "0.0.1",
 	"icon": "/imgs/sample.ico",
-	"author": {
-		"name": "John Doe",
-		"email": "john.doe@customdev.com",
-		"website": "http://www.customdev.com",
-		"contributors": [
-			{
-				"name": "Jane Doe",
-				"email": "jane.doe@customdev.com"
-			}
-		]
-	},
+
     "settings": [
 		{
 			"name": "pencilblue_sample_number_setting",

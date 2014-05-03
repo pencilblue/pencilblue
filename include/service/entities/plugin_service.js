@@ -790,7 +790,7 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
         	callback(null, null); 
          }
 	];
-	async.series(tasks, function(err, results) {console.log(JSON.stringify(err));
+	async.series(tasks, function(err, results) {console.log(''+err);
 		cb(err, !util.isError(err));
 	});
 };
@@ -1081,6 +1081,9 @@ PluginService.loadDetailsFile = function(filePath, cb) {
 			cb(null, JSON.parse(data));
 		}
 		catch(e) {
+			e.message = "Failed to parse json file ["+filePath+']. '+e.message;
+			e.code    = 500;
+			e.source  = e;
 			cb(e, null);
 		}
 	});

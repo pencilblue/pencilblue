@@ -71,6 +71,15 @@ var loc =
 		INACTIVE_PLUGIN_DESCRIPTION: 'Plugins that are installed or partially installed but failed to start properly.',
 		AVAILABLE_PLUGIN_DESCRIPTION: 'Plugins that are available are downloaded and are ready to be installed.',		
 		PLEASE_WAIT: 'Please Wait',
+		VALID_ACTION_REQUIRED: 'A valid action is required',
+		VALID_IDENTIFIER_REQUIRED: 'A valid identifier is required',
+		INSTALL_FAILED: 'The attempt to install plugin [%s] failed',
+		INSTALL_SUCCESS: 'Successfully installed plugin [%s]',
+		UNINSTALL_FAILED: 'The attempt to uninstall plugin [%s] failed',
+		UNINSTALL_SUCCESS: 'Successfully uninstalled plugin [%s]',
+		PLUGIN_NOT_FOUND: 'The plugin [%s] could not be found',
+		RESET_SETTINGS_FAILED: 'The attempt to reset the settings for plugin [%s] failed',
+		RESET_SETTINGS_SUCCESS: 'Successfully reset setting for plugin [%s]',
     },
     error:
     {

@@ -44,7 +44,13 @@ PluginAPI.prototype.install = function(uid, cb) {
 
 	pb.plugins.installPlugin(uid, function(err, result) {
 		if (util.isError(err)) {
-			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INSTALL_FAILED'), uid), [err.message]);
+			var data = [err.message];
+			if (util.isArray(err.validationErrors)) {
+				for(var i = 0; i < err.validationErrors.length; i++) {
+					data.push(err.validationErrors[i].message);
+				}
+			}
+			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INSTALL_FAILED'), uid), data);
 			cb({content: content, code: 400});
 			return;
 		}
@@ -103,7 +109,13 @@ PluginAPI.prototype.reset_settings = function(uid, cb) {
 	];
 	async.series(tasks, function(err, results) {
 		if (util.isError(err)) {
-			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('RESET_SETTINGS_FAILED'), uid), [err.message]);
+			var data = [err.message];
+			if (util.isArray(err.validationErrors)) {
+				for(var i = 0; i < err.validationErrors.length; i++) {
+					data.push(err.validationErrors[i].message);
+				}
+			}
+			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('RESET_SETTINGS_FAILED'), uid), data);
 			cb({content: content, code: 400});
 			return;
 		}

@@ -18,12 +18,11 @@ function resetSettings(pid) {
 }
 
 function doPluginAPIAction(action, identifier) {
-	$('#progress_console').val('');
 	$('#progress_modal').modal({});
 	$.post("/api/plugins/"+action+"/"+encodeURIComponent(identifier), 
 		function(data) {
 			$('#modal_label').val('Completed');
-			$('#progress_console').val($('#progress_console').val()+"\n"+data.message);
+			$('#progress_console').val(data.message);
 			$('#progress_bar').removeClass('active');
 			
 			setTimeout(window.location.reload, 3000);
@@ -35,15 +34,20 @@ function doPluginAPIAction(action, identifier) {
 		
 		var data = null;
 		try {
-			data = JSON.parse(err.resonseText);
+			data = JSON.parse(err.responseText);
 		}
 		catch(e){
-			data = {data: ['An error occurred while attempting to complete the action. STATUS='+err.status+'']};
+			data = {
+				message: 'An error occurred while attempting to complete the action. STATUS='+err.status+'', 
+				data: []
+			};
 		}
 		
 		//process errors
+		var output = data.message;
 		for(var i = 0; i < data.data.length; i++) {
-			$('#progress_console').val($('#progress_console').val()+"\n"+data.data[i]);
+			output += "\n"+data.data[i];
 		}
+		$('#progress_console').val(output);
 	});
 }
