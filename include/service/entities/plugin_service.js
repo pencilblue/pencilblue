@@ -509,7 +509,7 @@ PluginService.prototype.getAvailablePlugins = function(active, inactive, cb) {
 						plugins.push({
 							uid: dirName, 
 							dirName: dirName, 
-							message: "An invalid details file was provided for plugin. "+err.stack
+							description: "An invalid details file was provided for plugin. "+err.stack
 						});
 						callback(null, false);
 						return;
@@ -520,7 +520,7 @@ PluginService.prototype.getAvailablePlugins = function(active, inactive, cb) {
 							plugins.push({
 								uid: dirName, 
 								dirName: dirName, 
-								message: "The plugin details file failed validation ",
+								description: "The plugin details file failed validation ",
 								validationErrors: err.validationErrors
 							});
 							callback(null, false);
@@ -599,6 +599,12 @@ PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
          
          //call onUninstall
          function(callback) {
+        	 if (!PluginService.isActivePlugin(pluginUid)) {
+        		 pb.log.warn("PluginService:[%s] Skipping call to plugin's onUninstall function.  Main module was not active.", pluginUid);
+        		 callback(null, true);
+        		 return;
+        	 }
+        	 
         	 var mm = ACTIVE_PLUGINS[pluginUid].main_module;
         	 if (typeof mm.onUninstall === 'function') {
         		 pb.log.debug('PluginService:[%s] Calling plugin onUnstall', pluginUid);
@@ -606,7 +612,7 @@ PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
         		 mm.onUninstall(callback);
         	 }
         	 else {
-        		 pb.log.debug('PluginService:[%s] Plugin onUnstall function does not exist.  Skipping.', pluginUid);
+        		 pb.log.debug('PluginService:[%s] Plugin onUninstall function does not exist.  Skipping.', pluginUid);
         		 callback(null, true);
         	 }
          },
@@ -790,7 +796,7 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
         	callback(null, null); 
          }
 	];
-	async.series(tasks, function(err, results) {console.log(''+err);
+	async.series(tasks, function(err, results) {
 		cb(err, !util.isError(err));
 	});
 };
@@ -922,7 +928,12 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
          function(callback) {
         	var mainModule = ACTIVE_PLUGINS[details.uid].main_module;
         	if (typeof mainModule.onStartup === 'function') {
-        		mainModule.onStartup(callback);
+        		try {
+        			mainModule.onStartup(callback);
+        		}
+        		catch(e){
+        			callback(e, false);
+        		}
         	}
         	else {
         		pb.log.warn("PluginService: Plugin %s did not provide an 'onStartup' function.", details.uid);
@@ -1110,28 +1121,28 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 	
 	//validate uid
 	if (!v.validateSafeFileName(details.uid, true)) {
-		errors.push(new Error("The uid field must be provided and can only contain alphanumerics, underscores, and dashes"));
+		errors.push("The uid field must be provided and can only contain alphanumerics, underscores, and dashes");
 	}
 	
 	//validate display name
 	if (!v.validateNonEmptyStr(details.name, true)) {
-		errors.push(new Error("An invalid name ["+details.name+"] was provided"));
+		errors.push("An invalid name ["+details.name+"] was provided");
 	}
 	
 	//validate description
 	if (!v.validateNonEmptyStr(details.description, true)) {
-		errors.push(new Error("A valid description must be provided"));
+		errors.push("A valid description must be provided");
 	}
 	
 	//validate version
 	if (!v.validateVersionNum(details.version, true)) {
-		errors.push(new Error("An invalid version number ["+details.version+"] was provided.  Must match the form: xx.xx.xx"));
+		errors.push("An invalid version number ["+details.version+"] was provided.  Must match the form: xx.xx.xx");
 	}
 	
 	//validate icon
 	if (details.icon) {
 		if (!pb.utils.isString(details.icon) || !PluginService.validateIconPath(details.icon, pluginDirName)) {
-			errors.push(new Error("The optional plugin icon must be a valid path to an image"));
+			errors.push("The optional plugin icon must be a valid path to an image");
 		}
 	}
 	
@@ -1141,17 +1152,17 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 		
 		//validate name
 		if (!v.validateNonEmptyStr(author.name, true)) {
-			errors.push(new Error("A valid author name must be provided"));
+			errors.push("A valid author name must be provided");
 		}
 		
 		//validate email
 		if (!v.validateEmail(author.email, true)) {
-			errors.push(new Error("A valid author email must be provided"));
+			errors.push("A valid author email must be provided");
 		}
 		
 		//validate website
 		if (!v.validateUrl(author.website, false)) {
-			errors.push(new Error("The website address is not a valid URL"));
+			errors.push("The website address is not a valid URL");
 		}
 		
 		//validate contributors
@@ -1165,26 +1176,26 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 						
 						//validate contributor name
 						if (!v.validateNonEmptyStr(cont.name, true)) {
-							errors.push(new Error("The contributor name at position "+i+" must be provided"));
+							errors.push("The contributor name at position "+i+" must be provided");
 						}
 						
 						//validate contributor email
 						if (!v.validateEmail(cont.email, false)) {
-							errors.push(new Error("The contributor email at position "+i+" is invalid"));
+							errors.push("The contributor email at position "+i+" is invalid");
 						}
 					}
 					else {
-						errors.push(new Error("The contributor at position "+i+" must be an object"));
+						errors.push("The contributor at position "+i+" must be an object");
 					}
 				}
 			}
 			else {
-				errors.push(new Error("The author contributors block must be an array"));
+				errors.push("The author contributors block must be an array");
 			}
 		}
 	}
 	else {
-		errors.push(new Error("The author block is required"));
+		errors.push("The author block is required");
 	}
 	
 	//validate plugin settings
@@ -1203,7 +1214,7 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 			}
 		}
 		else {
-			errors.push(new Error("The settings block must be an array"));
+			errors.push("The settings block must be an array");
 		}
 	}
 	
@@ -1215,7 +1226,7 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 			
 			//validate permission key
 			if (validKeys[key] === undefined) {
-				errors.push("An invalid permissions map key ["+key+"] was provided");
+				errors.push(new Error("An invalid permissions map key ["+key+"] was provided"));
 			}
 			else {
 				var val = details.permissions[key];
@@ -1223,7 +1234,7 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 					
 					for (var i = 0; i < details.permissions[key].length; i++) {
 						if (!v.validateNonEmptyStr(details.permissions[key][i], true)) {
-							errors.push(new Error("The value at position "+i+" for permissions map key ["+key+"] is invalid"));
+							errors.push("The value at position "+i+" for permissions map key ["+key+"] is invalid");
 						}
 					}
 				}
@@ -1234,18 +1245,18 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 		}
 	}
 	else {
-		errors.push(new Error("The permissions block is required and must be an object"));
+		errors.push("The permissions block is required and must be an object");
 	}
 	
 	//validate main module
 	if (v.validateObject(details.main_module, true)) {
 		
 		if (!PluginService.validateMainModulePath(details.main_module.path, pluginDirName)) {
-			errors.push(new Error("An invalid main module path and/or file was provided"));
+			errors.push("An invalid main module path and/or file was provided");
 		}
 	}
 	else {
-		errors.push(new Error("The main module block is required and must be an object"));
+		errors.push("The main module block is required and must be an object");
 	}
 	
 	//validate theme
@@ -1269,7 +1280,7 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 					}
 				}
 				else {
-					errors.push(new Error("The theme settings block must be an array"));
+					errors.push("The theme settings block must be an array");
 				}
 			}
 			
@@ -1286,26 +1297,26 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 							
 							//validate content template name
 							if (!v.validateNonEmptyStr(template.name, true)) {
-								errors.push(new Error("The content template name at position "+i+" is invalid"));
+								errors.push("The content template name at position "+i+" is invalid");
 							}
 							
 							//validate content template file
 							if (!v.validateSafeFileName(template.file, true)) {
-								errors.push(new Error("The content template file at position "+i+" is invalid"));
+								errors.push("The content template file at position "+i+" is invalid");
 							}
 						}
 						else {
-							errors.push(new Error("The content template at position "+i+" is invalid"));
+							errors.push("The content template at position "+i+" is invalid");
 						}
 					}
 				}
 				else {
-					errors.push(new Error("The content templates property must be an array"));
+					errors.push("The content templates property must be an array");
 				}
 			}
 		}
 		else {
-			errors.push(new Error("The theme block must be an object"));
+			errors.push("The theme block must be an object");
 		}
 	}
 	

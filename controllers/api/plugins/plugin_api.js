@@ -11,7 +11,8 @@ util.inherits(PluginAPI, BaseController);
 var VALID_ACTIONS = {
 	install: true,
 	uninstall: true,
-	reset_settings: true
+	reset_settings: true,
+	initialize: true,
 };
 
 PluginAPI.prototype.render = function(cb) {
@@ -122,6 +123,29 @@ PluginAPI.prototype.reset_settings = function(uid, cb) {
 		
 		var content = BaseController.apiResponse(BaseController.API_SUCCESS, util.format(self.ls.get('RESET_SETTINGS_SUCCESS'), uid));
 		cb({content: content});
+	});
+};
+
+PluginAPI.prototype.initialize = function(uid, cb) {
+	var self = this;
+	
+	pb.plugins.getPlugin(uid, function(err, plugin) {
+		if (util.isError(err)) {
+			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INITIALIZATION_FAILED'), uid), [err.message]);
+			cb({content: content, code: 400});
+			return;
+		}
+		
+		pb.plugins.initPlugin(plugin, function(err, results) {
+			if (util.isError(err)) {
+				var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INITIALIZATION_FAILED'), uid), [err.message]);
+				cb({content: content, code: 400});
+				return;
+			}
+			
+			var content = BaseController.apiResponse(BaseController.API_SUCCESS, util.format(self.ls.get('INITIALIZATION_SUCCESS'), uid));
+			cb({content: content});
+		});
 	});
 };
 

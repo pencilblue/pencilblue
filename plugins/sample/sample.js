@@ -38,7 +38,7 @@ SamplePlugin.onUninstall = function(cb) {
  * The result is ignored
  */
 SamplePlugin.onStartup = function(cb) {
-	cb(null, true);
+	cb(null, false);
 };
 
 /**

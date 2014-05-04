@@ -82,6 +82,9 @@ var loc =
 		PLUGIN_NOT_FOUND: 'The plugin [%s] could not be found',
 		RESET_SETTINGS_FAILED: 'The attempt to reset the settings for plugin [%s] failed',
 		RESET_SETTINGS_SUCCESS: 'Successfully reset setting for plugin [%s]',
+		INITIALIZE: 'Initialize',
+		INITIALIZATION_FAILED: 'The attempt to initialize plugin [%s] failed',
+		INITIALIZATION_SUCCESS: 'Successfully initialized plugin [%s]',
     },
     error:
     {

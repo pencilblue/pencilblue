@@ -27,16 +27,17 @@
         <tr><th title="^loc_INACTIVE_PLUGIN_DESCRIPTION^">^loc_INACTIVE_PLUGINS^</th></tr>
         <tr id="inactive_plugins_table_header">
             <th id="inactive_name_header">^loc_NAME^</th>
-            <th id="inactive_description_header">^loc_DESCRIPTION^</th>
+            <th id="inactive_version_header">^loc_VERSION^</th>
             <th id="inactive_date_header">^loc_INSTALLED_ON^</th>
             <th></th>
         </tr>
         <tr class="inactive_plugin_row" ng-repeat="inactive in inactivePlugins track by inactive.uid" on-finish-render ng-cloak>
-            <td><a ng-href="/admin/plugins/view/{{inactive._id}}">{{inactive.uid}}</a></td>
-            <td class="inactive_description">{{inactive.description}}</td>
+            <td title="{{inactive.description}}"><a ng-href="/admin/plugins/view/{{inactive._id}}">{{inactive.uid}}</a></td>
+            <td class="inactive_version">{{inactive.version}}</td>
             <td class="inactive_on_date">{{inactive.created | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td>
                 <a href="javascript:resetSettings('{{inactive.uid}}');">^loc_RESET_SETTINGS^</a> | 
+                <a href="javascript:initialize('{{inactive.uid}}');">^loc_INITIALIZE^</a> | 
                 <a href="javascript:uninstallPlugin('{{inactive.uid}}');">^loc_UNINSTALL^</a>
             </td>
         </tr>
@@ -47,14 +48,21 @@
         <tr><th title="^loc_AVAILABLE_PLUGIN_DESCRIPTION^">^loc_AVAILABLE_PLUGINS^</th></tr>
         <tr id="available_plugins_table_header">
             <th id="available_name_header">^loc_NAME^</th>
+            <th id="available_version_header">^loc_VERSION^</th>
             <th id="available_description_header">^loc_DESCRIPTION^</th>
             <th></th>
         </tr>
         <tr class="available_plugin_row" ng-repeat="available in availablePlugins track by available.uid" on-finish-render ng-cloak>
-            <td><a ng-href="/admin/plugins/view/{{available._id}}">{{available.uid}}</a></td>
-            <td class="available_description">{{available.description}}</td>
+            <td>{{available.uid}}</td>
+            <td class="available_version">{{available.version}}</td>
+            <td class="available_description">
+                {{available.description}}
+                <ul>
+                    <li ng-repeat="validationError in available.validationErrors">{{validationError}}</li>
+                </ul>
+            </td>
             <td>
-                <a href="javascript:installPlugin('{{available.uid}}');">^loc_INSTALL^</a>
+                <a ng-if="!available.validationErrors" href="javascript:installPlugin('{{available.uid}}');">^loc_INSTALL^</a>
             </td>
         </tr>
     </table>

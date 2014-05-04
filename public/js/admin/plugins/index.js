@@ -17,6 +17,10 @@ function resetSettings(pid) {
 	doPluginAPIAction('reset_settings', pid);
 }
 
+function initialize(pid) {
+	doPluginAPIAction('initialize', pid);
+}
+
 function doPluginAPIAction(action, identifier) {
 	$('#progress_modal').modal({});
 	$.post("/api/plugins/"+action+"/"+encodeURIComponent(identifier), 
