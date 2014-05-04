@@ -106,6 +106,13 @@ Util.merge = function(from, to) {
 	}
 };
 
+Util.union = function(a, b) {
+	var union = {};
+	Util.merge(a, union);
+	Util.merge(b, union);
+	return union;
+};
+
 Util.getTasks = function (iterable, getTaskFunction) {
 	var tasks = [];
 	for (var i = 0; i < iterable.length; i++) {
@@ -122,7 +129,12 @@ Util.arrayToHash = function(array, defaultVal) {
 	defaultVal = defaultVal || true;
 	var hash = {};
 	for(var i = 0; i < array.length; i++) {
-		hash[array[i]] = defaultVal;
+		if (typeof defaultVal === 'function') {
+			hash[defaultVal(array, i)] = array[i];
+		}
+		else {
+			hash[array[i]] = defaultVal;
+		}
 	}
 	return hash;
 };

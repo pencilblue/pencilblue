@@ -805,7 +805,23 @@ RequestHandler.CORE_ROUTES = [
     	access_level: ACCESS_MANAGING_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'pencilblue_settings.js'),
     	content_type: 'text/html'
-    }
+    },
+    {
+    	method: 'get',
+    	path: "/admin/plugins",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'index.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'post',
+    	path: "/api/plugins/:action/:id",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'plugins', 'plugin_api.js'),
+    	content_type: 'application/json'
+    },
 ];
 
 RequestHandler.init = function(){
@@ -1096,6 +1112,7 @@ RequestHandler.prototype.serve404 = function() {
 RequestHandler.prototype.serveError = function(err) {
 	var data = {
 		content: '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>'+(err ? err.stack : '')+'</pre></body></html>',
+		content_type: 'text/html',
 		code: 500
 	};
 	this.onRenderComplete(data);

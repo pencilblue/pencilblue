@@ -163,10 +163,10 @@ BaseController.prototype.redirect = function(location, cb){
 BaseController.apiResponse = function(cd, msg, dta) {
     if(typeof msg === 'undefined') {
         switch(cd) {
-            case apiResponseCode.FAILURE:
+            case BaseController.FAILURE:
                 msg = 'FAILURE';
                 break;
-            case apiResponseCode.SUCCESS:
+            case BaseController.SUCCESS:
                 msg = 'SUCCESS';
                 break;
             default:

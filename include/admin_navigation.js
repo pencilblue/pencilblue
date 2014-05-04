@@ -77,29 +77,17 @@ var defaultAdminNavigation =
         children:
         [
             {
+                divider: true,
+                id: 'manage',
+                title: '^loc_MANAGE^',
+                icon: 'upload',
+                href: '/admin/plugins'
+            },
+            {
                 id: 'themes',
                 title: '^loc_THEMES^',
                 icon: 'magic',
                 href: '/admin/plugins/themes'
-            },
-            {
-                id: 'frontend_plugins',
-                title: '^loc_FRONTEND^',
-                icon: 'tint',
-                href: '#'
-            },
-            {
-                id: 'backend_plugins',
-                title: '^loc_BACKEND^',
-                icon: 'terminal',
-                href: '#'
-            },
-            {
-                divider: true,
-                id: 'install_plugin',
-                title: '^loc_INSTALL_PLUGIN^',
-                icon: 'upload',
-                href: '#'
             }
         ]
     },
@@ -213,30 +201,18 @@ function getDefaultNavigation(ls) {
             children:
             [
                 {
-                    id: 'themes',
-                    title: ls.get('THEMES'),
-                    icon: 'magic',
-                    href: '/admin/plugins/themes'
-                },
-                {
-                    id: 'frontend_plugins',
-                    title: ls.get('FRONTEND'),
-                    icon: 'tint',
-                    href: '#'
-                },
-                {
-                    id: 'backend_plugins',
-                    title: ls.get('BACKEND'),
-                    icon: 'terminal',
-                    href: '#'
-                },
-                {
-                    divider: true,
-                    id: 'install_plugin',
-                    title: ls.get('INSTALL_PLUGIN'),
-                    icon: 'upload',
-                    href: '#'
-                }
+	                divider: true,
+	                id: 'manage',
+	                title: ls.get('MANAGE'),
+	                icon: 'upload',
+	                href: '/admin/plugins'
+	            },
+	            {
+	                id: 'themes',
+	                title: ls.get('THEMES'),
+	                icon: 'magic',
+	                href: '/admin/plugins/themes'
+	            }
             ]
         },
         {

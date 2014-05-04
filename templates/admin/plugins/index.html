@@ -1,0 +1,88 @@
+^tmp_admin=head^
+<script src="/js/admin/plugins/index.js"></script>
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    <table id="installed_plugins_table" class="table table-responsive table-condensed">
+        <tr><th title="^loc_ACTIVE_PLUGIN_DESCRIPTION^">^loc_ACTIVE_PLUGINS^</th></tr>
+        <tr id="installed_plugins_table_header">
+            <th id="installed_name_header">^loc_NAME^</th>
+            <th id="installed_description_header">^loc_VERSION^</th>
+            <th id="installed_date_header">^loc_INSTALLED_ON^</th>
+            <th></th>
+        </tr>
+        <tr class="installed_plugin_row" ng-repeat="installed in installedPlugins track by installed.uid" on-finish-render ng-cloak>
+            <td><a ng-href="/admin/plugins/view/{{installed._id}}" title="{{installed.description}}">{{installed.uid}}</a></td>
+            <td class="installed_version">{{installed.version}}</td>
+            <td class="installed_on_date">{{installed.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td>
+                <a href="javascript:resetSettings('{{installed.uid}}');">^loc_RESET_SETTINGS^</a> | 
+                <a href="javascript:uninstallPlugin('{{installed.uid}}')">^loc_UNINSTALL^</a>
+            </td>
+        </tr>
+    </table>
+    <br/>
+    
+    <table id="inactive_plugins_table" class="table table-responsive table-condensed">
+        <tr><th title="^loc_INACTIVE_PLUGIN_DESCRIPTION^">^loc_INACTIVE_PLUGINS^</th></tr>
+        <tr id="inactive_plugins_table_header">
+            <th id="inactive_name_header">^loc_NAME^</th>
+            <th id="inactive_version_header">^loc_VERSION^</th>
+            <th id="inactive_date_header">^loc_INSTALLED_ON^</th>
+            <th></th>
+        </tr>
+        <tr class="inactive_plugin_row" ng-repeat="inactive in inactivePlugins track by inactive.uid" on-finish-render ng-cloak>
+            <td title="{{inactive.description}}"><a ng-href="/admin/plugins/view/{{inactive._id}}">{{inactive.uid}}</a></td>
+            <td class="inactive_version">{{inactive.version}}</td>
+            <td class="inactive_on_date">{{inactive.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td>
+                <a href="javascript:resetSettings('{{inactive.uid}}');">^loc_RESET_SETTINGS^</a> | 
+                <a href="javascript:initialize('{{inactive.uid}}');">^loc_INITIALIZE^</a> | 
+                <a href="javascript:uninstallPlugin('{{inactive.uid}}');">^loc_UNINSTALL^</a>
+            </td>
+        </tr>
+    </table>
+    <br/>
+    
+    <table id="available_plugins_table" class="table table-responsive table-condensed">
+        <tr><th title="^loc_AVAILABLE_PLUGIN_DESCRIPTION^">^loc_AVAILABLE_PLUGINS^</th></tr>
+        <tr id="available_plugins_table_header">
+            <th id="available_name_header">^loc_NAME^</th>
+            <th id="available_version_header">^loc_VERSION^</th>
+            <th id="available_description_header">^loc_DESCRIPTION^</th>
+            <th></th>
+        </tr>
+        <tr class="available_plugin_row" ng-repeat="available in availablePlugins track by available.uid" on-finish-render ng-cloak>
+            <td>{{available.uid}}</td>
+            <td class="available_version">{{available.version}}</td>
+            <td class="available_description">
+                {{available.description}}
+                <ul>
+                    <li ng-repeat="validationError in available.validationErrors">{{validationError}}</li>
+                </ul>
+            </td>
+            <td>
+                <a ng-if="!available.validationErrors" href="javascript:installPlugin('{{available.uid}}');">^loc_INSTALL^</a>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<div id="progress_modal" class="modal fade modal-sm" tabindex="-1" role="dialog" aria-labelledby="modal_label" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" onclick="javascript:window.location.reload();" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="modal_label">^loc_PLEASE_WAIT^...</h4>
+        </div>
+        <div class="loading-modal-content">
+	        <div id="progress_bar" class="progress progress-striped active">
+			  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+			</div>
+			<textarea id="progress_console" rows="5" disabled style="width:100%"></textarea>
+		</div>
+    </div>
+  </div>
+</div>
+^tmp_admin=footer^

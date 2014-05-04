@@ -87,7 +87,7 @@ pb.DeleteController = require(DOCUMENT_ROOT+'/controllers/delete_controller.js')
 pb.RequestHandler   = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
 
 //setup errors
-global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js');
+global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js').PBError;
 
 //setup localization
 pb.Localization = require(DOCUMENT_ROOT+'/include/localization.js').Localization;
