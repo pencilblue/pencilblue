@@ -37,7 +37,20 @@ Index.prototype.render = function(cb) {
                 var page    = self.req.pencilblue_page    || null;
                 
                 var service = new ArticleService();
-                if(section) {
+                if(self.req.pencilblue_preview) {
+                    if(self.req.pencilblue_preview == page || article) {
+                        if(page) {
+                            service.setContentType('page');
+                        }
+                        var where = pb.DAO.getIDWhere(page || article);
+                        where.draft = {$gte: 0};
+                        service.find(where, articleCallback);
+                    }
+                    else {
+                        service.find({}, articleCallback);
+                    }
+                }
+                else if(section) {
                     service.findBySection(section, articleCallback);
                 }
                 else if(topic) {

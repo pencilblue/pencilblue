@@ -66,20 +66,30 @@
                         <input type="text" id="meta_keywords" name="meta_keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
                     </div>
                 </div>
-                <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/pages';">
+                <a class="btn btn-default" href="/admin/content/pages">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                </button>&nbsp;
+                </a>&nbsp;
+                <a id="preview_button" class="btn btn-info" ng-href="javascript:previewPage({{page.draft}})">
+                    <i class="fa fa-eye"></i>&nbsp;^loc_PREVIEW^
+                </a>&nbsp;
+                <a id="view_preview" ng-href="/preview/page/{{page._id}}" target="_blank" style="display:none">View Preview</a>
                 <div class="btn-group dropup">
-                    <button type="button" class="btn btn-primary" onclick="checkForEditPageSave(false)">
+                    <button type="button" class="btn btn-primary" onclick="checkForEditPageSave(false)" ng-if="!page.draft">
                         <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                    </button>
+                    <button id="save_draft_button" type="button" class="btn btn-primary" onclick="checkForEditPageSave(true)" ng-if="page.draft">
+                        <i class="fa fa-save"></i>&nbsp;^loc_SAVE_DRAFT^
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-sm fa-chevron-up"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="javascript:checkForEditPageSave(true)">^loc_SAVE_DRAFT^</a></li>
+                        <li ng-if="!page.draft"><a href="javascript:checkForEditPageSave(true)">^loc_SAVE_DRAFT^</a></li>
+                        <li ng-if="page.draft"><a href="javascript:checkForEditPageSave(false)">^loc_SAVE^</a></li>
                     </ul>
                 </div>
+                <div class="spacer"></div>
+                <label id="draft_info" ng-style="{'display': (page.draft) ? 'block' : 'none'}">^loc_DRAFT_SAVED^ <span id="draft_time">{{page.last_modified | date: 'yyyy-MM-dd HH:mm'}}</span></label>
             </div>
         </fieldset>
     </form>

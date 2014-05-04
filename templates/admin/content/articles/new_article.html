@@ -69,18 +69,18 @@
                         <input type="text" id="meta_keywords" name="meta_keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
                     </div>
                 </div>
-                <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/articles';">
+                <a class="btn btn-default" href="/admin/content/articles">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                </button>&nbsp;
+                </a>&nbsp;
                 <div class="btn-group dropup">
-                    <button type="button" class="btn btn-primary" onclick="checkForNewArticleSave(false)">
-                        <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                    <button type="button" class="btn btn-primary" onclick="checkForNewArticleSave(true)">
+                        <i class="fa fa-save"></i>&nbsp;^loc_SAVE_DRAFT^
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-sm fa-chevron-up"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="javascript:checkForNewArticleSave(true)">^loc_SAVE_DRAFT^</a></li>
+                        <li><a href="javascript:checkForNewArticleSave(false)">^loc_SAVE^</a></li>
                     </ul>
                 </div>
                 <div class="spacer"></div>

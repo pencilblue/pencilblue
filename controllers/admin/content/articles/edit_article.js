@@ -52,6 +52,25 @@ EditArticle.prototype.onTemplateRetrieved = function(template, cb) {
 	cb(null, template);
 };
 
+EditArticle.prototype.getAngularController = function(pills, tabs, data) {
+    var self = this;
+	var objects = {
+        navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
+        pills: pills,
+        tabs: tabs,
+        templates: data.templates,
+        sections: data.sections,
+        topics: data.topics,
+        media: data.media,
+        article: self.article
+    };
+	return angular = pb.js.getAngularController(
+		objects, 
+		[], 
+		'initMediaPagination();initSectionsPagination();initTopicsPagination()'
+	);
+};
+
 EditArticle.prototype.getBreadCrum = function() {
 	return {
         name: 'manage_articles',
