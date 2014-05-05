@@ -822,6 +822,14 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'plugins', 'plugin_api.js'),
     	content_type: 'application/json'
     },
+    {
+    	method: 'get',
+    	path: "/admin/users/permissions",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'permissions.js'),
+    	content_type: 'text/html'
+    },    
 ];
 
 RequestHandler.init = function(){

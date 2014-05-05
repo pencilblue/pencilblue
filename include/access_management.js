@@ -16,6 +16,24 @@ global.ACCESS_ADMINISTRATOR   = 4;
 SecurityService.AUTHENTICATED = 'authenticated';
 SecurityService.ADMIN_LEVEL   = 'admin_level';
 
+SecurityService.getRoleNames = function(ls) {
+	var map = SecurityService.getRoleToDisplayNameMap(ls);
+	return pb.utils.hashToArray(map);
+};
+
+SecurityService.getRoleToDisplayNameMap = function(ls) {
+	if (ls && typeof ls.get === 'function') {
+		return {
+			'ACCESS_USER': ls.get('ACCESS_USER'),
+	        'ACCESS_WRITER': ls.get('ACCESS_WRITER'),
+	        'ACCESS_EDITOR': ls.get('ACCESS_EDITOR'),
+	        'ACCESS_MANAGING_EDITOR': ls.get('ACCESS_MANAGING_EDITOR'),
+	        'ACCESS_ADMINISTRATOR': ls.get('ACCESS_ADMINISTRATOR'),
+		};
+	}
+	return null;
+};
+
 SecurityService.getRoleName = function(accessLevel) {
 	switch(accessLevel) {
 	case ACCESS_USER:

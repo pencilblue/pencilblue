@@ -1,0 +1,23 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    
+    <div class="quick-nav">
+        <table>
+            <thead>
+                <tr>
+                    <th>Permission</th>
+                    <th class="skew" ng-repeat="role in roles"><div ng-class-odd="'odd'"><span>{{role}}</span></div></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="perm in permissions">
+                    <td class="project-name">{{perm.name}}</td>
+                    <td ng-repeat="value in perm.vals" ng-class-odd="'odd'"><input type="checkbox" ng-checked="value.val" disabled="true" /></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+^tmp_admin=footer^

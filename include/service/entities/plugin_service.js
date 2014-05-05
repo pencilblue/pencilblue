@@ -420,7 +420,7 @@ PluginService.getPermissionsForRole = function(role) {
 		if (permissions) {
 			
 			var permsAtLevel = permissions[role];
-			if (permsAtLevel) {pb.log.info('doing merge');
+			if (permsAtLevel) {
 				pb.utils.merge(permsAtLevel, perms);
 			}
 		}

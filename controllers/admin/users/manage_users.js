@@ -36,7 +36,7 @@ ManageUsers.prototype.render = function(cb) {
             
             result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
-                navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
                 pills: pills,
                 users: users
             }, [], 'initUsersPagination()'));
