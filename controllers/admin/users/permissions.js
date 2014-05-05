@@ -41,7 +41,7 @@ PermissionsMapController.prototype.render = function(cb) {
 	
 	var angularData = pb.js.getAngularController(
         {
-            navigation: pb.AdminNavigation.get(self.session, ['users', 'permissions'], self.ls),
+            navigation: pb.AdminNavigation.get(this.session, ['users', 'permissions'], this.ls),
             roles: roleDNs,
             permissions: permissions,
         }, 
