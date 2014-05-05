@@ -9,129 +9,6 @@
  */
 function AdminNavigation(){}
 
-//constants
-/**
- * @private
- * @property defaultAdminNavigation
- */
-var defaultAdminNavigation =
-[
-    {
-        id: 'content',
-        title: '^loc_CONTENT^',
-        icon: 'quote-right',
-        href: '#',
-        access: ACCESS_WRITER,
-        children:
-        [
-            {
-                id: 'sections',
-                title: '^loc_SECTIONS^',
-                icon: 'th-large',
-                href: '/admin/content/sections/section_map',
-                access: ACCESS_EDITOR
-            },
-            {
-                id: 'topics',
-                title: '^loc_TOPICS^',
-                icon: 'tags',
-                href: '/admin/content/topics/manage_topics',
-                access: ACCESS_EDITOR
-            },
-            {
-                id: 'pages',
-                title: '^loc_PAGES^',
-                icon: 'file-o',
-                href: '/admin/content/pages/manage_pages',
-                access: ACCESS_EDITOR
-            },
-            {
-                id: 'articles',
-                title: '^loc_ARTICLES^',
-                icon: 'files-o',
-                href: '/admin/content/articles/manage_articles',
-                access: ACCESS_WRITER
-            },
-            {
-                id: 'media',
-                title: '^loc_MEDIA^',
-                icon: 'camera',
-                href: '/admin/content/media/manage_media',
-                access: ACCESS_WRITER
-            },
-            {
-                id: 'custom_objects',
-                title: '^loc_CUSTOM_OBJECTS^',
-                icon: 'sitemap',
-                href: '/admin/content/custom_objects/manage_object_types',
-                access: ACCESS_EDITOR
-            }
-        ]
-    },
-    {
-        id: 'plugins',
-        title: '^loc_PLUGINS^',
-        icon: 'puzzle-piece',
-        href: '#',
-        access: ACCESS_MANAGING_EDITOR,
-        children:
-        [
-            {
-                divider: true,
-                id: 'manage',
-                title: '^loc_MANAGE^',
-                icon: 'upload',
-                href: '/admin/plugins'
-            },
-            {
-                id: 'themes',
-                title: '^loc_THEMES^',
-                icon: 'magic',
-                href: '/admin/plugins/themes'
-            }
-        ]
-    },
-    {
-        id: 'users',
-        title: '^loc_USERS^',
-        icon: 'users',
-        href: '/admin/users/manage_users',
-        access: ACCESS_EDITOR
-    },
-    {
-        id: 'settings',
-        title: '^loc_SETTINGS^',
-        icon: 'cogs',
-        href: '#',
-        access: ACCESS_WRITER,
-        children:
-        [
-            {
-                id: 'site_settings',
-                title: '^loc_SITE_SETTINGS^',
-                icon: 'cog',
-                href: '/admin/site_settings/configuration',
-                access: ACCESS_MANAGING_EDITOR
-            },
-            {
-                id: 'account',
-                title: '^loc_ACCOUNT^',
-                icon: 'user',
-                href: '#',
-                access: ACCESS_WRITER
-            },
-            {
-                divider: true,
-                id: 'logout',
-                title: '^loc_LOGOUT^',
-                icon: 'power-off',
-                href: '/actions/logout',
-                access: ACCESS_WRITER
-            }
-        ]
-    }
-];
-
 /**
  * @private
  * @method getDefaultNavigation
@@ -219,8 +96,25 @@ function getDefaultNavigation(ls) {
             id: 'users',
             title: ls.get('USERS'),
             icon: 'users',
-            href: '/admin/users/manage_users',
-            access: ACCESS_EDITOR
+            href: '#',
+            access: ACCESS_EDITOR,
+            children:
+            [
+                {
+                    id: 'manage',
+                    title: ls.get('MANAGE'),
+                    icon: 'users',
+                    href: '/admin/users/manage_users',
+                    access: ACCESS_EDITOR
+                },
+                {
+                    id: 'permissions',
+                    title: ls.get('PERMISSIONS'),
+                    icon: 'lock',
+                    href: '/admin/users/permissions',
+                    access: ACCESS_ADMINISTRATOR
+                },
+            ]
         },
         {
             id: 'settings',
@@ -268,9 +162,9 @@ function getDefaultNavigation(ls) {
  */
 AdminNavigation.get = function(session, activeMenuItems, ls) {
     return AdminNavigation.removeUnauthorized(
-    		session, 
-    		ls ? getDefaultNavigation(ls) : pb.utils.clone(defaultAdminNavigation), 
-    		activeMenuItems
+		session, 
+		getDefaultNavigation(ls), 
+		activeMenuItems
 	);
 };
 

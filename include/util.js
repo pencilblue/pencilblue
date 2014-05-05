@@ -139,8 +139,34 @@ Util.arrayToHash = function(array, defaultVal) {
 	return hash;
 };
 
+Util.hashToArray = function(obj) {
+	if (!Util.isObject(obj)) {
+		return null;
+	}
+	
+	var a = [];
+	for (var prop in obj) {
+		a.push(obj[prop]);
+	}
+	return a;
+};
+
+Util.invertHash = function(obj) {
+	if (!Util.isObject(obj)) {
+		return null;
+	}
+	
+	var new_obj = {};
+	for (var prop in obj) {
+		if (obj.hasOwnProperty(prop)) {
+			new_obj[obj[prop]] = prop;
+		}
+	}
+	return new_obj;
+};
+
 /**
- * Empty callback function just used as a place holder if a callback is required 
+ * Empty callback function just used as a place holder if a callback is required
  * and the result is not needed.
  */
 Util.cb = function(err, result){

@@ -85,6 +85,13 @@ var loc =
 		INITIALIZE: 'Initialize',
 		INITIALIZATION_FAILED: 'The attempt to initialize plugin [%s] failed',
 		INITIALIZATION_SUCCESS: 'Successfully initialized plugin [%s]',
+		PERMISSION: 'Permission',
+		PERMISSIONS: 'Permissions',
+		ACCESS_USER: 'User',
+		ACCESS_WRITER: 'Writer',
+		ACCESS_EDITOR: 'Editor',
+		ACCESS_MANAGING_EDITOR: 'Managing Edtor',
+		ACCESS_ADMINISTRATOR: 'Administrator'
     },
     error:
     {
