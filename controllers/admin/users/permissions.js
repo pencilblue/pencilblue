@@ -7,7 +7,6 @@ var BaseController = pb.BaseController;
 util.inherits(PermissionsMapController, BaseController);
 
 PermissionsMapController.prototype.render = function(cb) {
-	var self = this;
 	
 	//setup angular
 	var roleDNMap   = pb.security.getRoleToDisplayNameMap(this.ls);
@@ -50,7 +49,8 @@ PermissionsMapController.prototype.render = function(cb) {
     );
 	
 	//render page
-	self.ts.load('/admin/users/permissions', function(err, content) {
+	this.setPageName(this.ls.get('PERMISSIONS'));
+	this.ts.load('/admin/users/permissions', function(err, content) {
 		
 		//TODO move angular out as flag & replacement when can add option to 
 		//skip the check for replacements in replacement
