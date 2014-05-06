@@ -480,13 +480,6 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'manage_account', 'change_password.js'),
     },
     {
-    	path: "/api/custom_objects/get_object_type_url_available",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_url_available.js'),
-    	content_type: 'text/html'
-    },
-    {
     	method: 'get',
     	path: "/admin/content/custom_objects",
     	auth_required: true,
