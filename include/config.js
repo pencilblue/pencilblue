@@ -69,6 +69,12 @@ var config = {
 		}
 	}
 };
+
+var CONFIG_FILE_NAME    = 'config.json';
+var OVERRIDE_FILE_PATHS = [
+    path.join(DOCUMENT_ROOT, CONFIG_FILE_NAME),
+    path.join(EXTERNAL_ROOT, CONFIG_FILE_NAME),
+];
     
 /**
  * Loads an external configuration.  
@@ -88,32 +94,42 @@ var loadConfiguration = function() {
         fs.writeFileSync(LOG_FILE, '');
     }
    
-    var overrideFile = path.join(EXTERNAL_ROOT, 'config.json');
-    if (fs.existsSync(overrideFile)) {
-	    var result = fs.readFileSync(overrideFile, {encoding: "UTF-8"});
-		      
-	    var override = {};
-	    if (typeof result === 'Error') {
-	        console.log('Failed to read external configuration file. Using defaults: '+err);
-	        return config;
-	    }
-	    else{
-		    try{
-		      override = JSON.parse(result);
-		    }
-		    catch(e){
-		      console.log('Failed to parse configuration file ['+overrideFile+'].  Using defaults: '+e);
-		      return config;
-		    }
-	    }
-	
-	    for(var key in override) {
-		    console.log("Overriding property: KEY="+key+" VAL="+JSON.stringify(override[key]));
-		    config[key] = override[key];
-	    }
+    var override       = {};
+    var overrideFile   = null;
+    var overridesFound = false;
+    for (var i = 0; i < OVERRIDE_FILE_PATHS.length; i++) {
+    	
+    	overrideFile = OVERRIDE_FILE_PATHS[i];
+    	if (fs.existsSync(overrideFile)) {
+    	    
+    		var result = fs.readFileSync(overrideFile, {encoding: "UTF-8"});
+    	    if (typeof result === 'Error') {
+    	        console.log('Failed to read external configuration file ['+overrideFile+'].');
+    	    }
+    	    else{
+    		    try{
+    		      override       = JSON.parse(result);
+    		      overridesFound = true;
+    		      break;
+    		    }
+    		    catch(e){
+    		      console.log('Failed to parse configuration file ['+overrideFile+']: '+e.message);
+    		    }
+    	    }
+    	}
+    	else {
+    		console.log('SystemStartup: No configuration file ['+overrideFile+'] found.');
+    	}
     }
-    else{
-    	console.log("No override file found ["+overrideFile+"], keeping defaults");
+
+    //log result
+    var message = overridesFound ? 'Override file ['+overrideFile+'] will be applied.' : 'No overrides are available, skipping to defaults';
+    console.log('SystemStartup: '+message);
+    
+    //perform any overrides
+    for(var key in override) {
+	    console.log("Overriding property: KEY="+key+" VAL="+JSON.stringify(override[key]));
+	    config[key] = override[key];
     }
 	return config;
 };
