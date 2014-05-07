@@ -91,7 +91,19 @@ var loc =
 		ACCESS_WRITER: 'Writer',
 		ACCESS_EDITOR: 'Editor',
 		ACCESS_MANAGING_EDITOR: 'Managing Edtor',
-		ACCESS_ADMINISTRATOR: 'Administrator'
+		ACCESS_ADMINISTRATOR: 'Administrator',
+		UID: 'UID',
+		AUTHOR_INFORMATION: 'Author Information',
+		WEBSITE: 'Website',
+		CONTRIBUTORS: 'Contributors',
+		ERRORS: 'Errors',
+		ERRORED: 'Errored',
+		ACTIVE: 'Active',
+		INACTIVE: 'Inactive',
+		AVAILABLE: 'Available',
+		STATUS: 'Status',
+		THEME_INFORMATION: 'Theme Information',
+		TEMPLATES: 'Templates',
     },
     error:
     {

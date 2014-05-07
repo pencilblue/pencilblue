@@ -825,11 +825,18 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
+    	path: "/admin/plugins/view/:id",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'details.js'),
+    	content_type: 'text/html'
+    },
+    {
     	path: "/api/content/get_articles",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'get_articles.js'),
     	content_type: 'application/json'
-    }    
+    }
 ];
 
 RequestHandler.init = function(){

@@ -20,7 +20,7 @@ PluginsIndex.prototype.render = function(cb) {
 		//setup angular
 		var angularData = pb.js.getAngularController(
             {
-                navigation: pb.AdminNavigation.get(self.session, ['plugins'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                 installedPlugins: map.active,
                 inactivePlugins: map.inactive,
                 availablePlugins: map.available

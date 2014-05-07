@@ -12,7 +12,7 @@
             <th></th>
         </tr>
         <tr class="installed_plugin_row" ng-repeat="installed in installedPlugins track by installed.uid" on-finish-render ng-cloak>
-            <td><a ng-href="/admin/plugins/view/{{installed._id}}" title="{{installed.description}}">{{installed.uid}}</a></td>
+            <td><a ng-href="/admin/plugins/view/{{installed.uid}}" title="{{installed.description}}">{{installed.uid}}</a></td>
             <td class="installed_version">{{installed.version}}</td>
             <td class="installed_on_date">{{installed.created | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td>
@@ -32,7 +32,7 @@
             <th></th>
         </tr>
         <tr class="inactive_plugin_row" ng-repeat="inactive in inactivePlugins track by inactive.uid" on-finish-render ng-cloak>
-            <td title="{{inactive.description}}"><a ng-href="/admin/plugins/view/{{inactive._id}}">{{inactive.uid}}</a></td>
+            <td title="{{inactive.description}}"><a ng-href="/admin/plugins/view/{{inactive.uid}}">{{inactive.uid}}</a></td>
             <td class="inactive_version">{{inactive.version}}</td>
             <td class="inactive_on_date">{{inactive.created | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td>
@@ -53,7 +53,9 @@
             <th></th>
         </tr>
         <tr class="available_plugin_row" ng-repeat="available in availablePlugins track by available.uid" on-finish-render ng-cloak>
-            <td>{{available.uid}}</td>
+            <td>
+                <a ng-href="/admin/plugins/view/{{available.uid}}" title="{{available.description}}">{{available.uid}}</a>
+            </td>
             <td class="available_version">{{available.version}}</td>
             <td class="available_description">
                 {{available.description}}
