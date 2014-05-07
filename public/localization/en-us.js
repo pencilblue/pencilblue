@@ -95,7 +95,15 @@ var loc =
 		UID: 'UID',
 		AUTHOR_INFORMATION: 'Author Information',
 		WEBSITE: 'Website',
-		CONTRIBUTORS: 'Contributors'
+		CONTRIBUTORS: 'Contributors',
+		ERRORS: 'Errors',
+		ERRORED: 'Errored',
+		ACTIVE: 'Active',
+		INACTIVE: 'Inactive',
+		AVAILABLE: 'Available',
+		STATUS: 'Status',
+		THEME_INFORMATION: 'Theme Information',
+		TEMPLATES: 'Templates',
     },
     error:
     {

@@ -2,11 +2,15 @@
 <div class="col-md-9">
 	^error_success^ 
 	^tmp_admin=elements=sub_nav^
-	<img class="media-object" src="^plugin_icon^" /><h2>{{d.name}}</h2>
+	<table><tr><td><img ng-if="is_active" class="media-object" src="^plugin_icon^" /></td><td><h2>{{d.name}}</h2></td></tr></table>
 	<form role="form">
 		<div class="form-group">
 			<label for="status">^loc_STATUS^</label>
 			<input type="text" class="form-control" id="status" disabled value="{{status}}"/>
+			<div ng-if="d.errors">
+			     <label for="errors">^loc_ERRORS^</label>
+			     <textarea id="errors" class="form-control" disabled>{{d.errors.join("\n")}}</textarea>
+			</div>
 		</div>
 		<div class="form-group">
 			<label for="uid">^loc_UID^</label> 
@@ -48,8 +52,10 @@
             <div id="author_information" class="panel-body">
                  <div class="form-group">
                     <div class="input-group">
-                        <ul>
+                        <label for="theme_templates">^loc_TEMPLATES^</label>
+                        <ul id="theme_templates">
                             <li ng-repeat="t in d.theme.content_templates">{{t.name}}</li>
+                            <li ng-if="!d.theme.content_templates">^loc_NONE^</li>
                         </ul>
                     </div>
                 </div>

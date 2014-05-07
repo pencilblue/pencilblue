@@ -17,7 +17,7 @@ PermissionsMapController.prototype.render = function(cb) {
 	for (var i = 0; i < roles.length; i++) {
 		
 		var roleName = roles[i];
-		var permMap  = pb.PluginService.getPermissionsForRole(roleName);console.log(roleName+': '+util.inspect(permMap));
+		var permMap  = pb.PluginService.getPermissionsForRole(roleName);
 		
 		rolePermMap[roleName] = {};
 		for (var perm in permMap) {
