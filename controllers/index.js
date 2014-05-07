@@ -78,6 +78,8 @@ Index.prototype.processArticles = function(result, articles, themeSettings, cb) 
 		
         pb.content.getSettings(function(err, contentSettings) {
         	
+        	articles = articles.slice(0, contentSettings.articles_per_page);
+        	
         	ArticleService.getMetaInfo(articles[0], function(metaKeywords, metaDescription, metaTitle) {
                 
                 result = result.split('^meta_keywords^').join(metaKeywords);
