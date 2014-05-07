@@ -6,9 +6,9 @@
 module.exports.logger = function(winston, config){
 	var logger =  new (winston.Logger)({
 	    transports: config.logging.transports,
-	    level: config.logging.level
+	    level: config.log_level
    });
-	
+
 	logger.isDebug = function(){
 		return pb.log.levels[pb.log.level] <= 1;
 	};
@@ -16,5 +16,7 @@ module.exports.logger = function(winston, config){
 	logger.isSilly = function(){
 		return pb.log.levels[pb.log.level] <= 0;
 	};
+	
+	console.log('SystemStartup: Log Level is: '+config.log_level);
 	return logger;
 };

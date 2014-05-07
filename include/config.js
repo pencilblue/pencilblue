@@ -39,13 +39,7 @@ var config = {
 		storage: "redis",
 		timeout: 600000
 	},
-	logging: {
-		level: LOG_LEVEL,
-		transports: [
-             new (winston.transports.Console)({ level: LOG_LEVEL, timestamp: true }),
-             new (winston.transports.File)({ filename: LOG_FILE, level: LOG_LEVEL, timestamp: true })
-       ]
-	},
+	log_level: LOG_LEVEL,
 	locales: {
 		supported: [
             {
@@ -86,11 +80,11 @@ var loadConfiguration = function() {
 
     // If no log file exists, we should create one
 	// TODO decide if this is still needed or if the file logger creates the file for us
-	console.log("Creating log directory: "+LOG_DIR);
     if (!fs.existsSync(LOG_FILE)) {
         if (!fs.existsSync(LOG_DIR)) {
             fs.mkdirSync(LOG_DIR);
         }
+        console.log("SystemStartup: Creating log file ["+LOG_FILE+']');
         fs.writeFileSync(LOG_FILE, '');
     }
    
@@ -104,7 +98,7 @@ var loadConfiguration = function() {
     	    
     		var result = fs.readFileSync(overrideFile, {encoding: "UTF-8"});
     	    if (typeof result === 'Error') {
-    	        console.log('Failed to read external configuration file ['+overrideFile+'].');
+    	        console.log('SystemStartup: Failed to read external configuration file ['+overrideFile+'].');
     	    }
     	    else{
     		    try{
@@ -113,7 +107,7 @@ var loadConfiguration = function() {
     		      break;
     		    }
     		    catch(e){
-    		      console.log('Failed to parse configuration file ['+overrideFile+']: '+e.message);
+    		      console.log('SystemStartup: Failed to parse configuration file ['+overrideFile+']: '+e.message);
     		    }
     	    }
     	}
@@ -128,9 +122,17 @@ var loadConfiguration = function() {
     
     //perform any overrides
     for(var key in override) {
-	    console.log("Overriding property: KEY="+key+" VAL="+JSON.stringify(override[key]));
+	    console.log("SystemStartup: Overriding property KEY="+key+" VAL="+JSON.stringify(override[key])+'');
 	    config[key] = override[key];
     }
+    
+    //setup logging
+    config.logging = {
+		transports: [
+             new (winston.transports.Console)({ level: config.log_level, timestamp: true }),
+             new (winston.transports.File)({ filename: LOG_FILE, level: config.log_level, timestamp: true })
+       ]
+	};
 	return config;
 };
 
