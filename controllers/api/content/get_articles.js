@@ -50,7 +50,7 @@ GetArticles.prototype.processArticles = function(articles, cb) {
         	
     	articles = articles.slice(self.offset, self.offset + self.limit);
             
-        Comments.getCommentsTemplate(contentSettings, function(commentsTemplate) {
+        Comments.getCommentsTemplates(contentSettings, function(commentsTemplates) {
             
             var loggedIn       = false;
             var commentingUser = {};
@@ -59,7 +59,7 @@ GetArticles.prototype.processArticles = function(articles, cb) {
                 commentingUser = Comments.getCommentingUser(self.session.authentication.user);
             }
             
-            self.getArticlesHTML(articles, commentsTemplate, contentSettings, function(articlesHTML) {
+            self.getArticlesHTML(articles, commentsTemplates, contentSettings, commentingUser, function(articlesHTML) {
                 var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], articlesHTML);
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'success', {count: articles.length, articles: content})});
             });
@@ -67,7 +67,7 @@ GetArticles.prototype.processArticles = function(articles, cb) {
     });
 };
 
-GetArticles.prototype.getArticlesHTML = function(articles, commentsTemplate, contentSettings, cb) {
+GetArticles.prototype.getArticlesHTML = function(articles, commentsTemplates, contentSettings, commentingUser, cb) {
     var self = this;
     var articleTemplate = '';
     var bylineTemplate = '';
@@ -89,13 +89,13 @@ GetArticles.prototype.getArticlesHTML = function(articles, commentsTemplate, con
                 articleTemplate = articleTemplate.split('^byline^').join('');
             }
             
-            articleTemplate = articleTemplate.split('^comments^').join(commentsTemplate);
+            articleTemplate = articleTemplate.split('^comments^').join(commentsTemplates.commentsContainer);
             
             var result = '';
             for(var i = 0; i < articles.length; i++)
             {
                 var articleHTML = articleTemplate.split('^article_id^').join(articles[i]._id.toString());
-                articleHTML = articleHTML.split('^article_index^').join(i.toString());
+                articleHTML = articleHTML.split('^article_index^').join((self.offset + i).toString());
                 articleHTML = articleHTML.split('^article_url^').join(articles[i].url);
                 articleHTML = articleHTML.split('^author_photo^').join(articles[i].author_photo);
                 articleHTML = articleHTML.split('^author_name^').join(articles[i].author_name);
@@ -126,6 +126,8 @@ GetArticles.prototype.getArticlesHTML = function(articles, commentsTemplate, con
                 
                 articleHTML = articleHTML.split('^article_layout^').join(articles[i].layout);
                 
+                articleHTML = self.formatComments(articleHTML, articles[i].comments, commentingUser, commentsTemplates.comment);
+                
                 result = result.concat(articleHTML);
             }
             
@@ -133,6 +135,54 @@ GetArticles.prototype.getArticlesHTML = function(articles, commentsTemplate, con
         });
     });
 };
+
+GetArticles.prototype.formatComments = function(articleHTML, comments, commentingUser, commentTemplate) {
+    
+    if(commentingUser) {
+        articleHTML = articleHTML.split('^display_submit^').join('block')
+        .split('^display_login^').join('none');
+    }
+    else {
+        articleHTML = articleHTML.split('^display_submit^').join('none')
+        .split('^display_login^').join('block');
+    }
+    
+    if(comments) {
+        var commentsHTML = '';
+        for(var i = 0; i < comments.length; i++) {
+            if(comments[i].commenter_photo) {
+                var commentHTML = commentTemplate.split('^commenter_photo^').join(comments[i].commenter_photo)
+                .split('^display_photo^').join('block');
+            }
+            else {
+                var commentHTML = commentTemplate.split('^display_photo^').join('none')
+                .split('^commenter_photo^').join('')
+            }
+            commentHTML = commentHTML.split('^commenter_name^').join(comments[i].commenter_name);
+            if(comments[i].commenter_position) {
+                commentHTML = commentHTML.split('^commenter_position^').join(', ' + comments[i].commenter_position);
+            }
+            else {
+                commentHTML = commentHTML.split('^commenter_position^').join('');
+            }
+            
+            commentHTML = commentHTML.split('^content^').join(comments[i].content)
+            .split('^timestamp^').join(comments[i].timestamp);
+            
+            commentsHTML = commentsHTML.concat(commentHTML);
+        }
+        
+        articleHTML = articleHTML.split('^comments_length^').join(comments.length)
+        .split('^comments^').join(commentsHTML);
+    }
+    else
+    {
+        articleHTML = articleHTML.split('^comments_length^').join('0')
+        .split('^comments^').join('');
+    }
+    
+    return articleHTML;
+}
 
 //exports 
 module.exports = GetArticles;
