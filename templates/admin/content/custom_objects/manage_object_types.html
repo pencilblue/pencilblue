@@ -11,14 +11,12 @@
     <table id="object_types_table" class="table table-responsive table-condensed">
         <tr id="object_types_table_header">
             <th id="object_type_name_header">^loc_NAME^</th>
-            <th id="object_type_url_header">^loc_URL_KEY^</th>
             <th id="object_type_field_types_header">^loc_FIELD_TYPES^</th>
             <th id="object_type_date_header">^loc_LAST_MODIFIED^</th>
             <th></th>
         </tr>
         <tr class="object_type_row" ng-repeat="objectType in customObjectTypes track by objectType._id" on-finish-render ng-cloak>
             <td><a class="object_type_name" href="/admin/content/custom_objects/manage_objects/{{objectType.name}}">{{objectType.name}}</a></td>
-            <td class="object_type_url">{{objectType.url}}</td>
             <td class="object_type_field_types">{{objectType.fieldTypesUsed}}</td>
             <td class="object_type_date">{{objectType.last_modified | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td><a href="/admin/content/custom_objects/edit_object_type/{{objectType.name}}"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a href="javascript:confirmDeleteObjectType('{{objectType._id}}', '{{objectType.name}}')"><i class="fa fa-times"></i></a></td>

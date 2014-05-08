@@ -38,9 +38,11 @@ DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/manage_object_types', cb);
                 return;
             }
-
-            self.session.success = customObjectType.name + ' ' + self.ls.get('DELETED');
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+            
+            dao.deleteMatching({type: vars['id']}, 'custom_object').then(function(recordsDeleted) {
+                self.session.success = customObjectType.name + ' ' + self.ls.get('DELETED');
+                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+            });
         });
     });
 };

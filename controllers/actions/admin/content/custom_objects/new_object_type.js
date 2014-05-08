@@ -34,35 +34,33 @@ NewObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
         }
         
         // Check for duplicate url
-        dao.count('custom_object_type', {url: post['url'].toLowerCase()}, function(err, count) {
+        dao.count('custom_object_type', {name: post['name'].toLowerCase()}, function(err, count) {
             if(count > 0) {
                 self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/new_object_type', cb);
                 return;
             }
             
-            dao.count('page', {url: post['url'].toLowerCase()}, function(err, count) {
-                if(count > 0) {
-                    self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/new_object_type', cb);
+            if(count > 0) {
+                self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/new_object_type', cb);
+                return;
+            }
+            
+            objectTypeDocument = NewObjectType.createObjectTypeDocument(post);
+            if(!objectTypeDocument)
+            {
+                self.formError(self.ls.get('DUPLICATE_FIELD_NAME'), '/admin/content/custom_objects/new_object_type', cb);
+                return;
+            }
+            
+            
+            dao.update(objectTypeDocument).then(function(result) {
+                if(util.isError(result)) {
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/new_object_type', cb);
                     return;
                 }
                 
-                objectTypeDocument = NewObjectType.createObjectTypeDocument(post);
-                if(!objectTypeDocument)
-                {
-                    self.formError(self.ls.get('DUPLICATE_FIELD_NAME'), '/admin/content/custom_objects/new_object_type', cb);
-                    return;
-                }
-                
-                
-                dao.update(objectTypeDocument).then(function(result) {
-                    if(util.isError(result)) {
-                        self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/new_object_type', cb);
-                        return;
-                    }
-                    
-                    self.session.success = objectTypeDocument.name + ' ' + self.ls.get('CREATED');
-                    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
-                });
+                self.session.success = objectTypeDocument.name + ' ' + self.ls.get('CREATED');
+                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
             });
         });
     });

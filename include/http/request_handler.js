@@ -550,7 +550,7 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'verify_email.js'),
     },
     {
-    	path: "/actions/admin/content/custom_objects/delete_object_type",
+    	path: "/actions/admin/content/custom_objects/delete_object_type/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object_type.js'),
