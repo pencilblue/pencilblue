@@ -104,6 +104,8 @@ var loc =
 		STATUS: 'Status',
 		THEME_INFORMATION: 'Theme Information',
 		TEMPLATES: 'Templates',
+		SET_THEME_FAILED: 'The attempt to set the active theme [%s] failed',
+		SET_THEME_SUCCESS: 'Successfully activated the theme [%s]',
     },
     error:
     {
