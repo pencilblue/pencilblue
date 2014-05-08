@@ -1298,7 +1298,7 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 			
 			if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
 				result.success  = false;
-				result.redirect = '/admin/login';
+				result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
 				self.session.on_login = self.url.href;
 				callback(result, result);
 				return;
