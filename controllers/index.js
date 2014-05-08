@@ -88,16 +88,16 @@ Index.prototype.processArticles = function(result, articles, themeSettings, cb) 
                 result = result.split('^meta_lang^').join(localizationLanguage);
                 result = result.split('^current_url^').join(self.req.url);
                 
-                Comments.getCommentsTemplate(contentSettings, function(commentsTemplate) {
+                Comments.getCommentsTemplates(contentSettings, function(commentsTemplates) {
                     
                     var loggedIn       = false;
-                    var commentingUser = {};
+                    var commentingUser = null;
                     if(self.session.authentication.user) {
                         loggedIn       = true;
                         commentingUser = Comments.getCommentingUser(self.session.authentication.user);
                     }
                     
-                    self.getArticlesHTML(articles, commentsTemplate, contentSettings, function(articlesHTML) {
+                    self.getArticlesHTML(articles, commentsTemplates, contentSettings, commentingUser, function(articlesHTML) {
                         result = result.split('^articles^').join(articlesHTML);
             
                         var objects = {
@@ -120,7 +120,7 @@ Index.prototype.processArticles = function(result, articles, themeSettings, cb) 
     });
 };
 
-Index.prototype.getArticlesHTML = function(articles, commentsTemplate, contentSettings, cb) {
+Index.prototype.getArticlesHTML = function(articles, commentsTemplates, contentSettings, commentingUser, cb) {
     var self = this;
     var articleTemplate = '';
     var bylineTemplate = '';
@@ -142,7 +142,7 @@ Index.prototype.getArticlesHTML = function(articles, commentsTemplate, contentSe
                 articleTemplate = articleTemplate.split('^byline^').join('');
             }
             
-            articleTemplate = articleTemplate.split('^comments^').join(commentsTemplate);
+            articleTemplate = articleTemplate.split('^comments^').join(commentsTemplates.commentsContainer);
             
             var result = '';
             for(var i = 0; i < articles.length; i++)
@@ -179,6 +179,8 @@ Index.prototype.getArticlesHTML = function(articles, commentsTemplate, contentSe
                 
                 articleHTML = articleHTML.split('^article_layout^').join(articles[i].layout);
                 
+                articleHTML = self.formatComments(articleHTML, articles[i].comments, commentingUser, commentsTemplates.comment);
+                
                 result = result.concat(articleHTML);
             }
             
@@ -186,6 +188,67 @@ Index.prototype.getArticlesHTML = function(articles, commentsTemplate, contentSe
         });
     });
 };
+
+Index.prototype.formatComments = function(articleHTML, comments, commentingUser, commentTemplate) {
+    if(commentingUser) {
+        articleHTML = articleHTML.split('^display_submit^').join('block')
+        .split('^display_login^').join('none');
+    }
+    else {
+        articleHTML = articleHTML.split('^display_submit^').join('none')
+        .split('^display_login^').join('block');
+    }
+    
+    if(comments) {
+        var commentsHTML = '';
+        for(var i = 0; i < comments.length; i++) {
+            if(comments[i].commenter_photo) {
+                var commentHTML = commentTemplate.split('^commenter_photo^').join(comments[i].commenter_photo)
+                .split('^display_photo^').join('block');
+            }
+            else {
+                var commentHTML = commentTemplate.split('^display_photo^').join('none')
+                .split('^commenter_photo^').join('')
+            }
+            commentHTML = commentHTML.split('^commenter_name^').join(comments[i].commenter_name);
+            if(comments[i].commenter_position) {
+                commentHTML = commentHTML.split('^commenter_position^').join(', ' + comments[i].commenter_position);
+            }
+            else {
+                commentHTML = commentHTML.split('^commenter_position^').join('');
+            }
+            
+            commentHTML = commentHTML.split('^content^').join(comments[i].content)
+            .split('^timestamp^').join(comments[i].timestamp);
+            
+            commentsHTML = commentsHTML.concat(commentHTML);
+        }
+        
+        articleHTML = articleHTML.split('^comments_length^').join(comments.length)
+        .split('^comments^').join(commentsHTML);
+    }
+    else
+    {
+        articleHTML = articleHTML.split('^comments_length^').join('0')
+        .split('^comments^').join('');
+    }
+    
+    if(commentingUser) {
+        articleHTML = articleHTML.split('^user_photo^').join((commentingUser.photo) ? commentingUser.photo : '')
+        .split('^user_name^').join(commentingUser.name);
+        if(commentingUser.position && commentingUser.position.length) {
+            articleHTML = articleHTML.split('^user_position^').join(', ' + commentingUser.position);
+        }
+        else {
+            articleHTML = articleHTML.split('^user_position^').join('');
+        }
+    }
+    else {
+        articleHTML = articleHTML.split('^user_photo^').join('');
+    }
+    
+    return articleHTML;
+}
 
 Index.prototype.getPageName = function() {
 	return pb.config.siteName;

@@ -6,7 +6,9 @@
  */
 function CommentService(){}
 
-CommentService.getCommentsTemplate = function(contentSettings, output) {
+CommentService.getCommentsTemplates = function(contentSettings, output) {
+    var self = this;
+
     if(!contentSettings.allow_comments) {
         output('');
         return;
@@ -14,8 +16,10 @@ CommentService.getCommentsTemplate = function(contentSettings, output) {
 
     //TODO move this out of here.
     var ts = new pb.TemplateService();
-    ts.load('elements/comments', function(err, data) {
-        output(data);
+    ts.load('elements/comments', function(err, commentsContainer) {
+        ts.load('elements/comments/comment', function(err, comment) {
+            output({commentsContainer: commentsContainer, comment: comment});
+        });
     });
 };
 
