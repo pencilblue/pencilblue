@@ -1152,8 +1152,12 @@ RequestHandler.prototype.onSessionRetrieved = function(err, session) {
 	
 	//get active theme
 	var self = this;
-	pb.settings.get('active_theme', function(activeTheme){
-		self.onThemeRetrieved(activeTheme == null ? RequestHandler.DEFAULT_THEME : activeTheme, route);
+	pb.settings.get('active_theme', function(err, activeTheme){
+		if (!activeTheme) {
+			pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
+			activeTheme = RequestHandler.DEFAULT_THEME;
+		}
+		self.onThemeRetrieved(activeTheme, route);
 	});
 };
 
@@ -1202,6 +1206,10 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 		}
 	}
 	
+	if (pb.log.isSilly()) {
+		pb.log.silly("RequestHandler: Settling on theme [%s] for URL=[%s]", activeTheme, this.url.href);
+	}
+	
 	//sanity check
 	if (typeof route.themes[activeTheme] === 'undefined') {
 		this.serve404();
@@ -1211,7 +1219,7 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 	//do security checks
 	this.checkSecurity(activeTheme, function(err, result) {
 		if (pb.log.isSilly()) {
-			pb.log.silly("RequestHandler: Security Result="+result.success);
+			pb.log.silly("RequestHandler: Security Result=[%s]", result.success);
 			for (var key in result.results) {
 				pb.log.silly("RequestHandler:"+key+': '+JSON.stringify(result.results[key]));
 			}
@@ -1243,7 +1251,7 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 };
 
 RequestHandler.prototype.doRender = function(pathVars, cInstance) {
-	var self  = this;
+	var self  = this;	
 	var props = {
 	    request_handler: this,
 		request: this.req,
