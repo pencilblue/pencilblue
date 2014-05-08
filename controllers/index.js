@@ -233,6 +233,20 @@ Index.prototype.formatComments = function(articleHTML, comments, commentingUser,
         .split('^comments^').join('');
     }
     
+    if(commentingUser) {
+        articleHTML = articleHTML.split('^user_photo^').join((commentingUser.photo) ? commentingUser.photo : '')
+        .split('^user_name^').join(commentingUser.name);
+        if(commentingUser.position && commentingUser.position.length) {
+            articleHTML = articleHTML.split('^user_position^').join(', ' + commentingUser.position);
+        }
+        else {
+            articleHTML = articleHTML.split('^user_position^').join('');
+        }
+    }
+    else {
+        articleHTML = articleHTML.split('^user_photo^').join('');
+    }
+    
     return articleHTML;
 }
 
