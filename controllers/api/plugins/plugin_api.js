@@ -3,6 +3,7 @@ function PluginAPI(){}
 //dependencies
 var BaseController = pb.BaseController;
 var PluginService  = pb.PluginService;
+var RequestHandler = pb.RequestHandler;
 
 //inheritance
 util.inherits(PluginAPI, BaseController);
@@ -13,6 +14,7 @@ var VALID_ACTIONS = {
 	uninstall: true,
 	reset_settings: true,
 	initialize: true,
+	set_theme: true,
 };
 
 PluginAPI.prototype.render = function(cb) {
@@ -132,7 +134,7 @@ PluginAPI.prototype.initialize = function(uid, cb) {
 	pb.plugins.getPlugin(uid, function(err, plugin) {
 		if (util.isError(err)) {
 			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INITIALIZATION_FAILED'), uid), [err.message]);
-			cb({content: content, code: 400});
+			cb({content: content, code: 500});
 			return;
 		}
 		
@@ -144,6 +146,37 @@ PluginAPI.prototype.initialize = function(uid, cb) {
 			}
 			
 			var content = BaseController.apiResponse(BaseController.API_SUCCESS, util.format(self.ls.get('INITIALIZATION_SUCCESS'), uid));
+			cb({content: content});
+		});
+	});
+};
+
+PluginAPI.prototype.set_theme = function(uid, cb) {
+	var self = this;
+	
+	//retrieve plugin
+	pb.plugins.getPlugin(uid, function(err, plugin) {
+		if (uid !== RequestHandler.DEFAULT_THEME && util.isError(err)) {
+			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('SET_THEME_FAILED'), uid), [err.message]);
+			cb({content: content, code: 500});
+			return;
+		}
+		
+		//plugin wasn't found & has theme
+		if (uid !== RequestHandler.DEFAULT_THEME && (!plugin || !pb.utils.isObject(plugin.theme))) {
+			self.reqHandler.serve404();
+			return;
+		}
+		
+		var theme = plugin ? plugin.uid : uid;
+		pb.settings.set('active_theme', theme, function(err, result) {
+			if (util.isError(err)) {
+				var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('SET_THEME_FAILED'), uid), [err.message]);
+				cb({content: content, code: 500});
+				return;
+			}
+			
+			var content = BaseController.apiResponse(BaseController.API_SUCCESS, util.format(self.ls.get('SET_THEME_SUCCESS'), uid));
 			cb({content: content});
 		});
 	});
