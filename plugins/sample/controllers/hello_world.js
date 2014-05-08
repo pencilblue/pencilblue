@@ -75,7 +75,13 @@ HelloWorld.getRoutes = function(cb) {
 	    	access_level: ACCESS_USER,
 	    	permissions: ["sample_view"],
 	    	content_type: 'text/html'
-		}
+		},
+//		{ //Use the setup below to override the home page
+//	    	method: 'get',
+//	    	path: "/",
+//	    	auth_required: false,
+//	    	content_type: 'text/html'
+//		}
 	];
 	cb(null, routes);
 };
