@@ -1,7 +1,7 @@
 /*
 
     Interface for adding
-    
+
     @author Blake Callens <blake.callens@gmail.com>
     @copyright PencilBlue 2013, All rights reserved
 
@@ -24,7 +24,7 @@ $(document).ready(function()
 
 function setupUpload(siteRoot)
 {
-    $(function() 
+    $(function()
     {
         'use strict';
         // Change this to the location of your server-side upload handler:
@@ -55,7 +55,7 @@ function showMediaModal(subsection)
     $('#link_to_media').hide();
     $('#upload_media').hide();
     $(subsection).show();
-    
+
     $('#media_modal').modal({backdrop: 'static', keyboard: true});
 }
 
@@ -88,7 +88,7 @@ function checkForAddMediaSave()
         {
             $('#media_topics').val(topicsCSV);
         }
-        
+
         $('#add_media_form').submit();
     });
 }
@@ -98,17 +98,17 @@ function buildTopics(output)
     var topicElements = $('#active_topics').find('.topic');
     topicElementCount = 0;
     topicsArray = [];
-    
-    if(topicElements.length == 0)
+
+    if(!topicElements.length)
     {
         output('');
         return;
     }
-    
+
     topicElements.each(function()
     {
         topicsArray.push($(this).attr('id').split('topic_').join('').trim());
-        
+
         topicElementCount++;
         if(topicElementCount >= topicElements.length)
         {

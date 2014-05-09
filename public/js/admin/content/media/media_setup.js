@@ -1,13 +1,13 @@
 function validateMediaURL(mediaURL, isFile)
 {
-    if(mediaURL.length == 0)
+    if(!mediaURL.length)
     {
         $('#media_modal').modal('hide');
         return;
     }
-    
+
     var fileType = mediaURL.substr(mediaURL.lastIndexOf('.') + 1);
-    
+
     switch(fileType)
     {
         case 'jpg':
@@ -33,7 +33,7 @@ function validateMediaURL(mediaURL, isFile)
         default:
             break;
     }
-    
+
     if(mediaURL.indexOf('youtube.com') != -1)
     {
         if(mediaURL.indexOf('v=') != -1)
@@ -139,6 +139,12 @@ function validateMediaURL(mediaURL, isFile)
             previewSlideshare(slideshowID);
         });
     }
+    else if(mediaURL.indexOf('trinket.io/embed') != -1)
+    {
+        var mediaID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
+        setMediaValues(isFile, 'trinket', mediaID);
+        previewTrinket(mediaID);
+    }
 }
 
 function getMediaThumb(type, location, output)
@@ -172,8 +178,11 @@ function getMediaThumb(type, location, output)
         case 'slideshare':
             output(location);
             break;
+        case 'trinket':
+            output('');
+            break;
         default:
-            return '';
+            output('');
             break;
     }
 }
@@ -216,4 +225,9 @@ function previewInstagram(videoID)
 function previewSlideshare(slideshowID)
 {
     $('#media_display').html('<iframe src="http://www.slideshare.net/slideshow/embed_code/' + slideshowID + '" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" allowfullscreen></iframe>');
+}
+
+function previewTrinket(trinketID)
+{
+    $('#media_display').html('<iframe src="https://trinket.io/embed/python/' + trinketID + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" style="max-width: 100%" allowfullscreen> </iframe>');
 }

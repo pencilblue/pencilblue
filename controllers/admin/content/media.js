@@ -1,6 +1,6 @@
 /**
  * Media - Media administration page
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -14,7 +14,7 @@ Media.prototype.render = function(cb) {
 };
 
 Media.getPillNavOptions = function(activePill) {
-    var pillNavOptions = 
+    var pillNavOptions =
     [
         {
             name: 'add_media',
@@ -23,7 +23,7 @@ Media.getPillNavOptions = function(activePill) {
             href: '/admin/content/media/add_media'
         }
     ];
-    
+
     if (typeof activePill !== 'undefined') {
         for (var i = 0; i < pillNavOptions.length; i++) {
             if(pillNavOptions[i].name == activePill) {
@@ -63,6 +63,8 @@ Media.getMediaIcon = function(mediaType) {
             return 'instagram';
         case 'slideshare':
             return 'list-alt';
+        case 'trinket':
+            return 'key fa-flip-horizontal';
         default:
             return 'question';
             break;
@@ -83,6 +85,8 @@ Media.getMediaLink = function(mediaType, mediaLocation, isFile) {
             return 'http://instagram.com/p/' + mediaLocation;
         case 'slideshare':
             return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
+        case 'trinket':
+            return 'https://trinket.io/embed/python/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':
@@ -104,12 +108,12 @@ Media.getAll = function(cb) {
     		pb.log.warn("Media:getAll Error not properly handled: "+media);
     		media = [];
     	}
-    	
+
         for(var i = 0; i < media.length; i++) {
             media[i].icon = Media.getMediaIcon(media[i].media_type);
             media[i].link = Media.getMediaLink(media[i].media_type, media[i].location, media[i].is_file);
         }
-        
+
         cb(media);
     });
 };
