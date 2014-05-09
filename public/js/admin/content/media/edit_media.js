@@ -53,6 +53,9 @@ function getMediaEmbed(media)
         case 'slideshare':
             previewSlideshare(media.location);
             break;
+        case 'trinket':
+            previewTrinket(media.location);
+            break;
         default:
             break;
     }
@@ -70,7 +73,7 @@ function checkForEditMediaSave()
         {
             $('#media_topics').val(topicsCSV);
         }
-        
+
         $('#edit_media_form').submit();
     });
 }
@@ -80,17 +83,17 @@ function buildTopics(output)
     var topicElements = $('#active_topics').find('.topic');
     topicElementCount = 0;
     topicsArray = [];
-    
+
     if(topicElements.length == 0)
     {
         output('');
         return;
     }
-    
+
     topicElements.each(function()
     {
         topicsArray.push($(this).attr('id').split('topic_').join('').trim());
-        
+
         topicElementCount++;
         if(topicElementCount >= topicElements.length)
         {
