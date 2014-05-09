@@ -836,11 +836,17 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'get_articles.js'),
     	content_type: 'application/json'
+    },
+    {
+        path: "/api/content/get_media_embed",
+        auth_required: false,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'get_media_embed.js'),
+        content_type: 'application/json'
     }
 ];
 
 RequestHandler.init = function(){
-	
+
 	//iterate core routes adding them
 	pb.log.debug('RequestHandler: Registering System Routes');
 	for (var i = 0; i < RequestHandler.CORE_ROUTES.length; i++) {
@@ -863,7 +869,7 @@ RequestHandler.isValidRoute = function(descriptor) {
 };
 
 RequestHandler.unregisterThemeRoutes = function(theme) {
-	
+
 	var routesRemoved = 0;
 	for (var i = 0; i < RequestHandler.storage.length; i++) {
 		var path   = RequestHandler.storage[i].path;
@@ -886,18 +892,18 @@ RequestHandler.unregisterRoute = function(path, theme) {
 	else {//invalid path provided
 		return false;
 	}
-	
+
 	//check if that pattern is registered for any theme
 	if (RequestHandler.index[pattern] === undefined) {
 		return false;
 	}
-	
+
 	//check for theme
 	var descriptor = RequestHandler.storage[RequestHandler.index[pattern]];
 	if (!descriptor.themes[theme]) {
 		return false;
 	}
-	
+
 	//remove from service
 	delete descriptor.themes[theme];
 	return true;
@@ -909,21 +915,21 @@ RequestHandler.registerRoute = function(descriptor, theme){
 		pb.log.error("Route Validation Failed for: "+JSON.stringify(descriptor));
 		return false;
 	}
-	
+
 	//standardize http method (if exists) to upper case
 	if (descriptor.method !== undefined) {
 		descriptor.method = descriptor.method.toUpperCase();
 	}
-	
+
 	//get pattern and path variables
 	var patternObj = RequestHandler.getRoutePattern(descriptor.path);
 	var pathVars   = patternObj.pathVars;
 	var pattern    = patternObj.pattern;
-	
+
 	//insert it
 	var routeDescriptor = null;
 	if (RequestHandler.index[pattern] !== undefined) {
-		
+
 		//exists so find it
 		for (var i = 0; i < RequestHandler.storage.length; i++) {
 			var route = RequestHandler.storage[i];
@@ -941,16 +947,16 @@ RequestHandler.registerRoute = function(descriptor, theme){
 			expression: new RegExp(pattern),
 			themes: {}
 		};
-		
+
 		//set them in storage
 		RequestHandler.index[pattern] = RequestHandler.storage.length;
 		RequestHandler.storage.push(routeDescriptor);
 	}
-	
+
 	//set the descriptor for the theme and load the controller type
 	routeDescriptor.themes[theme]            = descriptor;
 	routeDescriptor.themes[theme].controller = require(descriptor.controller);
-	
+
 	pb.log.debug("RequestHandler: Registered Route - Theme ["+theme+"] Path ["+descriptor.path+"] Pattern ["+pattern+"]");
 	return true;
 };
@@ -959,7 +965,7 @@ RequestHandler.getRoutePattern = function(path) {
 	if (!path) {
 		return null;
 	}
-	
+
 	//clean up path
 	if (path.indexOf('/') == 0) {
 		path = path.substring(1);
@@ -967,14 +973,14 @@ RequestHandler.getRoutePattern = function(path) {
 	if (path.lastIndexOf('/') == path.length - 1) {
 		path = path.substring(0, path.length - 1);
 	}
-	
+
 	//construct the pattern & extract path variables
 	var pathVars = {};
 	var pattern = '^';
 	var pathPieces = path.split('/');
 	for (var i = 0; i < pathPieces.length; i++) {
 		var piece = pathPieces[i];
-		
+
 		if (piece.indexOf(':') == 0) {
 			var fieldName = piece.substring(1);
 			pathVars[fieldName] = i + 1;
@@ -988,7 +994,7 @@ RequestHandler.getRoutePattern = function(path) {
 		}
 	}
 	pattern += '[/]{0,1}$';
-	
+
 	return {
 		path: path,
 		pattern: pattern,
@@ -1011,30 +1017,30 @@ RequestHandler.getRoutePattern = function(path) {
  * 	<li>Else Parse Cookies</li>
  * 	<li>Open/Create a session</li>
  * 	<li>Get Route</li>
- * 	
+ *
  * </ol>
  * @method handleRequest
  */
 RequestHandler.prototype.handleRequest = function(){
-		
+
 	//get locale preference
 	this.localizationService = new pb.Localization(this.req);
-	
+
 	//fist things first check for public resource
 	if (RequestHandler.isPublicRoute(this.url.pathname)) {
 		this.servePublicContent();
 		return;
 	}
-	
+
 	//check for session cookie
 	var cookies = RequestHandler.parseCookies(this.req);
 	this.req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
-    
+
     //open session
 	var self = this;
     pb.session.open(this.req, function(err, session){
-    	
-    	//set the session id when no session has started or the current one has 
+
+    	//set the session id when no session has started or the current one has
     	//expired.
     	var sc = Object.keys(cookies).length == 0;
     	var se = !sc && cookies.session_id != session.uid;
@@ -1042,31 +1048,31 @@ RequestHandler.prototype.handleRequest = function(){
     	if (pb.log.isSilly()) {
     		pb.log.silly("RequestHandler: Session ID ["+session.uid+"] Cookie SID ["+cookies.session_id+"] Created ["+sc+"] Expired ["+se+"]");
     	}
-    	
+
     	//continue processing
     	self.onSessionRetrieved(err, session);
     });
 };
 
 RequestHandler.prototype.servePublicContent = function(absolutePath) {
-	
+
 	//check for provided path, then default if necessary
 	if (absolutePath === undefined) {
 		absolutePath = path.join(DOCUMENT_ROOT, 'public', this.url.pathname);
 	}
-	
+
 	var self = this;
 	fs.readFile(absolutePath, function(err, content){
 		if (err) {
 			self.serve404();
 			return;
 		}
-		
+
 		//build response structure
 		var data = {
 			content: content
 		};
-		
+
 		//guess at content-type
 		var map = {
 			js: 'text/javascript',
@@ -1087,14 +1093,14 @@ RequestHandler.prototype.servePublicContent = function(absolutePath) {
 				data.content_type = mime;
 			}
 		}
-		
+
 		//send response
 		self.writeResponse(data);
 	});
 };
 
 /**
- * 
+ *
  * @param path
  * @returns {Boolean}
  */
@@ -1113,7 +1119,7 @@ RequestHandler.prototype.serve404 = function() {
 	var NotFound  = require('../../controllers/error/404.js');
 	var cInstance = new NotFound();
 	this.doRender({}, cInstance);
-	
+
 	if (pb.log.isSilly()) {
 		pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL="+this.url.href);
 	}
@@ -1138,10 +1144,10 @@ RequestHandler.prototype.onSessionRetrieved = function(err, session) {
 		this.onErrorOccurred(err);
 		return;
 	}
-	
+
 	//set the session
 	this.session = session;
-	
+
 	//find the controller to hand off to
 	var route = this.getRoute(this.url.pathname);
 	if (route == null) {
@@ -1149,7 +1155,7 @@ RequestHandler.prototype.onSessionRetrieved = function(err, session) {
 		return;
 	}
 	this.route = route;
-	
+
 	//get active theme
 	var self = this;
 	pb.settings.get('active_theme', function(err, activeTheme){
@@ -1162,12 +1168,12 @@ RequestHandler.prototype.onSessionRetrieved = function(err, session) {
 };
 
 RequestHandler.prototype.getRoute = function(path) {
-	
+
 	var route = null;
 	for (var i = 0; i < RequestHandler.storage.length; i++) {
-		
+
 		var curr   = RequestHandler.storage[i];
-		
+
 		//test method when exists
 		if (curr.method !== undefined && curr.method !== this.req.method) {
 			if (pb.log.isSilly()) {
@@ -1176,7 +1182,7 @@ RequestHandler.prototype.getRoute = function(path) {
 			continue;
 		}
 		var result = curr.expression.test(path);
-		
+
 		if (pb.log.isSilly()) {
 			pb.log.silly('RequestHandler: Comparing Path ['+path+'] to Pattern ['+curr.pattern+'] Result ['+result+']');
 		}
@@ -1190,14 +1196,14 @@ RequestHandler.prototype.getRoute = function(path) {
 
 RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 	var self = this;
-	
+
 	//check for unregistered route for theme
 	if (typeof route.themes[activeTheme] === 'undefined') {
-		
+
 		//try default route
 		activeTheme = RequestHandler.DEFAULT_THEME;
 		if (typeof route.themes[activeTheme] === 'undefined') {
-			
+
 			//custom route, just pull from first found
 			for(var theme in route.themes) {
 				activeTheme = theme;
@@ -1205,17 +1211,17 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 			}
 		}
 	}
-	
+
 	if (pb.log.isSilly()) {
 		pb.log.silly("RequestHandler: Settling on theme [%s] for URL=[%s]", activeTheme, this.url.href);
 	}
-	
+
 	//sanity check
 	if (typeof route.themes[activeTheme] === 'undefined') {
 		this.serve404();
 		return;
 	}
-	
+
 	//do security checks
 	this.checkSecurity(activeTheme, function(err, result) {
 		if (pb.log.isSilly()) {
@@ -1229,21 +1235,21 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 			self.onSecurityChecksPassed(activeTheme, route);
 			return;
 		}
-		
+
 		//handle failures through bypassing other processing and doing output
 		self.onRenderComplete(err);
-	});	
+	});
 };
 
 RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
-	
+
 	//extract path variables
 	var pathVars = {};
 	var pathParts = this.url.pathname.split('/');
 	for (var field in route.path_vars) {
 		pathVars[field] = pathParts[route.path_vars[field]];
 	}
-	
+
 	//execute controller
 	var ControllerType  = route.themes[activeTheme].controller;
 	var cInstance       = new ControllerType();
@@ -1251,7 +1257,7 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 };
 
 RequestHandler.prototype.doRender = function(pathVars, cInstance) {
-	var self  = this;	
+	var self  = this;
 	var props = {
 	    request_handler: this,
 		request: this.req,
@@ -1269,13 +1275,13 @@ RequestHandler.prototype.doRender = function(pathVars, cInstance) {
 RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 	var self        = this;
 	this.themeRoute = this.route.themes[activeTheme];
-	
+
 	//verify if setup is needed
 	var checkSystemSetup = function(callback) {
 		var result = {success: true};
 		if (self.themeRoute.setup_required == undefined || self.themeRoute.setup_required == true) {
 			pb.settings.get('system_initialized', function(err, isSetup){
-				
+
 				//verify system init
 				if (!isSetup) {
 					result.success = false;
@@ -1283,19 +1289,19 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 					callback(result, result);
 					return;
 				}
-				callback(null, result);				
+				callback(null, result);
 			});
 		}
 		else {
 			callback(null, result);
 		}
 	};
-	
+
 	var checkRequiresAuth = function(callback) {
 
 		var result = {success: true};
 		if (self.themeRoute.auth_required == true) {
-			
+
 			if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
 				result.success  = false;
 				result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
@@ -1309,9 +1315,9 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 			callback(null, result);
 		}
 	};
-	
+
 	var checkAdminLevel = function(callback) {
-		
+
 		var result = {success: true};
 		if (self.themeRoute.access_level !== undefined) {
 
@@ -1328,17 +1334,17 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 			callback(null, result);
 		}
 	};
-	
+
 	var checkPermissions = function(callback) {
-		
+
 		var result   = {success: true};
 		var reqPerms = self.themeRoute.permissions;
 		var auth     = self.session.authentication;
 		if (auth && auth.user && auth.access_level !== ACCESS_ADMINISTRATOR && auth.user.permissisions && util.isArray(reqPerms)) {
-			
+
 			var permMap = self.session.authentication.user.permissions;
 			for(var i = 0; i < reqPerms.length; i++) {
-				
+
 				if (!permMap[reqPerms[i]]) {
 					result.success = false;
 					result.content = '403 Forbidden';
@@ -1353,7 +1359,7 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 			callback(null, result);
 		}
 	};
-	
+
 	var tasks = {
 		checkSystemSetup: checkSystemSetup,
         checkRequiresAuth: checkRequiresAuth,
@@ -1365,7 +1371,7 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 			cb(err, {success: false, results: results});
 			return;
 		}
-		
+
 		cb(null, {success: true, results: results});
 	});
 };
@@ -1397,7 +1403,7 @@ RequestHandler.prototype.onRenderComplete = function(data){
     		pb.log.error('RequestHandler: %s', e.stack);
     	}
     }
-	
+
 	//do any necessary redirects
 	var doRedirect = typeof data.redirect != "undefined";
 	if(doRedirect) {
@@ -1407,7 +1413,7 @@ RequestHandler.prototype.onRenderComplete = function(data){
 		//output data here
 		this.writeResponse(data);
 	}
-	
+
 	//calculate response time
 	if (pb.log.isDebug()) {
 		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+
@@ -1415,9 +1421,9 @@ RequestHandler.prototype.onRenderComplete = function(data){
 				this.req.url+(doRedirect ? ' Redirect='+data.redirect : '') +
 				(data.code == undefined ? '' : ' CODE='+data.code));
 	}
-	
+
 	//close session after data sent
-	//public content doesn't require a session so in order to not error out we 
+	//public content doesn't require a session so in order to not error out we
 	//check if the session exists first.
 	if (this.session) {
 		pb.session.close(this.session, function(err, result) {
@@ -1427,12 +1433,12 @@ RequestHandler.prototype.onRenderComplete = function(data){
 };
 
 RequestHandler.prototype.writeResponse = function(data){
-    
+
     //infer a response code when not provided
     if(typeof data.code === 'undefined'){
         data.code = 200;
     }
-    
+
     // If a response code other than 200 is provided, force that code into the head
     var contentType = 'text/html';
     if (typeof data.content_type !== 'undefined') {
@@ -1441,9 +1447,9 @@ RequestHandler.prototype.writeResponse = function(data){
     else if (this.themeRoute && this.themeRoute.content_type != undefined) {
     	contentType = this.themeRoute.content_type;
     }
-    
+
     //send response
-    //the catch allows us to prevent any plugins that callback trwice from 
+    //the catch allows us to prevent any plugins that callback trwice from
     //screwing us over due to the attempt to write headers twice.
     try {
     	this.resp.setHeader('content-type', contentType);
@@ -1458,7 +1464,7 @@ RequestHandler.prototype.writeResponse = function(data){
 
 RequestHandler.prototype.writeCookie = function(descriptor, cookieStr){
 	cookieStr = cookieStr ? cookieStr : '';
-	
+
 	for(var key in descriptor) {
         cookieStr += key + '=' + descriptor[key]+'; ';
     }
@@ -1478,13 +1484,13 @@ RequestHandler.prototype.onErrorOccurred = function(err){
 };
 
 RequestHandler.parseCookies = function(req){
-	
+
 	var parsedCookies = {};
 	if (req.headers.cookie) {
-        
+
         var cookieParameters = req.headers.cookie.split(';');
         for(var i = 0; i < cookieParameters.length; i++)  {
-            
+
         	var keyVal = cookieParameters[i].split('=');
             parsedCookies[keyVal[0]] = keyVal[1];
         }
@@ -1517,12 +1523,12 @@ RequestHandler.urlExists = function(url, id, cb) {
 
 RequestHandler.isAdminURL = function(url) {
 	if (url != null) {
-		
+
 		var index = url.indexOf('/');
 		if (index == 0 && url.length > 0) {
 			url = url.substring(1);
 		}
-		
+
 		var pieces = url.split('/');
 		return pieces.length > 0 && pieces[0].indexOf('admin') == 0;
 	}
