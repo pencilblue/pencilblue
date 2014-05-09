@@ -107,5 +107,8 @@ pb.AdminNavigation = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNav
 pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_service.js');
 pb.plugins       = new pb.PluginService();
 
+//content services
+pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
+
 //Export system object
 module.exports = pb;

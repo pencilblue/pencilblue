@@ -7,7 +7,7 @@
 function NewSection(){}
 
 //dependencies
-var Sections = require('../sections');
+var SectionService = pb.SectionService;
 
 //inheritance
 util.inherits(NewSection, pb.BaseController);
@@ -37,7 +37,7 @@ NewSection.prototype.render = function(cb) {
             
     		pb.users.getEditorSelectList(self.session.authentication.user_id, function(editors) {
                 
-    			var pills = Sections.getPillNavOptions('new_section');
+    			var pills = SectionService.getPillNavOptions('new_section');
                 pills.unshift(
                 {
                     name: 'manage_topics',
