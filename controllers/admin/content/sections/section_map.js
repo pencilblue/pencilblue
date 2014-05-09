@@ -7,7 +7,7 @@
 function SectionMap(){}
 
 //dependencies
-var Sections = require('../sections');
+var SectionService = pb.SectionService;
 
 //inheritance
 util.inherits(SectionMap, pb.BaseController);
@@ -33,7 +33,7 @@ SectionMap.prototype.render = function(cb) {
 	        self.ts.load('admin/content/sections/section_map', function(err, data) {
                 var result = data;
 
-                var pills = Sections.getPillNavOptions('section_map');
+                var pills = SectionService.getPillNavOptions('section_map');
                 pills.unshift(
                 {
                     name: 'section_map',

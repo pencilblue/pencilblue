@@ -44,29 +44,8 @@ DeleteSection.prototype.render = function(cb) {
 };
 
 DeleteSection.prototype.updateSectionMap = function(removeID, cb) {
-	pb.settings.get('section_map', function(sectionMap) {
-        if (sectionMap == null) {
-            cb();
-            return;
-        }
-        
-        //searh for section in map.
-        for(var i = 0; i < sectionMap.length; i++) {
-            if(sectionMap[i].uid == removeID) {
-                sectionMap.splice(i, 1);
-                break;
-            }
-            
-            for(var j = 0; j < sectionMap[i].children.length; j++) {
-                if(sectionMap[i].children[j].uid == removeID) {
-                    sectionMap[i].children.splice(j, 1);
-                    break;
-                }
-            }
-        }
-        
-        pb.settings.set('section_map', sectionMap, cb);
-    });
+	var service = new pb.SectionService();
+	service.removeFromSectionMap(removeID, cb);
 };
 
 //exports

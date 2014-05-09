@@ -5,32 +5,14 @@
  */
 function Sections(){}
 
+//dependencies
+var BaseController = pb.BaseController;
+
 //inheritance
-util.inherits(Sections, pb.BaseController);
+util.inherits(Sections, BaseController);
 
 Sections.prototype.render = function(cb) {
-	this.redirect(pb.config.siteRoot + '/admin/content/topics/section_map', cb);
-};
-
-Sections.getPillNavOptions = function(activePill) {
-    var pillNavOptions = [
-        {
-            name: 'new_section',
-            title: '',
-            icon: 'plus',
-            href: '/admin/content/sections/new_section'
-        }
-    ];
-    
-    if (typeof activePill !== 'undefined') {
-        for (var i = 0; i < pillNavOptions.length; i++) {
-            
-        	if (pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-            }
-        }
-    }
-    return pillNavOptions;
+	this.redirect(pb.config.siteRoot + '/admin/content/sections/section_map', cb);
 };
 
 //exports
