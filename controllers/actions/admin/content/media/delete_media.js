@@ -31,12 +31,21 @@ DeleteMedia.prototype.onPostParamsRetrieved = function(post, cb) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/media/manage_media', cb);
                 return;
             }
-
-            self.session.success = mediaData[0].name + ' ' + self.ls.get('DELETED');
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/manage_media'));
+            
+            self.removeLocal(mediaData[0], function(err) {
+            	self.session.success = mediaData[0].name + ' ' + self.ls.get('DELETED');
+            	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/manage_media'));
+            });
         });
     });
-}
+};
+
+DeleteMedia.prototype.removeLocal = function(media, cb) {
+	var file = path.join(DOCUMENT_ROOT, 'public', media.location);
+	fs.exists(file, function(exists) {
+		fs.unlink(file, cb);
+	});
+};
 
 //exports
 module.exports = DeleteMedia;
