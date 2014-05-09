@@ -74,50 +74,8 @@ EditSection.prototype.getRequiredFields = function() {
 };
 
 EditSection.prototype.checkForSectionMapUpdate = function(section, cb) {
-	//only check if a parent exists
-    if(!section['parent']) {
-        cb();
-        return;
-    }
-        
-    var sectionUID = section._id.toString();
-
-    pb.settings.get('section_map', function(err, sectionMap) {
-        if(sectionMap == null) {
-            cb();
-            return;
-        }
-        
-        var sectionMapElement = null;
-        for(var i = 0; i < sectionMap.length; i++) {
-            
-        	for(var j = 0; j < sectionMap[i].children.length; j++) {
-                
-        		if(sectionMap[i].children[j].uid == sectionUID) {
-                    
-        			if(sectionMap[i].uid != section['parent']) {
-                        sectionMapElement = sectionMap[i].children[j];
-                        sectionMap[i].children.splice(j, 1);
-                    }
-                    break;
-                }
-            }
-        }
-        
-        if(!sectionMapElement) {
-            cb();
-            return;
-        }
-        
-        for(var i = 0; i < sectionMap.length; i++) {
-            if(sectionMap[i].uid == section['parent'])  {
-                sectionMap[i].children.push(sectionMapElement);
-                break;
-            }
-        }
-        
-        pb.settings.set('section_map', sectionMap, cb);
-    });
+	var service = new pb.SectionService();
+	service.updateSectionMap(section, cb);
 };
 
 //exports

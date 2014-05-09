@@ -112,7 +112,7 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
         ts.load('elements/top_menu/dropdown', function(err, dropdownTemplate) {
             ts.load('elements/top_menu/account_button', function(err, accountButtonTemplate) {
                 
-            	var bootstrapNav = '';
+            	var bootstrapNav = ' ';
                 for(var i = 0; i < navigation.length; i++)
                 {
                     if(navigation[i].dropdown)

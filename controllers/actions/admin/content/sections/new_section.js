@@ -53,38 +53,9 @@ NewSection.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
-NewSection.prototype.checkForSectionMap = function(sectionDocument, cb) {
-	   
-    var sectionUID = sectionDocument._id.toString();
-    pb.settings.get('section_map', function(err, data) {
-    	
-        if(data == null) {
-            
-        	var value = [
-	             {
-	            	 uid: sectionUID, 
-	            	 children: []
-	             }
-            ];
-        	pb.settings.set('section_map', value, cb);
-            return;
-        }
-        
-        var sectionMap = data;
-        if (!sectionDocument['parent']) {
-            sectionMap.push({uid: sectionUID, children: []});
-        }
-        else {
-            for (var i = 0; i < sectionMap.length; i++) {
-                if (sectionMap[i].uid == sectionDocument['parent']) {
-                    sectionMap[i].children.push({uid: sectionUID});
-                    break;
-                }
-            }
-        }
-        
-        pb.settings.set('section_map', sectionMap, cb);
-    });
+NewSection.prototype.checkForSectionMap = function(section, cb) {
+	 var service = new pb.SectionService();
+	 service.updateSectionMap(section, cb);
 };
 
 //exports

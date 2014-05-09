@@ -6,8 +6,13 @@
  */
 function EditSection(){}
 
+//dependencies
+var BaseController  = pb.BaseController;
+var AdminNavigation = pb.AdminNavigation;
+var SectionService  = pb.SectionService;
+
 //inheritance
-util.inherits(EditSection, pb.BaseController);
+util.inherits(EditSection, BaseController);
 
 EditSection.prototype.render = function(cb) {
 	var self = this;
@@ -46,11 +51,17 @@ EditSection.prototype.render = function(cb) {
                 }
             ];
                 
-        	dao.query('section', {parent: null}, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(parents) {                            
+            var where = {
+        		parent: null,
+        		_id: {
+        			'$ne': section._id
+        		}
+            };
+        	dao.query('section', where, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(parents) {                            
                 
         		pb.users.getEditorSelectList(self.session.authentication.user_id, function(editors) {
                     
-        			var pills = require('../sections').getPillNavOptions('new_section');
+        			var pills = SectionService.getPillNavOptions('new_section');
                     pills.unshift(
                     {
                         name: 'manage_topics',
@@ -60,7 +71,7 @@ EditSection.prototype.render = function(cb) {
                     });
                     
                     var objects = {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
+                        navigation: AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
                         pills: pills,
                         tabs: tabs,
                         parents: parents,

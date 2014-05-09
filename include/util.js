@@ -165,6 +165,28 @@ Util.invertHash = function(obj) {
 	return new_obj;
 };
 
+Util.copyArray = function(array) {
+	if (!util.isArray(array)) {
+		return null;
+	}
+	
+	var clone = [];
+	for (var i = 0; i < array.length; i++) {
+		clone.push(array[i]);
+	}
+	return clone;
+};
+
+Util.arrayPushAll = function(from, to) {
+	if (!util.isArray(from) || !util.isArray(to)) {
+		return;
+	}
+	
+	for (var i = 0; i < from.length; i++) {
+		to.push(from[i]);
+	}
+};
+
 /**
  * Empty callback function just used as a place holder if a callback is required
  * and the result is not needed.
