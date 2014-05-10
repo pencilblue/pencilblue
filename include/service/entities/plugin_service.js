@@ -296,7 +296,7 @@ PluginService.genSettingsService = function(objType, useMemory, useCache, servic
 	}
 	
 	//always add DB
-	services.push(new pb.DBEntityService(objType, 'plugin_name', 'settings'));
+	services.push(new pb.DBEntityService(objType, 'settings', 'plugin_uid'));
 	return new pb.SimpleLayeredService(services, serviceName);
 };
 

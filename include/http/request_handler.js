@@ -832,6 +832,14 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'get',
+    	path: "/admin/plugins/settings/:id",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'settings.js'),
+    	content_type: 'text/html'
+    },
+    {
     	path: "/api/content/get_articles",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'get_articles.js'),
@@ -1446,6 +1454,12 @@ RequestHandler.prototype.writeResponse = function(data){
     //the catch allows us to prevent any plugins that callback trwice from 
     //screwing us over due to the attempt to write headers twice.
     try {
+    	//set any custom headers
+    	if (pb.utils.isObject(data.headers)) {
+    		for(var header in data.headers) {
+    			this.resp.setHeader(header, headers[header]);
+    		}
+    	}
     	this.resp.setHeader('content-type', contentType);
     	this.resp.writeHead(data.code);
     	this.resp.end(data.content);
