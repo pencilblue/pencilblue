@@ -85,7 +85,7 @@ DBEntityService.prototype.set = function(key, value, cb) {
 DBEntityService.prototype.purge = function(key, cb) {
 	var dao              = new pb.DAO();
 	var where            = {};
-	where[this.valueField] = key;
+	where[this.keyField] = key;
 	dao.deleteMatching(where, this.objType).then(function(result){
 		if (util.isError(result)) {
 			cb(result, null);

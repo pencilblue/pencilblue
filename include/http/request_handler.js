@@ -840,6 +840,14 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
+    	method: 'get',
+    	path: "/admin/themes/settings/:id",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'theme_settings.js'),
+    	content_type: 'text/html'
+    },
+    {
     	path: "/api/content/get_articles",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'get_articles.js'),
