@@ -23,6 +23,10 @@
 		{
 			"name": "pencilblue_sample_string_setting",
 			"value": "abc"
+		},
+		{
+			"name": "pencilblue_sample_boolean_setting",
+			"value": true
 		}
 	],
 	"permissions": {
@@ -43,6 +47,10 @@
 			{
 				"name": "pencilblue_sample_theme_string_setting",
 				"value": "789"
+			},
+			{
+				"name": "pencilblue_sample_theme_boolean_setting",
+				"value": true
 			}
 		],
 		"content_templates":

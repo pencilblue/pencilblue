@@ -91,8 +91,17 @@ PluginAPI.prototype.reset_settings = function(uid, cb) {
 	    			callback(new Error(util.format(self.ls.get('PLUGIN_NOT_FOUND'), uid)), false);
 	    			return;
 	    		}
-	    		details = plugin;
-	    		callback(err, true);
+	    		
+	    		var detailsFile = PluginService.getDetailsPath(plugin.dirName);
+	    		PluginService.loadDetailsFile(detailsFile, function(err, loadedDetails) {
+	    			if (util.isError(err)) {
+		    			callback(err, false);
+		    			return;
+		    		}
+	    			
+	    			details = loadedDetails;
+	    			callback(null, true);
+	    		});
 	    	});
 	    },
          

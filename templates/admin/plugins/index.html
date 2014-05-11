@@ -16,6 +16,7 @@
             <td class="installed_version">{{installed.version}}</td>
             <td class="installed_on_date">{{installed.created | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td>
+                <a href="/admin/plugins/settings/{{installed.uid}}">^loc_SETTINGS^</a> |
                 <a href="javascript:resetSettings('{{installed.uid}}');">^loc_RESET_SETTINGS^</a> | 
                 <a href="javascript:uninstallPlugin('{{installed.uid}}')">^loc_UNINSTALL^</a>
             </td>
@@ -36,6 +37,7 @@
             <td class="inactive_version">{{inactive.version}}</td>
             <td class="inactive_on_date">{{inactive.created | date: 'yyyy-MM-dd HH:mm'}}</td>
             <td>
+                <a href="/admin/plugins/settings/{{inactive.uid}}">^loc_SETTINGS^</a> |
                 <a href="javascript:resetSettings('{{inactive.uid}}');">^loc_RESET_SETTINGS^</a> | 
                 <a href="javascript:initialize('{{inactive.uid}}');">^loc_INITIALIZE^</a> | 
                 <a href="javascript:uninstallPlugin('{{inactive.uid}}');">^loc_UNINSTALL^</a>

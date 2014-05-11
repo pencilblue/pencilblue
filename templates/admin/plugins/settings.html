@@ -1,0 +1,23 @@
+^tmp_admin=head^
+<div class="col-md-9">
+	^error_success^ ^tmp_admin=elements=sub_nav^
+
+	<form role="form" method="POST" action="^form_action^">
+		<table class="table table-condensed table-bordered">
+	      <thead>
+	          <tr>
+	               <th>^loc_SETTINGS^</th>
+	          </tr>
+		     <tr ng-repeat="item in settings">
+		         <td><label for="{{item.name}}">{{item.name}}</label></td>
+		         <td>
+		             <input class="form-control" ng-checked="item.type == 'checkbox' && item.value" id="{{item.name}}" name="{{item.name}}" type="{{item.type}}" value="{{item.value}}" />
+		         </td>
+		     </tr>
+		</table>
+		<button type="submit" class="btn btn-default">^loc_SAVE^</button>
+	</form>
+
+</div>
+^form_refill^
+^tmp_admin=footer^

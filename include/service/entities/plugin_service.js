@@ -296,7 +296,7 @@ PluginService.genSettingsService = function(objType, useMemory, useCache, servic
 	}
 	
 	//always add DB
-	services.push(new pb.DBEntityService(objType, 'plugin_name', 'settings'));
+	services.push(new pb.DBEntityService(objType, 'settings', 'plugin_uid'));
 	return new pb.SimpleLayeredService(services, serviceName);
 };
 
@@ -391,7 +391,7 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 				plugin_name: plugin.name,
 				plugin_uid: plugin.uid,
 				plugin_id: plugin._id.toString(),
-				settings: details.settings	
+				settings: details.theme.settings	
 			};
 			var settings = pb.DocumentCreator.create('theme_settings', baseDoc);
 			
@@ -1411,7 +1411,7 @@ PluginService.validateSetting = function(setting, position) {
  * @returns {Boolean} TRUE if the value is valid, FALSE if not
  */
 PluginService.validateSettingValue = function(value) {
-	return pb.utils.isString(value) || !isNaN(value);
+	return pb.utils.isString(value) || !isNaN(value) || value === true || value === false;
 };
 
 /**
