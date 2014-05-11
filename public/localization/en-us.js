@@ -108,6 +108,7 @@ var loc =
 		SET_THEME_SUCCESS: 'Successfully activated the theme [%s]',
 		SAVE_PLUGIN_SETTINGS_SUCCESS: 'Successfully saved settings',
 		SAVE_PUGIN_SETTINGS_FAILURE: 'An error occurred while attempting to save the settings',
+		SET_THEME: 'Apply Theme',
     },
     error:
     {

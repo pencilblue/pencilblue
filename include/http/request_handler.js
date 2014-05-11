@@ -832,7 +832,6 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
-    	method: 'get',
     	path: "/admin/plugins/settings/:id",
     	auth_required: true,
     	access_level: ACCESS_ADMINISTRATOR,
@@ -840,11 +839,18 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
-    	method: 'get',
     	path: "/admin/themes/settings/:id",
     	auth_required: true,
     	access_level: ACCESS_ADMINISTRATOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'theme_settings.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
+    	path: "/admin/themes",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'themes', 'index.js'),
     	content_type: 'text/html'
     },
     {

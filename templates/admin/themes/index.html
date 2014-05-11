@@ -1,0 +1,36 @@
+^tmp_admin=head^
+<script src="/js/admin/plugins/index.js"></script>
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    <form method="POST" role="form" class="form-inline">
+        <div class="form-group">
+            <select id="active_theme" name="active_theme" autocomplete="false">
+                <option ng-repeat="t in options" value="{{t.uid}}" ng-selected="t.uid === activeTheme">{{t.name}}</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-default" onclick="javascript:setTheme();">^loc_SET_THEME^</button>
+    </form>
+    <br/>
+    <table id="themes_table" class="table table-responsive table-condensed">
+        <tr><th title="^loc_THEMES^">^loc_THEMES^</th></tr>
+        <tr id="themes_table_header">
+            <th id="theme_name_header">^loc_NAME^</th>
+            <th id="theme_description_header">^loc_VERSION^</th>
+            <th id="theme_date_header">^loc_INSTALLED_ON^</th>
+            <th id="theme_active_header">^loc_ACTIVE^</th>
+            <th></th>
+        </tr>
+        <tr class="theme_row" ng-repeat="t in themes track by themes.uid" on-finish-render ng-cloak>
+            <td><a ng-href="/admin/plugins/view/{{t.uid}}" title="{{t.description}}">{{t.uid}}</a></td>
+            <td class="theme_version">{{t.version}}</td>
+            <td class="installed_on_date">{{t.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td>
+                <a href="/admin/themes/settings/{{t.uid}}">^loc_SETTINGS^</a> |
+                <a href="javascript:resetSettings('{{t.uid}}');">^loc_RESET_SETTINGS^</a>
+            </td>
+        </tr>
+    </table>
+</div>
+^tmp_admin=elements=progress_console_modal^
+^tmp_admin=footer^
