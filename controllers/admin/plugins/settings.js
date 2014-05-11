@@ -175,7 +175,7 @@ PluginSettingsController.prototype.renderPost = function(post, cb) {
 			}
 			else {
 				self.session.error = self.ls.get('SAVE_PUGIN_SETTINGS_FAILURE');
-			}console.log('RESULT='+result);
+			}
 			self.redirect(self.req.url, cb);
 		});
 	});

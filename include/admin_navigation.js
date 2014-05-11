@@ -88,7 +88,7 @@ function getDefaultNavigation(ls) {
 	                id: 'themes',
 	                title: ls.get('THEMES'),
 	                icon: 'magic',
-	                href: '/admin/plugins/themes'
+	                href: '/admin/themes'
 	            }
             ]
         },

@@ -30,7 +30,7 @@ ThemesController.prototype.render = function(cb) {
 				uid: 'pencilblue',
 				name: 'PencilBlue'
 				
-			});console.log('AT='+activeTheme);
+			});
 			
 			//setup angular
 			var angularData = pb.js.getAngularController(
