@@ -21,6 +21,10 @@ function initialize(pid) {
 	doPluginAPIAction('initialize', pid);
 }
 
+function setTheme() {
+	doPluginAPIAction('set_theme', $('#active_theme').val());
+}
+
 function doPluginAPIAction(action, identifier) {
 	$('#progress_modal').modal({});
 	$.post("/api/plugins/"+action+"/"+encodeURIComponent(identifier), 
