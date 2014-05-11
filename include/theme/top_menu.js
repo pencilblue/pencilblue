@@ -117,7 +117,7 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                 {
                     if(navigation[i].dropdown)
                     {
-                        var subNav = '';
+                        var subNav = ' ';
                         for(var j = 0; j < navigation[i].children.length; j++)
                         {
                             if(!navigation[i].children[j]) {
@@ -150,7 +150,7 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                     }
                 }
                 
-                var buttons = '';
+                var buttons = ' ';
                 for(var i = 0; i < accountButtons.length; i++)
                 {
                     var button = accountButtonTemplate;
