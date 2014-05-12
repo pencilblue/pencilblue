@@ -6,7 +6,7 @@
 	"db": {
         "type": "mongo",
 		"servers": [
-          "mongodb": "27.0.0.1:27017"
+             "127.0.0.1:27017"
         ],
         "name": "pencil_blue",
         "writeConern": 1
