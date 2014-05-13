@@ -19,7 +19,7 @@ Article.prototype.render = function(cb) {
 	var dao     = new pb.DAO();
 	dao.loadByValue('url', custUrl, 'article', function(err, article) {
 		if (util.isError(err) || article == null) {
-			cb({content: 'The section could not be found on this server', code: 404});
+			self.reqHandler.serve404()
 			return;
 		}
 		
