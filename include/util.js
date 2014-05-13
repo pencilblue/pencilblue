@@ -78,7 +78,7 @@ Util.getCustomUrl = function(prefix, url) {
 };
 
 Util.isExternalUrl = function(urlStr, request) {
-    var obj = url.parse(urlStr);
+	var obj    = url.parse(urlStr);
     var reqUrl = null;
     
     if(!obj.host)
@@ -94,6 +94,10 @@ Util.isExternalUrl = function(urlStr, request) {
     }
 
     return reqUrl.host !== obj.host;
+};
+
+Util.isFullyQualifiedUrl = function(urlStr) {
+	return Util.isString(urlStr) && urlStr.indexOf('http') === 0;
 };
 
 /**

@@ -131,22 +131,22 @@ NewArticle.prototype.getTabs = function() {
         {
             href: '#media',
             icon: 'camera',
-            title: this.ls.get('MEDIA^')
+            title: this.ls.get('MEDIA')
         },
         {
             href: '#sections_dnd',
             icon: 'th-large',
-            title: this.ls.get('SECTIONS^')
+            title: this.ls.get('SECTIONS')
         },
         {
             href: '#topics_dnd',
             icon: 'tags',
-            title: this.ls.get('TOPICS^')
+            title: this.ls.get('TOPICS')
         },
         {
             href: '#seo',
             icon: 'tasks',
-            title: this.ls.get('SEO^')
+            title: this.ls.get('SEO')
         }
     ];
 };
