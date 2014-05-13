@@ -268,6 +268,17 @@ PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
 	dao.loadByValues(where, 'plugin', cb);
 };
 
+PluginService.prototype.getPluginsWithThemes = function(cb) {
+	var dao = new pb.DAO();
+	dao.query('plugin', {theme: {$exists: true}}).then(function(themes) {
+		if (util.isError(themes)) {
+			cb(themes, null);
+			return;
+		}
+		cb(null, themes);
+	});
+};
+
 /**
  * Convenience function to generate a service to handle settings for a plugin.
  * 
