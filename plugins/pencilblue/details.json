@@ -1,18 +1,46 @@
 {
     "uid": "pencilblue",
     "name": "PencilBlue",
+    "description": "The plugin that drives the default core functionality of PencilBlue",
+    "version": "0.0.1",
     "icon": "pencil",
-    "settings_controller": "/controllers/admin/pencilblue_settings.js",
-    "settings": "/admin/plugins/themes/pencilblue_settings",
-    "content_templates":
-    [
-        {
-            "file": "index",
-            "name": "Default"
-        },
-        {
-            "file": "index",
-            "name": "Same as Default"
-        }
-    ]
+	"author": {
+		"name": "PencilBlue",
+		"email": "info@pencilblue.org",
+		"website": "http://pencilblue.org",
+		"contributors": [
+			{
+				"name": "Blake Callens",
+				"email": ""
+			},
+			{
+				"name": "Brian Hyder",
+				"email": ""
+			}
+		]
+	},
+	"settings": [],
+	"permissions": {
+		"ACCESS_USER": [],
+		"ACCESS_WRITER": [],
+		"ACCESS_EDITOR": [],
+		"ACCESS_MANAGING_EDITOR": []
+	},
+	"main_module": {
+		"path": "pencilblue.js"
+	},
+	"theme": {
+		"settings": [],
+		"content_templates":
+		[
+			{
+				"file": "index",
+				"name": "Default"
+			},
+			{
+				"file": "index",
+				"name": "Same as Default"
+			}
+		]
+	}
 }

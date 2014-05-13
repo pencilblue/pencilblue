@@ -25,6 +25,7 @@
             <td><a ng-href="/admin/plugins/view/{{t.uid}}" title="{{t.description}}">{{t.uid}}</a></td>
             <td class="theme_version">{{t.version}}</td>
             <td class="installed_on_date">{{t.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td><input type="checkbox" disabled ng-checked="t.uid === activeTheme" /></td>
             <td>
                 <a href="/admin/themes/settings/{{t.uid}}">^loc_SETTINGS^</a> |
                 <a href="javascript:resetSettings('{{t.uid}}');">^loc_RESET_SETTINGS^</a>

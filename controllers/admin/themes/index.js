@@ -12,9 +12,8 @@ ThemesController.prototype.render = function(cb) {
 	var self = this;
 	
 	//get plugs with themes
-	var dao = new DAO();
-	dao.query('plugin', {theme: {$exists: true}}).then(function(themes) {
-		if (util.isError(themes)) {
+	pb.plugins.getPluginsWithThemes(function(err, themes) {
+		if (util.isError(err)) {
 			throw result;
 		}
 		

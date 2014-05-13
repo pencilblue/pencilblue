@@ -1,15 +1,34 @@
 {
-	"siteName": "PencilBlue",
-	"siteRoot": "http://localhost:8080/",
+	"siteName": "My PencilBlue Site",
+	"siteRoot": "http://localhost:8080",
 	"siteIP":   "127.0.0.1",
 	"sitePort": 8080,
+	"log_level": "info",
 	"db": {
-        "type": "mongo",
+        "type":"mongo",
 		"servers": [
-             "127.0.0.1:27017"
+          "mongodb://127.0.0.1:27017/"
         ],
-        "name": "pencil_blue",
+        "name": "pencilblue",
         "writeConern": 1
 	},
-	"log_level": "silly"
+	"cache": {
+		"fake": true,
+		"host": "localhost",
+		"port": 6379
+	},
+	"settings": {
+		"use_memory": true,
+		"use_cache": false
+	},
+	"templates": {
+		"use_memory": true,
+		"use_cache": false
+	},
+	"plugins": {
+		"caching": {
+			"use_memory": true,
+			"use_cache": false
+		}
+	}
 }

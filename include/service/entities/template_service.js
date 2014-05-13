@@ -386,23 +386,38 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
         	return;
         }
         
-        var detailsLocation = pb.PluginService.getDetailsPath(activeTheme);
-        TEMPLATE_LOADER.get(detailsLocation, function(err, data) {
-            if(util.isError(err) || data == null) {
-                cb(err, []);
-                return;
-            }
-            
-            var details = '';
-            try{
-            	details = JSON.parse(data);
-            }
-            catch(e){
-            	pb.log.error('TemplateService:getTemplatesForActiveTheme: Failed to parse JSON from ['+detailsLocation+']', e);
-            	cb(e, []);
-            	return;
-            }
-            cb(null, details.content_templates);
+        //function to retrieve plugin
+        var getPlugin = function(uid, callback) {
+        	if (uid === 'pencilblue') {
+        		
+        		//load pencilblue plugin
+            	var file = pb.PluginService.getDetailsPath('pencilblue');
+            	pb.PluginService.loadDetailsFile(file, function(err, pb) {
+            		if (pb) {
+            			pb.dirName = 'pencilblue';
+            		}
+            		callback(err, pb);
+            	});
+        	}
+        	else {
+        		//load normal plugin
+                pb.plugins.getPlugin(activeTheme, callback);
+        	}
+        };
+        
+        //do plugin retrieval
+        getPlugin(activeTheme, function(err, plugin) {
+        	
+        	var templates = [];
+        	if (plugin && plugin.theme && plugin.theme.content_templates) {
+    			
+    			for (var j = 0; j < plugin.theme.content_templates.length; j++) {
+    				
+    				var template = plugin.theme.content_templates[j];
+    				templates.push(template);
+    			}
+    		}
+        	cb(err, templates);
         });
     });
 };
