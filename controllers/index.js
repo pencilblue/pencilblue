@@ -142,7 +142,12 @@ Index.prototype.getArticlesHTML = function(articles, commentsTemplates, contentS
                 articleTemplate = articleTemplate.split('^byline^').join('');
             }
 
-            articleTemplate = articleTemplate.split('^comments^').join(commentsTemplates.commentsContainer);
+            if(contentSettings.allow_comments) {
+                articleTemplate = articleTemplate.split('^comments^').join(commentsTemplates.commentsContainer);
+            }
+            else {
+                articleTemplate = articleTemplate.split('^comments^').join('');
+            }
 
             var result = '';
             for(var i = 0; i < articles.length; i++)
@@ -179,7 +184,9 @@ Index.prototype.getArticlesHTML = function(articles, commentsTemplates, contentS
 
                 articleHTML = articleHTML.split('^article_layout^').join(articles[i].layout);
 
-                articleHTML = self.formatComments(articleHTML, articles[i].comments, commentingUser, commentsTemplates.comment);
+                if(contentSettings.allow_comments) {
+                    articleHTML = self.formatComments(articleHTML, articles[i].comments, commentingUser, commentsTemplates.comment);
+                }
 
                 result = result.concat(articleHTML);
             }
