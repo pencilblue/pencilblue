@@ -57,7 +57,7 @@ ThemesController.prototype.render = function(cb) {
 							imgUrl = logo;
 						}
 						else {
-							imgUrl = pb.utils.urlJoin('/imgs', logo);
+							imgUrl = pb.utils.urlJoin('', logo);
 						}
 					}
 					callback(null, imgUrl);

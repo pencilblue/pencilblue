@@ -42,21 +42,12 @@ Util.ane = function(obj){
 };
 
 Util.urlJoin = function() {
-	var url = '';
-	for ( var i = 0; i < arguments.length; i++) {
-		var segment = arguments[i];
-		if (typeof segment !== 'string') {
-			throw new TypeError('Arguments to path.join must be strings');
-		}
-		if (segment) {
-			if (!url) {
-				url += segment;
-			} else {
-				url += '/' + segment;
-			}
-		}
+	var parts = [];
+	for (var i = 0; i < arguments.length; i++) {
+		var segment = ('' + arguments[i]).replace(/\\/g, '/');
+		parts.push(segment.replace(/^\/|\/$/g, ''));
 	}
-	return url;
+	return parts.join('/');
 };
 
 Util.getCustomUrl = function(prefix, url) {

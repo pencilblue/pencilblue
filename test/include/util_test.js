@@ -26,5 +26,24 @@ module.exports = {
 			test.equal(dirs.length, 4);
 			test.done();
 		});
-	}
+	},
+	
+	testUrlJoin: function(test) {
+		var tests = [
+           {
+        	   params: ['/', '\\media\\', '14\\5\\33456789.jpg'],
+        	   expected: '/media/14/5/33456789.jpg'
+           },
+//           {
+//        	   params: ['\\media\\', '14\\5\\33456789.jpg'],
+//        	   expected: '/media/14/5/33456789.jpg'
+//           }
+        ];
+		
+		for (var i = 0; i < tests.length; i++) {
+			var result = pb.utils.urlJoin.apply(pb.utils, tests[i].params);
+			test.equal(result, tests[i].expected);
+		}
+		test.done();
+	},
 };
