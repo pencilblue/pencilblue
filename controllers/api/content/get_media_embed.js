@@ -23,7 +23,7 @@ GetMediaEmbed.prototype.render = function(cb) {
     }
 
     try {
-        ObjectID(get['id']);
+        ObjectID(get.id);
     }
     catch(error) {
         cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'invalid media ID')});
@@ -31,7 +31,7 @@ GetMediaEmbed.prototype.render = function(cb) {
     }
 
     var dao = new pb.DAO();
-    dao.loadById(get['id'], 'media', function(err, mediaObject) {
+    dao.loadById(get.id, 'media', function(err, mediaObject) {
         if(!mediaObject) {
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'invalid media ID')});
             return;

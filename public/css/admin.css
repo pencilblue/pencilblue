@@ -22,7 +22,7 @@ a:hover
 {
     color: #5D5D5D;
     text-decoration: none;
-    outline.none;
+    outline: none;
 }
 
 /* Clears hanging floats */
@@ -193,7 +193,7 @@ form .error
     display: none;
 }
 
-#nav_accordion .panel-default .panel-heading, #nav_accordion .panel-default .panel-heading .panel-title 
+#nav_accordion .panel-default .panel-heading, #nav_accordion .panel-default .panel-heading .panel-title
 {
     background-color: #FFFFFF;
     border: none;
@@ -378,6 +378,16 @@ form .error
     resize: none;
 }
 
+#column_inches
+{
+    font-weight: normal;
+    font-size: .9em;
+}
+
+.remove_media_button {
+    margin-top: -2em;
+}
+
 .footer
 {
     font-size: .75em;
@@ -391,14 +401,14 @@ form .error
     {
         display: none;
     }
-    
+
     #side_menu
     {
         display: block;
     }
 }
 
-.loading-modal-content 
+.loading-modal-content
 {
     width: 100%;
     padding-top: 20px;
@@ -406,7 +416,7 @@ form .error
     padding-right: 20px;
     text-align: center;
 }
- 
+
 .quick-nav {
     position: relative;
     background-color: #FFFFFF;
@@ -416,20 +426,20 @@ form .error
     -webkit-border-radius: 4px;
     border-radius: 4px;
 }
- 
+
 .quick-nav a {
     color: #333333;
     text-decoration: none;
     font-size: 14px;
 }
- 
+
 .quick-nav table th.skew {
     height: 60px;
     width: 40px;
     position: relative;
     vertical-align: bottom;
 }
- 
+
 .quick-nav table th.skew > div {
     position: relative;
     top: 0px;
@@ -439,19 +449,19 @@ form .error
     -ms-transform:skew(-45deg,0deg);
     -moz-transform:skew(-45deg,0deg);
     -webkit-transform:skew(-45deg,0deg);
-    -o-transform:skew(-45deg,0deg);    
+    -o-transform:skew(-45deg,0deg);
     overflow: hidden;
     border-top: 1px solid #CCCCCC;
     border-left: 1px solid #CCCCCC;
     border-right: 1px solid #CCCCCC;
 }
- 
+
 .quick-nav table th.skew span {
     transform:skew(45deg,0deg) rotate(315deg);
     -ms-transform:skew(45deg,0deg) rotate(315deg);
     -moz-transform:skew(45deg,0deg) rotate(315deg);
     -webkit-transform:skew(45deg,0deg) rotate(315deg);
-    -o-transform:skew(45deg,0deg) rotate(315deg);        
+    -o-transform:skew(45deg,0deg) rotate(315deg);
     position: absolute;
     bottom: 15px;
     left: 1px;
@@ -459,7 +469,7 @@ form .error
     width: 100%;
     text-align: left;
 }
- 
+
 .quick-nav table td {
     width: 40px;
     height: 35px;
@@ -467,13 +477,13 @@ form .error
     vertical-align: middle;
     border: 1px solid #CCCCCC;
 }
- 
+
 .quick-nav table td a {
     display: block;
     width: 100%;
     text-align: center;
 }
- 
+
 .quick-nav table td.project-name {
     width: auto;
     text-align: right;
@@ -481,7 +491,7 @@ form .error
     border: none;
     padding-right: 8px;
 }
- 
+
 .quick-nav table .odd {
     background-color: #E8E8E8;
 }

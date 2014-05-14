@@ -7,7 +7,7 @@ function refillForm(fieldValues)
             $('#' + key).val(fieldValues[key]);
         }
     }
-    
+
     if(typeof formRefillOptions !== 'undefined')
     {
         for(var i = 0; i < formRefillOptions.length; i++)
@@ -17,7 +17,7 @@ function refillForm(fieldValues)
             {
                 continue;
             }
-            
+
             switch(option.type)
             {
                 case 'datetime':
@@ -26,7 +26,7 @@ function refillForm(fieldValues)
                 case 'layout':
                     $('#layout_editable').html(fieldValues[option.id]);
                     $('#layout_editable').focus();
-                    onLayoutEditableChanged();
+                    initLayoutEditable();
                     break;
                 case 'drag_and_drop':
                     refillDragAndDrop(option, fieldValues);
@@ -37,7 +37,7 @@ function refillForm(fieldValues)
                 default:
                     break;
             }
-            
+
             if(typeof option.onComplete !== 'undefined')
             {
                 option.onComplete();
