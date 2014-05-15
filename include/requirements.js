@@ -109,6 +109,7 @@ pb.plugins       = new pb.PluginService();
 
 //content services
 pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
+pb.MediaService   = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
 
 //Export system object
 module.exports = pb;

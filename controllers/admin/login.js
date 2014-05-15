@@ -22,7 +22,7 @@ Login.prototype.render = function(cb) {
         return;
     }
 
-    this.setPageName(' - Login');
+    this.setPageName(this.ls.get('LOGIN'));
     this.templateService.load('admin/login',  function(err, data) {
     	cb({content: data});
     });
