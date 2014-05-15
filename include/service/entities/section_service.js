@@ -140,5 +140,72 @@ SectionService.prototype.updateSectionMap = function(section, cb) {
     });
 };
 
+SectionService.prototype.getFormattedSections = function(localizationService, cb) {
+	pb.settings.get('section_map', function(err, sectionMap) {
+        if (util.isError(err) || sectionMap == null) {
+        	cb(err, []);
+        	return;
+        }
+
+        //retrieve sections
+        var dao = new pb.DAO();
+        dao.query('section').then(function(sections) {
+            //TODO handle error
+        	
+        	var formattedSections = [];
+            for(var i = 0; i < sectionMap.length; i++) {
+                var section = SectionService.getSectionData(sectionMap[i].uid, sections);
+
+                if(sectionMap[i].children.length == 0) {
+                    if(section) {
+                        //TODO: figure out how to tell if were in one of these sections
+                        formattedSections.push(section);
+                    }
+                }
+                else {
+                    if(section) {
+                        section.dropdown = 'dropdown';
+
+                        var sectionHome = pb.utils.clone(section);
+                        if(typeof loc !== 'undefined') {
+                            sectionHome.name = sectionHome.name + ' ' + localizationService.get('HOME');
+                        }
+                        
+                        delete sectionHome.children;
+                        section.children = [sectionHome];
+
+                        for(var j = 0; j < sectionMap[i].children.length; j++) {
+                            var child = SectionService.getSectionData(sectionMap[i].children[j].uid, sections);
+                            section.children.push(child);
+                        }
+
+                        formattedSections.push(section);
+                    }
+                }
+            }
+            cb(null, formattedSections);
+        });
+	});
+};
+
+SectionService.getSectionData = function(uid, sections) {
+    var self = this;
+    for(var i = 0; i < sections.length; i++) {
+        if(sections[i]._id.equals(ObjectID(uid))) {
+            if (sections[i].url.indexOf('/') === 0) {
+        		//do nothing.  This is a hack to get certain things into the
+        		//menu until we re-factor how our navigation structure is built.
+        	}
+        	else if(!pb.utils.isExternalUrl(sections[i].url, self.req))
+            {
+        	    sections[i].url = pb.utils.urlJoin('/section', sections[i].url);
+    	    }
+            return sections[i];
+        }
+    }
+
+    return null;
+};
+
 //exports
 module.exports = SectionService;

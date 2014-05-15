@@ -6,102 +6,76 @@
  */
 function TopMenuService(){}
 
+//dependencies
+var SectionService = pb.SectionService;
+
 TopMenuService.getTopMenu = function(session, localizationService, cb) {
-    var self = this;
-    var dao  = new pb.DAO();
-    dao.query('pencilblue_theme_settings').then(function(data) {
-        var themeSettings;
+    
+    var getTopMenu = function(session, localizationService, cb) {
+	    var tasks = {
+			themeSettings: function(callback) {
+				pb.settings.get('site_logo', function(err, logo) {
+					callback(null, {site_logo: logo, carousel_media: []});
+				});
+			},
+			
+			formattedSections: function(callback) {
+				var sectionService = new SectionService();
+				sectionService.getFormattedSections(localizationService, function(err, formattedSections) {
+					callback(null, formattedSections);
+				});
+			},
+			
+			accountButtons: function(callback) {
+				TopMenuService.getAccountButtons(session, callback);
+			}
+	    };
+    	async.parallel(tasks, function(err, result) {
+    		cb(result.themeSettings, result.formattedSections, result.accountButtons);
+    	});
+    };
+    getTopMenu(session, localizationService, cb);
+};
 
-        if(util.isError(data) || data.length == 0) {
-            themeSettings = {
-                site_logo: pb.config.siteRoot + '/img/pb_logo.png',
-                carousel_media: []
-            };
-        }
-        else {
-            themeSettings = data[0];
-        }
+TopMenuService.getAccountButtons = function(session, cb) {
+	pb.content.getSettings(function(err, contentSettings) {
+		//TODO handle error 
+		
+        var accountButtons = [];
 
-        pb.settings.get('section_map', function(err, sectionMap) {
-            if (util.isError(err) || sectionMap == null) {
-            	sectionMap = [];
+        if(contentSettings.allow_comments) {
+            if(pb.security.isAuthenticated(session)) {
+                accountButtons = [
+                    {
+                        icon: 'user',
+                        href: '/user/manage_account'
+                    },
+                    {
+                        icon: 'rss',
+                        href: '/feed'
+                    },
+                    {
+                        icon: 'power-off',
+                        href: '/actions/logout'
+                    }
+                ];
+
             }
-
-            var formattedSections = [];
-            dao.query('section').then(function(sections) {
-                //TODO handle error
-                for(var i = 0; i < sectionMap.length; i++) {
-                    var section = self.getSectionData(sectionMap[i].uid, sections);
-
-                    if(sectionMap[i].children.length == 0) {
-                        if(section) {
-                            //TODO: figure out how to tell if were in one of these sections
-                            formattedSections.push(section);
-                        }
+            else {
+                accountButtons =
+                [
+                    {
+                        icon: 'user',
+                        href: '/user/sign_up'
+                    },
+                    {
+                        icon: 'rss',
+                        href: '/feed'
                     }
-                    else {
-                        if(section) {
-                            section.dropdown = 'dropdown';
-
-                            var sectionHome = pb.utils.clone(section);
-                            if(typeof loc !== 'undefined') {
-
-                                sectionHome.name = sectionHome.name + ' ' + localizationService.get('HOME');
-                            }
-                            delete sectionHome.children;
-
-                            section.children = [sectionHome];
-
-                            for(var j = 0; j < sectionMap[i].children.length; j++) {
-                                var child = self.getSectionData(sectionMap[i].children[j].uid, sections);
-                                section.children.push(child);
-                            }
-
-                            formattedSections.push(section);
-                        }
-                    }
-                }
-
-                pb.content.getSettings(function(err, contentSettings) {
-                    var accountButtons = [];
-
-                    if(contentSettings.allow_comments) {
-                        if(session && session.authentication && session.authentication.user) {
-                            accountButtons = [
-                                {
-                                    icon: 'user',
-                                    href: '/user/manage_account'
-                                },
-                                {
-                                    icon: 'rss',
-                                    href: '/feed'
-                                },
-                                {
-                                    icon: 'power-off',
-                                    href: '/actions/logout'
-                                }
-                            ];
-
-                        }
-                        else {
-                            accountButtons =
-                            [
-                                {
-                                    icon: 'user',
-                                    href: '/user/sign_up'
-                                },
-                                {
-                                    icon: 'rss',
-                                    href: '/feed'
-                                }
-                            ];
-                        }
-                    }
-
-                    cb(themeSettings, formattedSections, accountButtons);
-                });
-            });
-        });
+                ];
+            }
+        }
+        cb(null, accountButtons);
     });
 };
 
