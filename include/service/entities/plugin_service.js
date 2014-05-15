@@ -25,6 +25,17 @@ var PUBLIC_DIR_NAME   = 'public';
 //statics
 var ACTIVE_PLUGINS = {};
 
+PluginService.prototype.getActiveIcon = function(cb) {
+	pb.settings.get('active_theme', function(err, theme) {
+		if (ACTIVE_PLUGINS[theme] && ACTIVE_PLUGINS[theme].icon) {
+			cb(err, ACTIVE_PLUGINS[theme].icon);
+		}
+		else {
+			cb(err, '/favicon.ico');
+		}
+	});
+};
+
 /**
  * Retrieves the names of the active plugins for this instance 
  * @method getActivePluginNames
@@ -935,6 +946,11 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
     			 public_dir: PluginService.getPublicPath(plugin.dirName),
     			 permissions: map
         	 };
+        	 
+        	 //set icon url (if exists)
+        	 if (details.icon) {
+        		 ACTIVE_PLUGINS[details.uid].icon = PluginService.genPublicPath(details.uid, details.icon);
+        	 }
         	 process.nextTick(function() {callback(null, true);});
          },
          

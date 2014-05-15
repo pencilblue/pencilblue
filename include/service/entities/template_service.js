@@ -77,6 +77,9 @@ var GLOBAL_CALLBACKS = {
 		});
 	},
 	site_menu_logo: '/img/logo_menu.png',
+	site_icon: function(flag, callback) {
+		pb.plugins.getActiveIcon(callback);
+	}
 };
 
 /**
