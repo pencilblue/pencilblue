@@ -1,8 +1,8 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-	^error_success^ 
+	^error_success^
 	^tmp_admin=elements=sub_nav^
-	<table><tr><td><img ng-if="is_active" class="media-object" ng-src="^plugin_icon^" /></td><td><h2>{{d.name}}</h2></td></tr></table>
+	<table><tr><td><img ng-if="is_active" class="media-object" ng-src="^plugin_icon^" /></td><td></td></tr></table>
 	<form role="form">
 		<div class="form-group">
 			<label for="status">^loc_STATUS^</label>
@@ -13,9 +13,9 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<label for="uid">^loc_UID^</label> 
+			<label for="uid">^loc_UID^</label>
             <input type="text" class="form-control" id="uid" disabled value="{{d.uid}}"/>
-            <label for="version">^loc_VERSION^</label> 
+            <label for="version">^loc_VERSION^</label>
             <input type="text" class="form-control" id="version" disabled value="{{d.version}}"/>
 		</div>
 		<div class="form-group">
