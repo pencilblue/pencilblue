@@ -29,7 +29,7 @@ var formRefillOptions =
 ];
 
 $(document).ready(function()
-{    
+{
     $('#new_article_form').validate(
     {
         rules:
@@ -45,18 +45,18 @@ $(document).ready(function()
             }
         }
     });
-    
+
     if($('#publish_date').val().length == 0)
     {
         setPublishDateToNow();
     }
-    
+
     $('#publish_date').datetimepicker(
     {
         language: 'en',
         format: 'Y-m-d H:m'
     });
-    
+
     $('#url').focus();
 });
 
@@ -70,7 +70,7 @@ function getDatetimeText(date)
 {
     var datetime = date.getFullYear() + '-' + getExtraZero(date.getMonth() + 1) + '-' + getExtraZero(date.getDate()) + ' ';
     datetime += getExtraZero(date.getHours()) + ':' + getExtraZero(date.getMinutes());
-    
+
     return datetime;
 }
 
@@ -80,7 +80,7 @@ function getExtraZero(dateNumber)
     {
         dateNumber = '0' + dateNumber;
     }
-    
+
     return dateNumber;
 }
 
@@ -99,7 +99,7 @@ function checkForNewArticleSave(draft)
         {
             $('#article_sections').val(sectionsCSV);
         }
-        
+
         buildTopics(function(topicsCSV)
         {
             if(!$('#article_topics').position())
@@ -110,7 +110,7 @@ function checkForNewArticleSave(draft)
             {
                 $('#article_topics').val(topicsCSV);
             }
-            
+
             buildMedia(function(mediaCSV)
             {
                 if(!$('#article_media').position())
@@ -121,12 +121,15 @@ function checkForNewArticleSave(draft)
                 {
                     $('#article_media').val(mediaCSV);
                 }
-            
-                $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
-                
-                $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
-                
-                $('#new_article_form').submit();
+
+                getContentLayout(function(contentLayout)
+                {
+                    $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + encodeURIComponent(contentLayout) + '</textarea>');
+
+                    $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
+
+                    $('#new_article_form').submit();
+                });
             });
         });
     });
@@ -137,17 +140,17 @@ function buildSections(output)
     var sectionElements = $('#active_sections').find('.section_item');
     sectionElementCount = 0;
     sectionsArray = [];
-    
+
     if(sectionElements.length == 0)
     {
         output('');
         return;
     }
-    
+
     sectionElements.each(function()
     {
         sectionsArray.push($(this).attr('id').split('section_').join('').trim());
-        
+
         sectionElementCount++;
         if(sectionElementCount >= sectionElements.length)
         {
@@ -161,17 +164,17 @@ function buildTopics(output)
     var topicElements = $('#active_topics').find('.topic');
     topicElementCount = 0;
     topicsArray = [];
-    
+
     if(topicElements.length == 0)
     {
         output('');
         return;
     }
-    
+
     topicElements.each(function()
     {
         topicsArray.push($(this).attr('id').split('topic_').join('').trim());
-        
+
         topicElementCount++;
         if(topicElementCount >= topicElements.length)
         {
@@ -185,17 +188,17 @@ function buildMedia(output)
     var mediaElements = $('#active_media').find('.media_item');
     mediaElementCount = 0;
     mediaArray = [];
-    
+
     if(mediaElements.length == 0)
     {
         output('');
         return;
     }
-    
+
     mediaElements.each(function()
     {
         mediaArray.push($(this).attr('id').split('media_').join('').trim());
-        
+
         mediaElementCount++;
         if(mediaElementCount >= mediaElements.length)
         {

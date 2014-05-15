@@ -31,7 +31,7 @@ var formRefillOptions =
 var autoSaveTimeout;
 
 $(document).ready(function()
-{    
+{
     $('#edit_article_form').validate(
     {
         rules:
@@ -47,13 +47,13 @@ $(document).ready(function()
             }
         }
     });
-    
+
     $('#publish_date').datetimepicker(
     {
         language: 'en',
         format: 'Y-m-d H:m'
     });
-    
+
     if($('#save_draft_button').position())
     {
         resetAutoSaveTimeout();
@@ -70,7 +70,7 @@ function getDatetimeText(date)
 {
     var datetime = date.getFullYear() + '-' + getExtraZero(date.getMonth() + 1) + '-' + getExtraZero(date.getDate()) + ' ';
     datetime += getExtraZero(date.getHours()) + ':' + getExtraZero(date.getMinutes());
-    
+
     return datetime;
 }
 
@@ -80,7 +80,7 @@ function getExtraZero(dateNumber)
     {
         dateNumber = '0' + dateNumber;
     }
-    
+
     return dateNumber;
 }
 
@@ -100,7 +100,7 @@ function checkForEditArticleSave(draft, cb)
         {
             $('#article_sections').val(sectionsCSV);
         }
-        
+
         buildTopics(function(topicsCSV)
         {
             if(!$('#article_topics').position())
@@ -111,7 +111,7 @@ function checkForEditArticleSave(draft, cb)
             {
                 $('#article_topics').val(topicsCSV);
             }
-            
+
             buildMedia(function(mediaCSV)
             {
                 if(!$('#article_media').position())
@@ -122,19 +122,22 @@ function checkForEditArticleSave(draft, cb)
                 {
                     $('#article_media').val(mediaCSV);
                 }
-            
-                $('fieldset .additions').append('<textarea id="article_layout" name="article_layout">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
-                
-                $('fieldset .additions').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '"></input>');
-                
-                if(typeof cb === 'undefined')
+
+                getContentLayout(function(contentLayout)
                 {
-                    $('#edit_article_form').submit();
-                }
-                else
-                {
-                    asyncEditArticleSave(cb);
-                }
+                    $('fieldset .additions').append('<textarea id="article_layout" name="article_layout">' + encodeURIComponent(contentLayout) + '</textarea>');
+
+                    $('fieldset .additions').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '"></input>');
+
+                    if(typeof cb === 'undefined')
+                    {
+                        $('#edit_article_form').submit();
+                    }
+                    else
+                    {
+                        asyncEditArticleSave(cb);
+                    }
+                });
             });
         });
     });
@@ -145,17 +148,17 @@ function buildSections(output)
     var sectionElements = $('#active_sections').find('.section_item');
     sectionElementCount = 0;
     sectionsArray = [];
-    
+
     if(sectionElements.length == 0)
     {
         output('');
         return;
     }
-    
+
     sectionElements.each(function()
     {
         sectionsArray.push($(this).attr('id').split('section_').join('').trim());
-        
+
         sectionElementCount++;
         if(sectionElementCount >= sectionElements.length)
         {
@@ -169,17 +172,17 @@ function buildTopics(output)
     var topicElements = $('#active_topics').find('.topic');
     topicElementCount = 0;
     topicsArray = [];
-    
+
     if(topicElements.length == 0)
     {
         output('');
         return;
     }
-    
+
     topicElements.each(function()
     {
         topicsArray.push($(this).attr('id').split('topic_').join('').trim());
-        
+
         topicElementCount++;
         if(topicElementCount >= topicElements.length)
         {
@@ -193,17 +196,17 @@ function buildMedia(output)
     var mediaElements = $('#active_media').find('.media_item');
     mediaElementCount = 0;
     mediaArray = [];
-    
+
     if(mediaElements.length == 0)
     {
         output('');
         return;
     }
-    
+
     mediaElements.each(function()
     {
         mediaArray.push($(this).attr('id').split('media_').join('').trim());
-        
+
         mediaElementCount++;
         if(mediaElementCount >= mediaElements.length)
         {
@@ -218,7 +221,7 @@ function asyncEditArticleSave(cb)
     $.post('/api/admin/content/articles/save_draft' + document.URL.substr(document.URL.lastIndexOf('/')) , formData, function(data)
     {
         var result = JSON.parse(data);
-        
+
         if(!result)
         {
             cb(false);
@@ -255,7 +258,7 @@ function getDraftTime()
     {
         minutes = '0' + minutes;
     }
-    
+
     return hour + ':' + minutes;
 }
 

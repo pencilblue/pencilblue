@@ -1,7 +1,7 @@
 /*
 
     Interface for adding a new page
-    
+
     @author Blake Callens <blake.callens@gmail.com>
     @copyright PencilBlue 2013, All rights reserved
 
@@ -48,12 +48,12 @@ $(document).ready(function()
             }
         }
     });
-    
+
     if($('#publish_date').val().length == 0)
     {
         setPublishDateToNow();
     }
-    
+
     $('#publish_date').datetimepicker(
     {
         language: 'en',
@@ -73,7 +73,7 @@ function getDatetimeText(date)
 {
     var datetime = date.getFullYear() + '-' + getExtraZero(date.getMonth() + 1) + '-' + getExtraZero(date.getDate()) + ' ';
     datetime += getExtraZero(date.getHours()) + ':' + getExtraZero(date.getMinutes());
-    
+
     return datetime;
 }
 
@@ -83,7 +83,7 @@ function getExtraZero(dateNumber)
     {
         dateNumber = '0' + dateNumber;
     }
-    
+
     return dateNumber;
 }
 
@@ -102,7 +102,7 @@ function checkForNewPageSave(draft)
         {
             $('#page_topics').val(topicsCSV);
         }
-        
+
         buildMedia(function(mediaCSV)
         {
             if(!$('#page_media').position())
@@ -113,12 +113,15 @@ function checkForNewPageSave(draft)
             {
                 $('#page_media').val(mediaCSV);
             }
-        
-            $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
-            
-            $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
-            
-            $('#new_page_form').submit();
+
+            getContentLayout(function(contentLayout)
+            {
+                $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + encodeURIComponent(contentLayout) + '</textarea>');
+
+                $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
+
+                $('#new_page_form').submit();
+            });
         });
     });
 }
@@ -128,17 +131,17 @@ function buildTopics(output)
     var topicElements = $('#active_topics').find('.topic');
     topicElementCount = 0;
     topicsArray = [];
-    
+
     if(topicElements.length == 0)
     {
         output('');
         return;
     }
-    
+
     topicElements.each(function()
     {
         topicsArray.push($(this).attr('id').split('topic_').join('').trim());
-        
+
         topicElementCount++;
         if(topicElementCount >= topicElements.length)
         {
@@ -152,17 +155,17 @@ function buildMedia(output)
     var mediaElements = $('#active_media').find('.media_item');
     mediaElementCount = 0;
     mediaArray = [];
-    
+
     if(mediaElements.length == 0)
     {
         output('');
         return;
     }
-    
+
     mediaElements.each(function()
     {
         mediaArray.push($(this).attr('id').split('media_').join('').trim());
-        
+
         mediaElementCount++;
         if(mediaElementCount >= mediaElements.length)
         {

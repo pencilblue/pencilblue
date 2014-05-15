@@ -49,7 +49,7 @@ function openLayoutFullscreen()
         'width': '100%',
         'height': '100%',
         'overflow': 'auto',
-        'z-index': '50000'
+        'z-index': '10000'
     });
 
     $('#layout_content').css(
@@ -78,6 +78,7 @@ function toggleCodeView()
 {
     if($('#layout_code').is(':visible'))
     {
+        loadLayoutMediaPreviews();
         $('#layout_code').hide();
         $('#layout_editable').show();
         $('#layout_content').css(
@@ -108,11 +109,39 @@ function onLayoutEditableChanged()
 {
     if($('#layout_editable').is(':visible'))
     {
-        $('#layout_code').val($('#layout_editable').html());
-        layoutRange = window.getSelection().getRangeAt(0);
-        setSelectedHTML();
-        checkForFormatState();
-        calculateColumnInches();
+        if(!$('#temp_editable').position())
+        {
+            $('body').append('<div id="temp_editable" style="display:none"></div>');
+        }
+        $('#temp_editable').html($('#layout_editable').html());
+
+        var i = 0;
+        var mediaCount = $('#temp_editable .media_preview').length;
+
+        if(mediaCount === 0)
+        {
+            $('#layout_code').val($('#temp_editable').html());
+            layoutRange = window.getSelection().getRangeAt(0);
+            setSelectedHTML();
+            checkForFormatState();
+            calculateColumnInches();
+            return;
+        }
+
+        $('#temp_editable .media_preview').each(function()
+        {
+            $(this).replaceWith('^' + $(this).attr('media-tag') + '^');
+            i++;
+
+            if(i >= mediaCount)
+            {
+                $('#layout_code').val($('#temp_editable').html());
+                layoutRange = window.getSelection().getRangeAt(0);
+                setSelectedHTML();
+                checkForFormatState();
+                calculateColumnInches();
+            }
+        });
     }
 }
 
@@ -234,6 +263,7 @@ function showContentLayoutModal(subsection)
             break;
     }
 
+    closeLayoutFullscreen();
     $('#layout_link_url').val('');
     $('#content_layout_modal').modal({backdrop: 'static', keyboard: true});
 }
@@ -329,6 +359,7 @@ function addLayoutMedia()
                 layoutFormat('inserthtml', '<div>^carousel_display_' + associatedMedia.join('-') + mediaFormat + '^</div>');
             }
 
+            loadLayoutMediaPreviews();
             $('#content_layout_modal').modal('hide');
         }
     });
@@ -355,21 +386,20 @@ function loadLayoutMediaPreviews()
         return;
     }
 
-    var removeMediaButton = '<button type="button" class="btn btn-sm btn-danger remove_media_button" onclick="$(\'^media_id^\').remove()"><i class="fa fa-trash-o"></i></button>';
-
     var startIndex = index + 15;
     var endIndex = layout.substr(startIndex).indexOf('^');
     var mediaProperties = layout.substr(startIndex, endIndex).split('/');
     var mediaID = mediaProperties[0];
     var styles = getLayoutMediaStyle(mediaProperties[1]);
+    var mediaTag = layout.substr(startIndex - 14, endIndex + 14);
 
     $.getJSON('/api/content/get_media_embed?id=' + mediaID, function(result)
     {
         if(result.code === 0)
         {
-            var mediaPreview = '<div id="media_preview_' + mediaID + '" class="media_preview" media-tag="' + mediaID + '" + style="' + styles.containerCSS + '">' + result.data + removeMediaButton.split('^media_id^').join('#media_preview_' + mediaID) + '</div>';
+            var mediaPreview = '<div id="media_preview_' + mediaID + '" class="media_preview" media-tag="' + mediaTag + '" + style="' + styles.containerCSS + '">' + result.data + '</div>';
 
-            layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaPreview);
+            layout = layout.split('^' + mediaTag + '^').join(mediaPreview);
             $('#layout_editable').html(layout);
 
             $('#media_preview_' + mediaID).children().first().attr('style', styles.mediaCSS);
@@ -420,4 +450,32 @@ function getLayoutMediaStyle(styleString)
     }
 
     return {containerCSS: containerCSS.join('; '), mediaCSS: mediaCSS.join('; ')};
+}
+
+function getContentLayout(cb)
+{
+    if(!$('#temp_editable').position())
+    {
+        $('body').append('<div id="temp_editable" style="display:none"></div>');
+    }
+    $('#temp_editable').html($('#layout_editable').html());
+
+    var i = 0;
+    var mediaCount = $('#temp_editable .media_preview').length;
+    if(mediaCount === 0)
+    {
+        cb($('#temp_editable').html());
+        return;
+    }
+
+    $('#temp_editable .media_preview').each(function()
+    {
+        $(this).replaceWith('^' + $(this).attr('media-tag') + '^');
+        i++;
+
+        if(i >= mediaCount)
+        {
+            cb($('#temp_editable').html());
+        }
+    });
 }
