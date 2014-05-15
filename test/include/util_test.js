@@ -34,10 +34,10 @@ module.exports = {
         	   params: ['/', '\\media\\', '14\\5\\33456789.jpg'],
         	   expected: '/media/14/5/33456789.jpg'
            },
-//           {
-//        	   params: ['\\media\\', '14\\5\\33456789.jpg'],
-//        	   expected: '/media/14/5/33456789.jpg'
-//           }
+           {
+        	   params: ['\\media\\', '14\\5\\33456789.jpg'],
+        	   expected: '/media/14/5/33456789.jpg'
+           }
         ];
 		
 		for (var i = 0; i < tests.length; i++) {

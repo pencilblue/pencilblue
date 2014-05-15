@@ -47,7 +47,11 @@ Util.urlJoin = function() {
 		var segment = ('' + arguments[i]).replace(/\\/g, '/');
 		parts.push(segment.replace(/^\/|\/$/g, ''));
 	}
-	return parts.join('/');
+	var url = parts.join('/');console.log('parts='+util.inspect(parts));
+	if (arguments.length > 0 && (arguments[0].charAt(0) === '/' || arguments[0].charAt(0) == '\\') && url.charAt(0) !== '/') {
+		url = '/'+url;
+	}
+	return url;
 };
 
 Util.getCustomUrl = function(prefix, url) {

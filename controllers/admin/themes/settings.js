@@ -1,7 +1,7 @@
 function ThemeSettingsController() {}
 
 //dependencies
-var PluginSettingsController = require('./settings.js');
+var PluginSettingsController = require('../plugins/settings.js');
 
 //inheritance
 util.inherits(ThemeSettingsController, PluginSettingsController);
