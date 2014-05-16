@@ -20,17 +20,17 @@ GetArticles.prototype.render = function(cb) {
 
 	pb.content.getSettings(function(err, contentSettings) {
 
-	    if(!get['limit'] || get['limit'].length == 0)
+	    if(!get.limit || get.limit.length === 0)
 	    {
-	        get['limit'] = contentSettings.articles_per_page;
+	        get.limit = contentSettings.articles_per_page;
 	    }
-	    if(!get['offset'])
+	    if(!get.offset)
 	    {
-	        get['offset'] = contentSettings.articles_per_page;
+	        get.offset = contentSettings.articles_per_page;
 	    }
 
-	    self.limit = parseInt(get['limit']);
-	    self.offset = parseInt(get['offset']);
+	    self.limit = parseInt(get.limit);
+	    self.offset = parseInt(get.offset);
 
 	    //create callback to be issued by all the find calls
         var articleCallback = function(err, articles) {
@@ -38,7 +38,16 @@ GetArticles.prototype.render = function(cb) {
         };
 
         var service = new ArticleService();
-        service.find({}, articleCallback);
+
+        if(get.section) {
+            service.findBySection(get.section, articleCallback);
+        }
+        else if(get.topic) {
+            service.findByTopic(get.topic, articleCallback);
+        }
+        else {
+            service.find({}, articleCallback);
+        }
     });
 };
 

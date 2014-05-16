@@ -35,6 +35,7 @@ ThemesController.prototype.render = function(cb) {
 			var angularData = pb.js.getAngularController(
 	            {
 	                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes'], self.ls),
+	                tabs: self.getTabs(),
 	                themes: themes,
 	                options: options,
 	                activeTheme: activeTheme
@@ -44,6 +45,25 @@ ThemesController.prototype.render = function(cb) {
 			
 			//load the template
 			//self.ts.registerLocal('angular_script', angularData);
+			self.ts.registerLocal('uploaded_image', function(flag, callback) {
+				pb.settings.get('site_logo', function(err, logo) {
+					if (util.isError(err)) {
+						pb.log.error("ThemesController: Failed to retrieve site logo: "+err.stack);
+					}
+					
+					var imgUrl = '';
+					if (logo) {
+						if (pb.utils.isFullyQualifiedUrl(logo)) {
+							imgUrl = logo;
+						}
+						else {
+							imgUrl = pb.utils.urlJoin('', logo);
+						}
+					}
+					callback(null, imgUrl);
+				});
+			});
+			self.ts.registerLocal('image_title', ' ');
 			self.ts.load('/admin/themes/index', function(err, content) {
 				
 				//TODO move angular out as flag & replacement when can add option to 
@@ -53,6 +73,22 @@ ThemesController.prototype.render = function(cb) {
 			});
 		});
 	});
+};
+
+ThemesController.prototype.getTabs = function() {
+	return [
+	        {
+	            active: 'active',
+	            href: '#themes',
+	            icon: 'magic',
+	            title: this.ls.get('THEMES')
+	        },
+	        {
+	            href: '#site_logo',
+	            icon: 'picture-o',
+	            title: this.ls.get('SITE_LOGO')
+	        }
+	    ];
 };
 
 //exports

@@ -36,6 +36,21 @@ Index.prototype.render = function(cb) {
                 var article = self.req.pencilblue_article || null;
                 var page    = self.req.pencilblue_page    || null;
 
+                if(article || page) {
+                    result = result.split('^infinite_scroll^').join('');
+                }
+                else {
+                    var infiniteScrollScript = pb.js.includeJS('/js/infinite_article_scroll.js');
+                    if(section) {
+                        infiniteScrollScript += pb.js.getJSTag('var infiniteScrollSection = "' + section + '";');
+                    }
+                    else if(topic) {
+                        infiniteScrollScript += pb.js.getJSTag('var infiniteScrollTopic = "' + topic + '";');
+                    }
+
+                    result = result.split('^infinite_scroll^').join(infiniteScrollScript);
+                }
+
                 var service = new ArticleService();
                 if(self.req.pencilblue_preview) {
                     if(self.req.pencilblue_preview == page || article) {
@@ -142,14 +157,14 @@ Index.prototype.getArticlesHTML = function(articles, commentsTemplates, contentS
                 articleTemplate = articleTemplate.split('^byline^').join('');
             }
 
-            if(contentSettings.allow_comments) {
+            if(!self.req.pencilblue_page && contentSettings.allow_comments) {
                 articleTemplate = articleTemplate.split('^comments^').join(commentsTemplates.commentsContainer);
             }
             else {
                 articleTemplate = articleTemplate.split('^comments^').join('');
             }
 
-            var result = '';
+            var result = '';console.log('as='+util.inspect(articles));
             for(var i = 0; i < articles.length; i++)
             {
                 var articleHTML = articleTemplate.split('^article_id^').join(articles[i]._id.toString());
@@ -255,7 +270,7 @@ Index.prototype.formatComments = function(articleHTML, comments, commentingUser,
     }
 
     return articleHTML;
-}
+};
 
 Index.prototype.getPageName = function() {
 	return pb.config.siteName;

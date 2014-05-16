@@ -56,6 +56,8 @@ var TEMPLATE_PREFIX         = 'tmp_';
 var TEMPLATE_PREFIX_LEN     = TEMPLATE_PREFIX.length;
 var LOCALIZATION_PREFIX     = 'loc_';
 var LOCALIZATION_PREFIX_LEN = LOCALIZATION_PREFIX.length;
+var SYSTEM_PREFIX           = 'system_';
+var SYSTEM_PREFIX_LEN       = SYSTEM_PREFIX.length;
 
 var TEMPLATE_LOADER = null;
 
@@ -68,7 +70,16 @@ var TEMPLATE_LOADER = null;
  */
 var GLOBAL_CALLBACKS = {
 	site_root: pb.config.siteRoot,
-	site_name: pb.config.siteName
+	site_name: pb.config.siteName,
+	site_logo: function(flag, callback) {
+		pb.settings.get('site_logo', function(err, logo) {
+			callback(null, logo ? logo : '/img/pb_logo.png');
+		});
+	},
+	site_menu_logo: '/img/logo_menu.png',
+	site_icon: function(flag, callback) {
+		pb.plugins.getActiveIcon(callback);
+	}
 };
 
 /**

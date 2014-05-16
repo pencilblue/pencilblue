@@ -31,7 +31,6 @@ NotFound.prototype.render = function(cb) {
                         navigation: navigation,
                         contentSettings: contentSettings,
                         loggedIn: pb.security.isAuthenticated(self.session),
-                        themeSettings: themeSettings,
                         accountButtons: accountButtons
                     }));
                     

@@ -42,19 +42,14 @@ Util.ane = function(obj){
 };
 
 Util.urlJoin = function() {
-	var url = '';
-	for ( var i = 0; i < arguments.length; i++) {
-		var segment = arguments[i];
-		if (typeof segment !== 'string') {
-			throw new TypeError('Arguments to path.join must be strings');
-		}
-		if (segment) {
-			if (!url) {
-				url += segment;
-			} else {
-				url += '/' + segment;
-			}
-		}
+	var parts = [];
+	for (var i = 0; i < arguments.length; i++) {
+		var segment = ('' + arguments[i]).replace(/\\/g, '/');
+		parts.push(segment.replace(/^\/|\/$/g, ''));
+	}
+	var url = parts.join('/');
+	if (arguments.length > 0 && (arguments[0].charAt(0) === '/' || arguments[0].charAt(0) == '\\') && url.charAt(0) !== '/') {
+		url = '/'+url;
 	}
 	return url;
 };
@@ -78,7 +73,7 @@ Util.getCustomUrl = function(prefix, url) {
 };
 
 Util.isExternalUrl = function(urlStr, request) {
-    var obj = url.parse(urlStr);
+	var obj    = url.parse(urlStr);
     var reqUrl = null;
     
     if(!obj.host)
@@ -94,6 +89,10 @@ Util.isExternalUrl = function(urlStr, request) {
     }
 
     return reqUrl.host !== obj.host;
+};
+
+Util.isFullyQualifiedUrl = function(urlStr) {
+	return Util.isString(urlStr) && urlStr.indexOf('http') === 0;
 };
 
 /**
