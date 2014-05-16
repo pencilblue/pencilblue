@@ -47,7 +47,7 @@ Util.urlJoin = function() {
 		var segment = ('' + arguments[i]).replace(/\\/g, '/');
 		parts.push(segment.replace(/^\/|\/$/g, ''));
 	}
-	var url = parts.join('/');console.log('parts='+util.inspect(parts));
+	var url = parts.join('/');
 	if (arguments.length > 0 && (arguments[0].charAt(0) === '/' || arguments[0].charAt(0) == '\\') && url.charAt(0) !== '/') {
 		url = '/'+url;
 	}
