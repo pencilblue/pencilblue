@@ -2,49 +2,85 @@
 <div class="col-md-9">
 	^error_success^
 	^tmp_admin=elements=sub_nav^
-	<table><tr><td><img ng-if="is_active" class="media-object" ng-src="^plugin_icon^" /></td><td></td></tr></table>
+	<!--<table><tr><td><img ng-if="is_active" class="media-object" ng-src="^plugin_icon^" /></td><td></td></tr></table>-->
+	<div class="alert alert-danger" ng-if="d.errors">
+		<p><b>^loc_ERRORS^:</b></p>
+		<p ng-repeat="error in d.errors" ng-cloak>
+			{{error}}
+		</p>
+	</div>
+	<table class="table table-responsive table-condensed table-bordered">
+		<tr>
+			<th>^loc_STATUS^</th>
+			<th>^loc_UID^</th>
+			<th>^loc_VERSION^</th>
+		</tr>
+		<tr>
+			<td>{{status}}</td>
+			<td>{{d.uid}}</td>
+			<td>{{d.version}}</td>
+		</tr>
+	</table>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<label>^loc_ABOUT^ {{d.name}}</label>
+			<p>{{d.description}}</p>
+		</div>
+	</div>
 	<form role="form">
-		<div class="form-group">
-			<label for="status">^loc_STATUS^</label>
-			<input type="text" class="form-control" id="status" disabled value="{{status}}"/>
-			<div ng-if="d.errors">
-			     <label for="errors">^loc_ERRORS^</label>
-			     <textarea id="errors" class="form-control" disabled>{{d.errors.join("\n")}}</textarea>
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				^loc_AUTHOR_INFORMATION^
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="uid">^loc_UID^</label>
-            <input type="text" class="form-control" id="uid" disabled value="{{d.uid}}"/>
-            <label for="version">^loc_VERSION^</label>
-            <input type="text" class="form-control" id="version" disabled value="{{d.version}}"/>
-		</div>
-		<div class="form-group">
-            <label for="description">^loc_DESCRIPTION^</label>
-            <textarea class="form-control" id="description" disabled>{{d.description}}</textarea>
-        </div>
-		<div class="panel panel-default">
-			<div class="panel-heading"><label for="author_information">^loc_AUTHOR_INFORMATION^</label></div>
 			<div id="author_information" class="panel-body">
-			     <div class="form-group">
-                    <label for="description">^loc_NAME^</label>
-                    <input type="text" class="form-control" id="author_name" disabled value="{{d.author.name}}" />
-                    <label for="description">^loc_EMAIL^</label>
-                    <div class="input-group">
-                        <input type="email" class="form-control" id="author_email" disabled value="{{d.author.email}}" />
-                        <a class="input-group-addon" ng-if="d.author.email" href="mailto:{{d.author.email}}"><i class="fa fa-envelope"></i></a>
-                    </div>
-                    <label for="description">^loc_WEBSITE^</label>
-                    <div class="input-group">
-                        <input type="url" class="form-control" id="author_website" disabled value="{{d.author.website}}" />
-                        <a class="input-group-addon" ng-if="d.author.website" href="{{d.author.website}}" target="_blank"><i class="fa fa-link"></i></a>
-                    </div>
-                    <label for="contributors">^loc_CONTRIBUTORS^</label>
-                    <table id="contributors" class="table table-condensed table-bordered">
-                        <tr ng-repeat="c in d.author.contributors">
-                            <td>{{c.name}}</td><td><a ng-if="c.email" href="mailto:{{c.email}}">{{c.email}}</a></td>
-                        </tr>
-                    </table>
-                </div>
+				<div class="row">
+					<div class="col-md-4">
+						<div class="form-group">
+							<label>^loc_NAME^</label>
+							<input type="text" class="form-control" id="author_name" disabled value="{{d.author.name}}"></input>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group">
+							<label>^loc_EMAIL^</label>
+							<div class="input-group">
+								<input type="email" class="form-control" id="author_email" disabled value="{{d.author.email}}"></input>
+								<a class="input-group-addon" ng-if="d.author.email" href="mailto:{{d.author.email}}"><i class="fa fa-envelope"></i></a>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group">
+							<label>^loc_WEBSITE^</label>
+							<div class="input-group">
+								<input type="url" class="form-control" id="author_website" disabled value="{{d.author.website}}"></input>
+								<a class="input-group-addon" ng-if="d.author.website" href="{{d.author.website}}" target="_blank"><i class="fa fa-link"></i></a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<span ng-if="d.author.contributors.length">
+					<label>^loc_CONTRIBUTORS^</label>
+					<div class="row">
+						<span ng-repeat="c in d.author.contributors" ng-cloak>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>^loc_NAME^</label>
+									<input type="text" class="form-control" disabled value="{{c.name}}"></input>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>^loc_EMAIL^</label>
+									<div class="input-group">
+										<input type="email" class="form-control" disabled value="{{c.email}}"></input>
+										<a class="input-group-addon" ng-if="c.email" href="mailto:{{c.email}}"><i class="fa fa-envelope"></i></a>
+									</div>
+								</div>
+							</div>
+						</span>
+					</div>
+				</span>
 			</div>
 		</div>
 		<div ng-if="d.theme" class="panel panel-default">

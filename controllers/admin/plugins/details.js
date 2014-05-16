@@ -25,7 +25,7 @@ PluginDetailsController.prototype.render = function(cb) {
 		pills.unshift(
 			{
 				name: 'manage',
-				title: self.ls.get('MANAGE') + ' ' + obj.details.name,
+				title: obj.details.name,
 				icon: 'chevron-left',
 				href: '/admin/plugins/'
 			}

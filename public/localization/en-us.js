@@ -335,7 +335,6 @@ var loc =
         EMAIL_VERIFIED: 'Thank you for verifying your email address. You may now login.',
         MANAGE_ACCOUNT: 'Manage account',
         PROFILE: 'Profile',
-        CHANGE_PASSWORD: 'Change password',
         PROFILE_EDITED: 'Your profile was successfully edited',
         OLD_PASSWORD: 'Old password',
         NEW_PASSWORD: 'New password',
@@ -344,9 +343,10 @@ var loc =
     },
     plugins:
     {
-        'MANAGE_PLUGINS': 'Manage plugins',
-        'NO_ACTIVE_PLUGINS': 'No active plugins',
-        'NO_INACTIVE_PLUGINS': 'No inactive plugins'
+        MANAGE_PLUGINS: 'Manage plugins',
+        NO_ACTIVE_PLUGINS: 'No active plugins',
+        NO_INACTIVE_PLUGINS: 'No inactive plugins',
+        ABOUT: 'About'
     },
     site_settings:
     {
