@@ -9,18 +9,23 @@
 			{{error}}
 		</p>
 	</div>
-	<table class="table table-responsive table-condensed table-bordered">
-		<tr>
-			<th>^loc_STATUS^</th>
-			<th>^loc_UID^</th>
-			<th>^loc_VERSION^</th>
-		</tr>
-		<tr>
-			<td>{{status}}</td>
-			<td>{{d.uid}}</td>
-			<td>{{d.version}}</td>
-		</tr>
-	</table>
+	<div class="row">
+		<div class="col-md-6">
+			<table class="table table-responsive table-condensed table-bordered">
+				<tr>
+					<th>^loc_STATUS^</th>
+					<th>^loc_UID^</th>
+					<th>^loc_VERSION^</th>
+				</tr>
+				<tr>
+					<td>{{status}}</td>
+					<td>{{d.uid}}</td>
+					<td>{{d.version}}</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="spacer"></div>
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<label>^loc_ABOUT^ {{d.name}}</label>
@@ -32,70 +37,50 @@
 			<div class="panel-heading">
 				^loc_AUTHOR_INFORMATION^
 			</div>
-			<div id="author_information" class="panel-body">
-				<div class="row">
-					<div class="col-md-4">
-						<div class="form-group">
-							<label>^loc_NAME^</label>
-							<input type="text" class="form-control" id="author_name" disabled value="{{d.author.name}}"></input>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group">
-							<label>^loc_EMAIL^</label>
-							<div class="input-group">
-								<input type="email" class="form-control" id="author_email" disabled value="{{d.author.email}}"></input>
-								<a class="input-group-addon" ng-if="d.author.email" href="mailto:{{d.author.email}}"><i class="fa fa-envelope"></i></a>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group">
-							<label>^loc_WEBSITE^</label>
-							<div class="input-group">
-								<input type="url" class="form-control" id="author_website" disabled value="{{d.author.website}}"></input>
-								<a class="input-group-addon" ng-if="d.author.website" href="{{d.author.website}}" target="_blank"><i class="fa fa-link"></i></a>
-							</div>
-						</div>
-					</div>
-				</div>
+			<table class="table table-responsive table-condensed">
+				<tr>
+					<th><i class="fa fa-user"></i>&nbsp;^loc_NAME^</th>
+					<th><i class="fa fa-envelope"></i>&nbsp;^loc_EMAIL^</th>
+					<th><i class="fa fa-link"></i>&nbsp;^loc_WEBSITE^</th>
+				</tr>
+				<tr>
+					<td>{{d.author.name}}</td>
+					<td><a ng-if="d.author.email" href="mailto:{{d.author.email}}">{{d.author.email}}</a></td>
+					<td><a ng-if="d.author.website" href="{{d.author.website}}" target="_blank">{{d.author.website}}</a></td>
+				</tr>
 				<span ng-if="d.author.contributors.length">
-					<label>^loc_CONTRIBUTORS^</label>
-					<div class="row">
-						<span ng-repeat="c in d.author.contributors" ng-cloak>
-							<div class="col-md-4">
-								<div class="form-group">
-									<label>^loc_NAME^</label>
-									<input type="text" class="form-control" disabled value="{{c.name}}"></input>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-group">
-									<label>^loc_EMAIL^</label>
-									<div class="input-group">
-										<input type="email" class="form-control" disabled value="{{c.email}}"></input>
-										<a class="input-group-addon" ng-if="c.email" href="mailto:{{c.email}}"><i class="fa fa-envelope"></i></a>
-									</div>
-								</div>
-							</div>
-						</span>
-					</div>
+					<tr>
+						<th>^loc_CONTRIBUTORS^</th>
+						<th></th>
+						<th></th>
+					</tr>
+					<tr ng-repeat="c in d.author.contributors" ng-cloak>
+						<td>{{c.name}}</td>
+						<td><a ng-if="c.email" href="mailto:{{c.email}}">{{c.email}}</a></td>
+						<td></td>
+					</tr>
 				</span>
-			</div>
+			</table>
 		</div>
-		<div ng-if="d.theme" class="panel panel-default">
-            <div class="panel-heading"><label for="author_information">^loc_THEME_INFORMATION^</label></div>
-            <div id="author_information" class="panel-body">
-                 <div class="form-group">
-                    <div class="input-group">
-                        <label for="theme_templates">^loc_TEMPLATES^</label>
-                        <ul id="theme_templates">
-                            <li ng-repeat="t in d.theme.content_templates">{{t.name}}</li>
-                            <li ng-if="!d.theme.content_templates">^loc_NONE^</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+		<div ng-if="d.theme" class="panel panel-info">
+            <div class="panel-heading">
+				^loc_THEME_INFORMATION^
+			</div>
+			<div class="panel-body" ng-if="!d.theme.content_templates">
+				<p>
+					^loc_NONE^
+				</p>
+			</div>
+			<table class="table table-responsive table-condensed"ng-if="d.theme.content_templates">
+				<tr>
+					<th>^loc_NAME^</th>
+					<th>^loc_TEMPLATE^</th>
+				</tr>
+				<tr ng-repeat="t in d.theme.content_templates">
+					<td>{{t.name}}</td>
+					<td>{{t.file}}</td>
+				</tr>
+			</table>
         </div>
 	</form>
 </div>
