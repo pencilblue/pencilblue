@@ -348,6 +348,10 @@ var loc =
         NO_INACTIVE_PLUGINS: 'No inactive plugins',
         ABOUT: 'About'
     },
+    themes:
+    {
+        MANAGE_THEMES: 'Manage themes'
+    },
     site_settings:
     {
         CONFIGURATION: 'Configuration',
