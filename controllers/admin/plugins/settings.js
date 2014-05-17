@@ -18,7 +18,7 @@ PluginSettingsController.prototype.render = function(cb) {
 		cb(data);
 		return;
 	}
-	
+
 	var self = this;
 	switch(this.req.method) {
 	case 'GET':
@@ -36,28 +36,28 @@ PluginSettingsController.prototype.render = function(cb) {
 
 PluginSettingsController.prototype.renderGet = function(cb) {
 	var self = this;
-	
+
 	var uid = this.pathVars.id;
 	pb.plugins.getPlugin(uid, function(err, plugin) {
 		if (util.isError(err)) {
 			throw err;
 		}
-		else if (plugin == null) {
+		else if (plugin === null) {
 			self.reqHandler.serve404();
 			return;
 		}
-		
+
 		//retrieve settings
 		self.plugin = plugin;
 		self.getSettings(uid, function(err, settings) {
 			if (util.isError(err)) {
 				throw err;
 			}
-			else if (settings == null) {
+			else if (settings === null) {
 				self.reqHandler.serve404();
 				return;
 			}
-			
+
 			var clone = pb.utils.copyArray(settings);
 			for (var i = 0; i < clone.length; i++) {
 				var item = clone[i];
@@ -71,16 +71,35 @@ PluginSettingsController.prototype.renderGet = function(cb) {
 					item.type = 'number';
 				}
 			}
+
+			var tabs = [
+				{
+					active: 'active',
+					href: '#plugin_settings',
+					icon: 'cog',
+					title: self.ls.get('SETTINGS')
+				}
+			];
+
+			var pills = self.getPillNavOptions();
+			pills.unshift({
+				name: 'manage_plugins',
+				title: self.plugin.name + ' ' + self.ls.get('SETTINGS'),
+				icon: 'chevron-left',
+				href: '/admin/plugins'
+			});
+
 			//setup angular
 			var angularData = pb.js.getAngularController(
 	            {
-	            	pills: self.getPillNavOptions(),
+	            	pills: pills,
+					tabs: tabs,
 	                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
 	                settings: clone
-	            }, 
+	            },
 	            []
 	        );
-			
+
 			//render page
 			self.ts.registerLocal('form_refill', function(flag, cb) {
 				self.checkForFormRefill(' ', function(refill) {
@@ -89,8 +108,8 @@ PluginSettingsController.prototype.renderGet = function(cb) {
 			});
 			self.ts.registerLocal('form_action', self.getFormAction(uid));
 			self.ts.load('/admin/plugins/settings', function(err, content) {
-				
-				//TODO move angular out as flag & replacement when can add option to 
+
+				//TODO move angular out as flag & replacement when can add option to
 				//skip the check for replacements in replacement
 				content = content.replace('^angular_script^', angularData);
 				cb({content: content});
@@ -117,21 +136,21 @@ PluginSettingsController.prototype.setSettings = function(settings, uid, cb) {
 
 PluginSettingsController.prototype.renderPost = function(post, cb) {
 	var self = this;
-	
+
 	//retrieve settings
 	var uid = this.pathVars.id;
 	this.getSettings(uid, function(err, settings) {
 		if (util.isError(err)) {
 			throw err;
 		}
-		else if (settings == null) {
+		else if (settings === null) {
 			self.reqHandler.serve404();
 			return;
 		}
-		
+
 		var errors = [];
 		for (var i = 0; i < settings.length; i++) {
-			
+
 			var currItem = settings[i];
 			var newVal   = post[currItem.name];
 			var type     = PluginSettingsController.getValueType(currItem.value);
@@ -144,17 +163,17 @@ PluginSettingsController.prototype.renderPost = function(post, cb) {
 					continue;
 				}
 			}
-			
+
 			//validate the value
 			if (!PluginSettingsController.validateValue(newVal, type)) {
 				errors.push(util.format("The value [%s] for setting %s is not a valid %s", newVal, currItem.name, type));
 				continue;
 			}
-			
+
 			//set the new value
 			currItem.value = PluginSettingsController.formatValue(newVal, type);
 		}
-		
+
 		//handle errors
 		if (errors.length > 0) {
 			self.session.error = errors.join("\n");
@@ -168,7 +187,7 @@ PluginSettingsController.prototype.renderPost = function(post, cb) {
 			if (util.isError(err)) {
 				throw err;
 			}
-			
+
 			//set for success and redirect
 			if (result) {
 				self.session.success = self.ls.get('SAVE_PLUGIN_SETTINGS_SUCCESS');
@@ -186,16 +205,9 @@ PluginSettingsController.prototype.getBackUrl = function() {
 };
 
 PluginSettingsController.prototype.getPillNavOptions = function(activePill) {
-    var pillNavOptions = 
-    [
-        {
-            name: 'manage',
-            title: 'Manage',
-            icon: 'chevron-left',
-            href: this.getBackUrl()
-        }
-    ];
-    
+
+	var pillNavOptions = [];
+
     if(typeof activePill !== 'undefined') {
         for(var i = 0; i < pillNavOptions.length; i++) {
             if(pillNavOptions[i].name == activePill) {
@@ -251,7 +263,7 @@ PluginSettingsController.formatValue = function(value, type) {
 	if (value === null || value === undefined || type === null || type === undefined) {
 		throw new Error("Value and type must be provided");
 	}
-	
+
 	if (type === 'boolean') {
 		switch(value) {
 		case true:
@@ -263,7 +275,7 @@ PluginSettingsController.formatValue = function(value, type) {
 		case '0':
 			return false;
 		}
-		
+
 		if (pb.utils.isString(value)) {
 			value = value.toLowerCase();
 			return value === 'true';
