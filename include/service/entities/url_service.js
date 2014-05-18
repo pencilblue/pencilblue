@@ -157,7 +157,7 @@ UrlService.isExternalUrl = function(urlStr, request) {
  * @returns {Boolean} TRUE if fully qualified, FALSE if not
  */
 UrlService.isFullyQualifiedUrl = function(urlStr) {
-	return Util.isString(urlStr) && urlStr.indexOf('http') === 0;
+	return pb.utils.isString(urlStr) && urlStr.indexOf('http') === 0;
 };
 
 //exports

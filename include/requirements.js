@@ -112,6 +112,7 @@ pb.plugins       = new pb.PluginService();
 pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
 pb.MediaService   = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
 pb.UrlService     = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
+pb.TopMenuService = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
 
 //Export system object
 module.exports = pb;
