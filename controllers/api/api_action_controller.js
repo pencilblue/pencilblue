@@ -1,3 +1,15 @@
+/**
+ * The abstract controller interface used to map simple actions to handlers and 
+ * provide a flow for validation and error handling.
+ * 
+ * @class UrlService
+ * @constructor
+ * @extends BaseController
+ * @module Controllers
+ * 
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC. All Rights Reserved
+ */
 function ApiActionController(){}
 
 //dependencies
@@ -8,6 +20,15 @@ var RequestHandler = pb.RequestHandler;
 //inheritance
 util.inherits(ApiActionController, BaseController);
 
+/**
+ * The entry point called by the RequestHandler.  Executes the calls to the 
+ * validation framework then, if passes, executes the action handler.
+ * 
+ * @method render
+ * @see BaseController#render
+ * @param cb A call back that provides one parameter. An object 
+ * containing the result of the action: cb({code: HTTP_STATUS, content: JSON})
+ */
 ApiActionController.prototype.render = function(cb) {
 
 	//validate action
@@ -28,15 +49,23 @@ ApiActionController.prototype.render = function(cb) {
 };
 
 /**
+ * Provides the hash of all actions supported by this controller
  * @method getActions
- * @returns {
- *     "ACTION_NAME": true/false
- * }
+ * @see ApiActionController#getActions
+ * @returns {object}
  */
 ApiActionController.prototype.getActions = function() {
 	return {};
 };
 
+/**
+ * Validates the query, path, and post parameters in parallel and calls back 
+ * with any validation errors.
+ * 
+ * @method validateParameters
+ * @param {string} action The action specified by the URL path
+ * @param {function} cb A call back that provides two parameters: cb(err, [{string])
+ */
 ApiActionController.prototype.validateParameters = function(action, cb) {
 
 	var actions = this.getActions();
@@ -83,6 +112,18 @@ ApiActionController.prototype.validateParameters = function(action, cb) {
 	}
 };
 
+/**
+ * Validates any path parameters for the specified action.  The callback will 
+ * provide an array of validation errors. When the array is empty it is safe to 
+ * assume that validation succeeded. The default implementation examines the 
+ * value for the action in the value returned by ApiActionController#getActions.  
+ * If the value evaluates to true then the implementation will validate that an 
+ * "id" path parameter was passed.
+ * 
+ * @method validatePathParameters
+ * @param {string} action
+ * @param {function} cb A call back that provides two parameters: cb(err, [{string])
+ */
 ApiActionController.prototype.validatePathParameters = function(action, cb) {
 	//validate identifier
 	var errors  = [];
@@ -93,10 +134,28 @@ ApiActionController.prototype.validatePathParameters = function(action, cb) {
 	cb(null, errors);
 };
 
+/**
+ * Validates any query parameters for the specified action.  The callback will 
+ * provide an array of validation errors. When the array is empty it is safe to 
+ * assume that validation succeeded. The default implementation passes an empty 
+ * error array.
+ * @method validateQueryParameters
+ * @param {string} action
+ * @param {function} cb A call back that provides two parameters: cb(err, [{string])
+ */
 ApiActionController.prototype.validateQueryParameters = function(action, cb) {
 	cb(null, []);
 };
 
+/**
+ * Validates any post parameters for the specified action.  The callback will 
+ * provide an array of validation errors. When the array is empty it is safe to 
+ * assume that validation succeeded. The default implementation passes an empty 
+ * error array.
+ * @method validatePostParameters
+ * @param {string} action
+ * @param {function} cb A call back that provides two parameters: cb(err, [{string])
+ */
 ApiActionController.prototype.validatePostParameters = function(action, cb) {
 	cb(null, []);
 };

@@ -1,3 +1,13 @@
+/**
+ * Provides a set of functions for common validations.
+ * 
+ * @class ValidationService
+ * @constructor
+ * @module Validation
+ * 
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC. All Rights Reserved
+ */
 function ValidationService(){}
 
 var FILE_NAME_SAFE_REGEX = /^[a-zA-Z0-9-_\.]+$/;
