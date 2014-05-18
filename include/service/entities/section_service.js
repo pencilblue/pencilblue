@@ -196,9 +196,9 @@ SectionService.getSectionData = function(uid, sections) {
         		//do nothing.  This is a hack to get certain things into the
         		//menu until we re-factor how our navigation structure is built.
         	}
-        	else if(!pb.utils.isExternalUrl(sections[i].url, self.req))
+        	else if(!pb.UrlService.isExternalUrl(sections[i].url, self.req))
             {
-        	    sections[i].url = pb.utils.urlJoin('/section', sections[i].url);
+        	    sections[i].url = pb.UrlService.urlJoin('/section', sections[i].url);
     	    }
             return sections[i];
         }

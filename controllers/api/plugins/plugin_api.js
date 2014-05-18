@@ -1,4 +1,17 @@
-function PluginAPI(){}
+/**
+ * The controller to properly route and handle remote calls to interact with the 
+ * PluginService.
+ * 
+ * @class PluginAPI
+ * @constructor
+ * @extends BaseController
+ * @module Controllers
+ * @submodule API
+ * 
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC. All Rights Reserved
+ */
+function PluginAPI(){}//TODO refactor to match api_action_controller
 
 //dependencies
 var BaseController = pb.BaseController;

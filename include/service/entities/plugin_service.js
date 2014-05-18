@@ -466,7 +466,7 @@ PluginService.genPublicPath = function(plugin, relativePathToMedia) {
 	if (!pb.utils.isString(plugin) || !pb.utils.isString(relativePathToMedia)) {
 		return '';
 	}
-	return pb.utils.urlJoin('/public', plugin, relativePathToMedia);
+	return pb.UrlService.urlJoin('/public', plugin, relativePathToMedia);
 };
 
 PluginService.prototype.getActivePlugins = function(cb) {
