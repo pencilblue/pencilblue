@@ -141,24 +141,5 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
     });
 };
 
-TopMenuService.getSectionData = function(uid, sections) {
-    var self = this;
-    for(var i = 0; i < sections.length; i++) {
-        if(sections[i]._id.equals(ObjectID(uid))) {
-            if (sections[i].url.indexOf('/') === 0) {
-        		//do nothing.  This is a hack to get certain things into the
-        		//menu until we re-factor how our navigation structure is built.
-        	}
-        	else if(!pb.utils.isExternalUrl(sections[i].url, self.req))
-            {
-        	    sections[i].url = pb.utils.urlJoin('/section', sections[i].url);
-    	    }
-            return sections[i];
-        }
-    }
-
-    return null;
-};
-
 //exports
 module.exports = TopMenuService;

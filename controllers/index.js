@@ -164,7 +164,7 @@ Index.prototype.getArticlesHTML = function(articles, commentsTemplates, contentS
                 articleTemplate = articleTemplate.split('^comments^').join('');
             }
 
-            var result = '';console.log('as='+util.inspect(articles));
+            var result = '';
             for(var i = 0; i < articles.length; i++)
             {
                 var articleHTML = articleTemplate.split('^article_id^').join(articles[i]._id.toString());

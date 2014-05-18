@@ -41,58 +41,11 @@ Util.ane = function(obj){
 	}
 };
 
-Util.urlJoin = function() {
-	var parts = [];
-	for (var i = 0; i < arguments.length; i++) {
-		var segment = ('' + arguments[i]).replace(/\\/g, '/');
-		parts.push(segment.replace(/^\/|\/$/g, ''));
-	}
-	var url = parts.join('/');
-	if (arguments.length > 0 && (arguments[0].charAt(0) === '/' || arguments[0].charAt(0) == '\\') && url.charAt(0) !== '/') {
-		url = '/'+url;
-	}
-	return url;
-};
-
-Util.getCustomUrl = function(prefix, url) {
-	var index = prefix.lastIndexOf('/');
-	if (index != prefix.length - 1) {
-		prefix += '/';
-	}
-	
-	index = url.lastIndexOf(prefix);
-	if (index < 0) {
+Util.escapeRegExp = function(str) {
+	if (!Util.isString(str)) {
 		return null;
 	}
-	
-	//check for prefix at the end
-	if (index == url.length - 1) {
-		return '';
-	}
-	return url.substring(index + 1);
-};
-
-Util.isExternalUrl = function(urlStr, request) {
-	var obj    = url.parse(urlStr);
-    var reqUrl = null;
-    
-    if(!obj.host)
-    {
-        return false;
-    }
-    
-    if(request) {
-        reqUrl = url.parse(request.url);
-    }
-    else {
-        reqUrl = url.parse(pb.config.siteRoot);
-    }
-
-    return reqUrl.host !== obj.host;
-};
-
-Util.isFullyQualifiedUrl = function(urlStr) {
-	return Util.isString(urlStr) && urlStr.indexOf('http') === 0;
+	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 };
 
 /**

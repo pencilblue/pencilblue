@@ -3,6 +3,7 @@ function ThemesController(){}
 //dependencies
 var BaseController = pb.BaseController;
 var DAO            = pb.DAO;
+var UrlService     = pb.UrlService;
 
 //inheritance
 util.inherits(ThemesController, BaseController);
@@ -53,11 +54,11 @@ ThemesController.prototype.render = function(cb) {
 					
 					var imgUrl = '';
 					if (logo) {
-						if (pb.utils.isFullyQualifiedUrl(logo)) {
+						if (UrlService.isFullyQualifiedUrl(logo)) {
 							imgUrl = logo;
 						}
 						else {
-							imgUrl = pb.utils.urlJoin('', logo);
+							imgUrl = UrlService.urlJoin('', logo);
 						}
 					}
 					callback(null, imgUrl);

@@ -81,10 +81,11 @@ pb.UserService = require(DOCUMENT_ROOT+'/include/service/entities/user_service.j
 pb.users = new pb.UserService();
 
 //setup request handling
-pb.BaseController   = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;
-pb.FormController   = require(DOCUMENT_ROOT+'/controllers/form_controller.js').FormController;
-pb.DeleteController = require(DOCUMENT_ROOT+'/controllers/delete_controller.js').DeleteController;
-pb.RequestHandler   = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
+pb.BaseController      = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;
+pb.FormController      = require(DOCUMENT_ROOT+'/controllers/form_controller.js').FormController;
+pb.DeleteController    = require(DOCUMENT_ROOT+'/controllers/delete_controller.js').DeleteController;
+pb.ApiActionController = require(DOCUMENT_ROOT+'/controllers/api/api_action_controller.js').ApiActionController;
+pb.RequestHandler      = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
 
 //setup errors
 global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js').PBError;
@@ -110,6 +111,7 @@ pb.plugins       = new pb.PluginService();
 //content services
 pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
 pb.MediaService   = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
+pb.UrlService     = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
 
 //Export system object
 module.exports = pb;

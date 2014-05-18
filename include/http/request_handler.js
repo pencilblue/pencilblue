@@ -847,6 +847,14 @@ RequestHandler.CORE_ROUTES = [
         auth_required: false,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'get_media_embed.js'),
         content_type: 'application/json'
+    },
+    {
+    	method: 'get',
+        path: "/api/url/:action",
+        auth_required: true,
+        access_level: ACCESS_WRITER,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'url_api.js'),
+        content_type: 'application/json'
     }
 ];
 
