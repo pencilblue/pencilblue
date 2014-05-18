@@ -1,23 +1,26 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-	^error_success^ ^tmp_admin=elements=sub_nav^
-
+	^error_success^
+	^tmp_admin=elements=sub_nav^
+	^tmp_admin=elements=tab_nav^
 	<form role="form" method="POST" action="^form_action^">
-		<table class="table table-condensed table-bordered">
-	      <thead>
-	          <tr>
-	               <th>^loc_SETTINGS^</th>
-	          </tr>
-		     <tr ng-repeat="item in settings">
-		         <td><label for="{{item.name}}">{{item.name}}</label></td>
-		         <td>
-		             <input class="form-control" ng-checked="item.type == 'checkbox' && item.value" id="{{item.name}}" name="{{item.name}}" type="{{item.type}}" value="{{item.value}}" />
-		         </td>
-		     </tr>
-		</table>
-		<button type="submit" class="btn btn-default">^loc_SAVE^</button>
+		<fieldset>
+			<div class="tab-content">
+				<div class="tab-pane active" id="plugin_settings">
+					<div class="form-group" ng-repeat="item in settings">
+						<label>{{item.name}}</label>
+						<input class="form-control" ng-checked="item.type == 'checkbox' && item.value" id="{{item.name}}" name="{{item.name}}" type="{{item.type}}" value="{{item.value}}"></input>
+					</div>
+				</div>
+				<a class="btn btn-default" href="/admin/plugins">
+					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+				</a>
+				<button type="submit" class="btn btn-primary">
+					<i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+				</button>
+			</div>
+		</fieldset>
 	</form>
-
 </div>
 ^form_refill^
 ^tmp_admin=footer^

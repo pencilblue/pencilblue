@@ -11,39 +11,47 @@ util.inherits(ThemesController, BaseController);
 
 ThemesController.prototype.render = function(cb) {
 	var self = this;
-	
+
 	//get plugs with themes
 	pb.plugins.getPluginsWithThemes(function(err, themes) {
 		if (util.isError(err)) {
 			throw result;
 		}
-		
+
 		//get active theme
 		pb.settings.get('active_theme', function(err, activeTheme) {
 			if (util.isError(err)) {
 				throw err;
 			}
-			
+
 			//add default pencil blue theme
 			var options = pb.utils.copyArray(themes);
 			options.push({
 				uid: 'pencilblue',
 				name: 'PencilBlue'
-				
+
 			});
-			
+
+			var pills = [{
+				name: 'manage_themes',
+				title: self.ls.get('MANAGE_THEMES'),
+				icon: 'refresh',
+				href: '/admin/themes'
+			}];
+
 			//setup angular
 			var angularData = pb.js.getAngularController(
 	            {
 	                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes'], self.ls),
+					pills: pills,
 	                tabs: self.getTabs(),
 	                themes: themes,
 	                options: options,
 	                activeTheme: activeTheme
-	            }, 
+	            },
 	            []
 	        );
-			
+
 			//load the template
 			//self.ts.registerLocal('angular_script', angularData);
 			self.ts.registerLocal('uploaded_image', function(flag, callback) {
@@ -51,7 +59,7 @@ ThemesController.prototype.render = function(cb) {
 					if (util.isError(err)) {
 						pb.log.error("ThemesController: Failed to retrieve site logo: "+err.stack);
 					}
-					
+
 					var imgUrl = '';
 					if (logo) {
 						if (UrlService.isFullyQualifiedUrl(logo)) {
@@ -66,8 +74,8 @@ ThemesController.prototype.render = function(cb) {
 			});
 			self.ts.registerLocal('image_title', ' ');
 			self.ts.load('/admin/themes/index', function(err, content) {
-				
-				//TODO move angular out as flag & replacement when can add option to 
+
+				//TODO move angular out as flag & replacement when can add option to
 				//skip the check for replacements in replacement
 				content = content.replace('^angular_script^', angularData);
 				cb({content: content});

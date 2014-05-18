@@ -1,4 +1,4 @@
-var loc = 
+var loc =
 {
     generic:
     {
@@ -71,7 +71,7 @@ var loc =
 		INSTALL: 'Install',
 		ACTIVE_PLUGIN_DESCRIPTION: 'Plugins that you have already installed and started up successfully when the system started.',
 		INACTIVE_PLUGIN_DESCRIPTION: 'Plugins that are installed or partially installed but failed to start properly.',
-		AVAILABLE_PLUGIN_DESCRIPTION: 'Plugins that are available are downloaded and are ready to be installed.',		
+		AVAILABLE_PLUGIN_DESCRIPTION: 'Plugins that are available are downloaded and are ready to be installed.',
 		PLEASE_WAIT: 'Please Wait',
 		VALID_ACTION_REQUIRED: 'A valid action is required',
 		VALID_IDENTIFIER_REQUIRED: 'A valid identifier is required',
@@ -136,7 +136,7 @@ var loc =
     },
     index:
     {
-        
+
     },
     setup:
     {
@@ -168,7 +168,7 @@ var loc =
         INSTALL_PLUGIN: 'Install a plugin',
         USERS: 'Users',
         SETTINGS: 'Settings',
-        VIEW_SITE: 'View site', 
+        VIEW_SITE: 'View site',
         SITE_SETTINGS: 'Site settings',
         SITE_LOGO: 'Site logo',
         AUTHOR: 'Author',
@@ -335,12 +335,22 @@ var loc =
         EMAIL_VERIFIED: 'Thank you for verifying your email address. You may now login.',
         MANAGE_ACCOUNT: 'Manage account',
         PROFILE: 'Profile',
-        CHANGE_PASSWORD: 'Change password',
         PROFILE_EDITED: 'Your profile was successfully edited',
         OLD_PASSWORD: 'Old password',
         NEW_PASSWORD: 'New password',
         INVALID_PASSWORD: 'Invalid current password',
         PASSWORD_CHANGED: 'Your password was successfully changed'
+    },
+    plugins:
+    {
+        MANAGE_PLUGINS: 'Manage plugins',
+        NO_ACTIVE_PLUGINS: 'No active plugins',
+        NO_INACTIVE_PLUGINS: 'No inactive plugins',
+        ABOUT: 'About'
+    },
+    themes:
+    {
+        MANAGE_THEMES: 'Manage themes'
     },
     site_settings:
     {

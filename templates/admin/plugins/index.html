@@ -1,75 +1,112 @@
 ^tmp_admin=head^
-<script src="/js/admin/plugins/index.js"></script>
 <div class="col-md-9">
     ^error_success^
     ^tmp_admin=elements=sub_nav^
-    <table id="installed_plugins_table" class="table table-responsive table-condensed">
-        <tr><th title="^loc_ACTIVE_PLUGIN_DESCRIPTION^">^loc_ACTIVE_PLUGINS^</th></tr>
-        <tr id="installed_plugins_table_header">
-            <th id="installed_name_header">^loc_NAME^</th>
-            <th id="installed_description_header">^loc_VERSION^</th>
-            <th id="installed_date_header">^loc_INSTALLED_ON^</th>
-            <th></th>
-        </tr>
-        <tr class="installed_plugin_row" ng-repeat="installed in installedPlugins track by installed.uid" on-finish-render ng-cloak>
-            <td><a ng-href="/admin/plugins/view/{{installed.uid}}" title="{{installed.description}}">{{installed.uid}}</a></td>
-            <td class="installed_version">{{installed.version}}</td>
-            <td class="installed_on_date">{{installed.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-            <td>
-                <a href="/admin/plugins/settings/{{installed.uid}}">^loc_SETTINGS^</a> |
-                <a href="javascript:resetSettings('{{installed.uid}}');">^loc_RESET_SETTINGS^</a> | 
-                <a href="javascript:uninstallPlugin('{{installed.uid}}')">^loc_UNINSTALL^</a>
-            </td>
-        </tr>
-    </table>
-    <br/>
-    
-    <table id="inactive_plugins_table" class="table table-responsive table-condensed">
-        <tr><th title="^loc_INACTIVE_PLUGIN_DESCRIPTION^">^loc_INACTIVE_PLUGINS^</th></tr>
-        <tr id="inactive_plugins_table_header">
-            <th id="inactive_name_header">^loc_NAME^</th>
-            <th id="inactive_version_header">^loc_VERSION^</th>
-            <th id="inactive_date_header">^loc_INSTALLED_ON^</th>
-            <th></th>
-        </tr>
-        <tr class="inactive_plugin_row" ng-repeat="inactive in inactivePlugins track by inactive.uid" on-finish-render ng-cloak>
-            <td title="{{inactive.description}}"><a ng-href="/admin/plugins/view/{{inactive.uid}}">{{inactive.uid}}</a></td>
-            <td class="inactive_version">{{inactive.version}}</td>
-            <td class="inactive_on_date">{{inactive.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-            <td>
-                <a href="/admin/plugins/settings/{{inactive.uid}}">^loc_SETTINGS^</a> |
-                <a href="javascript:resetSettings('{{inactive.uid}}');">^loc_RESET_SETTINGS^</a> | 
-                <a href="javascript:initialize('{{inactive.uid}}');">^loc_INITIALIZE^</a> | 
-                <a href="javascript:uninstallPlugin('{{inactive.uid}}');">^loc_UNINSTALL^</a>
-            </td>
-        </tr>
-    </table>
-    <br/>
-    
-    <table id="available_plugins_table" class="table table-responsive table-condensed">
-        <tr><th title="^loc_AVAILABLE_PLUGIN_DESCRIPTION^">^loc_AVAILABLE_PLUGINS^</th></tr>
-        <tr id="available_plugins_table_header">
-            <th id="available_name_header">^loc_NAME^</th>
-            <th id="available_version_header">^loc_VERSION^</th>
-            <th id="available_description_header">^loc_DESCRIPTION^</th>
-            <th></th>
-        </tr>
-        <tr class="available_plugin_row" ng-repeat="available in availablePlugins track by available.uid" on-finish-render ng-cloak>
-            <td>
-                <a ng-href="/admin/plugins/view/{{available.uid}}" title="{{available.description}}">{{available.uid}}</a>
-            </td>
-            <td class="available_version">{{available.version}}</td>
-            <td class="available_description">
-                {{available.description}}
-                <ul>
-                    <li ng-repeat="validationError in available.validationErrors">{{validationError}}</li>
-                </ul>
-            </td>
-            <td>
-                <a ng-if="!available.validationErrors" href="javascript:installPlugin('{{available.uid}}');">^loc_INSTALL^</a>
-            </td>
-        </tr>
-    </table>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            ^loc_ACTIVE_PLUGINS^&nbsp;
+            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_ACTIVE_PLUGIN_DESCRIPTION^"></i>
+        </div>
+        <div class="panel-body" ng-if="!installedPlugins.length">
+            ^loc_NO_ACTIVE_PLUGINS^
+        </div>
+        <table id="installed_plugins_table" class="table table-responsive table-condensed" ng-if="installedPlugins.length > 0">
+            <tr id="installed_plugins_table_header">
+                <th id="installed_name_header">^loc_NAME^</th>
+                <th id="installed_description_header">^loc_VERSION^</th>
+                <th id="installed_date_header">^loc_INSTALLED_ON^</th>
+                <th></th>
+            </tr>
+            <tr class="installed_plugin_row" ng-repeat="installed in installedPlugins track by installed.uid" on-finish-render ng-cloak>
+                <td><a ng-href="/admin/plugins/view/{{installed.uid}}" title="{{installed.description}}">{{installed.uid}}</a></td>
+                <td class="installed_version">{{installed.version}}</td>
+                <td class="installed_on_date">{{installed.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+                <td style="text-align: right">
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default" href="/admin/plugins/settings/{{installed.uid}}"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
+                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-sm fa-chevron-down"></i>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="javascript:resetSettings('{{installed.uid}}');"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_RESET_SETTINGS^</a></li>
+                            <li><a href="javascript:uninstallPlugin('{{installed.uid}}')"><i class="fa fa-fw fa-ban"></i>&nbsp;^loc_UNINSTALL^</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            ^loc_INACTIVE_PLUGINS^&nbsp;
+            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_INACTIVE_PLUGIN_DESCRIPTION^"></i>
+        </div>
+        <div class="panel-body" ng-if="!inactivePlugins.length">
+            ^loc_NO_INACTIVE_PLUGINS^
+        </div>
+        <table id="inactive_plugins_table" class="table table-responsive table-condensed" ng-if="inactivePlugins.length > 0">
+            <tr id="inactive_plugins_table_header">
+                <th id="inactive_name_header">^loc_NAME^</th>
+                <th id="inactive_version_header">^loc_VERSION^</th>
+                <th id="inactive_date_header">^loc_INSTALLED_ON^</th>
+                <th></th>
+            </tr>
+            <tr class="inactive_plugin_row" ng-repeat="inactive in inactivePlugins track by inactive.uid" on-finish-render ng-cloak>
+                <td title="{{inactive.description}}"><a ng-href="/admin/plugins/view/{{inactive.uid}}">{{inactive.uid}}</a></td>
+                <td class="inactive_version">{{inactive.version}}</td>
+                <td class="inactive_on_date">{{inactive.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+                <td style="text-align: right">
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default" href="/admin/plugins/settings/{{inactive.uid}}"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
+                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-sm fa-chevron-down"></i>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="javascript:resetSettings('{{inactive.uid}}');"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_RESET_SETTINGS^</a></li>
+                            <li><a href="javascript:initialize('{{inactive.uid}}');"><i class="fa fa-fw fa-check"></i>&nbsp;^loc_INITIALIZE^</a></li>
+                            <li><a href="javascript:uninstallPlugin('{{inactive.uid}}');"><i class="fa fa-fw fa-ban"></i>&nbsp;^loc_UNINSTALL^</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            ^loc_AVAILABLE_PLUGINS^&nbsp;
+            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_AVAILABLE_PLUGIN_DESCRIPTION^"></i>
+        </div>
+        <div class="panel-body" ng-if="!availablePlugins.length">
+            ^loc_NO_AVAILABLE_PLUGINS^
+        </div>
+        <table id="available_plugins_table" class="table table-responsive table-condensed" ng-if="availablePlugins.length > 0">
+            <tr id="available_plugins_table_header">
+                <th id="available_name_header">^loc_NAME^</th>
+                <th id="available_version_header">^loc_VERSION^</th>
+                <th id="available_description_header">^loc_DESCRIPTION^</th>
+                <th></th>
+            </tr>
+            <tr class="available_plugin_row" ng-repeat="available in availablePlugins track by available.uid" on-finish-render ng-cloak>
+                <td>
+                    <a ng-href="/admin/plugins/view/{{available.uid}}" title="{{available.description}}">{{available.uid}}</a>
+                </td>
+                <td class="available_version">{{available.version}}</td>
+                <td class="available_description">
+                    {{available.description}}
+                    <ul>
+                        <li ng-repeat="validationError in available.validationErrors">{{validationError}}</li>
+                    </ul>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-default" ng-if="!available.validationErrors" href="javascript:installPlugin('{{available.uid}}');"><i class="fa fa-hdd-o"></i>&nbsp;^loc_INSTALL^</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
 </div>
+<script src="/js/admin/plugins/index.js"></script>
 ^tmp_admin=elements=progress_console_modal^
 ^tmp_admin=footer^
