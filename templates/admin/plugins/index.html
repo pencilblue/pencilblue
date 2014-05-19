@@ -22,7 +22,7 @@
                 <td class="installed_version">{{installed.version}}</td>
                 <td class="installed_on_date">{{installed.created | date: 'yyyy-MM-dd HH:mm'}}</td>
                 <td style="text-align: right">
-                    <div class="btn-group">
+                    <div class="btn-group" style="text-align: left">
                         <a class="btn btn-sm btn-default" href="/admin/plugins/settings/{{installed.uid}}"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
                         <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-sm fa-chevron-down"></i>
@@ -57,7 +57,7 @@
                 <td class="inactive_version">{{inactive.version}}</td>
                 <td class="inactive_on_date">{{inactive.created | date: 'yyyy-MM-dd HH:mm'}}</td>
                 <td style="text-align: right">
-                    <div class="btn-group">
+                    <div class="btn-group" style="text-align: left">
                         <a class="btn btn-sm btn-default" href="/admin/plugins/settings/{{inactive.uid}}"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
                         <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-sm fa-chevron-down"></i>
@@ -106,7 +106,7 @@
         </table>
     </div>
 
+    ^tmp_admin=elements=progress_console_modal^
 </div>
 <script src="/js/admin/plugins/index.js"></script>
-^tmp_admin=elements=progress_console_modal^
 ^tmp_admin=footer^

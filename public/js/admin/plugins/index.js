@@ -44,6 +44,7 @@ function doPluginAPIAction(action, identifier) {
 			$('#modal_label').val('Completed');
 			$('#progress_console').val(data.message);
 			$('#progress_bar').removeClass('active');
+            $('#progress_footer').show();
 
 			setTimeout(window.location.reload, 3000);
 		}
@@ -69,5 +70,6 @@ function doPluginAPIAction(action, identifier) {
 			output += "\n"+data.data[i];
 		}
 		$('#progress_console').val(output);
+        $('#progress_footer').show();
 	});
 }
