@@ -1,0 +1,62 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,700,400italic,700italic);
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* NAVBAR */
+
+.navbar {
+    background: #000000;
+    background: rgba(0, 0, 0, .75);
+    -moz-border-radius: 0;
+    border-radius: 0;
+    border: none;
+    padding-top: .5em;
+    padding-bottom: .5em;
+}
+
+.navbar-default .navbar-nav>li>a {
+    color: #FFFFFF;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.navbar-default .navbar-collapse, .navbar-default .navbar-form {
+    border: none;
+}
+
+.navbar-brand img {
+    max-height: 32px;
+}
+
+.hero {
+    position: absolute;
+    width: 100%;
+    z-index: -1;
+}
+
+.hero_bg {
+    position: absolute;
+    max-width: 100%;
+}
+
+.hero_callout {
+    background: #000000;
+    background: rgba(0, 0, 0, .75);
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    margin: .5em 0;
+    font-size: .8em;
+    text-align: center;
+}
+
+@media(min-width: 992px) {
+    .navbar-brand img {
+        max-height: none;
+    }
+}
