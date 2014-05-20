@@ -13,9 +13,8 @@ $(document).ready(function()
             }
         }
     });
-    
+
     $('#custom_fields_container').sortable({items: '.form-group', containment: 'document', cursor: 'move', axis: 'y'});
-    $('#custom_fields_container').disableSelection();
 });
 
 function resetNameAvailability()
@@ -30,7 +29,7 @@ function validateName()
     {
         return;
     }
-    
+
     $.getJSON('/api/custom_objects/get_object_type_name_available?name=' + $('#name').val(), function(response)
     {
         if(response.code == 0)
@@ -70,7 +69,7 @@ function prepareNewObjectTypeSave()
 {
     var i = 0;
     var fieldOrder = [];
-    
+
     if($('#custom_fields_container .form-group').length == 0)
     {
         $('#field_templates').remove();
@@ -83,7 +82,7 @@ function prepareNewObjectTypeSave()
         var index = parseInt($(this).attr('id').split('custom_field_').join(''));
         var inputGroup = $(this).find('.input-group').first();
         fieldOrder.push(index);
-        
+
         if(inputGroup.attr('class').indexOf('value') > -1)
         {
             if($('#value_' + index).val().length == 0)
@@ -116,7 +115,7 @@ function prepareNewObjectTypeSave()
             if($('#peer_object_' + index).val().length == 0 || $('#object_type_' + index).html() == loc.custom_objects.OBJECT_TYPE)
             {
                 $('#peer_object_' + index).remove();
-            }        
+            }
             else
             {
                 $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="' + $('#object_type_' + index).html() + '" style="display: none"></input>');
@@ -133,7 +132,7 @@ function prepareNewObjectTypeSave()
                 $('#new_object_type_form').append('<input type="text" name="field_type_' + index + '" value="' + $('#object_type_' + index).html() + '" style="display: none"></input>');
             }
         }
-        
+
         i++;
         if(i >= $('#custom_fields_container .form-group').length)
         {
