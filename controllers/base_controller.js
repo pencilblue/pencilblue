@@ -8,6 +8,7 @@
  */
 function BaseController(){};
 
+//constants
 BaseController.API_SUCCESS = 0;
 BaseController.API_FAILURE = 1;
 
@@ -51,7 +52,7 @@ BaseController.prototype.requiresClientLocalization = function() {
 BaseController.prototype.requiresClientLocalizationCallback = function(flag, cb) {
 	var val = '';
 	if (this.requiresClientLocalization()) {
-		val = pb.js.includeJS(pb.utils.urlJoin('/localization', this.ls.language.replace('_', '-') + '.js'));
+		val = pb.js.includeJS(pb.UrlService.urlJoin('/localization', this.ls.language.replace('_', '-') + '.js'));
 	}
 	cb(null, val);
 };

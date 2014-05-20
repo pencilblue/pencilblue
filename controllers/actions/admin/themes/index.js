@@ -17,11 +17,11 @@ ThemesPostController.prototype.onPostParamsRetrieved = function(post, cb) {
 	//check file
 	var mediaService = new MediaService();
 	var getVal = function(post, callback) {
-		if (pb.validation.validateUrl(post.image_url, true)) {console.log('chose image_url');
+		if (pb.validation.validateUrl(post.image_url, true)) {
 			callback(null, post.image_url);
 		}
 		else {
-			mediaService.isValidFilePath(post.uploaded_image, function(err, valid) {console.log('fell through to image_url');
+			mediaService.isValidFilePath(post.uploaded_image, function(err, valid) {
 				callback(err, valid ? post.uploaded_image : null);
 			});
 		}

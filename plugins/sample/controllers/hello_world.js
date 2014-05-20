@@ -9,8 +9,9 @@
 function HelloWorld(){}
 
 //dependencies
-var PluginService = pb.PluginService;
-var textCreater   = pb.plugins.getService('text_creater', 'sample');
+var PluginService  = pb.PluginService;
+var TopMenuService = pb.TopMenuService;
+var textCreator    = pb.plugins.getService('text_creator', 'sample');
 
 //inheritance
 util.inherits(HelloWorld, pb.BaseController);
@@ -21,6 +22,8 @@ util.inherits(HelloWorld, pb.BaseController);
  * prototype.  The request handler will then proceed to call this function.  
  * Its callback should contain everything needed in order to provide a response.
  * 
+ * @method render
+ * @see BaseController#render
  * @param cb The callback.  It does not require a an error parameter.  All 
  * errors should be handled by the controller and format the appropriate
  *  response.  The system will attempt to catch any catastrophic errors but 
@@ -34,23 +37,42 @@ HelloWorld.prototype.render = function(cb) {
 		code: 200
 	};
 	
-	textCreater.getText(function(err, text){
-		if (pb.log.isDebug()) {
-			pb.log.debug('HelloWorld: Retrieved [%s] from text service.', text);
-		}
+	//get page navigation
+	this.getNavigation(function(err, navigation, accountButtons) {
 		
-		self.setPageName(self.ls.get('SAMPLE_HELLO_WORLD'));
-		self.ts.registerLocal('sample_plugin_icon', PluginService.genPublicPath('sample', 'imgs/sample.ico'));
-		self.ts.registerLocal('sample_text', text);
-		self.ts.load(path.join('sample', 'index'), function(err, template) {
-			if (util.isError(err)) {
-				content.content = '<html><head><title>'+self.getPageName()+'</title></head><body><pre>'+err.stack+'</pre></body></html>';
+		//call service for random text
+		textCreator.getText(function(err, text){
+			if (pb.log.isDebug()) {
+				pb.log.debug('HelloWorld: Retrieved [%s] from text service.', text);
 			}
-			else {
-				content.content = template;
-			}
-			cb(content);
+			
+			self.setPageName(self.ls.get('SAMPLE_HELLO_WORLD'));
+			self.ts.registerLocal('sample_plugin_icon', PluginService.genPublicPath('sample', 'imgs/sample.ico'));
+			self.ts.registerLocal('sample_text', text);
+			self.ts.registerLocal('navigation', navigation);
+			self.ts.registerLocal('account_buttons', accountButtons);
+			self.ts.load(path.join('sample', 'index'), function(err, template) {
+				if (util.isError(err)) {
+					content.content = '<html><head><title>'+self.getPageName()+'</title></head><body><pre>'+err.stack+'</pre></body></html>';
+				}
+				else {
+					content.content = template;
+				}
+				cb(content);
+			});
 		});
+	});
+};
+
+/**
+ * Retrieves the navigation for the page.
+ * @param {function} cb Callback that provides three parameters: cb(Error, navigation, accountButtons);
+ */
+HelloWorld.prototype.getNavigation = function(cb) {
+	TopMenuService.getTopMenu(this.session, this.localizationService, function(themeSettings, navigation, accountButtons) {
+        TopMenuService.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
+        	cb(null, navigation, accountButtons);
+        });
 	});
 };
 
