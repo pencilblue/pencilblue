@@ -5,6 +5,10 @@
     ^tmp_admin=elements=tab_nav^
     <form id="edit_section_form" method="post" action="/actions/admin/content/sections/edit_section/^section_id^">
         <fieldset>
+            <label for="type">^loc_TYPE^</label>
+            <select id="type" name="type" class="form-control" ng-model="section.type">
+                <option value="{{type.value}}" ng-repeat="type in types" ng-selected="section.type == type.value" ng-cloak>{{type.label}}</option>
+            </select>
             <div class="tab-content">
                 <div class="tab-pane active" id="section_settings">
                     <div class="form-group">
@@ -15,25 +19,42 @@
                         <label>^loc_DESCRIPTION^</label>
                         <textarea id="description" name="description" class="form-control">{{section.description}}</textarea>
                     </div>
-                    <div class="form-group">
-                        <label>^loc_URL_KEY^</label>
-                        <div class="input-group">
-                            <span class="input-group-addon">section/</span>
-                            <input type="text" id="url" name="url" class="form-control" value="{{section.url}}"></input>
-                        </div>
-                    </div>
-                    <div class="form-group">
+                    <div class="form-group" ng-disabled="section.type === 'container'">
                         <label>^loc_PARENT_SECTION^</label>
                         <select id="parent" name="parent" class="form-control">
                             <option value="">^loc_NONE^</option>
                             <option value="{{parent._id}}" ng-repeat="parent in parents" ng-selected="section.parent == parent._id" ng-cloak>{{parent.name}}</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>^loc_EDITOR^</label>
-                        <select id="editor" name="editor" class="form-control">
-                            <option value="{{editor._id}}" ng-repeat="editor in editors" ng-selected="section.editor == editor._id" ng-cloak>{{editor.name}}</option>
-                        </select>
+                    <div id="section_fields" ng-if="section.type === 'section'">
+	                    <div class="form-group">
+	                        <label>^loc_URL_KEY^</label>
+	                        <div class="input-group">
+	                            <span class="input-group-addon">section/</span>
+	                            <input type="text" id="url" name="url" class="form-control" value="{{section.url}}"></input>
+	                        </div>
+	                    </div>
+	                    <div class="form-group">
+	                        <label>^loc_EDITOR^</label>
+	                        <select id="editor" name="editor" class="form-control">
+	                            <option value="{{editor._id}}" ng-repeat="editor in editors" ng-selected="section.editor == editor._id" ng-cloak>{{editor.name}}</option>
+	                        </select>
+	                    </div>
+                    </div>
+                    <div id="container_fields" ng-if="section.type === 'container'">
+                    </div>
+                    
+                    <div id="content_search_wrapper" ng-show="section.type === 'article' || section.type === 'page'" class="form-group">
+                        <label>^loc_CONTENT^</label>
+                        ^tmp_admin=elements=content_search^
+                        <input id="item" name="item" type="hidden" value="{{section.item}}"/>
+                        <input id="item_display" name="item_display" type="text" value={{section.item_display}} class="form-control" disabled />
+                    </div>
+                    <div id="url_fields" ng-if="section.type === 'link'">
+                        <div class="form-group">
+                            <label>^loc_LINK^</label>
+                            <input type="text" id="link" name="link" class="form-control" value="{{section.link}}"></input>
+                        </div>
                     </div>
                 </div>
                 <div class="tab-pane" id="section_seo">

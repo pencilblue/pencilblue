@@ -76,7 +76,8 @@ EditSection.prototype.render = function(cb) {
                         tabs: tabs,
                         parents: parents,
                         editors: editors,
-                        section: section
+                        section: section,
+                        types: SectionService.getTypes(self.ls)
                     };
                     var angularData = pb.js.getAngularController(objects);
                     result          = result.split('^angular_script^').join(angularData);

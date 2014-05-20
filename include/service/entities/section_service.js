@@ -207,5 +207,40 @@ SectionService.getSectionData = function(uid, sections) {
     return null;
 };
 
+/**
+ * @static
+ * @method
+ * @param {Localization} ls
+ * @returns {array}
+ */
+SectionService.getTypes = function(ls) {
+	if (!ls) {
+		ls = new pb.Localization();
+	}
+	
+	return [
+	    {
+	    	value: "container",
+	    	label: ls.get('CONTAINER')
+	    },
+	    {
+	    	value: "section",
+	    	label: ls.get('SECTION')
+	    },
+	    {
+	    	value: "article",
+	    	label: ls.get('ARTICLE')
+	    },
+	    {
+	    	value: "page",
+	    	label: ls.get('PAGE')
+	    },
+	    {
+	    	value: "link",
+	    	label: ls.get('LINK')
+	    },
+    ];
+};
+
 //exports
 module.exports = SectionService;
