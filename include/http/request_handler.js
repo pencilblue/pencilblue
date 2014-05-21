@@ -855,7 +855,15 @@ RequestHandler.CORE_ROUTES = [
         access_level: ACCESS_WRITER,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'url_api.js'),
         content_type: 'application/json'
-    }
+    },
+    {
+    	method: 'get',
+        path: "/api/content/search",
+        auth_required: true,
+        access_level: ACCESS_WRITER,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'search.js'),
+        content_type: 'application/json'
+    },    
 ];
 
 RequestHandler.init = function(){

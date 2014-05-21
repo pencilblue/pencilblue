@@ -19,16 +19,14 @@
                         url: "/api/content/search/",
                         dataType: "json",
                         data: {
-                           featureClass: "P",
-                           style: "full",
-                           maxRows: 12,
-                           name_startsWith: request.term
+                           type: $('#content_type').val(),
+                           q: $('#content_search').val(),
                         },
                         success: function( data ) {
-                            response( $.map( data.geonames, function( item ) {
+                            response( $.map( data.data, function( item ) {
                                 return {
-                                    label: item.name + (item.adminName1 ? ", " + item.adminName1 : "") + ", " + item.countryName,
-                                    value: item.name
+                                    label: item.display,
+                                    value: item._id
                                 }
                             }));
                         }
@@ -36,13 +34,17 @@
                 },
                 minLength: 3,
                 select: function( event, ui ) {
-                    console.log( ui.item ? "Selected: " + ui.item.label : "Nothing selected, input was " + this.value);
+                	var displayFieldName = $('#selection_display_field').val();
+                	var idFieldName      = $('#selection_id_field').val();
+                	$('#'+displayFieldName).val(ui.item.label);
+                	$('#'+idFieldName).val(ui.item.label);
+                    this.value = '';
                 },
                  open: function() {
-                        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                        //$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
                  },
                  close: function() {
-                        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                        //$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
                  }
             });
         });
