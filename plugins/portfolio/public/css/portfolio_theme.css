@@ -6,9 +6,13 @@ body {
 
 /* NAVBAR */
 
-.navbar {
+.black_75 {
     background: #000000;
+    background: url(/public/portfolio/img/black_75.png);
     background: rgba(0, 0, 0, .75);
+}
+
+.navbar {
     -moz-border-radius: 0;
     border-radius: 0;
     border: none;
@@ -31,6 +35,7 @@ body {
 }
 
 .hero {
+    position: relative;
     width: 100%;
 }
 
@@ -40,9 +45,27 @@ body {
     z-index: -1;
 }
 
-.hero_callout {
-    background: #000000;
-    background: rgba(0, 0, 0, .75);
+.hero_callouts {
+    width: 100%;
+    color: #BBBBBB;
+    font-size: .8em;
+    text-align: center;
+    text-transform: uppercase;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0;
+    z-index: 1;
+}
+
+.hero_callouts .row {
+    margin: 2em;
+}
+
+.hero_callouts h3 {
+    margin-top: 0;
+    color: #FFFFFF;
+    font-size: 1.5em;
 }
 
 footer {
@@ -57,5 +80,13 @@ footer {
 @media(min-width: 992px) {
     .navbar-brand img {
         max-height: none;
+    }
+
+    .hero_callouts {
+        font-size: .9em;
+    }
+
+    .hero_callouts h3 {
+        font-size: 1.75;
     }
 }

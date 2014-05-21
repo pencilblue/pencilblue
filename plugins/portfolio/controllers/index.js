@@ -56,7 +56,7 @@
   *
   * @param cb A callback of the form: cb(error, array of objects)
   */
- Index.prototype.getRoutes = function(cb) {
+ Index.getRoutes = function(cb) {
     var routes = [
         {
             method: 'get',
@@ -65,4 +65,8 @@
             content_type: 'text/html'
         }
     ];
+
+    return routes;
  };
+
+module.exports = Index;
