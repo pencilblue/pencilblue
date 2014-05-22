@@ -18,7 +18,8 @@ body {
     border: none;
     padding-top: .5em;
     padding-bottom: .5em;
-    position: relative;
+    position: absolute;
+    width: 100%;
     z-index: 10000;
 }
 
@@ -74,6 +75,7 @@ footer {
 
     .hero_callouts {
         font-size: .9em;
+        width: 100%;
         position: absolute;
         bottom: 0;
         z-index: 10000;

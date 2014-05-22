@@ -61,6 +61,10 @@ PluginSettingsController.prototype.renderGet = function(cb) {
 			var clone = pb.utils.copyArray(settings);
 			for (var i = 0; i < clone.length; i++) {
 				var item = clone[i];
+
+				item.displayName = item.name.split('_').join(' ');
+				item.displayName = item.displayName.charAt(0).toUpperCase() + item.displayName.slice(1);
+
 				if (item.value === true || item.value === false) {
 					item.type = 'checkbox';
 				}
