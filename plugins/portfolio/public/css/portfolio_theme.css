@@ -1,0 +1,85 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,700,400italic,700italic);
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* NAVBAR */
+
+.black_75 {
+    background: #000000;
+    background: url(/public/portfolio/img/black_75.png);
+    background: rgba(0, 0, 0, .75);
+}
+
+.navbar {
+    -moz-border-radius: 0;
+    border-radius: 0;
+    border: none;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    position: relative;
+    z-index: 10000;
+}
+
+.navbar-default .navbar-nav>li>a {
+    color: #FFFFFF;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.navbar-default .navbar-collapse, .navbar-default .navbar-form {
+    border: none;
+}
+
+.navbar-brand img {
+    max-height: 32px;
+}
+
+.hero {
+    position: relative;
+}
+
+.hero_bg {
+    max-width: 100%;
+}
+
+.hero_callouts {
+    padding: 2em;
+    color: #BBBBBB;
+    font-size: .8em;
+    text-align: center;
+    text-transform: uppercase;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.hero_callouts h3 {
+    margin-top: 0;
+    color: #FFFFFF;
+    font-size: 1.5em;
+}
+
+footer {
+    width: 100%;
+    margin: .5em 0;
+    font-size: .8em;
+    text-align: center;
+}
+
+@media(min-width: 992px) {
+    .navbar-brand img {
+        max-height: none;
+    }
+
+    .hero_callouts {
+        font-size: .9em;
+        position: absolute;
+        bottom: 0;
+        z-index: 10000;
+    }
+
+    .hero_callouts h3 {
+        font-size: 1.75;
+    }
+}
