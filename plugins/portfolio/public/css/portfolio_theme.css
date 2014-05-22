@@ -18,6 +18,8 @@ body {
     border: none;
     padding-top: .5em;
     padding-bottom: .5em;
+    position: relative;
+    z-index: 10000;
 }
 
 .navbar-default .navbar-nav>li>a {
@@ -36,30 +38,20 @@ body {
 
 .hero {
     position: relative;
-    width: 100%;
 }
 
 .hero_bg {
-    position: absolute;
     max-width: 100%;
-    z-index: -1;
 }
 
 .hero_callouts {
-    width: 100%;
+    padding: 2em;
     color: #BBBBBB;
     font-size: .8em;
     text-align: center;
     text-transform: uppercase;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    position: absolute;
-    bottom: 0;
-    z-index: 1;
-}
-
-.hero_callouts .row {
-    margin: 2em;
 }
 
 .hero_callouts h3 {
@@ -69,8 +61,6 @@ body {
 }
 
 footer {
-    position: absolute;
-    bottom: 0;
     width: 100%;
     margin: .5em 0;
     font-size: .8em;
@@ -84,6 +74,9 @@ footer {
 
     .hero_callouts {
         font-size: .9em;
+        position: absolute;
+        bottom: 0;
+        z-index: 10000;
     }
 
     .hero_callouts h3 {
