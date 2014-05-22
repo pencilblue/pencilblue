@@ -1,3 +1,13 @@
+/**
+ * Controller to return search results for content.  It allows for searching 
+ * page or article objects' headline and subheading fields for the specified 
+ * search term.
+ * 
+ * @class
+ * @constructor
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC. All Rights Reserved
+ */
 function ContentSearchController() {}
 
 //dependencies
@@ -7,14 +17,36 @@ var BaseController = pb.BaseController;
 util.inherits(ContentSearchController, BaseController);
 
 //constants
+/**
+ * @private
+ * @property 
+ * @type {Object}
+ */
 var VALID_CONTENT_TYPES = {
     article: true,
     page: true
 };
 
+/**
+ * @private
+ * @property 
+ * @type {int}
+ */
 var MAX_RESULTS = 100;
+
+/**
+ * @private
+ * @property 
+ * @type {int}
+ */
 var MIN_LENGTH  = 3;
 
+/**
+ * 
+ * @method render
+ * @param {function} cb A callback that accepts a single parameter that 
+ * describes the response to the client.
+ */
 ContentSearchController.prototype.render = function(cb) {
 	var type   = this.query.type;
 	var search = this.query.q;
@@ -28,7 +60,7 @@ ContentSearchController.prototype.render = function(cb) {
 	}
 	
 	//build query
-	var pattern = new RegExp(".*"+search+".*");
+	var pattern = new RegExp(".*"+search+".*", "i");
 	var where   = {
 		$or: [
 		    {headline: pattern}, 
@@ -59,6 +91,13 @@ ContentSearchController.prototype.render = function(cb) {
 	});
 };
 
+/**
+ * @static 
+ * @method validate
+ * @param {String} type
+ * @param {String} search
+ * @returns {Array} of validation errors (Strings)
+ */
 ContentSearchController.validate = function(type, search) {
 	var errors = [];
 	if (!VALID_CONTENT_TYPES[type]) {

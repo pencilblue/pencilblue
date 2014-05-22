@@ -36,7 +36,6 @@ EditSection.prototype.render = function(cb) {
         self.ts.registerLocal('section_id', section._id);
         self.ts.registerLocal('content_type', '{{section.type}}');
         self.ts.registerLocal('selection_id_field', 'item');
-        self.ts.registerLocal('selection_display_field', 'item_display');
         self.ts.load('admin/content/sections/edit_section', function(err, data) {
             var result = data;
             var tabs   =

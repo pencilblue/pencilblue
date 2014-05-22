@@ -5,12 +5,14 @@
     ^tmp_admin=elements=tab_nav^
     <form id="edit_section_form" method="post" action="/actions/admin/content/sections/edit_section/^section_id^">
         <fieldset>
-            <label for="type">^loc_TYPE^</label>
-            <select id="type" name="type" class="form-control" ng-model="section.type">
-                <option value="{{type.value}}" ng-repeat="type in types" ng-selected="section.type == type.value" ng-cloak>{{type.label}}</option>
-            </select>
             <div class="tab-content">
                 <div class="tab-pane active" id="section_settings">
+                    <div class="form-group">
+                        <label for="type">^loc_TYPE^</label>
+			            <select id="type" name="type" class="form-control" ng-model="section.type">
+			                <option value="{{type.value}}" ng-repeat="type in types" ng-selected="section.type == type.value" ng-cloak>{{type.label}}</option>
+			            </select>
+                    </div>
                     <div class="form-group">
                         <label>^loc_SECTION_NAME^</label>
                         <input type="text" id="name" name="name" class="form-control" value="{{section.name}}"></input>
@@ -19,7 +21,7 @@
                         <label>^loc_DESCRIPTION^</label>
                         <textarea id="description" name="description" class="form-control">{{section.description}}</textarea>
                     </div>
-                    <div class="form-group" ng-disabled="section.type === 'container'">
+                    <div class="form-group" ng-hide="section.type === 'container'">
                         <label>^loc_PARENT_SECTION^</label>
                         <select id="parent" name="parent" class="form-control">
                             <option value="">^loc_NONE^</option>
@@ -48,7 +50,6 @@
                         <label>^loc_CONTENT^</label>
                         ^tmp_admin=elements=content_search^
                         <input id="item" name="item" type="hidden" value="{{section.item}}"/>
-                        <input id="item_display" name="item_display" type="text" value={{section.item_display}} class="form-control" disabled />
                     </div>
                     <div id="url_fields" ng-if="section.type === 'link'">
                         <div class="form-group">

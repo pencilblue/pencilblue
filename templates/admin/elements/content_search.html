@@ -1,7 +1,6 @@
 <div id="content_search_panel" class="panel panel-info">
     <input id="content_type" type="hidden" value="^content_type^"/>
     <input id="selection_id_field" type="hidden" value="^selection_id_field^"/>
-    <input id="selection_display_field" type="hidden" value="^selection_display_field^"/>
     <div class="panel-heading">
         <div class="input-group">
             <input type="text" id="content_search" name="content_search" class="form-control"></input>
@@ -25,8 +24,8 @@
                         success: function( data ) {
                             response( $.map( data.data, function( item ) {
                                 return {
-                                    label: item.display,
-                                    value: item._id
+                                    value: item._id,
+                                    label: item.display
                                 }
                             }));
                         }
@@ -34,11 +33,11 @@
                 },
                 minLength: 3,
                 select: function( event, ui ) {
-                	var displayFieldName = $('#selection_display_field').val();
-                	var idFieldName      = $('#selection_id_field').val();
-                	$('#'+displayFieldName).val(ui.item.label);
-                	$('#'+idFieldName).val(ui.item.label);
-                    this.value = '';
+                	
+                	var idFieldName = $('#selection_id_field').val();
+                	$('#'+idFieldName).val(ui.item.value);
+                    $(this).val(ui.item.label);
+                    return false;
                 },
                  open: function() {
                         //$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
