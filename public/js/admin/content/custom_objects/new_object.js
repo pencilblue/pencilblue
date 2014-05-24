@@ -19,17 +19,12 @@ function setupInputs()
             }
             else if(customObjectType.fields[key].field_type == 'child_objects')
             {
-                $('#' + key + '_draggable .child_object').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move', connectToSortable: '#active_' + key});
+                $('#' + key + '_draggable .child_object').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
+
                 $('#active_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
                 {
                     $('#active_' + key).append(ui.draggable);
                 }});
-
-                /*$('#active_' + key).sortable({
-                    items: '.child_object',
-                    cursor: 'move',
-                });
-                $('#active_' + key).disableSelection();*/
 
                 $('#inactive_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
                 {
