@@ -58,7 +58,7 @@ Media.getMediaIcon = function(mediaType) {
         case 'daily_motion':
             return 'play-circle-o';
         case 'vine':
-            return 'twitter'; //vine icon slated for fontawesome 4.1.0
+            return 'vine';
         case 'instagram':
             return 'instagram';
         case 'slideshare':
