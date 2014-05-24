@@ -46,51 +46,51 @@ Index.prototype.render = function(cb) {
                     content.content = template;
                 }
 
-                var dao = new pb.DAO();
-                dao.query('plugin_settings', {plugin_uid: 'portfolio'}).then(function(pluginSettings) {
-                    if(!util.isError(pluginSettings)) {
-                        var settings = pluginSettings[0].settings;
-                        var callouts = self.getCallouts(settings);
+                self.ps = new PluginService();
 
-                        for(var i = 0; i < callouts.length; i++) {
-                            if(!callouts[i].copy.length) {
-                                callouts.splice(i, 1);
-                                i--;
-                                continue;
-                            }
+                self.ps.getSettings('portfolio', function(error, settings) {
+                    var callouts = self.getCallouts(settings);
+                    var layout = self.getLayout(settings);
+
+                    for(var i = 0; i < callouts.length; i++) {
+                        if(!callouts[i].copy.length) {
+                            callouts.splice(i, 1);
+                            i--;
+                            continue;
                         }
-
-                        if(!callouts.length) {
-                            content.content = content.content.split('^display_callouts^').join('display: none');
-                        }
-                        else {
-                            content.content = content.content.split('^display_callouts^').join('');
-                        }
-
-                        self.ts.registerLocal('col_width', (12 / callouts.length).toString());
-                        self.ts.load('elements/callout', function(err, template) {
-                            if(util.isError(err)) {
-                                template = '';
-                            }
-
-                            var calloutsHTML = '';
-                            for(var i = 0; i < callouts.length; i++) {
-                                var calloutTemplate = template.split('^copy^').join(callouts[i].copy);
-                                if(callouts[i].headline && callouts[i].headline.length) {
-                                    calloutTemplate = calloutTemplate.split('^headline^').join('<h3>' + callouts[i].headline + '</h3>');
-                                }
-                                else {
-                                    calloutTemplate = calloutTemplate.split('^headline^').join('');
-                                }
-
-                                calloutsHTML += calloutTemplate;
-                            }
-
-                            content.content = content.content.split('^callouts^').join(calloutsHTML);
-
-                            cb(content);
-                        });
                     }
+
+                    if(!callouts.length) {
+                        content.content = content.content.split('^display_callouts^').join('display: none');
+                    }
+                    else {
+                        content.content = content.content.split('^display_callouts^').join('');
+                    }
+
+                    self.ts.registerLocal('col_width', (12 / callouts.length).toString());
+                    self.ts.load('elements/callout', function(err, template) {
+                        if(util.isError(err)) {
+                            template = '';
+                        }
+
+                        var calloutsHTML = '';
+                        for(var i = 0; i < callouts.length; i++) {
+                            var calloutTemplate = template.split('^copy^').join(callouts[i].copy);
+                            if(callouts[i].headline && callouts[i].headline.length) {
+                                calloutTemplate = calloutTemplate.split('^headline^').join('<h3>' + callouts[i].headline + '</h3>');
+                            }
+                            else {
+                                calloutTemplate = calloutTemplate.split('^headline^').join('');
+                            }
+
+                            calloutsHTML += calloutTemplate;
+                        }
+
+                        content.content = content.content.split('^layout^').join(layout);
+                        content.content = content.content.split('^callouts^').join(calloutsHTML);
+
+                        cb(content);
+                    });
                 });
             });
         });
@@ -131,6 +131,17 @@ Index.prototype.getCallouts = function(settings) {
     return callouts;
 };
 
+Index.prototype.getLayout = function(settings) {
+    for(var i = 0; i < settings.length; i++)
+    {
+        if(settings[i].name === 'index_page_layout') {
+            return settings[i].value;
+        }
+    }
+
+    return '';
+};
+
 /**
 * Provides the routes that are to be handled by an instance of this prototype.
 * The route provides a definition of path, permissions, authentication, and
@@ -147,7 +158,7 @@ Index.getRoutes = function(cb) {
     var routes = [
         {
             method: 'get',
-            path: '/test',
+            path: '/',
             auth_required: false,
             content_type: 'text/html'
         }
