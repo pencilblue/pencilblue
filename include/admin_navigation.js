@@ -27,7 +27,7 @@ function getDefaultNavigation(ls) {
             [
                 {
                     id: 'sections',
-                    title: ls.get('SECTIONS'),
+                    title: ls.get('NAVIGATION'),
                     icon: 'th-large',
                     href: '/admin/content/sections/section_map',
                     access: ACCESS_EDITOR

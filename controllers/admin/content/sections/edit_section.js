@@ -28,7 +28,7 @@ EditSection.prototype.render = function(cb) {
 };
 
 EditSection.prototype.getPageName = function() {
-	return this.ls.get('EDIT_SECTION');
+	return this.ls.get('EDIT_NAVIGATION');
 };
 
 EditSection.prototype.getTemplate = function(cb) {
@@ -39,6 +39,7 @@ EditSection.prototype.getTemplate = function(cb) {
 	this.ts.registerLocal('selection_id_field', 'item');
 	this.ts.registerLocal('content_search_value', function(flag, cb) {
     	if (self.navItem.item) {
+    		var dao = new pb.DAO();
     		dao.loadById(self.navItem.item, self.navItem.type, function(err, content) {
     			cb(err, content ? content.headline : '');
     		});
@@ -54,13 +55,22 @@ EditSection.prototype.getDataTasks = function() {
 	var self  = this;
 	var tasks = EditSection.super_.prototype.getDataTasks.apply(self, []);
 	tasks.section = function(callback) {
+		if (self.session.fieldValues) {
+			var navItem = self.session.fieldValues;
+			if (util.isArray(navItem.keywords)) {
+				navItem.keywords = navItem.keywords.join(',');
+			}
+			self.session.fieldValues = undefined;
+			callback(null, navItem);
+			return;
+		}
 		
 		var dao = new pb.DAO();
-	    dao.loadById(self.pathVars.id, 'section', function(err, section) {
-	        if (section) {
-	        	section.keywords = section.keywords.join(',');
+	    dao.loadById(self.pathVars.id, 'section', function(err, navItem) {
+	        if (navItem) {
+	        	navItem.keywords = navItem.keywords.join(',');
 	        }
-	        callback(err, section);
+	        callback(err, navItem);
 	    });
 	};
 	return tasks;

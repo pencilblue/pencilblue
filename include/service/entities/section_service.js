@@ -104,7 +104,7 @@ SectionService.prototype._removeFromSectionMap = function(sid, sectionMap) {
 	return orphans;
 };
 
-SectionService.prototype.updateSectionMap = function(section, cb) {
+SectionService.prototype.updateNavMap = function(section, cb) {
 	var self = this;
 	
 	//do validation
@@ -146,6 +146,21 @@ SectionService.prototype.updateSectionMap = function(section, cb) {
         }
         
         pb.settings.set('section_map', sectionMap, cb);
+    });
+};
+
+SectionService.prototype.deleteChildren = function(parentId, cb) {
+	
+	var where = {
+		parent: ''+parentId
+	};
+	var dao = new pb.DAO();
+    dao.deleteMatching(where, 'section').then(function(result) {
+    	if (util.isError(result)) {
+    		cb(result, null);
+    		return;
+    	}
+    	cb(null, result);
     });
 };
 
@@ -203,7 +218,7 @@ SectionService.prototype.getParentSelectList = function(currItem, cb) {
 	var where = {
 		type: 'container',
 	};
-	if (!pb.utils.isFunction(currItem)) {
+	if (currItem && !pb.utils.isFunction(currItem)) {
 		where._id = pb.DAO.getNotIDField(currItem);
 	}
 	

@@ -30,7 +30,7 @@ SectionMap.prototype.onPostParamsRetrieved = function(post, cb) {
             return;
         }
         
-        self.session.success = self.ls.get('SECTION_MAP_SAVED');
+        self.session.success = self.ls.get('NAV_MAP_SAVED');
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
     });
 };

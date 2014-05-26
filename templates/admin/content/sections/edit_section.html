@@ -14,7 +14,7 @@
 			            </select>
                     </div>
                     <div class="form-group">
-                        <label>^loc_SECTION_NAME^</label>
+                        <label>^loc_NAME^</label>
                         <input type="text" id="name" name="name" class="form-control" value="{{section.name}}"></input>
                     </div>
                     <div class="form-group">
@@ -22,7 +22,7 @@
                         <textarea id="description" name="description" class="form-control">{{section.description}}</textarea>
                     </div>
                     <div class="form-group" ng-hide="section.type === 'container'">
-                        <label>^loc_PARENT_SECTION^</label>
+                        <label>^loc_PARENT_NAV_ITEM^</label>
                         <select id="parent" name="parent" class="form-control">
                             <option value="">^loc_NONE^</option>
                             <option value="{{parent._id}}" ng-repeat="parent in parents" ng-selected="section.parent == parent._id" ng-cloak>{{parent.name}}</option>

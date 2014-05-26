@@ -5,7 +5,7 @@
  * @copyright PencilBlue 2014, All rights reserved
  */
 function NewSection(){
-	self.navItem = null;
+	this.navItem = null;
 }
 
 //dependencies
@@ -44,7 +44,7 @@ NewSection.prototype.getTemplate = function(cb) {
 };
 
 NewSection.prototype.getPageName = function() {
-	return this.ls.get('NEW_SECTION');
+	return this.ls.get('NEW_NAV_ITEM');
 };
 
 NewSection.prototype.gatherData = function(cb) {
@@ -63,7 +63,7 @@ NewSection.prototype.getDataTasks = function() {
 		//get parents
 		parents: function(callback) {
 			var sectionService = new pb.SectionService();
-			sectionService.getParentSelectList(callback);
+			sectionService.getParentSelectList(self.pathVars.id, callback);
 		},
 		
 		//form tabs
@@ -106,10 +106,20 @@ NewSection.prototype.getDataTasks = function() {
 		},
 		
 		section: function(callback) {
-			var navItem = {
-				type: 'container'	
-			};
-			callback(null, navItem);
+			if (self.session.fieldValues) {
+				var navItem = self.session.fieldValues;
+				if (util.isArray(navItem.keywords)) {
+					navItem.keywords = navItem.keywords.join(',');
+				}
+				self.session.fieldValues = undefined;
+				callback(null, navItem);
+			}
+			else {
+				var navItem = {
+					type: 'container'	
+				};
+				callback(null, navItem);
+			}
 		}
 	};
 };

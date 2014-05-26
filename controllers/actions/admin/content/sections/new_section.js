@@ -4,59 +4,27 @@
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
-function NewSection(){}
+function NewSectionController(){}
+
+//dependencies
+var EditSectionController = require('./edit_section.js');
 
 //inheritance
-util.inherits(NewSection, pb.FormController);
+util.inherits(NewSectionController, EditSectionController);
 
-NewSection.prototype.onPostParamsRetrieved = function(post, cb) {
-	var self    = this;
-	var message = this.hasRequiredParams(post, ['name', 'editor']);
-	if (message) {
-        this.formError(message, '/admin/content/sections/new_section', cb);
-        return;
-    }
-    
-    var sectionDocument = pb.DocumentCreator.create('section', post, ['keywords'], ['parent']);
-    if (!sectionDocument['url']) {
-        sectionDocument['url'] = sectionDocument['name'].toLowerCase().split(' ').join('-');
-    }
-    
-    //check for reserved sections
-    if(sectionDocument['name'] == 'admin') {
-        this.formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/new_section', cb);
-        return;
-    }
-    
-    var dao = new pb.DAO();
-    dao.count('section', {$or: [{name: sectionDocument['name']}, {url: sectionDocument['url']}]}, function(err, count) {
-        //TODO handle error
-    	
-    	//make sure there isn't an existing section with the given name or URL
-    	if (count > 0) {
-            self.formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/new_section', cb);
-            return;
-        }
-        
-    	dao.update(sectionDocument).then(function(data) {
-            if(util.isError(data)) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/new_section', cb);
-                return;
-            }
-            
-            self.session.success = sectionDocument.name + ' ' + self.ls.get('CREATED');
-            
-            self.checkForSectionMap(sectionDocument, function() {                
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
-            });
-        });
-    });
+
+NewSectionController.prototype.getObject = function(post, cb) {
+	var navItem = pb.DocumentCreator.create('section', post, ['keywords'], ['parent']);
+	cb(null, navItem);
 };
 
-NewSection.prototype.checkForSectionMap = function(section, cb) {
-	 var service = new pb.SectionService();
-	 service.updateSectionMap(section, cb);
+NewSectionController.prototype.getSuccessMessage = function(navItem) {
+	return navItem.name + ' ' + this.ls.get('CREATED');
+};
+
+NewSectionController.prototype.getFormLocation = function() {
+	return '/admin/content/sections/new_section';
 };
 
 //exports
-module.exports = NewSection;
+module.exports = NewSectionController;
