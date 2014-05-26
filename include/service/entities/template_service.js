@@ -221,7 +221,11 @@ TemplateService.prototype.process = function(content, cb) {
 					process.nextTick(function() {
 						self.processFlag(flag, function(err, subContent) {						
 							if (pb.log.isSilly()) {
-								pb.log.silly("TemplateService: Processed flag [%s] Content=[%s]", flag, subContent ? (''+subContent).substring(0, 20)+'...': subContent);
+								var str = subContent;
+								if (pb.utils.isString(str) && str.length > 20) {
+									str = str.substring(0, 17)+'...';
+								}
+								pb.log.silly("TemplateService: Processed flag [%s] Content=[%s]", flag, str);
 							}
 							rf   = false;
 							flag = '';
@@ -283,11 +287,11 @@ TemplateService.prototype.processFlag = function(flag, cb) {
 	//check local
 	var doFlagProcessing = function(flag, cb) {
 		var tmp;
-		if (tmp = self.localCallbacks[flag]) {//local callbacks
+		if ((tmp = self.localCallbacks[flag]) !== undefined) {//local callbacks
 			self.handleReplacement(flag, tmp, cb);
 			return;
 		}
-		else if (tmp = GLOBAL_CALLBACKS[flag]) {//global callbacks
+		else if ((tmp = GLOBAL_CALLBACKS[flag]) !== undefined) {//global callbacks
 			self.handleReplacement(flag, tmp, cb);
 			return;
 		}
@@ -351,7 +355,7 @@ TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
 	var handler = function(err, content) {
 		
 		//prevent infinite loops
-		if (pb.utils.isString(content) && content.indexOf('^'+flag+'^') >= 0) {
+		if (pb.utils.isString(content) && (content.length === 0 || content.indexOf('^'+flag+'^') >= 0)) {
 			cb(err, content);
 		}
 		else {

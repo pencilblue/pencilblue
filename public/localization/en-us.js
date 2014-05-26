@@ -118,6 +118,8 @@ var loc =
 		PAGE: 'Page',
 		URL: 'URL',
 		LINK: 'Link',
+		CONTENT_SEARCH_EXPLANATION: 'Search for an article or page by headline and sub-heading.',
+		
     },
     error:
     {

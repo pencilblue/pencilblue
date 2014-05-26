@@ -8,6 +8,12 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="section_settings">
                     <div class="form-group">
+                        <label for="type">^loc_TYPE^</label>
+                        <select id="type" name="type" class="form-control" ng-model="section.type">
+                            <option value="{{type.value}}" ng-repeat="type in types" ng-selected="section.type == type.value" ng-cloak>{{type.label}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>^loc_SECTION_NAME^</label>
                         <input type="text" id="name" name="name" class="form-control"></input>
                     </div>
@@ -16,30 +22,43 @@
                         <textarea id="description" name="description" class="form-control"></textarea>
                     </div>
                     <div class="form-group">
-                        <label>^loc_URL_KEY^</label>
-                        <div class="input-group">
-	                        <span class="input-group-addon">section/</span>
-	                        <input type="text" id="url" name="url" class="form-control"></input>
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label>^loc_PARENT_SECTION^</label>
                         <select id="parent" name="parent" class="form-control">
                             <option value="">^loc_NONE^</option>
                             <option value="{{parent._id}}" ng-repeat="parent in parents" ng-cloak>{{parent.name}}</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>^loc_EDITOR^</label>
-                        <select id="editor" name="editor" class="form-control">
-                            <option value="{{editor._id}}" ng-repeat="editor in editors" ng-cloak>{{editor.name}}</option>
-                        </select>
+                    <div id="section_fields" ng-if="section.type === 'section'">
+	                    <div class="form-group">
+	                        <label>^loc_URL_KEY^</label>
+	                        <div class="input-group">
+	                            <span class="input-group-addon">section/</span>
+	                            <input type="text" id="url" name="url" class="form-control"></input>
+	                        </div>
+	                    </div>
+	                    <div class="form-group">
+	                        <label>^loc_EDITOR^</label>
+	                        <select id="editor" name="editor" class="form-control">
+	                            <option value="{{editor._id}}" ng-repeat="editor in editors" ng-cloak>{{editor.name}}</option>
+	                        </select>
+	                    </div>
+	                </div>
+                    <div id="content_search_wrapper" ng-show="section.type === 'article' || section.type === 'page'" class="form-group">
+                        <label>^loc_CONTENT^</label>&nbsp;<i class="fa fa-info-circle" title="" data-placement="bottom" data-toggle="tooltip" data-original-title="^loc_CONTENT_SEARCH_EXPLANATION^" style="cursor: pointer;"></i>
+                        ^tmp_admin=elements=content_search^
+                        <input id="item" name="item" type="hidden" value="{{section.item}}"/>
+                    </div>
+                    <div id="url_fields" ng-if="section.type === 'link'">
+                        <div class="form-group">
+                            <label>^loc_LINK^</label>
+                            <input type="text" id="link" name="link" class="form-control" value="{{section.link}}"></input>
+                        </div>
                     </div>
                 </div>
                 <div class="tab-pane" id="section_seo">
                     <div class="form-group">
                         <label>^loc_META_KEYWORDS^</label>
-                        <input type="text" id="keywords" name="keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
+                        <input type="text" id="keywords" name="keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"/>
                     </div>
                 </div>
                 <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/sections';">

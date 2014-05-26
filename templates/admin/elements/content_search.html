@@ -3,49 +3,11 @@
     <input id="selection_id_field" type="hidden" value="^selection_id_field^"/>
     <div class="panel-heading">
         <div class="input-group">
-            <input type="text" id="content_search" name="content_search" class="form-control"></input>
+            <input type="text" id="content_search" class="form-control" value="^content_search_value^" />
             <span class="input-group-btn">
                 <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
             </span>
         </div>
     </div>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            var input = $('#content_search');
-            input.autocomplete({
-                source: function( request, response ) {
-                    $.ajax({
-                        url: "/api/content/search/",
-                        dataType: "json",
-                        data: {
-                           type: $('#content_type').val(),
-                           q: $('#content_search').val(),
-                        },
-                        success: function( data ) {
-                            response( $.map( data.data, function( item ) {
-                                return {
-                                    value: item._id,
-                                    label: item.display
-                                }
-                            }));
-                        }
-                    });
-                },
-                minLength: 3,
-                select: function( event, ui ) {
-                	
-                	var idFieldName = $('#selection_id_field').val();
-                	$('#'+idFieldName).val(ui.item.value);
-                    $(this).val(ui.item.label);
-                    return false;
-                },
-                 open: function() {
-                        //$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-                 },
-                 close: function() {
-                        //$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-                 }
-            });
-        });
-    </script>
+    <script type="text/javascript" src="/js/admin/elements/content_search.js"></script>
 </div>

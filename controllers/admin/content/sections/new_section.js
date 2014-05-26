@@ -4,7 +4,9 @@
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
-function NewSection(){}
+function NewSection(){
+	self.navItem = null;
+}
 
 //dependencies
 var SectionService = pb.SectionService;
@@ -15,50 +17,101 @@ util.inherits(NewSection, pb.BaseController);
 NewSection.prototype.render = function(cb) {
 	var self = this;
 	
-	this.setPageName(this.ls.get('NEW_SECTION'));
-	this.ts.load('admin/content/sections/new_section', function(err, result) {
-        
-        var tabs = [
-            {
-                active: 'active',
-                href: '#section_settings',
-                icon: 'cog',
-                title: self.ls.get('SETTINGS')
-            },
-            {
-                href: '#section_seo',
-                icon: 'tasks',
-                title: self.ls.get('SEO')
-            }
-        ];
-        
-    	var dao = new pb.DAO();
-    	dao.query('section', {parent: null}, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(parents) {                            
-            
-    		pb.users.getEditorSelectList(self.session.authentication.user_id, function(editors) {
-                
-    			var pills = SectionService.getPillNavOptions('new_section');
-                pills.unshift(
-                {
-                    name: 'manage_topics',
-                    title: self.ls.get('NEW_SECTION'),
-                    icon: 'chevron-left',
-                    href: '/admin/content/sections/section_map'
-                });
-                
-                var objects = {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
-                    pills: pills,
-                    tabs: tabs,
-                    parents: parents,
-                    editors: editors
-                };
-                var angularData = pb.js.getAngularController(objects);
-                result          = result.split('^angular_script^').join(angularData);
-                cb({content: result});
-            });
+	//gather all data
+	this.gatherData(function(err, data) {
+		if (util.isError(err)) {
+			throw err;
+		}
+		else if(!data.section) {
+			self.reqHandler.serve404();
+			return;
+		}
+		
+		self.navItem = data.section;
+        var angularData = pb.js.getAngularController(data);
+    	self.getTemplate(function(err, result) {
+			result = result.split('^angular_script^').join(angularData);
+            cb({content: result});
         });
-    });
+	});
+};
+
+NewSection.prototype.getTemplate = function(cb) {
+	this.ts.registerLocal('content_type', '{{section.type}}');
+	this.ts.registerLocal('selection_id_field', 'item');
+    this.ts.registerLocal('content_search_value', '');
+	this.ts.load('admin/content/sections/new_section', cb);
+};
+
+NewSection.prototype.getPageName = function() {
+	return this.ls.get('NEW_SECTION');
+};
+
+NewSection.prototype.gatherData = function(cb) {
+	async.series(this.getDataTasks(), cb);
+};
+
+NewSection.prototype.getDataTasks = function() {
+	var self = this;
+	return {
+			
+		//get editors
+		editors: function(callback) {
+			pb.users.getEditorSelectList(self.session.authentication.user_id, callback);
+		},
+		
+		//get parents
+		parents: function(callback) {
+			var sectionService = new pb.SectionService();
+			sectionService.getParentSelectList(callback);
+		},
+		
+		//form tabs
+		tabs: function(callback) {
+			var tabs = [
+	            {
+	                active: 'active',
+	                href: '#section_settings',
+	                icon: 'cog',
+	                title: self.ls.get('SETTINGS')
+	            },
+	            {
+	                href: '#section_seo',
+	                icon: 'tasks',
+	                title: self.ls.get('SEO')
+	            }
+	        ];
+			callback(null, tabs);
+		},
+		
+		//breadcrumbs 
+		pills: function(callback) {
+			var pills = SectionService.getPillNavOptions('new_section');
+            pills.unshift(
+            {
+                name: 'manage_topics',
+                title: self.getPageName(),
+                icon: 'chevron-left',
+                href: '/admin/content/sections/section_map'
+            });
+            callback(null, pills);
+		},
+		
+		navigation: function(callback) {
+			callback(null, pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls));
+		},
+		
+		types: function(callback) {
+			callback(null, SectionService.getTypes(self.ls));
+		},
+		
+		section: function(callback) {
+			var navItem = {
+				type: 'container'	
+			};
+			callback(null, navItem);
+		}
+	};
 };
 
 //exports

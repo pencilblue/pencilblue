@@ -159,6 +159,10 @@ Util.isString = function(value) {
 	return value != undefined && value != null && typeof value === 'string';
 };
 
+Util.isFunction = function(value) {
+	return value != undefined && value != null && typeof value === 'function';
+};
+
 Util.getDirectories = function(dirPath, cb) {
 	
 	var dirs = [];

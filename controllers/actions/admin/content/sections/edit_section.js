@@ -10,63 +10,63 @@ function EditSection(){}
 util.inherits(EditSection, pb.FormController);
 
 EditSection.prototype.onPostParamsRetrieved = function(post, cb){
-	var self = this; 
-	var vars = this.pathVars;
+	var self = this;
 	
 	//merge in get params
 	pb.utils.merge(this.pathVars, post);
 	
-	//verify required parameters exist
-	var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if(message) {
-        this.formError(message, '/admin/content/sections/section_map', cb);
-        return;
-    }
-    
-    var dao = new pb.DAO();
-    dao.loadById(post.id, 'section', function(err, section) {
-    	//TODO handle error
-    	
-        if(section == null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
-            return;
+	//load object
+	var dao = new pb.DAO();
+	dao.loadById(post.id, 'section', function(err, navItem) {
+		if (util.isError(err)) {
+			throw err;
+		}
+		else if (!pb.utils.isObject(navItem)) {
+			self.reqHandler.serve404();
+			return;
+		}
+		
+		//merge in new properties
+		pb.DocumentCreator.update(post, navItem, ['keywords'], ['url', 'parent']);
+		
+		//ensure a URL
+		//ensure a URL was provided
+        if(!navItem.url && navItem.name) {
+            navItem.url = navItem.name.toLowerCase().split(' ').join('-');
         }
-
-        //update existing document
-        pb.DocumentCreator.update(post, section, ['keywords'], ['url', 'parent']);
-        
-        //ensure a URL was provided
-        if(!section['url']) {
-            section['url'] = section['name'].toLowerCase().split(' ').join('-');
-        }
-        
-        //now start validation
-        //check for reserved names
-        if(section['name'] == 'admin') {
-            formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/section_map', cb);
-            return;
-        }
-        
-        var where = {_id: {$ne: section._id}, $or: [{name: section['name']}, {url: section['url']}]};
-        dao.count('section', where, function(err, count) {
-            if(count > 0) {
-                self.formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/section_map', cb);
-                return;
-            }
-            
-            dao.update(section).then(function(data) {
+		
+		//strip unneeded properties
+		pb.SectionService.trimForType(navItem);
+		
+		//validate
+		var navService = new pb.SectionService();
+		navService.validate(navItem, function(err, validationErrors) {
+			if (util.isError(err)) {
+				throw err;
+			}
+			else if (validationErrors.length > 0) {
+				self.setFormFieldValues(post);
+				var errMsg = EditSection.getHtmlErrorMsg(validationErrors);
+				var redirect = pb.UrlService.urlJoin('/admin/content/sections/edit_section/', post.id);
+				self.formError(errMsg, redirect, cb);
+				return;
+			}
+			
+			dao.update(navItem).then(function(data) {
                 if(util.isError(data)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
+                	self.setFormFieldValues(post);
+                    self.formError(self.ls.get('ERROR_SAVING'), pb.UrlService.urlJoin('/admin/content/sections/edit_section', post.id), cb);
                     return;
                 }
                 
-                self.session.success = section.name + ' ' + self.ls.get('EDITED');
-                self.checkForSectionMapUpdate(section, function() {                
+                self.checkForSectionMapUpdate(navItem, function() {       
+                	
+                	self.session.success = navItem.name + ' ' + self.ls.get('EDITED');
                     cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
                 });
             });
-        });
-    });
+		});
+	});
 };
 
 EditSection.prototype.getRequiredFields = function() {
@@ -76,6 +76,17 @@ EditSection.prototype.getRequiredFields = function() {
 EditSection.prototype.checkForSectionMapUpdate = function(section, cb) {
 	var service = new pb.SectionService();
 	service.updateSectionMap(section, cb);
+};
+
+EditSection.getHtmlErrorMsg = function(validationErrors) {
+	var html = '';
+	for (var i = 0; i < validationErrors.length; i++) {
+		if (i > 0) {
+			html += '<br/>';
+		}
+		html += validationErrors[i].field + ':' + validationErrors[i].message;
+	}
+	return html;
 };
 
 //exports

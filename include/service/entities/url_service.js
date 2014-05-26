@@ -69,7 +69,14 @@ UrlService.prototype.existsForType = function(params, cb) {
 	
 	var where = {url: new RegExp(pattern)};
 	if (id) {
-		where._id = {$ne: new ObjectID(id)};
+		try {
+			where._id = {$ne: new ObjectID(id+'')};
+		}
+		catch(e) {
+			pb.log.error("UrlService: An invalid object ID was passed [%s]", util.inspect(id));
+			cb(e, false);
+			return;
+		}
 	}
 	
 	var dao = new pb.DAO();
@@ -132,7 +139,7 @@ UrlService.getCustomUrl = function(prefix, url) {
  * @param {Request} request
  * @returns {Boolean} TRUE if the link is external to the system, FALSE if not.
  */
-UrlService.isExternalUrl = function(urlStr, request) {
+UrlService.isExternalUrl = function(urlStr, request) {console.log(util.inspect(urlStr));
 	var obj    = url.parse(urlStr);
     var reqUrl = null;
     

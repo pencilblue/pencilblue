@@ -26,4 +26,15 @@ $(document).ready(function()
     });
     
     $('#name').focus();
+    
+    //animates tool tip pop-up
+    $('[data-toggle="tooltip"]').tooltip(
+        {
+            'placement': 'bottom'
+        }
+    ).css(
+        {
+            'cursor': 'pointer'
+        }
+    );
 });
