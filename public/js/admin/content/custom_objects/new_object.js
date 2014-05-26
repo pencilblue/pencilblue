@@ -1,5 +1,5 @@
 $(document).ready(function()
-{    
+{
     setupInputs();
 });
 
@@ -20,15 +20,17 @@ function setupInputs()
             else if(customObjectType.fields[key].field_type == 'child_objects')
             {
                 $('#' + key + '_draggable .child_object').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
+
                 $('#active_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
                 {
                     $('#active_' + key).append(ui.draggable);
                 }});
+
                 $('#inactive_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
                 {
                     $('#inactive_' + key).append(ui.draggable);
                 }});
-                
+
                 new jNarrow('#' + key + '_search', '#inactive_' + key + ' .child_object',
                 {
                     searchChildElement: '.' + key + '_name',
@@ -64,7 +66,7 @@ function prepareNewObjectSave()
         $('#new_object_form').submit();
         return;
     }
-    
+
     var fieldIndex = 0;
     $('.child_objects').each(function()
     {
@@ -72,7 +74,7 @@ function prepareNewObjectSave()
         var activeObjects = [];
         var activeObjectsLength = $(this).find('#active_' + key + ' .child_object').length;
         var activeObjectIndex = 0;
-        
+
         if(activeObjectsLength == 0)
         {
             $('#' + key + '_search').remove();
@@ -84,7 +86,7 @@ function prepareNewObjectSave()
             }
             return;
         }
-        
+
         $(this).find('#active_' + key + ' .child_object').each(function()
         {
             activeObjects.push($(this).attr('id').split(key + '_').join(''));
