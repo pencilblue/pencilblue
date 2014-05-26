@@ -125,7 +125,8 @@ var loc =
         NEW_NAV_ITEM: 'New Navigation Item',
         EDIT_NAVIGATION: 'Edit Navigation Item',
         DESCRIPTION: 'Description',
-        NAV_MAP_SAVED: 'The navigation map was successfully saved'
+        NAV_MAP_SAVED: 'The navigation map was successfully saved',
+        SECTIONS: 'Sections'
     },
     error:
     {
