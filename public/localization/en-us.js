@@ -149,10 +149,6 @@ var loc =
         TIME_AM: 'AM',
         TIME_PM: 'PM'
     },
-    index:
-    {
-
-    },
     setup:
     {
         REGISTER_ADMIN: 'Register the site\'s first admin account'
@@ -206,10 +202,6 @@ var loc =
         DELETED: 'was deleted',
         NARROW_RESULTS: 'Narrow results',
         URL_KEY: 'URL Key',
-    },
-    sections:
-    {
-        
     },
     topics:
     {

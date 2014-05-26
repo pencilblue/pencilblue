@@ -500,6 +500,12 @@ SectionService.getSectionData = function(uid, navItems) {
             {
         		navItem.url = pb.UrlService.urlJoin('/section', navItem.url);
     	    }
+        	else if (navItem.type === 'article') {
+        		navItem.url = pb.UrlService.urlJoin('/article', navItem.item);
+        	}
+        	else if (navItem.type === 'page') {
+        		navItem.url = pb.UrlService.urlJoin('/page', navItem.item);
+        	}
         	else {
         		navItem.url = '#';
         	}
