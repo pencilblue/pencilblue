@@ -974,8 +974,15 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
          //load services
          function(callback) {
         	 PluginService.getServices(path.join(PLUGINS_DIR, plugin.dirName), function(err, services) {
+        		 if (util.isError(err)) {
+        			 pb.log.debug("PluginService[INIT]: No services directory was found for %s", details.uid);
+        		 }
+        		 if (!services) {
+        			 pb.log.debug("PluginService[INIT]: No services were found for %s", details.uid);
+        			 services = {};
+        		 }
         		 ACTIVE_PLUGINS[details.uid].services = services;
-        		 callback(err, util.isError(err));
+        		 callback(null, !util.isError(err));
         	 });
          },
          
