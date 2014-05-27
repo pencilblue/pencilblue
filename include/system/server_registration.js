@@ -23,6 +23,10 @@
 		 cb(null, cluster.isMaster);
 	 },
 	 
+	 process_type: function(cb) {
+        cb(null, cluster.worker ? 'Worker' : 'Master'); 
+	 },
+	 
 	 worker_id: function(cb) {
 		 cb(null, cluster.worker ? cluster.worker.id : 'master');
 	 },
@@ -62,6 +66,10 @@
  
  var TIMER_HANDLE = null;
  
+ ServerRegistration.prototype.getClusterStatus = function(cb) {
+	 pb.cache.hgetall(pb.config.registry.key, cb);
+ };
+ 
  ServerRegistration.init = function() {
 	 if (!pb.config.registry.enabled) {
 		 return false;
@@ -70,6 +78,7 @@
 		 return true;
 	 }
 	 
+	 ServerRegistration.doRegistration();
 	 TIMER_HANDLE = setInterval(function() {
 		 ServerRegistration.doRegistration();
 	 }, pb.config.registry.update_interval);
