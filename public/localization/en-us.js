@@ -111,6 +111,11 @@ var loc =
 		SET_THEME: 'Apply Theme',
 		SITE_LOGO_UPLOAD_FAILURE: 'The attempt to upload a new site logo failed',
 		SITE_LOGO_UPLOAD_SUCCESS: 'Successfully updated the site logo',
+		SERVER: 'Server',
+		PROCESS_TYPE: 'Process Type',
+		UPTIME: 'Uptime',
+		MEMORY_USED: 'Memory Used',
+		SECONDS_ABBR: 'Secs'
     },
     error:
     {

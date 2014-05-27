@@ -7,11 +7,20 @@
                 <li class="list-group-item" ng-repeat="contentInfoItem in contentInfo" ng-cloak>
                     <span class="badge">{{contentInfoItem.count}}</span>
                     <a href="{{contentInfoItem.href}}">{{contentInfoItem.name}}</a>
-                </li
+                </li>
             </ul>
         </div>
         <div class="col-md-9">
-            
+            <table class="table table-striped">
+                <th>^loc_SERVER^</th><th>^loc_PROCESS_TYPE^</th><th>^loc_UPTIME^</th><th>^loc_MEMORY_USED^</th><th>^loc_ACTIVE_PLUGINS^</th>
+                <tr ng-repeat="val in cluster">
+                    <td>{{val.ip}}::{{val.port}}</td>
+                    <td title="{{val.worker_id}}">{{val.process_type}}</td>
+                    <td>{{(val.uptime) | number:0}} ^loc_SECONDS_ABBR^</td>
+                    <td>{{(val.mem_usage.heapUsed / 1024 / 1024) | number:2}} MB</td>
+                    <td>{{val.active_plugins.join(', ')}}</td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>
