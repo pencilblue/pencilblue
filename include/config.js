@@ -61,6 +61,11 @@ var config = {
 			use_memory: true,
 			use_cache: true,
 		}
+	},
+	registry: {
+		enabled: true,
+		update_interval: 30000,
+		registry_key: 'server_registry'
 	}
 };
 
