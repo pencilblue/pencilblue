@@ -26,6 +26,34 @@ body {
     font-weight: bold;
 }
 
+.navbar-default .navbar-nav>li>a:hover {
+    color: #AAAAAA;
+}
+
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:hover, .navbar-default .navbar-nav>.open>a:focus {
+    background: none;
+    color: #AAAAAA;
+}
+
+.navbar-nav>li>.dropdown-menu {
+    margin-top: .5em;
+    background: #000000;
+    background: url(/public/portfolio/img/black_75.png);
+    background: rgba(0, 0, 0, .75);
+    border: none;
+    border-radius: 0;
+}
+
+.dropdown-menu>li>a {
+    color: #FFFFFF;
+    text-transform: uppercase;
+}
+
+.dropdown-menu>li>a:hover {
+    color: #AAAAAA;
+    background: none;
+}
+
 .navbar-default .navbar-collapse, .navbar-default .navbar-form {
     border: none;
 }
@@ -71,6 +99,10 @@ footer {
         position: absolute;
         width: 100%;
         z-index: 10000;
+    }
+
+    .dropdown-menu>li>a {
+        text-align: right;
     }
 }
 
