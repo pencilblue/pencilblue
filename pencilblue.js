@@ -14,6 +14,7 @@ var init = function(){
          function(cb) {
          	pb.plugins.initPlugins(cb);
          },
+         initServerRegistration,
          registerSystemForEvents
      ];
 	async.series(tasks, function(err, results) {
@@ -75,20 +76,27 @@ function onHttpConnect(req, resp){
     handler.handleRequest();
 }
 
+function initServerRegistration() {
+	pb.ServerRegistration.init();
+}
+
 /**
  * Registers for process level events
  */
 function registerSystemForEvents(cb){
 	
 	//shutdown hook
+	var onSignalToDie = function () {
+		pb.log.info('Shutting down...');
+	  	pb.dbm.shutdown();
+	  	pb.cache.quit();
+	  	pb.session.shutdown();
+	  	pb.ServerRegistration.shutdown();
+	};
 	try {
 		process.openStdin();
-		process.on('SIGINT', function () {
-			pb.log.info('Shutting down...');
-		  	pb.dbm.shutdown();
-		  	pb.cache.quit();
-		  	pb.session.shutdown();
-		});
+		process.on('SIGINT', onSignalToDie);
+		process.on('SIGTERM', onSignalToDie);
 		cb(null, true);
 	}
 	catch(e) {

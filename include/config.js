@@ -65,7 +65,7 @@ var config = {
 	registry: {
 		enabled: true,
 		update_interval: 30000,
-		registry_key: 'server_registry'
+		key: 'server_registry'
 	}
 };
 

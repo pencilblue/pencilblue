@@ -1,29 +1,22 @@
 /**
- *
+ * @class ServerRegistration
+ * @constructor
+ * @author Brian Hyder <brian@penciblue.org>
+ * @copyright 2014 PencilBlue, LLC. All Rights Reserved
  */
  function ServerRegistration(){}
  
  //dependencies
  var cluster = require('cluster');
  var os      = require('os');
+ var domain  = require('domain');
  
  //statics
  var ITEM_CALLBACKS = {
 	 
 	 //ip address
 	 ip: function(cb) {
-		 var interfaces = os.networkInterfaces();
-		 var address = null;
-		 for (k in interfaces) {
-		     for (k2 in interfaces[k]) {
-		         var addr = interfaces[k][k2];
-		         if (addr.family == 'IPv4' && !addr.internal) {
-		             address = addr.address;
-		             break;
-		         }
-		     }
-		 }
-		 cb(null, address);
+		 cb(null, ServerRegistration.getIp());
 	 },
 	 
 	 is_master: function(cb) {
@@ -31,7 +24,7 @@
 	 },
 	 
 	 worker_id: function(cb) {
-		 cb(null, cluster.worker.id);
+		 cb(null, cluster.worker ? cluster.worker.id : 'master');
 	 },
 	 
 	 port: function(cb) {
@@ -59,7 +52,7 @@
 	 }, 
 	 
 	 mem_usage: function(cb) {
-		 cb(null, process.memUsage());
+		 cb(null, process.memoryUsage());
 	 },
 	 
 	 cwd: function(cb) {
@@ -87,7 +80,7 @@
 	 
 	 if (TIMER_HANDLE) {
 		 clearInterval(TIMER_HANDLE);
-		 //TODO remove oneself from service
+		 pb.cache.hdel(pb.config.registry_key, ServerRegistration.generateKey(), cb);
 	 }
 	 else {
 		 cb(null, true);
@@ -106,7 +99,7 @@
  ServerRegistration.doRegistration = function(cb) {
 	 cb = cb || pb.utils.cb;
 	 
-	 async.parallel(ITEM_CALLBACKS, function(err, update) {
+	 var onItemsGathered = function(err, update) {
 		 if (util.isError(err)) {
 			 pb.log.error("ServerRegistration: Failed to gather all data for registration: %s", err.message);
 		 }
@@ -114,19 +107,45 @@
 		 if (update) {
 			 var key = ServerRegistration.generateKey();
 			 update.last_update = new Date();
-			 pb.cache.hset(pb.config.registry_key, key, JSON.stringify(update), function(err, result) {
-				 pb.log.debug("ServerRegistration: Attempted to update registration. Result=[%s] ERROR=[%s]", result, err ? err.message : '');
+			 pb.cache.hset(pb.config.registry.key, key, JSON.stringify(update), function(err, result) {
+				 pb.log.debug("ServerRegistration: Attempted to update registration. Result=[%s] ERROR=[%s]", result === 1 || result === 0, err ? err.message : '');
+				 if (pb.log.isSilly) {
+					 pb.log.silly("ServerRegistration: Last Update\n%s", util.inspect(update));
+				 }
 				 cb(err, result);
 			 });
 		 }
 		 else {
 			 cb(err, false);
 		 }
+	 };
+	 
+	 var d = domain.create();
+	 d.on('error', function(err) {
+		pb.log.error('ServerRegistration: Failed to perform update: %s', err.stack); 
+	 });
+	 d.run(function() {
+		 async.parallel(ITEM_CALLBACKS, onItemsGathered);
 	 });
  };
  
- ServerRegistration.generateKey = function(update) {
-	 return update.ip + ':' + update.port + ':' + update.worker + ':' + update.host;
+ ServerRegistration.generateKey = function() {
+	 return  ServerRegistration.getIp() + ':' + pb.config.sitePort + ':' + (cluster.worker ? cluster.worker.id : 'master') + ':' + os.hostname();
+ };
+ 
+ ServerRegistration.getIp = function() {
+	 var interfaces = os.networkInterfaces();
+	 var address = null;
+	 for (k in interfaces) {
+	     for (k2 in interfaces[k]) {
+	         var addr = interfaces[k][k2];
+	         if (addr.family == 'IPv4' && !addr.internal) {
+	             address = addr.address;
+	             break;
+	         }
+	     }
+	 }
+	 return address;
  };
  
  //exports
