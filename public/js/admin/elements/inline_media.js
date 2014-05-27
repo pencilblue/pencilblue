@@ -13,7 +13,7 @@ $(document).ready(function()
     {
         $('#inactive_media').append(ui.draggable);
     }});
-    
+
     new jNarrow('#media_search', '#inactive_media .media_item',
     {
         searchChildElement: '.media_name',
@@ -35,7 +35,7 @@ function setupUpload(root)
     siteRoot = root;
     saveMediaURL = siteRoot + '/actions/admin/content/media/inline_add_media';
 
-    $(function() 
+    $(function()
     {
         'use strict';
         // Change this to the location of your server-side upload handler:
@@ -68,7 +68,7 @@ function showMediaModal(subsection)
     $('#link_to_media').hide();
     $('#upload_media').hide();
     $(subsection).show();
-    
+
     $('#media_modal').modal({backdrop: 'static', keyboard: true});
 }
 
@@ -93,15 +93,15 @@ function checkForAddMediaSave()
     buildTopics(function(topicsCSV)
     {
         $('#media_topics').val(topicsCSV);
-        
+
         $.post(saveMediaURL, $('#media_modal fieldset').serialize(), function(newMedia)
-        {            
+        {
             var mediaItemElement = mediaItemTemplate.split('^media_id^').join(newMedia._id.toString());
             mediaItemElement = mediaItemElement.split('^media_name^').join(newMedia.name);
             mediaItemElement = mediaItemElement.split('^media_icon^').join(getMediaIcon(newMedia.media_type));
             mediaItemElement = mediaItemElement.split('^media_caption^').join(newMedia.caption);
             mediaItemElement = mediaItemElement.split('^media_link^').join(getMediaLink(newMedia.media_type, newMedia.location, newMedia.is_file));
-            
+
             $('#active_media').append(mediaItemElement);
             $('#media .col-md-3').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
             $('#media_modal').modal('hide');
@@ -128,7 +128,7 @@ function getMediaIcon(mediaType)
         case 'daily_motion':
             return 'play-circle-o';
         case 'vine':
-            return 'twitter'; //vine icon slated for fontawesome 4.1.0
+            return 'vine';
         case 'instagram':
             return 'instagram';
         case 'slideshare':
@@ -137,7 +137,7 @@ function getMediaIcon(mediaType)
             return 'question';
             break;
     }
-    
+
     return '<i class="fa fa-' + iconID + '"></i>';
 }
 

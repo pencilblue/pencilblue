@@ -21,6 +21,7 @@ Index.prototype.render = function(cb) {
 	TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
         TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
 
+            self.ts.registerLocal('page_name', '^index_page_name^');
         	self.ts.registerLocal('navigation', navigation);
         	self.ts.registerLocal('account_buttons', accountButtons);
         	self.ts.load('index', function(err, result) {
@@ -127,7 +128,12 @@ Index.prototype.processArticles = function(result, articles, themeSettings, cb) 
                         result = result.concat(angularData);
 
                         var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
-                        cb({content: content});
+
+                        self.getContentSpecificPageName(function(pageName) {
+                            content = content.split('^index_page_name^').join(pageName);
+
+                            cb({content: content});
+                        });
                     });
                 });
             });
@@ -225,12 +231,12 @@ Index.prototype.formatComments = function(articleHTML, comments, commentingUser,
         var commentsHTML = '';
         for(var i = 0; i < comments.length; i++) {
             if(comments[i].commenter_photo) {
-                var commentHTML = commentTemplate.split('^commenter_photo^').join(comments[i].commenter_photo)
+                commentHTML = commentTemplate.split('^commenter_photo^').join(comments[i].commenter_photo)
                 .split('^display_photo^').join('block');
             }
             else {
-                var commentHTML = commentTemplate.split('^display_photo^').join('none')
-                .split('^commenter_photo^').join('')
+                commentHTML = commentTemplate.split('^display_photo^').join('none')
+                .split('^commenter_photo^').join('');
             }
             commentHTML = commentHTML.split('^commenter_name^').join(comments[i].commenter_name);
             if(comments[i].commenter_position) {
@@ -272,8 +278,52 @@ Index.prototype.formatComments = function(articleHTML, comments, commentingUser,
     return articleHTML;
 };
 
-Index.prototype.getPageName = function() {
-	return pb.config.siteName;
+Index.prototype.getContentSpecificPageName = function(cb) {
+    var dao = new pb.DAO();
+
+    if(this.req.pencilblue_article) {
+        dao.loadById(this.req.pencilblue_article, 'article', function(err, article) {
+            if(util.isError(err) || article === null) {
+                cb(pb.config.siteName);
+                return;
+            }
+
+            cb(article.headline + ' | ' + pb.config.siteName);
+        });
+    }
+    else if(this.req.pencilblue_page) {
+        dao.loadById(this.req.pencilblue_page, 'page', function(err, page) {
+            if(util.isError(err) || page === null) {
+                cb(pb.config.siteName);
+                return;
+            }
+
+            cb(page.headline + ' | ' + pb.config.siteName);
+        });
+    }
+    else if(this.req.pencilblue_section) {
+        dao.loadById(this.req.pencilblue_section, 'section', function(err, section) {
+            if(util.isError(err) || section === null) {
+                cb(pb.config.siteName);
+                return;
+            }
+
+            cb(section.name + ' | ' + pb.config.siteName);
+        });
+    }
+    else if(this.req.pencilblue_topic) {
+        dao.loadById(this.req.pencilblue_topic, 'section', function(err, topic) {
+            if(util.isError(err) || topic === null) {
+                cb(pb.config.siteName);
+                return;
+            }
+
+            cb(topic.name + ' | ' + pb.config.siteName);
+        });
+    }
+    else {
+        cb(pb.config.siteName);
+    }
 };
 
 //exports
