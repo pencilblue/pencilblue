@@ -45,7 +45,14 @@ SectionMap.prototype.render = function(cb) {
                 var objects     = {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
                     pills: pills,
-                    sections: SectionMap.getOrderedSections(sections, sectionMap)
+                    sections: SectionMap.getOrderedSections(sections, sectionMap),
+                    icons: {
+                    	container: 'fa-inbox',
+                    	section: 'fa-th-large',
+                    	article: 'fa-files-o',
+                    	page: 'fa-file-o',
+                    	link: 'fa-external-link'
+                    }
                 };
                 
                 var angularData = pb.js.getAngularController(objects);
