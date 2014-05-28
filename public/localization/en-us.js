@@ -126,7 +126,12 @@ var loc =
         EDIT_NAVIGATION: 'Edit Navigation Item',
         DESCRIPTION: 'Description',
         NAV_MAP_SAVED: 'The navigation map was successfully saved',
-        SECTIONS: 'Sections'
+        SECTIONS: 'Sections',
+		SERVER: 'Server',
+		PROCESS_TYPE: 'Process Type',
+		UPTIME: 'Uptime',
+		MEMORY_USED: 'Memory Used',
+		SECONDS_ABBR: 'Secs'
     },
     error:
     {
