@@ -5,6 +5,7 @@
     <div id="section_map">
         <div id="section_{{section._id}}" class="panel panel-info section" ng-repeat="section in sections track by section._id" ng-cloak>
             <div class="panel-heading">
+                <i class="fa {{icons[section.type]}}" style="float: left;"></i>&nbsp;&nbsp;
                 {{section.name}}
                 <a href="javascript:confirmDeleteSection('{{section._id}}', '{{section.name}}')">
                     <i class="fa fa-times fa-lg" style="float: right;"></i>&nbsp;&nbsp;
@@ -17,6 +18,7 @@
                 <div id="subsection_{{child._id}}" class="col-md-3 subsection" ng-repeat="child in section.children track by child._id">
                     <div class="panel panel-default">
                         <div class="panel-heading">
+                        <i class="fa {{icons[child.type]}}" style="float: left;"></i>&nbsp;&nbsp;
                             {{child.name}}
                             <a href="javascript:confirmDeleteSection('{{child._id}}', '{{child.name}}')">
                                 <i class="fa fa-times fa-lg" style="float: right;"></i>&nbsp;&nbsp;

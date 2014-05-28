@@ -111,6 +111,22 @@ var loc =
 		SET_THEME: 'Apply Theme',
 		SITE_LOGO_UPLOAD_FAILURE: 'The attempt to upload a new site logo failed',
 		SITE_LOGO_UPLOAD_SUCCESS: 'Successfully updated the site logo',
+		TYPE: 'Type',
+		CONTAINER: 'Container',
+		SECTION: 'Section',
+		ARTICLE: 'Article',
+		PAGE: 'Page',
+		URL: 'URL',
+		LINK: 'Link',
+		CONTENT_SEARCH_EXPLANATION: 'Search for an article or page by headline and sub-heading.',
+		PARENT_NAV_ITEM: 'Parent Navigation Item',
+		NAVIGATION: 'Navigation',
+		NAV_MAP: 'Navigation Map',
+        NEW_NAV_ITEM: 'New Navigation Item',
+        EDIT_NAVIGATION: 'Edit Navigation Item',
+        DESCRIPTION: 'Description',
+        NAV_MAP_SAVED: 'The navigation map was successfully saved',
+        SECTIONS: 'Sections',
 		SERVER: 'Server',
 		PROCESS_TYPE: 'Process Type',
 		UPTIME: 'Uptime',
@@ -139,10 +155,6 @@ var loc =
         TIME_AM: 'AM',
         TIME_PM: 'PM'
     },
-    index:
-    {
-
-    },
     setup:
     {
         REGISTER_ADMIN: 'Register the site\'s first admin account'
@@ -161,7 +173,6 @@ var loc =
         CONTENT: 'Content',
         PAGES: 'Pages',
         ARTICLES: 'Articles',
-        SECTIONS: 'Sections',
         TOPICS: 'Topics',
         MEDIA: 'Media',
         CUSTOM_OBJECTS: 'Custom objects',
@@ -196,18 +207,7 @@ var loc =
         EDITED: 'was edited',
         DELETED: 'was deleted',
         NARROW_RESULTS: 'Narrow results',
-        URL_KEY: 'URL Key'
-    },
-    sections:
-    {
-        SECTION_MAP: 'Section map',
-        NEW_SECTION: 'New section',
-        EDIT_SECTION: 'Edit section',
-        SECTION_NAME: 'Section name',
-        DESCRIPTION: 'Description',
-        PARENT_SECTION: 'Parent section',
-        EXISTING_SECTION: 'A section with this name already exists',
-        SECTION_MAP_SAVED: 'The section map was successfully saved'
+        URL_KEY: 'URL Key',
     },
     topics:
     {

@@ -103,13 +103,15 @@ Localization.prototype.get = function(key, defaultVal) {
  */
 Localization.best = function(request){
 	var loc = 'en-us';
-	if (typeof request == 'string') {
-		var locales = new locale.Locales(request);
-		loc = locales.best(Localization.supported);
-	}
-	else if (request.headers[Localization.ACCEPT_LANG_HEADER]){
-		var locales = new locale.Locales(request.headers[Localization.ACCEPT_LANG_HEADER]);
-		loc = locales.best(Localization.supported);
+	if (request) {
+		if (typeof request == 'string') {
+			var locales = new locale.Locales(request);
+			loc = locales.best(Localization.supported);
+		}
+		else if (request.headers[Localization.ACCEPT_LANG_HEADER]){
+			var locales = new locale.Locales(request.headers[Localization.ACCEPT_LANG_HEADER]);
+			loc = locales.best(Localization.supported);
+		}
 	}
 	return loc;
 };

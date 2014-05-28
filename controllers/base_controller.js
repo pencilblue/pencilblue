@@ -157,6 +157,7 @@ BaseController.prototype.checkForFormRefill = function(result, cb) {
     cb(result);
 };
 
+
 BaseController.prototype.redirect = function(location, cb){
 	cb(pb.RequestHandler.generateRedirect(location));
 };
