@@ -131,7 +131,8 @@ var loc =
 		PROCESS_TYPE: 'Process Type',
 		UPTIME: 'Uptime',
 		MEMORY_USED: 'Memory Used',
-		SECONDS_ABBR: 'Secs'
+		SECONDS_ABBR: 'Secs',
+		NO_AVAILABLE_PLUGINS: 'No available plugins',
     },
     error:
     {
