@@ -39,6 +39,7 @@ Blog.prototype.render = function(cb) {
     TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
         TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
 
+            self.ts.registerLocal('page_name', '^blog_page_name^');
             self.ts.registerLocal('navigation', navigation);
             self.ts.registerLocal('account_buttons', accountButtons);
             self.ts.load('blog', function(err, template) {
@@ -54,7 +55,6 @@ Blog.prototype.render = function(cb) {
                     self.processArticles(result, articles, themeSettings, cb);
                 };
 
-                console.log(self.req);
 
                 //determine and execute the proper call
                 var section = self.req.pencilblue_section || null;
@@ -141,23 +141,35 @@ Blog.prototype.processArticles = function(result, articles, themeSettings, cb) {
                     self.getArticlesHTML(articles, commentsTemplates, contentSettings, commentingUser, function(articlesHTML) {
                         result = result.split('^articles^').join(articlesHTML);
 
-                        var objects = {
-                            contentSettings: contentSettings,
-                            loggedIn: loggedIn,
-                            commentingUser: commentingUser,
-                            themeSettings: themeSettings,
-                            articles: articles,
-                            trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
-                        };
-                        var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
-                        result = result.concat(angularData);
 
-                        var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
 
                         self.getContentSpecificPageName(function(pageName) {
-                            content = content.split('^index_page_name^').join(pageName);
+                            result = result.split('^blog_page_name^').join(pageName);
 
-                            cb({content: content});
+                            self.getSideNavigation(articles, function(sideNavTemplate, sideNavTitle, sideNavItems) {
+                                self.ts.registerLocal('side_nav_title', sideNavTitle);
+                                self.ts.load(sideNavTemplate, function(err, template) {
+                                    if(util.isError(err)) {
+                                        template = '';
+                                    }
+
+                                    result = result.split('^side_nav^').join(template);
+
+                                    var objects = {
+                                        contentSettings: contentSettings,
+                                        loggedIn: loggedIn,
+                                        commentingUser: commentingUser,
+                                        themeSettings: themeSettings,
+                                        articles: articles,
+                                        sideNavItems: sideNavItems,
+                                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+                                    };
+                                    var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
+                                    result = result.concat(angularData);
+
+                                    cb({content: self.localizationService.localize(['pencilblue_generic', 'timestamp'], result)});
+                                });
+                            });
                         });
                     });
                 });
@@ -346,6 +358,20 @@ Blog.prototype.getContentSpecificPageName = function(cb) {
     }
 };
 
+Blog.prototype.getSideNavigation = function(articles, cb) {
+    var dao = new pb.DAO();
+
+    if(this.req.pencilblue_article) {
+        dao.query('article', {article_topics: {$in: articles[0].article_topics}}).then(function(relatedArticles) {
+            cb('elements/side_nav/related_articles', '^loc_RELATED_ARTICLES^', relatedArticles);
+        });
+
+        return;
+    }
+
+    cb('', '', {});
+};
+
 /**
 * Provides the routes that are to be handled by an instance of this prototype.
 * The route provides a definition of path, permissions, authentication, and
@@ -363,12 +389,6 @@ Blog.getRoutes = function(cb) {
         {
             method: 'get',
             path: '/blog',
-            auth_required: false,
-            content_type: 'text/html'
-        },
-        {
-            method: 'get',
-            path: '/article/:article_id',
             auth_required: false,
             content_type: 'text/html'
         }
