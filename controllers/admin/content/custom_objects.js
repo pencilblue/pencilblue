@@ -13,10 +13,8 @@ CustomObjects.prototype.render = function(cb) {
 	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
 };
 
-CustomObjects.getPillNavOptions = function(activePill)
-{
-    var pillNavOptions = 
-    [
+CustomObjects.getPillNavOptions = function() {
+    return [
         {
             name: 'new_object_type',
             title: '',
@@ -24,19 +22,6 @@ CustomObjects.getPillNavOptions = function(activePill)
             href: '/admin/content/custom_objects/new_object_type'
         }
     ];
-    
-    if(typeof activePill !== 'undefined')
-    {
-        for(var i = 0; i < pillNavOptions.length; i++)
-        {
-            if(pillNavOptions[i].name == activePill)
-            {
-                pillNavOptions[i].active = 'active';
-            }
-        }
-    }
-    
-    return pillNavOptions;
 };
 
 //exports

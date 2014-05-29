@@ -26,7 +26,7 @@ AdminSubnavService.registerFor = function(key, getSubNavItems) {
 	return true;
 };
 
-AdminSubnavService.getSubNav = function(key, ls, activePill, data) {
+AdminSubnavService.get = function(key, ls, activePill, data) {
 	if (CALLBACKS[key] === undefined || CALLBACKS[key].length === 0) {
 		return [];
 	}

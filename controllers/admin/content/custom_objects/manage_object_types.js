@@ -6,8 +6,14 @@
  */
 function ManageObjectTypes() {}
 
+//dependencies
+var CustomObjects = require('../custom_objects');
+
 //inheritance
 util.inherits(ManageObjectTypes, pb.BaseController);
+
+//statics
+var SUB_NAV_KEY = 'manage_custom_object_types';
 
 ManageObjectTypes.prototype.render = function(cb) {
 	var self = this;
@@ -37,15 +43,7 @@ ManageObjectTypes.prototype.render = function(cb) {
         self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
         self.ts.load('admin/content/custom_objects/manage_object_types', function(err, result) {
 
-            var pills = require('../custom_objects').getPillNavOptions('manage_object_types');
-            pills.unshift(
-            {
-                name: 'manage_object_types',
-                title: self.ls.get('MANAGE_OBJECT_TYPES'),
-                icon: 'refresh',
-                href: '/admin/content/custom_objects/manage_object_types'
-            });
-            
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_object_types');
             result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
@@ -99,6 +97,21 @@ ManageObjectTypes.setFieldTypesUsed = function(self, customObjectTypes) {
     
     return customObjectTypes;
 };
+
+ManageObjectTypes.getSubNavItems = function(key, ls, data) {
+	var pills = CustomObjects.getPillNavOptions('manage_object_types');
+	pills.unshift(
+    {
+        name: 'manage_object_types',
+        title: ls.get('MANAGE_OBJECT_TYPES'),
+        icon: 'refresh',
+        href: '/admin/content/custom_objects/manage_object_types'
+    });
+	return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageObjectTypes.getSubNavItems);
 
 //exports
 module.exports = ManageObjectTypes;

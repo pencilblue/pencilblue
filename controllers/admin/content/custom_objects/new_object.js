@@ -9,6 +9,9 @@ function NewObject() {}
 //inheritance
 util.inherits(NewObject, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'new_custom_object';
+
 NewObject.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
@@ -52,23 +55,8 @@ NewObject.prototype.render = function(cb) {
                     fieldOrder.push(key);
                 }
                     
-                var pills =
-                [
-                    {
-                        name: 'manage_objects',
-                        title: title,
-                        icon: 'chevron-left',
-                        href: '/admin/content/custom_objects/manage_objects/' + objectType.name
-                    },
-                    {
-                        name: 'new_object',
-                        title: '',
-                        icon: 'plus',
-                        href: '/admin/content/custom_objects/new_object/' + objectType.name
-                    }
-                ];
-                
-                result = result.split('^angular_script^').join(pb.js.getAngularController(
+                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType);
+                result    = result.split('^angular_script^').join(pb.js.getAngularController(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                     pills: pills,
@@ -166,6 +154,26 @@ NewObject.loadFieldOptions = function(dao, objectType, cb) {
     
     this.loadObjectOptions(0);
 };
+
+NewObject.getSubNavItems = function(key, ls, data) {
+	return [
+        {
+            name: 'manage_objects',
+            title: ls.get('NEW') + ' ' + data.name,
+            icon: 'chevron-left',
+            href: '/admin/content/custom_objects/manage_objects/' + data.name
+        },
+        {
+            name: 'new_object',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/custom_objects/new_object/' + data.name
+        }
+    ];
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, NewObject.getSubNavItems);
 
 //exports
 module.exports = NewObject;
