@@ -110,10 +110,11 @@ pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_servi
 pb.plugins       = new pb.PluginService();
 
 //content services
-pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
-pb.MediaService   = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
-pb.UrlService     = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
-pb.TopMenuService = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
+pb.SectionService     = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
+pb.MediaService       = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
+pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
+pb.TopMenuService     = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
+pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subnav_service.js');
 
 //Export system object
 module.exports = pb;
