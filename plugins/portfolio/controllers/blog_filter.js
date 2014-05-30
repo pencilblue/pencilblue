@@ -27,6 +27,11 @@ BlogFilter.prototype.render = function(cb) {
     else if(self.req.url.indexOf('/page/') > -1) {
         objectType = 'page';
     }
+    else if(self.req.url.indexOf('/topic/') > -1) {
+        self.req.pencilblue_topic = custUrl;
+        BlogFilter.super_.prototype.render.apply(self, [cb]);
+        return;
+    }
 
     dao.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
         if (util.isError(err) || result === null) {
@@ -61,6 +66,12 @@ BlogFilter.getRoutes = function(cb) {
         {
             method: 'get',
             path: '/page/:customUrl',
+            auth_required: false,
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: '/topic/:customUrl',
             auth_required: false,
             content_type: 'text/html'
         }

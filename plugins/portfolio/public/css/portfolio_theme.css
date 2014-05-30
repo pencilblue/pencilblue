@@ -111,6 +111,10 @@ a:hover
 
 /* ARTICLES */
 
+.article {
+    margin-bottom: 1em;
+}
+
 .article h1, .article h2, .article h3, .article h4 {
     margin-top: 0;
 }
