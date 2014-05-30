@@ -183,6 +183,13 @@ Blog.prototype.getArticlesHTML = function(articles, commentsTemplates, contentSe
     var articleTemplate = '';
     var bylineTemplate = '';
 
+    if(articles.length === 0) {
+        self.ts.load('elements/article/no_articles', function(err, result) {
+            cb(result);
+        });
+        return;
+    }
+
     self.ts.load('elements/article', function(err, data) {
         articleTemplate = data;
         self.ts.load('elements/article/byline', function(err, data) {
