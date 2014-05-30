@@ -14,6 +14,9 @@ var SectionService = pb.SectionService;
 //inheritance
 util.inherits(NewSection, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'new_section';
+
 NewSection.prototype.render = function(cb) {
 	var self = this;
 	
@@ -86,14 +89,7 @@ NewSection.prototype.getDataTasks = function() {
 		
 		//breadcrumbs 
 		pills: function(callback) {
-			var pills = SectionService.getPillNavOptions('new_section');
-            pills.unshift(
-            {
-                name: 'manage_topics',
-                title: self.getPageName(),
-                icon: 'chevron-left',
-                href: '/admin/content/sections/section_map'
-            });
+			var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'new_section');
             callback(null, pills);
 		},
 		
@@ -123,6 +119,21 @@ NewSection.prototype.getDataTasks = function() {
 		}
 	};
 };
+
+NewSection.getSubNavItems = function(key, ls, data) {
+	var pills = SectionService.getPillNavOptions();
+    pills.unshift(
+    {
+        name: 'manage_topics',
+        title: ls.get('NEW_NAV_ITEM'),
+        icon: 'chevron-left',
+        href: '/admin/content/sections/section_map'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, NewSection.getSubNavItems);
 
 //exports
 module.exports = NewSection;

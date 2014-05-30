@@ -12,6 +12,9 @@ var SectionService = pb.SectionService;
 //inheritance
 util.inherits(SectionMap, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'navigation_map';
+
 SectionMap.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
@@ -33,16 +36,8 @@ SectionMap.prototype.render = function(cb) {
 	        self.ts.load('admin/content/sections/section_map', function(err, data) {
                 var result = data;
 
-                var pills = SectionService.getPillNavOptions('section_map');
-                pills.unshift(
-                {
-                    name: 'section_map',
-                    title: self.getPageName(),
-                    icon: 'refresh',
-                    href: '/admin/content/sections/section_map'
-                });
-                
-                var objects     = {
+                var pills   = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
+                var objects = {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
                     pills: pills,
                     sections: SectionMap.getOrderedSections(sections, sectionMap),
@@ -96,6 +91,21 @@ SectionMap.getOrderedSections = function(sections, sectionMap) {
     
     return orderedSections;
 };
+
+SectionMap.getSubNavItems = function(key, ls, data) {
+	var pills = SectionService.getPillNavOptions();
+	pills.unshift(
+    {
+        name: SUB_NAV_KEY,
+        title: ls.get('NAV_MAP'),
+        icon: 'refresh',
+        href: '/admin/content/sections/section_map'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, SectionMap.getSubNavItems);
 
 //exports
 module.exports = SectionMap;
