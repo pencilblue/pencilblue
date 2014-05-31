@@ -1476,7 +1476,7 @@ RequestHandler.prototype.writeResponse = function(data){
     	//set any custom headers
     	if (pb.utils.isObject(data.headers)) {
     		for(var header in data.headers) {
-    			this.resp.setHeader(header, headers[header]);
+    			this.resp.setHeader(header, data.headers[header]);
     		}
     	}
     	this.resp.setHeader('content-type', contentType);
