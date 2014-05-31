@@ -17,8 +17,15 @@ $(document).ready(function() {
 });
 
 function cleanNewsCopy(copy) {
+
     copy = copy.split('<![CDATA[').join('').split(']]>').join('');
-    copy = copy.substr(copy.indexOf('<div>') + 5, copy.indexOf('</div>'));
+    if(copy.indexOf('<br') > copy.indexOf('<div')) {
+        copy = copy.substr(0, copy.indexOf('<br'));
+        copy = copy.split('<div>').join('').split('</div>').join('');
+    }
+    else {
+        copy = copy.substr(copy.indexOf('<div>') + 5, copy.indexOf('</div>'));
+    }
 
     while(copy.indexOf('^media_display_') > -1) {
         var index = copy.indexOf('^media_display_');
