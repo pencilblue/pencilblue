@@ -21,7 +21,10 @@ SiteMap.prototype.render = function(cb) {
 		var today = new Date();
     	var tasks = [
              function(callback) {
-            	 dao.query('section', pb.DAO.ANYWHERE, {url: 1, last_modified: 1}).then(function(sections) {
+            	 var where = {
+            	     type: {$ne: 'container'}
+            	 }
+            	 dao.query('section', where, {url: 1, last_modified: 1, type: 1}).then(function(sections) {
             		self.processObjects(sections, '/', '0.5', callback); 
             	 });
              },
@@ -40,8 +43,14 @@ SiteMap.prototype.render = function(cb) {
     		cb(err, htmlParts.join(''));
     	});
 	});
-	this.ts.load('xml_feeds/sitemap', function(err, result) {        
-        cb({content: result});
+	this.ts.load('xml_feeds/sitemap', function(err, content) {        
+		var data = {
+			content: content,
+			headers: {
+				'Access-Control-Allow-Origin': '*'
+			}
+		};
+        cb(data);
     });
 };
 
@@ -55,7 +64,15 @@ SiteMap.prototype.processObjects = function(objArray, urlPrefix, priority, cb) {
 	var tasks = pb.utils.getTasks(objArray, function(objArray, i) {
 		return function(callback) {
 			
-			ts.registerLocal('url', urlPrefix + objArray[i].url);
+			var url;
+			if (urlPrefix === '/') {//special case for navItems
+				pb.SectionService.formatUrl(objArray[i]);
+				url = objArray[i].url;
+			}
+			else {
+				url = pb.UrlService.urlJoin(urlPrefix, objArray[i].url);
+			}
+			ts.registerLocal('url', url);
 			ts.registerLocal('last_mod', self.getLastModDate(objArray[i].last_modified));
 			ts.load('xml_feeds/sitemap/url', callback);
 		};

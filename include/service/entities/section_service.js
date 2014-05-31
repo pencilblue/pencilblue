@@ -483,27 +483,30 @@ SectionService.getSectionData = function(uid, navItems) {
     	
     	var navItem = navItems[i];
         if(navItem._id.equals(ObjectID(uid))) {
-        	if (pb.utils.isString(navItem.link)) {
-        		navItem.url = navItem.link;
-        	}
-        	else if(navItem.url && !pb.UrlService.isExternalUrl(navItem.url, self.req))
-            {
-        		navItem.url = pb.UrlService.urlJoin('/section', navItem.url);
-    	    }
-        	else if (navItem.type === 'article') {
-        		navItem.url = pb.UrlService.urlJoin('/article', navItem.item);
-        	}
-        	else if (navItem.type === 'page') {
-        		navItem.url = pb.UrlService.urlJoin('/page', navItem.item);
-        	}
-        	else {
-        		navItem.url = '#';
-        	}
+        	SectionService.formatUrl(navItem);
             return navItem;
         }
     }
-
     return null;
+};
+
+SectionService.formatUrl = function(navItem) {
+	if (pb.utils.isString(navItem.link)) {
+		navItem.url = navItem.link;
+	}
+	else if(navItem.url)
+    {
+		navItem.url = pb.UrlService.urlJoin('/section', navItem.url);
+    }
+	else if (navItem.type === 'article') {
+		navItem.url = pb.UrlService.urlJoin('/article', navItem.item);
+	}
+	else if (navItem.type === 'page') {
+		navItem.url = pb.UrlService.urlJoin('/page', navItem.item);
+	}
+	else {
+		navItem.url = '#';
+	}
 };
 
 /**
