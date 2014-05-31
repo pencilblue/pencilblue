@@ -12,6 +12,9 @@ var Users = require('../users');
 //inheritance
 util.inherits(NewUser, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'new_user';
+
 NewUser.prototype.render = function(cb) {
 	var self = this;
 	
@@ -35,14 +38,7 @@ NewUser.prototype.render = function(cb) {
             }
         ];
             
-        var pills = Users.getPillNavOptions('new_user');
-        pills.unshift(
-        {
-            name: 'manage_users',
-            title: self.getPageName(),
-            icon: 'chevron-left',
-            href: '/admin/users/manage_users'
-        });
+        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
         
         result = result.split('^angular_script^').join(pb.js.getAngularController(
         {
@@ -55,6 +51,21 @@ NewUser.prototype.render = function(cb) {
         cb({content: result});
     });
 };
+
+NewUser.getSubNavItems = function(key, ls, data) {
+	var pills = Users.getPillNavOptions();
+    pills.unshift(
+    {
+        name: 'manage_users',
+        title: ls.get('NEW_USER'),
+        icon: 'chevron-left',
+        href: '/admin/users/manage_users'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, NewUser.getSubNavItems);
 
 //exports
 module.exports = NewUser;

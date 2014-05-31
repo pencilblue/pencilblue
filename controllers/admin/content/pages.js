@@ -9,7 +9,7 @@
 function Pages(){}
 
 Pages.getPillNavOptions = function(activePill) {
-    var pillNavOptions = [
+    return [
         {
             name: 'new_page',
             title: '',
@@ -17,17 +17,6 @@ Pages.getPillNavOptions = function(activePill) {
             href: '/admin/content/pages/new_page'
         }
     ];
-    
-    if(typeof activePill !== 'undefined') {
-        for(var i = 0; i < pillNavOptions.length; i++) {
-            if(pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-                break;
-            }
-        }
-    }
-    
-    return pillNavOptions;
 };
 
 //exports

@@ -60,8 +60,14 @@ Feed.prototype.render = function(cb) {
 			});
         });
 	});
-	self.ts.load('xml_feeds/rss', function(err, data) {
-		cb({content: data});
+	self.ts.load('xml_feeds/rss', function(err, content) {
+		var data = {
+			content: content,
+			headers: {
+				'Access-Control-Allow-Origin': '*'
+			}
+		};
+		cb(data);
     });
 };
 

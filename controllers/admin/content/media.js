@@ -14,8 +14,7 @@ Media.prototype.render = function(cb) {
 };
 
 Media.getPillNavOptions = function(activePill) {
-    var pillNavOptions =
-    [
+    return [
         {
             name: 'add_media',
             title: '',
@@ -23,15 +22,6 @@ Media.getPillNavOptions = function(activePill) {
             href: '/admin/content/media/add_media'
         }
     ];
-
-    if (typeof activePill !== 'undefined') {
-        for (var i = 0; i < pillNavOptions.length; i++) {
-            if(pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-            }
-        }
-    }
-    return pillNavOptions;
 };
 
 Media.formatMedia = function(media) {

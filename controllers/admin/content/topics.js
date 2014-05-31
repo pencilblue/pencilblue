@@ -14,8 +14,7 @@ Topics.prototype.render = function(cb) {
 };
 
 Topics.getPillNavOptions = function(activePill) {
-    var pillNavOptions = 
-    [
+    return [
         {
             name: 'import_topics',
             title: '',
@@ -30,16 +29,6 @@ Topics.getPillNavOptions = function(activePill) {
         }
         
     ];
-    
-    if(typeof activePill !== 'undefined') {
-        for(var i = 0; i < pillNavOptions.length; i++) {
-            if(pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-            }
-        }
-    }
-    
-    return pillNavOptions;
 };
 
 //exports

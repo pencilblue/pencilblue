@@ -710,7 +710,7 @@ RequestHandler.CORE_ROUTES = [
     	path: "/feed",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'feed.js'),
-    	content_type: 'application/xml'
+    	content_type: 'application/rss+xml'
     },
     {
     	method: 'get',
@@ -863,7 +863,7 @@ RequestHandler.CORE_ROUTES = [
         access_level: ACCESS_WRITER,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'search.js'),
         content_type: 'application/json'
-    },    
+    },
 ];
 
 RequestHandler.init = function(){
@@ -1476,7 +1476,7 @@ RequestHandler.prototype.writeResponse = function(data){
     	//set any custom headers
     	if (pb.utils.isObject(data.headers)) {
     		for(var header in data.headers) {
-    			this.resp.setHeader(header, headers[header]);
+    			this.resp.setHeader(header, data.headers[header]);
     		}
     	}
     	this.resp.setHeader('content-type', contentType);

@@ -10,7 +10,7 @@ var VALID_TYPES = {
 };
 
 SectionService.getPillNavOptions = function(activePill) {
-    var pillNavOptions = [
+    return [
         {
             name: 'new_section',
             title: '',
@@ -18,16 +18,6 @@ SectionService.getPillNavOptions = function(activePill) {
             href: '/admin/content/sections/new_section'
         }
     ];
-    
-    if (typeof activePill !== 'undefined') {
-        for (var i = 0; i < pillNavOptions.length; i++) {
-            
-        	if (pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-            }
-        }
-    }
-    return pillNavOptions;
 };
 
 SectionService.prototype.removeFromSectionMap = function(section, sectionMap, cb) {
@@ -493,27 +483,30 @@ SectionService.getSectionData = function(uid, navItems) {
     	
     	var navItem = navItems[i];
         if(navItem._id.equals(ObjectID(uid))) {
-        	if (pb.utils.isString(navItem.link)) {
-        		navItem.url = navItem.link;
-        	}
-        	else if(navItem.url && !pb.UrlService.isExternalUrl(navItem.url, self.req))
-            {
-        		navItem.url = pb.UrlService.urlJoin('/section', navItem.url);
-    	    }
-        	else if (navItem.type === 'article') {
-        		navItem.url = pb.UrlService.urlJoin('/article', navItem.item);
-        	}
-        	else if (navItem.type === 'page') {
-        		navItem.url = pb.UrlService.urlJoin('/page', navItem.item);
-        	}
-        	else {
-        		navItem.url = '#';
-        	}
+        	SectionService.formatUrl(navItem);
             return navItem;
         }
     }
-
     return null;
+};
+
+SectionService.formatUrl = function(navItem) {
+	if (pb.utils.isString(navItem.link)) {
+		navItem.url = navItem.link;
+	}
+	else if(navItem.url)
+    {
+		navItem.url = pb.UrlService.urlJoin('/section', navItem.url);
+    }
+	else if (navItem.type === 'article') {
+		navItem.url = pb.UrlService.urlJoin('/article', navItem.item);
+	}
+	else if (navItem.type === 'page') {
+		navItem.url = pb.UrlService.urlJoin('/page', navItem.item);
+	}
+	else {
+		navItem.url = '#';
+	}
 };
 
 /**

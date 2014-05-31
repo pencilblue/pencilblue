@@ -9,6 +9,9 @@ function ManageObjects() {}
 //inheritance
 util.inherits(ManageObjects, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'manage_custom_objects';
+
 ManageObjects.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
@@ -83,29 +86,8 @@ ManageObjects.prototype.render = function(cb) {
                 self.ts.load('admin/content/custom_objects/manage_objects', function(err, data) {
                     var result = ''+data;
                         
-                    var pills =
-                    [
-                        {
-                            name: 'manage_objects',
-                            title: title + ' ' + self.ls.get('OBJECTS'),
-                            icon: 'chevron-left',
-                            href: '/admin/content/custom_objects/manage_object_types'
-                        },
-                        {
-                            name: 'sort_objects',
-                            title: '',
-                            icon: 'sort-amount-desc',
-                            href: '/admin/content/custom_objects/sort_objects/' + objectType.name
-                        },
-                        {
-                            name: 'new_object',
-                            title: '',
-                            icon: 'plus',
-                            href: '/admin/content/custom_objects/new_object/' + objectType.name
-                        }
-                    ];
-                    
-                    result = result.split('^angular_script^').join(pb.js.getAngularController(
+                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', objectType);
+                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                         pills: pills,
@@ -119,6 +101,32 @@ ManageObjects.prototype.render = function(cb) {
         });
     });
 };
+
+ManageObjects.getSubNavItems = function(key, ls, data) {
+	return [
+        {
+            name: 'manage_objects',
+            title: ls.get('MANAGE') + ' ' + data.name + ' ' + ls.get('OBJECTS'),
+            icon: 'chevron-left',
+            href: '/admin/content/custom_objects/manage_object_types'
+        },
+        {
+            name: 'sort_objects',
+            title: '',
+            icon: 'sort-amount-desc',
+            href: '/admin/content/custom_objects/sort_objects/' + data.name
+        },
+        {
+            name: 'new_object',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/custom_objects/new_object/' + data.name
+        }
+    ];
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageObjects.getSubNavItems);
 
 //exports
 module.exports = ManageObjects;

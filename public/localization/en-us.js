@@ -133,6 +133,7 @@ var loc =
 		MEMORY_USED: 'Memory Used',
 		SECONDS_ABBR: 'Secs',
 		NO_AVAILABLE_PLUGINS: 'No available plugins',
+        READ_MORE: 'Read more'
     },
     error:
     {

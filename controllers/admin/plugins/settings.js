@@ -7,7 +7,7 @@ var BaseController = pb.BaseController;
 util.inherits(PluginSettingsController, BaseController);
 
 //statics
-SUB_NAV_KEY = 'plugin_settings';
+var SUB_NAV_KEY = 'plugin_settings';
 
 PluginSettingsController.prototype.render = function(cb) {
 	if (this.req.method !== 'GET' && this.req.method !== 'POST') {
@@ -91,7 +91,7 @@ PluginSettingsController.prototype.renderGet = function(cb) {
 			//setup angular
 			var angularData = pb.js.getAngularController(
 	            {
-	            	pills: pb.AdminSubnavService.getSubNav(SUB_NAV_KEY, self.ls, null, plugin),
+	            	pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, plugin),
 					tabs: tabs,
 	                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
 	                settings: clone

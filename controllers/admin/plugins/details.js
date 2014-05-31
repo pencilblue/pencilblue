@@ -8,6 +8,9 @@ var LocalizationService = pb.LocalizationService;
 //inheritance
 util.inherits(PluginDetailsController, BaseController);
 
+//statics
+var SUB_NAV_KEY = 'plugin_details';
+
 PluginDetailsController.prototype.render = function(cb) {
 	var self = this;
 
@@ -21,15 +24,7 @@ PluginDetailsController.prototype.render = function(cb) {
 			return;
 		}
 
-		var pills = PluginDetailsController.getPillNavOptions();
-		pills.unshift(
-			{
-				name: 'manage',
-				title: obj.details.name,
-				icon: 'chevron-left',
-				href: '/admin/plugins/'
-			}
-		);
+		var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj);
 
 		//angular data
 		var angularData = pb.js.getAngularController(
@@ -106,18 +101,19 @@ PluginDetailsController.prototype.getDetails = function(puid, cb) {
 	});
 };
 
-PluginDetailsController.getPillNavOptions = function(activePill) {
-	var pillNavOptions = [];
-
-    if(typeof activePill !== 'undefined') {
-        for(var i = 0; i < pillNavOptions.length; i++) {
-            if(pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-            }
+PluginDetailsController.getSubNavItems = function(key, ls, data) {
+	return [
+        {
+            name: 'manage',
+            title: data.details.name,
+            icon: 'chevron-left',
+            href: '/admin/plugins/'
         }
-    }
-    return pillNavOptions;
+    ];
 };
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginDetailsController.getSubNavItems);
 
 //exports
 module.exports = PluginDetailsController;

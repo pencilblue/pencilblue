@@ -1,18 +1,21 @@
 /**
- * EditUser - Interface for editing a user
+ * ChangePasswordController - Interface for changing a user's password
  * 
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
-function EditUser(){}
+function ChangePasswordController(){}
 
 //dependencies
 var Users = require('../users');
 
 //inheritance
-util.inherits(EditUser, pb.BaseController);
+util.inherits(ChangePasswordController, pb.BaseController);
 
-EditUser.prototype.render = function(cb) {
+//statics
+var SUB_NAV_KEY = 'change_password';
+
+ChangePasswordController.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
     if(!vars.id) {
@@ -32,7 +35,7 @@ EditUser.prototype.render = function(cb) {
         }
 
         delete user.password;
-        self.setPageName(loc.users.CHANGE_PASSWORD);
+        self.setPageName(self.ls.get('CHANGE_PASSWORD'));
         self.ts.registerLocal('user_id', user._id);
         self.ts.load('admin/users/change_password', function(err, data) {
             var result = '' + data;
@@ -46,13 +49,7 @@ EditUser.prototype.render = function(cb) {
                 }
             ];
             
-            var pills = [
-            {
-                name: 'manage_users',
-                title: loc.users.CHANGE_PASSWORD,
-                icon: 'chevron-left',
-                href: '/admin/users/manage_users'
-            }];
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls);
             
             result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
@@ -68,5 +65,19 @@ EditUser.prototype.render = function(cb) {
     });
 };
 
+ChangePasswordController.getSubNavItems = function(key, ls, data) {
+	return [
+        {
+            name: 'manage_users',
+            title: ls.get('CHANGE_PASSWORD'),
+            icon: 'chevron-left',
+            href: '/admin/users/manage_users'
+        }
+   ];
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ChangePasswordController.getSubNavItems);
+
 //exports
-module.exports = EditUser;
+module.exports = ChangePasswordController;

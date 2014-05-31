@@ -13,6 +13,9 @@ var Pages = require('../pages');
 //inheritance
 util.inherits(EditPage, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'edit_page';
+
 EditPage.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
@@ -78,16 +81,8 @@ EditPage.prototype.render = function(cb) {
             			self.checkForFormRefill(result, function(newResult) {
                             result = newResult;
                             
-                            var pills = Pages.getPillNavOptions('edit_page');
-                            pills.unshift(
-                            {
-                                name: 'manage_pages',
-                                title: page.headline,
-                                icon: 'chevron-left',
-                                href: '/admin/content/pages/manage_pages'
-                            });
-                            
-                            result = result.split('^angular_script^').join(pb.js.getAngularController(
+                            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_page', page);
+                            result    = result.split('^angular_script^').join(pb.js.getAngularController(
                             {
                                 navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                                 pills: pills,
@@ -106,6 +101,21 @@ EditPage.prototype.render = function(cb) {
         });
     });
 };
+
+EditPage.getSubNavItems = function(key, ls, data) {
+	var pills = Pages.getPillNavOptions();
+    pills.unshift(
+    {
+        name: 'manage_pages',
+        title: data.headline,
+        icon: 'chevron-left',
+        href: '/admin/content/pages/manage_pages'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, EditPage.getSubNavItems);
 
 //exports
 module.exports = EditPage;

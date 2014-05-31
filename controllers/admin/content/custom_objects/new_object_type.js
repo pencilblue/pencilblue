@@ -9,6 +9,12 @@ function NewObjectType(){}
 //inheritance
 util.inherits(NewObjectType, pb.BaseController);
 
+//dependencies
+var CustomObjects = require('../custom_objects');
+
+//statics
+var SUB_NAV_KEY = 'new_custom_object_type';
+
 NewObjectType.prototype.render = function(cb) {
 	var self = this;
 	
@@ -43,16 +49,8 @@ NewObjectType.prototype.render = function(cb) {
                 objectTypes.push('custom:' + customObjectTypes[i].name);
             }
                 
-            var pills = require('../custom_objects').getPillNavOptions('new_object_type');
-            pills.unshift(
-            {
-                name: 'manage_object_types',
-                title: self.ls.get('NEW_OBJECT_TYPE'),
-                icon: 'chevron-left',
-                href: '/admin/content/custom_objects/manage_object_types'
-            });
-            
-            result = result.split('^angular_script^').join(pb.js.getAngularController(
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'new_object_type');            
+            result    = result.split('^angular_script^').join(pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                 pills: pills,
@@ -64,6 +62,21 @@ NewObjectType.prototype.render = function(cb) {
         });
     });
 };
+
+NewObjectType.getSubNavItems = function(key, ls, data) {
+	var pills = CustomObjects.getPillNavOptions();
+	pills.unshift(
+    {
+        name: 'manage_object_types',
+        title: ls.get('NEW_OBJECT_TYPE'),
+        icon: 'chevron-left',
+        href: '/admin/content/custom_objects/manage_object_types'
+    });
+	return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, NewObjectType.getSubNavItems);
 
 //exports
 module.exports = NewObjectType;

@@ -1,6 +1,17 @@
 ^tmp_admin=head^
 <div class="col-md-9" style="margin-top: 1em">
-    <div class="alert alert-success">This will be the dashboard of the admin section. It will contain basic stats on site usage and the latest news from the PencilBlue team.</div>
+    <div class="alert alert-info news_alert">
+        <h3 style="margin-top: 0">PencilBlue News:</h3>
+        <p id="news_loader">
+            <i class="fa fa-2x fa-spinner fa-spin"></i>
+        </p>
+        <span id="news_container">
+            <a class="news_link" href="" target="_blank">
+                <h4 id="news_title"></h4>
+            </a>
+            <p><span id="news_copy"></span>&nbsp;<a class="news_link" href="" target="_blank">^loc_READ_MORE^...</a></p>
+        </span>
+    </div>
     <div class="row">
         <div class="col-md-3">
             <ul class="list-group">
@@ -24,4 +35,5 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" src="/js/admin/index.js"></script>
 ^tmp_footer^
