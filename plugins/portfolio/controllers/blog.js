@@ -9,10 +9,10 @@ function Blog() {}
 
 //dependencies
 var PluginService = pb.PluginService;
-var TopMenu       = require('../../../include/theme/top_menu');
-var Media          = require('../../../include/theme/media');
-var Comments       = require('../../../include/theme/comments');
-var ArticleService = require('../../../include/service/entities/article_service').ArticleService;
+var TopMenu       = require(DOCUMENT_ROOT + '/include/theme/top_menu');
+var Media          = require(DOCUMENT_ROOT + '/include/theme/media');
+var Comments       = require(DOCUMENT_ROOT + '/include/theme/comments');
+var ArticleService = require(DOCUMENT_ROOT + '/include/service/entities/article_service').ArticleService;
 
 //inheritance
 util.inherits(Blog, pb.BaseController);

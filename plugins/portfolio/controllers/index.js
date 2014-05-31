@@ -9,7 +9,7 @@ function Index() {}
 
 //dependencies
 var PluginService = pb.PluginService;
-var TopMenu       = require('../../../include/theme/top_menu');
+var TopMenu       = require(DOCUMENT_ROOT + '/include/theme/top_menu');
 
 //inheritance
 util.inherits(Index, pb.BaseController);
