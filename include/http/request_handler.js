@@ -710,7 +710,7 @@ RequestHandler.CORE_ROUTES = [
     	path: "/feed",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'feed.js'),
-    	content_type: 'application/xml'
+    	content_type: 'application/rss+xml'
     },
     {
     	method: 'get',
@@ -863,7 +863,7 @@ RequestHandler.CORE_ROUTES = [
         access_level: ACCESS_WRITER,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'search.js'),
         content_type: 'application/json'
-    },    
+    },
 ];
 
 RequestHandler.init = function(){
