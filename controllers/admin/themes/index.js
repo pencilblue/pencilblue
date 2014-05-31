@@ -8,6 +8,8 @@ var UrlService     = pb.UrlService;
 //inheritance
 util.inherits(ThemesController, BaseController);
 
+//statics
+var SUB_NAV_KEY = 'themes_index';
 
 ThemesController.prototype.render = function(cb) {
 	var self = this;
@@ -32,12 +34,7 @@ ThemesController.prototype.render = function(cb) {
 
 			});
 
-			var pills = [{
-				name: 'manage_themes',
-				title: self.ls.get('MANAGE_THEMES'),
-				icon: 'refresh',
-				href: '/admin/themes'
-			}];
+			var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls);
 
 			//setup angular
 			var angularData = pb.js.getAngularController(
@@ -99,6 +96,20 @@ ThemesController.prototype.getTabs = function() {
 	        }
 	    ];
 };
+
+ThemesController.getSubNavItems = function(key, ls, data) {
+	return [
+        {
+            name: 'manage_themes',
+            title: ls.get('MANAGE_THEMES'),
+            icon: 'refresh',
+            href: '/admin/themes'
+        }
+   ]
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ThemesController.getSubNavItems);
 
 //exports
 module.exports = ThemesController;

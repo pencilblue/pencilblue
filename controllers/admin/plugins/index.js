@@ -6,6 +6,8 @@ var BaseController = pb.BaseController;
 //inheritance
 util.inherits(PluginsIndex, BaseController);
 
+//statics
+var SUB_NAV_KEY = 'plugins_index';
 
 PluginsIndex.prototype.render = function(cb) {
 	var self = this;
@@ -17,12 +19,7 @@ PluginsIndex.prototype.render = function(cb) {
 			return;
 		}
 
-		var pills = [{
-			name: 'manage_plugins',
-			title: self.ls.get('MANAGE_PLUGINS'),
-			icon: 'refresh',
-			href: '/admin/plugins'
-		}];
+		var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls);
 
 		//setup angular
 		var angularData = pb.js.getAngularController(
@@ -47,6 +44,20 @@ PluginsIndex.prototype.render = function(cb) {
 		});
 	});
 };
+
+PluginsIndex.getSubNavItems = function(key, ls, data) {
+	return [
+        {
+			name: 'manage_plugins',
+			title: ls.get('MANAGE_PLUGINS'),
+			icon: 'refresh',
+			href: '/admin/plugins'
+		}
+    ];
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginsIndex.getSubNavItems);
 
 //exports
 module.exports = PluginsIndex;

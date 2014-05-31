@@ -87,12 +87,6 @@ NewSection.prototype.getDataTasks = function() {
 			callback(null, tabs);
 		},
 		
-		//breadcrumbs 
-		pills: function(callback) {
-			var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'new_section');
-            callback(null, pills);
-		},
-		
 		navigation: function(callback) {
 			callback(null, pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls));
 		},
@@ -116,9 +110,19 @@ NewSection.prototype.getDataTasks = function() {
 				};
 				callback(null, navItem);
 			}
-		}
+		},
+        
+        //breadcrumbs 
+		pills: function(callback) {
+			var pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
+            callback(null, pills);
+		},
 	};
 };
+
+NewSection.prototype.getSubnavKey = function() {
+    return SUB_NAV_KEY;   
+}
 
 NewSection.getSubNavItems = function(key, ls, data) {
 	var pills = SectionService.getPillNavOptions();
