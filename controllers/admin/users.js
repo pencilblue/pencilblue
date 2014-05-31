@@ -13,8 +13,8 @@ Users.prototype.render = function(cb) {
 	this.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
 };
 
-Users.getPillNavOptions = function(activePill) {
-    var pillNavOptions = [
+Users.getPillNavOptions = function() {
+    return [
         {
             name: 'new_user',
             title: '',
@@ -22,17 +22,6 @@ Users.getPillNavOptions = function(activePill) {
             href: '/admin/users/new_user'
         }
     ];
-    
-    if(typeof activePill !== 'undefined') {
-        for(var i = 0; i < pillNavOptions.length; i++) {
-            if(pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-                break;
-            }
-        }
-    }
-    
-    return pillNavOptions;
 };
 
 //exports

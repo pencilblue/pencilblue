@@ -105,7 +105,7 @@ ThemesController.getSubNavItems = function(key, ls, data) {
             icon: 'refresh',
             href: '/admin/themes'
         }
-   ]
+   ];
 };
 
 //register admin sub-nav
