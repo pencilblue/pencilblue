@@ -15,12 +15,11 @@ SiteSettings.prototype.render = function(cb) {
 
 /**
  * @static
- * @method
- * @param {string} activePill The name of the active pill
+ * @method getPillNavOptions
  * @param {Localization} ls LocalizationService for Translation
  * @returns {Array}
  */
-SiteSettings.getPillNavOptions = function(activePill, ls) {
+SiteSettings.getPillNavOptions = function(ls) {
     var pillNavOptions = [
         {
             name: 'content',
@@ -35,15 +34,6 @@ SiteSettings.getPillNavOptions = function(activePill, ls) {
             href: '/admin/site_settings/email'
         }
     ];
-    
-    if(typeof activePill !== 'undefined') {
-        for(var i = 0; i < pillNavOptions.length; i++) {
-            if(pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-                break;
-            }
-        }
-    }
     return pillNavOptions;
 };
 

@@ -9,6 +9,8 @@ function EditObject() {}
 //inheritance
 util.inherits(EditObject, pb.BaseController);
 
+var SUB_NAV_KEY = 'edit_custom_object';
+
 EditObject.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
@@ -62,23 +64,8 @@ EditObject.prototype.render = function(cb) {
                         fieldOrder.push(key);
                     }
 
-                    var pills =
-                    [
-                        {
-                            name: 'manage_objects',
-                            title: self.ls.get('NEW') +' ' + objectType.name,
-                            icon: 'chevron-left',
-                            href: '/admin/content/custom_objects/manage_objects/' + objectType.name
-                        },
-                        {
-                            name: 'new_object',
-                            title: '',
-                            icon: 'plus',
-                            href: '/admin/content/custom_objects/new_object/' + objectType.name
-                        }
-                    ];
-
-                    result = result.split('^angular_script^').join(pb.js.getAngularController(
+                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType);
+                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                         pills: pills,
@@ -174,6 +161,26 @@ EditObject.loadFieldOptions = function(dao, objectType, cb) {
 
     this.loadObjectOptions(0);
 };
+
+EditObject.getSubNavItems = function(key, ls, data) {
+	return [
+        {
+            name: 'manage_objects',
+            title: ls.get('NEW') +' ' + data.name,
+            icon: 'chevron-left',
+            href: '/admin/content/custom_objects/manage_objects/' + data.name
+        },
+        {
+            name: 'new_object',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/custom_objects/new_object/' + data.name
+        }
+    ];
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, EditObject.getSubNavItems);
 
 //exports
 module.exports = EditObject;

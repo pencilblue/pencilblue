@@ -12,6 +12,9 @@ var SiteSettings = require('../site_settings');
 //inheritance
 util.inherits(Configuration, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'site_configuration';
+
 Configuration.prototype.render = function(cb) {
     var self = this;
 
@@ -32,14 +35,7 @@ Configuration.prototype.render = function(cb) {
 	this.ts.load('admin/site_settings/configuration', function(err, data) {
         var result = data;
 
-        var pills = SiteSettings.getPillNavOptions('configuration', self.ls);
-        pills.unshift(
-        {
-            name: 'configuration',
-            title: self.getPageName(),
-            icon: 'refresh',
-            href: '/admin/site_settings/configuration'
-        });
+        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration');
 
         var objects     = {
             navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
@@ -51,6 +47,21 @@ Configuration.prototype.render = function(cb) {
         cb({content: result});
     });
 };
+
+Configuration.getSubNavItems = function(key, ls, data) {
+	var pills = SiteSettings.getPillNavOptions(ls);
+    pills.unshift(
+    {
+        name: 'configuration',
+        title: ls.get('CONFIGURATION'),
+        icon: 'refresh',
+        href: '/admin/site_settings/configuration'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, Configuration.getSubNavItems);
 
 //exports
 module.exports = Configuration;

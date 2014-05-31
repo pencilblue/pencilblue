@@ -12,6 +12,9 @@ var Users = require('../users');
 //inheritance
 util.inherits(EditUser, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'edit_user';
+
 EditUser.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
@@ -49,32 +52,7 @@ EditUser.prototype.render = function(cb) {
                 }
             ];
                 
-            var pills = Users.getPillNavOptions('edit_user');
-            if(self.session.authentication.user_id == vars['id']) {
-                pills.unshift(
-                {
-                    name: 'change_password',
-                    title: loc.users.CHANGE_PASSWORD,
-                    icon: 'key',
-                    href: '/admin/users/change_password/' + user._id.toString()
-                });
-            }
-            else if(self.session.authentication.admin_level >= ACCESS_MANAGING_EDITOR) {
-                pills.unshift(
-                {
-                    name: 'reset_password',
-                    title: loc.users.RESET_PASSWORD,
-                    icon: 'key',
-                    href: '/actions/admin/users/send_password_reset/' + user._id.toString()
-                });
-            }
-            pills.unshift(
-            {
-                name: 'manage_users',
-                title: user.username,
-                icon: 'chevron-left',
-                href: '/admin/users/manage_users'
-            });
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: user});
             
             result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
@@ -89,6 +67,39 @@ EditUser.prototype.render = function(cb) {
         });
     });
 };
+
+EditUser.getSubNavItems = function(key, ls, data) {
+	var pills = Users.getPillNavOptions();
+    if(data.session.authentication.user_id == data.user._id.toString()) {
+        pills.unshift(
+        {
+            name: 'change_password',
+            title: ls.get('CHANGE_PASSWORD'),
+            icon: 'key',
+            href: '/admin/users/change_password/' + data.user._id.toString()
+        });
+    }
+    else if(data.session.authentication.admin_level >= ACCESS_MANAGING_EDITOR) {
+        pills.unshift(
+        {
+            name: 'reset_password',
+            title: ls.get('RESET_PASSWORD'),
+            icon: 'key',
+            href: '/actions/admin/users/send_password_reset/' + data.user._id.toString()
+        });
+    }
+    pills.unshift(
+    {
+        name: 'manage_users',
+        title: data.user.username,
+        icon: 'chevron-left',
+        href: '/admin/users/manage_users'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, EditUser.getSubNavItems);
 
 //exports
 module.exports = EditUser;

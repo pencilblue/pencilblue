@@ -29,11 +29,8 @@ NewArticle.prototype.render = function(cb) {
 	        	//TODO handle error
 	        	
 	        	self.checkForFormRefill(result, function(newResult) {
-	                result = newResult;
 	                
-	                var pills = self.getPills();
-	                result    = result.split('^angular_script^').join(self.getAngularController(pills, tabs, results));
-	                 
+	                result = newResult.split('^angular_script^').join(self.getAngularController(tabs, results));
 	                cb({content: result});
 	            });
 	        });
@@ -45,10 +42,10 @@ NewArticle.prototype.onTemplateRetrieved = function(template, cb) {
 	cb(null, template);
 };
 
-NewArticle.prototype.getAngularController = function(pills, tabs, data) {
+NewArticle.prototype.getAngularController = function(tabs, data) {
 	var objects = {
         navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
-        pills: pills,
+        pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), data),
         tabs: tabs,
         templates: data.templates,
         sections: data.sections,
@@ -62,19 +59,22 @@ NewArticle.prototype.getAngularController = function(pills, tabs, data) {
 	);
 };
 
-NewArticle.prototype.getPills = function() {
-	var pills = Articles.getPillNavOptions(this.getActivePill());
-    pills.unshift(this.getBreadCrum());
-    return pills;
-};
 
-NewArticle.prototype.getBreadCrum = function() {
-	return {
-        name: 'manage_articles',
-        title: this.ls.get('NEW_ARTICLE'),
-        icon: 'chevron-left',
-        href: '/admin/content/articles/manage_articles'
-    };
+NewArticle.getSubNavItems = function(key, ls, data) {
+	return [
+		{
+		    name: 'manage_articles',
+		    title: ls.get('NEW_ARTICLE'),
+		    icon: 'chevron-left',
+		    href: '/admin/content/articles/manage_articles'
+		},
+        {
+            name: 'new_article',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/articles/new_article'
+        }
+    ];
 };
 
 NewArticle.prototype.getActivePill = function() {
@@ -153,6 +153,9 @@ NewArticle.prototype.getTabs = function() {
         }
     ];
 };
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor('new_article', NewArticle.getSubNavItems);
 
 //exports
 module.exports = NewArticle;

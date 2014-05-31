@@ -12,6 +12,9 @@ var Media = require('../media.js');
 //inheritance
 util.inherits(EditMedia, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'edit_media';
+
 EditMedia.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
@@ -50,14 +53,7 @@ EditMedia.prototype.render = function(cb) {
             var dao = new pb.DAO();
             dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
             
-                var pills = Media.getPillNavOptions('add_media');
-                pills.unshift(
-                {
-                    name: 'manage_media',
-                    title: self.getPageName(),
-                    icon: 'chevron-left',
-                    href: '/admin/content/media/manage_media'
-                });
+                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, media);
                 
                 var objects = {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
@@ -80,6 +76,21 @@ EditMedia.prototype.render = function(cb) {
         });
     });
 };
+
+EditMedia.getSubNavItems = function(key, ls, data) {
+	var pills = Media.getPillNavOptions();
+	pills.unshift(
+    {
+        name: 'manage_media',
+        title: ls.get('EDIT') + ' ' + data.name,
+        icon: 'chevron-left',
+        href: '/admin/content/media/manage_media'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, EditMedia.getSubNavItems);
 
 //exports
 module.exports = EditMedia;

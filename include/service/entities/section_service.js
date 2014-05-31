@@ -10,7 +10,7 @@ var VALID_TYPES = {
 };
 
 SectionService.getPillNavOptions = function(activePill) {
-    var pillNavOptions = [
+    return [
         {
             name: 'new_section',
             title: '',
@@ -18,16 +18,6 @@ SectionService.getPillNavOptions = function(activePill) {
             href: '/admin/content/sections/new_section'
         }
     ];
-    
-    if (typeof activePill !== 'undefined') {
-        for (var i = 0; i < pillNavOptions.length; i++) {
-            
-        	if (pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-            }
-        }
-    }
-    return pillNavOptions;
 };
 
 SectionService.prototype.removeFromSectionMap = function(section, sectionMap, cb) {

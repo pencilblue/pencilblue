@@ -9,6 +9,9 @@ function SortObjects() {}
 //inheritance
 util.inherits(SortObjects, pb.BaseController);
 
+//statics 
+var SUB_NAV_KEY = 'sort_custom_objects';
+
 SortObjects.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
@@ -81,23 +84,8 @@ SortObjects.prototype.render = function(cb) {
                 self.ts.load('admin/content/custom_objects/sort_objects', function(err, data) {
                     var result = ''+data;
                         
-                    var pills =
-                    [
-                        {
-                            name: 'manage_objects',
-                            title: self.ls.get('SORT') + ' ' + objectType.name + ' ' + self.ls.get('OBJECTS'),
-                            icon: 'chevron-left',
-                            href: '/admin/content/custom_objects/manage_objects/' + objectType.name
-                        },
-                        {
-                            name: 'new_object',
-                            title: '',
-                            icon: 'plus',
-                            href: '/admin/content/custom_objects/new_object/' + objectType.name
-                        }
-                    ];
-                    
-                    result = result.split('^angular_script^').join(pb.js.getAngularController(
+                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType);
+                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                         pills: pills,
@@ -111,6 +99,26 @@ SortObjects.prototype.render = function(cb) {
         });
     });
 };
+
+SortObjects.getSubNavItems = function(key, ls, data) {
+	return [
+        {
+            name: 'manage_objects',
+            title: ls.get('SORT') + ' ' + data.name + ' ' + ls.get('OBJECTS'),
+            icon: 'chevron-left',
+            href: '/admin/content/custom_objects/manage_objects/' + data.name
+        },
+        {
+            name: 'new_object',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/custom_objects/new_object/' + data.name
+        }
+    ];
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, SortObjects.getSubNavItems);
 
 //exports
 module.exports = SortObjects;

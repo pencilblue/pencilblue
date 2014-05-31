@@ -12,6 +12,8 @@ var Topics = require('../topics');
 //inheritance
 util.inherits(ManageTopics, pb.BaseController);
 
+var SUB_NAV_KEY = 'manage_topics';
+
 ManageTopics.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
@@ -39,16 +41,8 @@ ManageTopics.prototype.render = function(cb) {
         self.ts.load('admin/content/topics/manage_topics', function(err, data) {
             var result = ''+data;
                 
-            var pills = Topics.getPillNavOptions('manage_topics');
-            pills.unshift(
-            {
-                name: 'manage_topics',
-                title: self.getPageName(),
-                icon: 'refresh',
-                href: '/admin/content/topics/manage_topics'
-            });
-            
-            result = result.split('^angular_script^').join(pb.js.getAngularController(
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
+            result    = result.split('^angular_script^').join(pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
                 pills: pills,
@@ -59,6 +53,21 @@ ManageTopics.prototype.render = function(cb) {
         });
     });
 };
+
+ManageTopics.getSubNavItems = function(key, ls, data) {
+	var pills = Topics.getPillNavOptions();
+	pills.unshift(
+    {
+        name: SUB_NAV_KEY,
+        title: ls.get('MANAGE_TOPICS'),
+        icon: 'refresh',
+        href: '/admin/content/topics/manage_topics'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageTopics.getSubNavItems);
 
 //exports
 module.exports = ManageTopics;

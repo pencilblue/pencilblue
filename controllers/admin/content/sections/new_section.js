@@ -14,6 +14,9 @@ var SectionService = pb.SectionService;
 //inheritance
 util.inherits(NewSection, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'new_section';
+
 NewSection.prototype.render = function(cb) {
 	var self = this;
 	
@@ -84,19 +87,6 @@ NewSection.prototype.getDataTasks = function() {
 			callback(null, tabs);
 		},
 		
-		//breadcrumbs 
-		pills: function(callback) {
-			var pills = SectionService.getPillNavOptions('new_section');
-            pills.unshift(
-            {
-                name: 'manage_topics',
-                title: self.getPageName(),
-                icon: 'chevron-left',
-                href: '/admin/content/sections/section_map'
-            });
-            callback(null, pills);
-		},
-		
 		navigation: function(callback) {
 			callback(null, pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls));
 		},
@@ -120,9 +110,34 @@ NewSection.prototype.getDataTasks = function() {
 				};
 				callback(null, navItem);
 			}
-		}
+		},
+        
+        //breadcrumbs 
+		pills: function(callback) {
+			var pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
+            callback(null, pills);
+		},
 	};
 };
+
+NewSection.prototype.getSubnavKey = function() {
+    return SUB_NAV_KEY;   
+}
+
+NewSection.getSubNavItems = function(key, ls, data) {
+	var pills = SectionService.getPillNavOptions();
+    pills.unshift(
+    {
+        name: 'manage_topics',
+        title: ls.get('NEW_NAV_ITEM'),
+        icon: 'chevron-left',
+        href: '/admin/content/sections/section_map'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, NewSection.getSubNavItems);
 
 //exports
 module.exports = NewSection;

@@ -12,6 +12,9 @@ var Users = require('../users');
 //inheritance
 util.inherits(ManageUsers, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'manage_users';
+
 ManageUsers.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
@@ -25,14 +28,7 @@ ManageUsers.prototype.render = function(cb) {
         self.ts.load('admin/users/manage_users', function(err, data){
             var result = '' + data;
                 
-            var pills = Users.getPillNavOptions('manage_users');
-            pills.unshift(
-            {
-                name: 'manage_users',
-                title: self.getPageName(),
-                icon: 'refresh',
-                href: '/admin/users/manage_users'
-            });
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
             
             result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
@@ -45,6 +41,21 @@ ManageUsers.prototype.render = function(cb) {
         });
     });
 };
+
+ManageUsers.getSubNavItems = function(key, ls, data) {
+	var pills = Users.getPillNavOptions('manage_users');
+    pills.unshift(
+    {
+        name: 'manage_users',
+        title: ls.get('MANAGE_USERS'),
+        icon: 'refresh',
+        href: '/admin/users/manage_users'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageUsers.getSubNavItems);
 
 //exports
 module.exports = ManageUsers;

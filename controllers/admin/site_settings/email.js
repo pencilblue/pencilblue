@@ -12,6 +12,9 @@ var SiteSettings = require('../site_settings');
 //inheritance
 util.inherits(Email, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'site_email_settings';
+
 Email.prototype.render = function(cb) {
     var self = this;
     
@@ -40,15 +43,7 @@ Email.prototype.render = function(cb) {
             self.checkForFormRefill(result, function(newResult) {
                 result = newResult;
                 
-                var pills = SiteSettings.getPillNavOptions('email', self.ls);
-                pills.splice(1, 1);
-                pills.unshift(
-                {
-                    name: 'configuration',
-                    title: self.getPageName(),
-                    icon: 'chevron-left',
-                    href: '/admin/site_settings/configuration'
-                });
+                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email');
                 
                 var objects     = {
                     navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
@@ -63,6 +58,22 @@ Email.prototype.render = function(cb) {
         });
     });
 };
+
+Email.getSubNavItems = function(key, ls, data) {
+	var pills = SiteSettings.getPillNavOptions(ls);
+    pills.splice(1, 1);
+    pills.unshift(
+    {
+        name: 'configuration',
+        title: ls.get('EMAIL'),
+        icon: 'chevron-left',
+        href: '/admin/site_settings/configuration'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, Email.getSubNavItems);
 
 //exports
 module.exports = Email;

@@ -12,6 +12,9 @@ Articles = require('../articles.js');
 //inheritance
 util.inherits(ManageArticles, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'manage_articles';
+
 ManageArticles.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
@@ -33,15 +36,7 @@ ManageArticles.prototype.render = function(cb) {
             var result = '' + data;
             
                 
-            var pills = Articles.getPillNavOptions('manage_articles');
-            pills.unshift(
-            {
-                name: 'manage_articles',
-                title: manageArticlesStr,
-                icon: 'refresh',
-                href: '/admin/content/articles/manage_articles'
-            });
-            
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
             pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {                                
                 result = result.split('^angular_script^').join(pb.js.getAngularController(
                 {
@@ -55,6 +50,26 @@ ManageArticles.prototype.render = function(cb) {
         });
     });
 };
+
+ManageArticles.getSubNavItems = function(key, ls, data) {
+	return [
+		{
+            name: 'manage_articles',
+            title: ls.get('MANAGE_ARTICLES'),
+            icon: 'refresh',
+            href: '/admin/content/articles/manage_articles'
+        },
+        {
+		    name: 'new_article',
+		    title: '',
+		    icon: 'plus',
+		    href: '/admin/content/articles/new_article'
+		}
+    ];
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageArticles.getSubNavItems);
 
 //exports
 module.exports = ManageArticles;

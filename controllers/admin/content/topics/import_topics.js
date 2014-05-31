@@ -17,6 +17,9 @@ var Topics = require('../topics');
 //inheritance
 util.inherits(ImportTopics, pb.BaseController);
 
+//statics
+var SUB_NAV_KEY = 'import_topics';
+
 /**
  * @method render
  * @see BaseController.render()
@@ -37,16 +40,8 @@ ImportTopics.prototype.render = function(cb) {
             }
         ];
             
-        var pills = Topics.getPillNavOptions('import_topics');
-        pills.unshift(
-        {
-            name: 'manage_topics',
-            title: self.ls.get('IMPORT_TOPICS'),
-            icon: 'chevron-left',
-            href: '/admin/content/topics/manage_topics'
-        });
-        
-        result = result.split('^angular_script^').join(pb.js.getAngularController(
+        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics');
+        result    = result.split('^angular_script^').join(pb.js.getAngularController(
         {
             navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
             pills: pills,
@@ -56,6 +51,21 @@ ImportTopics.prototype.render = function(cb) {
         cb({content: result});
     });
 };
+
+ImportTopics.getSubNavItems = function(key, ls, data) {
+	var pills = Topics.getPillNavOptions();
+    pills.unshift(
+    {
+        name: 'manage_topics',
+        title: ls.get('IMPORT_TOPICS'),
+        icon: 'chevron-left',
+        href: '/admin/content/topics/manage_topics'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ImportTopics.getSubNavItems);
 
 //exports
 module.exports = ImportTopics;

@@ -52,11 +52,11 @@ EditArticle.prototype.onTemplateRetrieved = function(template, cb) {
 	cb(null, template);
 };
 
-EditArticle.prototype.getAngularController = function(pills, tabs, data) {
+EditArticle.prototype.getAngularController = function(tabs, data) {
     var self = this;
 	var objects = {
         navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
-        pills: pills,
+        pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), self.article),
         tabs: tabs,
         templates: data.templates,
         sections: data.sections,
@@ -71,15 +71,6 @@ EditArticle.prototype.getAngularController = function(pills, tabs, data) {
 	);
 };
 
-EditArticle.prototype.getBreadCrum = function() {
-	return {
-        name: 'manage_articles',
-        title: this.article.headline,
-        icon: 'chevron-left',
-        href: '/admin/content/articles/manage_articles'
-    };
-};
-
 EditArticle.prototype.getActivePill = function() {
 	return 'edit_article';
 };
@@ -91,6 +82,26 @@ EditArticle.prototype.getPageTitle = function() {
 EditArticle.prototype.getTemplateLocation = function() {
 	return 'admin/content/articles/edit_article';
 };
+
+EditArticle.getSubNavItems = function(key, ls, data) {
+	return [
+		{
+		    name: 'manage_articles',
+		    title: data.headline,
+		    icon: 'chevron-left',
+		    href: '/admin/content/articles/manage_articles'
+		},
+        {
+            name: 'new_article',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/articles/new_article'
+        }
+    ];
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor('edit_article', EditArticle.getSubNavItems);
 
 //exports
 module.exports = EditArticle;
