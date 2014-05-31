@@ -6,6 +6,9 @@ var BaseController = pb.BaseController;
 //inheritance
 util.inherits(PluginSettingsController, BaseController);
 
+//statics
+SUB_NAV_KEY = 'plugin_settings';
+
 PluginSettingsController.prototype.render = function(cb) {
 	if (this.req.method !== 'GET' && this.req.method !== 'POST') {
 		var data = {
@@ -83,20 +86,12 @@ PluginSettingsController.prototype.renderGet = function(cb) {
 					icon: 'cog',
 					title: self.ls.get('SETTINGS')
 				}
-			];
-
-			var pills = self.getPillNavOptions();
-			pills.unshift({
-				name: 'manage_plugins',
-				title: self.plugin.name + ' ' + self.ls.get('SETTINGS'),
-				icon: 'chevron-left',
-				href: '/admin/plugins'
-			});
+			];			
 
 			//setup angular
 			var angularData = pb.js.getAngularController(
 	            {
-	            	pills: pills,
+	            	pills: pb.AdminSubnavService.getSubNav(SUB_NAV_KEY, self.ls, null, plugin),
 					tabs: tabs,
 	                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
 	                settings: clone
@@ -208,18 +203,15 @@ PluginSettingsController.prototype.getBackUrl = function() {
 	return '/admin/plugins/';
 };
 
-PluginSettingsController.prototype.getPillNavOptions = function(activePill) {
-
-	var pillNavOptions = [];
-
-    if(typeof activePill !== 'undefined') {
-        for(var i = 0; i < pillNavOptions.length; i++) {
-            if(pillNavOptions[i].name == activePill) {
-                pillNavOptions[i].active = 'active';
-            }
+PluginSettingsController.geSubNavItems = function(key, ls, data) {
+	return [
+        {
+            name: 'manage_plugins',
+			title: data.name + ' ' + ls.get('SETTINGS'),
+			icon: 'chevron-left',
+			href: '/admin/plugins'
         }
-    }
-    return pillNavOptions;
+	];
 };
 
 PluginSettingsController.getValueInputType = function(value) {
@@ -296,6 +288,9 @@ PluginSettingsController.formatValue = function(value, type) {
 	}
 	return null;
 };
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsController.geSubNavItems);
 
 //exports
 module.exports = PluginSettingsController;

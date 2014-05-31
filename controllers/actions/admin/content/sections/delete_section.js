@@ -36,14 +36,14 @@ DeleteSection.prototype.render = function(cb) {
             }
         	
             self.session.success = section.name + ' ' + self.ls.get('DELETED');
-            self.updateSectionMap(vars['id'], function(err, result) {
+            self.updateNavMap(vars['id'], function(err, result) {
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
             });
         });
     });
 };
 
-DeleteSection.prototype.updateSectionMap = function(removeID, cb) {
+DeleteSection.prototype.updateNavMap = function(removeID, cb) {
 	var service = new pb.SectionService();
 	service.removeFromSectionMap(removeID, cb);
 };

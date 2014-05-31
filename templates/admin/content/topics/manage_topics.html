@@ -2,25 +2,23 @@
 <div class="col-md-9">
     ^error_success^
     ^tmp_admin=elements=sub_nav^
-    <div id="topics">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <div class="input-group">
-                    <input type="text" id="topic_search" name="topic_search" class="form-control"></input>
-                    <span class="input-group-btn">
-                        <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-                    </span>
-                </div>
+    <div id="topics" class="row">
+        <div class="col-md-12" style="margin-bottom: .5em">
+            <div class="input-group">
+                <input type="text" id="topic_search" name="topic_search" class="form-control"></input>
+                <span class="input-group-btn">
+                    <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+                </span>
             </div>
-            <div class="panel-body">
-                <div id="topic_{{topic._id}}" class="label label-info topic" ng-repeat="topic in topics track by topic._id" on-finish-render ng-cloak>
-                    <a href="javascript:confirmDeleteTopic('{{topic._id}}', '{{topic.name}}')">
-                        <span class="topic_name">{{topic.name}}</span>&nbsp;<i class="fa fa-times"></i>
-                    </a>
-                </div>
-                <div class="spacer"></div>
-                <ul id="topics_pagination" class="pagination"></ul>
+        </div>
+        <div class="col-md-12">
+            <div id="topic_{{topic._id}}" class="label label-info topic" ng-repeat="topic in topics track by topic._id" on-finish-render ng-cloak>
+                <a href="javascript:confirmDeleteTopic('{{topic._id}}', '{{topic.name}}')">
+                    <span class="topic_name">{{topic.name}}</span>&nbsp;<i class="fa fa-times"></i>
+                </a>
             </div>
+            <div class="spacer"></div>
+            <ul id="topics_pagination" class="pagination"></ul>
         </div>
     </div>
     <div class="modal fade" id="confirm_delete_modal">

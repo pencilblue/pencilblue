@@ -56,6 +56,47 @@ DAO.prototype.count = function(entityType, where, cb) {
 };
 
 /**
+ * Determines if a document exists that matches the specified criteria
+ * @method exists
+ * @param {String} collection
+ * @param {Objct} where
+ * @param {Function} cb Callback that provides two parameters: cb(Error, Boolean) 
+ */
+DAO.prototype.exists = function(collection, where, cb) {
+	this.count(collection, where, function(err, count) {
+		cb(err, count > 0);
+	});
+};
+
+/**
+ * Determines if there is only a single document that matches the specified query
+ * @method unique
+ * @param {String} collection
+ * @param {Objct} where
+ * @param {String} [exclusionId]
+ * @param {Function} cb Callback that provides two parameters: cb(Error, Boolean) 
+ */
+DAO.prototype.unique = function(collection, where, exclusionId, cb) {
+	cb = cb || exclusionId;
+	
+	//validate parameters
+	if (!pb.utils.isObject(where) || !pb.utils.isString(collection)) {
+		cb(new Error("The collection and where parameters are required"), null);
+		return;
+	}
+	
+	//set the exclusion
+	if (exclusionId) {
+		where._id = {$ne: new ObjectID(exclusionId + '')};
+	}
+	
+	//checks to see how many docs were available
+	this.count(collection, where, function(err, count) {
+		cb(err, count === 0);
+	});
+};
+
+/**
  * Provides a function to query the database.  
  * TODO determine if we need to enforce an upper bound on limit to prevent misuse.
  * 
@@ -208,7 +249,7 @@ DAO.prototype.deleteMatching = function(where, collection){
  */
 DAO.getIDWhere = function(oid){
 	return {
-		_id: ObjectID(oid.toString())
+		_id: DAO.getObjectID(oid)
 	};
 };
 
@@ -234,6 +275,20 @@ DAO.getIDInWhere = function(objArray, idProp) {
     return {
     	_id: {$in: idArray}
     };
+};
+
+DAO.getNotIDWhere = function(oid) {
+	return {
+		_id: DAO.getNotIDField(oid)
+	};
+};
+
+DAO.getNotIDField = function(oid) {
+	return {$ne: DAO.getObjectID(oid)};
+};
+
+DAO.getObjectID = function(oid) {
+	return new ObjectID(oid + '');
 };
 
 /**

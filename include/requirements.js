@@ -99,20 +99,22 @@ pb.EmailService = require(DOCUMENT_ROOT+'/include/email').EmailService;
 pb.email        = new pb.EmailService();
 
 //system requires
-pb.DocumentCreator = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
-pb.content         = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions			        
-pb.js              = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
-pb.AdminNavigation = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
+pb.DocumentCreator    = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
+pb.content            = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions			        
+pb.js                 = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
+pb.AdminNavigation    = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
+pb.ServerRegistration = require(DOCUMENT_ROOT+'/include/system/server_registration.js');
 
 //create plugin service
 pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_service.js');
 pb.plugins       = new pb.PluginService();
 
 //content services
-pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
-pb.MediaService   = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
-pb.UrlService     = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
-pb.TopMenuService = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
+pb.SectionService     = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
+pb.MediaService       = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
+pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
+pb.TopMenuService     = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
+pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subnav_service.js');
 
 //Export system object
 module.exports = pb;

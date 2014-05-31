@@ -29,7 +29,7 @@ SectionMap.prototype.render = function(cb) {
                 return;
             }
             
-            self.setPageName(self.ls.get('SECTION_MAP'));
+            self.setPageName(self.ls.get('NAV_MAP'));
 	        self.ts.load('admin/content/sections/section_map', function(err, data) {
                 var result = data;
 
@@ -37,7 +37,7 @@ SectionMap.prototype.render = function(cb) {
                 pills.unshift(
                 {
                     name: 'section_map',
-                    title: self.ls.get('SECTION_MAP'),
+                    title: self.getPageName(),
                     icon: 'refresh',
                     href: '/admin/content/sections/section_map'
                 });
@@ -45,7 +45,14 @@ SectionMap.prototype.render = function(cb) {
                 var objects     = {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
                     pills: pills,
-                    sections: SectionMap.getOrderedSections(sections, sectionMap)
+                    sections: SectionMap.getOrderedSections(sections, sectionMap),
+                    icons: {
+                    	container: 'fa-inbox',
+                    	section: 'fa-th-large',
+                    	article: 'fa-files-o',
+                    	page: 'fa-file-o',
+                    	link: 'fa-external-link'
+                    }
                 };
                 
                 var angularData = pb.js.getAngularController(objects);

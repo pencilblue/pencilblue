@@ -4,78 +4,127 @@
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
-function EditSection(){}
+function EditSection(){
+	this.wasContainer = false;
+}
 
 //inheritance
 util.inherits(EditSection, pb.FormController);
 
 EditSection.prototype.onPostParamsRetrieved = function(post, cb){
-	var self = this; 
-	var vars = this.pathVars;
+	var self = this;
 	
-	//merge in get params
-	pb.utils.merge(this.pathVars, post);
-	
-	//verify required parameters exist
-	var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if(message) {
-        this.formError(message, '/admin/content/sections/section_map', cb);
-        return;
-    }
-    
-    var dao = new pb.DAO();
-    dao.loadById(post.id, 'section', function(err, section) {
-    	//TODO handle error
-    	
-        if(section == null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
-            return;
+	//load object
+	this.getObject(post, function(err, navItem) {
+		if (util.isError(err)) {
+			throw err;
+		}
+		else if (!pb.utils.isObject(navItem)) {
+			self.reqHandler.serve404();
+			return;
+		}
+		
+		//ensure a URL was provided
+        if(!navItem.url && navItem.name) {
+            navItem.url = navItem.name.toLowerCase().split(' ').join('-');
         }
-
-        //update existing document
-        pb.DocumentCreator.update(post, section, ['keywords'], ['url', 'parent']);
-        
-        //ensure a URL was provided
-        if(!section['url']) {
-            section['url'] = section['name'].toLowerCase().split(' ').join('-');
-        }
-        
-        //now start validation
-        //check for reserved names
-        if(section['name'] == 'admin') {
-            formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/section_map', cb);
-            return;
-        }
-        
-        var where = {_id: {$ne: section._id}, $or: [{name: section['name']}, {url: section['url']}]};
-        dao.count('section', where, function(err, count) {
-            if(count > 0) {
-                self.formError(self.ls.get('EXISTING_SECTION'), '/admin/content/sections/section_map', cb);
-                return;
-            }
-            
-            dao.update(section).then(function(data) {
+		
+		//strip unneeded properties
+		pb.SectionService.trimForType(navItem);
+		
+		//validate
+		var navService = new pb.SectionService();
+		navService.validate(navItem, function(err, validationErrors) {
+			if (util.isError(err)) {
+				throw err;
+			}
+			else if (validationErrors.length > 0) {
+				self.setFormFieldValues(post);
+				var errMsg = EditSection.getHtmlErrorMsg(validationErrors);
+				var redirect = self.getFormLocation();
+				self.formError(errMsg, redirect, cb);
+				return;
+			}
+			
+			//persist the changes
+			var dao = new pb.DAO();
+			dao.update(navItem).then(function(data) {
                 if(util.isError(data)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
+                	self.setFormFieldValues(post);
+                    self.formError(self.ls.get('ERROR_SAVING'), self.getFormLocation(), cb);
                     return;
                 }
                 
-                self.session.success = section.name + ' ' + self.ls.get('EDITED');
-                self.checkForSectionMapUpdate(section, function() {                
-                    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
-                });
+                //update the navigation map
+                self.checkForNavMapUpdate(navItem, function() {       
+                	
+                	//ok, now we can delete the orhphans if they exist
+                	self.deleteOrphans(navItem, function(err, orphanCount) {
+                		if(util.isError(err)) {
+                            self.formError(self.ls.get('ERROR_SAVING'), self.getFormLocation(), cb);
+                            return;
+                        }
+                	
+                		//finally do the callback
+                		self.session.success = self.getSuccessMessage(navItem);
+                    	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
+                	});
+            	});
             });
-        });
-    });
+		});
+	});
 };
 
-EditSection.prototype.getRequiredFields = function() {
-	return ['id', 'name', 'editor'];
-};
-
-EditSection.prototype.checkForSectionMapUpdate = function(section, cb) {
+EditSection.prototype.deleteOrphans = function(navItem, cb) {
 	var service = new pb.SectionService();
-	service.updateSectionMap(section, cb);
+	service.deleteChildren(navItem._id, cb);
+};
+
+EditSection.prototype.getSuccessMessage = function(navItem) {
+	return navItem.name + ' ' + this.ls.get('EDITED');
+};
+
+EditSection.prototype.getFormLocation = function() {
+	return pb.UrlService.urlJoin('/admin/content/sections/edit_section', this.pathVars.id);
+};
+
+EditSection.prototype.getObject = function(post, cb) {
+	var self = this;
+	var dao  = new pb.DAO();
+	dao.loadById(this.pathVars.id, 'section', function(err, navItem) {
+		if (util.isError(err)) {
+			cb(err, null);
+			return;
+		}
+		else if (!pb.utils.isObject(navItem)) {
+			cb(null, null);
+			return;
+		}
+		
+		//determine if nav item is no longer a container
+		//we'll later have to deal with the orphans (if any)
+		self.wasContainer = navItem.type === 'container';
+		
+		//merge in new properties
+		pb.DocumentCreator.update(post, navItem, ['keywords'], ['url', 'parent']);
+		cb(null, navItem);
+	});
+};
+
+EditSection.prototype.checkForNavMapUpdate = function(navItem, cb) {
+	var service = new pb.SectionService();
+	service.updateNavMap(navItem, cb);
+};
+
+EditSection.getHtmlErrorMsg = function(validationErrors) {
+	var html = '';
+	for (var i = 0; i < validationErrors.length; i++) {
+		if (i > 0) {
+			html += '<br/>';
+		}
+		html += validationErrors[i].field + ':' + validationErrors[i].message;
+	}
+	return html;
 };
 
 //exports

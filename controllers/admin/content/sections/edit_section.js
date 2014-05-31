@@ -7,12 +7,12 @@
 function EditSection(){}
 
 //dependencies
-var BaseController  = pb.BaseController;
-var AdminNavigation = pb.AdminNavigation;
-var SectionService  = pb.SectionService;
+var AdminNavigation      = pb.AdminNavigation;
+var SectionService       = pb.SectionService;
+var NewSectionController = require('./new_section.js');
 
 //inheritance
-util.inherits(EditSection, BaseController);
+util.inherits(EditSection, NewSectionController);
 
 EditSection.prototype.render = function(cb) {
 	var self = this;
@@ -20,71 +20,60 @@ EditSection.prototype.render = function(cb) {
 	
 	//make sure an ID was passed
     if(!vars['id']) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/sections/section_map'));
+        this.reqHandler.serve404();
         return;
     }
     
-    var dao = new pb.DAO();
-    dao.loadById(vars['id'], 'section', function(err, section) {
-        if(section == null) {
-        	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/sections/section_map'));
-            return;
-        }
-        
-        section.keywords = section.keywords.join(',');
-        self.setPageName(self.ls.get('EDIT_SECTION'));
-        self.ts.registerLocal('section_id', section._id);
-        self.ts.load('admin/content/sections/edit_section', function(err, data) {
-            var result = data;
-            var tabs   =
-            [
-                {
-                    active: 'active',
-                    href: '#section_settings',
-                    icon: 'cog',
-                    title: self.ls.get('SETTINGS')
-                },
-                {
-                    href: '#section_seo',
-                    icon: 'tasks',
-                    title: self.ls.get('SEO')
-                }
-            ];
-                
-            var where = {
-        		parent: null,
-        		_id: {
-        			'$ne': section._id
-        		}
-            };
-        	dao.query('section', where, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(parents) {                            
-                
-        		pb.users.getEditorSelectList(self.session.authentication.user_id, function(editors) {
-                    
-        			var pills = SectionService.getPillNavOptions('new_section');
-                    pills.unshift(
-                    {
-                        name: 'manage_topics',
-                        title: self.ls.get('NEW_SECTION'),
-                        icon: 'chevron-left',
-                        href: '/admin/content/sections/section_map'
-                    });
-                    
-                    var objects = {
-                        navigation: AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
-                        pills: pills,
-                        tabs: tabs,
-                        parents: parents,
-                        editors: editors,
-                        section: section
-                    };
-                    var angularData = pb.js.getAngularController(objects);
-                    result          = result.split('^angular_script^').join(angularData);
-                    cb({content: result});
-                });
-            });
-        });
+    EditSection.super_.prototype.render.apply(self, [cb]);
+};
+
+EditSection.prototype.getPageName = function() {
+	return this.ls.get('EDIT_NAVIGATION');
+};
+
+EditSection.prototype.getTemplate = function(cb) {
+	var self = this;
+	
+	this.ts.registerLocal('section_id', this.pathVars.id);
+	this.ts.registerLocal('content_type', '{{section.type}}');
+	this.ts.registerLocal('selection_id_field', 'item');
+	this.ts.registerLocal('content_search_value', function(flag, cb) {
+    	if (self.navItem.item) {
+    		var dao = new pb.DAO();
+    		dao.loadById(self.navItem.item, self.navItem.type, function(err, content) {
+    			cb(err, content ? content.headline : '');
+    		});
+    	}
+    	else {
+    		cb(null, '');
+    	}
     });
+	this.ts.load('admin/content/sections/edit_section', cb);
+};
+
+EditSection.prototype.getDataTasks = function() {
+	var self  = this;
+	var tasks = EditSection.super_.prototype.getDataTasks.apply(self, []);
+	tasks.section = function(callback) {
+		if (self.session.fieldValues) {
+			var navItem = self.session.fieldValues;
+			if (util.isArray(navItem.keywords)) {
+				navItem.keywords = navItem.keywords.join(',');
+			}
+			self.session.fieldValues = undefined;
+			callback(null, navItem);
+			return;
+		}
+		
+		var dao = new pb.DAO();
+	    dao.loadById(self.pathVars.id, 'section', function(err, navItem) {
+	        if (navItem) {
+	        	navItem.keywords = navItem.keywords.join(',');
+	        }
+	        callback(err, navItem);
+	    });
+	};
+	return tasks;
 };
 
 //exports

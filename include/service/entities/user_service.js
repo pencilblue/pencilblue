@@ -63,10 +63,24 @@ UserService.prototype.getAdminOptions = function(session, ls) {
  * @param cb
  */
 UserService.prototype.getEditorSelectList = function(currId, cb) {
+	var where = {
+		admin: {
+			$gt: ACCESS_WRITER
+		}	
+	};
+	var select = {
+		_id: 1, 
+		first_name: 1, 
+		last_name: 1
+	};
     var dao     = new pb.DAO();
-	var editors = [];
-	dao.query('user', {admin: {$gt: ACCESS_WRITER}}, {_id: 1, first_name: 1, last_name: 1}).then(function(data){
+	dao.query('user', where, select).then(function(data){
+        if (util.isError(data)) {
+        	cb(data, null);
+        	return;
+        }
         
+		var editors = [];
 		for(var i = 0; i < data.length; i++) {
             
 			var editor = {_id: data[0]._id, name: data[0].first_name + ' ' + data[0].last_name};
@@ -75,7 +89,7 @@ UserService.prototype.getEditorSelectList = function(currId, cb) {
             }
             editors.push(editor);
         }
-        cb(editors);
+        cb(null, editors);
     });
 };
 
@@ -148,6 +162,15 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 		},
 	};
 	async.series(tasks, cb);
+};
+
+UserService.prototype.hasAccessLevel = function(uid, accessLevel, cb) {
+	var where = pb.DAO.getIDWhere(uid);
+	where.admin = {$gte: accessLevel};
+	var dao = new pb.DAO();
+	dao.count('user', where, function(err, count) {
+		cb(err, count === 1);
+	});
 };
 
 //exports

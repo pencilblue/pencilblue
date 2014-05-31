@@ -100,7 +100,10 @@ NewArticle.prototype.gatherData = function(cb) {
     	},
     	
     	sections: function(callback) {
-    		dao.query('section', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(sections){
+    		var where = {
+    			type: {$in: ['container', 'section']}	
+    		};
+    		dao.query('section', where, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(sections){
     			callback(util.isError(sections) ? sections : null, sections);
     		});
     	},
