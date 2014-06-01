@@ -25,16 +25,15 @@ Index.prototype.render = function(cb) {
     var page    = self.req.pencilblue_page    || null;
 
     pb.content.getSettings(function(err, contentSettings) {
-        self.gatherData(function(err, data) {
-
+        self.gatherData(function(err, data) {                         
             ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle) {
                 
+                self.ts.reprocess = false;
                 self.ts.registerLocal('meta_keywords', metaKeywords);
                 self.ts.registerLocal('meta_desc', metaDescription);
                 self.ts.registerLocal('meta_title', metaTitle);
                 self.ts.registerLocal('meta_lang', localizationLanguage);
                 self.ts.registerLocal('current_url', self.req.url);
-                self.ts.registerLocal('page_name', '^index_page_name^');
                 self.ts.registerLocal('navigation', data.nav.navigation);
                 self.ts.registerLocal('account_buttons', data.nav.accountButtons);
                 self.ts.registerLocal('infinite_scroll', function(flag, cb) {
@@ -55,6 +54,10 @@ Index.prototype.render = function(cb) {
                 self.ts.registerLocal('articles', function(flag, cb) {
                     var tasks = pb.utils.getTasks(data.content, function(content, i) {
                         return function(callback) {
+                            if (i >= contentSettings.articles_per_page) {//TODO, limit articles in query, not throug hackery
+                                callback(null, '');   
+                                return;
+                            }
                             self.renderContent(content[i], contentSettings, data.nav.themeSettings, i, callback);
                         };
                     });
@@ -69,17 +72,19 @@ Index.prototype.render = function(cb) {
                     if (util.isError(err)) {
                         throw err;
                     }
-                    
-//                    var objects = {
-//                        contentSettings: contentSettings,
-//                        loggedIn: pb.security.isAuthorized(self.session),
-//                        commentingUser: commentingUser,
-//                        themeSettings: data.nav.themeSettings,
-//                        articles: content,
-//                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
-//                    };
-//                    var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
-//                    result = result.concat(angularData);
+
+                    var loggedIn = pb.security.isAuthenticated(self.session);
+                    var commentingUser = loggedIn ? Comments.getCommentingUser(self.session.authentication.user) : null;
+                    var objects = {
+                        contentSettings: contentSettings,
+                        loggedIn: loggedIn,
+                        commentingUser: commentingUser,
+                        themeSettings: data.nav.themeSettings,
+                        articles: data.content,
+                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+                    };
+                    var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
+                    result = result.concat(angularData);
                     cb({content: result});
                 });
             });
@@ -148,6 +153,7 @@ Index.prototype.loadContent = function(articleCallback) {
 Index.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
     var self = this;
     var ats  = new pb.TemplateService(this.ls);
+    self.ts.reprocess = false;
     ats.registerLocal('article_headline', '<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>');
     ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
     ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
@@ -221,6 +227,7 @@ Index.prototype.renderComments = function(content, ts, cb) {
 Index.prototype.renderComment = function(comment, cb) {
 
     var cts = new pb.TemplateService(this.ls);
+    cts.reprocess = false;
     cts.registerLocal('commenter_photo', comment.commenter_photo ? comment.commenter_photo : '');
     cts.registerLocal('display_photo', comment.commenter_photo ? 'block' : 'none');
     cts.registerLocal('commenter_name', comment.commenter_name);

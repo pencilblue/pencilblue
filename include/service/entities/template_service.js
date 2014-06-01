@@ -49,6 +49,8 @@ function TemplateService(localizationService){
 		
 		TEMPLATE_LOADER = new pb.SimpleLayeredService(services, 'TemplateService');
 	}
+    
+    this.reprocess = true;
 };
 
 //constants
@@ -340,7 +342,7 @@ TemplateService.prototype.handleTemplateReplacement = function(flag, cb) {
 /**
  * Called when the processing engine encounters a non-sub-template flag.  The 
  * function delegates the content transformation out to either the locally or 
- * globally register function.  In the even that a value was registered and not 
+ * globally registered function.  In the event that a value was registered and not 
  * a function then the value is used as the second parameter in the callback.  
  * During template re-assembly the value will be converted to a string.
  * 
@@ -355,7 +357,7 @@ TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
 	var handler = function(err, content) {
 		
 		//prevent infinite loops
-		if (pb.utils.isString(content) && (content.length === 0 || ('^'+flag+'^') === content)) {
+		if (!this.reprocess || (pb.utils.isString(content) && (content.length === 0 || ('^'+flag+'^') === content))) {
 			cb(err, content);
 		}
 		else {
