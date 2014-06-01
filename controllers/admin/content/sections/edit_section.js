@@ -14,6 +14,9 @@ var NewSectionController = require('./new_section.js');
 //inheritance
 util.inherits(EditSection, NewSectionController);
 
+//statics
+var SUB_NAV_KEY = 'edit_section';
+
 EditSection.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
@@ -51,6 +54,10 @@ EditSection.prototype.getTemplate = function(cb) {
 	this.ts.load('admin/content/sections/edit_section', cb);
 };
 
+EditSection.prototype.getSubnavKey = function() {
+    return SUB_NAV_KEY;   
+}
+
 EditSection.prototype.getDataTasks = function() {
 	var self  = this;
 	var tasks = EditSection.super_.prototype.getDataTasks.apply(self, []);
@@ -61,6 +68,7 @@ EditSection.prototype.getDataTasks = function() {
 				navItem.keywords = navItem.keywords.join(',');
 			}
 			self.session.fieldValues = undefined;
+            self.navItem = self.session.fieldValues;
 			callback(null, navItem);
 			return;
 		}
@@ -68,6 +76,7 @@ EditSection.prototype.getDataTasks = function() {
 		var dao = new pb.DAO();
 	    dao.loadById(self.pathVars.id, 'section', function(err, navItem) {
 	        if (navItem) {
+                self.navItem = navItem;
 	        	navItem.keywords = navItem.keywords.join(',');
 	        }
 	        callback(err, navItem);
@@ -75,6 +84,21 @@ EditSection.prototype.getDataTasks = function() {
 	};
 	return tasks;
 };
+
+EditSection.getSubNavItems = function(key, ls, data) {
+	var pills = SectionService.getPillNavOptions();
+    pills.unshift(
+    {
+        name: 'manage_topics',
+        title: data.name,
+        icon: 'chevron-left',
+        href: '/admin/content/sections/section_map'
+    });
+    return pills;
+};
+
+//register admin sub-nav
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, EditSection.getSubNavItems);
 
 //exports
 module.exports = EditSection;

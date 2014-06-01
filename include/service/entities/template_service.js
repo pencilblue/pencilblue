@@ -355,7 +355,7 @@ TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
 	var handler = function(err, content) {
 		
 		//prevent infinite loops
-		if (pb.utils.isString(content) && (content.length === 0 || content.indexOf('^'+flag+'^') >= 0)) {
+		if (pb.utils.isString(content) && (content.length === 0 || ('^'+flag+'^') === content)) {
 			cb(err, content);
 		}
 		else {

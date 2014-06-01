@@ -17,128 +17,230 @@ util.inherits(Index, pb.BaseController);
 
 Index.prototype.render = function(cb) {
 	var self = this;
+    
+    //determine and execute the proper call
+    var section = self.req.pencilblue_section || null;
+    var topic   = self.req.pencilblue_topic   || null;
+    var article = self.req.pencilblue_article || null;
+    var page    = self.req.pencilblue_page    || null;
 
-	TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
-        TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
+    pb.content.getSettings(function(err, contentSettings) {
+        self.gatherData(function(err, data) {
 
-            self.ts.registerLocal('page_name', '^index_page_name^');
-        	self.ts.registerLocal('navigation', navigation);
-        	self.ts.registerLocal('account_buttons', accountButtons);
-        	self.ts.load('index', function(err, result) {
+            ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle) {
 
-                //create callback to be issued by all the find calls
-                var articleCallback = function(err, articles) {
-                	self.processArticles(result, articles, themeSettings, cb);
-                };
-
-                //determine and execute the proper call
-                var section = self.req.pencilblue_section || null;
-                var topic   = self.req.pencilblue_topic   || null;
-                var article = self.req.pencilblue_article || null;
-                var page    = self.req.pencilblue_page    || null;
-
-                if(article || page) {
-                    result = result.split('^infinite_scroll^').join('');
-                }
-                else {
-                    var infiniteScrollScript = pb.js.includeJS('/js/infinite_article_scroll.js');
-                    if(section) {
-                        infiniteScrollScript += pb.js.getJSTag('var infiniteScrollSection = "' + section + '";');
-                    }
-                    else if(topic) {
-                        infiniteScrollScript += pb.js.getJSTag('var infiniteScrollTopic = "' + topic + '";');
-                    }
-
-                    result = result.split('^infinite_scroll^').join(infiniteScrollScript);
-                }
-
-                var service = new ArticleService();
-                if(self.req.pencilblue_preview) {
-                    if(self.req.pencilblue_preview == page || article) {
-                        if(page) {
-                            service.setContentType('page');
-                        }
-                        var where = pb.DAO.getIDWhere(page || article);
-                        where.draft = {$gte: 0};
-                        service.find(where, articleCallback);
+                self.ts.registerLocal('meta_keywords', metaKeywords);
+                self.ts.registerLocal('meta_desc', metaDescription);
+                self.ts.registerLocal('meta_title', metaTitle);
+                self.ts.registerLocal('meta_lang', localizationLanguage);
+                self.ts.registerLocal('current_url', self.req.url);
+                self.ts.registerLocal('page_name', '^index_page_name^');
+                self.ts.registerLocal('navigation', data.nav.navigation);
+                self.ts.registerLocal('account_buttons', data.nav.accountButtons);
+                self.ts.registerLocal('infinite_scroll', function(flag, cb) {
+                    if(article || page) {
+                        cb(null, '');
                     }
                     else {
-                        service.find({}, articleCallback);
+                        var infiniteScrollScript = pb.js.includeJS('/js/infinite_article_scroll.js');
+                        if(section) {
+                            infiniteScrollScript += pb.js.getJSTag('var infiniteScrollSection = "' + section + '";');
+                        }
+                        else if(topic) {
+                            infiniteScrollScript += pb.js.getJSTag('var infiniteScrollTopic = "' + topic + '";');
+                        }
+                        cb(null, infiniteScrollScript);
                     }
-                }
-                else if(section) {
-                    service.findBySection(section, articleCallback);
-                }
-                else if(topic) {
-                    service.findByTopic(topic, articleCallback);
-                }
-                else if(article) {
-                    service.findById(article, articleCallback);
-                }
-                else if(page) {
-                    service.setContentType('page');
-                    service.findById(page, articleCallback);
-                }
-                else{
-                	service.find({}, articleCallback);
-                }
+                });
+                self.ts.registerLocal('articles', function(flag, cb) {
+                    var tasks = pb.utils.getTasks(data.content, function(content, i) {
+                        return function(callback) {
+                            self.renderContent(content[i], contentSettings, data.nav.themeSettings, i, callback);
+                        };
+                    });
+                    async.parallel(tasks, function(err, result) {
+                        cb(err, result.join(''));
+                    });
+                });
+                self.ts.load('index', function(err, result) {
+                    if (util.isError(err)) {
+                        throw err;
+                    }
+                    cb({content: result});
+                    //self.processArticles(result, data.content, data.nav.themeSettings, cb);
+                });
             });
         });
     });
 };
 
+Index.prototype.gatherData = function(cb) {
+    var self  = this;
+    var tasks = {
+        
+        //navigation
+        nav: function(callback) {
+            self.getNavigation(function(themeSettings, navigation, accountButtons) {
+                callback(null, {themeSettings: themeSettings, navigation: navigation, accountButtons: accountButtons}); 
+            });
+        },
+        
+        //articles, pages, etc.
+        content: function(callback) {
+            self.loadContent(callback);
+        }
+    };
+    async.parallel(tasks, cb);
+};
+
+Index.prototype.loadContent = function(articleCallback) {
+    
+    var section = this.req.pencilblue_section || null;
+    var topic   = this.req.pencilblue_topic   || null;
+    var article = this.req.pencilblue_article || null;
+    var page    = this.req.pencilblue_page    || null;
+    
+    var service = new ArticleService();
+    if(this.req.pencilblue_preview) {
+        if(this.req.pencilblue_preview == page || article) {
+            if(page) {
+                service.setContentType('page');
+            }
+            var where = pb.DAO.getIDWhere(page || article);
+            where.draft = {$gte: 0};
+            service.find(where, articleCallback);
+        }
+        else {
+            service.find({}, articleCallback);
+        }
+    }
+    else if(section) {
+        service.findBySection(section, articleCallback);
+    }
+    else if(topic) {
+        service.findByTopic(topic, articleCallback);
+    }
+    else if(article) {
+        service.findById(article, articleCallback);
+    }
+    else if(page) {
+        service.setContentType('page');
+        service.findById(page, articleCallback);
+    }
+    else{
+        service.find({}, articleCallback);
+    }
+}
+
 Index.prototype.processArticles = function(result, articles, themeSettings, cb) {
 	var self = this;
 
-	Media.getCarousel(themeSettings.carousel_media, result, '^carousel^', 'index_carousel', function(newResult) {
+    pb.content.getSettings(function(err, contentSettings) {
 
-        pb.content.getSettings(function(err, contentSettings) {
+        articles = articles.slice(0, contentSettings.articles_per_page);
 
-        	articles = articles.slice(0, contentSettings.articles_per_page);
+        ArticleService.getMetaInfo(articles[0], function(metaKeywords, metaDescription, metaTitle) {
 
-        	ArticleService.getMetaInfo(articles[0], function(metaKeywords, metaDescription, metaTitle) {
+            result = result.split('^meta_keywords^').join(metaKeywords);
+            result = result.split('^meta_desc^').join(metaDescription);
+            result = result.split('^meta_title^').join(metaTitle);
+            result = result.split('^meta_lang^').join(self.ls.language);
+            result = result.split('^current_url^').join(self.req.url);
 
-                result = result.split('^meta_keywords^').join(metaKeywords);
-                result = result.split('^meta_desc^').join(metaDescription);
-                result = result.split('^meta_title^').join(metaTitle);
-                result = result.split('^meta_lang^').join(localizationLanguage);
-                result = result.split('^current_url^').join(self.req.url);
+            Comments.getCommentsTemplates(contentSettings, function(commentsTemplates) {
 
-                Comments.getCommentsTemplates(contentSettings, function(commentsTemplates) {
+                var loggedIn       = false;
+                var commentingUser = null;
+                if(self.session.authentication.user) {
+                    loggedIn       = true;
+                    commentingUser = Comments.getCommentingUser(self.session.authentication.user);
+                }
 
-                    var loggedIn       = false;
-                    var commentingUser = null;
-                    if(self.session.authentication.user) {
-                        loggedIn       = true;
-                        commentingUser = Comments.getCommentingUser(self.session.authentication.user);
-                    }
+                self.getArticlesHTML(articles, commentsTemplates, contentSettings, commentingUser, function(articlesHTML) {
+                    result = result.split('^articles^').join(articlesHTML);
 
-                    self.getArticlesHTML(articles, commentsTemplates, contentSettings, commentingUser, function(articlesHTML) {
-                        result = result.split('^articles^').join(articlesHTML);
+                    var objects = {
+                        contentSettings: contentSettings,
+                        loggedIn: loggedIn,
+                        commentingUser: commentingUser,
+                        themeSettings: themeSettings,
+                        articles: articles,
+                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+                    };
+                    var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
+                    result = result.concat(angularData);
 
-                        var objects = {
-                            contentSettings: contentSettings,
-                            loggedIn: loggedIn,
-                            commentingUser: commentingUser,
-                            themeSettings: themeSettings,
-                            articles: articles,
-                            trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
-                        };
-                        var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
-                        result = result.concat(angularData);
+                    var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
 
-                        var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
+                    self.getContentSpecificPageName(function(pageName) {
+                        content = content.split('^index_page_name^').join(pageName);
 
-                        self.getContentSpecificPageName(function(pageName) {
-                            content = content.split('^index_page_name^').join(pageName);
-
-                            cb({content: content});
-                        });
+                        cb({content: content});
                     });
                 });
             });
         });
     });
+};
+
+Index.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
+    var self = this;
+    var ats  = new pb.TemplateService(this.ls);
+    ats.registerLocal('article_headline', '<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>');
+    ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
+    ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
+    ats.registerLocal('article_id', content._id.toString());
+    ats.registerLocal('article_index', index);
+    ats.registerLocal('article_timestamp', contentSettings.display_timestamp ? content.timestamp : '');
+    ats.registerLocal('article_timestamp_display', contentSettings.displaytimestamp ? '' : 'display:none;');
+    ats.registerLocal('article_layout', content.layout);
+    ats.registerLocal('article_url', content.url);
+    ats.registerLocal('author_photo', content.author_photo ? content.author_photo : '');
+    ats.registerLocal('author_photo_display', content.author_photo ? '' : 'display:none;');
+    ats.registerLocal('author_name', content.author_name);
+    ats.registerLocal('author_position', content.author_position);
+    ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
+    ats.registerLocal('comments', function(flag, cb) {
+       if (content.object_type === 'page' || !contentSettings.allow_comments) {
+           cb(null, '');
+           return;
+       }
+        
+        self.renderComments(content, ats, cb);
+    });
+    ats.load('elements/article', cb);
+};
+
+Index.prototype.renderComments = function(content, ts, cb) {
+    var commentingUser = null;
+    if(pb.security.isAuthenticated(this.session)) {
+        commentingUser = Comments.getCommentingUser(this.session.authentication.user);
+    }
+    
+    ts.registerLocal('user_photo', function(flag, cb) {
+        if (commentingUser) {
+            cb(null, commentingUser.photo ? commentingUser.photo : '');
+        }
+        else {
+            cb(null, '');
+        }
+    });
+    ts.registerLocal('user_position', function(flag, cb) {
+        if (commentingUser && util.isArray(commentingUser.position) && commentingUser.position.length > 0) {
+            cb(null, ', ' + commentingUser.position);
+        }
+        else {
+            cb(null, '');
+        }
+    });
+    ts.registerLocal('user_name', commentingUser ? commentingUser.name : '');
+    ts.registerLocal('display_submit', commentingUser ? 'block' : 'none');
+    ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
+    ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
+    ts.registerLocal('individual_comments', function(flag, cb) {
+        cb(null, '');   
+    });
+    ts.load('elements/comments', cb);
 };
 
 Index.prototype.getArticlesHTML = function(articles, commentsTemplates, contentSettings, commentingUser, cb) {
@@ -324,6 +426,14 @@ Index.prototype.getContentSpecificPageName = function(cb) {
     else {
         cb(pb.config.siteName);
     }
+};
+
+Index.prototype.getNavigation = function(cb) {
+    TopMenu.getTopMenu(this.session, this.ls, function(themeSettings, navigation, accountButtons) {
+        TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
+            cb(themeSettings, navigation, accountButtons);
+        });
+    });
 };
 
 //exports
