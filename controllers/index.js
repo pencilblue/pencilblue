@@ -28,7 +28,7 @@ Index.prototype.render = function(cb) {
         self.gatherData(function(err, data) {
 
             ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle) {
-
+                
                 self.ts.registerLocal('meta_keywords', metaKeywords);
                 self.ts.registerLocal('meta_desc', metaDescription);
                 self.ts.registerLocal('meta_title', metaTitle);
@@ -62,12 +62,25 @@ Index.prototype.render = function(cb) {
                         cb(err, result.join(''));
                     });
                 });
+                self.ts.registerLocal('page_name', function(flag, cb) {
+                     self.getContentSpecificPageName(util.isArray(data.content) && data.content.length > 0 ? data.content[0] : null, cb);
+                });
                 self.ts.load('index', function(err, result) {
                     if (util.isError(err)) {
                         throw err;
                     }
+                    
+//                    var objects = {
+//                        contentSettings: contentSettings,
+//                        loggedIn: pb.security.isAuthorized(self.session),
+//                        commentingUser: commentingUser,
+//                        themeSettings: data.nav.themeSettings,
+//                        articles: content,
+//                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+//                    };
+//                    var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
+//                    result = result.concat(angularData);
                     cb({content: result});
-                    //self.processArticles(result, data.content, data.nav.themeSettings, cb);
                 });
             });
         });
@@ -132,57 +145,6 @@ Index.prototype.loadContent = function(articleCallback) {
     }
 }
 
-Index.prototype.processArticles = function(result, articles, themeSettings, cb) {
-	var self = this;
-
-    pb.content.getSettings(function(err, contentSettings) {
-
-        articles = articles.slice(0, contentSettings.articles_per_page);
-
-        ArticleService.getMetaInfo(articles[0], function(metaKeywords, metaDescription, metaTitle) {
-
-            result = result.split('^meta_keywords^').join(metaKeywords);
-            result = result.split('^meta_desc^').join(metaDescription);
-            result = result.split('^meta_title^').join(metaTitle);
-            result = result.split('^meta_lang^').join(self.ls.language);
-            result = result.split('^current_url^').join(self.req.url);
-
-            Comments.getCommentsTemplates(contentSettings, function(commentsTemplates) {
-
-                var loggedIn       = false;
-                var commentingUser = null;
-                if(self.session.authentication.user) {
-                    loggedIn       = true;
-                    commentingUser = Comments.getCommentingUser(self.session.authentication.user);
-                }
-
-                self.getArticlesHTML(articles, commentsTemplates, contentSettings, commentingUser, function(articlesHTML) {
-                    result = result.split('^articles^').join(articlesHTML);
-
-                    var objects = {
-                        contentSettings: contentSettings,
-                        loggedIn: loggedIn,
-                        commentingUser: commentingUser,
-                        themeSettings: themeSettings,
-                        articles: articles,
-                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
-                    };
-                    var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
-                    result = result.concat(angularData);
-
-                    var content = self.localizationService.localize(['pencilblue_generic', 'timestamp'], result);
-
-                    self.getContentSpecificPageName(function(pageName) {
-                        content = content.split('^index_page_name^').join(pageName);
-
-                        cb({content: content});
-                    });
-                });
-            });
-        });
-    });
-};
-
 Index.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
     var self = this;
     var ats  = new pb.TemplateService(this.ls);
@@ -212,6 +174,7 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
 };
 
 Index.prototype.renderComments = function(content, ts, cb) {
+    var self           = this;
     var commentingUser = null;
     if(pb.security.isAuthenticated(this.session)) {
         commentingUser = Comments.getCommentingUser(this.session.authentication.user);
@@ -238,193 +201,56 @@ Index.prototype.renderComments = function(content, ts, cb) {
     ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
     ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
     ts.registerLocal('individual_comments', function(flag, cb) {
-        cb(null, '');   
+        if (!util.isArray(content.comments) || content.comments.length == 0) {
+            cb(null, '');
+            return;
+        }
+
+        var tasks = pb.utils.getTasks(content.comments, function(comments, i) {
+            return function(callback) {
+                self.renderComment(comments[i], callback);
+            };
+        });
+        async.parallel(tasks, function(err, results) {
+            cb(err, results.join(''));
+        });
     });
     ts.load('elements/comments', cb);
 };
 
-Index.prototype.getArticlesHTML = function(articles, commentsTemplates, contentSettings, commentingUser, cb) {
-    var self = this;
-    var articleTemplate = '';
-    var bylineTemplate = '';
+Index.prototype.renderComment = function(comment, cb) {
 
-    self.ts.load('elements/article', function(err, data) {
-        articleTemplate = data;
-        self.ts.load('elements/article/byline', function(err, data) {
-            bylineTemplate = data;
-
-            if(!self.req.pencilblue_page) {
-                if(contentSettings.display_bylines) {
-                    articleTemplate = articleTemplate.split('^byline^').join(bylineTemplate);
-                }
-                else {
-                    articleTemplate = articleTemplate.split('^byline^').join('');
-                }
-            }
-            else {
-                articleTemplate = articleTemplate.split('^byline^').join('');
-            }
-
-            if(!self.req.pencilblue_page && contentSettings.allow_comments) {
-                articleTemplate = articleTemplate.split('^comments^').join(commentsTemplates.commentsContainer);
-            }
-            else {
-                articleTemplate = articleTemplate.split('^comments^').join('');
-            }
-
-            var result = '';
-            for(var i = 0; i < articles.length; i++)
-            {
-                var articleHTML = articleTemplate.split('^article_id^').join(articles[i]._id.toString());
-                articleHTML = articleHTML.split('^article_index^').join(i.toString());
-                articleHTML = articleHTML.split('^article_url^').join(articles[i].url);
-                articleHTML = articleHTML.split('^author_photo^').join(articles[i].author_photo);
-                articleHTML = articleHTML.split('^author_name^').join(articles[i].author_name);
-                articleHTML = articleHTML.split('^author_position^').join(articles[i].author_position);
-
-                if(articles.length > 1) {
-                    articleHTML = articleHTML.split('^article_headline^').join('<a href="' + pb.config.siteRoot + '/article/' + articles[i].url + '">' + articles[i].headline + '</a>');
-                }
-                else {
-                    articleHTML = articleHTML.split('^article_headline^').join(articles[i].headline);
-                }
-
-                if(articles[i].subheading) {
-                    articleHTML = articleHTML.split('^article_subheading^').join(articles[i].subheading);
-                    articleHTML = articleHTML.split('^article_subheading_display^').join('');
-                }
-                else {
-                    articleHTML = articleHTML.split('^article_subheading_display^').join('display: none');
-                }
-
-                if(contentSettings.display_timestamp) {
-                    articleHTML = articleHTML.split('^article_timestamp^').join(articles[i].timestamp);
-                    articleHTML = articleHTML.split('^article_timestamp_display^').join('');
-                }
-                else {
-                    articleHTML = articleHTML.split('^article_timestamp_display^').join('display: none');
-                }
-
-                articleHTML = articleHTML.split('^article_layout^').join(articles[i].layout);
-
-                if(contentSettings.allow_comments) {
-                    articleHTML = self.formatComments(articleHTML, articles[i].comments, commentingUser, commentsTemplates.comment);
-                }
-
-                result = result.concat(articleHTML);
-            }
-
-            cb(result);
-        });
-    });
+    var cts = new pb.TemplateService(this.ls);
+    cts.registerLocal('commenter_photo', comment.commenter_photo ? comment.commenter_photo : '');
+    cts.registerLocal('display_photo', comment.commenter_photo ? 'block' : 'none');
+    cts.registerLocal('commenter_name', comment.commenter_name);
+    cts.registerLocal('commenter_position', comment.commenter_position ? ', ' + comment.commenter_position : '');
+    cts.registerLocal('content', comment.content);
+    cts.registerLocal('timestamp', comment.timestamp);
+    cts.load('elements/comments/comment', cb);
 };
 
-Index.prototype.formatComments = function(articleHTML, comments, commentingUser, commentTemplate) {
-    if(commentingUser) {
-        articleHTML = articleHTML.split('^display_submit^').join('block')
-        .split('^display_login^').join('none');
+Index.prototype.getContentSpecificPageName = function(content, cb) {
+    
+
+    if(this.req.pencilblue_article || this.req.pencilblue_page) {
+        cb(null, content.headline + ' | ' + pb.config.siteName);
     }
-    else {
-        articleHTML = articleHTML.split('^display_submit^').join('none')
-        .split('^display_login^').join('block');
-    }
-
-    if(comments) {
-        var commentsHTML = '';
-        for(var i = 0; i < comments.length; i++) {
-            if(comments[i].commenter_photo) {
-                commentHTML = commentTemplate.split('^commenter_photo^').join(comments[i].commenter_photo)
-                .split('^display_photo^').join('block');
-            }
-            else {
-                commentHTML = commentTemplate.split('^display_photo^').join('none')
-                .split('^commenter_photo^').join('');
-            }
-            commentHTML = commentHTML.split('^commenter_name^').join(comments[i].commenter_name);
-            if(comments[i].commenter_position) {
-                commentHTML = commentHTML.split('^commenter_position^').join(', ' + comments[i].commenter_position);
-            }
-            else {
-                commentHTML = commentHTML.split('^commenter_position^').join('');
-            }
-
-            commentHTML = commentHTML.split('^content^').join(comments[i].content)
-            .split('^timestamp^').join(comments[i].timestamp);
-
-            commentsHTML = commentsHTML.concat(commentHTML);
-        }
-
-        articleHTML = articleHTML.split('^comments_length^').join(comments.length)
-        .split('^comments^').join(commentsHTML);
-    }
-    else
-    {
-        articleHTML = articleHTML.split('^comments_length^').join('0')
-        .split('^comments^').join('');
-    }
-
-    if(commentingUser) {
-        articleHTML = articleHTML.split('^user_photo^').join((commentingUser.photo) ? commentingUser.photo : '')
-        .split('^user_name^').join(commentingUser.name);
-        if(commentingUser.position && commentingUser.position.length) {
-            articleHTML = articleHTML.split('^user_position^').join(', ' + commentingUser.position);
-        }
-        else {
-            articleHTML = articleHTML.split('^user_position^').join('');
-        }
-    }
-    else {
-        articleHTML = articleHTML.split('^user_photo^').join('');
-    }
-
-    return articleHTML;
-};
-
-Index.prototype.getContentSpecificPageName = function(cb) {
-    var dao = new pb.DAO();
-
-    if(this.req.pencilblue_article) {
-        dao.loadById(this.req.pencilblue_article, 'article', function(err, article) {
-            if(util.isError(err) || article === null) {
-                cb(pb.config.siteName);
+    else if(this.req.pencilblue_section || this.req.pencilblue_topic) {
+        
+        var objType = this.req.pencilblue_section ? 'section' : 'topic';
+        var dao     = new pb.DAO();
+        dao.loadById(this.req.pencilblue_section, objType, function(err, obj) {
+            if(util.isError(err) || obj === null) {
+                cb(null, pb.config.siteName);
                 return;
             }
 
-            cb(article.headline + ' | ' + pb.config.siteName);
-        });
-    }
-    else if(this.req.pencilblue_page) {
-        dao.loadById(this.req.pencilblue_page, 'page', function(err, page) {
-            if(util.isError(err) || page === null) {
-                cb(pb.config.siteName);
-                return;
-            }
-
-            cb(page.headline + ' | ' + pb.config.siteName);
-        });
-    }
-    else if(this.req.pencilblue_section) {
-        dao.loadById(this.req.pencilblue_section, 'section', function(err, section) {
-            if(util.isError(err) || section === null) {
-                cb(pb.config.siteName);
-                return;
-            }
-
-            cb(section.name + ' | ' + pb.config.siteName);
-        });
-    }
-    else if(this.req.pencilblue_topic) {
-        dao.loadById(this.req.pencilblue_topic, 'section', function(err, topic) {
-            if(util.isError(err) || topic === null) {
-                cb(pb.config.siteName);
-                return;
-            }
-
-            cb(topic.name + ' | ' + pb.config.siteName);
+            cb(null, obj.name + ' | ' + pb.config.siteName);
         });
     }
     else {
-        cb(pb.config.siteName);
+        cb(null, pb.config.siteName);
     }
 };
 
