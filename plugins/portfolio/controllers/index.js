@@ -46,11 +46,14 @@ Index.prototype.render = function(cb) {
                     content.content = template;
                 }
 
-                self.ps = new PluginService();
+                var dao = new pb.DAO();
+                dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(settings) {
+                    if(settings.length > 0) {
+                        settings = settings[0];
+                    }
+                    console.log(settings);
 
-                self.ps.getSettings('portfolio', function(error, settings) {
                     var callouts = self.getCallouts(settings);
-                    var layout = self.getLayout(settings);
 
                     for(var i = 0; i < callouts.length; i++) {
                         if(!callouts[i].copy.length) {
@@ -77,7 +80,12 @@ Index.prototype.render = function(cb) {
                         for(var i = 0; i < callouts.length; i++) {
                             var calloutTemplate = template.split('^copy^').join(callouts[i].copy);
                             if(callouts[i].headline && callouts[i].headline.length) {
-                                calloutTemplate = calloutTemplate.split('^headline^').join('<h3>' + callouts[i].headline + '</h3>');
+                                if(callouts[i].link && callouts[i].link.length) {
+                                    calloutTemplate = calloutTemplate.split('^headline^').join('<h3><a href="' + callouts[i].link + '">' + callouts[i].headline + '</a></h3>');
+                                }
+                                else {
+                                    calloutTemplate = calloutTemplate.split('^headline^').join('<h3>' + callouts[i].headline + '</h3>');
+                                }
                             }
                             else {
                                 calloutTemplate = calloutTemplate.split('^headline^').join('');
@@ -86,7 +94,8 @@ Index.prototype.render = function(cb) {
                             calloutsHTML += calloutTemplate;
                         }
 
-                        content.content = content.content.split('^layout^').join(layout);
+                        content.content = content.content.split('^layout^').join(decodeURIComponent(settings.page_layout));
+                        content.content = content.content.split('^hero_image^').join(settings.home_page_hero);
                         content.content = content.content.split('^callouts^').join(calloutsHTML);
 
                         cb(content);
@@ -98,48 +107,23 @@ Index.prototype.render = function(cb) {
 };
 
 Index.prototype.getCallouts = function(settings) {
-    var callouts = [{}, {}, {}];
-
-    for(var i = 0; i < settings.length; i++)
-    {
-        if(settings[i].name === 'index_page_callout_1_headline') {
-            callouts[0].headline = settings[i].value;
-            continue;
+    return [
+        {
+            headline: settings.callout_headline_1,
+            link: settings.callout_link_1,
+            copy: settings.callout_copy_1
+        },
+        {
+            headline: settings.callout_headline_2,
+            link: settings.callout_link_2,
+            copy: settings.callout_copy_2
+        },
+        {
+            headline: settings.callout_headline_3,
+            link: settings.callout_link_3,
+            copy: settings.callout_copy_3
         }
-        if(settings[i].name === 'index_page_callout_1_copy') {
-            callouts[0].copy = settings[i].value;
-            continue;
-        }
-        if(settings[i].name === 'index_page_callout_2_headline') {
-            callouts[1].headline = settings[i].value;
-            continue;
-        }
-        if(settings[i].name === 'index_page_callout_2_copy') {
-            callouts[1].copy = settings[i].value;
-            continue;
-        }
-        if(settings[i].name === 'index_page_callout_3_headline') {
-            callouts[2].headline = settings[i].value;
-            continue;
-        }
-        if(settings[i].name === 'index_page_callout_3_copy') {
-            callouts[2].copy = settings[i].value;
-            continue;
-        }
-    }
-
-    return callouts;
-};
-
-Index.prototype.getLayout = function(settings) {
-    for(var i = 0; i < settings.length; i++)
-    {
-        if(settings[i].name === 'index_page_layout') {
-            return settings[i].value;
-        }
-    }
-
-    return '';
+    ];
 };
 
 /**

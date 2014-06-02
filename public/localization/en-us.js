@@ -208,6 +208,7 @@ var loc =
         ADDED: 'was added',
         EDITED: 'was edited',
         DELETED: 'was deleted',
+        SAVED: 'was saved',
         NARROW_RESULTS: 'Narrow results',
         URL_KEY: 'URL Key',
     },

@@ -1,20 +1,20 @@
 /**
- * ContentSettings - Settings for the display of content in the Portfolio theme
+ * HomePageSettings - Settings for the display of home page content in the Portfolio theme
  *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
  */
 
-function ContentSettings() {}
+function HomePageSettings() {}
 
 //dependencies
 var PluginService = pb.PluginService;
 var Media = require(DOCUMENT_ROOT + '/controllers/admin/content/media.js');
 
 //inheritance
-util.inherits(ContentSettings, pb.BaseController);
+util.inherits(HomePageSettings, pb.BaseController);
 
-ContentSettings.prototype.render = function(cb) {
+HomePageSettings.prototype.render = function(cb) {
     var self = this;
 
     var content = {
@@ -22,7 +22,7 @@ ContentSettings.prototype.render = function(cb) {
         code: 200
     };
 
-    self.ts.load('admin/plugins/portfolio/content_settings', function(err, result) {
+    self.ts.load('admin/settings/home_page_settings', function(err, result) {
         var tabs = [
             {
                 active: 'active',
@@ -36,18 +36,18 @@ ContentSettings.prototype.render = function(cb) {
                 title: self.ls.get('HOME_MEDIA')
             },
             {
-                href: '#hero_images',
-                icon: 'picture-o',
-                title: self.ls.get('HERO_IMAGES')
+                href: '#callouts',
+                icon: 'th',
+                title: self.ls.get('CALLOUTS')
             }
         ];
 
         var pills = [
         {
             name: 'content_settings',
-            title: self.ls.get('CONTENT_SETTINGS'),
+            title: self.ls.get('HOME_PAGE_SETTINGS'),
             icon: 'chevron-left',
-            href: '/admin/plugins/portfolio/settings'
+            href: '/admin/plugins/settings/portfolio'
         }];
 
         var dao  = new pb.DAO();
@@ -70,11 +70,11 @@ ContentSettings.prototype.render = function(cb) {
     });
 };
 
-ContentSettings.getRoutes = function(cb) {
+HomePageSettings.getRoutes = function(cb) {
     var routes = [
         {
             method: 'get',
-            path: '/admin/plugins/portfolio/content_settings',
+            path: '/admin/plugins/settings/portfolio/home_page',
             auth_required: true,
             access_level: ACCESS_EDITOR,
             content_type: 'text/html'
@@ -84,4 +84,4 @@ ContentSettings.getRoutes = function(cb) {
 };
 
 //exports
-module.exports = ContentSettings;
+module.exports = HomePageSettings;

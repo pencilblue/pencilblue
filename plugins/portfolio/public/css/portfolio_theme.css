@@ -85,6 +85,7 @@ a:hover
 }
 
 .hero_bg {
+    min-width: 100%;
     max-width: 100%;
 }
 
@@ -102,6 +103,14 @@ a:hover
     margin-top: 0;
     color: #FFFFFF;
     font-size: 1.5em;
+}
+
+.hero_callouts h3 a {
+    color: #FFFFFF;
+}
+
+.hero_callouts h3 a:hover {
+    color: #AAAAAA;
 }
 
 .container.standalone {

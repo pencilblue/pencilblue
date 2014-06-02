@@ -19,34 +19,6 @@
         ]
     },
     "settings": [
-        {
-            "name": "index_page_callout_1_headline",
-            "value": "Headline 1"
-        },
-        {
-            "name": "index_page_callout_1_copy",
-            "value": "Your callout copy goes here."
-        },
-        {
-            "name": "index_page_callout_2_headline",
-            "value": "Headline 2 (optional)"
-        },
-        {
-            "name": "index_page_callout_2_copy",
-            "value": "Optional copy for second callout."
-        },
-        {
-            "name": "index_page_callout_3_headline",
-            "value": "Headline 3 (optional)"
-        },
-        {
-            "name": "index_page_callout_3_copy",
-            "value": "Optional copy for third callout."
-        },
-        {
-            "name": "index_page_layout",
-            "value": "Your page layout goes here."
-        }
     ],
     "permissions": {
         "ACCESS_USER": [],
