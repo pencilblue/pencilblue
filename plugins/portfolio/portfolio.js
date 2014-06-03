@@ -37,6 +37,15 @@ Portfolio.onUninstall = function(cb) {
  * The result is ignored
  */
 Portfolio.onStartup = function(cb) {
+    pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization) {
+        return [
+            {
+                title: 'Home page settings',
+                icon: 'home',
+                href: '/admin/plugins/settings/portfolio/home_page'
+            }
+        ];
+    });
     cb(null, false);
 };
 

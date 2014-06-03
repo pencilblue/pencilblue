@@ -51,20 +51,36 @@ HomePageSettings.prototype.render = function(cb) {
         }];
 
         var dao  = new pb.DAO();
-        dao.query('page', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {headline: pb.DAO.ASC}).then(function(pages) {
-            Media.getAll(function(media) {
-                var objects = {
-                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                    pills: pills,
-                    tabs: tabs,
-                    media: media,
-                    pages: pages
-                };
-                var angularData = pb.js.getAngularController(objects);
-                result  = result.split('^angular_script^').join(angularData);
+        dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(homePageSettings) {
+            if(homePageSettings.length > 0) {
+                homePageSettings = homePageSettings[0];
+                homePageSettings.page_media = homePageSettings.page_media.join(',');
 
-                content.content = result;
-                cb(content);
+                if(!self.session.fieldValues) {
+                    self.setFormFieldValues(homePageSettings);
+                }
+            }
+            else {
+                homePageSettings = {};
+            }
+
+            self.checkForFormRefill(result, function(newResult) {
+                result = newResult;
+
+                Media.getAll(function(media) {
+                    var objects = {
+                        navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                        pills: pills,
+                        tabs: tabs,
+                        media: media,
+                        homePageSettings: homePageSettings
+                    };
+                    var angularData = pb.js.getAngularController(objects);
+                    result  = result.split('^angular_script^').join(angularData);
+
+                    content.content = result;
+                    cb(content);
+                });
             });
         });
     });

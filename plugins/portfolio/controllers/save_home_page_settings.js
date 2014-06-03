@@ -19,6 +19,8 @@ SaveHomePageSettings.prototype.onPostParamsRetrieved = function(post, cb) {
     delete post.media_search;
     delete post.media_url;
 
+    post.page_layout = decodeURIComponent(post.page_layout);
+
     var dao = new pb.DAO();
     dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(homePageSettings) {
         if(homePageSettings.length > 0) {
