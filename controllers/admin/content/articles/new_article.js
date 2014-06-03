@@ -94,9 +94,10 @@ NewArticle.prototype.gatherData = function(cb) {
 	var dao   = new pb.DAO();
     var tasks = {
     	templates: function(callback) {
-    		self.ts.getTemplatesForActiveTheme(function(err, templates) {
-    			callback(null, templates);
-    		});
+//    		self.ts.getTemplatesForActiveTheme(function(err, templates) {
+//    			callback(null, templates);
+//    		});
+            callback(null, pb.TemplateService.getAvailableContentTemplates());
     	},
     	
     	sections: function(callback) {

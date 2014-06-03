@@ -439,6 +439,19 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
     });
 };
 
+TemplateService.getAvailableContentTemplates = function(cb) {
+    var templates = pb.PluginService.getActiveContentTemplates();
+    templates.push(
+        {
+            theme_uid: 'pencilblue',
+            theme_name: 'PencilBlue',
+            name: "Default",
+            file: "index"
+        }
+    );
+    return templates;
+};
+
 /**
  * Registers a value or function for the specified
  * 
