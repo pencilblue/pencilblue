@@ -369,18 +369,25 @@ Blog.prototype.getSideNavigation = function(articles, cb) {
     var topics = [];
     var articleIDs = [];
 
-    if(!this.req.pencilblue_article) {
-
+    if(this.req.pencilblue_article) {
+        topics = articles[0].article_topics;
+        articleIDs = [articles[0]._id];
+    }
+    else if(this.req.pencilblue_page) {
+        articleIDs = [];
+        for(i = 0; i < articles.length; i++) {
+            for(j = 0; j < articles[i].page_topics.length; j++) {
+                topics.push(articles[i].page_topics[j]);
+            }
+        }
+    }
+    else {
         for(var i = 0; i < articles.length; i++) {
             articleIDs.push(articles[i]._id);
             for(var j = 0; j < articles[i].article_topics.length; j++) {
                 topics.push(articles[i].article_topics[j]);
             }
         }
-    }
-    else {
-        topics = articles[0].article_topics;
-        articleIDs = [articles[0]._id];
     }
 
     var dao = new pb.DAO();
