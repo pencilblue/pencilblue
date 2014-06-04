@@ -51,7 +51,6 @@ Index.prototype.render = function(cb) {
                     if(settings.length > 0) {
                         settings = settings[0];
                     }
-                    console.log(settings);
 
                     var callouts = self.getCallouts(settings);
 
