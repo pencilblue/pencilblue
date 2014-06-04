@@ -1,4 +1,6 @@
-<h4>^side_nav_title^</h4>
-<div class="side_nav_item" ng-repeat="item in sideNavItems" ng-cloak>
-    <h5>{{item.headline}}</h5>
-</div>
+<ul class="nav nav-pills nav-stacked">
+    <li><h4>^side_nav_title^</h4></li>
+    <li ng-repeat="item in sideNavItems" ng-cloak>
+        <a ng-href="/article/{{item.url}}">{{item.headline}}</a>
+    </li>
+</ul>

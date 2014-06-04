@@ -366,17 +366,33 @@ Blog.prototype.getContentSpecificPageName = function(cb) {
 };
 
 Blog.prototype.getSideNavigation = function(articles, cb) {
-    var dao = new pb.DAO();
+    var topics = [];
+    var articleIDs = [];
 
-    if(this.req.pencilblue_article) {
-        dao.query('article', {article_topics: {$in: articles[0].article_topics}}).then(function(relatedArticles) {
-            cb('elements/side_nav/related_articles', '^loc_RELATED_ARTICLES^', relatedArticles);
-        });
+    if(!this.req.pencilblue_article) {
 
-        return;
+        for(var i = 0; i < articles.length; i++) {
+            articleIDs.push(articles[i]._id);
+            for(var j = 0; j < articles[i].article_topics.length; j++) {
+                topics.push(articles[i].article_topics[j]);
+            }
+        }
+    }
+    else {
+        topics = articles[0].article_topics;
+        articleIDs = [articles[0]._id];
     }
 
-    cb('', '', {});
+    var dao = new pb.DAO();
+    dao.query('article', {article_topics: {$in: topics}, _id: {$nin: articleIDs}}, null, null, 6).then(function(relatedArticles) {
+        if(relatedArticles.length === 0) {
+            dao.query('article', {_id: {$ne: articles[0]._id}}, null, null, 6).then(function(relatedArticles) {
+                cb('elements/side_nav/related_articles', '^loc_RELATED_ARTICLES^', relatedArticles);
+            });
+            return;
+        }
+        cb('elements/side_nav/related_articles', '^loc_RELATED_ARTICLES^', relatedArticles);
+    });
 };
 
 /**
