@@ -47,29 +47,27 @@ NewPage.prototype.render = function(cb) {
             }
         ];
         
-        self.ts.getTemplatesForActiveTheme(function(err, templates) {
-        	
-        	var dao = new pb.DAO();
-        	dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
-        		//TODO handle errors
-        		
-        		Media.getAll(function(media){                            
-                    self.checkForFormRefill(result, function(newResult) {
-                        result = newResult;
-                        
-                        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'new_page');
-                        result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                        {
-                            navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
-                            pills: pills,
-                            tabs: tabs,
-                            templates: templates,
-                            topics: topics,
-                            media: media
-                        }, [], 'initMediaPagination();initTopicsPagination()'));
-            
-                        cb({content: result});
-                    });
+        var templates = pb.TemplateService.getAvailableContentTemplates();
+        var dao = new pb.DAO();
+        dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
+            //TODO handle errors
+
+            Media.getAll(function(media){                            
+                self.checkForFormRefill(result, function(newResult) {
+                    result = newResult;
+
+                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'new_page');
+                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
+                    {
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
+                        pills: pills,
+                        tabs: tabs,
+                        templates: templates,
+                        topics: topics,
+                        media: media
+                    }, [], 'initMediaPagination();initTopicsPagination()'));
+
+                    cb({content: result});
                 });
             });
         });

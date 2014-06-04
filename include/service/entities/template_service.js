@@ -439,7 +439,21 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
     });
 };
 
-TemplateService.getAvailableContentTemplates = function(cb) {
+/**
+ * Retrieves the content templates that are available for use to render 
+ * Articles and pages.
+ * @static
+ * @method getAvailableContentTemplates
+ * @returns {Array} An array of template definitions
+ * @example
+ *  [{
+ *      theme_uid: 'pencilblue',
+ *      theme_name: 'PencilBlue',
+ *      name: "Default",
+ *      file: "index"
+ *  }]
+ */
+TemplateService.getAvailableContentTemplates = function() {
     var templates = pb.PluginService.getActiveContentTemplates();
     templates.push(
         {
