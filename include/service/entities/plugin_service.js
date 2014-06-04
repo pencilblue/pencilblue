@@ -489,8 +489,8 @@ PluginService.getActiveContentTemplates = function() {
     var templates = [];
     for (var uid in ACTIVE_PLUGINS) {
         var plugin = ACTIVE_PLUGINS[uid];
-        if (plugin.content_templates) {
-            var clone = pb.utils.clone(plugin.content_templates);
+        if (plugin.templates) {
+            var clone = pb.utils.clone(plugin.templates);
             for(var i = 0; i < clone.length; i++) {
                 clone[i].theme_uid = uid;
                 templates.push(clone[i]);
