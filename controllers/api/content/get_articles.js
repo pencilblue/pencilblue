@@ -115,18 +115,16 @@ GetArticles.prototype.getArticlesHTML = function(articles, commentsTemplates, co
                 articleHTML = articleHTML.split('^author_name^').join(articles[i].author_name);
                 articleHTML = articleHTML.split('^author_position^').join(articles[i].author_position);
 
-                if(articles.length > 1) {
-                    articleHTML = articleHTML.split('^article_headline^').join('<a href="' + pb.config.siteRoot + '/article/' + articles[i].url + '">' + articles[i].headline + '</a>');
-                }
-                else {
-                    articleHTML = articleHTML.split('^article_headline^').join(articles[i].headline);
-                }
+                articleHTML = articleHTML.split('^article_headline^').join('<a href="' + pb.config.siteRoot + '/article/' + articles[i].url + '">' + articles[i].headline + '</a>');
+
+                articleHTML = articleHTML.split('^article_headline_nolink^').join(articles[i].headline);
 
                 if(articles[i].subheading) {
                     articleHTML = articleHTML.split('^article_subheading^').join(articles[i].subheading);
                     articleHTML = articleHTML.split('^article_subheading_display^').join('');
                 }
                 else {
+                    articleHTML = articleHTML.split('^article_subheading^').join('');
                     articleHTML = articleHTML.split('^article_subheading_display^').join('display: none');
                 }
 
