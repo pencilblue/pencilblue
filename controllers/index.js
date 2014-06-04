@@ -60,6 +60,7 @@ Index.prototype.render = function(cb) {
                         }
                         var where = pb.DAO.getIDWhere(page || article);
                         where.draft = {$gte: 0};
+                        where.publish_date = {$gte: new Date(0)};
                         service.find(where, articleCallback);
                     }
                     else {

@@ -1,6 +1,6 @@
 /**
  * Preview - Responsible for looking up a specific article and rendering it.
- * 
+ *
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright PencilBlue, LLC. 2014 All Rights Reserved
  */
@@ -9,23 +9,23 @@ function Preview(){}
 //dependencies
 var Index = require('./index.js');
 
-//inheritance 
+//inheritance
 util.inherits(Preview, Index);
 
 
 Preview.prototype.render = function(cb) {
 	var self    = this;
 	var vars    = this.pathVars;
-	
+
 	var dao     = new pb.DAO();
-	dao.loadById(vars['id'], vars['type'], function(err, item) {
-		if (util.isError(err) || item == null) {
+	dao.loadById(vars.id, vars.type, function(err, item) {
+		if (util.isError(err) || item === null) {
 			cb({content: 'The section could not be found on this server', code: 404});
 			return;
 		}
-		
+
 		self.req.pencilblue_preview = item._id.toString();
-		switch(vars['type']) {
+		switch(vars.type) {
 		    case 'page':
 		        self.req.pencilblue_page = item._id.toString();
 		        this.page = item;

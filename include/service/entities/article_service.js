@@ -27,10 +27,12 @@ ArticleService.prototype.findByTopic = function(topicId, cb) {
 
 ArticleService.prototype.find = function(where,  cb) {
 	var self = this;
-	
+
 	var dao   = new pb.DAO();
 	var order = [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]];
-	where.publish_date = {$lt: new Date()};
+	if(!where.publish_date) {
+		where.publish_date = {$lt: new Date()};
+	}
 	if(!where.draft) {
 	    where.draft = {$ne: 1};
     }
@@ -43,12 +45,12 @@ ArticleService.prototype.find = function(where,  cb) {
 			cb(null, []);
 			return;
 		}
-		
+
 		//get authors
 		self.getArticleAuthors(articles, function(err, authors) {
-			
+
 			pb.content.getSettings(function(err, contentSettings) {
-		
+
 				var tasks = pb.utils.getTasks(articles, function(articles, i) {
 					return function(callback) {
 						self.processArticleForDisplay(articles[i], authors, contentSettings, function(){
@@ -62,15 +64,15 @@ ArticleService.prototype.find = function(where,  cb) {
 			});
 		});
 	});
-	
+
 };
 
 ArticleService.prototype.processArticleForDisplay = function(article, authors, contentSettings, cb) {
 	var self = this;
-	
+
 	if (this.getContentType() === 'article') {
 		if(contentSettings.display_bylines) {
-	        
+
 	        for(var j = 0; j < authors.length; j++) {
 
 	        	if(authors[j]._id.equals(ObjectID(article.author))) {
@@ -78,28 +80,28 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
 	                    article.author_photo     = authors[j].photo;
 	                    article.media_body_style = '';
 	                }
-	                
+
 	                article.author_name     = pb.users.getFormattedName(authors[j]);
 	                article.author_position = (authors[j].position && contentSettings.display_author_position) ? authors[j].position : '';
 	                break;
 	            }
 	        }
 	    }
-	    
+
 	    if(contentSettings.display_timestamp ) {
 	        article.timestamp = pb.content.getTimestampTextFromSettings(
-	        		article.publish_date, 
+	        		article.publish_date,
 	        		contentSettings
 			);
 	    }
 	}
-    
+
     article.layout  = article.article_layout;
     var mediaLoader = new MediaLoader();
     mediaLoader.start(article[this.getContentType()+'_layout'], function(err, newLayout) {
         article.layout = newLayout;
         delete article.article_layout;
-        
+
         if (self.getContentType() === 'article') {
 
         	var where = {article: article._id.toString()};
@@ -110,7 +112,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
 	                cb(null, null);
 	                return;
 	            }
-	        
+
 	            self.getCommenters(comments, contentSettings, function(err, commentsWithCommenters) {
 	                article.comments = commentsWithCommenters;
 	                cb(null, null);
@@ -124,7 +126,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
 };
 
 ArticleService.prototype.getArticleAuthors = function(articles, cb) {
-	
+
 	//gather all author IDs
 	var dao = new pb.DAO();
 	dao.query('user', pb.DAO.getIDInWhere(articles, 'author')).then(function(authors) {
@@ -141,12 +143,12 @@ ArticleService.prototype.getArticleAuthors = function(articles, cb) {
 };
 
 ArticleService.prototype.getCommenters = function(comments, contentSettings, cb) {
- 
+
 	//callback for iteration to handle setting the commenter attributes
     var processComment = function(comment, commenter) {
     	comment.commenter_name = 'Anonymous';
     	comment.timestamp      = pb.content.getTimestampTextFromSettings(comment.created, contentSettings);
-    	
+
     	if (commenter) {
 	    	comment.commenter_name = pb.users.getFormattedName(commenter);
 	        if(commenter.photo) {
@@ -157,22 +159,22 @@ ArticleService.prototype.getCommenters = function(comments, contentSettings, cb)
 	        }
     	}
     };
-    
+
     var processedComments = [];
     var users             = {};
     var tasks             = pb.utils.getTasks(comments, function(comments, i) {
     	return function(callback) {
-    		
+
     		var comment   = comments[i];
     		if (!comment.commenter || users[comment.commenter]) {
-    			
+
     			//user already commented so pull locally
     			processComment(comment, users[comment.commenter]);
     			processedComments.push(comment);
     			callback(null, true);
     			return;
     		}
-    		
+
     		//user has not already commented so load
     		var dao = new pb.DAO();
     	    dao.loadById(comment.commenter, 'user', function(err, commenter) {
@@ -180,12 +182,12 @@ ArticleService.prototype.getCommenters = function(comments, contentSettings, cb)
     	        	callback(null, false);
     	            return;
     	        }
-    	        
+
     	        //process the comment
     	        users[commenter._id.toString()] = commenter;
     	        processComment(comment, commenter);
     			processedComments.push(comment);
-    			
+
     			callback(null, true);
     	    });
     	};
@@ -215,7 +217,7 @@ ArticleService.getMetaInfo = function(article, cb)
     var keywords = article.meta_keywords || [];
     var topics = article.article_topics || article.page_topics || [];
     var instance = this;
-    
+
     this.loadTopic = function(index)
     {
         if(index >= topics.length)
@@ -229,11 +231,11 @@ ArticleService.getMetaInfo = function(article, cb)
             {
                 description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
             }
-        
+
             cb(keywords.join(','), description, (article.seo_title.length > 0) ? article.seo_title : article.headline);
             return;
         }
-        
+
         var dao  = new pb.DAO();
         dao.query('topic', {_id: ObjectID(topics[index])}).then(function(topics) {
             if(util.isError(topics) || topics.length == 0) {
@@ -241,17 +243,17 @@ ArticleService.getMetaInfo = function(article, cb)
                 instance.loadTopic(index);
                 return;
             }
-            
+
             var topicName = topics[0].name;
             var keywordMatch = false;
-            
+
             for(var i = 0; i < keywords.length; i++) {
                 if(topicName == keywords[i]) {
                     keywordMatch = true;
                     break;
                 }
             }
-            
+
             if(!keywordMatch)
             {
                 keywords.push(topicName);
@@ -260,7 +262,7 @@ ArticleService.getMetaInfo = function(article, cb)
             instance.loadTopic(index);
         });
     };
-    
+
     this.loadTopic(0);
 };
 
@@ -277,7 +279,7 @@ MediaLoader.prototype.start = function(articleLayout, cb) {
 	var self = this;
 	var ts   = new pb.TemplateService();
     ts.load('elements/media', function(err, mediaTemplate) {
-    	
+
     	async.whilst(
 			function() {return articleLayout.indexOf('^media_display_') >= 0;},
 			function(callback) {
@@ -287,7 +289,7 @@ MediaLoader.prototype.start = function(articleLayout, cb) {
 				});
 			},
 			function(err) {
-				
+
 				async.whilst(
 					function() {return articleLayout.indexOf('^carousel_display_') >= 0;},
 					function(callback) {
@@ -311,13 +313,13 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
         cb(null, layout);
         return;
     }
-    
+
     var startIndex       = index + 15;
     var endIndex         = layout.substr(startIndex).indexOf('^');
     var mediaProperties  = layout.substr(startIndex, endIndex).split('/');
     var mediaID          = mediaProperties[0];
     var mediaStyleString = mediaProperties[1];
-    
+
     var dao = new pb.DAO();
     dao.loadById(mediaID, 'media', function(err, data) {
         if(util.isError(err) || !data) {
@@ -327,10 +329,10 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
             var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data));
             mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
             mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString);
-            
+
             layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);
         }
-        
+
         cb(null, layout);
     });
 };
@@ -341,11 +343,11 @@ MediaLoader.prototype.replaceCarouselTag = function(layout, mediaTemplate, cb) {
         cb(null, layout);
         return;
     }
-    
+
     var startIndex = layout.indexOf('^carousel_display_') + 18;
     var endIndex   = layout.substr(startIndex).indexOf('^');
     var mediaIDs   = layout.substr(startIndex, endIndex).split('-');
-    
+
     var tagToReplace = layout.substr(startIndex - 18, endIndex + 19);
     var carouselID   = layout.substr(startIndex - 17, endIndex + 17);
     Media.getCarousel(mediaIDs, layout, tagToReplace, carouselID, function(newLayout) {
