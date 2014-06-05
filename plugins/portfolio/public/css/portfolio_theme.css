@@ -4,6 +4,13 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
+*
+{
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+}
+
 a
 {
     color: #01AAD5;
@@ -182,6 +189,20 @@ a:hover
     width: 100%;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
+}
+
+.topic_label {
+    background: #CCCCCC;
+    margin: 0 .25em .25em 0;
+    float: left;
+}
+
+.topic_label h5 {
+    margin: .25em;
+}
+
+.topic_label:hover {
+    background: #666666;
 }
 
 footer {

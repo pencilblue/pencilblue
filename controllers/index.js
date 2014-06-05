@@ -17,7 +17,7 @@ util.inherits(Index, pb.BaseController);
 
 Index.prototype.render = function(cb) {
 	var self = this;
-    
+
     //determine and execute the proper call
     var section = self.req.pencilblue_section || null;
     var topic   = self.req.pencilblue_topic   || null;
@@ -25,9 +25,9 @@ Index.prototype.render = function(cb) {
     var page    = self.req.pencilblue_page    || null;
 
     pb.content.getSettings(function(err, contentSettings) {
-        self.gatherData(function(err, data) {                         
+        self.gatherData(function(err, data) {
             ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle) {
-                
+
                 self.ts.reprocess = false;
                 self.ts.registerLocal('meta_keywords', metaKeywords);
                 self.ts.registerLocal('meta_desc', metaDescription);
@@ -55,7 +55,7 @@ Index.prototype.render = function(cb) {
                     var tasks = pb.utils.getTasks(data.content, function(content, i) {
                         return function(callback) {
                             if (i >= contentSettings.articles_per_page) {//TODO, limit articles in query, not throug hackery
-                                callback(null, '');   
+                                callback(null, '');
                                 return;
                             }
                             self.renderContent(content[i], contentSettings, data.nav.themeSettings, i, callback);
@@ -68,12 +68,12 @@ Index.prototype.render = function(cb) {
                 self.ts.registerLocal('page_name', function(flag, cb) {
                      self.getContentSpecificPageName(util.isArray(data.content) && data.content.length > 0 ? data.content[0] : null, cb);
                 });
-                
+
                 self.getTemplate(data.content, function(err, template) {
                     if (util.isError(err)) {
                         throw err;
                     }
-                    
+
                     self.ts.load(template, function(err, result) {
                         if (util.isError(err)) {
                             throw err;
@@ -101,58 +101,58 @@ Index.prototype.render = function(cb) {
 
 
 Index.prototype.getTemplate = function(content, cb) {
-    
+
     //check if we should just use whatever default there is.
     //this could fall back to an active theme or the default pencilblue theme.
     if (!this.req.pencilblue_article && !this.req.pencilblue_page) {
         cb(null, 'index');
         return;
     }
-    
-    //now we are dealing with a single page or article. the template will be 
+
+    //now we are dealing with a single page or article. the template will be
     //judged based off the article's preference.
     var uidAndTemplate = content.template;
-    
-    //when no template is specified or is empty we no that the article has no 
-    //preference and we can fall back on the default (index).  We depend on the 
-    //template service to determine who has priority based on the active theme 
+
+    //when no template is specified or is empty we no that the article has no
+    //preference and we can fall back on the default (index).  We depend on the
+    //template service to determine who has priority based on the active theme
     //then defaulting back to pencilblue.
     if (!pb.validation.validateNonEmptyStr(uidAndTemplate, true)) {
         pb.log.silly("ContentController: No template specified, defaulting to index.");
         cb(null, "index");
         return;
     }
-    
-    //we now know that the template was specified.  We have to split the value 
+
+    //we now know that the template was specified.  We have to split the value
     //to extract the intended theme and the template path
     var pieces = uidAndTemplate.split('|');
-    
-    //for backward compatibility we let the template service determine where to 
-    //find the template when no template is specified.  This mostly catches the 
+
+    //for backward compatibility we let the template service determine where to
+    //find the template when no template is specified.  This mostly catches the
     //default case of "index"
     if (pieces.length === 1) {
-        
+
         pb.log.silly("ContentController: No theme specified, Template Service will delegate [%s]", pieces[0]);
         cb(null, pieces[0]);
         return;
     }
     else if (pieces.length <= 0) {
-        
+
         //shit's broke. This should never be the case but better safe than sorry
         cb(new Error("The content's template property provided an invalid value of ["+content.template+']'), null);
         return;
     }
-    
-    //the theme is specified, we ensure that the theme is installed and 
-    //initialized otherwise we let the template service figure out how to 
+
+    //the theme is specified, we ensure that the theme is installed and
+    //initialized otherwise we let the template service figure out how to
     //delegate.
     if (!pb.PluginService.isActivePlugin(pieces[0])) {
         pb.log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
         cb(null, pieces[1]);
         return;
     }
-    
-    //the theme is OK. We don't gaurantee that the template is on the disk but we can testify that it SHOULD.  We set the 
+
+    //the theme is OK. We don't gaurantee that the template is on the disk but we can testify that it SHOULD.  We set the
     //prioritized theme for the template service.
     pb.log.silly("ContentController: Prioritizing Theme [%s] for template [%s]", pieces[0], pieces[1]);
     this.ts.setTheme(pieces[0]);
@@ -163,14 +163,14 @@ Index.prototype.getTemplate = function(content, cb) {
 Index.prototype.gatherData = function(cb) {
     var self  = this;
     var tasks = {
-        
+
         //navigation
         nav: function(callback) {
             self.getNavigation(function(themeSettings, navigation, accountButtons) {
-                callback(null, {themeSettings: themeSettings, navigation: navigation, accountButtons: accountButtons}); 
+                callback(null, {themeSettings: themeSettings, navigation: navigation, accountButtons: accountButtons});
             });
         },
-        
+
         //articles, pages, etc.
         content: function(callback) {
             self.loadContent(callback);
@@ -180,12 +180,12 @@ Index.prototype.gatherData = function(cb) {
 };
 
 Index.prototype.loadContent = function(articleCallback) {
-    
+
     var section = this.req.pencilblue_section || null;
     var topic   = this.req.pencilblue_topic   || null;
     var article = this.req.pencilblue_article || null;
     var page    = this.req.pencilblue_page    || null;
-    
+
     var service = new ArticleService();
     if(this.req.pencilblue_preview) {
         if(this.req.pencilblue_preview == page || article) {
@@ -242,7 +242,7 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
            cb(null, '');
            return;
        }
-        
+
         self.renderComments(content, ats, cb);
     });
     ats.load('elements/article', cb);
@@ -254,7 +254,7 @@ Index.prototype.renderComments = function(content, ts, cb) {
     if(pb.security.isAuthenticated(this.session)) {
         commentingUser = Comments.getCommentingUser(this.session.authentication.user);
     }
-    
+
     ts.registerLocal('user_photo', function(flag, cb) {
         if (commentingUser) {
             cb(null, commentingUser.photo ? commentingUser.photo : '');
@@ -307,13 +307,13 @@ Index.prototype.renderComment = function(comment, cb) {
 };
 
 Index.prototype.getContentSpecificPageName = function(content, cb) {
-    
+
 
     if(this.req.pencilblue_article || this.req.pencilblue_page) {
         cb(null, content.headline + ' | ' + pb.config.siteName);
     }
     else if(this.req.pencilblue_section || this.req.pencilblue_topic) {
-        
+
         var objType = this.req.pencilblue_section ? 'section' : 'topic';
         var dao     = new pb.DAO();
         dao.loadById(this.req.pencilblue_section, objType, function(err, obj) {
