@@ -133,7 +133,8 @@ var loc =
 		MEMORY_USED: 'Memory Used',
 		SECONDS_ABBR: 'Secs',
 		NO_AVAILABLE_PLUGINS: 'No available plugins',
-        READ_MORE: 'Read more'
+        READ_MORE: 'Read more',
+        THEME_DEFAULT: 'Theme Default'
     },
     error:
     {

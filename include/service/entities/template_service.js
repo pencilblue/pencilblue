@@ -49,6 +49,8 @@ function TemplateService(localizationService){
 		
 		TEMPLATE_LOADER = new pb.SimpleLayeredService(services, 'TemplateService');
 	}
+    
+    this.reprocess = true;
 };
 
 //constants
@@ -340,7 +342,7 @@ TemplateService.prototype.handleTemplateReplacement = function(flag, cb) {
 /**
  * Called when the processing engine encounters a non-sub-template flag.  The 
  * function delegates the content transformation out to either the locally or 
- * globally register function.  In the even that a value was registered and not 
+ * globally registered function.  In the event that a value was registered and not 
  * a function then the value is used as the second parameter in the callback.  
  * During template re-assembly the value will be converted to a string.
  * 
@@ -355,7 +357,7 @@ TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
 	var handler = function(err, content) {
 		
 		//prevent infinite loops
-		if (pb.utils.isString(content) && (content.length === 0 || content.indexOf('^'+flag+'^') >= 0)) {
+		if (!this.reprocess || (pb.utils.isString(content) && (content.length === 0 || ('^'+flag+'^') === content))) {
 			cb(err, content);
 		}
 		else {
@@ -435,6 +437,33 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
         	cb(err, templates);
         });
     });
+};
+
+/**
+ * Retrieves the content templates that are available for use to render 
+ * Articles and pages.
+ * @static
+ * @method getAvailableContentTemplates
+ * @returns {Array} An array of template definitions
+ * @example
+ *  [{
+ *      theme_uid: 'pencilblue',
+ *      theme_name: 'PencilBlue',
+ *      name: "Default",
+ *      file: "index"
+ *  }]
+ */
+TemplateService.getAvailableContentTemplates = function() {
+    var templates = pb.PluginService.getActiveContentTemplates();
+    templates.push(
+        {
+            theme_uid: 'pencilblue',
+            theme_name: 'PencilBlue',
+            name: "Default",
+            file: "index"
+        }
+    );
+    return templates;
 };
 
 /**

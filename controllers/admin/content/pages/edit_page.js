@@ -72,29 +72,27 @@ EditPage.prototype.render = function(cb) {
                 }
             ];
             
-            self.ts.getTemplatesForActiveTheme(function(err, templates) {
-            	
-            	dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
-                    
-            		Media.getAll(function(media) {                            
-                        
-            			self.checkForFormRefill(result, function(newResult) {
-                            result = newResult;
-                            
-                            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_page', page);
-                            result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                            {
-                                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
-                                pills: pills,
-                                tabs: tabs,
-                                templates: templates,
-                                topics: topics, 
-                                media: media,
-                                page: page
-                            }, [], 'initMediaPagination();initTopicsPagination()'));
+            var templates = pb.TemplateService.getAvailableContentTemplates();
+            dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
 
-                            cb({content: result});
-                        });
+                Media.getAll(function(media) {                            
+
+                    self.checkForFormRefill(result, function(newResult) {
+                        result = newResult;
+
+                        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_page', page);
+                        result    = result.split('^angular_script^').join(pb.js.getAngularController(
+                        {
+                            navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
+                            pills: pills,
+                            tabs: tabs,
+                            templates: templates,
+                            topics: topics, 
+                            media: media,
+                            page: page
+                        }, [], 'initMediaPagination();initTopicsPagination()'));
+
+                        cb({content: result});
                     });
                 });
             });

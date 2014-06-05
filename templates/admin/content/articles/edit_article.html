@@ -16,9 +16,9 @@
                     </div>
                     <div class="form-group">
                         <label>^loc_STANDALONE_TEMPLATE^</label>
-                        <select id="template" name="template" class="form-control" required>
-                            <!-- <option value="{{template.file}}" ng-repeat="template in templates" ng-cloak>{{template.name}}</option> -->
-                            <option value="index">Index</option>
+                        <select id="template" name="template" class="form-control">
+                            <option value="">^loc_THEME_DEFAULT^</option>
+                            <option value="{{template.theme_uid}}|{{template.file}}" ng-repeat="template in templates" ng-cloak>{{template.theme_name}}: {{template.name}}</option>
                         </select>
                     </div>
                     <div class="form-group">

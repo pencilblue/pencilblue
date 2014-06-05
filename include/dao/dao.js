@@ -109,7 +109,7 @@ DAO.prototype.unique = function(collection, where, exclusionId, cb) {
  * @returns Promise
  */
 DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset){
-	
+
 	var cursor  = this._doQuery(entityType, where, select, orderBy, limit, offset);
 	var promise = new Promise();
 	cursor.toArray(function(err, docs){
@@ -152,7 +152,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 		cursor.limit(limit);
 	}
 	
-	if(pb.log.isSilly()){
+	if(pb.config.db.query_logging){
 		var query = "DAO: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
 		if (typeof orderBy !== 'undefined') {
 			query += " ORDER BY "+JSON.stringify(orderBy);
@@ -160,7 +160,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 		if (typeof limit !== 'undefined') {
 			query += " LIMITY "+JSON.stringify(limit)+", OFFSET "+offset;
 		}
-		pb.log.silly(query);
+		pb.log.info(query);
 	}
 	return cursor;
 };

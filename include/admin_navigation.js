@@ -1,7 +1,7 @@
 /**
- * Provides function to construct the structure needed to display the navigation 
+ * Provides function to construct the structure needed to display the navigation
  * in the Admin section of the application.
- * 
+ *
  * @class AdminNavigation
  * @constructor
  * @author Blake Callens <blake@pencilblue.org>
@@ -13,7 +13,7 @@ function AdminNavigation(){}
  * @private
  * @method getDefaultNavigation
  * @param {Localization} ls
- * @return {object} 
+ * @return {object}
  */
 function getDefaultNavigation(ls) {
 	return [
@@ -132,13 +132,6 @@ function getDefaultNavigation(ls) {
                     access: ACCESS_MANAGING_EDITOR
                 },
                 {
-                    id: 'account',
-                    title: ls.get('ACCOUNT'),
-                    icon: 'user',
-                    href: '/user/manage_account',
-                    access: ACCESS_WRITER
-                },
-                {
                     divider: true,
                     id: 'logout',
                     title: ls.get('LOGOUT'),
@@ -152,7 +145,7 @@ function getDefaultNavigation(ls) {
 }
 
 /**
- * 
+ *
  * @static
  * @method get
  * @param {object} session
@@ -162,14 +155,14 @@ function getDefaultNavigation(ls) {
  */
 AdminNavigation.get = function(session, activeMenuItems, ls) {
     return AdminNavigation.removeUnauthorized(
-		session, 
-		getDefaultNavigation(ls), 
+		session,
+		getDefaultNavigation(ls),
 		activeMenuItems
 	);
 };
 
 /**
- * 
+ *
  * @static
  * @method removeUnathorized
  * @param session
@@ -180,36 +173,36 @@ AdminNavigation.get = function(session, activeMenuItems, ls) {
 AdminNavigation.removeUnauthorized = function(session, adminNavigation, activeItems) {
 	for (var i = 0; i < adminNavigation.length; i++) {
         if (typeof adminNavigation[i].access !== 'undefined') {
-            
+
         	if (!pb.security.isAuthorized(session, {admin_level: adminNavigation[i].access})) {
                 adminNavigation.splice(i, 1);
                 i--;
                 continue;
             }
         }
-        
+
         for (var o = 0; o < activeItems.length; o++) {
             if (activeItems[o] == adminNavigation[i].id) {
                 adminNavigation[i].active = 'active';
                 break;
             }
         }
-        
+
         if (typeof adminNavigation[i].children !== 'undefined') {
             if (adminNavigation[i].children.length > 0) {
                 adminNavigation[i].dropdown = 'dropdown';
-                
+
                 for (var j = 0; j < adminNavigation[i].children.length; j++) {
-                    
+
                 	if (typeof adminNavigation[i].children[j].access !== 'undefined') {
-                        
+
                 		if (!pb.security.isAuthorized(session, {admin_level: adminNavigation[i].children[j].access})) {
                             adminNavigation[i].children.splice(j, 1);
                             j--;
                             continue;
                         }
                     }
-                    
+
                     for (var o = 0; o < activeItems.length; o++) {
                         if (activeItems[o] == adminNavigation[i].children[j].id) {
                             adminNavigation[i].children[j].active = 'active';
@@ -220,7 +213,7 @@ AdminNavigation.removeUnauthorized = function(session, adminNavigation, activeIt
             }
         }
     }
-    
+
     return adminNavigation;
 };
 

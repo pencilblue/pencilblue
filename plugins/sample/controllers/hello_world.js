@@ -36,6 +36,14 @@ HelloWorld.prototype.render = function(cb) {
 		content_type: "text/html",
 		code: 200
 	};
+    
+    var i     = 0;
+    var items = [
+        "a",
+        "b",
+        "c",
+        "d"
+    ];
 	
 	//get page navigation
 	this.getNavigation(function(err, navigation, accountButtons) {
@@ -51,13 +59,23 @@ HelloWorld.prototype.render = function(cb) {
 			self.ts.registerLocal('sample_text', text);
 			self.ts.registerLocal('navigation', navigation);
 			self.ts.registerLocal('account_buttons', accountButtons);
+            self.ts.registerLocal('items', function(flag, cb) {
+                if (i >= items.length) {
+                    cb(null, '');
+                    return;
+                }
+               
+                var content = '<li>'+items[i]+'</li>^items^';
+                i+=1;
+                cb(null, content);
+            });
 			self.ts.load(path.join('sample', 'index'), function(err, template) {
 				if (util.isError(err)) {
 					content.content = '<html><head><title>'+self.getPageName()+'</title></head><body><pre>'+err.stack+'</pre></body></html>';
+                    return;
 				}
-				else {
-					content.content = template;
-				}
+                
+				content.content = template;
 				cb(content);
 			});
 		});

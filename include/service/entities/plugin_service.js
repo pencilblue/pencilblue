@@ -484,6 +484,22 @@ PluginService.prototype.getActivePlugins = function(cb) {
 	});
 };
 
+PluginService.getActiveContentTemplates = function() {
+    
+    var templates = [];
+    for (var uid in ACTIVE_PLUGINS) {
+        var plugin = ACTIVE_PLUGINS[uid];
+        if (plugin.templates) {
+            var clone = pb.utils.clone(plugin.templates);
+            for(var i = 0; i < clone.length; i++) {
+                clone[i].theme_uid = uid;
+                templates.push(clone[i]);
+            }
+        }
+    }
+    return templates;
+};
+
 PluginService.prototype.getInactivePlugins = function(cb) {
 	var where = {uid: {'$nin': this.getActivePluginNames()}};
 	var order = {created: pb.DAO.ASC};
@@ -940,11 +956,19 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
         	 }
 
         	 //create cached active plugin structure
+             var templates  = null;
+             if (details.theme && details.theme.content_templates) {
+                 templates = details.theme.content_templates;
+                 for (var i = 0; i < templates.length; i++) {
+                    templates[i].theme_name = details.name;   
+                 }
+             }
         	 var mainModule = PluginService.loadMainModule(plugin.dirName, details.main_module.path);
         	 ACTIVE_PLUGINS[details.uid] = {
     			 main_module: mainModule,
     			 public_dir: PluginService.getPublicPath(plugin.dirName),
-    			 permissions: map
+    			 permissions: map,
+                 templates: templates 
         	 };
 
         	 //set icon url (if exists)

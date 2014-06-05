@@ -61,7 +61,7 @@ NewArticle.prototype.onPostParamsRetrieved = function(post, cb) {
 };
 
 NewArticle.prototype.getRequiredFields = function() {
-	return ['url', 'headline', 'template', 'article_layout'];
+	return ['url', 'headline', 'article_layout'];
 };
 
 //exports
