@@ -99,6 +99,7 @@ Index.prototype.render = function(cb) {
     });
 };
 
+
 Index.prototype.getTemplate = function(content, cb) {
     
     //check if we should just use whatever default there is.
@@ -158,6 +159,7 @@ Index.prototype.getTemplate = function(content, cb) {
     cb(null, pieces[1]);
 };
 
+
 Index.prototype.gatherData = function(cb) {
     var self  = this;
     var tasks = {
@@ -214,13 +216,14 @@ Index.prototype.loadContent = function(articleCallback) {
     else{
         service.find({}, articleCallback);
     }
-}
+};
 
 Index.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
     var self = this;
     var ats  = new pb.TemplateService(this.ls);
     self.ts.reprocess = false;
     ats.registerLocal('article_headline', '<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>');
+    ats.registerLocal('article_headline_nolink', content.headline);
     ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
     ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
     ats.registerLocal('article_id', content._id.toString());
