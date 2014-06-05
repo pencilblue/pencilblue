@@ -31,7 +31,7 @@ NewPage.prototype.onPostParamsRetrieved = function(post, cb) {
     
     this.setFormFieldValues(post);
     
-    var message = this.hasRequiredParams(post, ['url', 'headline', 'template', 'page_layout']);
+    var message = this.hasRequiredParams(post, ['url', 'headline', 'page_layout']);
     if(message) {
         this.formError(message, '/admin/content/pages/new_page', cb);
         return;

@@ -74,7 +74,7 @@ EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
 };
 
 EditPage.prototype.getRequiredParams = function() {
-	return ['url', 'headline', 'template', 'page_layout', 'id'];
+	return ['url', 'headline', 'page_layout', 'id'];
 };
 
 //exports

@@ -74,7 +74,7 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
 };
 
 EditArticle.prototype.getRequiredFields = function() {
-	return ['url', 'headline', 'template', 'article_layout', 'id'];
+	return ['url', 'headline', 'article_layout', 'id'];
 };
 
 //exports

@@ -28,7 +28,8 @@ var config = {
           'mongodb://127.0.0.1:27017/'
         ],
         name: 'pencil_blue',
-        writeConern: 1
+        writeConern: 1,
+        query_logging: false
 	},
 	cache: {
 		fake: true,
