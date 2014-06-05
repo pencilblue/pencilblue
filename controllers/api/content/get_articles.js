@@ -111,6 +111,7 @@ GetArticles.prototype.getArticlesHTML = function(articles, commentsTemplates, co
                 var articleHTML = articleTemplate.split('^article_id^').join(articles[i]._id.toString());
                 articleHTML = articleHTML.split('^article_index^').join((self.offset + i).toString());
                 articleHTML = articleHTML.split('^article_url^').join(articles[i].url);
+                articleHTML = articleHTML.split('^display_byline^').join(contentSettings.display_bylines ? '' : 'display:none');
                 articleHTML = articleHTML.split('^author_photo^').join(articles[i].author_photo);
                 articleHTML = articleHTML.split('^author_name^').join(articles[i].author_name);
                 articleHTML = articleHTML.split('^author_position^').join(articles[i].author_position);
