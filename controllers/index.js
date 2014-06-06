@@ -229,13 +229,14 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
     ats.registerLocal('article_id', content._id.toString());
     ats.registerLocal('article_index', index);
     ats.registerLocal('article_timestamp', contentSettings.display_timestamp ? content.timestamp : '');
-    ats.registerLocal('article_timestamp_display', contentSettings.displaytimestamp ? '' : 'display:none;');
+    ats.registerLocal('article_timestamp_display', contentSettings.display_timestamp ? '' : 'display:none;');
     ats.registerLocal('article_layout', content.layout);
     ats.registerLocal('article_url', content.url);
+    ats.registerLocal('display_byline', contentSettings.display_bylines ? '' : 'display:none;');
     ats.registerLocal('author_photo', content.author_photo ? content.author_photo : '');
     ats.registerLocal('author_photo_display', content.author_photo ? '' : 'display:none;');
-    ats.registerLocal('author_name', content.author_name);
-    ats.registerLocal('author_position', content.author_position);
+    ats.registerLocal('author_name', content.author_name ? content.author_name : '');
+    ats.registerLocal('author_position', content.author_position ? content.author_position : '');
     ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
     ats.registerLocal('comments', function(flag, cb) {
        if (content.object_type === 'page' || !contentSettings.allow_comments) {
