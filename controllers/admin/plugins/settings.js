@@ -152,7 +152,7 @@ PluginSettingsController.prototype.renderPost = function(post, cb) {
 
 			var currItem = settings[i];
 			var newVal   = post[currItem.name];
-			var type     = PluginSettingsController.getValueType(currItem.value);
+			var type     = PluginSettingsController.getValueType(currItem.value);console.log(util.format('N=[%s] OV=[%s] NV=[%s] T=[%s]', currItem.name, currItem.value, newVal, type));
 			if (newVal === undefined || null) {
 				if (type === 'boolean') {
 					newVal = false;
