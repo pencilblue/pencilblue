@@ -67,7 +67,12 @@ var config = {
 		enabled: true,
 		update_interval: 30000,
 		key: 'server_registry'
-	}
+	},
+    cluster: {
+        fatal_error_timeout: 2000,
+        fatal_error_count: 5,
+        workers: "auto"
+    }
 };
 
 var CONFIG_FILE_NAME    = 'config.json';

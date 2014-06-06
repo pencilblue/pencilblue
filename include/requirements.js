@@ -16,6 +16,8 @@ global.async      = require('async');
 global.crypto     = require('crypto');
 global.util       = require('util');
 global.locale     = require('locale');
+global.domain     = require('domain');
+global.cluster    = require('cluster');
 
 var promise       = require('node-promise');
 global.when       = promise.when;
@@ -32,12 +34,17 @@ global.pb = {};
 //load the configuration
 pb.config = require('./config');
 
-//configure logging
+
+//configure basic services
+//setup utils
+pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
 global.log = 
 pb.log     = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, pb.config);
+pb.system  = require(path.join(DOCUMENT_ROOT, 'include/system/system.js'));
 
 //configure cache
-pb.cache = require(DOCUMENT_ROOT+'/include/dao/cache.js').createClient(pb.config);
+pb.CacheFactory = require(DOCUMENT_ROOT+'/include/dao/cache.js');
+pb.cache = pb.CacheFactory.getInstance();
 
 //configure the DB manager
 pb.dbm = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
@@ -51,9 +58,6 @@ pb.validation = require(DOCUMENT_ROOT+'/include/validation/validation_service.js
 //setup the session handler
 pb.SessionHandler = require(DOCUMENT_ROOT+'/include/session/session.js');
 pb.session        = new pb.SessionHandler();
-
-//setup utils
-pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
 
 //setup object services
 pb.SimpleLayeredService         = require(DOCUMENT_ROOT+'/include/service/simple_layered_service.js').SimpleLayeredService;

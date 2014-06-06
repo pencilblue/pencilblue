@@ -73,8 +73,9 @@ RedisSessionStore.getSessionKey = function(sessionId){
  * Responsable for shutting down the session store and any resources used for 
  * reaping expired sessions.
  */
-RedisSessionStore.shutdown = function(){
+RedisSessionStore.shutdown = function(cb){
 	pb.log.debug("RedisSessionStore: Shutting down...");
+    cb(null, true);
 };
 
 /**

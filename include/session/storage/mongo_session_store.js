@@ -107,10 +107,11 @@ MongoSessionStore.clearExpired = function(cb){
  * Responsable for shutting down the session store and any resources used for 
  * reaping expired sessions.
  */
-MongoSessionStore.shutdown = function(){
+MongoSessionStore.shutdown = function(cb){
 	pb.log.debug("MongoSessionStore: Stopping Reaper...");
 	clearInterval(TIMEOUT_ID);
 	TIMEOUT_ID = null;
+    cb(null, true);
 };
 
 /**
