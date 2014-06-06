@@ -1,13 +1,17 @@
 ^tmp_head^
-    <div class="container standalone">
+    <div class="hero" ng-if="hero_image">
+        <img class="hero_bg" ng-src="{{hero_image}}"></img>
+        </div>
+    </div>
+    <div ng-class="{container: true, standalone: !hero_image}">
         <div class="row">
-            <div id="articles" class="col-sm-9">
+            <div id="articles" ng-class="{'col-sm-9': sideNavItems, 'col-sm-10 col-sm-offset-1': !sideNavItems}">
                 ^articles^
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-3" ng-if="sideNavItems">
                 ^side_nav^
             </div>
-            <div class="col-sm-9">
+            <div ng-class="{'col-sm-9': sideNavItems, 'col-sm-10 col-sm-offset-1': !sideNavItems}">
                 <footer>
                     &copy; ^year^ ^site_name^
                 </footer>

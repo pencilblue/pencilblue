@@ -19,6 +19,10 @@
         ]
     },
     "settings": [
+        {
+            "name": "show_side_navigation",
+            "value": true
+        }
     ],
     "permissions": {
         "ACCESS_USER": [],

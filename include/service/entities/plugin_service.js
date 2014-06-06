@@ -485,7 +485,7 @@ PluginService.prototype.getActivePlugins = function(cb) {
 };
 
 PluginService.getActiveContentTemplates = function() {
-    
+
     var templates = [];
     for (var uid in ACTIVE_PLUGINS) {
         var plugin = ACTIVE_PLUGINS[uid];
@@ -960,7 +960,7 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
              if (details.theme && details.theme.content_templates) {
                  templates = details.theme.content_templates;
                  for (var i = 0; i < templates.length; i++) {
-                    templates[i].theme_name = details.name;   
+                    templates[i].theme_name = details.name;
                  }
              }
         	 var mainModule = PluginService.loadMainModule(plugin.dirName, details.main_module.path);
@@ -968,7 +968,7 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
     			 main_module: mainModule,
     			 public_dir: PluginService.getPublicPath(plugin.dirName),
     			 permissions: map,
-                 templates: templates 
+                 templates: templates
         	 };
 
         	 //set icon url (if exists)

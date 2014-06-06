@@ -97,6 +97,7 @@ Blog.prototype.render = function(cb) {
                                     commentingUser: commentingUser,
                                     themeSettings: data.nav.themeSettings,
                                     articles: data.content,
+                                    hero_image: data.content[0].hero_image ? data.content[0].hero_image: null,
                                     sideNavItems: sideNavItems,
                                     trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
                                 };
@@ -242,13 +243,14 @@ Blog.prototype.renderContent = function(content, contentSettings, themeSettings,
     ats.registerLocal('article_id', content._id.toString());
     ats.registerLocal('article_index', index);
     ats.registerLocal('article_timestamp', contentSettings.display_timestamp ? content.timestamp : '');
-    ats.registerLocal('article_timestamp_display', contentSettings.displaytimestamp ? '' : 'display:none;');
+    ats.registerLocal('article_timestamp_display', contentSettings.display_timestamp ? '' : 'display:none;');
     ats.registerLocal('article_layout', content.layout);
     ats.registerLocal('article_url', content.url);
+    ats.registerLocal('display_byline', contentSettings.display_bylines ? '' : 'display:none;');
     ats.registerLocal('author_photo', content.author_photo ? content.author_photo : '');
     ats.registerLocal('author_photo_display', content.author_photo ? '' : 'display:none;');
-    ats.registerLocal('author_name', content.author_name);
-    ats.registerLocal('author_position', content.author_position);
+    ats.registerLocal('author_name', content.author_name ? content.author_name : '');
+    ats.registerLocal('author_position', content.author_position ? content.author_position : '');
     ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
     ats.registerLocal('comments', function(flag, cb) {
        if (content.object_type === 'page' || !contentSettings.allow_comments) {
@@ -352,55 +354,69 @@ Blog.prototype.getNavigation = function(cb) {
 };
 
 Blog.prototype.getSideNavigation = function(articles, cb) {
-    var topics = [];
-    var articleIDs = [];
+    var self = this;
+    var ps = new PluginService();
 
-    if(this.req.pencilblue_article) {
-        topics = articles[0].article_topics;
-        articleIDs = [articles[0]._id];
-    }
-    else if(this.req.pencilblue_page) {
-        articleIDs = [];
-        for(i = 0; i < articles.length; i++) {
-            for(j = 0; j < articles[i].page_topics.length; j++) {
-                topics.push(articles[i].page_topics[j]);
+    ps.getSettings('portfolio', function(err, settings) {
+        for(var i = 0; i < settings.length; i++) {
+            if(settings[i].name === 'show_side_navigation') {
+                if(!settings[i].value) {
+                    cb('', null);
+                    return;
+                }
             }
         }
-    }
-    else {
-        for(var i = 0; i < articles.length; i++) {
-            articleIDs.push(articles[i]._id);
-            for(var j = 0; j < articles[i].article_topics.length; j++) {
-                topics.push(articles[i].article_topics[j]);
+
+        var topics = [];
+        var articleIDs = [];
+
+        if(self.req.pencilblue_article) {
+            topics = articles[0].article_topics;
+            articleIDs = [articles[0]._id];
+        }
+        else if(self.req.pencilblue_page) {
+            articleIDs = [];
+            for(i = 0; i < articles.length; i++) {
+                for(j = 0; j < articles[i].page_topics.length; j++) {
+                    topics.push(articles[i].page_topics[j]);
+                }
             }
         }
-    }
+        else {
+            for(var i = 0; i < articles.length; i++) {
+                articleIDs.push(articles[i]._id);
+                for(var j = 0; j < articles[i].article_topics.length; j++) {
+                    topics.push(articles[i].article_topics[j]);
+                }
+            }
+        }
 
-    var dao = new pb.DAO();
-    dao.query('article', {article_topics: {$in: topics}, _id: {$nin: articleIDs}}, null, null, 6).then(function(relatedArticles) {
-        if(relatedArticles.length === 0) {
-            dao.query('topic', {}, null, {name: 1}).then(function(topicObjects) {
-                var articleTopics = [];
-                for(var i = 0; i < topics.length && articleTopics.length < 20; i++) {
-                    for(var j = 0; j < topicObjects.length; j++) {
-                        if(ObjectID(topics[i]).equals(topicObjects[j]._id)) {
-                            articleTopics.push(topicObjects[i]);
-                            topicObjects.splice(j, 1);
-                            break;
+        var dao = new pb.DAO();
+        dao.query('article', {article_topics: {$in: topics}, _id: {$nin: articleIDs}}, null, null, 6).then(function(relatedArticles) {
+            if(relatedArticles.length === 0) {
+                dao.query('topic', {}, null, {name: 1}).then(function(topicObjects) {
+                    var articleTopics = [];
+                    for(var i = 0; i < topics.length && articleTopics.length < 20; i++) {
+                        for(var j = 0; j < topicObjects.length; j++) {
+                            if(ObjectID(topics[i]).equals(topicObjects[j]._id)) {
+                                articleTopics.push(topicObjects[i]);
+                                topicObjects.splice(j, 1);
+                                break;
+                            }
                         }
                     }
-                }
 
-                for(i = 0; i < topicObjects.length && articleTopics.length < 20; i++) {
-                    articleTopics.push(topicObjects[i]);
-                }
+                    for(i = 0; i < topicObjects.length && articleTopics.length < 20; i++) {
+                        articleTopics.push(topicObjects[i]);
+                    }
 
-                cb('elements/side_nav/topics', articleTopics);
-            });
-            return;
-        }
+                    cb('elements/side_nav/topics', articleTopics);
+                });
+                return;
+            }
 
-        cb('elements/side_nav/related_articles', relatedArticles);
+            cb('elements/side_nav/related_articles', relatedArticles);
+        });
     });
 };
 
