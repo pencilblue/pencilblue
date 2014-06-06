@@ -29,7 +29,7 @@ var config = {
         ],
         name: 'pencil_blue',
         writeConern: 1,
-        query_logging: true
+        query_logging: false
 	},
 	cache: {
 		fake: true,
