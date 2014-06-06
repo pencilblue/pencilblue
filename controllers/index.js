@@ -66,7 +66,8 @@ Index.prototype.render = function(cb) {
                     });
                 });
                 self.ts.registerLocal('page_name', function(flag, cb) {
-                     self.getContentSpecificPageName(util.isArray(data.content) && data.content.length > 0 ? data.content[0] : null, cb);
+                    var content = data.content.length > 0 ? data.content[0] : null;
+                    self.getContentSpecificPageName(content, cb);
                 });
 
                 self.getTemplate(data.content, function(err, template) {
@@ -220,7 +221,11 @@ Index.prototype.loadContent = function(articleCallback) {
 
 Index.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
     var self = this;
-    var ats  = new pb.TemplateService(this.ls);
+    
+    var isPage        = content.object_type === 'page'
+    var showByLine    = contentSettings.display_bylines && !isPage;
+    var showTimestamp = contentSettings.display_timestamp && !isPage;
+    var ats           = new pb.TemplateService(this.ls);
     self.ts.reprocess = false;
     ats.registerLocal('article_headline', '<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>');
     ats.registerLocal('article_headline_nolink', content.headline);
@@ -228,11 +233,11 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
     ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
     ats.registerLocal('article_id', content._id.toString());
     ats.registerLocal('article_index', index);
-    ats.registerLocal('article_timestamp', contentSettings.display_timestamp ? content.timestamp : '');
-    ats.registerLocal('article_timestamp_display', contentSettings.display_timestamp ? '' : 'display:none;');
+    ats.registerLocal('article_timestamp', showTimestamp && content.timestamp ? content.timestamp : '');
+    ats.registerLocal('article_timestamp_display', showTimestamp ? '' : 'display:none;');
     ats.registerLocal('article_layout', content.layout);
     ats.registerLocal('article_url', content.url);
-    ats.registerLocal('display_byline', contentSettings.display_bylines ? '' : 'display:none;');
+    ats.registerLocal('display_byline', showByLine ? '' : 'display:none;');
     ats.registerLocal('author_photo', content.author_photo ? content.author_photo : '');
     ats.registerLocal('author_photo_display', content.author_photo ? '' : 'display:none;');
     ats.registerLocal('author_name', content.author_name ? content.author_name : '');
@@ -308,7 +313,10 @@ Index.prototype.renderComment = function(comment, cb) {
 };
 
 Index.prototype.getContentSpecificPageName = function(content, cb) {
-
+    if (!content) {
+        cb(null, pb.config.siteName);
+        return;
+    }
 
     if(this.req.pencilblue_article || this.req.pencilblue_page) {
         cb(null, content.headline + ' | ' + pb.config.siteName);
