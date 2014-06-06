@@ -62,8 +62,17 @@ PluginService.prototype.getSetting = function(settingName, pluginName, cb) {
 			cb(err, null);
 			return;
 		}
-
-		cb(err, settings ? settings[settingName] : null);
+        
+        var val = null;
+        if (util.isArray(settings)) {
+            for (var i = 0; i < settings.length; i++) {
+                if (settingName === settings[i].name) {
+                    val = settings[i].value;
+                    break;
+                }
+            }
+        }
+		cb(err, val);
 	});
 };
 
@@ -107,7 +116,20 @@ PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
 			return;
 		}
 
-		settings[name] = value;
+		var wasFound = false;
+        for (var i = 0; i < settings.length; i++) {
+            if (name === settings[i].name) {
+                settings[i].value = value;
+                wasFound = true;
+                break;
+            }
+        }
+        if (!wasFound) {
+            settings.push({
+                name: name,
+                value: value
+            });
+        }
 		self.setSettings(settings, pluginName, cb);
 	});
 };
@@ -174,7 +196,20 @@ PluginService.prototype.setThemeSetting = function(name, value, pluginName, cb) 
 			return;
 		}
 
-		settings[name] = value;
+        var wasFound = false;
+        for (var i = 0; i < settings.length; i++) {
+            if (name === settings[i].name) {
+                settings[i].value = value;
+                wasFound = true;
+                break;
+            }
+        }
+        if (!wasFound) {
+            settings.push({
+                name: name,
+                value: value
+            });
+        }
 		self.setThemeSettings(settings, pluginName, cb);
 	});
 };
@@ -222,13 +257,22 @@ PluginService.prototype.setThemeSettings = function(settings, pluginName, cb) {
  * @param cb A callback that provides two parameters: cb(error, settingValue)
  */
 PluginService.prototype.getThemeSetting = function(settingName, pluginName, cb) {
-	this.getThemeSettngs(pluginName, function(err, settings) {
+	this.getThemeSettings(pluginName, function(err, settings) {
 		if (util.isError(err)) {
 			cb(err, null);
 			return;
 		}
 
-		cb(err, settings ? settings[settingName] : null);
+		var val = null;
+        if (util.isArray(settings)) {
+            for (var i = 0; i < settings.length; i++) {
+                if (settingName === settings[i].name) {
+                    val = settings[i].value;
+                    break;
+                }
+            }
+        }
+		cb(err, val);
 	});
 };
 
