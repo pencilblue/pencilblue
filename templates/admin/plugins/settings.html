@@ -8,8 +8,8 @@
 			<div class="tab-content">
 				<div class="tab-pane active" id="plugin_settings">
 					<div class="form-group" ng-repeat="item in settings">
-						<label>{{item.name}}</label>
-						<input class="form-control" ng-checked="item.type == 'checkbox' && item.value" id="{{item.name}}" name="{{item.name}}" type="{{item.type}}" value="{{item.value}}"></input>
+						<label>{{item.displayName}}</label>
+						<input class="form-control" ng-model="item.value" ng-checked="item.type == 'checkbox' && item.value" id="{{item.name}}" name="{{item.name}}" type="{{item.type}}" value="{{item.value}}"></input>
 					</div>
 				</div>
 				<a class="btn btn-default" href="/admin/plugins">

@@ -64,6 +64,10 @@ PluginSettingsController.prototype.renderGet = function(cb) {
 			var clone = pb.utils.copyArray(settings);
 			for (var i = 0; i < clone.length; i++) {
 				var item = clone[i];
+
+				item.displayName = item.name.split('_').join(' ');
+				item.displayName = item.displayName.charAt(0).toUpperCase() + item.displayName.slice(1);
+
 				if (item.value === true || item.value === false) {
 					item.type = 'checkbox';
 				}
@@ -148,7 +152,7 @@ PluginSettingsController.prototype.renderPost = function(post, cb) {
 
 			var currItem = settings[i];
 			var newVal   = post[currItem.name];
-			var type     = PluginSettingsController.getValueType(currItem.value);
+			var type     = PluginSettingsController.getValueType(currItem.value);console.log(util.format('N=[%s] OV=[%s] NV=[%s] T=[%s]', currItem.name, currItem.value, newVal, type));
 			if (newVal === undefined || null) {
 				if (type === 'boolean') {
 					newVal = false;

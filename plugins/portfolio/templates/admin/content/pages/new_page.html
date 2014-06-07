@@ -3,24 +3,35 @@
     ^error_success^
     ^tmp_admin=elements=sub_nav^
     ^tmp_admin=elements=tab_nav^
-    <form id="new_article_form" method="post" action="/actions/admin/content/articles/new_article">
+    <form id="new_page_form" method="post" action="^site_root^/actions/admin/content/pages/new_page">
         <fieldset>
             <div class="tab-content">
                 <div class="tab-pane active" id="content">
                     <div class="form-group">
-                        <label>^loc_ARTICLE_URL^</label>
+                        <label>^loc_PAGE_URL^</label>
                         <div class="input-group">
-                            <span class="input-group-addon">/article/</span>
-                            <input type="text" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" required></input>
+                            <span class="input-group-addon">^site_root^/page/</span>
+                            <input type="text" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^"></input>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_STANDALONE_TEMPLATE^</label>
-                        <select id="template" name="template" class="form-control" required>
-                            <option value="">^loc_THEME_DEFAULT^</option>
-                            <option value="{{template.theme_uid}}|{{template.file}}" ng-repeat="template in templates" ng-cloak>{{template.theme_name}}: {{template.name}}</option>
-                        
+                        <label>^loc_TEMPLATE^</label>
+                        <select id="template" name="template" class="form-control">
+                            <option value="{{template.file}}" ng-repeat="template in templates" ng-cloak>{{template.name}}</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_HERO_IMAGE^</label><br/>
+                        <img id="hero_image_preview" src="" style="max-height: 10em"></img>
+                        <input type="hidden" id="hero_image" name="hero_image" class="form-control" value=""></input>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-success" onclick="linkToHero('hero_image')">
+                            <i class="fa fa-link"></i>&nbsp;^loc_LINK_TO_IMAGE^...
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="uploadHero('hero_image')">
+                            <i class="fa fa-upload"></i>&nbsp;^loc_UPLOAD_IMAGE^...
+                        </button>
                     </div>
                     <div class="form-group">
                         <label>^loc_HEADLINE^</label>
@@ -47,9 +58,6 @@
                 <div class="tab-pane" id="media">
                     ^tmp_admin=elements=inline_media^
                 </div>
-                <div class="tab-pane" id="sections_dnd">
-                    ^tmp_admin=elements=section_select^
-                </div>
                 <div class="tab-pane" id="topics_dnd">
                     ^tmp_admin=elements=topic_select^
                 </div>
@@ -71,24 +79,24 @@
                         <input type="text" id="meta_keywords" name="meta_keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
                     </div>
                 </div>
-                <a class="btn btn-default" href="/admin/content/articles">
+                <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/pages';">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                </a>&nbsp;
+                </button>&nbsp;
                 <div class="btn-group dropup">
-                    <button type="button" class="btn btn-primary" onclick="checkForNewArticleSave(true)">
+                    <button type="button" class="btn btn-primary" onclick="checkForNewPageSave(true)">
                         <i class="fa fa-save"></i>&nbsp;^loc_SAVE_DRAFT^
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-sm fa-chevron-up"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="javascript:checkForNewArticleSave(false)">^loc_SAVE^</a></li>
+                        <li><a href="javascript:checkForNewPageSave(false)">^loc_SAVE^</a></li>
                     </ul>
                 </div>
-                <div class="spacer"></div>
             </div>
         </fieldset>
     </form>
 </div>
-<script type="text/javascript" src="/js/admin/content/articles/new_article.js"></script>
+^tmp_admin=elements=hero_upload^
+<script type="text/javascript" src="/js/admin/content/pages/new_page.js"></script>
 ^tmp_admin=footer^

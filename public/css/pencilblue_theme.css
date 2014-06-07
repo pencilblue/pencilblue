@@ -241,12 +241,12 @@ footer
 }
 
 @media(min-width: 768px)
-{    
+{
     #navbar_brand_mobile, #nav_items_mobile
     {
         display: none;
     }
-    
+
     #nav_desktop
     {
         margin: 0;

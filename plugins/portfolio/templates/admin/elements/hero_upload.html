@@ -1,0 +1,41 @@
+<div class="modal fade" id="hero_image_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                ^loc_UPLOAD_IMAGE^
+            </div>
+            <div class="modal-body">
+                <fieldset>
+                    <span id="link_to_image">
+                        <div class="form-group">
+                            <label>^loc_IMAGE_URL^</label>
+                            <input type="url" id="image_url" name="image_url" class="form-control" placeholder="^loc_IMAGE_URL_PLACEHOLDER^"></input>
+                        </div>
+                        <div id="link_loading" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                        </button>
+                        <button type="button" id="link_button" class="btn btn-primary" onclick="validateImageURL($('#image_url').val(), false)">
+                            <i class="fa fa-link"></i>&nbsp;^loc_LOAD_LINK^
+                        </button>
+                    </span>
+                    <span id="upload_image">
+                        <div id="upload_progress" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                        </button>
+                        <span class="btn btn-success fileinput-button">
+                            <i class="fa fa-plus"></i>
+                            <span>^loc_SELECT_FILE^...</span>
+                            <input id="image_file" type="file" name="image_file">
+                        </span>
+                    </span>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/public/portfolio/js/hero_upload.js"></script>
+<script type="text/javascript">
+    setupHeroUpload('^site_root^');
+</script>

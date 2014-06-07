@@ -1,0 +1,96 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form id="home_page_settings_form" method="post" action="/actions/admin/plugins/settings/portfolio/home_page">
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="home_layout">
+                    <div class="form-group">
+                        <label>^loc_HERO_IMAGE^</label><br/>
+                        <img id="home_page_hero_preview" src="" style="max-height: 10em" ng-src="{{homePageSettings.home_page_hero}}"></img>
+                        <input type="hidden" id="home_page_hero" name="home_page_hero" class="form-control" value=""></input>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-success" onclick="linkToHero('home_page_hero')">
+                            <i class="fa fa-link"></i>&nbsp;^loc_LINK_TO_IMAGE^...
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="uploadHero('home_page_hero')">
+                            <i class="fa fa-upload"></i>&nbsp;^loc_UPLOAD_IMAGE^...
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_CONTENT^&nbsp;<span id="column_inches"></span></label>
+                        ^tmp_admin=elements=content_layout^
+                    </div>
+                </div>
+                <div class="tab-pane" id="media">
+                    ^tmp_admin=elements=inline_media^
+                </div>
+                <div class="tab-pane" id="callouts">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label>^loc_CALLOUT_HEADLINE^ 1</label>
+                                <input type="text" class="form-control" id="callout_headline_1" name="callout_headline_1"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_CALLOUT_LINK^ 1</label>
+                                <input type="text" class="form-control" id="callout_link_1" name="callout_link_1"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_CALLOUT_COPY^ 1</label>
+                                <input type="text" class="form-control" id="callout_copy_1" name="callout_copy_1"></input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label>^loc_CALLOUT_HEADLINE^ 2</label>
+                                <input type="text" class="form-control" id="callout_headline_2" name="callout_headline_2"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_CALLOUT_LINK^ 2</label>
+                                <input type="text" class="form-control" id="callout_link_2" name="callout_link_2"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_CALLOUT_COPY^ 2</label>
+                                <input type="text" class="form-control" id="callout_copy_2" name="callout_copy_2"></input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label>^loc_CALLOUT_HEADLINE^ 3</label>
+                                <input type="text" class="form-control" id="callout_headline_3" name="callout_headline_3"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_CALLOUT_LINK^ 3</label>
+                                <input type="text" class="form-control" id="callout_link_3" name="callout_link_3"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_CALLOUT_COPY^ 3</label>
+                                <input type="text" class="form-control" id="callout_copy_3" name="callout_copy_3"></input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="btn btn-default" href="/admin/plugins/settings/portfolio">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </a>
+                <button type="button" class="btn btn-primary" onclick="prepareHomePageSettingsSave()">
+                    <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                </button>
+            </div>
+        </fieldset>
+    </form>
+    <div id="hero_images_template" style="display: none">
+
+    </div>
+</div>
+^tmp_admin=elements=hero_upload^
+<script type="text/javascript" src="/public/portfolio/js/home_page_settings.js"></script>
+^tmp_admin=footer^
