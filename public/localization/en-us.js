@@ -51,6 +51,7 @@ var loc =
         ACCOUNT: 'Account',
         EMAIL: 'Email',
         PREFERENCES: 'Preferences',
+        COMMENT: 'Comment',
         COMMENTS: 'Comments',
         SUBMIT_COMMENT: 'Submit a comment',
         LOGIN_TO_COMMENT: 'Login to comment',
@@ -134,7 +135,8 @@ var loc =
 		SECONDS_ABBR: 'Secs',
 		NO_AVAILABLE_PLUGINS: 'No available plugins',
         READ_MORE: 'Read more',
-        THEME_DEFAULT: 'Theme Default'
+        THEME_DEFAULT: 'Theme Default',
+        USER: 'User'
     },
     error:
     {
@@ -285,6 +287,13 @@ var loc =
         INSERT_MEDIA: 'Insert media',
         SELECT_MEDIA: 'Select media to insert (multiple selections will create a carousel)',
         ASSOCIATE_MEDIA: 'Associate media with the article'
+    },
+    comments:
+    {
+        MANAGE_COMMENTS: 'Manage comments',
+        CONFIRM_DELETE_COMMENT: 'Are you sure you want to delete this comment by',
+        COMMENTS_DISABLED: 'Comments are disabled',
+        ENABLE_HERE: 'Enable them here'
     },
     custom_objects:
     {
