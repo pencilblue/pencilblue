@@ -1,6 +1,6 @@
 /**
  * Profile - Edits a user
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -11,12 +11,12 @@ util.inherits(Profile, pb.FormController);
 
 Profile.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
-	
-	post['photo'] = post['uploaded_image'];
-    
-    delete post['uploaded_image'];
-    delete post['image_url'];
-    
+
+	post.photo = post.uploaded_image;
+
+    delete post.uploaded_image;
+    delete post.image_url;
+
     var dao = new pb.DAO();
     dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
         if(util.isError(err) || user == null) {
@@ -31,9 +31,9 @@ Profile.prototype.onPostParamsRetrieved = function(post, cb) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
                 return;
             }
-            
+
             self.session.authentication.user = user;
-            self.session.success = self.ls.get('PROFILE_EDITED');
+            self.session.success = self.ls.get('ACCOUNT') + ' ' + self.ls.get('EDITED');
             self.redirect(pb.config.siteRoot + '/user/manage_account', cb);
         });
     });

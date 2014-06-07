@@ -10,7 +10,7 @@ function ManageAccount(){}
 util.inherits(ManageAccount, pb.FormController);
 
 ManageAccount.prototype.render = function(cb) {
-	var self = this;
+    var self = this;
 
     var dao = new pb.DAO();
     dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
@@ -33,13 +33,13 @@ ManageAccount.prototype.render = function(cb) {
                 [
                     {
                         id: 'manage',
-                        active: 'active',
                         title: self.ls.get('MANAGE_ACCOUNT'),
                         icon: 'cog',
                         href: '/user/manage_account',
                     },
                     {
                         id: 'change_password',
+                        active: 'active',
                         title: self.ls.get('CHANGE_PASSWORD'),
                         icon: 'key',
                         href: '/user/change_password',
@@ -50,38 +50,30 @@ ManageAccount.prototype.render = function(cb) {
 
         var pills = [
             {
-                name: 'manage_account',
-                title: self.ls.get('MANAGE_ACCOUNT'),
+                name: 'change_password',
+                title: self.ls.get('CHANGE_PASSWORD'),
                 icon: 'refresh',
-                href: '/user/manage_account'
+                href: '/user/change_password'
             }
         ];
 
         var tabs = [
             {
                 active: 'active',
-                href: '#account_info',
-                icon: 'cog',
-                title: self.ls.get('ACCOUNT_INFO')
-            },
-            {
-                href: '#personal_info',
-                icon: 'user',
-                title: self.ls.get('PERSONAL_INFO')
+                href: '#password',
+                icon: 'key',
+                title: self.ls.get('PASSWORD')
             }
         ];
 
-    	self.setPageName(self.ls.get('MANAGE_ACCOUNT'));
-        self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
-        self.ts.registerLocal('uploaded_image', (user.photo ? user.photo : ''));
-    	self.ts.load('user/manage_account', function(err, result) {
+        self.setPageName(self.ls.get('CHANGE_PASSWORD'));
+        self.ts.load('user/change_password', function(err, result) {
 
             result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
                 navigation: navigation,
                 pills: pills,
-                tabs: tabs,
-                user: user
+                tabs: tabs
             }));
 
             cb({content: result});

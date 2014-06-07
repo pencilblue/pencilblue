@@ -742,9 +742,9 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/user/manage_account/change_password",
+    	path: "/user/change_password",
     	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account', 'change_password.js'),
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'change_password.js'),
     	content_type: 'text/html'
     },
     {
@@ -752,13 +752,6 @@ RequestHandler.CORE_ROUTES = [
     	path: "/user/manage_account",
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/user/manage_account/profile",
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account', 'profile.js'),
     	content_type: 'text/html'
     },
     {
