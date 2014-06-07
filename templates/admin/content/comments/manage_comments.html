@@ -1,0 +1,56 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^error_success^
+    <div class="alert alert-warning error_success" ng-if="!allowComments">
+        ^loc_COMMENTS_DISABLED^. <a href="/admin/site_settings/content">^loc_ENABLE_HERE^.</a>
+    </div>
+    ^tmp_admin=elements=sub_nav^
+    <div class="input-group" style="margin-bottom: .5em">
+            <input type="text" id="comments_search" name="comments_search" class="form-control"></input>
+            <span class="input-group-btn">
+                <button id="comments_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+            </span>
+    </div>
+    <table id="comments_table" class="table table-responsive table-condensed">
+        <tr id="comments_table_header">
+            <th id="comment_user_header">^loc_USER^</th>
+            <th id="comment_article_header">^loc_ARTICLE^</th>
+            <th id="comment_content_header">^loc_COMMENT^</th>
+            <th id="comment_date_header">^loc_DATE_ADDED^</th>
+            <th></th>
+        </tr>
+        <tr class="comment_row" ng-repeat="comment in comments track by comment._id" on-finish-render ng-cloak>
+            <td class="comment_user">
+                <a ng-href="/admin/users/edit_user/{{comment.commenter}}">{{comment.user_name}}</a>
+            </td>
+            <td class="comment_article">
+                <a ng-href="/article/{{comment.article_url}}">{{comment.article_headline}}</a>
+            </td>
+            <td class="comment_content">{{comment.content}}</td>
+            <td class="comment_date">{{comment.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+            <td><a href="javascript:confirmDeleteComment('{{comment._id}}', '{{comment.user_name}}')"><i class="fa fa-times"></i></a></td>
+        </tr>
+    </table>
+    <ul id="comments_pagination" class="pagination"></ul>
+    <div class="modal fade" id="confirm_delete_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    ^loc_CONFIRM_DELETE_COMMENT^ <span id="delete_name"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button type="button" id="delete_button" class="btn btn-danger">
+                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
+<script type="text/javascript" src="/js/table_sort.js"></script>
+<script type="text/javascript" src="/js/admin/content/comments/manage_comments.js"></script>
+^tmp_admin=footer^

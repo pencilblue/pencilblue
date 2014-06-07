@@ -864,6 +864,22 @@ RequestHandler.CORE_ROUTES = [
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'search.js'),
         content_type: 'application/json'
     },
+    {
+        method: 'get',
+        path: "/admin/content/comments/manage_comments",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'comments', 'manage_comments.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/actions/admin/content/comments/delete_comment/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'comments', 'delete_comment.js'),
+        content_type: 'text/html'
+    },
 ];
 
 RequestHandler.init = function(){
