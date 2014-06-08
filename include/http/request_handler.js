@@ -864,6 +864,14 @@ RequestHandler.CORE_ROUTES = [
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'search.js'),
         content_type: 'application/json'
     },
+    {
+    	method: 'post',
+        path: "/api/cluster/:action",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'system', 'cluster_api.js'),
+        content_type: 'application/json'
+    },
 ];
 
 RequestHandler.init = function(){

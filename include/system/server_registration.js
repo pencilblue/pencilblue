@@ -69,6 +69,14 @@
  ServerRegistration.prototype.getClusterStatus = function(cb) {
 	 pb.cache.hgetall(pb.config.registry.key, cb);
  };
+
+/**
+ * Removes all entries from the server registry
+ *
+ */
+ServerRegistration.flush = function(cb) {
+    pb.cache.del(pb.config.registry.key, cb);  
+};
  
  ServerRegistration.init = function() {
 	 if (!pb.config.registry.enabled) {

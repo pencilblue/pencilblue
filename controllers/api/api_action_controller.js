@@ -89,7 +89,7 @@ ApiActionController.prototype.validateParameters = function(action, cb) {
             				callback(err, []);
             				return;
             			}
-            			self.validatePostParameters(action, post, cb);
+            			self.validatePostParameters(action, post, callback);
             		});
             	}
             	else {
@@ -156,7 +156,7 @@ ApiActionController.prototype.validateQueryParameters = function(action, cb) {
  * @param {string} action
  * @param {function} cb A call back that provides two parameters: cb(err, [{string])
  */
-ApiActionController.prototype.validatePostParameters = function(action, cb) {
+ApiActionController.prototype.validatePostParameters = function(action, post, cb) {
 	cb(null, []);
 };
 

@@ -32,7 +32,8 @@ AdminIndexController.prototype.render = function(cb) {
             {
                 navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService),
                 contentInfo: contentInfo,
-                cluster: data.clusterStatus
+                cluster: data.clusterStatus,
+                access: self.session.authentication.admin_level
             }
         );
     	
