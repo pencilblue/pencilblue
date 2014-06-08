@@ -742,9 +742,9 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/user/manage_account/change_password",
+    	path: "/user/change_password",
     	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account', 'change_password.js'),
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'change_password.js'),
     	content_type: 'text/html'
     },
     {
@@ -752,13 +752,6 @@ RequestHandler.CORE_ROUTES = [
     	path: "/user/manage_account",
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/user/manage_account/profile",
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'manage_account', 'profile.js'),
     	content_type: 'text/html'
     },
     {
@@ -871,6 +864,22 @@ RequestHandler.CORE_ROUTES = [
         access_level: ACCESS_ADMINISTRATOR,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'system', 'cluster_api.js'),
         content_type: 'application/json'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/comments/manage_comments",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'comments', 'manage_comments.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/actions/admin/content/comments/delete_comment/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'comments', 'delete_comment.js'),
+        content_type: 'text/html'
     },
 ];
 

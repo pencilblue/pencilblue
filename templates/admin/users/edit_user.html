@@ -8,8 +8,12 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="account_info">
                     <div class="form-group">
-                        <label>^loc_USERNAME^</label>
-                        <input type="text" id="username" name="username" class="form-control" value="{{user.username}}"></input>
+                        <label>^loc_USERNAME^</label><div class="input-group">
+                            <input type="text" id="username" name="username" class="form-control" onkeyup="resetUsernameAvailability()" value="{{user.username}}" data-original-username="{{user.username}}"></input>
+                            <span class="input-group-btn">
+                                <button id="availability_button" class="btn btn-default" type="button" onclick="validateUsername()">^loc_CHECK^</button>
+                            </span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>^loc_EMAIL^</label>

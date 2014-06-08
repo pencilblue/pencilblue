@@ -10,8 +10,11 @@
                     <div class="form-group">
                         <label>^loc_PAGE_URL^</label>
                         <div class="input-group">
-                            <span class="input-group-addon">^site_root^/page/</span>
-                            <input type="text" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^"></input>
+                            <span class="input-group-addon">/page/</span>
+                            <input type="text" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" onkeyup="resetURLAvailability()" data-original-url="{{page.url}}" required></input>
+                            <span class="input-group-btn">
+                                <button id="availability_button" class="btn btn-default" type="button" onclick="validateURL()">^loc_CHECK^</button>
+                            </span>
                         </div>
                     </div>
                     <div class="form-group">

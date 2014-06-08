@@ -29,19 +29,19 @@ $(document).ready(function()
 function resetUsernameAvailability()
 {
     $('#availability_button').attr('class', 'btn btn-default');
-    $('#availability_button').html(loc.users.CHECK);
+    $('#availability_button').html(loc.generic.CHECK);
 }
 
 function validateUsername()
 {
-    if($('#username').val().length == 0)
+    if($('#username').val().length === 0)
     {
         return;
     }
-    
+
     $.getJSON('/api/user/get_username_available?username=' + $('#username').val(), function(response)
     {
-        if(response.code == 0)
+        if(response.code === 0)
         {
             if(response.data)
             {
@@ -59,7 +59,7 @@ function validateUsername()
 
 function checkPasswordMatch()
 {
-    if($('#password').val() != $('#confirm_password').val() || $('#password').val().length == 0)
+    if($('#password').val() != $('#confirm_password').val() || $('#password').val().length === 0)
     {
         $('#password_check').attr('class', 'fa fa-thumbs-down');
         $('#password_check').attr('style', 'color: #AA0000');

@@ -61,6 +61,13 @@ function getDefaultNavigation(ls) {
                     access: ACCESS_WRITER
                 },
                 {
+                    id: 'comments',
+                    title: ls.get('COMMENTS'),
+                    icon: 'comments',
+                    href: '/admin/content/comments/manage_comments',
+                    access: ACCESS_EDITOR
+                },
+                {
                     id: 'custom_objects',
                     title: ls.get('CUSTOM_OBJECTS'),
                     icon: 'sitemap',

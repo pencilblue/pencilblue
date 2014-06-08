@@ -63,6 +63,43 @@ $(document).ready(function()
     }
 });
 
+function resetURLAvailability()
+{
+    $('#availability_button').attr('class', 'btn btn-default');
+    $('#availability_button').html(loc.generic.CHECK);
+}
+
+function validateURL()
+{
+    if($('#url').val().length === 0)
+    {
+        return;
+    }
+
+    if($('#url').val().toLowerCase() === $('#url').attr('data-original-url')) {
+        $('#availability_button').attr('class', 'btn btn-success');
+        $('#availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.generic.AVAILABLE);
+        return;
+    }
+
+    $.getJSON('/api/url/exists_for?url=' + $('#url').val() + '&type=page', function(response)
+    {
+        if(response.code === 0)
+        {
+            if(!response.data)
+            {
+                $('#availability_button').attr('class', 'btn btn-success');
+                $('#availability_button').html('<i class="fa fa-check"></i>&nbsp;' + loc.generic.AVAILABLE);
+            }
+            else
+            {
+                $('#availability_button').attr('class', 'btn btn-danger');
+                $('#availability_button').html('<i class="fa fa-ban"></i>&nbsp;' + loc.generic.UNAVAILABLE);
+            }
+        }
+    });
+}
+
 function setPublishDateToNow()
 {
     var date = new Date();
