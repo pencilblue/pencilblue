@@ -41,6 +41,9 @@ BaseController.prototype.init = function(props, cb) {
 	this.templateService.registerLocal('localization_script', function(flag, cb) {
 		self.requiresClientLocalizationCallback(flag, cb);
 	});
+    this.templateService.registerLocal('analytics', function(flag, cb) {
+		pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
+	});
 	this.ts = this.templateService;
 	cb();
 };

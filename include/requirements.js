@@ -119,6 +119,7 @@ pb.MediaService       = require(DOCUMENT_ROOT+'/include/service/entities/media_s
 pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
 pb.TopMenuService     = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
 pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subnav_service.js');
+pb.AnalyticsManager   = require(path.join(DOCUMENT_ROOT, '/include/system/analytics_manager.js'));
 
 //Export system object
 module.exports = pb;
