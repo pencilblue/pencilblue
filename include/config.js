@@ -74,7 +74,7 @@ var config = {
     cluster: {
         fatal_error_timeout: 2000,
         fatal_error_count: 5,
-        workers: "auto"
+        workers: 1
     }
 };
 

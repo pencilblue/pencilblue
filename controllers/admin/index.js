@@ -36,7 +36,7 @@ AdminIndexController.prototype.render = function(cb) {
                 access: self.session.authentication.admin_level
             }
         );
-    	
+    	throw new Error('shit broke somewhere');
     	self.setPageName(self.localizationService.get('DASHBOARD'));
         self.templateService.load('admin/index', function(error, result) {
         	

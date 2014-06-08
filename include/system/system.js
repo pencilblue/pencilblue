@@ -46,18 +46,18 @@ System.onWorkerDisconntect = function(worker) {
     DISCONNECTS.push(currTime);
 
     //splice it down if needed.  Remove first element (FIFO)
-    if (DISCONNECTS.length > config.fatal_error_count) {
+    if (DISCONNECTS.length > pb.config.fatal_error_count) {
         DISCONNECTS.splice(0, 1);   
     }
 
     //check for unacceptable failures in specified time frame
-    if (DISCONNECTS.length >= config.fatal_error_count) {
+    if (DISCONNECTS.length >= pb.config.fatal_error_count) {
         var range = disconnects[disconnects.length - 1] - disconnects[disconnects.length - config.fatal_error_count];
         if (range <= config.cluster.fatal_error_timeout) {
             okToFork = false;   
         }
         else {
-            pb.log.silly("System[%s]: Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]", System.getWorkerId(), disconnectCnt, config.fatal_error_count, range);   
+            pb.log.silly("System[%s]: Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]", System.getWorkerId(), disconnectCnt, pb.config.fatal_error_count, range);   
         }
     }
 
@@ -65,7 +65,7 @@ System.onWorkerDisconntect = function(worker) {
         log.silly("System[%s] Forked worker [%d]", System.getWorkerId(), cluster.fork());
     }
     else if (!System.isShuttingDown()){
-       log.error("System[%s]: %d failures have occurred within %sms.  Bailing out.", System.getWorkerId(), config.fatal_error_count, config.fatal_error_timeout);
+       log.error("System[%s]: %d failures have occurred within %sms.  Bailing out.", System.getWorkerId(), pb.config.fatal_error_count, pb.config.fatal_error_timeout);
         process.kill();
     }
 };
@@ -121,7 +121,7 @@ System.shutdown = function() {
         };
     });
     async.parallel(tasks.reverse(), function(err, results) {
-        pb.log.debug('System[%s]: Shutdown complete', System.getWorkerId());
+        pb.log.info('System[%s]: Shutdown complete', System.getWorkerId());
         if (toh) {
             clearTimeout(toh);
             toh = null;
@@ -130,7 +130,7 @@ System.shutdown = function() {
     });
     
     toh = setTimeout(function() {
-       log.debug("System[%s]: Shutdown completed but was forced", System.getWorkerId());
+       log.info("System[%s]: Shutdown completed but was forced", System.getWorkerId());
        process.exit();
     }, 5*1000);
 };
