@@ -858,6 +858,14 @@ RequestHandler.CORE_ROUTES = [
         content_type: 'application/json'
     },
     {
+    	method: 'post',
+        path: "/api/cluster/:action",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'system', 'cluster_api.js'),
+        content_type: 'application/json'
+    },
+    {
         method: 'get',
         path: "/admin/content/comments/manage_comments",
         auth_required: true,
@@ -1114,7 +1122,8 @@ RequestHandler.prototype.servePublicContent = function(absolutePath) {
 			ico: 'image/vnd.microsoft.icon',
 			tff: 'application/octet-stream',
 			eot: 'application/vnd.ms-fontobject',
-			woff: 'application/x-font-woff'
+			woff: 'application/x-font-woff',
+            html: 'text/html'
 		};
 		var index = absolutePath.lastIndexOf('.');
 		if (index >= 0) {
@@ -1408,17 +1417,16 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
 
 RequestHandler.prototype.onControllerInitialized = function(controller) {
 	var self = this;
-	process.nextTick(function() {
-		try {
-			controller.render(function(result){
-				self.onRenderComplete(result);
-			});
-		}
-		catch(err) {
-			pb.log.error(err.toString()+"\n"+err.stack);
-			self.serveError(err);
-		}
+    var d = domain.create();
+    d.run(function() {
+        controller.render(function(result){
+            self.onRenderComplete(result);
+        });
 	});
+    d.on('error', function(err) {
+        pb.log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
+        self.serveError(err);   
+    });
 };
 
 RequestHandler.prototype.onRenderComplete = function(data){

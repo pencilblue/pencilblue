@@ -1,3 +1,6 @@
+
+var cluster = require('cluster');
+
 /**
  * Default configuration.  The settings here should be overriden by taking the 
  * example file "sample.config.json" and modifying it to override the properties 
@@ -65,9 +68,14 @@ var config = {
 	},
 	registry: {
 		enabled: true,
-		update_interval: 30000,
+		update_interval: 10000,
 		key: 'server_registry'
-	}
+	},
+    cluster: {
+        fatal_error_timeout: 2000,
+        fatal_error_count: 5,
+        workers: 1
+    }
 };
 
 var CONFIG_FILE_NAME    = 'config.json';
@@ -135,7 +143,7 @@ var loadConfiguration = function() {
     //setup logging
     config.logging = {
 		transports: [
-             new (winston.transports.Console)({ level: config.log_level, timestamp: true }),
+             new (winston.transports.Console)({ level: config.log_level, timestamp: true, label: cluster.worker ? cluster.worker.id : 'M'}),
              new (winston.transports.File)({ filename: LOG_FILE, level: config.log_level, timestamp: true })
        ]
 	};

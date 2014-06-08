@@ -6,7 +6,8 @@
 module.exports.logger = function(winston, config){
 	var logger =  new (winston.Logger)({
 	    transports: config.logging.transports,
-	    level: config.log_level
+	    level: config.log_level,
+        padLevels: false
    });
 
 	logger.isDebug = function(){

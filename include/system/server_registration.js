@@ -69,6 +69,14 @@
  ServerRegistration.prototype.getClusterStatus = function(cb) {
 	 pb.cache.hgetall(pb.config.registry.key, cb);
  };
+
+/**
+ * Removes all entries from the server registry
+ *
+ */
+ServerRegistration.flush = function(cb) {
+    pb.cache.del(pb.config.registry.key, cb);  
+};
  
  ServerRegistration.init = function() {
 	 if (!pb.config.registry.enabled) {
@@ -89,7 +97,7 @@
 	 
 	 if (TIMER_HANDLE) {
 		 clearInterval(TIMER_HANDLE);
-		 pb.cache.hdel(pb.config.registry_key, ServerRegistration.generateKey(), cb);
+		 pb.cache.hdel(pb.config.registry.key, ServerRegistration.generateKey(), cb);
 	 }
 	 else {
 		 cb(null, true);
@@ -117,7 +125,7 @@
 			 var key = ServerRegistration.generateKey();
 			 update.last_update = new Date();
 			 pb.cache.hset(pb.config.registry.key, key, JSON.stringify(update), function(err, result) {
-				 pb.log.debug("ServerRegistration: Attempted to update registration. Result=[%s] ERROR=[%s]", result === 1 || result === 0, err ? err.message : '');
+				 pb.log.debug("ServerRegistration: Attempted to update registration. KEY=[%s] Result=[%s] ERROR=[%s]", key, result === 1 || result === 0, err ? err.message : 'NONE');
 				 if (pb.log.isSilly) {
 					 pb.log.silly("ServerRegistration: Last Update\n%s", util.inspect(update));
 				 }
@@ -156,6 +164,9 @@
 	 }
 	 return address;
  };
+
+//register for shutdown
+pb.system.registerShutdownHook('ServerRegistration', ServerRegistration.shutdown);
  
  //exports
  module.exports = ServerRegistration;

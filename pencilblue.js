@@ -1,38 +1,43 @@
 // A grouping of all require calls
 global.pb = require('./include/requirements');
 
+function PencilBlue(){}
+
 /**
  * To be called when the configuration is loaded.  The function is responsible 
  * for triggered the startup of the HTTP connection listener as well as start a 
  * connection pool to the core DB.
  */
-var init = function(){
+PencilBlue.init = function(){
 	var tasks = [
-         initRequestHandler,
-         initDBConnections, 
-         initServer, 
-         function(cb) {
-         	pb.plugins.initPlugins(cb);
-         },
-         initServerRegistration,
-         registerSystemForEvents
+         PencilBlue.initRequestHandler,
+         PencilBlue.initDBConnections, 
+         PencilBlue.initServer, 
+         PencilBlue.initPlugins,
+         PencilBlue.initServerRegistration,
+         PencilBlue.registerSystemForEvents
      ];
 	async.series(tasks, function(err, results) {
 		if (util.isError(err)) {
-			process.exit(1);
+			throw err;
 		}
+        pb.log.info('PencilBlue: Ready to run!');
 	});
 };
 
-function initRequestHandler(cb) {
+PencilBlue.initRequestHandler = function(cb) {
 	pb.RequestHandler.init();
 	cb(null, true);
 }
 
+PencilBlue.initPlugins = function(cb) {
+    pb.plugins.initPlugins(cb);
+};
+
 /**
  * Attempts to initialize a connection pool to the core database
  */
-function initDBConnections(cb){
+PencilBlue.initDBConnections = function(cb){
 	//setup database connection to core database
 	pb.dbm.getDB(pb.config.db.name).then(function(result){
 		if (util.isError(result)) {
@@ -52,11 +57,11 @@ function initDBConnections(cb){
 /**
  * Initializes the server
  */
-function initServer(cb){
+PencilBlue.initServer = function(cb){
 	log.debug('Starting server...');
 	
 	try{
-		pb.server = http.createServer(onHttpConnect);
+		pb.server = http.createServer(PencilBlue.onHttpConnect);
 		pb.server.listen(pb.config.sitePort, function() {
 			log.info(pb.config.siteName + ' running on ' + pb.config.siteRoot);
 			cb(null, true);
@@ -67,7 +72,7 @@ function initServer(cb){
 	}
 }
 
-function onHttpConnect(req, resp){
+PencilBlue.onHttpConnect = function(req, resp){
 	if (pb.log.isSilly()) {
 		req.uid = new ObjectID();
 		pb.log.silly('New Request: '+req.uid);
@@ -76,39 +81,9 @@ function onHttpConnect(req, resp){
     handler.handleRequest();
 }
 
-function initServerRegistration() {
+PencilBlue.initServerRegistration = function() {
 	pb.ServerRegistration.init();
 }
 
-/**
- * Registers for process level events
- */
-function registerSystemForEvents(cb){
-	
-	//shutdown hook
-	var onSignalToDie = function () {
-		pb.log.info('Shutting down...');
-	  	pb.dbm.shutdown();
-	  	pb.cache.quit();
-	  	pb.session.shutdown();
-	  	pb.ServerRegistration.shutdown();
-	};
-	try {
-		process.openStdin();
-		process.on('SIGINT', onSignalToDie);
-		process.on('SIGTERM', onSignalToDie);
-		cb(null, true);
-	}
-	catch(e) {
-		cb(e, false);
-	}
-}
-
-//start up sequence
-//1. Load Requirements
-//2. Load configuration
-//3. Start connection to core DB
-//4. Start HTTP Server
-//5. Register for system events
-init();
-
+//start system
+pb.system.onStart(PencilBlue.init);

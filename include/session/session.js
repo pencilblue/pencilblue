@@ -184,13 +184,6 @@ SessionHandler.prototype.isLocal = function(sessionId){
 };
 
 /**
- * Shuts down the sesison handler and the associated session store
- */
-SessionHandler.prototype.shutdown = function(){
-	SessionStore.shutdown();
-};
-
-/**
  * Creates the shell of a session object
  * @param request
  * @returns {___anonymous6521_6682} 
@@ -274,6 +267,14 @@ SessionHandler.getSessionIdFromCookie = function(request){
 
 SessionHandler.getSessionCookie = function(session) {
     return {session_id: session.uid, path: '/'};
+};
+
+/**
+ * Shuts down the sesison handler and the associated session store
+ */
+SessionHandler.shutdown = function(cb){ 
+    cb = cb || pb.utils.cb;
+	SessionStore.shutdown(cb);
 };
 
 //do module exports

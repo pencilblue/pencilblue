@@ -32,10 +32,11 @@ AdminIndexController.prototype.render = function(cb) {
             {
                 navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService),
                 contentInfo: contentInfo,
-                cluster: data.clusterStatus
+                cluster: data.clusterStatus,
+                access: self.session.authentication.admin_level
             }
         );
-    	
+    	throw new Error('shit broke somewhere');
     	self.setPageName(self.localizationService.get('DASHBOARD'));
         self.templateService.load('admin/index', function(error, result) {
         	
