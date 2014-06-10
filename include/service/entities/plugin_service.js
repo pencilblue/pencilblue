@@ -1585,7 +1585,10 @@ PluginService.loadControllers = function(pathToPlugin, pluginUid, cb) {
 
 	fs.readdir(controllersDir, function(err, files) {
 		if (util.isError(err)) {
-			cb(err, null);
+            pb.log.debug('PluginService[INIT]: The controllers directory [%s] does not exist or could not be read.', controllersDir);
+            pb.log.silly('PluginService[INIT]: %s', err.stack);
+			cb(null, []);
+            return;
 		}
 
 		var tasks = pb.utils.getTasks(files, function(files, index) {
