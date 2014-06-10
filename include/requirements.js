@@ -47,7 +47,8 @@ pb.CacheFactory = require(DOCUMENT_ROOT+'/include/dao/cache.js');
 pb.cache = pb.CacheFactory.getInstance();
 
 //configure the DB manager
-pb.dbm = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
+pb.DBManager = require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager;
+pb.dbm       = new pb.DBManager();
 
 //setup system class types
 pb.DAO = require(DOCUMENT_ROOT+'/include/dao/dao');

@@ -18,16 +18,7 @@ module.exports = {
 
 	tearDown: function(cb){
 		var cnt = 0;
-		var promises = pb.dbm.shutdown();
-		for(var i = 0; i < promises.length; i++){
-			promises[i].then(function(result){
-				pb.log.debug("Promise ["+cnt+"] Compelted");
-				if(++cnt == promises.length){
-					pb.log.debug("All promises Accounted for");
-					cb();
-				}
-			});
-		}
+		pb.DBManager.shutdown(cb);
 	},
 	
 	testProcess: function(test) {
@@ -48,4 +39,18 @@ module.exports = {
 			test.done();
 		});
 	},
+    
+    testCompile: function(test) {
+        var tests = [
+            '',
+            null,
+            undefined,
+            
+        ];
+        for (var i = 0; i < tests.length; i++) {
+            var result = pb.TemplateService.compile(tests[i]);
+            console.log(i+': '+util.inspect(result));
+        }
+        test.done();
+    }
 };

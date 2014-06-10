@@ -508,5 +508,42 @@ TemplateService.getCustomPath = function(themeName, templateLocation){
 	return path.join(DOCUMENT_ROOT, 'plugins', themeName, 'templates', templateLocation + '.html');
 };
 
+TemplateService.compile = function(text) {
+    if (!pb.validation.validateNonEmptyStr(text)) {
+        return [];   
+    }
+    
+    var start = '^$';
+    var end   = '$^';
+    var compiled = [];
+    
+    var i;
+    var pipe = 0;
+    var flag = null;
+    var flagFound = 0;
+    while ( (i = text.indexOf(start)) >= 0) {
+        
+        var start_pos = i + 1;
+        var end_pos   = text.indexOf(end, start_pos);
+        if (end_pos) {
+            
+            var flag   = text.substring(start_pos, end_pos);
+            var static = text.substring(0, start_pos);
+            
+            compiled.push(static, flag);
+            text       = text.substring(end_pos + 1);
+            if (!text) {
+                break;   
+            }
+        }
+        else {
+            break;
+        }
+    }
+    
+    //add what's left
+    compiled.push(text);
+};
+
 //exports
 module.exports = TemplateService;
