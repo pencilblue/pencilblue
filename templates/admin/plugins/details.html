@@ -11,18 +11,20 @@
 	</div>
 	<div class="row">
 		<div class="col-md-6">
-			<table class="table table-responsive table-condensed table-bordered">
-				<tr>
-					<th>^loc_STATUS^</th>
-					<th>^loc_UID^</th>
-					<th>^loc_VERSION^</th>
-				</tr>
-				<tr>
-					<td>{{status}}</td>
-					<td>{{d.uid}}</td>
-					<td>{{d.version}}</td>
-				</tr>
-			</table>
+			<div class="table_container">
+				<table class="table table-responsive table-condensed table-bordered">
+					<tr>
+						<th>^loc_STATUS^</th>
+						<th>^loc_UID^</th>
+						<th>^loc_VERSION^</th>
+					</tr>
+					<tr>
+						<td>{{status}}</td>
+						<td>{{d.uid}}</td>
+						<td>{{d.version}}</td>
+					</tr>
+				</table>
+			</div>
 		</div>
 	</div>
 	<div class="spacer"></div>
@@ -37,30 +39,32 @@
 			<div class="panel-heading">
 				^loc_AUTHOR_INFORMATION^
 			</div>
-			<table class="table table-responsive table-condensed">
-				<tr>
-					<th><i class="fa fa-user"></i>&nbsp;^loc_NAME^</th>
-					<th><i class="fa fa-envelope"></i>&nbsp;^loc_EMAIL^</th>
-					<th><i class="fa fa-link"></i>&nbsp;^loc_WEBSITE^</th>
-				</tr>
-				<tr>
-					<td>{{d.author.name}}</td>
-					<td><a ng-if="d.author.email" href="mailto:{{d.author.email}}">{{d.author.email}}</a></td>
-					<td><a ng-if="d.author.website" href="{{d.author.website}}" target="_blank">{{d.author.website}}</a></td>
-				</tr>
-				<span ng-if="d.author.contributors.length">
+			<div class="table_container">
+				<table class="table table-responsive table-condensed">
 					<tr>
-						<th>^loc_CONTRIBUTORS^</th>
-						<th></th>
-						<th></th>
+						<th><i class="fa fa-user"></i>&nbsp;^loc_NAME^</th>
+						<th><i class="fa fa-envelope"></i>&nbsp;^loc_EMAIL^</th>
+						<th><i class="fa fa-link"></i>&nbsp;^loc_WEBSITE^</th>
 					</tr>
-					<tr ng-repeat="c in d.author.contributors" ng-cloak>
-						<td>{{c.name}}</td>
-						<td><a ng-if="c.email" href="mailto:{{c.email}}">{{c.email}}</a></td>
-						<td></td>
+					<tr>
+						<td>{{d.author.name}}</td>
+						<td><a ng-if="d.author.email" href="mailto:{{d.author.email}}">{{d.author.email}}</a></td>
+						<td><a ng-if="d.author.website" href="{{d.author.website}}" target="_blank">{{d.author.website}}</a></td>
 					</tr>
-				</span>
-			</table>
+					<span ng-if="d.author.contributors.length">
+						<tr>
+							<th>^loc_CONTRIBUTORS^</th>
+							<th></th>
+							<th></th>
+						</tr>
+						<tr ng-repeat="c in d.author.contributors" ng-cloak>
+							<td>{{c.name}}</td>
+							<td><a ng-if="c.email" href="mailto:{{c.email}}">{{c.email}}</a></td>
+							<td></td>
+						</tr>
+					</span>
+				</table>
+			</div>
 		</div>
 		<div ng-if="d.theme" class="panel panel-info">
             <div class="panel-heading">
@@ -71,16 +75,18 @@
 					^loc_NONE^
 				</p>
 			</div>
-			<table class="table table-responsive table-condensed"ng-if="d.theme.content_templates">
-				<tr>
-					<th>^loc_NAME^</th>
-					<th>^loc_TEMPLATE^</th>
-				</tr>
-				<tr ng-repeat="t in d.theme.content_templates">
-					<td>{{t.name}}</td>
-					<td>{{t.file}}</td>
-				</tr>
-			</table>
+			<div class="table_container">
+				<table class="table table-responsive table-condensed"ng-if="d.theme.content_templates">
+					<tr>
+						<th>^loc_NAME^</th>
+						<th>^loc_TEMPLATE^</th>
+					</tr>
+					<tr ng-repeat="t in d.theme.content_templates">
+						<td>{{t.name}}</td>
+						<td>{{t.file}}</td>
+					</tr>
+				</table>
+			</div>
         </div>
 	</form>
 </div>
