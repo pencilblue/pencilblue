@@ -1,6 +1,6 @@
 /**
  * Organizes the site's sections via drag and drop
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -19,19 +19,19 @@ SectionMap.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
 	dao.query('section', pb.DAO.ANYWHERE).then(function(sections) {
-		
+
 		//when no sections exist redirect to create page
-        if(sections.length == 0) {
+        if(sections.length === 0) {
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
             return;
         }
 
         pb.settings.get('section_map', function(err, sectionMap) {
-            if(sectionMap == null) {
+            if(sectionMap === null) {
             	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
                 return;
             }
-            
+
             self.setPageName(self.ls.get('NAV_MAP'));
 	        self.ts.load('admin/content/sections/section_map', function(err, data) {
                 var result = data;
@@ -42,17 +42,17 @@ SectionMap.prototype.render = function(cb) {
                     pills: pills,
                     sections: SectionMap.getOrderedSections(sections, sectionMap),
                     icons: {
-                    	container: 'fa-inbox',
-                    	section: 'fa-th-large',
-                    	article: 'fa-files-o',
-                    	page: 'fa-file-o',
-                    	link: 'fa-external-link'
+                    	container: 'inbox',
+                    	section: 'th-large',
+                    	article: 'files-o',
+                    	page: 'file-o',
+                    	link: 'external-link'
                     }
                 };
-                
+
                 var angularData = pb.js.getAngularController(objects);
                 result          = result.split('^angular_script^').join(angularData);
-                
+
                 cb({content: result});
             });
         });
@@ -63,7 +63,7 @@ SectionMap.getOrderedSections = function(sections, sectionMap) {
 
 	var orderedSections = [];
     for(var i = 0; i < sectionMap.length; i++) {
-        
+
     	var parentSection = null;
         for(var j = 0; j < sections.length; j++) {
             if(sectionMap[i].uid == sections[j]._id) {
@@ -72,11 +72,11 @@ SectionMap.getOrderedSections = function(sections, sectionMap) {
                 break;
             }
         }
-        
+
         if(!parentSection) {
             continue;
         }
-        
+
         for(var o = 0; o < sectionMap[i].children.length; o++) {
             for(var j = 0; j < sections.length; j++) {
                 if(sectionMap[i].children[o].uid == sections[j]._id) {
@@ -85,10 +85,10 @@ SectionMap.getOrderedSections = function(sections, sectionMap) {
                 }
             }
         }
-        
+
         orderedSections.push(parentSection);
     }
-    
+
     return orderedSections;
 };
 
