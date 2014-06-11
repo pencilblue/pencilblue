@@ -358,19 +358,11 @@ Blog.prototype.getNavigation = function(cb) {
 
 Blog.prototype.getSideNavigation = function(articles, cb) {
     var self = this;
-    var ps = new PluginService();
 
-    ps.getSettings('portfolio', function(err, settings) {
-        for(var i = 0; i < settings.length; i++) {
-            if(settings[i].name === 'show_side_navigation') {
-                if(!settings[i].value) {
-                    cb('', null);
-                    return;
-                }
-                else {
-                    break;
-                }
-            }
+    pb.plugins.getSetting('show_side_navigation', 'portfolio', function(err, showSideNavigation) {
+        if(!showSideNavigation) {
+            cb('', null);
+            return;
         }
 
         var topics = [];
