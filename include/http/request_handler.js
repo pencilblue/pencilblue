@@ -699,7 +699,7 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'login.js'),
     },
     {
-    	path: "/actions/admin/content/custom_objects/delete_object",
+    	path: "/actions/admin/content/custom_objects/delete_object/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object.js'),
@@ -1425,7 +1425,7 @@ RequestHandler.prototype.onControllerInitialized = function(controller) {
 	});
     d.on('error', function(err) {
         pb.log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
-        self.serveError(err);   
+        self.serveError(err);
     });
 };
 

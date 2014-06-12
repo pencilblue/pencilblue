@@ -322,6 +322,13 @@ form .error
     margin: 0;
 }
 
+/* INTERFACE OBJECTS */
+
+.table_container {
+    width: 100%;
+    overflow: auto;
+}
+
 .topic, .media_item, .section_item, .child_object, .custom_object
 {
     font-size: 1.05em;
