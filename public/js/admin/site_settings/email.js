@@ -10,11 +10,22 @@ var formRefillOptions =
         id: 'verification_content',
         type: 'layout'
     }
-]
+];
 
 $(document).ready(function()
 {
     $('#media_button').hide();
+
+    $('[data-toggle="tooltip"]').tooltip(
+        {
+            'placement': 'bottom'
+            //'trigger': 'click'
+        }
+    ).css(
+        {
+            'cursor': 'pointer'
+        }
+    );
 });
 
 function checkForCustomService()
@@ -32,6 +43,6 @@ function checkForCustomService()
 function prepareEmailSettingsSave()
 {
     $('fieldset').append('<textarea id="verification_content" name="verification_content" style="display: none">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
-    
+
     $('#email_form').submit();
 }

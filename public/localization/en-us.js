@@ -101,7 +101,6 @@ var loc =
 		ERRORED: 'Errored',
 		ACTIVE: 'Active',
 		INACTIVE: 'Inactive',
-		AVAILABLE: 'Available',
 		STATUS: 'Status',
 		THEME_INFORMATION: 'Theme Information',
 		TEMPLATES: 'Templates',
@@ -408,8 +407,8 @@ var loc =
         CUSTOM: 'Custom',
         HOST: 'Host',
         SECURE_CONNECTION: 'Secure connection (SSL)',
-        PORT: 'Port',
-        EMAIL_SETTINGS: 'Email settings'
+        EMAIL_SETTINGS: 'Email settings',
+        EMAIL_DIRECTIVES_DESCRIPTION: 'Directives: ^verification_url^, ^first_name^, ^last_name^'
     }
 };
 
