@@ -46,7 +46,7 @@ SectionMap.prototype.render = function(cb) {
                     	section: 'th-large',
                     	article: 'files-o',
                     	page: 'file-o',
-                    	link: 'external-link'
+                    	link: 'link'
                     }
                 };
 
