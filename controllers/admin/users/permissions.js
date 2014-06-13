@@ -40,12 +40,20 @@ PermissionsMapController.prototype.render = function(cb) {
 		permissions.push({name: permArray[i], vals: values});
 	}
 
-	var pills = [{
-		name: 'permissions',
-		title: self.ls.get('PERMISSIONS'),
-		icon: 'refresh',
-		href: '/admin/users/permissions'
-	}];
+	var pills = [
+		{
+			name: 'permissions',
+			title: self.ls.get('PERMISSIONS'),
+			icon: 'refresh',
+			href: '/admin/users/permissions'
+		},
+		{
+			name: 'manage_plugins',
+			title: self.ls.get('MANAGE_PLUGINS'),
+			icon: 'puzzle-piece',
+			href: '/admin/plugins'
+		}
+	];
 
 	var angularData = pb.js.getAngularController(
         {

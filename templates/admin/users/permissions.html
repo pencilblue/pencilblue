@@ -1,14 +1,16 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^error_success^
+    <div class="alert alert-warning error_success" ng-if="permissions.length === 0">
+        ^loc_NO_PERMISSIONS^.
+    </div>
     ^tmp_admin=elements=sub_nav^
-    <div class="input-group" style="margin-bottom: .5em">
+    <div class="input-group" ng-if="permissions.length > 0" style="margin-bottom: .5em">
         <input type="text" id="permissions_search" name="permissions_search" class="form-control"></input>
         <span class="input-group-btn">
             <button id="permissions_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
         </span>
     </div>
-    <div class="table_container">
+    <div class="table_container" ng-if="permissions.length > 0">
         <table id="permissions_table" class="table table-responsive table-condensed">
             <tr>
                 <th id="permission_name_header">^loc_NAME^</th>

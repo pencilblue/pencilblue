@@ -135,7 +135,7 @@ var loc =
 		NO_AVAILABLE_PLUGINS: 'No available plugins',
         READ_MORE: 'Read more',
         THEME_DEFAULT: 'Theme Default',
-        USER: 'User'
+        USER: 'User',
     },
     error:
     {
@@ -356,7 +356,8 @@ var loc =
         OLD_PASSWORD: 'Old password',
         NEW_PASSWORD: 'New password',
         INVALID_PASSWORD: 'Invalid current password',
-        PASSWORD_CHANGED: 'Your password was successfully changed'
+        PASSWORD_CHANGED: 'Your password was successfully changed',
+        NO_PERMISSIONS: 'None of your installed plugins have permissions set'
     },
     plugins:
     {
