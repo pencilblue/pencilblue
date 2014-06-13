@@ -133,6 +133,8 @@ function getMediaIcon(mediaType)
             return 'instagram';
         case 'slideshare':
             return 'list-alt';
+        case 'trinket':
+            return 'key fa-flip-horizontal';
         default:
             return 'question';
             break;
@@ -158,6 +160,11 @@ function getMediaLink(mediaType, mediaLocation, isFile)
             return 'http://instagram.com/p/' + mediaLocation;
         case 'slideshare':
             return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
+        case 'trinket':
+            if(mediaLocation.indexOf('/') === -1) {
+                return 'https://trinket.io/embed/python/' + mediaLocation;
+            }
+            return 'https://trinket.io/embed/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':
