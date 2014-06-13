@@ -53,8 +53,7 @@ PermissionsMapController.prototype.render = function(cb) {
 			pills: pills,
             roles: roleDNs,
             permissions: permissions,
-        },
-        []
+        }, [], 'initPermissionsPagination()'
     );
 
 	//render page
