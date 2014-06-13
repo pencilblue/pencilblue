@@ -139,9 +139,15 @@ function validateMediaURL(mediaURL, isFile)
             previewSlideshare(slideshowID);
         });
     }
-    else if(mediaURL.indexOf('trinket.io/embed') != -1)
+    else if(mediaURL.indexOf('trinket.io') != -1)
     {
-        var mediaID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
+        if(mediaURL.indexOf('/embed') != -1) {
+            var mediaID = mediaURL.substr(mediaURL.lastIndexOf('/embed') + 7);
+        }
+        else {
+            mediaID = mediaURL.substr(mediaURL.lastIndexOf('trinket.io') + 11);
+        }
+
         setMediaValues(isFile, 'trinket', mediaID);
         previewTrinket(mediaID);
     }
@@ -229,5 +235,5 @@ function previewSlideshare(slideshowID)
 
 function previewTrinket(trinketID)
 {
-    $('#media_display').html('<iframe src="https://trinket.io/embed/python/' + trinketID + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" style="max-width: 100%" allowfullscreen> </iframe>');
+    $('#media_display').html('<iframe src="https://trinket.io/embed/' + trinketID + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" style="max-width: 100%" allowfullscreen> </iframe>');
 }
