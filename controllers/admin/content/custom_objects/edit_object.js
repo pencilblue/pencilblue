@@ -14,19 +14,19 @@ var SUB_NAV_KEY = 'edit_custom_object';
 EditObject.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
-    if(!vars['id']) {
+    if(!vars.id) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
         return;
     }
 
 	var dao  = new pb.DAO();
-	dao.query('custom_object', {_id: ObjectID(vars['id'])}).then(function(customObjects) {
+	dao.query('custom_object', {_id: ObjectID(vars.id)}).then(function(customObjects) {
 		if (util.isError(customObjects)) {
 			//TODO handle this
 		}
 
 		//none to manage
-        if(customObjects.length == 0) {
+        if(customObjects.length === 0) {
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
             return;
         }
@@ -39,7 +39,7 @@ EditObject.prototype.render = function(cb) {
 	        }
 
 	        //none to manage
-            if(customObjectTypes.length == 0) {
+            if(customObjectTypes.length === 0) {
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
                 return;
             }
@@ -115,8 +115,10 @@ EditObject.loadFieldOptions = function(dao, objectType, cb) {
 		            //TODO handle this
 	            }
 
-	            if(customObjectTypes.length == 0)
+	            if(customObjectTypes.length === 0)
 	            {
+                    index++;
+                    self.loadObjectOptions(index);
 	                return;
 	            }
 
