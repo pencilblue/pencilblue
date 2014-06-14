@@ -10,7 +10,7 @@ function TopMenuService(){}
 var SectionService = pb.SectionService;
 
 TopMenuService.getTopMenu = function(session, localizationService, cb) {
-    
+
     var getTopMenu = function(session, localizationService, cb) {
 	    var tasks = {
 			themeSettings: function(callback) {
@@ -18,14 +18,14 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
 					callback(null, {site_logo: logo, carousel_media: []});
 				});
 			},
-			
+
 			formattedSections: function(callback) {
 				var sectionService = new SectionService();
 				sectionService.getFormattedSections(localizationService, function(err, formattedSections) {
 					callback(null, formattedSections);
 				});
 			},
-			
+
 			accountButtons: function(callback) {
 				TopMenuService.getAccountButtons(session, callback);
 			}
@@ -39,8 +39,8 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
 
 TopMenuService.getAccountButtons = function(session, cb) {
 	pb.content.getSettings(function(err, contentSettings) {
-		//TODO handle error 
-		
+		//TODO handle error
+
         var accountButtons = [];
 
         if(contentSettings.allow_comments) {
@@ -74,6 +74,15 @@ TopMenuService.getAccountButtons = function(session, cb) {
                     }
                 ];
             }
+        }
+        else {
+            accountButtons =
+            [
+                {
+                    icon: 'rss',
+                    href: '/feed'
+                }
+            ];
         }
         cb(null, accountButtons);
     });
