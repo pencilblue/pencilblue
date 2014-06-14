@@ -11,11 +11,7 @@ function setupInputs()
         {
             if(customObjectType.fields[key].field_type == 'date')
             {
-                $('#' + key).datetimepicker(
-                {
-                    language: 'en',
-                    format: 'Y-m-d H:m'
-                });
+                $('#' + key).datetimepicker();
             }
             else if(customObjectType.fields[key].field_type == 'child_objects')
             {

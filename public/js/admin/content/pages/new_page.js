@@ -54,11 +54,7 @@ $(document).ready(function()
         setPublishDateToNow();
     }
 
-    $('#publish_date').datetimepicker(
-    {
-        language: 'en',
-        format: 'Y-m-d H:m'
-    });
+    $('#publish_date').datetimepicker();
 
     $('#url').focus();
 });
@@ -102,7 +98,7 @@ function setPublishDateToNow()
 
 function getDatetimeText(date)
 {
-    var datetime = date.getFullYear() + '-' + getExtraZero(date.getMonth() + 1) + '-' + getExtraZero(date.getDate()) + ' ';
+    var datetime = date.getFullYear() + '/' + getExtraZero(date.getMonth() + 1) + '/' + getExtraZero(date.getDate()) + ' ';
     datetime += getExtraZero(date.getHours()) + ':' + getExtraZero(date.getMinutes());
 
     return datetime;
