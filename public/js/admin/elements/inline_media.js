@@ -118,7 +118,6 @@ function getMediaIcon(mediaType)
     switch(mediaType) {
         case 'image':
             return 'picture-o';
-            break;
         case 'video/mp4':
         case 'video/webm':
         case 'video/ogg':
@@ -139,7 +138,6 @@ function getMediaIcon(mediaType)
             return 'key fa-flip-horizontal';
         default:
             return 'question';
-            break;
     }
 
     return '<i class="fa fa-' + iconID + '"></i>';
