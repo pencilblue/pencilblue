@@ -317,7 +317,8 @@ var loc =
         ACTIVE_OBJECTS: 'Drag associated objects here',
         INACTIVE_OBJECTS: 'Drag unassociated objects here',
         OBJECTS: 'objects',
-        DESCRIPTION: 'Description'
+        DESCRIPTION: 'Description',
+        INVALID_FIELD: 'Invalid field was submitted. Make sure there are no duplicate field names or unselected field types'
     },
     users:
     {

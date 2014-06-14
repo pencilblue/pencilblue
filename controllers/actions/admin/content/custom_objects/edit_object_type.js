@@ -35,7 +35,7 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
 
 	    var message = self.hasRequiredParams(post, ['name']);
 	    if(message) {
-            this.formError(message, '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
+            this.formError(message, '/admin/content/custom_objects/edit_object_type/' + vars.id, cb);
             return;
         }
 
@@ -49,29 +49,35 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
                 // Case insensitive test for duplicate name
                 for(var i =0; i < customObjectTypes.length; i++) {
                     if(post.name.toLowerCase() == customObjectTypes[i].name.toLowerCase()) {
-                        self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
+                        self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT_TYPE'), '/admin/content/custom_objects/edit_object_type/' + vars.id, cb);
                         return;
                     }
                 }
             }
 
-            objectTypeDocument = EditObjectType.createObjectTypeDocument(post);
+            objectTypeDocument = self.createObjectTypeDocument(post);
+            if(!objectTypeDocument)
+            {
+                self.formError(self.ls.get('INVALID_FIELD'), '/admin/content/custom_objects/edit_object_type/' +  vars.id, cb);
+                return;
+            }
             objectTypeDocument._id = originalObjectType._id;
 
             dao.update(objectTypeDocument).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/edit_object_type/' + originalObjectType.name, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/edit_object_type/' +  vars.id, cb);
                     return;
                 }
 
                 self.session.success = objectTypeDocument.name + ' ' + self.ls.get('EDITED');
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/edit_object_type/' + post.name));
+                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/edit_object_type/' +  vars.id));
             });
         });
     });
 };
 
-EditObjectType.createObjectTypeDocument = function(post) {
+EditObjectType.prototype.createObjectTypeDocument = function(post) {
+    var self = this;
     var objectTypeDocument = {object_type: 'custom_object_type', name: post.name, url: post.url, fields: {name: {field_type: 'text'}}};
 
     if(!post.field_order) {
@@ -109,6 +115,10 @@ EditObjectType.createObjectTypeDocument = function(post) {
                 continue;
             }
 
+            if(post['field_type_' + index] == self.ls.get('OBJECT_TYPE')) {
+                return null;
+            }
+
             objectTypeDocument.fields[post['peer_object_' + index]] = {field_type: 'peer_object', object_type: post['field_type_' + index]};
         }
         else if(post['child_objects_' + index])
@@ -116,6 +126,10 @@ EditObjectType.createObjectTypeDocument = function(post) {
             if(objectTypeDocument.fields[post['child_objects_' + index]])
             {
                 continue;
+            }
+
+            if(post['field_type_' + index] == self.ls.get('OBJECT_TYPE')) {
+                return null;
             }
 
             objectTypeDocument.fields[post['child_objects_' + index]] = {field_type: 'child_objects', object_type: post['field_type_' + index]};

@@ -48,12 +48,12 @@ DeleteObject.prototype.onPostParamsRetrieved = function(post, cb) {
 
             dao.deleteById(vars.id, 'custom_object').then(function(recordsDeleted) {
                 if(recordsDeleted <= 0) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/manage_objects/' + customObjectType.name, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/manage_objects/' + vars.id, cb);
                     return;
                 }
 
                 self.session.success = customObject.name + ' ' + self.ls.get('DELETED');
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_objects/' + customObjectType.name));
+                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_objects/' + vars.id));
             });
         });
     });
