@@ -64,7 +64,7 @@ EditObject.prototype.render = function(cb) {
                         fieldOrder.push(key);
                     }
 
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType);
+                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, {objectType: objectType, customObject: customObject});
                     result    = result.split('^angular_script^').join(pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
@@ -168,15 +168,15 @@ EditObject.getSubNavItems = function(key, ls, data) {
 	return [
         {
             name: 'manage_objects',
-            title: ls.get('NEW') +' ' + data.name,
+            title: ls.get('EDIT') +' ' + data.customObject.name,
             icon: 'chevron-left',
-            href: '/admin/content/custom_objects/manage_objects/' + data.name
+            href: '/admin/content/custom_objects/manage_objects/' + data.objectType._id
         },
         {
             name: 'new_object',
             title: '',
             icon: 'plus',
-            href: '/admin/content/custom_objects/new_object/' + data.name
+            href: '/admin/content/custom_objects/new_object/' + data.objectType._id
         }
     ];
 };

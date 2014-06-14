@@ -1,6 +1,6 @@
 /**
  * Create a new custom object
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -17,27 +17,20 @@ var SUB_NAV_KEY = 'edit_custom_object_type';
 
 EditObjectType.prototype.render = function(cb) {
 	var self = this;
-	var vars = this.pathVars;	
-	
-    if(!vars['name']) {
+	var vars = this.pathVars;
+
+    if(!vars.id) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
         return;
     }
-    
+
     var dao = new pb.DAO();
-    dao.query('custom_object_type', {name: vars['name']}).then(function(objectTypes) {
-	    if (util.isError(objectTypes)) {
-		    //TODO handle this
-	    }
-	    
-	    if(objectTypes.length == 0)
-	    {
+    dao.loadById(vars.id, 'custom_object_type', function(err, objectType) {
+	    if(util.isError(err) || objectType === null) {
 	        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
             return;
 	    }
-	    
-	    objectType = objectTypes[0];
-	
+
 	    self.setPageName(objectType.name);
 	    self.ts.registerLocal('object_type_id', objectType._id);
 	    self.ts.load('admin/content/custom_objects/edit_object_type',  function(err, data) {
@@ -56,19 +49,19 @@ EditObjectType.prototype.render = function(cb) {
                     title: self.ls.get('FIELDS')
                 }
             ];
-            
+
             var objectTypes = ['article', 'page', 'section', 'topic', 'media', 'user'];
-            
+
             dao.query('custom_object_type', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(customObjectTypes) {
 		        if (util.isError(customObjectTypes)) {
 			        //TODO handle this
 		        }
-                
+
                 // Case insensitive test for duplicate name
                 for (var i =0; i < customObjectTypes.length; i++) {
                     objectTypes.push('custom:' + customObjectTypes[i].name);
                 }
-                    
+
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_object_type', objectType);
                 result    = result.split('^angular_script^').join(pb.js.getAngularController(
                 {
@@ -78,9 +71,9 @@ EditObjectType.prototype.render = function(cb) {
                     objectTypes: objectTypes,
                     objectType: objectType
                 }));
-                
+
                 result += pb.js.getJSTag('var customObject = ' + JSON.stringify(objectType));
-                
+
                 cb({content: result});
             });
         });

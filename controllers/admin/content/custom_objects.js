@@ -1,6 +1,6 @@
 /**
  * CustomObjects - Custom object settings
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
