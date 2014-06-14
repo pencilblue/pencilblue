@@ -33,7 +33,10 @@
 	                        <label>^loc_URL_KEY^</label>
 	                        <div class="input-group">
 	                            <span class="input-group-addon">section/</span>
-	                            <input type="text" id="url" name="url" class="form-control" value="{{section.url}}"></input>
+	                            <input type="text" id="url" name="url" class="form-control" value="{{section.url}}" data-original-url="{{section.url}}"></input>
+                                <span class="input-group-btn">
+                                    <button id="availability_button" class="btn btn-default" type="button" onclick="validateURL()">^loc_CHECK^</button>
+                                </span>
 	                        </div>
 	                    </div>
 	                    <div class="form-group">
