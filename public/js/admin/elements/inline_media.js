@@ -64,10 +64,12 @@ function setupUpload(root)
 
 function showMediaModal(subsection)
 {
-    $('#media_display').html('');
     $('#link_to_media').hide();
     $('#upload_media').hide();
+    $('#link_to_media_header').hide();
+    $('#upload_media_header').hide();
     $(subsection).show();
+    $(subsection + '_header').show();
 
     $('#media_modal').modal({backdrop: 'static', keyboard: true});
 }
