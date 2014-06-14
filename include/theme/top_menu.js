@@ -27,7 +27,7 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
 			},
 
 			accountButtons: function(callback) {
-				TopMenuService.getAccountButtons(session, callback);
+				TopMenuService.getAccountButtons(session, localizationService, callback);
 			}
 	    };
     	async.parallel(tasks, function(err, result) {
@@ -37,7 +37,7 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
     getTopMenu(session, localizationService, cb);
 };
 
-TopMenuService.getAccountButtons = function(session, cb) {
+TopMenuService.getAccountButtons = function(session, ls, cb) {
 	pb.content.getSettings(function(err, contentSettings) {
 		//TODO handle error
 
@@ -48,14 +48,17 @@ TopMenuService.getAccountButtons = function(session, cb) {
                 accountButtons = [
                     {
                         icon: 'user',
+                        title: ls.get('ACCOUNT'),
                         href: '/user/manage_account'
                     },
                     {
                         icon: 'rss',
+                        title: ls.get('SUBSCRIBE'),
                         href: '/feed'
                     },
                     {
                         icon: 'power-off',
+                        title: ls.get('LOGOUT'),
                         href: '/actions/logout'
                     }
                 ];
@@ -66,10 +69,12 @@ TopMenuService.getAccountButtons = function(session, cb) {
                 [
                     {
                         icon: 'user',
+                        title: ls.get('ACCOUNT'),
                         href: '/user/sign_up'
                     },
                     {
                         icon: 'rss',
+                        title: ls.get('SUBSCRIBE'),
                         href: '/feed'
                     }
                 ];
@@ -80,6 +85,7 @@ TopMenuService.getAccountButtons = function(session, cb) {
             [
                 {
                     icon: 'rss',
+                    title: ls.get('SUBSCRIBE'),
                     href: '/feed'
                 }
             ];
@@ -134,11 +140,12 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                 }
 
                 var buttons = ' ';
-                for(var i = 0; i < accountButtons.length; i++)
+                for(i = 0; i < accountButtons.length; i++)
                 {
                     var button = accountButtonTemplate;
                     button = button.split('^active^').join((accountButtons[i].active) ? 'active' : '');
                     button = button.split('^url^').join(accountButtons[i].href);
+                    button = button.split('^title^').join(accountButtons[i].title);
                     button = button.split('^icon^').join(accountButtons[i].icon);
 
                     buttons = buttons.concat(button);

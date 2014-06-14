@@ -136,6 +136,7 @@ var loc =
         READ_MORE: 'Read more',
         THEME_DEFAULT: 'Theme Default',
         USER: 'User',
+        SUBSCRIBE: 'Subscribe'
     },
     error:
     {
