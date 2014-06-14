@@ -12,6 +12,7 @@
         <table id="articles_table" class="table table-responsive table-condensed">
             <tr id="articles_table_header">
                 <th id="article_headline_header">^loc_HEADLINE^</th>
+                <th id="article_status_header">^loc_STATUS^</th>
                 <th id="article_url_header">^loc_ARTICLE_URL^</th>
                 <th id="article_author_header">^loc_AUTHOR^</th>
                 <th id="article_date_header">^loc_PUBLISH_DATE^</th>
@@ -19,6 +20,7 @@
             </tr>
             <tr class="article_row" ng-repeat="article in articles track by article._id" on-finish-render ng-cloak>
                 <td><a class="article_headline" ng-href="/admin/content/articles/edit_article/{{article._id}}">{{article.headline}}</a></td>
+                <td class="article_status">{{article.status}}</td>
                 <td class="article_url">{{article.url}}</td>
                 <td class="article_author">{{article.author_name}}</td>
                 <td class="article_date">{{article.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
