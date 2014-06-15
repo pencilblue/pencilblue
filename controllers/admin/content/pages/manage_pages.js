@@ -1,5 +1,5 @@
 /**
- * ManagePages - Displays articles for management
+ * ManagePages - Displays pages for management
  *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
@@ -31,7 +31,7 @@ ManagePages.prototype.render = function(cb) {
             var result = '' + data;
 
             pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-
+                pages = self.getPageStatuses(pagesWithAuthor);
             	var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_pages');
                 result    = result.split('^angular_script^').join(pb.js.getAngularController(
                 {
@@ -44,6 +44,23 @@ ManagePages.prototype.render = function(cb) {
             });
         });
     });
+};
+
+ManagePages.prototype.getPageStatuses = function(pages) {
+    var now = new Date();
+    for(var i = 0; i < pages.length; i++) {
+        if(pages[i].draft) {
+            pages[i].status = this.ls.get('DRAFT');
+        }
+        else if(pages[i].publish_date > now) {
+            pages[i].status = this.ls.get('UNPUBLISHED');
+        }
+        else {
+            pages[i].status = this.ls.get('PUBLISHED');
+        }
+    }
+
+    return pages;
 };
 
 ManagePages.getSubNavItems = function(key, ls, data) {

@@ -1,6 +1,6 @@
 /**
  * AddMedia - Adds new media
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -11,15 +11,15 @@ util.inherits(AddMedia, pb.FormController);
 
 AddMedia.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
-	
-	delete post['topic_search'];
-    
+
+	delete post.topic_search;
+
 	var message = this.hasRequiredParams(post, this.getRequiredParams());
     if(message) {
         this.formError(message, this.getFormErrorRedirect(), cb);
         return;
     }
-    
+
     var mediaDocument = pb.DocumentCreator.create('media', post, ['media_topics'], ['is_file']);
     var dao = new pb.DAO();
     dao.update(mediaDocument).then(function(result) {
@@ -27,7 +27,7 @@ AddMedia.prototype.onPostParamsRetrieved = function(post, cb) {
             self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(), cb);
             return;
         }
-        
+
         self.onSaveSuccessful(mediaDocument);
         cb(self.genReturnVal(result));
     });
@@ -38,7 +38,7 @@ AddMedia.prototype.onSaveSuccessful = function(mediaDocument) {
 };
 
 AddMedia.prototype.getRequiredParams = function() {
-	return ['media_type', 'location', 'name', 'caption'];
+	return ['media_type', 'location', 'name'];
 };
 
 AddMedia.prototype.getFormErrorRedirect = function(){

@@ -1,6 +1,6 @@
 /**
  * ManageArticles - Displays articles for management
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -18,12 +18,12 @@ var SUB_NAV_KEY = 'manage_articles';
 ManageArticles.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
-	
+
 	var where = {};
     if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
         where.author = this.session.user._id.toString();
     }
-    
+
     dao.query('article', where, pb.DAO.PROJECT_ALL, {publish_date: pb.DAO.ASC}).then(function(articles) {
         if(util.isError(articles) || articles.length <= 0) {
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/new_article'));
@@ -34,21 +34,39 @@ ManageArticles.prototype.render = function(cb) {
         self.setPageName(manageArticlesStr);
     	self.ts.load('admin/content/articles/manage_articles',  function(err, data) {
             var result = '' + data;
-            
-                
+
+
             var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-            pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {                                
+            pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
+                articles = self.getArticleStatuses(articlesWithAuthorNames);
                 result = result.split('^angular_script^').join(pb.js.getAngularController(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
                     pills: pills,
-                    articles: articlesWithAuthorNames
+                    articles: articles
                 }, [], 'initArticlesPagination()'));
-                
+
                 cb({content: result});
             });
         });
     });
+};
+
+ManageArticles.prototype.getArticleStatuses = function(articles) {
+    var now = new Date();
+    for(var i = 0; i < articles.length; i++) {
+        if(articles[i].draft) {
+            articles[i].status = this.ls.get('DRAFT');
+        }
+        else if(articles[i].publish_date > now) {
+            articles[i].status = this.ls.get('UNPUBLISHED');
+        }
+        else {
+            articles[i].status = this.ls.get('PUBLISHED');
+        }
+    }
+
+    return articles;
 };
 
 ManageArticles.getSubNavItems = function(key, ls, data) {

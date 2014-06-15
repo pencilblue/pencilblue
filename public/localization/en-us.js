@@ -136,6 +136,7 @@ var loc =
         READ_MORE: 'Read more',
         THEME_DEFAULT: 'Theme Default',
         USER: 'User',
+        SUBSCRIBE: 'Subscribe'
     },
     error:
     {
@@ -285,7 +286,10 @@ var loc =
         ADD_MEDIA: 'Add media',
         INSERT_MEDIA: 'Insert media',
         SELECT_MEDIA: 'Select media to insert (multiple selections will create a carousel)',
-        ASSOCIATE_MEDIA: 'Associate media with the article'
+        ASSOCIATE_MEDIA: 'Associate media with the article',
+        PUBLISHED: 'Published',
+        UNPUBLISHED: 'Unpublished',
+        DRAFT: 'Draft'
     },
     comments:
     {
@@ -313,7 +317,8 @@ var loc =
         ACTIVE_OBJECTS: 'Drag associated objects here',
         INACTIVE_OBJECTS: 'Drag unassociated objects here',
         OBJECTS: 'objects',
-        DESCRIPTION: 'Description'
+        DESCRIPTION: 'Description',
+        INVALID_FIELD: 'Invalid field was submitted. Make sure there are no duplicate field names or unselected field types'
     },
     users:
     {

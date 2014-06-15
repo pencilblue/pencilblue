@@ -1,6 +1,6 @@
 /**
  * Manage custom objects via a table
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -15,48 +15,41 @@ var SUB_NAV_KEY = 'manage_custom_objects';
 ManageObjects.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
-    if(!vars['name']) {
+    if(!vars.id) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
         return;
     }
-	
+
 	var dao  = new pb.DAO();
-	dao.query('custom_object_type', {name: vars['name']}).then(function(customObjectTypes) {
-		if (util.isError(customObjectTypes)) {
-			//TODO handle this
-		}
-		
-		//none to manage
-        if(customObjectTypes.length == 0) {                
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+	dao.loadById(vars.id, 'custom_object_type', function(err, objectType) {
+        if(util.isError(err) || objectType === null) {
+    		cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
             return;
-        }
-        
-        var objectType = customObjectTypes[0];
-        
+		}
+
         dao.query('custom_object', {type: objectType._id.toString()}).then(function(customObjects) {
 		    if (util.isError(customObjects)) {
 			    //TODO handle this
 		    }
-		
+
 		    //none to manage
-            if(customObjects.length == 0) {                
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object/' + vars['name']));
+            if(customObjects.length === 0) {
+                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object/' + vars.id));
                 return;
             }
-            
+
             dao.query('custom_object_sort', {custom_object_type: objectType._id.toString()}).then(function(customObjectSorts) {
 		        if (util.isError(customObjects)) {
 			        //TODO handle this
 		        }
-		        
-		        if(customObjectSorts.length == 0) {
-                    //currently, mongo cannot do case-insensitive sorts.  We do it manually 
+
+		        if(customObjectSorts.length === 0) {
+                    //currently, mongo cannot do case-insensitive sorts.  We do it manually
                     //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
                     customObjects.sort(function(a, b) {
-                        var x = a['name'].toLowerCase();
-                        var y = b['name'].toLowerCase();
-                    
+                        var x = a.name.toLowerCase();
+                        var y = b.name.toLowerCase();
+
                         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
                     });
                 }
@@ -76,16 +69,16 @@ ManageObjects.prototype.render = function(cb) {
                             }
                         }
                     }
-                    
+
                     sortedObjects.concat(customObjects);
                     customObjects = sortedObjects;
                 }
-            
+
 		        var title = self.ls.get('MANAGE') + ' ' + objectType.name;
 		        self.setPageName(title);
                 self.ts.load('admin/content/custom_objects/manage_objects', function(err, data) {
                     var result = ''+data;
-                        
+
                     var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', objectType);
                     result    = result.split('^angular_script^').join(pb.js.getAngularController(
                     {
@@ -94,7 +87,7 @@ ManageObjects.prototype.render = function(cb) {
                         customObjects: customObjects,
                         objectType: objectType
                     }, [], 'initCustomObjectsPagination()'));
-                    
+
                     cb({content: result});
                 });
             });
@@ -114,13 +107,13 @@ ManageObjects.getSubNavItems = function(key, ls, data) {
             name: 'sort_objects',
             title: '',
             icon: 'sort-amount-desc',
-            href: '/admin/content/custom_objects/sort_objects/' + data.name
+            href: '/admin/content/custom_objects/sort_objects/' + data._id
         },
         {
             name: 'new_object',
             title: '',
             icon: 'plus',
-            href: '/admin/content/custom_objects/new_object/' + data.name
+            href: '/admin/content/custom_objects/new_object/' + data._id
         }
     ];
 };

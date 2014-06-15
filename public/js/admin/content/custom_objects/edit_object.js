@@ -1,5 +1,5 @@
 $(document).ready(function()
-{    
+{
     setupInputs();
 });
 
@@ -11,11 +11,7 @@ function setupInputs()
         {
             if(customObjectType.fields[key].field_type == 'date')
             {
-                $('#' + key).datetimepicker(
-                {
-                    language: 'en',
-                    format: 'Y-m-d H:m'
-                });
+                $('#' + key).datetimepicker();
             }
             else if(customObjectType.fields[key].field_type == 'child_objects')
             {
@@ -28,7 +24,7 @@ function setupInputs()
                 {
                     $('#inactive_' + key).append(ui.draggable);
                 }});
-                
+
                 new jNarrow('#' + key + '_search', '#inactive_' + key + ' .child_object',
                 {
                     searchChildElement: '.' + key + '_name',
@@ -36,7 +32,7 @@ function setupInputs()
                     searchText: '<i class="fa fa-search"></i>',
                     clearText: '<i class="fa fa-times"></i>',
                 });
-                
+
                 for(var i = 0; i < customObject[key].length; i++)
                 {
                     $('#active_' + key).append($('#' + key + '_' + customObject[key][i]));
@@ -69,7 +65,7 @@ function prepareEditObjectSave()
         $('#edit_object_form').submit();
         return;
     }
-    
+
     var fieldIndex = 0;
     $('.child_objects').each(function()
     {
@@ -77,7 +73,7 @@ function prepareEditObjectSave()
         var activeObjects = [];
         var activeObjectsLength = $(this).find('#active_' + key + ' .child_object').length;
         var activeObjectIndex = 0;
-        
+
         if(activeObjectsLength == 0)
         {
             $('#' + key + '_search').remove();
@@ -89,7 +85,7 @@ function prepareEditObjectSave()
             }
             return;
         }
-        
+
         $(this).find('#active_' + key + ' .child_object').each(function()
         {
             activeObjects.push($(this).attr('id').split(key + '_').join(''));

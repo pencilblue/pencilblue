@@ -1,6 +1,6 @@
 /**
  * Manage custom objects via a table
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -22,24 +22,24 @@ ManageObjectTypes.prototype.render = function(cb) {
 		if (util.isError(customObjectTypes)) {
 			//TODO handle this
 		}
-		
+
 		//none to manage
-        if(customObjectTypes.length == 0) {                
+        if(customObjectTypes.length === 0) {
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
             return;
         }
-        
+
         customObjectTypes = ManageObjectTypes.setFieldTypesUsed(self, customObjectTypes);
-        
-        //currently, mongo cannot do case-insensitive sorts.  We do it manually 
+
+        //currently, mongo cannot do case-insensitive sorts.  We do it manually
         //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
         customObjectTypes.sort(function(a, b) {
-            var x = a['name'].toLowerCase();
-            var y = b['name'].toLowerCase();
-        
+            var x = a.name.toLowerCase();
+            var y = b.name.toLowerCase();
+
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
-    
+
         self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
         self.ts.load('admin/content/custom_objects/manage_object_types', function(err, result) {
 
@@ -50,7 +50,7 @@ ManageObjectTypes.prototype.render = function(cb) {
                 pills: pills,
                 customObjectTypes: customObjectTypes
             }, [], 'initObjectTypesPagination()'));
-            
+
             cb({content: result});
         });
     });
@@ -82,7 +82,7 @@ ManageObjectTypes.setFieldTypesUsed = function(self, customObjectTypes) {
                     break;
             }
         }
-        
+
         for(var j = 0; j < fieldTypesUsed.length; j++) {
             for(var s = j + 1; s < fieldTypesUsed.length; s++) {
                 if(fieldTypesUsed[s] == fieldTypesUsed[j]) {
@@ -91,10 +91,10 @@ ManageObjectTypes.setFieldTypesUsed = function(self, customObjectTypes) {
                 }
             }
         }
-        
+
         customObjectTypes[i].fieldTypesUsed = fieldTypesUsed.join(', ');
     }
-    
+
     return customObjectTypes;
 };
 

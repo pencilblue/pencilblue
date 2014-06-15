@@ -1,5 +1,5 @@
 /**
- * UserService - Service for performing user specific operation.  
+ * UserService - Service for performing user specific operation.
  *
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright PencilBlue 2014, All Rights Reserved
@@ -46,19 +46,19 @@ UserService.prototype.getAdminOptions = function(session, ls) {
         {name: ls.get('WRITER'), value: ACCESS_WRITER},
         {name: ls.get('EDITOR'), value: ACCESS_EDITOR}
     ];
-    
+
     if(session.authentication.user.admin >= ACCESS_MANAGING_EDITOR) {
         adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: ACCESS_MANAGING_EDITOR});
     }
     if(session.authentication.user.admin >= ACCESS_ADMINISTRATOR) {
         adminOptions.push({name: ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR});
     }
-    
+
     return adminOptions;
 };
 
 /**
- * 
+ *
  * @param currId The ID of the authenticated user triggering this call
  * @param cb
  */
@@ -66,11 +66,11 @@ UserService.prototype.getEditorSelectList = function(currId, cb) {
 	var where = {
 		admin: {
 			$gt: ACCESS_WRITER
-		}	
+		}
 	};
 	var select = {
-		_id: 1, 
-		first_name: 1, 
+		_id: 1,
+		first_name: 1,
 		last_name: 1
 	};
     var dao     = new pb.DAO();
@@ -79,10 +79,10 @@ UserService.prototype.getEditorSelectList = function(currId, cb) {
         	cb(data, null);
         	return;
         }
-        
+
 		var editors = [];
 		for(var i = 0; i < data.length; i++) {
-            
+
 			var editor = {_id: data[0]._id, name: data[0].first_name + ' ' + data[0].last_name};
             if(currId == data[i]._id.toString()) {
                 editor.selected = 'selected';
@@ -95,7 +95,7 @@ UserService.prototype.getEditorSelectList = function(currId, cb) {
 
 UserService.prototype.sendVerificationEmail = function(user, cb) {
 	cb = cb || pb.utils.cb;
-	
+
 	var options = {
 		to: user.email,
 		subject: pb.config.siteName + ' Account Confirmation',
@@ -111,7 +111,7 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 
 UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
 	cb = cb || pb.utils.cb;
-	
+
 	var options = {
 		to: user.email,
 		subject: pb.config.siteName + ' Password Reset',
@@ -130,7 +130,7 @@ UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb)
 
 		var result = results == null;
 		if (!result) {
-			
+
 			for(var key in results) {
 				result |= results[key] > 0;
 			}
