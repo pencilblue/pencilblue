@@ -62,7 +62,8 @@ System.onWorkerDisconntect = function(worker) {
     }
 
     if (okToFork && !System.isShuttingDown()) {
-        log.silly("System[%s] Forked worker [%d]", System.getWorkerId(), cluster.fork());
+        var worker = cluster.fork();
+        log.silly("System[%s] Forked worker [%d]", System.getWorkerId(), worker ? worker.id : 'FAILED');
     }
     else if (!System.isShuttingDown()){
        log.error("System[%s]: %d failures have occurred within %sms.  Bailing out.", System.getWorkerId(), pb.config.fatal_error_count, pb.config.fatal_error_timeout);
