@@ -19,7 +19,7 @@ ResendVerification.prototype.render = function(cb) {
             return;
         }   
         
-        self.ts.setPageName(self.ls.get('RESEND_VERIFICATION'));
+        self.setPageName(self.ls.get('RESEND_VERIFICATION'));
         self.ts.load('user/resend_verification', function(err, data) {
             cb({content: data});
         });
