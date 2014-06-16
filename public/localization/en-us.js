@@ -136,7 +136,12 @@ var loc =
         READ_MORE: 'Read more',
         THEME_DEFAULT: 'Theme Default',
         USER: 'User',
-        SUBSCRIBE: 'Subscribe'
+        SUBSCRIBE: 'Subscribe',
+        PRIVACY_POLICY: 'Privacy Policy',
+        MAKE_PB_BETTER: 'Allow PencilBlue to collect stats about my usage.',
+        CLOSE: 'Close',
+        APPLY_SETTINGS: 'Apply Settings',
+        CONFIGURATION_SETTINGS: 'Configuration Settings',
     },
     error:
     {

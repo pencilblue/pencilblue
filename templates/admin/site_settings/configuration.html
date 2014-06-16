@@ -1,7 +1,9 @@
 ^tmp_admin=head^
 <div class="col-md-9">
+    ^error_success^
     ^tmp_admin=elements=sub_nav^
     ^edit_instructions^
+    <form class="form" method="post" action="/actions/admin/site_settings/configuration">
     <div class="table_container">
         <table class="table table-responsive table-condensed table-bordered">
             <tr>
@@ -36,7 +38,22 @@
                 <td><b>^loc_DB_SERVERS^</b></td>
                 <td>^db_servers^</td>
             </tr>
+            <tr>
+                <td><b>^loc_MAKE_PB_BETTER^</b></td>
+                <td>
+                    <div class="col-sm-6 text-left">
+                        <input type="radio" id="yes" name="call_home" value="1" ^yes_checked^/>&nbsp;<label>^loc_YES^</label>&nbsp;&nbsp;&nbsp;
+                        <input type="radio" id="no" name="call_home" value="0" ^no_checked^/>&nbsp;<label>^loc_NO^</label><br/>
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <a href="#privacy_policy_modal" data-toggle="modal" >^loc_PRIVACY_POLICY^</a>
+                    </div>
+                </td>
+            </tr>
         </table>
     </div>
+        <input class="btn btn-sm btn-primary" type="submit" value="^loc_APPLY_SETTINGS^"/>
+    </form>
+    ^tmp_elements=privacy_policy^
 </div>
 ^tmp_admin=footer^
