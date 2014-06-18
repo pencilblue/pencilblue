@@ -28,14 +28,13 @@ Index.prototype.render = function(cb) {
         self.gatherData(function(err, data) {
             ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle) {
 
-                self.ts.reprocess = false;
                 self.ts.registerLocal('meta_keywords', metaKeywords);
                 self.ts.registerLocal('meta_desc', metaDescription);
                 self.ts.registerLocal('meta_title', metaTitle);
                 self.ts.registerLocal('meta_lang', localizationLanguage);
                 self.ts.registerLocal('current_url', self.req.url);
-                self.ts.registerLocal('navigation', data.nav.navigation);
-                self.ts.registerLocal('account_buttons', data.nav.accountButtons);
+                self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
+                self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));
                 self.ts.registerLocal('infinite_scroll', function(flag, cb) {
                     if(article || page) {
                         cb(null, '');
@@ -48,7 +47,9 @@ Index.prototype.render = function(cb) {
                         else if(topic) {
                             infiniteScrollScript += pb.js.getJSTag('var infiniteScrollTopic = "' + topic + '";');
                         }
-                        cb(null, infiniteScrollScript);
+                        
+                        var val = new pb.TemplateValue(infiniteScrollScript, false);
+                        cb(null, val);
                     }
                 });
                 self.ts.registerLocal('articles', function(flag, cb) {
@@ -62,7 +63,7 @@ Index.prototype.render = function(cb) {
                         };
                     });
                     async.parallel(tasks, function(err, result) {
-                        cb(err, result.join(''));
+                        cb(err, new pb.TemplateValue(result.join(''), false));
                     });
                 });
                 self.ts.registerLocal('page_name', function(flag, cb) {

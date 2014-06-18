@@ -163,6 +163,10 @@ Util.isFunction = function(value) {
 	return value != undefined && value != null && typeof value === 'function';
 };
 
+Util.isBoolean = function(value) {
+    return value === true || value === false;   
+}
+
 Util.getDirectories = function(dirPath, cb) {
 	
 	var dirs = [];

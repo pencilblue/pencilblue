@@ -57,7 +57,7 @@ BaseController.prototype.requiresClientLocalizationCallback = function(flag, cb)
 	if (this.requiresClientLocalization()) {
 		val = pb.js.includeJS(pb.UrlService.urlJoin('/localization', this.ls.language.replace('_', '-') + '.js'));
 	}
-	cb(null, val);
+	cb(null, new pb.TemplateValue(val, false));
 };
 
 BaseController.prototype.formError = function(message, redirectLocation, cb) {
@@ -70,12 +70,12 @@ BaseController.prototype.displayErrorOrSuccessCallback = function(flag, cb) {
     if(this.session['error']) {
     	var error = this.session['error'];
         delete this.session['error'];
-        cb(null, util.format(ALERT_PATTERN, 'alert-danger', this.localizationService.get(error)));
+        cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-danger', this.localizationService.get(error)), false));
     }
     else if(this.session['success']) {
     	var success = this.session['success'];
         delete this.session['success'];
-        cb(null, util.format(ALERT_PATTERN, 'alert-success', this.localizationService.get(success)));
+        cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-success', this.localizationService.get(success))));
     }
     else {
         cb(null, '');
