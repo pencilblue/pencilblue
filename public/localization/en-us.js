@@ -349,6 +349,7 @@ var loc =
         LOGIN_EXISTING: 'Login to an existing account',
         VERIFICATION_SENT: 'Verification email sent to',
         YOUR_VERIFICATION: 'A verification email has been sent to your email address.',
+        YOUR_PASSWORD_RESET: 'A password reset email has been sent to your email address.',
         CHECK_INBOX: 'Please check your inbox and click the link provided.',
         RESEND_VERIFICATION: 'Resend the verification email',
         USER_VERIFIED: 'That email address has already been verified',
