@@ -591,6 +591,13 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
     },
     {
+        method: 'post',
+        path: "/actions/admin/users/delete_user/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_user.js'),
+    },
+    {
     	method: 'get',
     	path: "/admin/users/change_password/:id",
     	auth_required: true,
