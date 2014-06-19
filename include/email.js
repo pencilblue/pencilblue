@@ -1,6 +1,6 @@
 /**
  * EmailService - Provides a simple interface for sending emails.
- * 
+ *
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright PencilBlue, LLC 2014 All Rights Reserved
  */
@@ -12,14 +12,14 @@ NodeMailer = require('nodemailer');
 EmailService.prototype.sendFromTemplate = function(options, cb){
 	var self = this;
 	var ts   = new pb.TemplateService();
-	
+
 	if (options.replacements) {
 		for(key in options.replacements) {
 			ts.registerLocal(key, options.replacements[key]);
 		}
 	}
 	ts.load(options.template, function(data) {
-		
+
 		var body = '' + data;
 		self.send(options.from, options.to, options.subject, body, cb);
 	});
@@ -28,7 +28,7 @@ EmailService.prototype.sendFromTemplate = function(options, cb){
 EmailService.prototype.send = function(from, to, subject, body, cb) {
 
 	this.getSettings(function(err, emailSettings) {
-        
+
         var options = {
             service: emailSettings.service,
             auth:
@@ -43,7 +43,7 @@ EmailService.prototype.send = function(from, to, subject, body, cb) {
         	options.port = emailSettings.port;
         }
         var smtpTransport = NodeMailer.createTransport("SMTP", options);
-        
+
         var mailOptions =
         {
             from: from || (emailSettings.from_name + '<' + emailSettings.from_address + '>'),
@@ -51,13 +51,13 @@ EmailService.prototype.send = function(from, to, subject, body, cb) {
             subject: subject,
             html: body
         };
-        
+
         smtpTransport.sendMail(mailOptions, function(err, response) {
             if (util.isError(err)) {
             	pb.log.error("EmailService: Failed to send email: ", err);
             }
             smtpTransport.close();
-            
+
             cb(err, response);
         });
     });
