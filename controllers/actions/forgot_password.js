@@ -37,7 +37,7 @@ ForgotPassword.prototype.onPostParamsRetrieved = function(post, cb) {
 	var dao = new pb.DAO();
 	dao.loadByValues(query, 'user', function(err, user) {
         if(util.isError(err) || user == null) {
-            self.formError(self.ls.get('ERROR_SAVING'), returnURL, cb);
+            self.formError(self.ls.get('NOT_REGISTERED'), returnURL, cb);
             return;
         }
 
