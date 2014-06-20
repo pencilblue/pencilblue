@@ -98,6 +98,9 @@ Index.prototype.render = function(cb) {
                         content.content = content.content.split('^callouts^').join(calloutsHTML);
 
                         content.content = self.ls.localize([], content.content);
+                        
+                        var angularData = pb.js.getAngularController({}, ['ngSanitize']);
+                        content.content = content.content.concat(angularData);
 
                         cb(content);
                     });
