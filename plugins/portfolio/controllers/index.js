@@ -97,6 +97,8 @@ Index.prototype.render = function(cb) {
                         content.content = content.content.split('^hero_image^').join(settings.home_page_hero);
                         content.content = content.content.split('^callouts^').join(calloutsHTML);
 
+                        content.content = self.ls.localize([], content.content);
+
                         cb(content);
                     });
                 });
