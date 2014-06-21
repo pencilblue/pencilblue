@@ -190,7 +190,7 @@ BaseController.prototype.sanitizeObject = function(obj) {
             obj[prop] = BaseController.sanitize(obj[prop], config);
             //console.log(prop+'='+obj[prop]);
         }
-        else { //console.log('Property '+prop+' is not a string.'+(typeof obj[prop]));}
+        //else { console.log('Property '+prop+' is not a string.'+(typeof obj[prop]));}
 
     }
 };
