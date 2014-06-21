@@ -158,9 +158,19 @@ function checkForEditArticleSave(draft, cb)
 
                 getContentLayout(function(contentLayout)
                 {
-                    $('fieldset .additions').append('<textarea id="article_layout" name="article_layout">' + encodeURIComponent(contentLayout) + '</textarea>');
+                    if(!$('#article_layout .additions').position()) {
+                        $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + encodeURIComponent(contentLayout) + '</textarea>');
+                    }
+                    else {
+                        $('#article_layout').val(encodeURIComponent(contentLayout));
+                    }
 
-                    $('fieldset .additions').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '"></input>');
+                    if(!$('#draft').position()) {
+                        $('fieldset .additions').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
+                    }
+                    else {
+                        $('#draft').val((draft) ? '1' : '0');
+                    }
 
                     if(typeof cb === 'undefined')
                     {
