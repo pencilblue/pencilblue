@@ -1,6 +1,6 @@
 /**
  * Interface for changing the site's email configuration
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -17,11 +17,11 @@ var SUB_NAV_KEY = 'site_email_settings';
 
 Email.prototype.render = function(cb) {
     var self = this;
-    
+
     this.setPageName(self.ls.get('EMAIL'));
 	this.ts.load('admin/site_settings/email', function(err, data) {
         var result = data;
-        
+
         var tabs =
         [
             {
@@ -36,15 +36,15 @@ Email.prototype.render = function(cb) {
                 title: self.ls.get('SMTP')
             }
         ];
-        
-        pb.email.getSettings(function(emailSettings) {
+
+        pb.email.getSettings(function(err, emailSettings) {
             self.setFormFieldValues(emailSettings);
-            
+
             self.checkForFormRefill(result, function(newResult) {
                 result = newResult;
-                
+
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email');
-                
+
                 var objects     = {
                     navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
                     pills: pills,
@@ -52,7 +52,7 @@ Email.prototype.render = function(cb) {
                 };
                 var angularData = pb.js.getAngularController(objects);
                 result          = result.split('^angular_script^').join(angularData);
-                
+
                 cb({content: result});
             });
         });

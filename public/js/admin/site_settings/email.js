@@ -3,12 +3,12 @@ var formRefillOptions =
     {
         id: 'secure_connection',
         type: 'button_group',
-        elementPrefix: 'secure_connection_',
-        onComplete: checkForCustomService
+        elementPrefix: 'secure_connection_'
     },
     {
         id: 'verification_content',
-        type: 'layout'
+        type: 'layout',
+        onComplete: checkForCustomService
     }
 ];
 

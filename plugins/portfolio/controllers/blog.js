@@ -91,13 +91,18 @@ Blog.prototype.render = function(cb) {
 
                                 var loggedIn = pb.security.isAuthenticated(self.session);
                                 var commentingUser = loggedIn ? Comments.getCommentingUser(self.session.authentication.user) : null;
+                                var heroImage = null;
+                                if(data.content[0]) {
+                                    heroImage = data.content[0].hero_image ? data.content[0].hero_image: null;
+                                }
+
                                 var objects = {
                                     contentSettings: contentSettings,
                                     loggedIn: loggedIn,
                                     commentingUser: commentingUser,
                                     themeSettings: data.nav.themeSettings,
                                     articles: data.content,
-                                    hero_image: data.content[0].hero_image ? data.content[0].hero_image: null,
+                                    hero_image: heroImage,
                                     sideNavItems: sideNavItems,
                                     trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
                                 };
@@ -397,7 +402,7 @@ Blog.prototype.getSideNavigation = function(articles, cb) {
                     for(var i = 0; i < topics.length && articleTopics.length < 20; i++) {
                         for(var j = 0; j < topicObjects.length; j++) {
                             if(ObjectID(topics[i]).equals(topicObjects[j]._id)) {
-                                articleTopics.push(topicObjects[i]);
+                                articleTopics.push(topicObjects[j]);
                                 topicObjects.splice(j, 1);
                                 break;
                             }
