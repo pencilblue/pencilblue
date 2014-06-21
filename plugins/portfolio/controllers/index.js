@@ -93,12 +93,12 @@ Index.prototype.render = function(cb) {
                             calloutsHTML += calloutTemplate;
                         }
 
-                        content.content = content.content.split('^layout^').join(decodeURIComponent(settings.page_layout));
-                        content.content = content.content.split('^hero_image^').join(settings.home_page_hero);
+                        content.content = content.content.split('^layout^').join(decodeURIComponent(settings.page_layout ? settings.page_layout : ''));
+                        content.content = content.content.split('^hero_image^').join(settings.home_page_hero ? settings.home_page_hero : '');
                         content.content = content.content.split('^callouts^').join(calloutsHTML);
 
                         content.content = self.ls.localize([], content.content);
-                        
+
                         var angularData = pb.js.getAngularController({}, ['ngSanitize']);
                         content.content = content.content.concat(angularData);
 
@@ -111,6 +111,9 @@ Index.prototype.render = function(cb) {
 };
 
 Index.prototype.getCallouts = function(settings) {
+    if(!settings.callout_headline_1) {
+        return [];
+    }
     return [
         {
             headline: settings.callout_headline_1,
