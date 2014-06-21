@@ -168,16 +168,68 @@ BaseController.prototype.checkForFormRefill = function(result, cb) {
     cb(result);
 };
 
+/**
+ * Sanitizes an object.  This function is handy for incoming post objects.  It
+ * iterates over each field.  If the field is a string value it will be
+ * sanitized based on the default sanitization rules
+ * (BaseController.getDefaultSanitizationRules) or those provided by the call
+ * to BaseController.getSanitizationRules.
+ * @method sanitizeObject
+ * @param {Object}
+ */
+BaseController.prototype.sanitizeObject = function(obj) {
+    if (!pb.utils.isObject(obj)) {
+        return;
+    }
+
+    var rules = this.getSanitizationRules();
+    for(var prop in obj) {
+        if (pb.utils.isString(obj[prop])) {
+
+            var config = rules[prop];
+            obj[prop] = BaseController.sanitize(obj[prop], config);
+            //console.log(prop+'='+obj[prop]);
+        }
+        else { //console.log('Property '+prop+' is not a string.'+(typeof obj[prop]));}
+
+    }
+};
+
+BaseController.prototype.getSanitizationRules = function() {
+    return {};
+};
+
+BaseController.getContentSanitizationRules = function() {
+    return {
+        allowedTags: [ 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u' ],
+        allowedAttributes: {
+            a: [ 'href', 'name', 'target' ],
+            img: [ 'src' ],
+            p: ['align']
+        },
+
+        // Lots of these won't come up by default because we don't allow them
+        selfClosing: [ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' ],
+
+        // URL schemes we permit
+        allowedSchemes: [ 'http', 'https', 'ftp', 'mailto' ]
+    };
+};
+
+BaseController.getDefaultSanitizationRules = function() {
+    return {
+        allowedTags: [],
+        allowedAttributes: {}
+    };
+};
+
 
 BaseController.sanitize = function(value, config) {
     if (!value) {
         return value;
     }
     else if (!pb.utils.isObject(config)) {
-        config = {
-            allowedTags: [],
-            allowedAttributes: {}
-        };
+        config = BaseController.getDefaultSanitizationRules();
     }
     return Sanitizer(value, config);
 };

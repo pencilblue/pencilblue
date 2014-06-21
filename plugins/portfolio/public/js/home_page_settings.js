@@ -68,7 +68,6 @@ function prepareHomePageSettingsSave() {
             $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + encodeURIComponent(contentLayout) + '</textarea>');
 
             $('#home_page_settings_form').submit();
-            console.log('here');
         });
     });
 }

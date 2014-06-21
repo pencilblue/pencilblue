@@ -1,4 +1,13 @@
 /**
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+
+//dependencies
+var BaseController = pb.BaseController;
+var FormController = pb.FormController;
+
+/**
  * SignUp - Creates a user and sends a confirmation email, if necessary
  *
  * @author Blake Callens <blake@pencilblue.org>
@@ -7,14 +16,18 @@
 function SignUp(){}
 
 //inheritance
-util.inherits(SignUp, pb.FormController);
+util.inherits(SignUp, FormController);
 
 SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
-	post['position'] = '';
-    post['photo']    = null;
-    post['admin']    = ACCESS_USER;
+	post.position   = '';
+    post.photo      = null;
+    post.admin      = ACCESS_USER;
+    post.username   = BaseController.sanitize(post.username);
+    post.email      = BaseController.sanitize(post.email);
+    post.first_name = BaseController.sanitize(post.first_name);
+    post.last_name  = BaseController.sanitize(post.last_name);
 
     var message = this.hasRequiredParams(post, this.getRequiredFields());
     if(message) {
