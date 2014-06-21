@@ -1,17 +1,30 @@
 /**
- * ChangePassword - Edit a user password
- *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
+ */
+
+//dependencies
+var BaseController = pb.BaseController;
+var FormController = pb.FormController;
+
+/**
+ * ChangePassword - Edit a user password
+ *
  */
 function ChangePassword(){}
 
 //inheritance
-util.inherits(ChangePassword, pb.FormController);
+util.inherits(ChangePassword, FormController);
 
 ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
+    //sanitize
+    post.current_password = BaseController.sanitize(post.current_password);
+    post.new_password     = BaseController.sanitize(post.new_password);
+    post.confirm_password = BaseController.sanitize(post.confirm_password);
+
+    //validate
 	var message = this.hasRequiredParams(post, ['current_password', 'new_password', 'confirm_password']);
 	if(message) {
         this.formError(message, '/user/manage_account', cb);

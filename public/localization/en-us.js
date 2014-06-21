@@ -347,7 +347,7 @@ var loc =
         USER_EDITED: 'The user was successfully edited',
         CREATE_ACCOUNT: 'Create an account',
         LOGIN_EXISTING: 'Login to an existing account',
-        VERIFICATION_SENT: 'Verification email sent to',
+        VERIFICATION_SENT: 'Verification email sent to ',
         YOUR_VERIFICATION: 'A verification email has been sent to your email address.',
         YOUR_PASSWORD_RESET: 'A password reset email has been sent to your email address.',
         CHECK_INBOX: 'Please check your inbox and click the link provided.',

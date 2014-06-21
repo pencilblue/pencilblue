@@ -1,15 +1,23 @@
 /**
- * NewArticle - Creates a new article
- *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
-function NewArticle(){}
+
+//dependencies
+var BaseController = pb.BaseController;
+var FormController = pb.FormController;
+
+/**
+ * NewArticlePostController - Creates a new article
+ * @class NewArticlePostController
+ * @constructor
+ */
+function NewArticlePostController(){}
 
 //inheritance
-util.inherits(NewArticle, pb.FormController);
+util.inherits(NewArticlePostController, FormController);
 
-NewArticle.prototype.onPostParamsRetrieved = function(post, cb) {
+NewArticlePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
 	delete post.section_search;
@@ -60,9 +68,15 @@ NewArticle.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
-NewArticle.prototype.getRequiredFields = function() {
+NewArticlePostController.prototype.getRequiredFields = function() {
 	return ['url', 'headline', 'article_layout'];
 };
 
+NewArticlePostController.prototype.getSanitizationRules = function() {
+    return {
+        article_layout: BaseController.getContentSanitizationRules()
+    };
+};
+
 //exports
-module.exports = NewArticle;
+module.exports = NewArticlePostController;

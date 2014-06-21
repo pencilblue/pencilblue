@@ -1,4 +1,12 @@
 /**
+ * @author Brian Hyder <brian@pencilblue.org>
+ * @copyright 2014 PencilBlue, LLC. All Rights Reserved
+ */
+
+//dependencies
+var HtmlEncoder = require('htmlencode');
+
+/**
  * A templating engine that provides the ability to read in file snippets and 
  * call back for data based on the flags in the template file.  The instance 
  * can be provided a Localization instance which will be used to perform 
@@ -12,9 +20,6 @@
  * @module Service
  * @submodule Entities
  * @param {Localization} localizationService
- * 
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC. All Rights Reserved
  */
 function TemplateService(localizationService){
 	this.localCallbacks      = {
@@ -50,7 +55,13 @@ function TemplateService(localizationService){
 		TEMPLATE_LOADER = new pb.SimpleLayeredService(services, 'TemplateService');
 	}
     
-    this.reprocess = true;
+    /**
+     * Indicates if the data from the registered flags 
+     * should be reprocessed.  The value is FALSE by default.
+     * @property reprocess
+     * @type {Boolean}
+     */
+    this.reprocess = false;
 };
 
 //constants
@@ -356,8 +367,16 @@ TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
 	var self    = this;
 	var handler = function(err, content) {
 		
+        //check for special condition
+        if (content instanceof TemplateValue) {
+            content = content.val();
+        }
+        else if (pb.utils.isObject(content) || pb.utils.isString(content)){//console.log('Encoding ['+(typeof content)+'] v='+content.substring(0, 30));
+            content = HtmlEncoder.htmlEncode(content.toString());
+        }
+        
 		//prevent infinite loops
-		if (!this.reprocess || (pb.utils.isString(content) && (content.length === 0 || ('^'+flag+'^') === content))) {
+		if (!this.reprocess || TemplateService.isFlag(content)) {
 			cb(err, content);
 		}
 		else {
@@ -439,6 +458,10 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
     });
 };
 
+TemplateService.isFlag = function(content) {
+    return pb.utils.isString(content) && (content.length === 0 || ('^'+flag+'^') === content);
+};
+
 /**
  * Retrieves the content templates that are available for use to render 
  * Articles and pages.
@@ -508,5 +531,39 @@ TemplateService.getCustomPath = function(themeName, templateLocation){
 	return path.join(DOCUMENT_ROOT, 'plugins', themeName, 'templates', templateLocation + '.html');
 };
 
+function TemplateValue(val, htmlEncode){
+    
+    this.raw        = val;
+    this.htmlEncode = pb.utils.isBoolean(htmlEncode) ? htmlEncode : true;
+};
+
+TemplateValue.prototype.encode = function(doHtmlEncoding) {
+    if (doHtmlEncoding == true || doHtmlEncoding == false) {
+        this.htmlEncode = doHtmlEncoding;   
+    }
+    return this.htmlEncode;
+};
+
+TemplateValue.prototype.skipEncode = function() {
+    this.enocde(false);
+};
+
+TemplateValue.prototype.doEncode = function() {
+    this.encode(true);   
+};
+
+TemplateValue.prototype.val = function() {
+    var val = this.raw;
+    if (this.encode()) {//console.log('TVEncoding ['+(typeof val)+'] v='+val.substring(0, 30));
+        val = HtmlEncoder.htmlEncode(this.raw);
+    }//else{console.log('TV Not Encoding');}
+    return val;
+};
+
+TemplateValue.prototype.toString = function() {
+    return this.val();
+}
+
 //exports
-module.exports = TemplateService;
+module.exports.TemplateService = TemplateService;
+module.exports.TemplateValue   = TemplateValue;

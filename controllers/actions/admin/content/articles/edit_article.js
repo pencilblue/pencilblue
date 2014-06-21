@@ -1,4 +1,13 @@
 /**
+ * @author Blake Callens <blake@pencilblue.org>
+ * @copyright PencilBlue 2014, All rights reserved
+ */
+
+//dependencies
+var BaseController = pb.BaseController;
+var FormController = pb.FormController;
+
+/**
  * EditArticle - Interface for adding a new article
  *
  * @author Blake Callens <blake@pencilblue.org>
@@ -7,7 +16,7 @@
 function EditArticle(){}
 
 //inheritance
-util.inherits(EditArticle, pb.FormController);
+util.inherits(EditArticle, FormController);
 
 EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
@@ -75,6 +84,13 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
 
 EditArticle.prototype.getRequiredFields = function() {
 	return ['url', 'headline', 'article_layout', 'id'];
+};
+
+
+EditArticle.prototype.getSanitizationRules = function() {
+    return {
+        article_layout: BaseController.getContentSanitizationRules()
+    };
 };
 
 //exports
