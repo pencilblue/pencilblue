@@ -186,11 +186,11 @@ BaseController.prototype.sanitizeObject = function(obj) {
     for(var prop in obj) {
         if (pb.utils.isString(obj[prop])) {
 
-            var config = rules[prop];
+            var config = rules[prop];console.log('BEFORE|'+prop+'='+obj[prop]);
             obj[prop] = BaseController.sanitize(obj[prop], config);
-            //console.log(prop+'='+obj[prop]);
+            console.log('AFTER|'+prop+'='+obj[prop]);
         }
-        //else { console.log('Property '+prop+' is not a string.'+(typeof obj[prop]));}
+        else { console.log('Property '+prop+' is not a string. T='+(typeof obj[prop])+' V='+util.inspect(obj[prop]));}
 
     }
 };
