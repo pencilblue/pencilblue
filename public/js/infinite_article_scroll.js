@@ -4,6 +4,7 @@ $(document).ready(function()
     self.loadingArticles = false;
     self.noMoreArticles = false;
     self.offset = null;
+    self.limit = null;
 
     $(document).scroll(function()
     {
@@ -37,7 +38,7 @@ $(document).ready(function()
                 {
                     return;
                 }
-                else if(result.data.length === 0)
+                else if(result.data.count === 0)
                 {
                     self.noMoreArticles = true;
                     return;
@@ -48,6 +49,7 @@ $(document).ready(function()
                 if(!self.offset)
                 {
                     self.offset = result.data.count * 2;
+                    self.limit  = result.data.count;
                 }
                 else
                 {

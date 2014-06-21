@@ -47,7 +47,7 @@ Index.prototype.render = function(cb) {
                         else if(topic) {
                             infiniteScrollScript += pb.js.getJSTag('var infiniteScrollTopic = "' + topic + '";');
                         }
-                        
+
                         var val = new pb.TemplateValue(infiniteScrollScript, false);
                         cb(null, val);
                     }
@@ -70,7 +70,14 @@ Index.prototype.render = function(cb) {
                     var content = data.content.length > 0 ? data.content[0] : null;
                     self.getContentSpecificPageName(content, cb);
                 });
+                self.ts.registerLocal('angular', function(flag, cb) {
 
+                    var objects = {
+                        trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
+                    };
+                    var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
+                    cb(null, angularData);
+                });
                 self.getTemplate(data.content, function(err, template) {
                     if (util.isError(err)) {
                         throw err;
@@ -81,18 +88,6 @@ Index.prototype.render = function(cb) {
                             throw err;
                         }
 
-                        var loggedIn = pb.security.isAuthenticated(self.session);
-                        var commentingUser = loggedIn ? Comments.getCommentingUser(self.session.authentication.user) : null;
-                        var objects = {
-                            contentSettings: contentSettings,
-                            loggedIn: loggedIn,
-                            commentingUser: commentingUser,
-                            themeSettings: data.nav.themeSettings,
-                            articles: data.content,
-                            trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
-                        };
-                        var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
-                        result = result.concat(angularData);
                         cb({content: result});
                     });
                 });
@@ -222,13 +217,13 @@ Index.prototype.loadContent = function(articleCallback) {
 
 Index.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
     var self = this;
-    
+
     var isPage        = content.object_type === 'page'
     var showByLine    = contentSettings.display_bylines && !isPage;
     var showTimestamp = contentSettings.display_timestamp && !isPage;
     var ats           = new pb.TemplateService(this.ls);
     self.ts.reprocess = false;
-    ats.registerLocal('article_headline', '<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>');
+    ats.registerLocal('article_headline', new pb.TemplateValue('<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>', false));
     ats.registerLocal('article_headline_nolink', content.headline);
     ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
     ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
@@ -236,7 +231,7 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
     ats.registerLocal('article_index', index);
     ats.registerLocal('article_timestamp', showTimestamp && content.timestamp ? content.timestamp : '');
     ats.registerLocal('article_timestamp_display', showTimestamp ? '' : 'display:none;');
-    ats.registerLocal('article_layout', content.layout);
+    ats.registerLocal('article_layout', new pb.TemplateValue(content.layout, false));
     ats.registerLocal('article_url', content.url);
     ats.registerLocal('display_byline', showByLine ? '' : 'display:none;');
     ats.registerLocal('author_photo', content.author_photo ? content.author_photo : '');
@@ -250,7 +245,9 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
            return;
        }
 
-        self.renderComments(content, ats, cb);
+        self.renderComments(content, ats, function(err, comments) {
+            cb(err, new pb.TemplateValue(comments, false));
+        });
     });
     ats.load('elements/article', cb);
 };
@@ -294,7 +291,7 @@ Index.prototype.renderComments = function(content, ts, cb) {
             };
         });
         async.parallel(tasks, function(err, results) {
-            cb(err, results.join(''));
+            cb(err, new pb.TemplateValue(results.join(''), false));
         });
     });
     ts.load('elements/comments', cb);
