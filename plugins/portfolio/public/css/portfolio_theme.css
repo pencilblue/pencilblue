@@ -68,7 +68,12 @@ a:hover
     box-shadow: none;
 }
 
-.dropdown-menu>li>a .navbar-default .navbar-nav>li>a:hover, .navbar-default .navbar-nav>li>a:focus {
+.navbar-default .navbar-nav>li>a:hover, .navbar-default .navbar-nav>li>a:focus {
+    color: #FFFFFF;
+    text-transform: uppercase;
+}
+
+.dropdown-menu>li>a {
     color: #FFFFFF;
     text-transform: uppercase;
 }
