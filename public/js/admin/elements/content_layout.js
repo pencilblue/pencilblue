@@ -254,6 +254,7 @@ function showContentLayoutModal(subsection)
             $('.add_layout_media').hide();
             $('.add_layout_link').show();
             $('#layout_link_url').focus();
+            $('#layout_link_text').val(selectedHTML);
             break;
         case 'add_layout_media':
         default:
@@ -289,11 +290,11 @@ function addLayoutLink()
     {
         if($('#link_in_tab').is(':checked'))
         {
-            layoutFormat('inserthtml', '<a href="' + $('#layout_link_url').val() + '" target="_blank">' + selectedHTML + '</a>');
+            layoutFormat('inserthtml', '<a href="' + $('#layout_link_url').val() + '" target="_blank">' + $('#layout_link_text').val() + '</a>');
         }
         else
         {
-            layoutFormat('createlink', $('#layout_link_url').val());
+            layoutFormat('inserthtml', '<a href="' + $('#layout_link_url').val() + '">' + $('#layout_link_text').val() + '</a>');
         }
     }
 
