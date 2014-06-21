@@ -55,7 +55,7 @@ Index.prototype.render = function(cb) {
                 self.ts.registerLocal('articles', function(flag, cb) {
                     var tasks = pb.utils.getTasks(data.content, function(content, i) {
                         return function(callback) {
-                            if (i >= contentSettings.articles_per_page) {//TODO, limit articles in query, not throug hackery
+                            if (i >= contentSettings.articles_per_page) {//TODO, limit articles in query, not through hackery
                                 callback(null, '');
                                 return;
                             }
