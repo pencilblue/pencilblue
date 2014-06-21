@@ -6,7 +6,7 @@ function setupUpload(root)
     siteRoot = root;
     saveimageURL = siteRoot + '/actions/admin/content/media/inline_add_media';
 
-    $(function() 
+    $(function()
     {
         'use strict';
         // Change this to the location of your server-side upload handler:
@@ -38,7 +38,7 @@ function showImageModal(subsection)
     $('#link_to_image').hide();
     $('#upload_image').hide();
     $(subsection).show();
-    
+
     $('#image_modal').modal({backdrop: 'static', keyboard: true});
 }
 
@@ -48,9 +48,9 @@ function validateImageURL(imageURL)
     {
         return;
     }
-    
+
     var fileType = imageURL.substr(imageURL.lastIndexOf('.') + 1);
-    
+
     switch(fileType)
     {
         case 'jpg':
