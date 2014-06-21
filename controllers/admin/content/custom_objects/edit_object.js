@@ -152,7 +152,7 @@ EditObject.loadFieldOptions = function(dao, objectType, cb) {
 		    var objectsInfo = [];
 		    for(var i = 0; i < availableObjects.length; i++)
 	        {
-	            objectsInfo.push({_id: availableObjects[i]._id, name: (availableObjects[i].name) ? availableObjects[i].name : availableObjects[i].headline});
+	            objectsInfo.push({_id: availableObjects[i]._id, name: availableObjects[i].name || availableObjects[i].headline || (availableObjects[i].first_name + ' ' + availableObjects[i].last_name)});
 	        }
 
 	        objectType.fields[key].available_objects = objectsInfo;
