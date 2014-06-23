@@ -36,8 +36,8 @@ Index.prototype.render = function(cb) {
     TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
         TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
 
-            self.ts.registerLocal('navigation', navigation);
-            self.ts.registerLocal('account_buttons', accountButtons);
+            self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
+            self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));
             self.ts.load('index', function(err, template) {
                 if(util.isError(err)) {
                     content.content = '';

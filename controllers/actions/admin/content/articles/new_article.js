@@ -31,6 +31,7 @@ NewArticlePostController.prototype.onPostParamsRetrieved = function(post, cb) {
     delete post.name;
     delete post.caption;
     delete post.layout_link_url;
+    delete post.layout_link_text;
     delete post.media_position;
     delete post.media_max_height;
 

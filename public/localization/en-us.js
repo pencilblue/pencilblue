@@ -280,6 +280,7 @@ var loc =
         HEADING_6: 'Heading 6',
         ADD_LINK: 'Add a link',
         LINK_URL: 'Link URL',
+        LINK_TEXT: 'Link text',
         LINK_IN_TAB: 'Open link in a new tab/window',
         TEST_LINK: 'Test link',
         INSERT_LINK: 'Insert link',
