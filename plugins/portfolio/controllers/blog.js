@@ -35,8 +35,8 @@ Blog.prototype.render = function(cb) {
                 self.ts.registerLocal('meta_title', metaTitle);
                 self.ts.registerLocal('meta_lang', localizationLanguage);
                 self.ts.registerLocal('current_url', self.req.url);
-                self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
-                self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));
+                self.ts.registerLocal('navigation', data.nav.navigation);
+                self.ts.registerLocal('account_buttons', data.nav.accountButtons);
                 self.ts.registerLocal('infinite_scroll', function(flag, cb) {
                     if(article || page) {
                         cb(null, '');
@@ -49,7 +49,7 @@ Blog.prototype.render = function(cb) {
                         else if(topic) {
                             infiniteScrollScript += pb.js.getJSTag('var infiniteScrollTopic = "' + topic + '";');
                         }
-                        cb(null, new pb.TemplateValue(infiniteScrollScript, false));
+                        cb(null, infiniteScrollScript);
                     }
                 });
                 self.ts.registerLocal('articles', function(flag, cb) {
@@ -63,7 +63,7 @@ Blog.prototype.render = function(cb) {
                         };
                     });
                     async.parallel(tasks, function(err, result) {
-                        cb(err, new pb.TemplateValue(result.join(''), false));
+                        cb(err, result.join(''));
                     });
                 });
                 self.ts.registerLocal('page_name', function(flag, cb) {
@@ -76,7 +76,7 @@ Blog.prototype.render = function(cb) {
                             sideNavTemplate = '';
                         }
 
-                        self.ts.registerLocal('side_nav', new pb.TemplateValue(sideNavTemplate, false));
+                        self.ts.registerLocal('side_nav', sideNavTemplate);
 
                         self.getTemplate(data.content, function(err, template) {
                             if (util.isError(err)) {
@@ -239,23 +239,19 @@ Blog.prototype.loadContent = function(articleCallback) {
 
 Blog.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
     var self = this;
-
-    var isPage        = content.object_type === 'page'
-    var showByLine    = contentSettings.display_bylines && !isPage;
-    var showTimestamp = contentSettings.display_timestamp && !isPage;
-    var ats           = new pb.TemplateService(this.ls);
+    var ats  = new pb.TemplateService(this.ls);
     self.ts.reprocess = false;
-    ats.registerLocal('article_headline', new pb.TemplateValue('<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>', false));
+    ats.registerLocal('article_headline', '<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>');
     ats.registerLocal('article_headline_nolink', content.headline);
     ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
     ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
     ats.registerLocal('article_id', content._id.toString());
     ats.registerLocal('article_index', index);
-    ats.registerLocal('article_timestamp', showTimestamp && content.timestamp ? content.timestamp : '');
-    ats.registerLocal('article_timestamp_display', showTimestamp ? '' : 'display:none;');
-    ats.registerLocal('article_layout', new pb.TemplateValue(content.layout, false));
+    ats.registerLocal('article_timestamp', contentSettings.display_timestamp ? content.timestamp : '');
+    ats.registerLocal('article_timestamp_display', contentSettings.display_timestamp ? '' : 'display:none;');
+    ats.registerLocal('article_layout', content.layout);
     ats.registerLocal('article_url', content.url);
-    ats.registerLocal('display_byline', showByLine ? '' : 'display:none;');
+    ats.registerLocal('display_byline', contentSettings.display_bylines ? '' : 'display:none;');
     ats.registerLocal('author_photo', content.author_photo ? content.author_photo : '');
     ats.registerLocal('author_photo_display', content.author_photo ? '' : 'display:none;');
     ats.registerLocal('author_name', content.author_name ? content.author_name : '');
@@ -267,9 +263,7 @@ Blog.prototype.renderContent = function(content, contentSettings, themeSettings,
            return;
        }
 
-        self.renderComments(content, ats, function(err, comments) {
-            cb(err, new pb.TemplateValue(comments, false));
-        });
+        self.renderComments(content, ats, cb);
     });
     ats.load('elements/article', cb);
 };
@@ -302,7 +296,7 @@ Blog.prototype.renderComments = function(content, ts, cb) {
     ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
     ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
     ts.registerLocal('individual_comments', function(flag, cb) {
-        if (!util.isArray(content.comments) || content.comments.length == 0) {
+        if (!util.isArray(content.comments) || content.comments.length === 0) {
             cb(null, '');
             return;
         }
@@ -313,7 +307,7 @@ Blog.prototype.renderComments = function(content, ts, cb) {
             };
         });
         async.parallel(tasks, function(err, results) {
-            cb(err, new pb.TemplateValue(results.join(''), false));
+            cb(err, results.join(''));
         });
     });
     ts.load('elements/comments', cb);
@@ -333,7 +327,7 @@ Blog.prototype.renderComment = function(comment, cb) {
 };
 
 Blog.prototype.getContentSpecificPageName = function(content, cb) {
-    var self = this;
+
 
     if(this.req.pencilblue_article || this.req.pencilblue_page) {
         cb(null, content.headline + ' | ' + pb.config.siteName);
@@ -347,7 +341,7 @@ Blog.prototype.getContentSpecificPageName = function(content, cb) {
         }
         dao.loadById(searchId, objType, function(err, obj) {
             if(util.isError(err) || obj === null) {
-                cb(null, pb.config.siteName + ' ' + self.ls.get('BLOG'));
+                cb(null, pb.config.siteName);
                 return;
             }
 
@@ -355,7 +349,7 @@ Blog.prototype.getContentSpecificPageName = function(content, cb) {
         });
     }
     else {
-        cb(null, pb.config.siteName + ' ' + self.ls.get('BLOG'));
+        cb(null, pb.config.siteName);
     }
 };
 
