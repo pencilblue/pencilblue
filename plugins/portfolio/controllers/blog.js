@@ -212,7 +212,8 @@ Blog.prototype.loadContent = function(articleCallback) {
                 service.setContentType('page');
             }
             var where = pb.DAO.getIDWhere(page || article);
-            where.draft = {$gte: 0};
+            where.draft = {$exists: true};
+            where.publish_date = {$exists: true};
             service.find(where, articleCallback);
         }
         else {
