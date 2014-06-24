@@ -151,11 +151,12 @@ function checkForNewArticleSave(draft)
 
                 getContentLayout(function(contentLayout)
                 {
+                    var layout = contentLayout;
                     if(!$('#article_layout').position()) {
-                        $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + encodeURIComponent(contentLayout) + '</textarea>');
+                        $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + layout + '</textarea>');
                     }
                     else {
-                        $('#article_layout').val(encodeURIComponent(contentLayout));
+                        $('#article_layout').val(layout);
                     }
 
                     if(!$('#draft').position()) {

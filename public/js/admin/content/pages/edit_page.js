@@ -149,11 +149,12 @@ function checkForEditPageSave(draft, cb)
 
             getContentLayout(function(contentLayout)
             {
+                var layout = contentLayout;
                 if(!$('#page_layout').position()) {
-                    $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + encodeURIComponent(contentLayout) + '</textarea>');
+                    $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
                 }
                 else {
-                    $('#page_layout').val(encodeURIComponent(contentLayout));
+                    $('#page_layout').val(layout);
                 }
 
                 if(!$('#draft').position()) {

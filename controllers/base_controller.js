@@ -188,10 +188,7 @@ BaseController.prototype.sanitizeObject = function(obj) {
 
             var config = rules[prop];
             obj[prop] = BaseController.sanitize(obj[prop], config);
-            //console.log(prop+'='+obj[prop]);
         }
-        //else { console.log('Property '+prop+' is not a string.'+(typeof obj[prop]));}
-
     }
 };
 
