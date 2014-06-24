@@ -101,7 +101,7 @@ ApiActionController.prototype.validateParameters = function(action, cb) {
             			}
 
                         if (self.getAutoSanitize()) {
-                            self.sanitizeObject(params);
+                            self.sanitizeObject(post);
                         }
             			self.validatePostParameters(action, post, callback);
             		});

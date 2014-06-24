@@ -62,7 +62,7 @@ PluginService.prototype.getSetting = function(settingName, pluginName, cb) {
 			cb(err, null);
 			return;
 		}
-        
+
         var val = null;
         if (util.isArray(settings)) {
             for (var i = 0; i < settings.length; i++) {
@@ -994,10 +994,15 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
         	 //convert perm array to hash
         	 var map = {};
         	 if (plugin.permissions) {
+                 pb.log.debug('PluginService:[INIT] Loading permission sets for plugin [%s]', details.uid);
+
         		 for (var role in plugin.permissions) {
         			 map[role] = pb.utils.arrayToHash(plugin.permissions[role]);
         		 }
         	 }
+             else {
+                 pb.log.debug('PluginService:[INIT] Skipping permission set load for plugin [%s]. None were found.', details.uid);
+             }
 
         	 //create cached active plugin structure
              var templates  = null;
@@ -1026,12 +1031,38 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
          function(callback) {
         	var mainModule = ACTIVE_PLUGINS[details.uid].main_module;
         	if (typeof mainModule.onStartup === 'function') {
-        		try {
-        			mainModule.onStartup(callback);
-        		}
-        		catch(e){
-        			callback(e, false);
-        		}
+
+                var timeoutProtect = setTimeout(function() {
+
+                    // Clear the local timer variable, indicating the timeout has been triggered.
+                    timeoutProtect = null;
+                    callback(new Error("PluginService: Startup function for plugin "+details.uid+" never called back!"), false);
+
+                }, 2000);
+
+                //attempt to make connection
+                var d = domain.create();
+                d.on('error', function(err) {
+                    if (timeoutProtect) {
+                        clearTimeout(timeoutProtect);
+                        callback(err, false);
+                    }
+                    else {
+                        pb.log.error('PluginService:[INIT] Plugin %s failed to start. %s', details.uid, err.stack);
+                    }
+                });
+                d.run(function() {
+                    mainModule.onStartup(function(err, didStart) {
+                        if (util.isError(err)) {
+                            throw err;
+                        }
+
+                        if (timeoutProtect) {
+                            clearTimeout(timeoutProtect);
+                            callback(err, didStart);
+                        }
+                    });
+                });
         	}
         	else {
         		pb.log.warn("PluginService: Plugin %s did not provide an 'onStartup' function.", details.uid);
