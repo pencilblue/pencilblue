@@ -308,7 +308,7 @@ SectionService.prototype.validate = function(navItem, cb) {
 
 SectionService.prototype.validateLinkNavItem = function(navItem, cb) {
 	var errors = [];
-	if (!pb.validation.validateUrl(navItem.link, true)) {
+	if (!pb.validation.validateUrl(navItem.link, true) && navItem.link.charAt(0) !== '/') {
 		errors.push({field: 'link', message: 'A valid link is required'});
 	}
 	process.nextTick(function() {
