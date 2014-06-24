@@ -1,24 +1,33 @@
 /**
- * EmailService - Provides a simple interface for sending emails.
- *
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright PencilBlue, LLC 2014 All Rights Reserved
  */
-function EmailService(){}
 
 //dependencies
 NodeMailer = require('nodemailer');
 
+/**
+ * EmailService - Provides a simple interface for sending emails.
+ *
+ * @class EmailService
+ * @constructor
+ */
+function EmailService(){}
+
+
+/**
+ *
+ *
+ */
 EmailService.prototype.sendFromTemplate = function(options, cb){
 	var self = this;
 	var ts   = new pb.TemplateService();
-
 	if (options.replacements) {
 		for(key in options.replacements) {
 			ts.registerLocal(key, options.replacements[key]);
 		}
 	}
-	ts.load(options.template, function(data) {
+	ts.load(options.template, function(err, data) {
 
 		var body = '' + data;
 		self.send(options.from, options.to, options.subject, body, cb);
