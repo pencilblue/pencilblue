@@ -130,7 +130,7 @@ console.log(util.inspect(passwordReset));
 UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb) {
 	this.getExistingUsernameEmailCounts(username, email, id, function(err, results) {
 
-		var result = results == null;
+		var result = results === null;
 		if (!result) {
 
 			for(var key in results) {
@@ -151,16 +151,16 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 	var dao   = new pb.DAO();
 	var tasks = {
 		verified_username: function(callback) {
-			dao.count('user', getWhere({username: username}), callback);
+			dao.count('user', getWhere({username: username.toLowerCase()}), callback);
 		},
 		verified_email: function(callback) {
-			dao.count('user', getWhere({email: email}), callback);
+			dao.count('user', getWhere({email: email.toLowerCase()}), callback);
 		},
 		unverified_username: function(callback) {
-			dao.count('unverified_user', getWhere({username: username}), callback);
+			dao.count('unverified_user', getWhere({username: username.toLowerCase()}), callback);
 		},
 		unverified_email: function(callback) {
-			dao.count('unverified_user', getWhere({email: email}), callback);
+			dao.count('unverified_user', getWhere({email: email.toLowerCase()}), callback);
 		},
 	};
 	async.series(tasks, cb);
