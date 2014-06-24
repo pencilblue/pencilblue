@@ -1,19 +1,25 @@
 /**
- * Util
- * Provides a set of utility functions used throughout the code base
- * 
  * @author Brian Hyder <brianhyder@gmail.com>
  * @copyright PencilBlue 2014, All Rights Reserved
+ */
+
+//dependencies
+var extend = require('node.extend');
+
+/**
+ * Util
+ * Provides a set of utility functions used throughout the code base
+ * @class Util
  */
 function Util(){};
 
 Util.onPromisesOk = function(promises, cb){
-	
+
 	var cnt = 0;
 	for(var i = 0; i < promises.length; i++){
-		
+
 		promises[i].then(function(result){
-			
+
 			pb.log.debug("Promise ["+cnt+"] Compelted");
 			if(++cnt == promises.length){
 				pb.log.debug("All promises Accounted for");
@@ -24,12 +30,26 @@ Util.onPromisesOk = function(promises, cb){
 };
 
 /**
- * Clones an object by serializing it and then re-parsing it.  
- * NOTE: This probably isn't very efficient.  Need to benchmark it.  
+ * Clones an object by serializing it and then re-parsing it.
+ * NOTE: This probably isn't very efficient.  Need to benchmark it.
  * WARNING: Objects with circular dependencies will cause an error to be thrown.
  */
 Util.clone = function(object){
     return JSON.parse(JSON.stringify(object));
+};
+
+/**
+ * Performs a deep merge and returns the result.  <b>NOTE:</b> DO NOT ATTEMPT
+ * TO MERGE PROPERTIES THAT REFERENCE OTHER PROPERTIES.  This could have
+ * unintended side-effects as well as cause errors due to circular dependencies.
+ * @static
+ * @method deepMerge
+ * @param {Object} from
+ * @param {Object} to
+ * @returns {Object}
+ */
+Util.deepMerge = function(from, to) {
+    return extend(true, to, from);
 };
 
 /**
@@ -77,7 +97,7 @@ Util.arrayToHash = function(array, defaultVal) {
 	if (!util.isArray(array)) {
 		return null;
 	}
-	
+
 	defaultVal = defaultVal || true;
 	var hash = {};
 	for(var i = 0; i < array.length; i++) {
@@ -95,7 +115,7 @@ Util.hashToArray = function(obj) {
 	if (!Util.isObject(obj)) {
 		return null;
 	}
-	
+
 	var a = [];
 	for (var prop in obj) {
 		a.push(obj[prop]);
@@ -107,7 +127,7 @@ Util.invertHash = function(obj) {
 	if (!Util.isObject(obj)) {
 		return null;
 	}
-	
+
 	var new_obj = {};
 	for (var prop in obj) {
 		if (obj.hasOwnProperty(prop)) {
@@ -121,7 +141,7 @@ Util.copyArray = function(array) {
 	if (!util.isArray(array)) {
 		return null;
 	}
-	
+
 	var clone = [];
 	for (var i = 0; i < array.length; i++) {
 		clone.push(array[i]);
@@ -133,7 +153,7 @@ Util.arrayPushAll = function(from, to) {
 	if (!util.isArray(from) || !util.isArray(to)) {
 		return;
 	}
-	
+
 	for (var i = 0; i < from.length; i++) {
 		to.push(from[i]);
 	}
@@ -164,21 +184,21 @@ Util.isFunction = function(value) {
 };
 
 Util.isBoolean = function(value) {
-    return value === true || value === false;   
+    return value === true || value === false;
 }
 
 Util.getDirectories = function(dirPath, cb) {
-	
+
 	var dirs = [];
 	fs.readdir(dirPath, function(err, files) {
 		if (util.isError(err)) {
 			cb(err, null);
 			return;
 		}
-		
+
 		var tasks = pb.utils.getTasks(files, function(files, index) {
 			return function(callback) {
-				
+
 				var fullPath = path.join(dirPath, files[index]);
 				fs.stat(fullPath, function(err, stat) {
 					if (util.isError(err)) {
@@ -198,7 +218,7 @@ Util.getDirectories = function(dirPath, cb) {
 };
 
 Util.TIME = {
-	
+
 	MILLIS_PER_SEC: 1000,
 	MILLIS_PER_MIN: 60000,
 	MILLIS_PER_HOUR: 3600000,

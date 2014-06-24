@@ -62,7 +62,7 @@ ForgotPassword.prototype.onPostParamsRetrieved = function(post, cb) {
 
                 self.session.success = self.ls.get('YOUR_PASSWORD_RESET');
                 cb(pb.RequestHandler.generateRedirect(returnURL));
-                pb.users.sendPasswordResetEmail(user, pb.utils.cb);
+                pb.users.sendPasswordResetEmail(user, passwordReset, pb.utils.cb);
             });
         });
     });
