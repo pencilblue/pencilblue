@@ -102,7 +102,7 @@ Index.prototype.getTemplate = function(content, cb) {
     //check if we should just use whatever default there is.
     //this could fall back to an active theme or the default pencilblue theme.
     if (!this.req.pencilblue_article && !this.req.pencilblue_page) {
-        cb(null, 'index');
+        cb(null, this.getDefaultTemplatePath());
         return;
     }
 
@@ -115,8 +115,9 @@ Index.prototype.getTemplate = function(content, cb) {
     //template service to determine who has priority based on the active theme
     //then defaulting back to pencilblue.
     if (!pb.validation.validateNonEmptyStr(uidAndTemplate, true)) {
-        pb.log.silly("ContentController: No template specified, defaulting to index.");
-        cb(null, "index");
+        var defautTemplatePath = this.getDefaultTemplatePath();
+        pb.log.silly("ContentController: No template specified, defaulting to %s.", defautTemplatePath);
+        cb(null, defautTemplatePath);
         return;
     }
 
@@ -154,6 +155,10 @@ Index.prototype.getTemplate = function(content, cb) {
     pb.log.silly("ContentController: Prioritizing Theme [%s] for template [%s]", pieces[0], pieces[1]);
     this.ts.setTheme(pieces[0]);
     cb(null, pieces[1]);
+};
+
+Index.prototype.getDefaultTemplatePath = function() {
+    return 'index';
 };
 
 
