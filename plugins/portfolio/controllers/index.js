@@ -38,7 +38,7 @@ Index.prototype.render = function(cb) {
 
             self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
             self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));
-            self.ts.load('index', function(err, template) {
+            self.ts.load('landing_page', function(err, template) {
                 if(util.isError(err)) {
                     content.content = '';
                 }

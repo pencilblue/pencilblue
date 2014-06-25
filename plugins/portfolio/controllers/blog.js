@@ -83,8 +83,7 @@ Blog.prototype.render = function(cb) {
                                 throw err;
                             }
 
-                            // TODO: NEED TO FIX THIS TO LOAD DYNAMIC TEMPLATE
-                            self.ts.load('blog', function(err, result) {
+                            self.ts.load(template, function(err, result) {
                                 if (util.isError(err)) {
                                     throw err;
                                 }
