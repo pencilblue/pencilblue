@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $.get('http://pencilblue.org/feed', function(feed) {
+    $.get('https://pencilblue.org/feed', function(feed) {
         var item = $(feed).find('rss').find('item');
         $('#news_title').html(item.find('title').html());
         $('.news_link').attr('href', item.find('link').html());
@@ -14,7 +14,7 @@ $(document).ready(function() {
         $('#news_loader').hide();
         $('#news_container').show();
     });
-    
+
     $('.modal[data-color]').on('show hidden', function(e) {
       $('body')
         .toggleClass('modal-color-' + $(this).data('color'));
@@ -65,6 +65,6 @@ function refreshServers() {
         setTimeout(function() {window.location.reload();}, data.data.wait);
     }, 'json')
     .failure(function() {
-        
+
     });
 }

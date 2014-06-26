@@ -83,7 +83,6 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
-    	method: 'post',
     	path: "/actions/logout",
     	access_level: 0,
     	auth_required: true,
