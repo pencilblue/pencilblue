@@ -4,6 +4,9 @@
  */
 function Setup(){}
 
+//dependencies
+var CallHomeService = pb.CallHomeService;
+
 //inheritance 
 util.inherits(Setup, pb.BaseController);
 
@@ -13,7 +16,8 @@ Setup.prototype.render = function(cb) {
 	var self = this;    
     pb.settings.get('system_initialized', function(err, isSetup){
     	if (util.isError(err)) {
-    		throw new PBError("A database connection could not be established", 500);
+            self.reqHandler.serveError(err);
+            return;
     	}
     	
     	//when user count is 1 or higher the system has already been initialized
@@ -31,10 +35,8 @@ Setup.prototype.doSetup = function(cb) {
 	var self = this;
 	this.getPostParams(function(err, post){
 		if (util.isError(err)) {
-			//TODO implement error handler
-			pb.log.warn("ActinosSetup: Unimplemented error condition!");
-			cb({content: 'Implement me!', code: 500});
-			return;
+			self.reqHandler.serveError(err);
+            return;
 		}
 		
 		self.onPostParamsRetrieved(post, cb);
@@ -44,14 +46,21 @@ Setup.prototype.doSetup = function(cb) {
 Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	
-	var reqParams = ['username', 'email', 'password', 'confirm_password'];
+	var reqParams = ['username', 'email', 'password', 'confirm_password', 'call_home'];
 	var message   = this.hasRequiredParams(post, reqParams);
 	if(message) {
         formError(request, session, message, '/setup', cb);
         return;
     }
     
+    //set the access level (role)
     post['admin'] = 4; 
+    
+    //get call home allowance
+    var callHome = 1 == post.call_home;
+    delete post.call_home;
+    
+    //do setup events
     var self      = this;
     async.series(
 		[
@@ -79,7 +88,16 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 			},
 			function(callback) {
 				pb.settings.set('system_initialized', true, callback);
-			}
+			},
+            function(callback) {
+                pb.settings.set('call_home', callHome, callback);  
+            },
+            function(callback) {
+                if (callHome) {
+                    CallHomeService.callHome(CallHomeService.SYSTEM_SETUP_EVENT);
+                }
+                callback(null, null);
+            }
 		], 
         function(err, results){
     		if (util.isError(err)) {

@@ -111,6 +111,10 @@ pb.content            = require(DOCUMENT_ROOT+'/include/content').ContentService
 pb.js                 = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
 pb.AdminNavigation    = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
 pb.ServerRegistration = require(DOCUMENT_ROOT+'/include/system/server_registration.js');
+pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subnav_service.js');
+pb.AnalyticsManager   = require(path.join(DOCUMENT_ROOT, '/include/system/analytics_manager.js'));
+pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
+pb.CallHomeService    = require(path.join(DOCUMENT_ROOT, '/include/system/call_home_service.js'));
 
 //create plugin service
 pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_service.js');
@@ -119,10 +123,7 @@ pb.plugins       = new pb.PluginService();
 //content services
 pb.SectionService     = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
 pb.MediaService       = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
-pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
 pb.TopMenuService     = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
-pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subnav_service.js');
-pb.AnalyticsManager   = require(path.join(DOCUMENT_ROOT, '/include/system/analytics_manager.js'));
 
 //Export system object
 module.exports = pb;
