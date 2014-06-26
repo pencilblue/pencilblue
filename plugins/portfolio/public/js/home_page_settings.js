@@ -65,10 +65,16 @@ function prepareHomePageSettingsSave() {
         }
 
         getContentLayout(function(contentLayout) {
-            $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + encodeURIComponent(contentLayout) + '</textarea>');
+
+            var layout = contentLayout;
+            if(!$('#page_layout').position()) {
+                $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
+            }
+            else {
+                $('#page_layout').val(layout);
+            }
 
             $('#home_page_settings_form').submit();
-            console.log('here');
         });
     });
 }

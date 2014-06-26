@@ -21,7 +21,12 @@ BlogFilter.prototype.render = function(cb) {
     var fieldToMatch = 'url';
     var objectType = 'section';
 
-    if(self.req.url.indexOf('/article/') > -1) {
+    if(self.req.url.indexOf('/preview/') > -1) {
+        self.req.pencilblue_preview = this.pathVars.id;
+        BlogFilter.super_.prototype.render.apply(self, [cb]);
+        return;
+    }
+    else if(self.req.url.indexOf('/article/') > -1) {
         objectType = 'article';
     }
     else if(self.req.url.indexOf('/page/') > -1) {
@@ -73,6 +78,13 @@ BlogFilter.getRoutes = function(cb) {
             method: 'get',
             path: '/topic/:customUrl',
             auth_required: false,
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/preview/:type/:id",
+            access_level: ACCESS_WRITER,
+            auth_required: true,
             content_type: 'text/html'
         }
     ];

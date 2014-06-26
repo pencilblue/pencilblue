@@ -1,6 +1,6 @@
 /**
- * SiteMap - 
- * 
+ * SiteMap -
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -14,9 +14,9 @@ var PARALLEL_LIMIT = 2;
 
 SiteMap.prototype.render = function(cb) {
 	var self = this;
-	
+
 	this.ts.registerLocal('urls', function(flag, cb) {
-		
+
 		var dao   = new pb.DAO();
 		var today = new Date();
     	var tasks = [
@@ -25,25 +25,25 @@ SiteMap.prototype.render = function(cb) {
             	     type: {$ne: 'container'}
             	 }
             	 dao.query('section', where, {url: 1, last_modified: 1, type: 1}).then(function(sections) {
-            		self.processObjects(sections, '/', '0.5', callback); 
+            		self.processObjects(sections, '/', '0.5', callback);
             	 });
              },
              function(callback) {
             	 dao.query('page', {publish_date: {$lte: today}}, {url: 1, last_modified: 1}).then(function(sections) {
-            		self.processObjects(sections, '/page/', '1.0', callback); 
+            		self.processObjects(sections, '/page/', '1.0', callback);
             	 });
              },
              function(callback) {
             	 dao.query('article', {publish_date: {$lte: today}}, {url: 1, last_modified: 1}).then(function(sections) {
-            		self.processObjects(sections, '/article/', '1.0', callback); 
+            		self.processObjects(sections, '/article/', '1.0', callback);
             	 });
              },
         ];
     	async.parallelLimit(tasks, 2, function(err, htmlParts) {
-    		cb(err, htmlParts.join(''));
+    		cb(err, new pb.TemplateValue(htmlParts.join(''), false));
     	});
 	});
-	this.ts.load('xml_feeds/sitemap', function(err, content) {        
+	this.ts.load('xml_feeds/sitemap', function(err, content) {
 		var data = {
 			content: content,
 			headers: {
@@ -59,11 +59,11 @@ SiteMap.prototype.processObjects = function(objArray, urlPrefix, priority, cb) {
 	var ts   = new pb.TemplateService(this.ls);
 	ts.registerLocal('change_freq', 'daily');
 	ts.registerLocal('priority', priority);
-	
-	
+
+
 	var tasks = pb.utils.getTasks(objArray, function(objArray, i) {
 		return function(callback) {
-			
+
 			var url;
 			if (urlPrefix === '/') {//special case for navItems
 				pb.SectionService.formatUrl(objArray[i]);

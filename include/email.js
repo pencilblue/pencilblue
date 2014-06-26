@@ -1,25 +1,34 @@
 /**
- * EmailService - Provides a simple interface for sending emails.
- * 
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright PencilBlue, LLC 2014 All Rights Reserved
  */
-function EmailService(){}
 
 //dependencies
 NodeMailer = require('nodemailer');
 
+/**
+ * EmailService - Provides a simple interface for sending emails.
+ *
+ * @class EmailService
+ * @constructor
+ */
+function EmailService(){}
+
+
+/**
+ *
+ *
+ */
 EmailService.prototype.sendFromTemplate = function(options, cb){
 	var self = this;
 	var ts   = new pb.TemplateService();
-	
 	if (options.replacements) {
 		for(key in options.replacements) {
 			ts.registerLocal(key, options.replacements[key]);
 		}
 	}
-	ts.load(options.template, function(data) {
-		
+	ts.load(options.template, function(err, data) {
+
 		var body = '' + data;
 		self.send(options.from, options.to, options.subject, body, cb);
 	});
@@ -28,7 +37,13 @@ EmailService.prototype.sendFromTemplate = function(options, cb){
 EmailService.prototype.send = function(from, to, subject, body, cb) {
 
 	this.getSettings(function(err, emailSettings) {
-        
+        if (util.isError(err)) {
+            throw err;
+        }
+        else if (!emailSettings) {
+            throw new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
+        }
+
         var options = {
             service: emailSettings.service,
             auth:
@@ -43,7 +58,7 @@ EmailService.prototype.send = function(from, to, subject, body, cb) {
         	options.port = emailSettings.port;
         }
         var smtpTransport = NodeMailer.createTransport("SMTP", options);
-        
+
         var mailOptions =
         {
             from: from || (emailSettings.from_name + '<' + emailSettings.from_address + '>'),
@@ -51,13 +66,13 @@ EmailService.prototype.send = function(from, to, subject, body, cb) {
             subject: subject,
             html: body
         };
-        
+
         smtpTransport.sendMail(mailOptions, function(err, response) {
             if (util.isError(err)) {
             	pb.log.error("EmailService: Failed to send email: ", err);
             }
             smtpTransport.close();
-            
+
             cb(err, response);
         });
     });

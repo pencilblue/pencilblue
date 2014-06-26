@@ -101,9 +101,9 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 		subject: pb.config.siteName + ' Account Confirmation',
 		template: 'admin/elements/default_verification_email',
 		replacements: {
-			'^verification_url^': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
-			'^first_name^': user.first_name,
-			'^last_name^': user.last_name
+			'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+			'first_name': user.first_name,
+			'last_name': user.last_name
 		}
 	};
 	pb.email.sendFromTemplate(options, cb);
@@ -111,15 +111,17 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 
 UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
 	cb = cb || pb.utils.cb;
-
+console.log(util.inspect(user));
+console.log(util.inspect(passwordReset));
+    var verficationUrl = pb.UrlService.urlJoin(pb.config.siteRoot, '/actions/user/reset_password') + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
 	var options = {
 		to: user.email,
 		subject: pb.config.siteName + ' Password Reset',
 		template: 'admin/elements/password_reset_email',
 		replacements: {
-			'^verification_url^': pb.config.siteRoot + '/user/reset_password?email=' + user.email + '&code=' + passwordReset.verification_code,
-			'^first_name^': user.first_name,
-			'^last_name^': user.last_name
+			'verification_url': verficationUrl,
+			'first_name': user.first_name,
+			'last_name': user.last_name
 		}
 	};
 	pb.email.sendFromTemplate(options, cb);
@@ -128,7 +130,7 @@ UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb)
 UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb) {
 	this.getExistingUsernameEmailCounts(username, email, id, function(err, results) {
 
-		var result = results == null;
+		var result = results === null;
 		if (!result) {
 
 			for(var key in results) {
@@ -149,16 +151,16 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 	var dao   = new pb.DAO();
 	var tasks = {
 		verified_username: function(callback) {
-			dao.count('user', getWhere({username: username}), callback);
+			dao.count('user', getWhere({username: username.toLowerCase()}), callback);
 		},
 		verified_email: function(callback) {
-			dao.count('user', getWhere({email: email}), callback);
+			dao.count('user', getWhere({email: email.toLowerCase()}), callback);
 		},
 		unverified_username: function(callback) {
-			dao.count('unverified_user', getWhere({username: username}), callback);
+			dao.count('unverified_user', getWhere({username: username.toLowerCase()}), callback);
 		},
 		unverified_email: function(callback) {
-			dao.count('unverified_user', getWhere({email: email}), callback);
+			dao.count('unverified_user', getWhere({email: email.toLowerCase()}), callback);
 		},
 	};
 	async.series(tasks, cb);

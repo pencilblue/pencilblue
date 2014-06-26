@@ -23,7 +23,14 @@ Configuration.prototype.render = function(cb) {
             self.reqHandler.serveError(err);
             return;
         }
-    
+
+        var pills   = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration');
+        var objects = {
+            navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+            pills: pills
+        };
+        var angularData = pb.js.getAngularController(objects);
+
         self.setPageName(self.ls.get('CONFIGURATION'));
         self.ts.registerLocal('yes_checked', callHome ? 'checked' : '');
         self.ts.registerLocal('no_checked', callHome ? '' : 'checked');
@@ -38,21 +45,11 @@ Configuration.prototype.render = function(cb) {
             if(!fs.existsSync(DOCUMENT_ROOT + '/config.json')) {
                 content = '<div class="alert alert-info">'+self.ls.get('EDIT_CONFIGURATION')+'</div>';
             }
-            cb(null, content);
+            cb(null, new pb.TemplateValue(content, false));
         });
+        self.ts.registerLocal('angular_script', angularData);
         self.ts.load('admin/site_settings/configuration', function(err, data) {
-            var result = data;
-
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration');
-
-            var objects     = {
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pills
-            };
-            var angularData = pb.js.getAngularController(objects);
-            result          = result.split('^angular_script^').join(angularData);
-
-            cb({content: result});
+            cb({content: data});
         });
     });
 };

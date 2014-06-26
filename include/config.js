@@ -1,13 +1,14 @@
 
 var cluster = require('cluster');
+var utils   = require('./util.js');
 
 /**
- * Default configuration.  The settings here should be overriden by taking the 
- * example file "sample.config.json" and modifying it to override the properties 
- * shown below.  In order to properly override the default configuration do the 
+ * Default configuration.  The settings here should be overriden by taking the
+ * example file "sample.config.json" and modifying it to override the properties
+ * shown below.  In order to properly override the default configuration do the
  * following:
  * 1) copy "sample.config.json" to "/etc/pencilblue/config.json"
- * 2) Override the properties as desired.  
+ * 2) Override the properties as desired.
  * 3) Add any custom properties you wish to provide for your specific purposes.
  */
 
@@ -21,8 +22,8 @@ global.LOG_FILE  = path.join(LOG_DIR, 'pencilblue.log');
 
 var config = {
 	siteName: 'pencilblue',
-	siteRoot: 'http://localhost:8080',
-	siteIP:   '127.0.0.1',
+	siteRoot: 'https://localhost:8080',
+	siteIP:   'localhost',
 	sitePort: 8080,
 	docRoot:  DOCUMENT_ROOT,
 	db: {
@@ -54,16 +55,16 @@ var config = {
 	},
 	settings: {
 		use_memory: true,
-		use_cache: true
+		use_cache: false
 	},
 	templates: {
 		use_memory: true,
-		use_cache: true
+		use_cache: false
 	},
 	plugins: {
 		caching: {
 			use_memory: true,
-			use_cache: true,
+			use_cache: false,
 		}
 	},
 	registry: {
@@ -75,6 +76,16 @@ var config = {
         fatal_error_timeout: 2000,
         fatal_error_count: 5,
         workers: 1
+    },
+    server: {
+        ssl: {
+            enabled: false,
+            handoff_port: 8080,
+            use_handoff_port_in_redirect: false,
+            key: "ssl/key.pem",
+            cert: "ssl/cert.crt",
+            chain: "ssl/chain.crt"
+        }
     }
 };
 
@@ -83,11 +94,11 @@ var OVERRIDE_FILE_PATHS = [
     path.join(DOCUMENT_ROOT, CONFIG_FILE_NAME),
     path.join(EXTERNAL_ROOT, CONFIG_FILE_NAME),
 ];
-    
+
 /**
- * Loads an external configuration.  
- * NOTE: This should only be called once by the core code at startup.  Calling 
- * this function after the server starts may cause unintended behavior across 
+ * Loads an external configuration.
+ * NOTE: This should only be called once by the core code at startup.  Calling
+ * this function after the server starts may cause unintended behavior across
  * the system.
  */
 var loadConfiguration = function() {
@@ -101,15 +112,15 @@ var loadConfiguration = function() {
         console.log("SystemStartup: Creating log file ["+LOG_FILE+']');
         fs.writeFileSync(LOG_FILE, '');
     }
-   
+
     var override       = {};
     var overrideFile   = null;
     var overridesFound = false;
     for (var i = 0; i < OVERRIDE_FILE_PATHS.length; i++) {
-    	
+
     	overrideFile = OVERRIDE_FILE_PATHS[i];
     	if (fs.existsSync(overrideFile)) {
-    	    
+
     		var result = fs.readFileSync(overrideFile, {encoding: "UTF-8"});
     	    if (typeof result === 'Error') {
     	        console.log('SystemStartup: Failed to read external configuration file ['+overrideFile+'].');
@@ -133,13 +144,10 @@ var loadConfiguration = function() {
     //log result
     var message = overridesFound ? 'Override file ['+overrideFile+'] will be applied.' : 'No overrides are available, skipping to defaults';
     console.log('SystemStartup: '+message);
-    
+
     //perform any overrides
-    for(var key in override) {
-	    console.log("SystemStartup: Overriding property KEY="+key+" VAL="+JSON.stringify(override[key])+'');
-	    config[key] = override[key];
-    }
-    
+    config = utils.deepMerge(override, config);
+
     //setup logging
     config.logging = {
 		transports: [

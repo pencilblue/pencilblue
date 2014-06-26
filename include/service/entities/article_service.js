@@ -267,7 +267,7 @@ ArticleService.getMetaInfo = function(article, cb)
 };
 
 /**
- * @private
+ *
  * @class MediaLoader
  * @constructor
  * @module Service

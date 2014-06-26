@@ -1,5 +1,5 @@
 /**
- * Requirements - Responsible for declaring all of the system types and modules 
+ * Requirements - Responsible for declaring all of the system types and modules
  * needed to construct the system API object.
  * @copyright PencilBlue, all rights reserved.
  */
@@ -7,6 +7,7 @@
 global.url        = require('url');
 global.fs         = require('fs');
 global.http       = require('http');
+global.https      = require('https');
 global.path       = require('path');
 global.formidable = require('formidable');
 global.process    = require('process');
@@ -38,7 +39,7 @@ pb.config = require('./config');
 //configure basic services
 //setup utils
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
-global.log = 
+global.log =
 pb.log     = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, pb.config);
 pb.system  = require(path.join(DOCUMENT_ROOT, 'include/system/system.js'));
 
@@ -73,7 +74,9 @@ pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').
 pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
 
 //setup template service
-pb.TemplateService = require(DOCUMENT_ROOT+'/include/service/entities/template_service.js');
+var TemplateModule = require(DOCUMENT_ROOT+'/include/service/entities/template_service.js');
+pb.TemplateService = TemplateModule.TemplateService;
+pb.TemplateValue   = TemplateModule.TemplateValue;
 
 //setup security
 pb.security                       = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;
@@ -104,7 +107,7 @@ pb.email        = new pb.EmailService();
 
 //system requires
 pb.DocumentCreator    = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
-pb.content            = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions			        
+pb.content            = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions
 pb.js                 = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
 pb.AdminNavigation    = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
 pb.ServerRegistration = require(DOCUMENT_ROOT+'/include/system/server_registration.js');

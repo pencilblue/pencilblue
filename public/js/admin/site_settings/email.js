@@ -3,12 +3,12 @@ var formRefillOptions =
     {
         id: 'secure_connection',
         type: 'button_group',
-        elementPrefix: 'secure_connection_',
-        onComplete: checkForCustomService
+        elementPrefix: 'secure_connection_'
     },
     {
         id: 'verification_content',
-        type: 'layout'
+        type: 'layout',
+        onComplete: checkForCustomService
     }
 ];
 
@@ -42,7 +42,7 @@ function checkForCustomService()
 
 function prepareEmailSettingsSave()
 {
-    $('fieldset').append('<textarea id="verification_content" name="verification_content" style="display: none">' + encodeURIComponent($('#layout_editable').html()) + '</textarea>');
+    $('fieldset').append('<textarea id="verification_content" name="verification_content" style="display: none">' + $('#layout_editable').html() + '</textarea>');
 
     $('#email_form').submit();
 }

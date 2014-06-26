@@ -68,6 +68,14 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
+    	path: "/actions/user/reset_password",
+    	access_level: 0,
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'reset_password.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
     	path: "/admin",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
@@ -75,7 +83,6 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
-    	method: 'post',
     	path: "/actions/logout",
     	access_level: 0,
     	auth_required: true,
@@ -517,6 +524,7 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'resend_verification.js'),
     },
     {
+        method: 'post',
     	path: "/actions/admin/content/custom_objects/new_object_type",
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
@@ -537,6 +545,7 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'sign_up.js'),
     },
     {
+        method: 'post',
     	path: "/actions/admin/content/custom_objects/edit_object_type/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
@@ -550,6 +559,7 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'verify_email.js'),
     },
     {
+        method: 'post',
     	path: "/actions/admin/content/custom_objects/delete_object_type/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
@@ -597,6 +607,13 @@ RequestHandler.CORE_ROUTES = [
     	auth_required: true,
     	access_level: ACCESS_EDITOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/users/delete_user/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_user.js'),
     },
     {
     	method: 'get',
@@ -963,9 +980,12 @@ RequestHandler.registerRoute = function(descriptor, theme){
 	}
 
 	//standardize http method (if exists) to upper case
-	if (descriptor.method !== undefined) {
+	if (descriptor.method) {
 		descriptor.method = descriptor.method.toUpperCase();
 	}
+    else {
+        descriptor.method = 'ALL'
+    }
 
 	//get pattern and path variables
 	var patternObj = RequestHandler.getRoutePattern(descriptor.path);
@@ -991,7 +1011,7 @@ RequestHandler.registerRoute = function(descriptor, theme){
 			pattern: pattern,
 			path_vars: pathVars,
 			expression: new RegExp(pattern),
-			themes: {}
+            themes: {}
 		};
 
 		//set them in storage
@@ -1000,10 +1020,13 @@ RequestHandler.registerRoute = function(descriptor, theme){
 	}
 
 	//set the descriptor for the theme and load the controller type
-	routeDescriptor.themes[theme]            = descriptor;
-	routeDescriptor.themes[theme].controller = require(descriptor.controller);
+    if (!routeDescriptor.themes[theme]) {
+        routeDescriptor.themes[theme] = {};
+    }
+	routeDescriptor.themes[theme][descriptor.method]            = descriptor;
+	routeDescriptor.themes[theme][descriptor.method].controller = require(descriptor.controller);
 
-	pb.log.debug("RequestHandler: Registered Route - Theme ["+theme+"] Path ["+descriptor.path+"] Pattern ["+pattern+"]");
+	pb.log.debug("RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]", theme, descriptor.method, descriptor.path, pattern);
 	return true;
 };
 
@@ -1179,7 +1202,7 @@ RequestHandler.prototype.serve404 = function() {
  */
 RequestHandler.prototype.serveError = function(err) {
 	var data = {
-		content: '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>'+(err ? err.stack : '')+'</pre></body></html>',
+		content: '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>'+(err ? err.stack : err)+'</pre></body></html>',
 		content_type: 'text/html',
 		code: 500
 	};
@@ -1220,18 +1243,10 @@ RequestHandler.prototype.getRoute = function(path) {
 	for (var i = 0; i < RequestHandler.storage.length; i++) {
 
 		var curr   = RequestHandler.storage[i];
-
-		//test method when exists
-		if (curr.method !== undefined && curr.method !== this.req.method) {
-			if (pb.log.isSilly()) {
-				pb.log.silly('RequestHandler: Skipping Path ['+path+'] becuase Method ['+this.request.method+'] does not match ['+curr.method+']');
-			}
-			continue;
-		}
 		var result = curr.expression.test(path);
 
 		if (pb.log.isSilly()) {
-			pb.log.silly('RequestHandler: Comparing Path ['+path+'] to Pattern ['+curr.pattern+'] Result ['+result+']');
+			pb.log.silly('RequestHandler: Comparing Path [%s] to Pattern [%s] Result [%s]', path, curr.pattern, result);
 		}
 		if (result) {
 			route = curr;
@@ -1241,36 +1256,55 @@ RequestHandler.prototype.getRoute = function(path) {
 	return route;
 };
 
+RequestHandler.routeSupportsMethod = function(themeRoutes, method) {
+    method = method.toUpperCase();
+    return themeRoutes[method] !== undefined;
+};
+
+RequestHandler.routeSupportsTheme = function(route, theme, method) {
+    return route.themes[theme] !== undefined && RequestHandler.routeSupportsMethod(route.themes[theme], method);
+};
+
+RequestHandler.prototype.getRouteTheme = function(activeTheme, route) {
+    var obj = {theme: null, method: null};
+
+    var methods = [this.req.method, 'ALL'];
+    for (var i = 0; i < methods.length; i++) {
+
+        //check for themed route
+        var themesToCheck = [activeTheme, RequestHandler.DEFAULT_THEME];
+        pb.utils.arrayPushAll(Object.keys(route.themes), themesToCheck);
+        for (var j = 0; j < themesToCheck.length; j++) {
+
+            //see if theme supports method and provides support
+            if (RequestHandler.routeSupportsTheme(route, themesToCheck[j], methods[i])) {
+                obj.theme  = themesToCheck[j];
+                obj.method = methods[i];
+                return obj;
+            }
+        }
+    }
+    return obj;
+}
+
 RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 	var self = this;
 
 	//check for unregistered route for theme
-	if (typeof route.themes[activeTheme] === 'undefined') {
-
-		//try default route
-		activeTheme = RequestHandler.DEFAULT_THEME;
-		if (typeof route.themes[activeTheme] === 'undefined') {
-
-			//custom route, just pull from first found
-			for(var theme in route.themes) {
-				activeTheme = theme;
-				break;
-			}
-		}
-	}
+	var rt = this.getRouteTheme(activeTheme, route);
 
 	if (pb.log.isSilly()) {
-		pb.log.silly("RequestHandler: Settling on theme [%s] for URL=[%s]", activeTheme, this.url.href);
+		pb.log.silly("RequestHandler: Settling on theme [%s] and method [%s] for URL=[%s:%s]", rt.theme, rt.method, this.req.method, this.url.href);
 	}
 
 	//sanity check
-	if (typeof route.themes[activeTheme] === 'undefined') {
+	if (rt.theme === null || rt.method === null) {
 		this.serve404();
 		return;
 	}
 
 	//do security checks
-	this.checkSecurity(activeTheme, function(err, result) {
+	this.checkSecurity(rt.theme, rt.method, function(err, result) {
 		if (pb.log.isSilly()) {
 			pb.log.silly("RequestHandler: Security Result=[%s]", result.success);
 			for (var key in result.results) {
@@ -1279,7 +1313,7 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 		}
 		//all good
 		if (result.success) {
-			self.onSecurityChecksPassed(activeTheme, route);
+			self.onSecurityChecksPassed(rt.theme, rt.method, route);
 			return;
 		}
 
@@ -1288,7 +1322,7 @@ RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
 	});
 };
 
-RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
+RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, method, route) {
 
 	//extract path variables
 	var pathVars = {};
@@ -1298,7 +1332,7 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, route) {
 	}
 
 	//execute controller
-	var ControllerType  = route.themes[activeTheme].controller;
+	var ControllerType  = route.themes[activeTheme][method].controller;
 	var cInstance       = new ControllerType();
 	this.doRender(pathVars, cInstance);
 };
@@ -1319,9 +1353,9 @@ RequestHandler.prototype.doRender = function(pathVars, cInstance) {
 	});
 };
 
-RequestHandler.prototype.checkSecurity = function(activeTheme, cb){
+RequestHandler.prototype.checkSecurity = function(activeTheme, method, cb){
 	var self        = this;
-	this.themeRoute = this.route.themes[activeTheme];
+	this.themeRoute = this.route.themes[activeTheme][method];
 
 	//verify if setup is needed
 	var checkSystemSetup = function(callback) {

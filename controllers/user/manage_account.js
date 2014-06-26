@@ -20,12 +20,28 @@ ManageAccount.prototype.render = function(cb) {
         }
 
         delete user.password;
+        var objects  = self.gatherData();
+        objects.user = user;
 
-        var navigation = [
+    	self.setPageName(self.ls.get('MANAGE_ACCOUNT'));
+        self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
+        self.ts.registerLocal('uploaded_image', (user.photo ? user.photo : ''));
+        self.ts.registerLocal('angular_script', pb.js.getAngularController(objects));
+    	self.ts.load('user/manage_account', function(err, result) {
+
+            cb({content: result});
+        });
+    });
+};
+
+ManageAccount.prototype.gatherData = function() {
+    return {
+
+        navigation: [
             {
                 id: 'account',
                 active: 'active',
-                title: self.ls.get('ACCOUNT'),
+                title: this.ls.get('ACCOUNT'),
                 icon: 'user',
                 href: '#',
                 dropdown: true,
@@ -34,59 +50,43 @@ ManageAccount.prototype.render = function(cb) {
                     {
                         id: 'manage',
                         active: 'active',
-                        title: self.ls.get('MANAGE_ACCOUNT'),
+                        title: this.ls.get('MANAGE_ACCOUNT'),
                         icon: 'cog',
                         href: '/user/manage_account',
                     },
                     {
                         id: 'change_password',
-                        title: self.ls.get('CHANGE_PASSWORD'),
+                        title: this.ls.get('CHANGE_PASSWORD'),
                         icon: 'key',
                         href: '/user/change_password',
                     }
                 ]
             }
-        ];
+        ],
 
-        var pills = [
+        pills: [
             {
                 name: 'manage_account',
-                title: self.ls.get('MANAGE_ACCOUNT'),
+                title: this.ls.get('MANAGE_ACCOUNT'),
                 icon: 'refresh',
                 href: '/user/manage_account'
             }
-        ];
+        ],
 
-        var tabs = [
+        tabs: [
             {
                 active: 'active',
                 href: '#account_info',
                 icon: 'cog',
-                title: self.ls.get('ACCOUNT_INFO')
+                title: this.ls.get('ACCOUNT_INFO')
             },
             {
                 href: '#personal_info',
                 icon: 'user',
-                title: self.ls.get('PERSONAL_INFO')
+                title: this.ls.get('PERSONAL_INFO')
             }
-        ];
-
-    	self.setPageName(self.ls.get('MANAGE_ACCOUNT'));
-        self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
-        self.ts.registerLocal('uploaded_image', (user.photo ? user.photo : ''));
-    	self.ts.load('user/manage_account', function(err, result) {
-
-            result = result.split('^angular_script^').join(pb.js.getAngularController(
-            {
-                navigation: navigation,
-                pills: pills,
-                tabs: tabs,
-                user: user
-            }));
-
-            cb({content: result});
-        });
-    });
+        ]
+    };
 };
 
 //exports
