@@ -219,6 +219,7 @@ var loc =
         SAVED: 'was saved',
         NARROW_RESULTS: 'Narrow results',
         URL_KEY: 'URL Key',
+        FEED_UNAVAILABLE: 'Unable to load the news feed.'
     },
     topics:
     {
