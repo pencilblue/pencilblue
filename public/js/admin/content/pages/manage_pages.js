@@ -1,7 +1,7 @@
 /*
 
     Interface for managing pages
-    
+
     @author Blake Callens <blake.callens@gmail.com>
     @copyright PencilBlue 2014, All rights reserved
 
@@ -18,7 +18,7 @@ $(document).ready(function()
         searchText: '<i class="fa fa-search"></i>',
         clearText: '<i class="fa fa-times"></i>',
     });
-    
+
     tableSort = new TableSort(
     {
         table: '#pages_table',
@@ -28,6 +28,10 @@ $(document).ready(function()
             {
                 header: '#page_headline_header',
                 textContainer: '.page_headline'
+            },
+            {
+                header: '#page_status_header',
+                textContainer: '.page_status'
             },
             {
                 header: '#page_url_header',
@@ -51,7 +55,7 @@ function initPagesPagination()
     pagination = new Pagination('pages_pagination', '.page_row', 30);
     $('#page_search').keyup(pagination.initializeElements);
     $('#page_search_button').click(pagination.initializeElements);
-    
+
     tableSort.pagination = pagination;
 }
 

@@ -8,20 +8,22 @@
             <button id="custom_object_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
         </span>
     </div>
-    <table id="custom_objects_table" class="table table-responsive table-condensed">
-        <tr id="custom_objects_table_header">
-            <th id="custom_object_name_header">^loc_NAME^</th>
-            <th id="custom_object_description_header" ng-if="customObjects[0].description">^loc_DESCRIPTION^</th>
-            <th id="custom_object_date_header">^loc_LAST_MODIFIED^</th>
-            <th></th>
-        </tr>
-        <tr class="custom_object_row" ng-repeat="customObject in customObjects track by customObject._id" on-finish-render ng-cloak>
-            <td><a class="custom_object_name" ng-href="/admin/content/custom_objects/edit_object/{{customObject._id}}">{{customObject.name}}</a></td>
-            <td class="custom_object_description" ng-if="customObjects[0].description">{{customObject.description}}</td>
-            <td class="custom_object_date">{{customObject.last_modified | date: 'yyyy-MM-dd HH:mm'}}</td>
-            <td><a href="javascript:confirmDeleteCustomObject('{{customObject._id}}', '{{customObject.name}}')"><i class="fa fa-times"></i></a></td>
-        </tr>
-    </table>
+    <div class="table_container">
+        <table id="custom_objects_table" class="table table-responsive table-condensed">
+            <tr id="custom_objects_table_header">
+                <th id="custom_object_name_header">^loc_NAME^</th>
+                <th id="custom_object_description_header" ng-if="customObjects[0].description">^loc_DESCRIPTION^</th>
+                <th id="custom_object_date_header">^loc_LAST_MODIFIED^</th>
+                <th></th>
+            </tr>
+            <tr class="custom_object_row" ng-repeat="customObject in customObjects track by customObject._id" on-finish-render ng-cloak>
+                <td><a class="custom_object_name" ng-href="/admin/content/custom_objects/edit_object/{{customObject._id}}">{{customObject.name}}</a></td>
+                <td class="custom_object_description" ng-if="customObjects[0].description">{{customObject.description}}</td>
+                <td class="custom_object_date">{{customObject.last_modified | date: 'yyyy-MM-dd HH:mm'}}</td>
+                <td><a href="javascript:confirmDeleteCustomObject('{{customObject._id}}', '{{customObject.name}}')"><i class="fa fa-times"></i></a></td>
+            </tr>
+        </table>
+    </div>
     <ul id="custom_objects_pagination" class="pagination"></ul>
     <div class="modal fade" id="confirm_delete_modal">
         <div class="modal-dialog">

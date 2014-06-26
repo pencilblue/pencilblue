@@ -1,6 +1,6 @@
 /**
  * AddMedia - Adds new media
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -13,12 +13,12 @@ var AddMedia = require('./add_media.js');
 util.inherits(InlineAddMedia, AddMedia);
 
 AddMedia.prototype.onSaveSuccessful = function(mediaDocument) {
-	//don't do anything.  We just want to override the default behavior since 
+	//don't do anything.  We just want to override the default behavior since
 	//we are returning JSON
 };
 
 InlineAddMedia.prototype.getRequiredParams = function() {
-	return ['media_type', 'location', 'caption'];
+	return ['media_type', 'location'];
 };
 
 InlineAddMedia.prototype.getFormErrorRedirect = function(){
@@ -27,7 +27,7 @@ InlineAddMedia.prototype.getFormErrorRedirect = function(){
 
 InlineAddMedia.prototype.genReturnVal = function(result) {
 	return {
-		content: JSON.stringify(result), 
+		content: JSON.stringify(result),
 		content_type: 'application/json'
 	};
 };

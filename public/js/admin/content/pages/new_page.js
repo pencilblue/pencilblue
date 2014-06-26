@@ -54,11 +54,7 @@ $(document).ready(function()
         setPublishDateToNow();
     }
 
-    $('#publish_date').datetimepicker(
-    {
-        language: 'en',
-        format: 'Y-m-d H:m'
-    });
+    $('#publish_date').datetimepicker();
 
     $('#url').focus();
 });
@@ -102,7 +98,7 @@ function setPublishDateToNow()
 
 function getDatetimeText(date)
 {
-    var datetime = date.getFullYear() + '-' + getExtraZero(date.getMonth() + 1) + '-' + getExtraZero(date.getDate()) + ' ';
+    var datetime = date.getFullYear() + '/' + getExtraZero(date.getMonth() + 1) + '/' + getExtraZero(date.getDate()) + ' ';
     datetime += getExtraZero(date.getHours()) + ':' + getExtraZero(date.getMinutes());
 
     return datetime;
@@ -147,9 +143,20 @@ function checkForNewPageSave(draft)
 
             getContentLayout(function(contentLayout)
             {
-                $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + encodeURIComponent(contentLayout) + '</textarea>');
+                var layout = contentLayout;
+                if(!$('#page_layout').position()) {
+                    $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
+                }
+                else {
+                    $('#page_layout').val(layout);
+                }
 
-                $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
+                if(!$('#draft').position()) {
+                    $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
+                }
+                else {
+                    $('#draft').val((draft) ? '1' : '0');
+                }
 
                 $('#new_page_form').submit();
             });

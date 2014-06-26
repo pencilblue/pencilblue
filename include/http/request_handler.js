@@ -68,6 +68,14 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
+    	path: "/actions/user/reset_password",
+    	access_level: 0,
+    	auth_required: false,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'reset_password.js'),
+    	content_type: 'text/html'
+    },
+    {
+    	method: 'get',
     	path: "/admin",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
@@ -517,7 +525,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/custom_objects/edit_object_type/:name",
+    	path: "/admin/content/custom_objects/edit_object_type/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
@@ -594,6 +602,13 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
     },
     {
+        method: 'post',
+        path: "/actions/admin/users/delete_user/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_user.js'),
+    },
+    {
     	method: 'get',
     	path: "/admin/users/change_password/:id",
     	auth_required: true,
@@ -635,16 +650,14 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'sign_up.js'),
     },
     {
-        method: 'get',
-    	path: "/admin/content/custom_objects/manage_objects/:name",
+    	path: "/admin/content/custom_objects/manage_objects/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_objects.js'),
     	content_type: 'text/html'
     },
     {
-        method: 'get',
-    	path: "/admin/content/custom_objects/sort_objects/:name",
+    	path: "/admin/content/custom_objects/sort_objects/:type_id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'sort_objects.js'),
@@ -660,7 +673,7 @@ RequestHandler.CORE_ROUTES = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/custom_objects/new_object/:type",
+    	path: "/admin/content/custom_objects/new_object/:type_id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object.js'),
@@ -704,8 +717,7 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'login.js'),
     },
     {
-        method: 'post',
-    	path: "/actions/admin/content/custom_objects/delete_object",
+    	path: "/actions/admin/content/custom_objects/delete_object/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object.js'),
@@ -965,7 +977,7 @@ RequestHandler.registerRoute = function(descriptor, theme){
 		descriptor.method = descriptor.method.toUpperCase();
 	}
     else {
-        descriptor.method = 'ALL'   
+        descriptor.method = 'ALL'
     }
 
 	//get pattern and path variables
@@ -1243,20 +1255,20 @@ RequestHandler.routeSupportsMethod = function(themeRoutes, method) {
 };
 
 RequestHandler.routeSupportsTheme = function(route, theme, method) {
-    return route.themes[theme] !== undefined && RequestHandler.routeSupportsMethod(route.themes[theme], method);  
+    return route.themes[theme] !== undefined && RequestHandler.routeSupportsMethod(route.themes[theme], method);
 };
 
 RequestHandler.prototype.getRouteTheme = function(activeTheme, route) {
     var obj = {theme: null, method: null};
-    
+
     var methods = [this.req.method, 'ALL'];
     for (var i = 0; i < methods.length; i++) {
-        
+
         //check for themed route
         var themesToCheck = [activeTheme, RequestHandler.DEFAULT_THEME];
         pb.utils.arrayPushAll(Object.keys(route.themes), themesToCheck);
         for (var j = 0; j < themesToCheck.length; j++) {
-            
+
             //see if theme supports method and provides support
             if (RequestHandler.routeSupportsTheme(route, themesToCheck[j], methods[i])) {
                 obj.theme  = themesToCheck[j];
@@ -1448,7 +1460,7 @@ RequestHandler.prototype.onControllerInitialized = function(controller) {
 	});
     d.on('error', function(err) {
         pb.log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
-        self.serveError(err);   
+        self.serveError(err);
     });
 };
 

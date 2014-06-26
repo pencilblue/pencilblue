@@ -101,7 +101,6 @@ var loc =
 		ERRORED: 'Errored',
 		ACTIVE: 'Active',
 		INACTIVE: 'Inactive',
-		AVAILABLE: 'Available',
 		STATUS: 'Status',
 		THEME_INFORMATION: 'Theme Information',
 		TEMPLATES: 'Templates',
@@ -136,7 +135,8 @@ var loc =
 		NO_AVAILABLE_PLUGINS: 'No available plugins',
         READ_MORE: 'Read more',
         THEME_DEFAULT: 'Theme Default',
-        USER: 'User'
+        USER: 'User',
+        SUBSCRIBE: 'Subscribe'
     },
     error:
     {
@@ -280,13 +280,17 @@ var loc =
         HEADING_6: 'Heading 6',
         ADD_LINK: 'Add a link',
         LINK_URL: 'Link URL',
+        LINK_TEXT: 'Link text',
         LINK_IN_TAB: 'Open link in a new tab/window',
         TEST_LINK: 'Test link',
         INSERT_LINK: 'Insert link',
         ADD_MEDIA: 'Add media',
         INSERT_MEDIA: 'Insert media',
         SELECT_MEDIA: 'Select media to insert (multiple selections will create a carousel)',
-        ASSOCIATE_MEDIA: 'Associate media with the article'
+        ASSOCIATE_MEDIA: 'Associate media with the article',
+        PUBLISHED: 'Published',
+        UNPUBLISHED: 'Unpublished',
+        DRAFT: 'Draft'
     },
     comments:
     {
@@ -314,7 +318,8 @@ var loc =
         ACTIVE_OBJECTS: 'Drag associated objects here',
         INACTIVE_OBJECTS: 'Drag unassociated objects here',
         OBJECTS: 'objects',
-        DESCRIPTION: 'Description'
+        DESCRIPTION: 'Description',
+        INVALID_FIELD: 'Invalid field was submitted. Make sure there are no duplicate field names or unselected field types'
     },
     users:
     {
@@ -343,12 +348,13 @@ var loc =
         USER_EDITED: 'The user was successfully edited',
         CREATE_ACCOUNT: 'Create an account',
         LOGIN_EXISTING: 'Login to an existing account',
-        VERIFICATION_SENT: 'Verification email sent to',
+        VERIFICATION_SENT: 'Verification email sent to ',
         YOUR_VERIFICATION: 'A verification email has been sent to your email address.',
+        YOUR_PASSWORD_RESET: 'A password reset email has been sent to your email address.',
         CHECK_INBOX: 'Please check your inbox and click the link provided.',
         RESEND_VERIFICATION: 'Resend the verification email',
         USER_VERIFIED: 'That email address has already been verified',
-        NOT_REGISTERED: 'That email address has not been registered',
+        NOT_REGISTERED: 'That username or email address has not been registered',
         INVALID_VERIFICATION: 'The verification parameters were invalid. Please re-enter your email address.',
         EMAIL_VERIFIED: 'Thank you for verifying your email address. You may now login.',
         MANAGE_ACCOUNT: 'Manage account',
@@ -357,7 +363,8 @@ var loc =
         OLD_PASSWORD: 'Old password',
         NEW_PASSWORD: 'New password',
         INVALID_PASSWORD: 'Invalid current password',
-        PASSWORD_CHANGED: 'Your password was successfully changed'
+        PASSWORD_CHANGED: 'Your password was successfully changed',
+        NO_PERMISSIONS: 'None of your installed plugins have permissions set'
     },
     plugins:
     {
@@ -408,8 +415,8 @@ var loc =
         CUSTOM: 'Custom',
         HOST: 'Host',
         SECURE_CONNECTION: 'Secure connection (SSL)',
-        PORT: 'Port',
-        EMAIL_SETTINGS: 'Email settings'
+        EMAIL_SETTINGS: 'Email settings',
+        EMAIL_DIRECTIVES_DESCRIPTION: 'Directives: ^verification_url^, ^first_name^, ^last_name^'
     }
 };
 

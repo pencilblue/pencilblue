@@ -76,7 +76,10 @@ Media.getMediaLink = function(mediaType, mediaLocation, isFile) {
         case 'slideshare':
             return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
         case 'trinket':
-            return 'https://trinket.io/embed/python/' + mediaLocation;
+            if(mediaLocation.indexOf('/') === -1) {
+                return 'https://trinket.io/embed/python/' + mediaLocation;
+            }
+            return 'https://trinket.io/embed/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':

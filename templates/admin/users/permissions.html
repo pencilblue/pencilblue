@@ -1,23 +1,30 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^error_success^
+    <div class="alert alert-warning error_success" ng-if="permissions.length === 0">
+        ^loc_NO_PERMISSIONS^.
+    </div>
     ^tmp_admin=elements=sub_nav^
-    
-    <div class="quick-nav">
-        <table>
-            <thead>
-                <tr>
-                    <th>Permission</th>
-                    <th class="skew" ng-repeat="role in roles"><div ng-class-odd="'odd'"><span>{{role}}</span></div></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="perm in permissions">
-                    <td class="project-name">{{perm.name}}</td>
-                    <td ng-repeat="value in perm.vals" ng-class-odd="'odd'"><input type="checkbox" ng-checked="value.val" disabled="true" /></td>
-                </tr>
-            </tbody>
+    <div class="input-group" ng-if="permissions.length > 0" style="margin-bottom: .5em">
+        <input type="text" id="permissions_search" name="permissions_search" class="form-control"></input>
+        <span class="input-group-btn">
+            <button id="permissions_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+        </span>
+    </div>
+    <div class="table_container" ng-if="permissions.length > 0">
+        <table id="permissions_table" class="table table-responsive table-condensed">
+            <tr>
+                <th id="permission_name_header">^loc_NAME^</th>
+                <th ng-repeat="role in roles" ng-cloak><div ng-class-odd="'odd'"><span>{{role}}</span></div></th>
+            </tr>
+            <tr class="permission_row" ng-repeat="perm in permissions" on-finish-render ng-cloak>
+                <td class="permission_name" class="project-name">{{perm.name}}</td>
+                <td ng-repeat="value in perm.vals" ng-cloak><i class="fa fa-check" ng-if="value.val"></i></td>
+            </tr>
         </table>
     </div>
+    <ul id="permissions_pagination" class="pagination"></ul>
 </div>
+<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
+<script type="text/javascript" src="/js/table_sort.js"></script>
+<script type="text/javascript" src="/js/admin/users/permissions.js"></script>
 ^tmp_admin=footer^

@@ -1,7 +1,7 @@
 /*
 
     Interface for managing articles
-    
+
     @author Blake Callens <blake.callens@gmail.com>
     @copyright PencilBlue 2014, All rights reserved
 
@@ -18,7 +18,7 @@ $(document).ready(function()
         searchText: '<i class="fa fa-search"></i>',
         clearText: '<i class="fa fa-times"></i>',
     });
-    
+
     tableSort = new TableSort(
     {
         table: '#articles_table',
@@ -28,6 +28,10 @@ $(document).ready(function()
             {
                 header: '#article_headline_header',
                 textContainer: '.article_headline'
+            },
+            {
+                header: '#article_status_header',
+                textContainer: '.article_status'
             },
             {
                 header: '#article_url_header',
@@ -51,7 +55,7 @@ function initArticlesPagination()
     pagination = new Pagination('articles_pagination', '.article_row', 30);
     $('#article_search').keyup(pagination.initializeElements);
     $('#article_search_button').click(pagination.initializeElements);
-    
+
     tableSort.pagination = pagination;
 }
 

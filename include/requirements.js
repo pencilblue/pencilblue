@@ -73,7 +73,9 @@ pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').
 pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
 
 //setup template service
-pb.TemplateService = require(DOCUMENT_ROOT+'/include/service/entities/template_service.js');
+var TemplateModule = require(DOCUMENT_ROOT+'/include/service/entities/template_service.js');
+pb.TemplateService = TemplateModule.TemplateService;
+pb.TemplateValue   = TemplateModule.TemplateValue;
 
 //setup security
 pb.security                       = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;

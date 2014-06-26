@@ -1,6 +1,6 @@
 /**
  * EditMedia - Adds new media
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -12,22 +12,22 @@ util.inherits(EditMedia, pb.FormController);
 EditMedia.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var vars = this.pathVars;
-	
-	delete post['topic_search'];
-	
+
+	delete post.topic_search;
+
 	pb.utils.merge(vars, post);
-	
+
 	var message = this.hasRequiredParams(post, this.getRequiredParams());
     if(message) {
         this.formError(message, this.getFormErrorRedirect(post.id), cb);
         return;
     }
-	
+
 	var dao = new pb.DAO();
 	dao.loadById(post.id, 'media', function(err, media) {
     	//TODO handle error
-    	
-        if(media == null) {
+
+        if(media === null) {
             self.formError(self.ls.get('ERROR_SAVING'), this.getFormErrorRedirect(post.id), cb);
             return;
         }
@@ -39,7 +39,7 @@ EditMedia.prototype.onPostParamsRetrieved = function(post, cb) {
                 self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(), cb);
                 return;
             }
-            
+
             self.onSaveSuccessful(media);
             cb(self.genReturnVal(result));
         });
@@ -51,7 +51,7 @@ EditMedia.prototype.onSaveSuccessful = function(mediaDocument) {
 };
 
 EditMedia.prototype.getRequiredParams = function() {
-	return ['media_type', 'location', 'name', 'caption'];
+	return ['media_type', 'location', 'name'];
 };
 
 EditMedia.prototype.getFormErrorRedirect = function(id){

@@ -14,19 +14,19 @@ var SUB_NAV_KEY = 'edit_custom_object';
 EditObject.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
-    if(!vars['id']) {
+    if(!vars.id) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
         return;
     }
 
 	var dao  = new pb.DAO();
-	dao.query('custom_object', {_id: ObjectID(vars['id'])}).then(function(customObjects) {
+	dao.query('custom_object', {_id: ObjectID(vars.id)}).then(function(customObjects) {
 		if (util.isError(customObjects)) {
 			//TODO handle this
 		}
 
 		//none to manage
-        if(customObjects.length == 0) {
+        if(customObjects.length === 0) {
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
             return;
         }
@@ -39,7 +39,7 @@ EditObject.prototype.render = function(cb) {
 	        }
 
 	        //none to manage
-            if(customObjectTypes.length == 0) {
+            if(customObjectTypes.length === 0) {
                 cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
                 return;
             }
@@ -64,7 +64,7 @@ EditObject.prototype.render = function(cb) {
                         fieldOrder.push(key);
                     }
 
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType);
+                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, {objectType: objectType, customObject: customObject});
                     result    = result.split('^angular_script^').join(pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
@@ -115,8 +115,10 @@ EditObject.loadFieldOptions = function(dao, objectType, cb) {
 		            //TODO handle this
 	            }
 
-	            if(customObjectTypes.length == 0)
+	            if(customObjectTypes.length === 0)
 	            {
+                    index++;
+                    self.loadObjectOptions(index);
 	                return;
 	            }
 
@@ -150,7 +152,7 @@ EditObject.loadFieldOptions = function(dao, objectType, cb) {
 		    var objectsInfo = [];
 		    for(var i = 0; i < availableObjects.length; i++)
 	        {
-	            objectsInfo.push({_id: availableObjects[i]._id, name: (availableObjects[i].name) ? availableObjects[i].name : availableObjects[i].headline});
+	            objectsInfo.push({_id: availableObjects[i]._id, name: availableObjects[i].name || availableObjects[i].headline || (availableObjects[i].first_name + ' ' + availableObjects[i].last_name)});
 	        }
 
 	        objectType.fields[key].available_objects = objectsInfo;
@@ -166,15 +168,15 @@ EditObject.getSubNavItems = function(key, ls, data) {
 	return [
         {
             name: 'manage_objects',
-            title: ls.get('NEW') +' ' + data.name,
+            title: ls.get('EDIT') +' ' + data.customObject.name,
             icon: 'chevron-left',
-            href: '/admin/content/custom_objects/manage_objects/' + data.name
+            href: '/admin/content/custom_objects/manage_objects/' + data.objectType._id
         },
         {
             name: 'new_object',
             title: '',
             icon: 'plus',
-            href: '/admin/content/custom_objects/new_object/' + data.name
+            href: '/admin/content/custom_objects/new_object/' + data.objectType._id
         }
     ];
 };

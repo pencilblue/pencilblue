@@ -20,7 +20,8 @@
                         <input type="text" id="verification_subject" name="verification_subject" class="form-control"></input>
                     </div>
                     <div class="form-group">
-                        <label>^loc_VERIFICATION_CONTENT^</label>
+                        <label>^loc_VERIFICATION_CONTENT^</label>&nbsp;
+                        <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_EMAIL_DIRECTIVES_DESCRIPTION^"></i>
                         ^tmp_admin=elements=content_layout^
                     </div>
                 </div>
@@ -68,11 +69,11 @@
                     </div>
                     <div class="form-group">
                         <label>^loc_USERNAME^</label>
-                        <input type="text" id="username" name="username" class="form-control"></input>
+                        <input type="text" id="username" name="username" class="form-control" autocomplete="off"></input>
                     </div>
                     <div class="form-group">
                         <label>^loc_PASSWORD^</label>
-                        <input type="password" id="password" name="password" class="form-control"></input>
+                        <input type="password" id="password" name="password" class="form-control" autocomplete="off"></input>
                     </div>
                 </div>
                 <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/site_settings';">

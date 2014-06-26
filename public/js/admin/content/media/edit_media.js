@@ -14,7 +14,7 @@ $(document).ready(function()
     {
         rules:
         {
-            caption:
+            name:
             {
                 minlength: 2,
                 required: true

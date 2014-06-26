@@ -64,10 +64,12 @@ function setupUpload(root)
 
 function showMediaModal(subsection)
 {
-    $('#media_display').html('');
     $('#link_to_media').hide();
     $('#upload_media').hide();
+    $('#link_to_media_header').hide();
+    $('#upload_media_header').hide();
     $(subsection).show();
+    $(subsection + '_header').show();
 
     $('#media_modal').modal({backdrop: 'static', keyboard: true});
 }
@@ -116,7 +118,6 @@ function getMediaIcon(mediaType)
     switch(mediaType) {
         case 'image':
             return 'picture-o';
-            break;
         case 'video/mp4':
         case 'video/webm':
         case 'video/ogg':
@@ -133,9 +134,10 @@ function getMediaIcon(mediaType)
             return 'instagram';
         case 'slideshare':
             return 'list-alt';
+        case 'trinket':
+            return 'key fa-flip-horizontal';
         default:
             return 'question';
-            break;
     }
 
     return '<i class="fa fa-' + iconID + '"></i>';
@@ -158,6 +160,11 @@ function getMediaLink(mediaType, mediaLocation, isFile)
             return 'http://instagram.com/p/' + mediaLocation;
         case 'slideshare':
             return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
+        case 'trinket':
+            if(mediaLocation.indexOf('/') === -1) {
+                return 'https://trinket.io/embed/python/' + mediaLocation;
+            }
+            return 'https://trinket.io/embed/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':

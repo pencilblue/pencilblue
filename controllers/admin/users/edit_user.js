@@ -1,6 +1,6 @@
 /**
  * EditUser - Interface for editing a user
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -37,7 +37,7 @@ EditUser.prototype.render = function(cb) {
         self.ts.registerLocal('uploaded_image', (user.photo ? user.photo : ''));
         self.ts.load('admin/users/edit_user', function(err, data) {
             var result = '' + data;
-            
+
             var tabs = [
                 {
                     active: 'active',
@@ -51,18 +51,24 @@ EditUser.prototype.render = function(cb) {
                     title: self.ls.get('PERSONAL_INFO')
                 }
             ];
-                
+
             var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: user});
-            
+
+            // Administrators can't downgrade themselves
+            var adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR}];
+            if(self.session.authentication.user_id != user._id.toString()) {
+                adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
+            }
+
             result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
                 pills: pills,
                 tabs: tabs,
-                adminOptions: pb.users.getAdminOptions(self.session, self.localizationService), 
+                adminOptions: adminOptions,
                 user: user
             }));
-            
+
             cb({content: result});
         });
     });

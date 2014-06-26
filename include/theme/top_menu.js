@@ -10,7 +10,7 @@ function TopMenuService(){}
 var SectionService = pb.SectionService;
 
 TopMenuService.getTopMenu = function(session, localizationService, cb) {
-    
+
     var getTopMenu = function(session, localizationService, cb) {
 	    var tasks = {
 			themeSettings: function(callback) {
@@ -18,16 +18,16 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
 					callback(null, {site_logo: logo, carousel_media: []});
 				});
 			},
-			
+
 			formattedSections: function(callback) {
 				var sectionService = new SectionService();
 				sectionService.getFormattedSections(localizationService, function(err, formattedSections) {
 					callback(null, formattedSections);
 				});
 			},
-			
+
 			accountButtons: function(callback) {
-				TopMenuService.getAccountButtons(session, callback);
+				TopMenuService.getAccountButtons(session, localizationService, callback);
 			}
 	    };
     	async.parallel(tasks, function(err, result) {
@@ -37,10 +37,10 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
     getTopMenu(session, localizationService, cb);
 };
 
-TopMenuService.getAccountButtons = function(session, cb) {
+TopMenuService.getAccountButtons = function(session, ls, cb) {
 	pb.content.getSettings(function(err, contentSettings) {
-		//TODO handle error 
-		
+		//TODO handle error
+
         var accountButtons = [];
 
         if(contentSettings.allow_comments) {
@@ -48,14 +48,17 @@ TopMenuService.getAccountButtons = function(session, cb) {
                 accountButtons = [
                     {
                         icon: 'user',
+                        title: ls.get('ACCOUNT'),
                         href: '/user/manage_account'
                     },
                     {
                         icon: 'rss',
+                        title: ls.get('SUBSCRIBE'),
                         href: '/feed'
                     },
                     {
                         icon: 'power-off',
+                        title: ls.get('LOGOUT'),
                         href: '/actions/logout'
                     }
                 ];
@@ -66,14 +69,26 @@ TopMenuService.getAccountButtons = function(session, cb) {
                 [
                     {
                         icon: 'user',
+                        title: ls.get('ACCOUNT'),
                         href: '/user/sign_up'
                     },
                     {
                         icon: 'rss',
+                        title: ls.get('SUBSCRIBE'),
                         href: '/feed'
                     }
                 ];
             }
+        }
+        else {
+            accountButtons =
+            [
+                {
+                    icon: 'rss',
+                    title: ls.get('SUBSCRIBE'),
+                    href: '/feed'
+                }
+            ];
         }
         cb(null, accountButtons);
     });
@@ -125,11 +140,12 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                 }
 
                 var buttons = ' ';
-                for(var i = 0; i < accountButtons.length; i++)
+                for(i = 0; i < accountButtons.length; i++)
                 {
                     var button = accountButtonTemplate;
                     button = button.split('^active^').join((accountButtons[i].active) ? 'active' : '');
                     button = button.split('^url^').join(accountButtons[i].href);
+                    button = button.split('^title^').join(accountButtons[i].title);
                     button = button.split('^icon^').join(accountButtons[i].icon);
 
                     buttons = buttons.concat(button);

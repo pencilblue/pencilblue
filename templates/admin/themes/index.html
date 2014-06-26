@@ -22,32 +22,34 @@
                 <div class="panel-heading">
                     ^loc_THEMES^
                 </div>
-                <table id="themes_table" class="table table-responsive table-condensed">
-                    <tr id="themes_table_header">
-                        <th id="theme_name_header">^loc_NAME^</th>
-                        <th id="theme_description_header">^loc_VERSION^</th>
-                        <th id="theme_date_header">^loc_INSTALLED_ON^</th>
-                        <th id="theme_active_header">^loc_ACTIVE^</th>
-                        <th></th>
-                    </tr>
-                    <tr class="theme_row" ng-repeat="t in themes track by themes.uid" on-finish-render ng-cloak>
-                        <td><a ng-href="/admin/plugins/view/{{t.uid}}" title="{{t.description}}">{{t.uid}}</a></td>
-                        <td class="theme_version">{{t.version}}</td>
-                        <td class="installed_on_date">{{t.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-                        <td><i class="fa fa-check" ng-if="t.uid === activeTheme"></i></td>
-                        <td style="text-align: right">
-                            <div class="btn-group">
-                                <a class="btn btn-sm btn-default" href="/admin/themes/settings/{{t.uid}}"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
-                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <i class="fa fa-sm fa-chevron-down"></i>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="javascript:resetSettings('{{t.uid}}');"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_RESET_SETTINGS^</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                <div class="table_container">
+                    <table id="themes_table" class="table table-responsive table-condensed">
+                        <tr id="themes_table_header">
+                            <th id="theme_name_header">^loc_NAME^</th>
+                            <th id="theme_description_header">^loc_VERSION^</th>
+                            <th id="theme_date_header">^loc_INSTALLED_ON^</th>
+                            <th id="theme_active_header">^loc_ACTIVE^</th>
+                            <th></th>
+                        </tr>
+                        <tr class="theme_row" ng-repeat="t in themes track by themes.uid" on-finish-render ng-cloak>
+                            <td><a ng-href="/admin/plugins/view/{{t.uid}}" title="{{t.description}}">{{t.uid}}</a></td>
+                            <td class="theme_version">{{t.version}}</td>
+                            <td class="installed_on_date">{{t.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+                            <td><i class="fa fa-check" ng-if="t.uid === activeTheme"></i></td>
+                            <td style="text-align: right">
+                                <div class="btn-group">
+                                    <a class="btn btn-sm btn-default" href="/admin/themes/settings/{{t.uid}}"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
+                                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <i class="fa fa-sm fa-chevron-down"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="javascript:resetSettings('{{t.uid}}');"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_RESET_SETTINGS^</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
         <div class="tab-pane" id="site_logo">

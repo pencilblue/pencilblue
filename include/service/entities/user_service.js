@@ -1,5 +1,5 @@
 /**
- * UserService - Service for performing user specific operation.  
+ * UserService - Service for performing user specific operation.
  *
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright PencilBlue 2014, All Rights Reserved
@@ -46,19 +46,19 @@ UserService.prototype.getAdminOptions = function(session, ls) {
         {name: ls.get('WRITER'), value: ACCESS_WRITER},
         {name: ls.get('EDITOR'), value: ACCESS_EDITOR}
     ];
-    
+
     if(session.authentication.user.admin >= ACCESS_MANAGING_EDITOR) {
         adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: ACCESS_MANAGING_EDITOR});
     }
     if(session.authentication.user.admin >= ACCESS_ADMINISTRATOR) {
         adminOptions.push({name: ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR});
     }
-    
+
     return adminOptions;
 };
 
 /**
- * 
+ *
  * @param currId The ID of the authenticated user triggering this call
  * @param cb
  */
@@ -66,11 +66,11 @@ UserService.prototype.getEditorSelectList = function(currId, cb) {
 	var where = {
 		admin: {
 			$gt: ACCESS_WRITER
-		}	
+		}
 	};
 	var select = {
-		_id: 1, 
-		first_name: 1, 
+		_id: 1,
+		first_name: 1,
 		last_name: 1
 	};
     var dao     = new pb.DAO();
@@ -79,10 +79,10 @@ UserService.prototype.getEditorSelectList = function(currId, cb) {
         	cb(data, null);
         	return;
         }
-        
+
 		var editors = [];
 		for(var i = 0; i < data.length; i++) {
-            
+
 			var editor = {_id: data[0]._id, name: data[0].first_name + ' ' + data[0].last_name};
             if(currId == data[i]._id.toString()) {
                 editor.selected = 'selected';
@@ -95,15 +95,15 @@ UserService.prototype.getEditorSelectList = function(currId, cb) {
 
 UserService.prototype.sendVerificationEmail = function(user, cb) {
 	cb = cb || pb.utils.cb;
-	
+
 	var options = {
 		to: user.email,
 		subject: pb.config.siteName + ' Account Confirmation',
 		template: 'admin/elements/default_verification_email',
 		replacements: {
-			'^verification_url^': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
-			'^first_name^': user.first_name,
-			'^last_name^': user.last_name
+			'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+			'first_name': user.first_name,
+			'last_name': user.last_name
 		}
 	};
 	pb.email.sendFromTemplate(options, cb);
@@ -111,15 +111,17 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 
 UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
 	cb = cb || pb.utils.cb;
-	
+console.log(util.inspect(user));
+console.log(util.inspect(passwordReset));
+    var verficationUrl = pb.UrlService.urlJoin(pb.config.siteRoot, '/actions/user/reset_password') + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
 	var options = {
 		to: user.email,
 		subject: pb.config.siteName + ' Password Reset',
 		template: 'admin/elements/password_reset_email',
 		replacements: {
-			'^verification_url^': pb.config.siteRoot + '/user/reset_password?email=' + user.email + '&code=' + passwordReset.verification_code,
-			'^first_name^': user.first_name,
-			'^last_name^': user.last_name
+			'verification_url': verficationUrl,
+			'first_name': user.first_name,
+			'last_name': user.last_name
 		}
 	};
 	pb.email.sendFromTemplate(options, cb);
@@ -128,9 +130,9 @@ UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb)
 UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb) {
 	this.getExistingUsernameEmailCounts(username, email, id, function(err, results) {
 
-		var result = results == null;
+		var result = results === null;
 		if (!result) {
-			
+
 			for(var key in results) {
 				result |= results[key] > 0;
 			}
@@ -149,16 +151,16 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 	var dao   = new pb.DAO();
 	var tasks = {
 		verified_username: function(callback) {
-			dao.count('user', getWhere({username: username}), callback);
+			dao.count('user', getWhere({username: username.toLowerCase()}), callback);
 		},
 		verified_email: function(callback) {
-			dao.count('user', getWhere({email: email}), callback);
+			dao.count('user', getWhere({email: email.toLowerCase()}), callback);
 		},
 		unverified_username: function(callback) {
-			dao.count('unverified_user', getWhere({username: username}), callback);
+			dao.count('unverified_user', getWhere({username: username.toLowerCase()}), callback);
 		},
 		unverified_email: function(callback) {
-			dao.count('unverified_user', getWhere({email: email}), callback);
+			dao.count('unverified_user', getWhere({email: email.toLowerCase()}), callback);
 		},
 	};
 	async.series(tasks, cb);

@@ -1,6 +1,6 @@
 /**
  * Media - Interface for managing media
- * 
+ *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright PencilBlue 2014, All rights reserved
  */
@@ -19,16 +19,16 @@ ManageMedia.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
 	dao.query('media').then(function(mediaData) {
-        if(util.isError(mediaData) || mediaData.length == 0) {
+        if(util.isError(mediaData) || mediaData.length === 0) {
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/add_media'));
             return;
         }
-    
+
         var title = self.ls.get('MANAGE_MEDIA');
         self.setPageName(title);
         self.ts.load('admin/content/media/manage_media', function(err, data) {
            var result = '' + data;
-                
+
             var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_media');
             result = result.split('^angular_script^').join(pb.js.getAngularController(
             {
@@ -36,7 +36,7 @@ ManageMedia.prototype.render = function(cb) {
                 pills: pills,
                 media: Media.formatMedia(mediaData)
             }, [], 'initMediaPagination()'));
-                
+
             cb({content: result});
         });
     });

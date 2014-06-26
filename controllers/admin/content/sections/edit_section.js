@@ -67,8 +67,9 @@ EditSection.prototype.getDataTasks = function() {
 			if (util.isArray(navItem.keywords)) {
 				navItem.keywords = navItem.keywords.join(',');
 			}
-			self.session.fieldValues = undefined;
+			
             self.navItem = self.session.fieldValues;
+            self.session.fieldValues = undefined;
 			callback(null, navItem);
 			return;
 		}
