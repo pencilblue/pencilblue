@@ -115,6 +115,25 @@ BaseController.prototype.getPostParams = function(cb) {
 	});
 };
 
+BaseController.prototype.getJSONPostParams = function(cb) {
+    this.getPostData(function(err, raw){
+		if (util.isError(err)) {
+			cb(err, null);
+			return;
+		}
+		
+        var error      = null;
+		var postParams = null;
+        try {
+            postParams = JSON.parse(raw);
+        }
+        catch(err) {
+            error = err;
+        }
+		cb(error, postParams);
+	});
+};
+
 BaseController.prototype.getPostData = function(cb) {
 	var body = '';
     this.req.on('data', function (data) {

@@ -924,7 +924,7 @@ PluginService.prototype.initPlugins = function(cb) {
 				}
 			};
 		});
-		async.parallel(tasks, function(err, results) {
+		async.series(tasks, function(err, results) {
 
 			for (var i = 0; i < results.length; i++) {
 

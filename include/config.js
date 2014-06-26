@@ -22,8 +22,8 @@ global.LOG_FILE  = path.join(LOG_DIR, 'pencilblue.log');
 
 var config = {
 	siteName: 'pencilblue',
-	siteRoot: 'http://localhost:8080',
-	siteIP:   '127.0.0.1',
+	siteRoot: 'https://localhost:8080',
+	siteIP:   'localhost',
 	sitePort: 8080,
 	docRoot:  DOCUMENT_ROOT,
 	db: {
@@ -55,16 +55,16 @@ var config = {
 	},
 	settings: {
 		use_memory: true,
-		use_cache: true
+		use_cache: false
 	},
 	templates: {
 		use_memory: true,
-		use_cache: true
+		use_cache: false
 	},
 	plugins: {
 		caching: {
 			use_memory: true,
-			use_cache: true,
+			use_cache: false,
 		}
 	},
 	registry: {
@@ -76,6 +76,16 @@ var config = {
         fatal_error_timeout: 2000,
         fatal_error_count: 5,
         workers: 1
+    },
+    server: {
+        ssl: {
+            enabled: false,
+            handoff_port: 8080,
+            use_handoff_port_in_redirect: false,
+            key: "ssl/key.pem",
+            cert: "ssl/cert.crt",
+            chain: "ssl/chain.crt"
+        }
     }
 };
 

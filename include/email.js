@@ -37,6 +37,12 @@ EmailService.prototype.sendFromTemplate = function(options, cb){
 EmailService.prototype.send = function(from, to, subject, body, cb) {
 
 	this.getSettings(function(err, emailSettings) {
+        if (util.isError(err)) {
+            throw err;
+        }
+        else if (!emailSettings) {
+            throw new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
+        }
 
         var options = {
             service: emailSettings.service,
