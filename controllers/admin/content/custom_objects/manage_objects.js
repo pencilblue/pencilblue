@@ -80,6 +80,13 @@ ManageObjects.prototype.render = function(cb) {
                     var result = ''+data;
 
                     var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', objectType);
+                    for(var i = 0; i < pills.length; i++) {
+                        if(pills[i].name == 'manage_objects') {
+                            pills[i].title += ' (' + customObjects.length + ')';
+                            break;
+                        }
+                    }
+
                     result    = result.split('^angular_script^').join(pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
