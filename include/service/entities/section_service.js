@@ -526,7 +526,7 @@ SectionService.formatUrl = function(navItem) {
  * @static
  * @method
  * @param {Localization} ls
- * @returns {array}
+ * @return {array}
  */
 SectionService.getTypes = function(ls) {
 	if (!ls) {
@@ -561,7 +561,7 @@ SectionService.getTypes = function(ls) {
  * @static
  * @method isValidType
  * @param {String}|{Object} type
- * @returns {Boolean}
+ * @return {Boolean}
  */
 SectionService.isValidType = function(type) {
 	if (pb.utils.isObject(type)) {

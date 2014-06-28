@@ -29,9 +29,6 @@ var IndexController = require('../../index.js');
 
 /**
  * Get articles within indices, for real time pagination
- *
- * @class
- * @constuctor
  */
 function GetArticles(){}
 

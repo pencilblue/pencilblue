@@ -4,6 +4,7 @@
     "version": "0.0.6",
     "url": "http://pencilblue.org/",
     "options": {
-        "outdir": "public/docs"
+        "outdir": "public/docs",
+        "exclude": "controllers,public,templates,test"
     }
 }

@@ -83,7 +83,7 @@ DAO.prototype.loadById = function(id, collection, cb){
  *
  * @method loadByValue
  * @param {String}   key        The key to search for
- * @param {String}   val        The value to search for
+ * @param {*}        val        The value to search for
  * @param {String}   collection The collection to search in
  * @param {Function} cb         Callback function
  */

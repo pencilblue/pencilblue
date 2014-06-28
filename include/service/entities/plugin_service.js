@@ -37,7 +37,7 @@ PluginService.prototype.getActiveIcon = function(cb) {
 /**
  * Retrieves the names of the active plugins for this instance
  * @method getActivePluginNames
- * @returns {array} An array that contain the names of the plugins that
+ * @return {array} An array that contain the names of the plugins that
  * initialized successfully within this instance.
  */
 PluginService.prototype.getActivePluginNames = function() {
@@ -344,7 +344,7 @@ PluginService.prototype.getPluginsWithThemes = function(cb) {
  * @param useCache {Boolean} Indicates if the generated layered service should
  * use a cache service.
  * @param serviceName The name of the service
- * @returns {SimpleLayeredService}
+ * @return {SimpleLayeredService}
  */
 PluginService.genSettingsService = function(objType, useMemory, useCache, serviceName) {
 
@@ -1188,14 +1188,14 @@ PluginService.loadMainModule = function(pluginDirName, pathToModule) {
  * @method getPublicPath
  * @param pluginDirName The name of the directory that contains the intended
  * plugin
- * @returns {string} the absolute file path to a plugin's public directory
+ * @return {string} the absolute file path to a plugin's public directory
  */
 PluginService.getPublicPath = function(pluginDirName) {
 	return path.join(PLUGINS_DIR, pluginDirName, PUBLIC_DIR_NAME);
 };
 
 /**
- * @returns {string} The absolute file path to the plugins directory
+ * @return {string} The absolute file path to the plugins directory
  */
 PluginService.getPluginsDir = function() {
 	return PLUGINS_DIR;
@@ -1471,7 +1471,7 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
  *
  * @param iconPath The path to the icon (image) file
  * @param pluginDirName The name of the directory housing the plugin
- * @returns {Boolean} TRUE if the path is valid, FALSE if not
+ * @return {Boolean} TRUE if the path is valid, FALSE if not
  */
 PluginService.validateIconPath = function(iconPath, pluginDirName) {
 	var pluginPublicIcon = path.join(PluginService.getPublicPath(pluginDirName), iconPath);
@@ -1492,7 +1492,7 @@ PluginService.validateIconPath = function(iconPath, pluginDirName) {
  *
  * @param mmPath The relative or absolute path to the main module file
  * @param pluginDirName The name of the directory housing the plugin
- * @returns {Boolean} TRUE if the path is valid, FALSE if not
+ * @return {Boolean} TRUE if the path is valid, FALSE if not
  */
 PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
 	return PluginService.loadMainModule(pluginDirName, mmPath) !== null;
@@ -1504,7 +1504,7 @@ PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
  * @param setting The setting to validate
  * @param position The position in the settings array where the setting resides
  * as a 0 based index.
- * @returns {Array} The array of errors that were generated.  If no errors were
+ * @return {Array} The array of errors that were generated.  If no errors were
  * produced an empty array is returned.
  */
 PluginService.validateSetting = function(setting, position) {
@@ -1539,7 +1539,7 @@ PluginService.validateSetting = function(setting, position) {
  * allowed.
  *
  * @param value The value to validate
- * @returns {Boolean} TRUE if the value is valid, FALSE if not
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
  */
 PluginService.validateSettingValue = function(value) {
 	return pb.utils.isString(value) || !isNaN(value) || value === true || value === false;
@@ -1689,7 +1689,7 @@ PluginService.loadController = function(pathToController, pluginUid, cb) {
  *
  * @param pathToService The file path to the service
  * @param service The service prototype
- * @returns {String} The derived service name
+ * @return {String} The derived service name
  */
 PluginService.getServiceName = function(pathToService, service) {
 	var name = 'UNKNOWN';
