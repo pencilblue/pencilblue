@@ -56,14 +56,16 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label>^loc_MAKE_PB_BETTER^</label><br/>
-                                        <div class="col-sm-6 text-left">
-                                        <input type="radio" id="yes" name="call_home" value="1" checked="true"/>&nbsp;<label>^loc_YES^</label>&nbsp;&nbsp;&nbsp;
-                                        <input type="radio" id="no" name="call_home" value="0" />&nbsp;<label>^loc_NO^</label>
-                                        </div>
-                                        <div class="col-sm-6 text-right">
-                                        <a href="#privacy_policy_modal" data-toggle="modal" >^loc_PRIVACY_POLICY^</a>
-                                        </div>
+                                        <label>^loc_MAKE_PB_BETTER^.</label><br/>
+                                        <div class="btn-group" data-toggle="buttons" style="margin-bottom: .5em">
+                                            <label class="btn btn-default active">
+                                                <input type="radio" name="call_home" value="1" checked="checked"> ^loc_YES^
+                                            </label>
+                                            <label class="btn btn-default">
+                                                <input type="radio" name="call_home" value="0"> ^loc_NO^
+                                            </label>
+                                        </div><br/>
+                                        <a href="#privacy_policy_modal" data-toggle="modal" style="font-size:.9em">^loc_PRIVACY_POLICY^</a>
                                     </div>
                                     <input type="submit" class="btn btn-lg btn-primary btn-block" value="^loc_SUBMIT^">
                                 </fieldset>
