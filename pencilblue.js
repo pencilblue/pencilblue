@@ -100,7 +100,7 @@ PencilBlue.onHttpConnect = function(req, resp){
     //load balancers use this for SSL termination relieving the stress of SSL 
     //computation on more powerful load balancers.  For me it is a giant pain 
     //in the ass when all I want to do is simple load balancing.
-    if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] === 'http') {
+    if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
         PencilBlue.onHttpConnectForHandoff(req, resp);
         return;
     }
