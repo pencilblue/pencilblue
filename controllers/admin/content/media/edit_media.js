@@ -1,9 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * Media - Interface for managing media
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Interface for editing media
  */
+
 function EditMedia(){}
 
 //dependencies
@@ -18,20 +33,20 @@ var SUB_NAV_KEY = 'edit_media';
 EditMedia.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
-	
+
 	//make sure an ID was passed
     if(!vars['id']) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/media/manage_media'));
         return;
     }
-    
+
     var dao = new pb.DAO();
     dao.loadById(vars['id'], 'media', function(err, media) {
         if(media == null) {
         	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/media/manage_media'));
             return;
         }
-	
+
 	    self.setPageName(self.ls.get('EDIT') + ' ' + media.name);
 	    self.ts.load('admin/content/media/edit_media', function(err, data) {
             var result = '' + data;
@@ -49,12 +64,12 @@ EditMedia.prototype.render = function(cb) {
                     title: self.ls.get('TOPICS')
                 }
             ];
-                
+
             var dao = new pb.DAO();
             dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
-            
+
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, media);
-                
+
                 var objects = {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
                     pills: pills,
@@ -62,11 +77,11 @@ EditMedia.prototype.render = function(cb) {
                     media: media,
                     topics: topics
                 };
-                
+
                 self.session.fieldValues = {media_topics: media.media_topics.join(',')};
                 self.checkForFormRefill(result, function(newResult) {
 	                result = newResult;
-                
+
                     result = result.split('^media_id^').join(media._id);
                     result = result.split('^angular_script^').join(pb.js.getAngularController(objects, [], 'getMediaEmbed(' + JSON.stringify(media) + ');initTopicsPagination()'));
 

@@ -1,9 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * DeleteController - Deletes Objects
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Deletes objects from the database
  */
+
 function DeleteController(){}
 
 //inheritance
@@ -12,22 +27,22 @@ util.inherits(DeleteController, pb.FormController);
 DeleteController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var get  = this.query;
-    
+
 	//merge get and post in case ID was a query string param
 	pb.utils.merge(get, post);
-	
+
 	//check for the required parameters
 	var message = this.hasRequiredParams(post, this.getRequiredFields());
     if(message) {
         this.formError(message, this.getFormErrorRedirect(null, message), cb);
         return;
     }
-    
+
     //create the tasks & execute in order
     var tasks = [
          function(callback){
         	 self.canDelete(function(err, canDelete){
-        		 
+
         		 var error = null;
         		 if (util.isError(err)) {
         			 error = err;
@@ -57,7 +72,7 @@ DeleteController.prototype.onPostParamsRetrieved = function(post, cb) {
          },
     ];
     async.series(tasks, function(err, results){
-    	
+
     	//process the results
     	if (err != null) {
     		self.onError(err, null, cb);

@@ -1,14 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * Interface for importing topics CSV
- * 
- * @class ImportTopics
- * @constuctor
- * @extends BaseController
- * @module Controllers
- * @submodule Admin
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Interface for importing topics from CSV
  */
+
 function ImportTopics(){}
 
 //var dependencies
@@ -27,7 +37,7 @@ var SUB_NAV_KEY = 'import_topics';
  */
 ImportTopics.prototype.render = function(cb) {
 	var self = this;
-	
+
 	this.setPageName(this.ls.get('NEW_TOPIC'));
 	this.ts.load('admin/content/topics/import_topics', function(err, result) {
         var tabs   =
@@ -39,7 +49,7 @@ ImportTopics.prototype.render = function(cb) {
                 title: self.ls.get('LOAD_FILE')
             }
         ];
-            
+
         var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics');
         result    = result.split('^angular_script^').join(pb.js.getAngularController(
         {

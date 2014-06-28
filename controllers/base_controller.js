@@ -1,19 +1,29 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright PencilBlue, LLC. 2014 All Rights Reserved
+ * The base controller provides functions for the majority of
+ * the heavy lifing for a controller. It accepts and provides access to
+ * extending controllers for items such as the request, response, session, etc.
  */
 
 //dependencies
 var Sanitizer = require('sanitize-html');
 
-/**
- * BaseController - The base controller provides functions for the majority of
- * the heavy lifing for a controller. It accepts and provides access to
- * extending controllers for items such as the request, response, session, etc.
- *
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright PencilBlue, LLC. 2014 All Rights Reserved
- */
 function BaseController(){};
 
 //constants
@@ -121,7 +131,7 @@ BaseController.prototype.getJSONPostParams = function(cb) {
 			cb(err, null);
 			return;
 		}
-		
+
         var error      = null;
 		var postParams = null;
         try {

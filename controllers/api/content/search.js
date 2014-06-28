@@ -1,13 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * Controller to return search results for content.  It allows for searching 
- * page or article objects' headline and subheading fields for the specified 
- * search term.
- * 
- * @class
- * @constructor
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC. All Rights Reserved
+ * Search for headline or subheading matching search term
  */
+
 function ContentSearchController() {}
 
 //dependencies
@@ -19,7 +30,7 @@ util.inherits(ContentSearchController, BaseController);
 //constants
 /**
  * @private
- * @property 
+ * @property
  * @type {Object}
  */
 var VALID_CONTENT_TYPES = {
@@ -29,28 +40,28 @@ var VALID_CONTENT_TYPES = {
 
 /**
  * @private
- * @property 
+ * @property
  * @type {int}
  */
 var MAX_RESULTS = 100;
 
 /**
  * @private
- * @property 
+ * @property
  * @type {int}
  */
 var MIN_LENGTH  = 3;
 
 /**
- * 
+ *
  * @method render
- * @param {function} cb A callback that accepts a single parameter that 
+ * @param {function} cb A callback that accepts a single parameter that
  * describes the response to the client.
  */
 ContentSearchController.prototype.render = function(cb) {
 	var type   = this.query.type;
 	var search = this.query.q;
-	
+
 	//perform validation
 	var errors = ContentSearchController.validate(type, search);
 	if (errors.length > 0) {
@@ -58,19 +69,19 @@ ContentSearchController.prototype.render = function(cb) {
 		cb({content: content, code: 400});
 		return;
 	}
-	
+
 	//build query
 	var pattern = new RegExp(".*"+search+".*", "i");
 	var where   = {
 		$or: [
-		    {headline: pattern}, 
-		    {subheading: pattern},  
+		    {headline: pattern},
+		    {subheading: pattern},
         ]
 	};
 	var select = {
 		headline: 1,
 	};
-	
+
 	//do query and get results
 	var dao = new pb.DAO();
 	dao.query(type, where, select, pb.DAO.NATURAL_ORDER, MAX_RESULTS).then(function(items) {
@@ -79,20 +90,20 @@ ContentSearchController.prototype.render = function(cb) {
 			cb({content: content, code: 500});
 			return;
 		}
-		
+
 		//change to display
 		for (var i = 0; i < items.length; i++) {
 			items[i].display = items[i].headline;
 			delete items[i].headline;
 		}
-		
+
 		var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', items);
 		cb({content: content});
 	});
 };
 
 /**
- * @static 
+ * @static
  * @method validate
  * @param {String} type
  * @param {String} search

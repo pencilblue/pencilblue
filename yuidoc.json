@@ -1,0 +1,9 @@
+{
+    "name": "PencilBlue",
+    "description": "PencilBlue: Full stack online publishing for Node.js",
+    "version": "0.0.6",
+    "url": "http://pencilblue.org/",
+    "options": {
+        "outdir": "public/docs"
+    }
+}

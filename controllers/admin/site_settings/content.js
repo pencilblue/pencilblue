@@ -1,9 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * Interface for changing the site's content configuration
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Interface for the site's content settings
  */
+
 function Content(){};
 
 //dependencies
@@ -17,11 +32,11 @@ var SUB_NAV_KEY = 'content_settings';
 
 Content.prototype.render = function(cb) {
     var self = this;
-    
+
     this.setPageName(self.ls.get('CONTENT'));
 	this.ts.load('admin/site_settings/content', function(err, data) {
         var result = data;
-        
+
         var tabs =
         [
             {
@@ -46,15 +61,15 @@ Content.prototype.render = function(cb) {
                 title: self.ls.get('COMMENTS')
             }
         ];
-        
+
         pb.content.getSettings(function(err, contentSettings) {
             self.setFormFieldValues(contentSettings);
-            
+
             self.checkForFormRefill(result, function(newResult) {
                 result = newResult;
-                
+
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content');
-                
+
                 var objects     = {
                     navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
                     pills: pills,
