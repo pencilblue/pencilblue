@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $.get('http://pencilblue.org/feed', function(feed) {
+    $.get('https://pencilblue.org/feed', function(feed) {
         if(!feed) {
             onFeedFail();
             return;
