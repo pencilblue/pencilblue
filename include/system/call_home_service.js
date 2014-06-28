@@ -1,15 +1,6 @@
-/**
- * @author Brian Hyder <brian@penciblue.org>
- * @copyright 2014 PencilBlue, LLC. All Rights Reserved
- */
-
 //dependencies
 var os = require('os');
 
-/**
- * @class CallHomeService
- * @constructor
- */
 function CallHomeService(){}
 
 //constants
@@ -26,7 +17,7 @@ CallHomeService.callHome = function(type, data) {
     if (!pb.utils.isObject(data)) {
         data = {};
     }
-    
+
     data.type      = type;
     data.site_ip   = pb.config.siteIP;
     data.site_name = pb.config.siteName;
@@ -36,7 +27,7 @@ CallHomeService.callHome = function(type, data) {
     data.cpus      = os.cpus();
     data.version   = process.versions;
     var post_data  = JSON.stringify(data);
-    
+
     // An object of options to indicate where to post to
     var post_options = {
         host: HOST,
@@ -55,15 +46,15 @@ CallHomeService.callHome = function(type, data) {
 };
 
 CallHomeService._callHome = function(options, postData) {
-    
+
     var d = domain.create();
     d.on('error', function(err) {
         pb.log.silly('CallHomeService: An error occurred attempting to send event. %s', err.stack);
     });
     d.run(function() {
-        
+
         var post_req = https.request(options, function(res) {
-        
+
             var json = '';
             res.setEncoding('utf8');
             res.on('data', function (chunk) {

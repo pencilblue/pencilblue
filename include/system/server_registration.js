@@ -1,71 +1,66 @@
-/**
- * @class ServerRegistration
- * @constructor
- * @author Brian Hyder <brian@penciblue.org>
- * @copyright 2014 PencilBlue, LLC. All Rights Reserved
- */
+
  function ServerRegistration(){}
- 
+
  //dependencies
  var cluster = require('cluster');
  var os      = require('os');
  var domain  = require('domain');
- 
+
  //statics
  var ITEM_CALLBACKS = {
-	 
+
 	 //ip address
 	 ip: function(cb) {
 		 cb(null, ServerRegistration.getIp());
 	 },
-	 
+
 	 is_master: function(cb) {
 		 cb(null, cluster.isMaster);
 	 },
-	 
+
 	 process_type: function(cb) {
-        cb(null, cluster.worker ? 'Worker' : 'Master'); 
+        cb(null, cluster.worker ? 'Worker' : 'Master');
 	 },
-	 
+
 	 worker_id: function(cb) {
 		 cb(null, cluster.worker ? cluster.worker.id : 'master');
 	 },
-	 
+
 	 port: function(cb) {
 		 cb(null, pb.config.sitePort);
 	 },
-	 
+
 	 host: function(cb) {
 		 cb(null, os.hostname());
 	 },
-	 
+
 	 pid: function(cb) {
 		 cb(null, process.pid);
 	 },
-	 
+
 	 node_version: function(cb) {
 		 cb(null, process.version);
 	 },
-	 
+
 	 active_plugins: function(cb) {
 		 cb(null, pb.plugins.getActivePluginNames());
 	 },
-	 
+
 	 uptime: function(cb) {
 		 cb(null, process.uptime());
-	 }, 
-	 
+	 },
+
 	 mem_usage: function(cb) {
 		 cb(null, process.memoryUsage());
 	 },
-	 
+
 	 cwd: function(cb) {
 		 cb(null, process.cwd());
 	 },
  };
- 
+
  var TIMER_HANDLE = null;
- 
+
  ServerRegistration.prototype.getClusterStatus = function(cb) {
 	 pb.cache.hgetall(pb.config.registry.key, cb);
  };
@@ -75,9 +70,9 @@
  *
  */
 ServerRegistration.flush = function(cb) {
-    pb.cache.del(pb.config.registry.key, cb);  
+    pb.cache.del(pb.config.registry.key, cb);
 };
- 
+
  ServerRegistration.init = function() {
 	 if (!pb.config.registry.enabled) {
 		 return false;
@@ -85,16 +80,16 @@ ServerRegistration.flush = function(cb) {
 	 else if (TIMER_HANDLE !== null) {
 		 return true;
 	 }
-	 
+
 	 ServerRegistration.doRegistration();
 	 TIMER_HANDLE = setInterval(function() {
 		 ServerRegistration.doRegistration();
 	 }, pb.config.registry.update_interval);
  };
- 
+
  ServerRegistration.shutdown = function(cb) {
 	 cb = cb || pb.utils.cb;
-	 
+
 	 if (TIMER_HANDLE) {
 		 clearInterval(TIMER_HANDLE);
 		 pb.cache.hdel(pb.config.registry.key, ServerRegistration.generateKey(), cb);
@@ -103,24 +98,24 @@ ServerRegistration.flush = function(cb) {
 		 cb(null, true);
 	 }
  };
- 
+
  ServerRegistration.addItem = function(name, itemValueFunction) {
 	 if (!pb.validation.validateNonEmptyStr(name, true) || !pb.utils.isFunction(itemValueFunction)) {
 		 return false;
 	 }
-	 
+
 	 ITEM_CALLBACKS[name] = itemValueFunction;
 	 return true;
  };
- 
+
  ServerRegistration.doRegistration = function(cb) {
 	 cb = cb || pb.utils.cb;
-	 
+
 	 var onItemsGathered = function(err, update) {
 		 if (util.isError(err)) {
 			 pb.log.error("ServerRegistration: Failed to gather all data for registration: %s", err.message);
 		 }
-		 
+
 		 if (update) {
 			 var key = ServerRegistration.generateKey();
 			 update.last_update = new Date();
@@ -136,20 +131,20 @@ ServerRegistration.flush = function(cb) {
 			 cb(err, false);
 		 }
 	 };
-	 
+
 	 var d = domain.create();
 	 d.on('error', function(err) {
-		pb.log.error('ServerRegistration: Failed to perform update: %s', err.stack); 
+		pb.log.error('ServerRegistration: Failed to perform update: %s', err.stack);
 	 });
 	 d.run(function() {
 		 async.parallel(ITEM_CALLBACKS, onItemsGathered);
 	 });
  };
- 
+
  ServerRegistration.generateKey = function() {
 	 return  ServerRegistration.getIp() + ':' + pb.config.sitePort + ':' + (cluster.worker ? cluster.worker.id : 'master') + ':' + os.hostname();
  };
- 
+
  ServerRegistration.getIp = function() {
 	 var interfaces = os.networkInterfaces();
 	 var address = null;
@@ -167,6 +162,6 @@ ServerRegistration.flush = function(cb) {
 
 //register for shutdown
 pb.system.registerShutdownHook('ServerRegistration', ServerRegistration.shutdown);
- 
+
  //exports
  module.exports = ServerRegistration;

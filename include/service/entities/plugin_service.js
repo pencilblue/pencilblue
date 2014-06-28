@@ -4,10 +4,8 @@
  *
  * @class PluginService
  * @constructor
- * @module Service
+ * @module Services
  * @submodule Entities
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC. All Rights Reserved
  */
 function PluginService(){
 

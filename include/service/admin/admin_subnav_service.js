@@ -21,10 +21,17 @@
  * to represent the sub-nav.  This sub nav, when retrieved will combine all
  * registrants' pills into a single structure which can then be rendered in a UI.
  *
- * @module Admin
+ * @module Services
  * @class AdminSubnavService
  * @constructor
  */
+
+/**
+ * Services calls for the admin interface
+ *
+ * @submodule Admin
+ */
+
 function AdminSubnavService(){}
 
 //statics
