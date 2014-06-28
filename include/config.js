@@ -33,7 +33,16 @@ var config = {
         ],
         name: 'pencil_blue',
         writeConern: 1,
-        query_logging: false
+        query_logging: false,
+        authentication: {
+            un: null,
+            pw: null,
+            options: {
+                //authMechanism: "MONGODB-CR"|"GSSAPI"|"PLAIN", //Defaults to MONGODB-CR
+                //authdb: "db name here", //Defaults to the db attempted to be connected to
+                //authSource: "db name here", //Defaults to value of authdb
+            }
+        }
 	},
 	cache: {
 		fake: true,

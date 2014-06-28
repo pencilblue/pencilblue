@@ -54,14 +54,25 @@ DBManager.prototype.getDB = function(name) {
         pb.log.debug("Attempting connection to: "+dbURL);
         mongo.connect(dbURL, options, function(err, db){
             if(!err){
-                //save reference to connection in global connection pool
-                dbs[db.databaseName]  = db;
+                self.authenticate(pb.config.db.authentication, db, function(err, didAuthenticate) {
+                    if (util.isError(err)) {
+                        promise.resolve(err);
+                        return;
+                    }
+                    else if (didAuthenticate !== true && didAuthenticate !== null) {
+                        promise.resolve(new Error("Failed to authenticate to db "+name+": "+util.inspect(didAuthenticate)));
+                        return;
+                    }
+                    
+                    //save reference to connection in global connection pool
+                    dbs[db.databaseName]  = db;
 
-                //keep directly accessible reference for instance of DBManager
-                self[db.databaseName] = db;
+                    //keep directly accessible reference for instance of DBManager
+                    self[db.databaseName] = db;
 
-                //Indicate the promise was kept.
-                promise.resolve(db);
+                    //Indicate the promise was kept.
+                    promise.resolve(db);
+                });
             }
             else {
                 //Fulfill promise with error
@@ -70,6 +81,16 @@ DBManager.prototype.getDB = function(name) {
         });
     }
     return promise;
+};
+
+DBManager.prototype.authenticate = function(auth, db, cb) {
+    if (!pb.utils.isObject(auth) || !pb.utils.isString(auth.un) || !pb.utils.isString(auth.pw)) {
+        pb.log.debug('DBManager: An empty auth object was passed for DB [%s]. Skipping authentication.', db.databasename);
+        cb(null, null);
+        return;
+    }
+    
+    db.authenticate(auth.un, auth.pw, auth.options ? auth.options : {}, cb);
 };
 
 /**
