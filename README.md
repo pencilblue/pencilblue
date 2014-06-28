@@ -1,5 +1,7 @@
-[PencilBlue](http://pencilblue.org) - Full stack online publishing for Node.js
+[PencilBlue](http://pencilblue.org)
 =====
+
+**Full stack online publishing for Node.js**
 
 The first open source publishing platform to meet all the needs of a modern website:
 
