@@ -33,4 +33,4 @@ The instructions below assume that Node.js and MongoDB are installed on your mac
  # production
  sudo forever start pencilblue.js
  ```
- 7. Navigate to the site root you specified in configuration file or http://localhost:8080 by default.
+ 7. Navigate to the site root you specified in a configuration file or http://localhost:8080 by default.
