@@ -1,16 +1,40 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * SessionHandler - Responsible for managing user sessions
- * 
- * @author Brian Hyder <brianhyder@gmail.com>
- * @copyright PencilBlue 2014, All Rights Reserved
+ * Tools for session storage
+ *
+ * @module Session
+ */
+
+/**
+ * Responsible for managing user sessions
+ *
+ * @module Session
+ * @class SessionHandler
+ * @constructor
  */
 function SessionHandler(){
-	
+
 	//ensure a session store was started
 	SessionStore = SessionHandler.getSessionStore();
 	SessionStore.startReaper();
 	this.sessionStore = new SessionStore();
-	
+
 	//create a local storage object
 	this.localStorage = {};
 };
@@ -27,21 +51,23 @@ SessionHandler.COOKIE_HEADER  = 'parsed_cookies';
 SessionHandler.COOKIE_NAME    = 'session_id';
 
 /**
- * Retrieves a session for the current request.  When the session ID is 
- * available the existing session is retrieved otherwise a new session is 
+ * Retrieves a session for the current request.  When the session ID is
+ * available the existing session is retrieved otherwise a new session is
  * created.
- * @param request The request descriptor
- * @param cb The callback(ERROR, SESSION_OBJ)
+ *
+ * @method open
+ * @param {Object} request The request descriptor
+ * @param {Function} cb The callback(ERROR, SESSION_OBJ)
  */
 SessionHandler.prototype.open = function(request, cb){
-	
+
 	//check for active
 	var sid = SessionHandler.getSessionIdFromCookie(request);
 	if (!sid) {
 		cb(null, this.create(request));
 		return;
 	}
-	
+
 	//check in local storage
 	var session = null;
 	if (this.isLocal(sid)) {
@@ -50,7 +76,7 @@ SessionHandler.prototype.open = function(request, cb){
 		cb(null, session);
 		return;
 	}
-	
+
 	//session not available locally so check persistent storage
 	var handler = this;
 	this.sessionStore.get(sid, function(err, result){
@@ -70,29 +96,31 @@ SessionHandler.prototype.open = function(request, cb){
 };
 
 /**
- * Closes the session and persists it when no other requests are currently 
+ * Closes the session and persists it when no other requests are currently
  * accessing the session.
- * @param session
- * @param cb
+ *
+ * @method close
+ * @param {Object} session
+ * @param {Function} cb
  */
 SessionHandler.prototype.close = function(session, cb) {
 	if(!session){
 		throw new Error("SessionHandler: Cannot close an empty session");
 	}
-	
+
 	if(typeof session != 'object'){
 		session = this.gl(session);
 		if(!session) {
 			throw new Error("SessionHandler: The session has not been opened or is already closed");
 		}
 	}
-	
+
 	//update timeout
 	session[SessionHandler.TIMEOUT_KEY] = new Date().getTime() + pb.config.session.timeout;
-	
+
 	//last active request using this session, persist it back to storage
 	if(this.purgeLocal(session[SessionHandler.SID_KEY])){
-		
+
 		if (session.end) {
 			this.sessionStore.clear(session.uid, cb);
 		}
@@ -101,15 +129,17 @@ SessionHandler.prototype.close = function(session, cb) {
 		}
 		return;
 	}
-	
+
 	//another request is using the session object so just call back OK
 	cb(null, true);
 };
 
 /**
  * Sets the session in a state that it should be terminated after the last request has completed.
- * @param session
- * @param cb
+ *
+ * @method end
+ * @param {Object} session
+ * @param {Function} cb
  */
 SessionHandler.prototype.end = function(session, cb) {
 	session.end = true;
@@ -117,11 +147,13 @@ SessionHandler.prototype.end = function(session, cb) {
 };
 
 /**
- * 
- * NOTE: This function should only be called <b>AFTER</b> SessionHandler.open 
+ *
+ * NOTE: This function should only be called <b>AFTER</b> SessionHandler.open
  * is called and callsback successfully.
- * @param sessionId
- * @returns
+ *
+ * @method gl
+ * @param {String} sessionId
+ * @return {Object} Session
  */
 SessionHandler.prototype.gl = function(sessionId){
 	var localSession = this.localStorage[sessionId];
@@ -130,7 +162,9 @@ SessionHandler.prototype.gl = function(sessionId){
 
 /**
  * Keeps a reference to the session in memory in case multiple requests come in.
- * @param session
+ *
+ * @method setLocal
+ * @param {Object} session
  */
 SessionHandler.prototype.setLocal = function(session){
 	var sid = session[SessionHandler.SID_KEY];
@@ -146,19 +180,21 @@ SessionHandler.prototype.setLocal = function(session){
 };
 
 /**
- * Purges the session from local memory unless multiple requests have accessed 
+ * Purges the session from local memory unless multiple requests have accessed
  * the session.
- * @param sessionId The session identifier
- * @returns {Boolean}
+ *
+ * @method purgeLocal
+ * @param {String} sessionId The session identifier
+ * @return {Boolean}
  */
 SessionHandler.prototype.purgeLocal = function(sessionId){
 	if (!this.isLocal(sessionId)) {
 		throw new Error("SessionHandler: The session was never opened or the session is already closed");
 	}
-	
+
 	//decrement request count
 	this.localStorage[sessionId].request_count -= 1;
-	
+
 	//qualifies for local purge if request count is at 0
 	var doesQualify = this.localStorage[sessionId].request_count == 0;
 	if (doesQualify) {
@@ -175,9 +211,11 @@ SessionHandler.prototype.getRequestCount = function(sessionId) {
 };
 
 /**
- * 
- * @param sessionId The ID of the session to search for
- * @returns {boolean} True if the session is stored locally
+ * Tests if the session is stored locally
+ *
+ * @method isLocal
+ * @param {String} sessionId The ID of the session to search for
+ * @return {boolean} True if the session is stored locally
  */
 SessionHandler.prototype.isLocal = function(sessionId){
 	return this.localStorage.hasOwnProperty(sessionId);
@@ -185,8 +223,10 @@ SessionHandler.prototype.isLocal = function(sessionId){
 
 /**
  * Creates the shell of a session object
+ *
+ * @method create
  * @param request
- * @returns {___anonymous6521_6682} 
+ * @return {Object} Session
  */
 SessionHandler.prototype.create = function(request){
 	var session = {
@@ -199,15 +239,17 @@ SessionHandler.prototype.create = function(request){
 		client_id: SessionHandler.getClientId(request)
 	};
 	session[SessionHandler.SID_KEY] = pb.utils.uniqueId();
-	
+
 	this.setLocal(session);
 	return session;
 };
 
 /**
  * Generates a unique client ID based on the user agent and the remote address.
- * @param request
- * @returns
+ *
+ * @method getClientId
+ * @param {Object} request
+ * @return {String} Unique Id
  */
 SessionHandler.getClientId = function(request){
     var whirlpool = crypto.createHash('whirlpool');
@@ -217,15 +259,16 @@ SessionHandler.getClientId = function(request){
 
 /**
  * Loads a session store based on the configuration.
- * @throws {Error} when the defined session store can not be loaded
- * @returns
+ *
+ * @method getSessionStore
+ * @return {Object}
  */
 SessionHandler.getSessionStore = function(){
 	var possibleStores = [
           SessionHandler.HANDLER_PATH + pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
           pb.config.session.storage
      ];
- 	
+
  	var sessionStorePrototype = null;
  	for(var i = 0; i < possibleStores.length; i++){
  		try{
@@ -236,7 +279,7 @@ SessionHandler.getSessionStore = function(){
  			pb.log.debug("SessionHandler: Failed to load "+possibleStores[i]);
  		}
  	}
- 	
+
  	//ensure session store was loaded
  	if (sessionStorePrototype == null){
 		throw new Error("Failed to initialize a session store. Choices were: "+JSON.stringify(possibleStores));
@@ -246,14 +289,16 @@ SessionHandler.getSessionStore = function(){
 
 /**
  * Extracts the session id from the returned cookie
- * @param request The object that describes the incoming user request
- * @returns {string} Session Id if available NULL if it cannot be found
+ *
+ * @method getSessionIdFromCookie
+ * @param {Object} request The object that describes the incoming user request
+ * @return {string} Session Id if available NULL if it cannot be found
  */
 SessionHandler.getSessionIdFromCookie = function(request){
-	
+
 	var sessionId = null;
 	if (request.headers[SessionHandler.COOKIE_HEADER]) {
-        
+
 		// Discovered that sometimes the cookie string has trailing spaces
         for(var key in request.headers[SessionHandler.COOKIE_HEADER]){
         	if(key.trim() == 'session_id'){
@@ -272,7 +317,7 @@ SessionHandler.getSessionCookie = function(session) {
 /**
  * Shuts down the sesison handler and the associated session store
  */
-SessionHandler.shutdown = function(cb){ 
+SessionHandler.shutdown = function(cb){
     cb = cb || pb.utils.cb;
 	SessionStore.shutdown(cb);
 };

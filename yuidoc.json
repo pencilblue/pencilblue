@@ -3,6 +3,7 @@
     "description": "PencilBlue: Full stack online publishing for Node.js",
     "version": "0.0.6",
     "url": "http://pencilblue.org/",
+    "logo": "../img/pb_logo.png",
     "options": {
         "outdir": "public/docs",
         "exclude": "controllers,public,templates,test"

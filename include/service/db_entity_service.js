@@ -19,6 +19,7 @@
  * Database storage service
  *
  * @module Services
+ * @submodule Storage
  * @class DBEntityService
  * @constructor
  * @param {String} objType

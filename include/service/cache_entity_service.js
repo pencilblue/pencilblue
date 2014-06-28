@@ -25,6 +25,12 @@
  * @param {String} valueField
  * @param {String} keyField
  */
+
+/**
+ * Services for managing storage
+ *
+ * @submodule Storage
+ */
 function CacheEntityService(objType, valueField, keyField){
 	this.type       = 'Cache';
 	this.objType    = objType;

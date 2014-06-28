@@ -19,6 +19,7 @@
  * File system storage service
  *
  * @module Services
+ * @submodule Storage
  * @class FSEntityService
  * @constructor
  * @param {String} objType

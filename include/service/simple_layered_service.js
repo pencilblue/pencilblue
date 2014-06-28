@@ -1,13 +1,34 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * SimpleLayeredService - 
- * 
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright PencilBlue, LLC. 2014 All Rights Reserved
+ * Service for layering storage services
+ *
+ * @module Services
+ * @submodule Storage
+ * @class SimpleLayeredService
+ * @constructor
+ * @param {Array} services Array of services
+ * @param {String} [name]  The name to assign to this service
  */
 function SimpleLayeredService(services, name){
 	this.services = services;
 	this.name     = name ? name : 'SimpleLayeredService';
-	
+
 	if (pb.log.isDebug()) {
 		this.logInitialization();
 	}
@@ -18,7 +39,7 @@ SimpleLayeredService.prototype.logInitialization = function() {
 	for (var i = 0; i < this.services.length; i++){
 		serviceTypes.push(this.services[i].type);
 	}
-	
+
 	if (pb.log.isDebug()) {
 		pb.log.debug(this.name+": Initialized with layers - "+JSON.stringify(serviceTypes));
 	}
@@ -26,11 +47,13 @@ SimpleLayeredService.prototype.logInitialization = function() {
 
 /**
  * Retrieves the setting value from various storage areas.
- * @param key
- * @param cb
+ *
+ * @method get
+ * @param {String} key
+ * @param {Object} cb Callback function
  */
 SimpleLayeredService.prototype.get = function(key, cb){
-	
+
 	var i              = 0;
 	var resultNotFound = true;
 	var entity         = null;
@@ -43,14 +66,14 @@ SimpleLayeredService.prototype.get = function(key, cb){
 			if (pb.log.isSilly()) {
 				pb.log.silly(instance.name+": Checking Service ["+instance.services[i].type+"] for Key ["+key+"]");
 			}
-			
+
 			instance.services[i].get(key, function(err, result){
 				if (util.isError(err)){
 					resultNotFound = false;
 					callback(err);
 					return;
 				}
-				
+
 				if (result) {
 					resultNotFound = false;
 					entity         = result;
@@ -63,15 +86,15 @@ SimpleLayeredService.prototype.get = function(key, cb){
 			});
 		},
 		function(err){//when done
-			
+
 			if (entity) {
-				
+
 				//set value in services that didn't have it.
 				for (var j = 0; j < i; j++) {
 					instance.services[j].set(key, entity, pb.utils.cb);
 				}
 			}
-			
+
 			//callback to original caller
 			cb(err, entity);
 		}
@@ -79,11 +102,13 @@ SimpleLayeredService.prototype.get = function(key, cb){
 };
 
 /**
- * Persists a new value for the setting.  When the setting does not exist a new 
+ * Persists a new value for the setting.  When the setting does not exist a new
  * one is created.
- * @param key
- * @param value
- * @param cb
+ *
+ * @method set
+ * @param {String} key
+ * @param {*}      value
+ * @param cb       Callback function
  */
 SimpleLayeredService.prototype.set = function(key, value, cb){
 	var self = this;
@@ -104,9 +129,11 @@ SimpleLayeredService.prototype.set = function(key, value, cb){
 };
 
 /**
- * Removes the value from storage. 
- * @param key
- * @param cb
+ * Removes the value from storage.
+ *
+ * @method purge
+ * @param {String} key
+ * @param cb       Callback function
  */
 SimpleLayeredService.prototype.purge = function(key, cb){
 	var tasks = pb.utils.getTasks(this.services, function(services, i) {
