@@ -44,12 +44,12 @@ SessionHandler.prototype.open = function(request, cb){
 	
 	//check in local storage
 	var session = null;
-	if (this.isLocal(sid)) {
-		session = this.gl(sid);
-		this.setLocal(session);
-		cb(null, session);
-		return;
-	}
+//	if (this.isLocal(sid)) {
+//		session = this.gl(sid);
+//		this.setLocal(session);
+//		cb(null, session);
+//		return;
+//	}
 	
 	//session not available locally so check persistent storage
 	var handler = this;
@@ -91,7 +91,7 @@ SessionHandler.prototype.close = function(session, cb) {
 	session[SessionHandler.TIMEOUT_KEY] = new Date().getTime() + pb.config.session.timeout;
 	
 	//last active request using this session, persist it back to storage
-	if(this.purgeLocal(session[SessionHandler.SID_KEY])){
+	//if(this.purgeLocal(session[SessionHandler.SID_KEY])){
 		
 		if (session.end) {
 			this.sessionStore.clear(session.uid, cb);
@@ -100,7 +100,7 @@ SessionHandler.prototype.close = function(session, cb) {
 			this.sessionStore.set(session, cb);
 		}
 		return;
-	}
+	//}
 	
 	//another request is using the session object so just call back OK
 	cb(null, true);
