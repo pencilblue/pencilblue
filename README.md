@@ -16,7 +16,7 @@ The first open source publishing platform to meet all the needs of a modern webs
 Installation
 -----
 
-The instructions below assume that Node.js and MongoDB are installed on your machine. If they are not then please visit http://nodejs.org and http://http://www.mongodb.org to install them.
+The instructions below assume that Node.js and MongoDB are installed on your machine. If they are not then please visit http://nodejs.org and http://www.mongodb.org to install them.
 
  1. Clone the PencilBlue repository
  2. ```cd``` into the cloned repository's folder
