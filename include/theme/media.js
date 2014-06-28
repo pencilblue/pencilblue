@@ -1,13 +1,41 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * MediaService -
  * TODO: add options like sizing
  * TODO: move hard coded HTML to template
+ */
+
+/**
+ * Retrieves media information
  *
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC.
+ * @module Services
+ * @submodule Theme
+ * @class MediaService
+ * @constructor
  */
 function MediaService(){}
 
+/**
+ * Retrieves the correct embed HTML for a media object
+ *
+ * @method getMediaEmbed
+ * @param {Object} mediaObject
+ */
 MediaService.getMediaEmbed = function(mediaObject, options) {
     switch(mediaObject.media_type) {
         case 'image':
@@ -37,6 +65,13 @@ MediaService.getMediaEmbed = function(mediaObject, options) {
     }
 };
 
+/**
+ * Gets the proper CSS style for a media object
+ *
+ * @method getMediaStyleString
+ * @param {String} template    Media embed HTML template
+ * @param {String} styleString The style string from the article layout's media directive
+ */
 MediaService.getMediaStyle = function(template, styleString) {
     var styleElements = styleString.split(',');
     var containerCSS  = [];
