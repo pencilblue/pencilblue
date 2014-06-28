@@ -103,7 +103,6 @@ BaseController.prototype.displayErrorOrSuccessCallback = function(flag, cb) {
 /**
  * Provides a page title.  This is picked up by the template engine when the
  * ^page_name^ key is found in a template.
- * @returns {String} The title for the page
  */
 BaseController.prototype.getPageName = function() {
 	return this.pageName;
@@ -203,8 +202,6 @@ BaseController.prototype.checkForFormRefill = function(result, cb) {
  * sanitized based on the default sanitization rules
  * (BaseController.getDefaultSanitizationRules) or those provided by the call
  * to BaseController.getSanitizationRules.
- * @method sanitizeObject
- * @param {Object}
  */
 BaseController.prototype.sanitizeObject = function(obj) {
     if (!pb.utils.isObject(obj)) {

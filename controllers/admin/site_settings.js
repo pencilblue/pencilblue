@@ -28,12 +28,6 @@ SiteSettings.prototype.render = function(cb) {
 	this.redirect(pb.config.siteRoot + '/admin/site_settings/configuration', cb);
 };
 
-/**
- * @static
- * @method getPillNavOptions
- * @param {Localization} ls LocalizationService for Translation
- * @returns {Array}
- */
 SiteSettings.getPillNavOptions = function(ls) {
     var pillNavOptions = [
         {

@@ -30,11 +30,6 @@ util.inherits(ImportTopics, pb.BaseController);
 //statics
 var SUB_NAV_KEY = 'import_topics';
 
-/**
- * @method render
- * @see BaseController.render()
- * @param cb
- */
 ImportTopics.prototype.render = function(cb) {
 	var self = this;
 

@@ -31,11 +31,6 @@ var UrlService          = pb.UrlService;
 util.inherits(UrlApiController, ApiActionController);
 
 //constants
-/**
- * @private
- * @property
- * @type {object}
- */
 var ACTIONS = {
 	exists: false,
 	exists_for: false
@@ -43,9 +38,6 @@ var ACTIONS = {
 
 /**
  * Provides the hash of all actions supported by this controller
- * @method getActions
- * @see ApiActionController#getActions
- * @returns {object
  */
 UrlApiController.prototype.getActions = function() {
 	return ACTIONS;
@@ -55,10 +47,6 @@ UrlApiController.prototype.getActions = function() {
  * Validates any path parameters for the specified action.  The callback will
  * provide an array of validation errors. When the array is empty it is safe to
  * assume that validation succeeded.
- * @method validatePathParameters
- * @see ApiActionController#validatePathParameters
- * @param {string} action
- * @param {function} cb A call back that provides two parameters: cb(err, [{string])
  */
 UrlApiController.prototype.validatePathParameters = function(action, cb) {
 	cb(null, []);
@@ -68,10 +56,6 @@ UrlApiController.prototype.validatePathParameters = function(action, cb) {
  * Validates any query parameters for the specified action.  The callback will
  * provide an array of validation errors. When the array is empty it is safe to
  * assume that validation succeeded.
- * @method validateQueryParameters
- * @see ApiActionController#validateQueryParameters
- * @param {string} action
- * @param {function} cb A call back that provides two parameters: cb(err, [{string])
  */
 UrlApiController.prototype.validateQueryParameters = function(action, cb) {
 
@@ -96,9 +80,6 @@ UrlApiController.prototype.validateQueryParameters = function(action, cb) {
  * The "exists" action handler.  Calls the UrlService function <i>exists</i> to
  * see whether or not the provided URL path could trigger a controller to be
  * executed.
- * @method exists
- * @param {function} cb A call back that provides one parameter. An object
- * containing the result of the action: cb({code: HTTP_STATUS, content: JSON})
  */
 UrlApiController.prototype.exists = function(cb) {
 	var themes  = UrlService.exists(this.query.url);
@@ -112,9 +93,6 @@ UrlApiController.prototype.exists = function(cb) {
  * The "exists_for" action handler.  Calls the UrlService function
  * <i>existsForType</i> to see whether or not the provided URL path the URL key
  * of that particular object type.
- * @method exists
- * @param {function} cb A call back that provides one parameter. An object
- * containing the result of the action: cb({code: HTTP_STATUS, content: JSON})
  */
 UrlApiController.prototype.exists_for = function(cb) {
 

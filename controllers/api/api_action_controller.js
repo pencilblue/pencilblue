@@ -34,20 +34,12 @@ util.inherits(ApiActionController, BaseController);
  * Flag to indicate if the form should automatically sanitize the incoming
  * values.  In this case sanitize means it will attempt to strip away any
  * HTML tags to prevent HTML injection and XSS.
- * @protected
- * @property
- * @type {Boolean}
  */
 ApiActionController.prototype.autoSanitize = true;
 
 /**
  * The entry point called by the RequestHandler.  Executes the calls to the
  * validation framework then, if passes, executes the action handler.
- *
- * @method render
- * @see BaseController#render
- * @param cb A call back that provides one parameter. An object
- * containing the result of the action: cb({code: HTTP_STATUS, content: JSON})
  */
 ApiActionController.prototype.render = function(cb) {
 
@@ -70,9 +62,6 @@ ApiActionController.prototype.render = function(cb) {
 
 /**
  * Provides the hash of all actions supported by this controller
- * @method getActions
- * @see ApiActionController#getActions
- * @returns {object}
  */
 ApiActionController.prototype.getActions = function() {
 	return {};
@@ -81,10 +70,6 @@ ApiActionController.prototype.getActions = function() {
 /**
  * Validates the query, path, and post parameters in parallel and calls back
  * with any validation errors.
- *
- * @method validateParameters
- * @param {string} action The action specified by the URL path
- * @param {function} cb A call back that provides two parameters: cb(err, [{string])
  */
 ApiActionController.prototype.validateParameters = function(action, cb) {
 
@@ -151,10 +136,6 @@ ApiActionController.prototype.setAutoSanitize = function(val) {
  * value for the action in the value returned by ApiActionController#getActions.
  * If the value evaluates to true then the implementation will validate that an
  * "id" path parameter was passed.
- *
- * @method validatePathParameters
- * @param {string} action
- * @param {function} cb A call back that provides two parameters: cb(err, [{string])
  */
 ApiActionController.prototype.validatePathParameters = function(action, cb) {
 	//validate identifier
@@ -171,9 +152,6 @@ ApiActionController.prototype.validatePathParameters = function(action, cb) {
  * provide an array of validation errors. When the array is empty it is safe to
  * assume that validation succeeded. The default implementation passes an empty
  * error array.
- * @method validateQueryParameters
- * @param {string} action
- * @param {function} cb A call back that provides two parameters: cb(err, [{string])
  */
 ApiActionController.prototype.validateQueryParameters = function(action, cb) {
 	cb(null, []);
@@ -184,9 +162,6 @@ ApiActionController.prototype.validateQueryParameters = function(action, cb) {
  * provide an array of validation errors. When the array is empty it is safe to
  * assume that validation succeeded. The default implementation passes an empty
  * error array.
- * @method validatePostParameters
- * @param {string} action
- * @param {function} cb A call back that provides two parameters: cb(err, [{string])
  */
 ApiActionController.prototype.validatePostParameters = function(action, post, cb) {
 	cb(null, []);
