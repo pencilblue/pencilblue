@@ -1,14 +1,27 @@
-/**
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright PencilBlue, LLC 2014 All Rights Reserved
- */
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 //dependencies
 NodeMailer = require('nodemailer');
 
 /**
- * EmailService - Provides a simple interface for sending emails.
+ * Service for sending emails.
  *
+ * @module Services
  * @class EmailService
  * @constructor
  */
@@ -16,8 +29,11 @@ function EmailService(){}
 
 
 /**
+ * Retrieves a template and sends it as an email
  *
- *
+ * @method sendFromTemplate
+ * @param {Object}   options Object containing the email settings and template name
+ * @param {Function} cb      Callback function
  */
 EmailService.prototype.sendFromTemplate = function(options, cb){
 	var self = this;
@@ -34,6 +50,16 @@ EmailService.prototype.sendFromTemplate = function(options, cb){
 	});
 };
 
+/**
+ * Sends an email
+ *
+ * @method send
+ * @param  {String}   from    From name
+ * @param  {String}   to      To email address
+ * @param  {String}   subject Email subject
+ * @param  {String}   body    Email content
+ * @param  {Function} cb      Callback function
+ */
 EmailService.prototype.send = function(from, to, subject, body, cb) {
 
 	this.getSettings(function(err, emailSettings) {
@@ -78,6 +104,12 @@ EmailService.prototype.send = function(from, to, subject, body, cb) {
     });
 };
 
+/**
+ * Retrieves the email settings
+ *
+ * @method getSettings
+ * @param {Function} cb Callback function
+ */
 EmailService.prototype.getSettings = function(cb) {
 	var self = this;
 	pb.settings.get('email_settings', function(err, settings) {
@@ -85,6 +117,12 @@ EmailService.prototype.getSettings = function(cb) {
     });
 };
 
+/**
+ * Retrieves the default email settings from installation
+ *
+ * @method getDefaultSettings
+ * @return {Object} Email settings
+ */
 EmailService.prototype.getDeafultSettings = function() {
 	return {
         from_name: 'pencilblue',

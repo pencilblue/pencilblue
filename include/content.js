@@ -1,13 +1,34 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * ContentService - 
- * 
- * @author Brian Hyder
- * @copyright PencilBlue, LLC 2014 All Rights Reserved
+ * Service for content settings retrieval
+ *
+ * @module Services
+ * @class ContentService
+ * @constructor
  */
 function ContentService(){}
 
 /**
- * 
+ * Retrieves the content settings
+ *
+ * @method getSettings
+ * @param {Function} cb Callback function
  */
 ContentService.getSettings = function(cb){
 	pb.settings.get('content_settings', function(err, settings){
@@ -20,7 +41,10 @@ ContentService.getSettings = function(cb){
 };
 
 /**
- * 
+ * Retrieves the default content settings from installation
+ *
+ * @method getDefaultSettings
+ * @return {Object} Content settings
  */
 ContentService.getDefaultSettings = function() {
     return {
@@ -41,43 +65,44 @@ ContentService.getDefaultSettings = function() {
 };
 
 /**
- * 
+ * Returns a formatted time stamp from a date
+ *
+ * @method getTimestampTextFromSettings
+ * @param {Date} date
+ * @param {Object} contentSettings
  */
 ContentService.getTimestampTextFromSettings = function(date, contentSettings) {
-	return ContentService.getTimestampText(date, contentSettings.date_format, 
+	return ContentService.getTimestampText(date, contentSettings.date_format,
     		contentSettings.display_hours_minutes, contentSettings.time_format);
 };
 
-/**
- * 
- */
 ContentService.getTimestampText = function(date, format, displayTime, timeFormat, ls) {
     if (!ls) {
         ls = new pb.Localization();
     }
-    
+
 	var dateString = format;
     var monthNames = [
-      ls.get('JAN'), 
-      ls.get('FEB'), 
-      ls.get('MAR'), 
-      ls.get('APR'), 
-      ls.get('MAY'), 
-      ls.get('JUN'), 
-      ls.get('JUL'), 
-      ls.get('AUG'), 
-      ls.get('SEP'), 
-      ls.get('OCT'), 
-      ls.get('NOV'), 
+      ls.get('JAN'),
+      ls.get('FEB'),
+      ls.get('MAR'),
+      ls.get('APR'),
+      ls.get('MAY'),
+      ls.get('JUN'),
+      ls.get('JUL'),
+      ls.get('AUG'),
+      ls.get('SEP'),
+      ls.get('OCT'),
+      ls.get('NOV'),
       ls.get('DEC')
     ];
-    
+
     dateString = dateString.split('YYYY').join(date.getFullYear());
     dateString = dateString.split('yy').join(date.getYear());
     dateString = dateString.split('M').join(monthNames[date.getMonth()]);
     dateString = dateString.split('mm').join(date.getMonth() + 1);
     dateString = dateString.split('dd').join(date.getDate());
-    
+
     if (typeof displayTime !== 'undefined' && displayTime) {
 
         var hours   = date.getHours();
@@ -86,7 +111,7 @@ ContentService.getTimestampText = function(date, format, displayTime, timeFormat
             minutes = '0' + minutes;
         }
         var ampm = '';
-        
+
         if(timeFormat == '12') {
             if(hours > 12) {
                 hours -= 12;

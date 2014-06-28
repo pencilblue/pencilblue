@@ -20,7 +20,8 @@
  *
  * @class ValidationService
  * @constructor
- * @module Validation
+ * @module Services
+ * @submodule Validation
  */
 function ValidationService(){}
 
@@ -136,7 +137,7 @@ ValidationService.validateArray = function(value, required) {
  * Validates an object
  *
  * @method validateObject
- * @param {Object} value    
+ * @param {Object} value
  * @param {Boolean} required
  */
 ValidationService.validateObject = function(value, required) {
