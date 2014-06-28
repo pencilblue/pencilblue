@@ -95,6 +95,17 @@ PencilBlue.onHttpConnect = function(req, resp){
 		req.uid = new ObjectID();
 		pb.log.silly('New Request: '+req.uid);
 	}
+    
+    //check to see if we should inspect the x-forwarded-proto header for SSL
+    //load balancers use this for SSL termination relieving the stress of SSL 
+    //computation on more powerful load balancers.  For me it is a giant pain 
+    //in the ass when all I want to do is simple load balancing.
+    if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] === 'http') {
+        PencilBlue.onHttpConnectForHandoff(req, resp);
+        return;
+    }
+    
+    //route the request
     var handler = new pb.RequestHandler(pb.server, req, resp);
     handler.handleRequest();
 };

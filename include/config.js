@@ -47,7 +47,8 @@ var config = {
 	cache: {
 		fake: true,
 		host: "localhost",
-		port: 6379
+		port: 6379,
+        //auth_pass: "password here"
 	},
 	session: {
 		storage: "redis",
@@ -90,6 +91,7 @@ var config = {
         ssl: {
             enabled: false,
             handoff_port: 8080,
+            use_x_forwarded: false,
             use_handoff_port_in_redirect: false,
             key: "ssl/key.pem",
             cert: "ssl/cert.crt",
