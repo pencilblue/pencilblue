@@ -46,7 +46,7 @@ CacheFactory.getInstance = function() {
 
 /**
  * Shuts down the Redis or FakeRedis instance
- * 
+ *
  * @method shutdown
  * @param  {Function} cb Callback function
  */
