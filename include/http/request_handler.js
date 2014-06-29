@@ -186,7 +186,7 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
-    	method: 'post',
+    	method: 'get',
     	path: "/actions/admin/content/topics/delete_topic/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
@@ -338,7 +338,7 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
-    	method: 'post',
+    	method: 'get',
     	path: "/actions/admin/content/pages/delete_page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
@@ -394,7 +394,7 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
-    	method: 'post',
+    	method: 'get',
     	path: "/actions/admin/content/media/delete_media/:id",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
@@ -442,7 +442,7 @@ RequestHandler.CORE_ROUTES = [
     	content_type: 'text/html'
     },
     {
-    	method: 'post',
+    	method: 'get',
     	path: "/actions/admin/content/articles/delete_article/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
@@ -575,7 +575,7 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'verify_email.js'),
     },
     {
-        method: 'post',
+        method: 'get',
     	path: "/actions/admin/content/custom_objects/delete_object_type/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
@@ -625,7 +625,7 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
     },
     {
-        method: 'post',
+        method: 'get',
         path: "/actions/admin/users/delete_user/:id",
         auth_required: true,
         access_level: ACCESS_EDITOR,
@@ -740,6 +740,7 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'login.js'),
     },
     {
+        method: 'get',
     	path: "/actions/admin/content/custom_objects/delete_object/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
