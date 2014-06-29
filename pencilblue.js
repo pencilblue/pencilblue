@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 // A grouping of all require calls
 global.pb = require('./include/requirements');
 
@@ -95,16 +112,16 @@ PencilBlue.onHttpConnect = function(req, resp){
 		req.uid = new ObjectID();
 		pb.log.silly('New Request: '+req.uid);
 	}
-    
+
     //check to see if we should inspect the x-forwarded-proto header for SSL
-    //load balancers use this for SSL termination relieving the stress of SSL 
-    //computation on more powerful load balancers.  For me it is a giant pain 
+    //load balancers use this for SSL termination relieving the stress of SSL
+    //computation on more powerful load balancers.  For me it is a giant pain
     //in the ass when all I want to do is simple load balancing.
     if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
         PencilBlue.onHttpConnectForHandoff(req, resp);
         return;
     }
-    
+
     //route the request
     var handler = new pb.RequestHandler(pb.server, req, resp);
     handler.handleRequest();
