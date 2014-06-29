@@ -77,7 +77,6 @@ SessionHandler.prototype.open = function(request, cb){
 //		return;
 //	}
 	
->>>>>>> master
 	//session not available locally so check persistent storage
 	var handler = this;
 	this.sessionStore.get(sid, function(err, result){
