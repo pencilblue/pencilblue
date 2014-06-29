@@ -75,6 +75,8 @@ ClientJS.includeJS = function(url) {
 
 /**
  * Puts the supplied JS code string into a script tag
+ *
+ * @method getJSTag
  * @param {String} jsCode
  */
 ClientJS.getJSTag = function(jsCode) {
