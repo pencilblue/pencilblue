@@ -14,12 +14,12 @@
     "name": "pencileblue",
     "description": "An awesome & flexible CMS",
     "keywords": [
-        "cms", "website", "framework"
+        "cms", "website", "platform"
     ],
-   "version": "0.0.6-beta",
+   "version": "0.1.0",
     "repository": {
         "type": "git",
-        "url": "git://bitbucket.org/pencilblue/pencilblue.git"
+        "url": "https://github.com/pencilblue/pencilblue.git"
     },
     "dependencies": {
     	"async": "0.2.9",
@@ -46,8 +46,7 @@
         "node": ">= 0.10.0"
     },
     "scripts": {
-    	"start": "node pencilblue.js",
-        "test": "nodeunit test/include/dao/dao_test.js"
+    	"start": "node pencilblue.js"
     },
     "licenses": [
         {
@@ -58,7 +57,7 @@
     "readme": "See README file",
     "readmeFilename": "README.md",
     "bugs": {
-        "url": "https://bitbucket.org/pencilblue/pencilblue/issues"
+        "url": "https://github.com/pencilblue/pencilblue/issues"
     },
     "_id": "pencileblue@0.0.1"
 }
