@@ -1,19 +1,29 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright PencilBlue, LLC. 2014 All Rights Reserved
+ * The base controller provides functions for the majority of
+ * the heavy lifing for a controller. It accepts and provides access to
+ * extending controllers for items such as the request, response, session, etc.
  */
 
 //dependencies
 var Sanitizer = require('sanitize-html');
 
-/**
- * BaseController - The base controller provides functions for the majority of
- * the heavy lifing for a controller. It accepts and provides access to
- * extending controllers for items such as the request, response, session, etc.
- *
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright PencilBlue, LLC. 2014 All Rights Reserved
- */
 function BaseController(){};
 
 //constants
@@ -93,7 +103,6 @@ BaseController.prototype.displayErrorOrSuccessCallback = function(flag, cb) {
 /**
  * Provides a page title.  This is picked up by the template engine when the
  * ^page_name^ key is found in a template.
- * @returns {String} The title for the page
  */
 BaseController.prototype.getPageName = function() {
 	return this.pageName;
@@ -121,7 +130,7 @@ BaseController.prototype.getJSONPostParams = function(cb) {
 			cb(err, null);
 			return;
 		}
-		
+
         var error      = null;
 		var postParams = null;
         try {
@@ -193,8 +202,6 @@ BaseController.prototype.checkForFormRefill = function(result, cb) {
  * sanitized based on the default sanitization rules
  * (BaseController.getDefaultSanitizationRules) or those provided by the call
  * to BaseController.getSanitizationRules.
- * @method sanitizeObject
- * @param {Object}
  */
 BaseController.prototype.sanitizeObject = function(obj) {
     if (!pb.utils.isObject(obj)) {

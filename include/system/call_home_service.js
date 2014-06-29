@@ -1,15 +1,23 @@
-/**
- * @author Brian Hyder <brian@penciblue.org>
- * @copyright 2014 PencilBlue, LLC. All Rights Reserved
- */
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 //dependencies
 var os = require('os');
 
-/**
- * @class CallHomeService
- * @constructor
- */
 function CallHomeService(){}
 
 //constants
@@ -26,7 +34,7 @@ CallHomeService.callHome = function(type, data) {
     if (!pb.utils.isObject(data)) {
         data = {};
     }
-    
+
     data.type      = type;
     data.site_ip   = pb.config.siteIP;
     data.site_name = pb.config.siteName;
@@ -36,7 +44,7 @@ CallHomeService.callHome = function(type, data) {
     data.cpus      = os.cpus();
     data.version   = process.versions;
     var post_data  = JSON.stringify(data);
-    
+
     // An object of options to indicate where to post to
     var post_options = {
         host: HOST,
@@ -55,15 +63,15 @@ CallHomeService.callHome = function(type, data) {
 };
 
 CallHomeService._callHome = function(options, postData) {
-    
+
     var d = domain.create();
     d.on('error', function(err) {
         pb.log.silly('CallHomeService: An error occurred attempting to send event. %s', err.stack);
     });
     d.run(function() {
-        
+
         var post_req = https.request(options, function(res) {
-        
+
             var json = '';
             res.setEncoding('utf8');
             res.on('data', function (chunk) {

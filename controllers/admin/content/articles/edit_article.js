@@ -1,9 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * EditArticle - Interface for editing an article
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Interface for editing an article
  */
+
 function EditArticle(){}
 
 //dependencies
@@ -27,14 +42,14 @@ EditArticle.prototype.render = function(cb) {
         	self.redirect(pb.config.siteRoot + '/admin/content/articles/manage_articles', cb);
             return;
         }
-        
+
         if(!pb.security.isAuthorized(self.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
             if(!self.session.authentication.user_id.equals(article.author)) {
                 cb({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
                 return;
             }
         }
-        
+
         self.article             = article;
         article.article_media    = article.article_media.join(',');
         article.article_sections = article.article_sections.join(',');
@@ -65,8 +80,8 @@ EditArticle.prototype.getAngularController = function(tabs, data) {
         article: self.article
     };
 	return angular = pb.js.getAngularController(
-		objects, 
-		[], 
+		objects,
+		[],
 		'initMediaPagination();initSectionsPagination();initTopicsPagination()'
 	);
 };

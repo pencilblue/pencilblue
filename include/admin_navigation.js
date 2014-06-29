@@ -1,20 +1,31 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
  * Provides function to construct the structure needed to display the navigation
  * in the Admin section of the application.
  *
+ * @module Services
+ * @submodule Admin
  * @class AdminNavigation
  * @constructor
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC.
  */
 function AdminNavigation(){}
 
-/**
- * @private
- * @method getDefaultNavigation
- * @param {Localization} ls
- * @return {object}
- */
 function getDefaultNavigation(ls) {
 	return [
         {
@@ -152,13 +163,13 @@ function getDefaultNavigation(ls) {
 }
 
 /**
+ * Retrive the admin navigation hierarchy
  *
- * @static
  * @method get
  * @param {object} session
- * @param {array} activeMenuItems
- * @param {Localization} ls
- * @returns {object}
+ * @param {array} activeMenuItems Array of nav item names that are active
+ * @param {Object} ls Localization service
+ * @return {object} Admin navigation
  */
 AdminNavigation.get = function(session, activeMenuItems, ls) {
     return AdminNavigation.removeUnauthorized(
@@ -168,15 +179,6 @@ AdminNavigation.get = function(session, activeMenuItems, ls) {
 	);
 };
 
-/**
- *
- * @static
- * @method removeUnathorized
- * @param session
- * @param adminNavigation
- * @param activeItems
- * @returns {object}
- */
 AdminNavigation.removeUnauthorized = function(session, adminNavigation, activeItems) {
 	for (var i = 0; i < adminNavigation.length; i++) {
         if (typeof adminNavigation[i].access !== 'undefined') {

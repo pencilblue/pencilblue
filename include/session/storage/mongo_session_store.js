@@ -1,7 +1,26 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * MongoSessionStore - Session storage backed by MongoDB
- * 
- * @author Brian Hyder <brianhyder@gmail.com
+ * Session storage backed by MongoDB
+ *
+ * @module Session
+ * @class MongoSessionStore
+ * @constructor
  */
 function MongoSessionStore(){
 	pb.log.debug("MongoSessionStore: Initialized");
@@ -13,13 +32,15 @@ function MongoSessionStore(){
 var SESSION_COLLECTION_NAME = 'session';
 
 /**
- * Responsable for retrieving the session for persistent storage.  
- * @param sessionId The identifier of the session to retrieve.
- * @param cb Callback of form cb(err, [Object])
+ * Responsible for retrieving the session for persistent storage.
+ *
+ * @method get
+ * @param {String} sessionId The identifier of the session to retrieve.
+ * @param {Function} cb Callback of form cb(err, [Object])
  */
 MongoSessionStore.prototype.get = function(sessionId, cb){
 	var dao = new pb.DAO();
-	
+
 	var query = {
 		uid: sessionId
 	};
@@ -34,22 +55,24 @@ MongoSessionStore.prototype.get = function(sessionId, cb){
 };
 
 /**
- * Responsable for persisting the session object between user requests
- * @param session The session object to store.  The session object must contain 
+ * Responsible for persisting the session object between user requests
+ * @param session The session object to store.  The session object must contain
  * the following in addition to other data:
  * <pre>
  * {
  * 	uid: [primitive]
  * }
  * </pre>
- * @param cb Callback of form cb(err, 'OK')
+ *
+ * @method set
+ * @param {Function} cb Callback of form cb(err, 'OK')
  */
 MongoSessionStore.prototype.set = function(session, cb){
 	var dao = new pb.DAO();
-	
+
 	//ensure an object type is set
 	session.object_type = SESSION_COLLECTION_NAME;
-	
+
 	//persist the session
 	dao.update(session).then(function(result){
 		var isError =  typeof result  == 'Error';
@@ -59,8 +82,10 @@ MongoSessionStore.prototype.set = function(session, cb){
 
 /**
  * Deletes a session if it exists.
- * @param sessionId
- * @param cb Callback of form cb(err, [int SESSIONS_CLEARED])
+ *
+ * @method clear
+ * @param {String} sessionId
+ * @param {Function} cb Callback of form cb(err, [int SESSIONS_CLEARED])
  */
 MongoSessionStore.prototype.clear = function(sessionId, cb){
 	var dao = new pb.DAO();
@@ -71,9 +96,11 @@ MongoSessionStore.prototype.clear = function(sessionId, cb){
 };
 
 /**
- * Constructs a query to find a session in Mongo 
- * @param sessionId The session identifier
- * @returns {Object}
+ * Constructs a query to find a session in Mongo
+ *
+ * @method getSessionQuery
+ * @param {String} sessionId The session identifier
+ * @return {Object}
  */
 MongoSessionStore.getSessionQuery = function(sessionId){
 	return {
@@ -83,12 +110,14 @@ MongoSessionStore.getSessionQuery = function(sessionId){
 
 /**
  * Queries for any expired sessions in Mongo and deletes them
- * @param cb cb Callback of form cb(err, [int SESSIONS_CLEARED])
+ *
+ * @method clearExpired
+ * @param {Function} cb cb Callback of form cb(err, [int SESSIONS_CLEARED])
  */
 MongoSessionStore.clearExpired = function(cb){
 	pb.log.debug("MongoSessionStore: Reaping expired sessions...");
 	var start = new Date().getTime();
-	
+
 	var dao   = new pb.DAO();
 	var query = {
 		timeout: {
@@ -104,7 +133,7 @@ MongoSessionStore.clearExpired = function(cb){
 };
 
 /**
- * Responsable for shutting down the session store and any resources used for 
+ * Responsable for shutting down the session store and any resources used for
  * reaping expired sessions.
  */
 MongoSessionStore.shutdown = function(cb){
@@ -115,7 +144,7 @@ MongoSessionStore.shutdown = function(cb){
 };
 
 /**
- * Responsable for ensuring that the mechanism that expires sessions becomes 
+ * Responsable for ensuring that the mechanism that expires sessions becomes
  * active.
  */
 MongoSessionStore.startReaper = function(){

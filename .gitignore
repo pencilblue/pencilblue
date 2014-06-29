@@ -2,6 +2,7 @@
 .project
 config.json
 public/media/
+public/docs/
 node_modules/minify/min/
 log/
 node_modules

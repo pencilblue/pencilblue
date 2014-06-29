@@ -1,9 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * EditSection - Input for editing an existing site section
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Interface for editing a section
  */
+
 function EditSection(){}
 
 //dependencies
@@ -20,13 +35,13 @@ var SUB_NAV_KEY = 'edit_section';
 EditSection.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
-	
+
 	//make sure an ID was passed
     if(!vars['id']) {
         this.reqHandler.serve404();
         return;
     }
-    
+
     EditSection.super_.prototype.render.apply(self, [cb]);
 };
 
@@ -36,7 +51,7 @@ EditSection.prototype.getPageName = function() {
 
 EditSection.prototype.getTemplate = function(cb) {
 	var self = this;
-	
+
 	this.ts.registerLocal('section_id', this.pathVars.id);
 	this.ts.registerLocal('content_type', '{{section.type}}');
 	this.ts.registerLocal('selection_id_field', 'item');
@@ -55,7 +70,7 @@ EditSection.prototype.getTemplate = function(cb) {
 };
 
 EditSection.prototype.getSubnavKey = function() {
-    return SUB_NAV_KEY;   
+    return SUB_NAV_KEY;
 }
 
 EditSection.prototype.getDataTasks = function() {
@@ -67,13 +82,13 @@ EditSection.prototype.getDataTasks = function() {
 			if (util.isArray(navItem.keywords)) {
 				navItem.keywords = navItem.keywords.join(',');
 			}
-			
+
             self.navItem = self.session.fieldValues;
             self.session.fieldValues = undefined;
 			callback(null, navItem);
 			return;
 		}
-		
+
 		var dao = new pb.DAO();
 	    dao.loadById(self.pathVars.id, 'section', function(err, navItem) {
 	        if (navItem) {

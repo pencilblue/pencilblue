@@ -1,15 +1,29 @@
-/**
- * @author Brian Hyder <brianhyder@gmail.com>
- * @copyright PencilBlue 2014, All Rights Reserved
- */
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 //dependencies
 var extend = require('node.extend');
 
 /**
- * Util
  * Provides a set of utility functions used throughout the code base
+ *
+ * @module Services
  * @class Util
+ * @constructor
  */
 function Util(){};
 
@@ -31,8 +45,11 @@ Util.onPromisesOk = function(promises, cb){
 
 /**
  * Clones an object by serializing it and then re-parsing it.
- * NOTE: This probably isn't very efficient.  Need to benchmark it.
  * WARNING: Objects with circular dependencies will cause an error to be thrown.
+ *
+ * @method clone
+ * @param {Object} object The object to clone
+ * @return {Object} Cloned object
  */
 Util.clone = function(object){
     return JSON.parse(JSON.stringify(object));
@@ -42,18 +59,22 @@ Util.clone = function(object){
  * Performs a deep merge and returns the result.  <b>NOTE:</b> DO NOT ATTEMPT
  * TO MERGE PROPERTIES THAT REFERENCE OTHER PROPERTIES.  This could have
  * unintended side-effects as well as cause errors due to circular dependencies.
- * @static
+ *
  * @method deepMerge
  * @param {Object} from
  * @param {Object} to
- * @returns {Object}
+ * @return {Object}
  */
 Util.deepMerge = function(from, to) {
     return extend(true, to, from);
 };
 
 /**
- * Assets Not Error.  If the object is an error the function will throw the error.  If the
+ * Checks if the supplied object is an errof. If the object is an error the
+ * function will throw the error.
+ *
+ * @method ane
+ * @param {Object} obj The object to check
  */
 Util.ane = function(obj){
 	if (util.isError(obj)) {
@@ -71,6 +92,10 @@ Util.escapeRegExp = function(str) {
 /**
  * Merges the properties from the first parameter into the second. This modifies
  * the second parameter instead of creating a new object.
+ *
+ * @method merge
+ * @param {Object} from
+ * @param {Object} to
  */
 Util.merge = function(from, to) {
 	for (var prop in from) {
@@ -93,6 +118,14 @@ Util.getTasks = function (iterable, getTaskFunction) {
 	return tasks;
 };
 
+/**
+ * Hashes an array
+ *
+ * @method arrayToHash
+ * @param {Array} array      The array to hash
+ * @param {*} defaultVal Default value if the hashing fails
+ * @return {Object} Hash
+ */
 Util.arrayToHash = function(array, defaultVal) {
 	if (!util.isArray(array)) {
 		return null;
@@ -111,6 +144,13 @@ Util.arrayToHash = function(array, defaultVal) {
 	return hash;
 };
 
+/**
+ * Converts a hash to an array
+ *
+ * @method hashToArray
+ * @param {Object} obj Hash object
+ * @return {Array}
+ */
 Util.hashToArray = function(obj) {
 	if (!Util.isObject(obj)) {
 		return null;
@@ -123,6 +163,13 @@ Util.hashToArray = function(obj) {
 	return a;
 };
 
+/**
+ * Inverts a hash
+ *
+ * @method invertHash
+ * @param {Object} obj Hash object
+ * @return {Object} Inverted hash
+ */
 Util.invertHash = function(obj) {
 	if (!Util.isObject(obj)) {
 		return null;
@@ -137,6 +184,13 @@ Util.invertHash = function(obj) {
 	return new_obj;
 };
 
+/**
+ * Clones an array
+ *
+ * @method copyArray
+ * @param {Array} array
+ * @return {Array} Cloned array
+ */
 Util.copyArray = function(array) {
 	if (!util.isArray(array)) {
 		return null;
@@ -149,6 +203,11 @@ Util.copyArray = function(array) {
 	return clone;
 };
 
+/**
+ * Pushes all of one array's values into another
+ * @param {Array} from
+ * @param {Array} to
+ */
 Util.arrayPushAll = function(from, to) {
 	if (!util.isArray(from) || !util.isArray(to)) {
 		return;
@@ -167,26 +226,65 @@ Util.cb = function(err, result){
 	//do nothing
 };
 
+/**
+ * Creates a unique Id
+ *
+ * @method uniqueId
+ * @return {Object} Unique Id Object
+ */
 Util.uniqueId = function(){
 	return new ObjectID();
 };
 
+/**
+ * Tests if a value is an object
+ *
+ * @method isObject
+ * @param {*} value
+ * @return {Boolean}
+ */
 Util.isObject = function(value) {
 	return value != undefined && value != null && typeof value === 'object';
 };
 
+/**
+ * Tests if a value is an string
+ *
+ * @method isString
+ * @param {*} value
+ * @return {Boolean}
+ */
 Util.isString = function(value) {
 	return value != undefined && value != null && typeof value === 'string';
 };
 
+/**
+ * Tests if a value is a function
+ *
+ * @method isFunction
+ * @param {*} value
+ * @return {Boolean}
+ */
 Util.isFunction = function(value) {
 	return value != undefined && value != null && typeof value === 'function';
 };
 
+/**
+ * Tests if a value is a boolean
+ *
+ * @method isBoolean
+ * @param {*} value
+ * @return {Boolean}
+ */
 Util.isBoolean = function(value) {
     return value === true || value === false;
 }
 
+/**
+ * Retrieves the subdirectories of a path
+ * @param {String}   dirPath The starting path
+ * @param {Function} cb      Callback function
+ */
 Util.getDirectories = function(dirPath, cb) {
 
 	var dirs = [];

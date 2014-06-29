@@ -1,9 +1,19 @@
-/**
- * DB Manager
- * 
- * @author Brian Hyder <brianhyder@gmail.com>
- * @copyright PencilBlue 2013, All Rights Reserved
- */
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 //requirements
 global.mongo    = require('mongodb').MongoClient;
@@ -12,30 +22,38 @@ global.ObjectID = require('mongodb').ObjectID;
 
 /**
  * Legacy variable used to reference the main database
- * TODO [PRODUCTION SHOW STOPPER] Remove this once all references are converted 
- * over.
+ * TODO Remove this once all references are converted over.
  */
 global.mongoDB;
 
 /**
- * Wrapper that protects against direct access to the active connection pools 
+ * Wrapper that protects against direct access to the active connection pools
  * and DB references.
+ *
+ * @module Database
+ * @class DBManager
+ * @constructor
  */
 function DBManager(){}
-	
+
 /**
  * Keeps track of all active DBs with active connection pools.
+ *
+ * @param dbs
+ * @type {Object}
  */
 var dbs  = {};
 
 /**
- * Retrieves a handle to the specified database.  
- * @returns Promise that will either resolve to the DB handle or the error 
- * that occurred
+ * Retrieves a handle to the specified database.
+ *
+ * @method getDB
+ * @param {String} name The database name
+ * @return {Object}     A promise object
  */
 DBManager.prototype.getDB = function(name) {
     var self = this;
-    
+
     if(!name){
         name = pb.config.db.name;
     }
@@ -48,7 +66,7 @@ DBManager.prototype.getDB = function(name) {
     else{
         var dbURL   = pb.config.db.servers[0] + name;
         var options = {
-            w: pb.config.db.writeConcern	
+            w: pb.config.db.writeConcern
         };
 
         pb.log.debug("Attempting connection to: "+dbURL);
@@ -63,7 +81,7 @@ DBManager.prototype.getDB = function(name) {
                         promise.resolve(new Error("Failed to authenticate to db "+name+": "+util.inspect(didAuthenticate)));
                         return;
                     }
-                    
+
                     //save reference to connection in global connection pool
                     dbs[db.databaseName]  = db;
 
@@ -89,14 +107,16 @@ DBManager.prototype.authenticate = function(auth, db, cb) {
         cb(null, null);
         return;
     }
-    
+
     db.authenticate(auth.un, auth.pw, auth.options ? auth.options : {}, cb);
 };
 
 /**
  * Indicates if a connection pool to the specified database has already been
- * initialized 
- * @returns boolean
+ * initialized
+ *
+ * @method hasConnected
+ * @return {Boolean} Whether the pool has been connected
  */
 DBManager.prototype.hasConnected = function(){
     return dbs.hasOwnProperty(name);
@@ -104,18 +124,21 @@ DBManager.prototype.hasConnected = function(){
 
 /**
  * Iterates over all database handles and call's their shutdown function.
- * @returns Array of promises, one for each shutdown call
+ *
+ * @method shutdown
+ * @param {Function} cb Callback function
+ * @return {Array}      Array of promise objects, one for each shutdown call
  */
 DBManager.shutdown = function(cb){
     cb = cb || pb.utils.cb;
-    
+
     var tasks = pb.utils.getTasks(Object.keys(dbs), function(keys, i) {
         return function(callback) {
             var d = domain.create();
             d.run(function() {
                 dbs[keys[i]].close(true, function(err, result) {
                     if (util.isError(err)) {
-                        throw err;   
+                        throw err;
                     }
                     callback(null, result);
                 });

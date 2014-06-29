@@ -1,15 +1,30 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * Section - Responsible for looking up a specific section and rendering it.
- * 
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright PencilBlue, LLC. 2014 All Rights Reserved
+ * Loads a section
  */
+
 function Section(){}
 
 //dependencies
 var Index = require('./index.js');
 
-//inheritance 
+//inheritance
 util.inherits(Section, Index);
 
 
@@ -22,9 +37,9 @@ Section.prototype.render = function(cb) {
 			self.reqHandler.serve404();
 			return;
 		}
-		
+
 		self.req.pencilblue_section = section._id.toString();
-		this.section = section; 
+		this.section = section;
 		Section.super_.prototype.render.apply(self, [cb]);
 	});
 };
