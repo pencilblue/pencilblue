@@ -60,7 +60,7 @@ AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
         };
     });
     async.parallel(tasks, function(err, results) {
-        cb(err, results.join(''));
+        cb(err, new pb.TemplateValue(results.join(''), false));
     });
 };
 
