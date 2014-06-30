@@ -16,9 +16,11 @@
 */
 
 /**
- * Loads files in the public folder
+ * Loads files in a plugin's public folder
+ * @class PluginPublicContentController
+ * @constructor
+ * @extends BaseController
  */
-
 function PluginPublicContentController(){}
 
 //dependencies
@@ -28,7 +30,11 @@ var BaseController = pb.BaseController;
 //inheritance
 util.inherits(PluginPublicContentController, BaseController);
 
-
+/**
+ * @see BaseController.render
+ * @method render
+ * @param {Function} cb
+ */
 PluginPublicContentController.prototype.render = function(cb) {
 	var plugin          = this.pathVars.plugin;
 	var pathParts       = this.req.url.split('/');
@@ -36,7 +42,16 @@ PluginPublicContentController.prototype.render = function(cb) {
 
 	var postPluginPath  = pathParts.join(path.sep);
 	var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
-	var resourcePath    = path.join(pluginPublicDir, postPluginPath);
+
+    //do check for valid strings otherwise serve 404
+    if (!pb.utils.isString(postPluginPath) || !pb.utils.isString(pluginPublicDir)) {
+        pb.log.silly('PluginPublicContentController: Invalid public path was provided. POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', postPluginPath, pluginPublicDir, this.req.url);
+        this.reqHandler.serve404();
+        return;
+    }
+
+    //serve up the content
+	var resourcePath = path.join(pluginPublicDir, postPluginPath);
 	this.reqHandler.servePublicContent(resourcePath);
 };
 
