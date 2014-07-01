@@ -1027,6 +1027,8 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 
          //call plugin's onStartup function
          function(callback) {
+             pb.log.info('PluginService:[INIT] Attempting to call onStartup function for %s.', details.uid);
+             
         	var mainModule = ACTIVE_PLUGINS[details.uid].main_module;
         	if (typeof mainModule.onStartup === 'function') {
 
@@ -1056,6 +1058,8 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
                         }
 
                         if (timeoutProtect) {
+                            pb.log.debug('PluginService:[INIT] Plugin %s onStartup returned with result: %s', details.uid, didStart);
+                            
                             clearTimeout(timeoutProtect);
                             callback(err, didStart);
                         }
