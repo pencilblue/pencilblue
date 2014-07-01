@@ -46,7 +46,7 @@ Portfolio.onStartup = function(cb) {
             }
         ];
     });
-    cb(null, false);
+    cb(null, true);
 };
 
 /**
