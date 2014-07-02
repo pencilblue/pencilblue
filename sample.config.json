@@ -1,5 +1,5 @@
 {
-    "CAN_BE_REMOVED": "For all of the available properties that can be modified look at the include/config.js file.  It also documents all of the different options."
+    "CAN_BE_REMOVED": "For all of the available properties that can be modified look at the include/config.js file.  It also documents all of the different options.",
 	"siteName": "My PencilBlue Site",
 	"siteRoot": "http://localhost:8080",
 	"siteIP":   "localhost",
