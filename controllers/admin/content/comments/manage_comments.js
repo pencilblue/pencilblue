@@ -15,50 +15,82 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for managing comments
- */
-
-function ManageComments() {}
-
 //dependencies
 var Comments = require('../comments');
+
+/**
+ * Interface for managing comments
+ * @class ManageComments
+ * @constructor
+ */
+function ManageComments() {}
 
 //inheritance
 util.inherits(ManageComments, pb.BaseController);
 
+/**
+ *
+ * @private
+ * @static
+ * @property SUB_NAV_KEY
+ * @type {String}
+ */
 var SUB_NAV_KEY = 'manage_comments';
 
+/**
+ * @see BaseController.render
+ * @method render
+ * @param {Function} cb
+ */
 ManageComments.prototype.render = function(cb) {
     var self = this;
+
+    //query for comments (limited to 500)
     var dao  = new pb.DAO();
     dao.query('comment', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {created: -1}, 500).then(function(comments) {
         if (util.isError(comments)) {
-            //TODO handle this
+            self.reqHandler.serveError(comments);
+            return;
         }
 
-        pb.settings.get('content_settings', function(err, contentSettings) {
-            self.getCommentDetails(comments, dao, function(commentsWithDetails) {
-                self.setPageName(self.ls.get('MANAGE_COMMENTS'));
-                self.ts.load('admin/content/comments/manage_comments', function(err, data) {
-                    var result = ''+data;
+        //retrieve the content settings or defaults if they have not yet been configured
+        pb.content.getSettings(function(err, contentSettings) {
 
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
+            //retrieve any details
+            self.getCommentDetails(comments, dao, function(commentsWithDetails) {
+
+                //create the angular controller
+                var pills   = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
+                var angular = pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
                         pills: pills,
                         comments: commentsWithDetails,
                         allowComments: contentSettings.allow_comments
-                    }, [], 'initCommentsPagination()'));
+                    }, [], 'initCommentsPagination()');
 
-                    cb({content: result});
+                //load the template
+                self.setPageName(self.ls.get('MANAGE_COMMENTS'));
+                self.ts.registerLocal('angular_script', angular);
+                self.ts.load('admin/content/comments/manage_comments', function(err, html) {
+                    if (util.isError(err)) {
+                        self.reqHandler.serveError(err);
+                        return;
+                    }
+                    cb({content: html});
                 });
             });
         });
     });
 };
 
+/**
+ *
+ * @method getCommentDetails
+ * @param {Array} comments
+ * @param {DAO} dao
+ * @param {Function} cb
+ */
 ManageComments.prototype.getCommentDetails = function(comments, dao, cb) {
     var self = this;
 
@@ -93,6 +125,14 @@ ManageComments.prototype.getCommentDetails = function(comments, dao, cb) {
     this.getCommentingUser(0);
 };
 
+/**
+ *
+ * @static
+ * @method getSubNavItems
+ * @param {String} key
+ * @param {Localization} ls
+ * @param {*} data
+ */
 ManageComments.getSubNavItems = function(key, ls, data) {
     var pills = Comments.getPillNavOptions();
     pills.unshift(

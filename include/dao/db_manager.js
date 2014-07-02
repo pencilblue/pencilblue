@@ -60,7 +60,7 @@ DBManager.prototype.getDB = function(name) {
     var promise = new Promise();
 
     if (dbs.hasOwnProperty(name)) {
-        log.debug("Providing cached instance of DB connection ["+name+"]");
+        log.debug("Providing cached instance of DB connection [%s]", name);
         promise.resolve(dbs[name]);
     }
     else{
@@ -69,7 +69,7 @@ DBManager.prototype.getDB = function(name) {
             w: pb.config.db.writeConcern
         };
 
-        pb.log.debug("Attempting connection to: "+dbURL);
+        pb.log.debug("Attempting connection to: %s", dbURL);
         mongo.connect(dbURL, options, function(err, db){
             if(!err){
                 self.authenticate(pb.config.db.authentication, db, function(err, didAuthenticate) {
@@ -103,7 +103,7 @@ DBManager.prototype.getDB = function(name) {
 
 DBManager.prototype.authenticate = function(auth, db, cb) {
     if (!pb.utils.isObject(auth) || !pb.utils.isString(auth.un) || !pb.utils.isString(auth.pw)) {
-        pb.log.debug('DBManager: An empty auth object was passed for DB [%s]. Skipping authentication.', db.databasename);
+        pb.log.debug('DBManager: An empty auth object was passed for DB [%s]. Skipping authentication.', db.databaseName);
         cb(null, null);
         return;
     }
