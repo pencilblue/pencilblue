@@ -32,28 +32,32 @@ function setupInputs()
             }
             else if(customObjectType.fields[key].field_type == 'child_objects')
             {
-                $('#' + key + '_draggable .child_object').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
-
-                $('#active_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
-                {
-                    $('#active_' + key).append(ui.draggable);
-                }});
-
-                $('#inactive_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
-                {
-                    $('#inactive_' + key).append(ui.draggable);
-                }});
-
-                new jNarrow('#' + key + '_search', '#inactive_' + key + ' .child_object',
-                {
-                    searchChildElement: '.' + key + '_name',
-                    searchButton: '#' + key + '_search_button',
-                    searchText: '<i class="fa fa-search"></i>',
-                    clearText: '<i class="fa fa-times"></i>',
-                });
+                setupChildObjectInput(key);
             }
         }
     }
+}
+
+function setupChildObjectInput(key) {
+    $('#' + key + '_draggable .child_object').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
+
+    $('#active_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
+    {
+        $('#active_' + key).append(ui.draggable);
+    }});
+
+    $('#inactive_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
+    {
+        $('#inactive_' + key).append(ui.draggable);
+    }});
+
+    new jNarrow('#' + key + '_search', '#inactive_' + key + ' .child_object',
+    {
+        searchChildElement: '.' + key + '_name',
+        searchButton: '#' + key + '_search_button',
+        searchText: '<i class="fa fa-search"></i>',
+        clearText: '<i class="fa fa-times"></i>',
+    });
 }
 
 function initCustomObjectsPagination()
