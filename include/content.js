@@ -100,7 +100,7 @@ ContentService.getTimestampText = function(date, format, twoDigitDate, displayTi
     ];
 
     var month = twoDigitDate ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1).toString();
-    var day = twoDigitDate ? '0' + date.getDate(): date.getDate();
+    var day = twoDigitDate ? '0' + date.getDate() : date.getDate().toString();
 
     dateString = dateString.split('YYYY').join(date.getFullYear());
     dateString = dateString.split('yy').join(date.getYear());
