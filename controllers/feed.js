@@ -33,6 +33,7 @@ ArticleFeed.prototype.render = function(cb) {
 	var self = this;
 
 	this.ts.registerLocal('language', pb.config.defaultLanguage ? pb.config.defaultLanguage : 'en-us');
+    this.ts.registerLocal('last_build', self.getBuildDate());
 	this.ts.registerLocal('items', function(flag, cb){
 
         var dao   = new pb.DAO();
@@ -87,6 +88,24 @@ ArticleFeed.prototype.render = function(cb) {
 		};
 		cb(data);
     });
+};
+
+ArticleFeed.prototype.getBuildDate = function() {
+    var date = new Date();
+    //Thu, 03 Jul 2014 18:21:05 +0000
+
+    var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    this.zeroNum = function(num) {
+        if(num < 10) {
+            return '0' + num;
+        }
+
+        return num.toString();
+    };
+
+    return days[date.getDay()] + ', ' + this.zeroNum(date.getDate()) + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() + ' ' + this.zeroNum(date.getHours()) + ':' + this.zeroNum(date.getMinutes()) + ':' + this.zeroNum(date.getSeconds()) + ' +0000';
 };
 
 
