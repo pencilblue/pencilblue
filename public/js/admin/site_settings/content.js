@@ -28,6 +28,11 @@ var formRefillOptions =
         elementPrefix: 'display_timestamp_'
     },
     {
+        id: 'two_digit_date',
+        type: 'button_group',
+        elementPrefix: 'two_digit_date_'
+    },
+    {
         id: 'display_hours_minutes',
         type: 'button_group',
         elementPrefix: 'display_hours_minutes_'
@@ -36,6 +41,11 @@ var formRefillOptions =
         id: 'time_format',
         type: 'button_group',
         elementPrefix: 'time_format_'
+    },
+    {
+        id: 'two_digit_time',
+        type: 'button_group',
+        elementPrefix: 'two_digit_time_'
     },
     {
         id: 'display_bylines',

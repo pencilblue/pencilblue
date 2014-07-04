@@ -58,7 +58,7 @@ NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
                     return;
                 }
 
-                var timestamp  = pb.content.getTimestampText(commentDocument.created, contentSettings.date_format, contentSettings.display_hours_minutes, contentSettings.time_format);
+                var timestamp  = pb.content.getTimestampTextFromSettings(commentDocument.created, contentSettings);
                 commentDocument.timestamp = self.localizationService.localize(['timestamp'], timestamp);
 				cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, 'comment created' , commentDocument)});
             });
