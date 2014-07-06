@@ -15,20 +15,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Loads a page
- */
-
-function Page(){}
-
 //dependencies
 var Index = require('./index.js');
 
+/**
+ * Loads a page
+ * @class PageController
+ * @constructor
+ */
+function PageController(){}
+
 //inheritance
-util.inherits(Page, Index);
+util.inherits(PageController, Index);
 
-
-Page.prototype.render = function(cb) {
+/**
+ * Looks up a page and renders it
+ * @see BaseController#render
+ * @method render
+ * @param {Function} cb
+ */
+PageController.prototype.render = function(cb) {
 	var self    = this;
 	var custUrl = this.pathVars.customUrl;
 
@@ -53,7 +59,7 @@ Page.prototype.render = function(cb) {
 	var dao     = new pb.DAO();
 	dao.loadByValues(where, 'page', function(err, page) {
 		if (util.isError(err) || page == null) {
-			cb({content: 'The page could not be found on this server', code: 404});
+			self.reqHandler.serve404();
 			return;
 		}
 		else if (doRedirect) {
@@ -63,13 +69,17 @@ Page.prototype.render = function(cb) {
 
 		self.req.pencilblue_page = page._id.toString();
 		this.page = page;
-		Page.super_.prototype.render.apply(self, [cb]);
+		PageController.super_.prototype.render.apply(self, [cb]);
 	});
 };
 
-Page.prototype.getPageTitle = function() {
-	return page.headline;
+/**
+ * Retrieves the name of the page.  The page's headhile
+ *
+ */
+PageController.prototype.getPageTitle = function() {
+	return this.page.headline;
 };
 
 //exports
-module.exports = Page;
+module.exports = PageController;
