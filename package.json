@@ -24,7 +24,7 @@
     "dependencies": {
     	"async": "0.2.9",
     	"cookies": "0.4.0",
-    	"fakeredis": "0.1.1",
+    	"fakeredis": "0.2.0",
 	    "formidable": "1.0.14",
         "htmlencode": "0.0.4",
 	    "locale": "0.0.14",

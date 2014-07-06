@@ -99,10 +99,13 @@ function refreshServers() {
       left: '50%' // Left position relative to parent
     };
     $('#cluster_info_table').spin(opts);
-    $.post('/api/cluster/refresh', {}, function(data, status, xhr) {
-        setTimeout(function() {window.location.reload();}, data.data.wait);
-    }, 'json')
-    .failure(function() {
 
+    var xhr = $.post('/api/cluster/refresh', {}, function(data, status, xhr) {
+        setTimeout(function() {
+            window.location.reload();
+        }, data.data.wait);
+    }, 'json');
+    xhr.fail(function() {
+        window.location.reload();
     });
 }

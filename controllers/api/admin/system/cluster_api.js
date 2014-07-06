@@ -18,8 +18,9 @@
 /**
  * Controller to properly route and handle remote calls to interact with
  * the cluster
+ * @class ClusterApiController
+ * @constructor
  */
-
 function ClusterApiController() {};
 
 //dependencies
@@ -37,14 +38,23 @@ var ACTIONS = {
 
 /**
  * Provides the hash of all actions supported by this controller
+ * @method getActions
+ * @return {Object} Hash of acceptable actions
  */
 ClusterApiController.prototype.getActions = function() {
 	return ACTIONS;
 };
 
+/**
+ * Causes the service registration storage to flush all status updates.  An API 
+ * object is returned to the client that specifies the correct amount of time to 
+ * wait before the service registry is updated again by all nodes.
+ * @method refresh
+ * @param {Function} cb
+ */
 ClusterApiController.prototype.refresh = function(cb) {
     pb.ServerRegistration.flush(function(err, result) {
-        var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', {wait: pb.config.registry.update_interval});
+        var content = BaseController.apiResponse(BaseController.API_SUCCESS, 'The wait time in seconds', {wait: pb.config.registry.update_interval});
         cb({content: content});
     });
 };

@@ -101,6 +101,11 @@ global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js').PBError;
 pb.Localization = require(DOCUMENT_ROOT+'/include/localization.js').Localization;
 pb.Localization.init();
 
+//server registration
+pb.MongoRegistrationProvider = require(path.join(DOCUMENT_ROOT, '/include/system/registry/mongo_registration_provider.js'));
+pb.RedisRegistrationProvider = require(path.join(DOCUMENT_ROOT, '/include/system/registry/redis_registration_provider.js'));
+pb.ServerRegistration        = require(DOCUMENT_ROOT+'/include/system/server_registration.js');
+
 //Email settings and functions
 pb.EmailService = require(DOCUMENT_ROOT+'/include/email').EmailService;
 pb.email        = new pb.EmailService();
@@ -110,7 +115,6 @@ pb.DocumentCreator    = require(DOCUMENT_ROOT+'/include/model/create_document.js
 pb.content            = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions
 pb.js                 = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
 pb.AdminNavigation    = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
-pb.ServerRegistration = require(DOCUMENT_ROOT+'/include/system/server_registration.js');
 pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subnav_service.js');
 pb.AnalyticsManager   = require(path.join(DOCUMENT_ROOT, '/include/system/analytics_manager.js'));
 pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
