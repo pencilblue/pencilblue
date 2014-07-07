@@ -1166,6 +1166,7 @@ RequestHandler.prototype.servePublicContent = function(absolutePath) {
 			svg: 'image/svg+xml',
 			jpg: 'image/jpeg',
 			gif: 'image/gif',
+            webp: 'image/webp',
 			ico: 'image/vnd.microsoft.icon',
 			tff: 'application/octet-stream',
 			eot: 'application/vnd.ms-fontobject',
