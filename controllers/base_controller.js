@@ -349,11 +349,18 @@ BaseController.prototype.getSanitizationRules = function() {
  */
 BaseController.getContentSanitizationRules = function() {
     return {
-        allowedTags: [ 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u' ],
+        allowedTags: [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u' ],
         allowedAttributes: {
             a: [ 'href', 'name', 'target' ],
             img: [ 'src' ],
-            p: ['align']
+            p: ['align'],
+            h1: ['style'],
+            h2: ['style'],
+            h3: ['style'],
+            h4: ['style'],
+            h5: ['style'],
+            h6: ['style'],
+            div: ['style']
         },
 
         // Lots of these won't come up by default because we don't allow them
