@@ -349,7 +349,7 @@ BaseController.prototype.getSanitizationRules = function() {
  */
 BaseController.getContentSanitizationRules = function() {
     return {
-        allowedTags: [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u' ],
+        allowedTags: [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u', 'span' ],
         allowedAttributes: {
             a: [ 'href', 'name', 'target', 'class' ],
             img: [ 'src', 'class' ],
@@ -360,7 +360,8 @@ BaseController.getContentSanitizationRules = function() {
             h4: ['style', 'class'],
             h5: ['style', 'class'],
             h6: ['style', 'class'],
-            div: ['style', 'class']
+            div: ['style', 'class'],
+            span: ['style', 'class']
         },
 
         // Lots of these won't come up by default because we don't allow them
