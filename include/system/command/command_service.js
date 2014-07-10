@@ -15,10 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//dependencies
-
 /**
- *
+ * Provides a mechanism to send commands to all members of the cluster or a
+ * specific member.
  * @class CommandService
  * @constructor
  */
@@ -40,14 +39,83 @@ var BROKER = null;
 var REGISTRANTS = {};
 
 /**
- *
+ * @private
+ * @property COMMAND_CHANNEL
+ * @type {String}
+ */
+var COMMAND_CHANNEL = 'pencilblue-command-channel';
+
+/**
+ * Initializes the service and the broker implementation.  The broker is
+ * determined by the configuration value of "command.broker".  This value can
+ * be "redis" for the out of the box implementation for Redis or an absolute
+ * path to another implementation.
  * @static
  * @method init
+ * @param {Function} cb A callback that takes two parameters: cb(Error, TRUE/FALSE)
  */
-CommandService.init = function() {
-    //initialize publish/subscribe interface here
+CommandService.init = function(cb) {
+    pb.log.debug('CommandService: Initializing...');
+
+    //figure out which broker to use
+    var BrokerPrototype = null;
+    if (pb.config.command.broker === 'redis') {
+        BrokerPrototype = pb.RedisCommandBroker;
+    }
+    else {
+        try {
+            BrokerPrototype = require(pb.config.command.broker);
+        }
+        catch(e){
+            pb.log.error('CommandService: Failed to load CommandBroker implementation at [%s]. %s', pb.config.command.broker, e.stack);
+        }
+    }
+
+    //ensure a broker was found
+    if (!BrokerPrototype) {
+        cb(new Error('A valid CommandBroker must be provided in order to initialize the CommandService'));
+    }
+
+    //instantiate the command broker
+    BROKER = new BrokerPrototype();
+    BROKER.init(function(err, result) {
+        if (util.isError(err)) {
+            cb(err);
+            return;
+        }
+
+        BROKER.subscribe(COMMAND_CHANNEL, CommandService.onCommandReceived, cb);
+    });
 };
 
+/**
+ * Shuts down the command service and the broker if initialized
+ * @static
+ * @method shutdown
+ * @param {Function} cb A callback that takes two parameters: cb(Error, TRUE/FALSE)
+ */
+CommandService.shutdown = function(cb) {
+    pb.log.debug('CommandService: Shutting down...');
+
+    REGISTRANTS = {};
+    if (BROKER) {
+        BROKER.shutdown(cb);
+    }
+    else {
+        cb(null, true);
+    }
+};
+
+/**
+ * Registers a handler for incoming commands of the specified type.
+ * @static
+ * @method registerForType
+ * @param {String} type The name/type of the command to handle
+ * @param {Function} handler A function that takes two parameters:
+ * handler(channel, command). where channel is a string and command is an
+ * object.
+ * @returns {Boolean} TRUE if the the handler was registered, FALSE if not.
+ */
 CommandService.registerForType = function(type, handler) {
     if (!pb.validation.validateNonEmptyStr(type, true) || !pb.utils.isFunction(handler)) {
         return false;
@@ -62,6 +130,15 @@ CommandService.registerForType = function(type, handler) {
     return true;
 };
 
+/**
+ * Unregisters a handler for the specified type.
+ * @static
+ * @method unregisterForType
+ * @param {String} type The name/type of the command that the handler is
+ * registered for
+ * @param {Function} handler The handler function to unregister
+ * @returns {Boolean} TRUE if the handler was unregistered, FALSE if not.
+ */
 CommandService.unregisterForType = function(type, handler) {
     if (!pb.validation.validateNonEmptyStr(type, true) || !pb.utils.isFunction(handler)) {
         return false;
@@ -80,6 +157,15 @@ CommandService.unregisterForType = function(type, handler) {
     return false;
 };
 
+/**
+ * Responsible for delegating out the received command to the registered
+ * handlers.  The command parameter must be an object, must have a type
+ * property that is a string, and must have a registered handler for the
+ * specified type.
+ * @static
+ * @method notifyOfCommand
+ * @param {Object} command The command to delegate
+ */
 CommandService.notifyOfCommand = function(command) {
     if (!pb.utils.isObject(command)) {
         return;
@@ -91,6 +177,7 @@ CommandService.notifyOfCommand = function(command) {
     }
 
     if (!util.isArray(REGISTRANTS[type])) {
+        pb.log.warn('CommandService: Command of type [%s] was received but there are no registered handlers.', type);
         return;
     }
 
@@ -117,6 +204,10 @@ CommandService.sendCommand = function(type, options, cb) {
         cb(new Error("The command type is required"));
         return;
     }
+    else if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
     else if (!pb.validation.validateObject(options, false)) {
         cb(new Error('When provided the options parameter must be an object'));
         return;
@@ -131,23 +222,43 @@ CommandService.sendCommand = function(type, options, cb) {
     }
 
     //set who its from
-    options.from = '';//TODO fill this in
+    options.from = pb.ServerRegistration.generateKey();
     options.type = type;
     options.date = new Date();
 
-    BROKER.publish(command, cb);
+    //ensure each command is sent with an ID.  Allow the ID to already be set
+    //in the event that we are sending a response.
+    if (!options.id) {
+        options.id = pb.utils.uniqueId();
+    }
+
+    //instruct the broker to broadcast the command
+    BROKER.publish(COMMAND_CHANNEL, options, cb);
 };
 
-
-CommandService.onCommandRecieved = function(channel, command) {
-    var uid = '';//TODO fill this in
+/**
+ * The global handler for incoming commands.  It registers itself with the
+ * broker and then when messages are received it verifies that the message is
+ * meant for this member of the cluster (or all members) then proceeds to
+ * handoff to the function that will delegate out to the handlers.
+ * @static
+ * @method onCommandReceived
+ * @param {String} channel The channel to listen for incoming commands
+ * @param {Object} command The command to verify and delegate
+ */
+CommandService.onCommandReceived = function(channel, command) {
+    var uid = pb.ServerRegistration.generateKey();
     if (command.to === uid || command.to === null || command.to === undefined) {
         CommandService.notifyOfCommand(command);
     }
     else {
         //skip because it isn't addressed to us
+        pb.log.silly('CommandService: The command was not addressed to me [%s] but to [%s]. Skipping.', uid, command.to);
     }
 };
+
+//register for events
+pb.system.registerShutdownHook('CommandService', CommandService.shutdown);
 
 //exports
 module.exports = CommandService;
