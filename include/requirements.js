@@ -106,6 +106,10 @@ pb.MongoRegistrationProvider = require(path.join(DOCUMENT_ROOT, '/include/system
 pb.RedisRegistrationProvider = require(path.join(DOCUMENT_ROOT, '/include/system/registry/redis_registration_provider.js'));
 pb.ServerRegistration        = require(DOCUMENT_ROOT+'/include/system/server_registration.js');
 
+//command service
+pb.RedisCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/redis_command_broker.js'));
+pb.CommandService     = require(path.join(DOCUMENT_ROOT, '/include/system/command/command_service.js'));
+
 //Email settings and functions
 pb.EmailService = require(DOCUMENT_ROOT+'/include/email').EmailService;
 pb.email        = new pb.EmailService();

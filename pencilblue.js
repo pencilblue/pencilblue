@@ -34,13 +34,14 @@ function PencilBlue(){}
  * connection pool to the core DB.
  */
 PencilBlue.init = function(){
-	var tasks = [
-         PencilBlue.initRequestHandler,
-         PencilBlue.initDBConnections,
-         PencilBlue.initServer,
-         PencilBlue.initPlugins,
-         PencilBlue.initServerRegistration
-     ];
+    var tasks = [
+        PencilBlue.initRequestHandler,
+        PencilBlue.initDBConnections,
+        PencilBlue.initServer,
+        PencilBlue.initPlugins,
+        PencilBlue.initServerRegistration,
+        PencilBlue.initCommandService,
+    ];
 	async.series(tasks, function(err, results) {
 		if (util.isError(err)) {
 			throw err;
@@ -197,6 +198,16 @@ PencilBlue.onHttpConnectForHandoff = function(req, res) {
  */
 PencilBlue.initServerRegistration = function(cb) {
 	pb.ServerRegistration.init(cb);
+};
+
+/**
+ * Initializes the command service by calling its "init" function.
+ * @static
+ * @method initCommandService
+ * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
+ */
+PencilBlue.initCommandService = function(cb) {
+    pb.CommandService.init(cb);
 };
 
 //start system
