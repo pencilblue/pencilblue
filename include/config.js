@@ -189,6 +189,16 @@ var config = {
             cert: "ssl/cert.crt",
             chain: "ssl/chain.crt"
         }
+    },
+
+    //PB uses a publish subscribe model to announce events to other members of
+    //the cluster.  Out of the box PB provides a Redis implementation but it is
+    //also possible to provide a custom implementation. AMQP would be a good
+    //future implementation just as an example.  Custom implementations can be
+    //used by providing the absolute path to the implementation in the "broker"
+    //field.
+    command: {
+        broker: 'redis'
     }
 };
 
