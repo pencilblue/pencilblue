@@ -163,17 +163,34 @@ ImportWP.prototype.saveNewTopics = function(channel, cb) {
 
     var categories = channel['wp:category'];
     for(var i = 0; i < categories.length; i++) {
-        for(var j = 0; j < categories[i]['wp:category_nicename'].length; j++) {
+        for(var j = 0; j < categories[i]['wp:cat_name'].length; j++) {
             var topicMatch = false;
             for(var s = 0; s < topics.length; s++) {
-                if(categories[i]['wp:category_nicename'][j] === topics[s]) {
+                if(categories[i]['wp:cat_name'][j] === topics[s]) {
                     topicMatch = true;
                     break;
                 }
             }
 
-            if(!topicMatch && categories[i]['wp:category_nicename'][j] !== 'uncategorized') {
-                topics.push({name: categories[i]['wp:category_nicename'][j]});
+            if(!topicMatch && categories[i]['wp:cat_name'][j] !== 'uncategorized') {
+                topics.push({name: categories[i]['wp:cat_name'][j]});
+            }
+        }
+    }
+
+    var tags = channel['wp:tag'];
+    for(var i = 0; i < tags.length; i++) {
+        for(var j = 0; j < tags[i]['wp:tag_name'].length; j++) {
+            var topicMatch = false;
+            for(var s = 0; s < topics.length; s++) {
+                if(tags[i]['wp:tag_name'][j] === topics[s]) {
+                    topicMatch = true;
+                    break;
+                }
+            }
+
+            if(!topicMatch) {
+                topics.push({name: tags[i]['wp:tag_name'][j]});
             }
         }
     }
