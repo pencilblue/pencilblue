@@ -52,9 +52,12 @@ ImportWP.prototype.render = function(cb) {
 
                 var channel = wpData.rss.channel[0];
 
-                self.saveNewUsers(channel, function(newUsers){
-                    self.session.success = 'Good so far';
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Good so far')});
+                self.saveNewUsers(channel, function(users){
+                    self.saveNewTopics(channel, function(topics) {
+                        console.log(topics);
+                        self.session.success = 'Good so far';
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Good so far')});
+                    });
                 });
             });
         });
@@ -72,10 +75,13 @@ ImportWP.prototype.saveNewUsers = function(channel, cb) {
             return;
         }
 
-        dao.count('user', {name: users[index].username}, function(err, count) {
-            if(count > 0) {
-                users.splice(index, 1);
-                self.attemptUserSave(index);
+        dao.loadByValue('username', users[index].username, 'user', function(err, existingUser) {
+            if(existingUser) {
+                users[index] = existingUser;
+                delete users[index].password;
+
+                index++;
+                self.checkForExistingUser(index);
                 return;
             }
 
@@ -123,6 +129,61 @@ ImportWP.prototype.saveNewUsers = function(channel, cb) {
 
         cb(users);
     });
+};
+
+ImportWP.prototype.saveNewTopics = function(channel, cb) {
+    var self = this;
+    var topics = [];
+    var dao = new pb.DAO();
+
+    this.checkForExistingTopic = function(index) {
+        if(index >= topics.length) {
+            cb(topics);
+            return;
+        }
+
+        dao.loadByValue('name', topics[index].name, 'topic', function(err, existingTopic) {
+            if(existingTopic) {
+                topics[index] = existingTopic;
+
+                index++;
+                self.checkForExistingTopic(index);
+                return;
+            }
+
+            var newTopic = pb.DocumentCreator.create('topic', topics[index]);
+            dao.update(newTopic).then(function(result) {
+                topics[index]._id = result._id;
+
+                index++;
+                self.checkForExistingTopic(index);
+            });
+        });
+    };
+
+    var categories = channel['wp:category'];
+    for(var i = 0; i < categories.length; i++) {
+        for(var j = 0; j < categories[i]['wp:category_nicename'].length; j++) {
+            var topicMatch = false;
+            for(var s = 0; s < topics.length; s++) {
+                if(categories[i]['wp:category_nicename'][j] === topics[s]) {
+                    topicMatch = true;
+                    break;
+                }
+            }
+
+            if(!topicMatch && categories[i]['wp:category_nicename'][j] !== 'uncategorized') {
+                topics.push({name: categories[i]['wp:category_nicename'][j]});
+            }
+        }
+    }
+
+    if(topics.length > 0) {
+        self.checkForExistingTopic(0);
+        return;
+    }
+
+    cb(topics);
 };
 
 ImportWP.prototype.generatePassword = function()
