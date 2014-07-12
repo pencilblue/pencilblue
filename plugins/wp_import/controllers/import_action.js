@@ -54,9 +54,10 @@ ImportWP.prototype.render = function(cb) {
 
                 self.saveNewUsers(channel, function(users){
                     self.saveNewTopics(channel, function(topics) {
-                        console.log(topics);
-                        self.session.success = 'Good so far';
-                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Good so far')});
+                        self.saveNewArticlesAndPages(channel, users, topics, function(articles, pages, media) {
+                            self.session.success = 'Good so far';
+                            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Good so far')});
+                        });
                     });
                 });
             });
@@ -105,7 +106,6 @@ ImportWP.prototype.saveNewUsers = function(channel, cb) {
 
     pb.plugins.getSetting('create_new_users', 'wp_import', function(err, createNewUsers) {
         if(createNewUsers) {
-
             for(var i = 0; i < channel.item.length; i++) {
                 for(var j = 0; j < channel.item[i]['dc:creator'].length; j++) {
                     var userMatch = false;
@@ -120,14 +120,9 @@ ImportWP.prototype.saveNewUsers = function(channel, cb) {
                     }
                 }
             }
-
-            if(users.length > 0) {
-                self.checkForExistingUser(0);
-                return;
-            }
         }
 
-        cb(users);
+        self.checkForExistingUser(0);
     });
 };
 
@@ -195,12 +190,137 @@ ImportWP.prototype.saveNewTopics = function(channel, cb) {
         }
     }
 
-    if(topics.length > 0) {
-        self.checkForExistingTopic(0);
-        return;
+    self.checkForExistingUser(0);
+};
+
+ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb) {
+    var self = this;
+    var rawArticles = [];
+    var rawPages = [];
+    var articles = [];
+    var pages = [];
+    var media = [];
+    var dao = new pb.DAO();
+
+    this.checkForExistingPage = function(index) {
+        if(index >= rawPages.length) {
+            self.checkForExistingArticle(0);
+            return;
+        }
+
+        var rawPage = rawPages[index];
+        dao.loadByValue('url', rawPage['wp:post_name'], 'page', function(err, existingPage) {
+            if(existingPage) {
+                pages.push(existingPage);
+                index++;
+                self.checkForExistingPage(index);
+                return;
+            }
+
+            var pageTopics = [];
+            for(var i = 0; i < rawPage.category.length; i++) {
+                if(typeof rawPage.category[i] === 'string') {
+                    for(var j = 0; j < topics.length; j++) {
+                        if(topics[j].name == rawPage.category[i]) {
+                            pageTopics.push(topics[j]._id.toString());
+                        }
+                    }
+                }
+            }
+
+            self.retrieveMediaObjects(rawPage['content:encoded'][0], function(updatedContent, mediaObjects) {
+                var pageMedia = [];
+                for(var i = 0; i < mediaObjects.length; i++) {
+                    pageMedia.push(mediaObjects[i]._id.toString());
+                }
+                self.addMedia(mediaObjects);
+
+                var newPage = pb.DocumentCreator.create('page', {url: rawPage['wp:post_name'], headline: rawPage.title[0], publish_date: new Date(rawPage['wp:post_date']), page_layout: updatedContent, page_topics: pageTopics, page_media: pageMedia});
+                dao.update(newPage).then(function(result) {
+                    pages.push(result);
+
+                    index++;
+                    self.checkForExistingPage(index);
+                });
+            });
+        });
+    };
+
+    this.checkForExistingArticle = function(index) {
+        if(index >= rawArticles.length) {
+            cb(articles, pages, media);
+            return;
+        }
+
+        var rawArticle = rawArticles[index];
+        dao.loadByValue('url', rawArticle['wp:post_name'], 'article', function(err, existingArticle) {
+            if(existingArticle) {
+                articles.push(existingArticl);
+                index++;
+                self.checkForExistingArticle(index);
+                return;
+            }
+
+            var articleTopics = [];
+            for(var i = 0; i < rawArticle.category.length; i++) {
+                if(typeof rawArticle.category[i] === 'string') {
+                    for(var j = 0; j < topics.length; j++) {
+                        if(topics[j].name == rawArticle.category[i]) {
+                            articleTopics.push(topics[j]._id.toString());
+                        }
+                    }
+                }
+            }
+
+            self.retrieveMediaObjects(rawArticle['content:encoded'][0], function(updatedContent, mediaObjects) {
+                var articleMedia = [];
+                for(var i = 0; i < mediaObjects.length; i++) {
+                    articleMedia.push(mediaObjects[i]._id.toString());
+                }
+                self.addMedia(mediaObjects);
+
+                var newArticle = pb.DocumentCreator.create('article', {url: rawArticle['wp:post_name'], headline: rawArticle.title[0], publish_date: new Date(rawArticle['wp:post_date']), article_layout: updatedContent, article_topics: articleTopics, article_media: articleMedia});
+                dao.update(newArticle).then(function(result) {
+                    articles.push(result);
+
+                    index++;
+                    self.checkForExistingArticle(index);
+                });
+            });
+        });
+    };
+
+    this.addMedia = function(mediaObjects) {
+        for(var i = 0; i < mediaObjects.length; i++) {
+            var mediaMatch = false;
+            for(var j = 0; j < media.length; j++) {
+                if(media[j]._id.equals(mediaObjects[i])) {
+                    mediaMatch = true;
+                    break;
+                }
+            }
+
+            if(!mediaMatch) {
+                media.push(mediaObjects[i]);
+            }
+        }
+    };
+
+    var items = channel.item;
+    for(var i = 0; i < items.length; i++) {
+        if(items[i]['wp:post_type'][0] === 'page') {
+            rawPages.push(items[i]);
+        }
+        else if(items[i]['wp:post_type'][0] === 'post') {
+            rawArticles.push(items[i]);
+        }
     }
 
-    cb(topics);
+    self.checkForExistingPage(0);
+};
+
+ImportWP.prototype.retrieveMediaObject = function(content, cb) {
+    cb(content, []);
 };
 
 ImportWP.prototype.generatePassword = function()
