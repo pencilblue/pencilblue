@@ -46,8 +46,8 @@ ClusterApiController.prototype.getActions = function() {
 };
 
 /**
- * Causes the service registration storage to flush all status updates.  An API 
- * object is returned to the client that specifies the correct amount of time to 
+ * Causes the service registration storage to flush all status updates.  An API
+ * object is returned to the client that specifies the correct amount of time to
  * wait before the service registry is updated again by all nodes.
  * @method refresh
  * @param {Function} cb
