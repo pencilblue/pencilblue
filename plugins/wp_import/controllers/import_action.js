@@ -15,10 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Imports a CSV of topics
- */
-
 function ImportWP(){}
 
 var wpXMLParse = pb.plugins.getService('wp_xml_parse', 'wp_import');
