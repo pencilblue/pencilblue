@@ -15,6 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var npm = require('npm');
+npm.on('log', function(message) {
+    pb.log.info(message);
+});
+
 /**
  * PluginService - Provides functions for interacting with plugins.
  * Install/uninstall, setting retrieval, plugin retrieval, etc.
@@ -946,6 +952,16 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
              });
          },
 
+        //install dependencies
+        function(callback) {
+            if (details.dependencies) {
+                self.installPluginDependencies(pluginDirName, details.dependencies, callback);
+            }
+            else {
+                cb(null, true);
+            }
+        },
+
         //create plugin entry
         function(callback) {
         	 pb.log.info("PluginService: Setting system install flags for %s", details.uid);
@@ -1252,6 +1268,72 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 		//callback with final result
 		cb(err, !util.isError(err));
 	});
+};
+
+/**
+ * Installs the dependencies for a plugin via NPM.
+ * @method installPluginDependencies
+ * @param {String} pluginDirName
+ * @param {Object} dependencies
+ * @param {Function} cb
+ */
+PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, cb) {
+    if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !pb.utils.isObject(dependencies)) {
+        cb(new Error('The plugin directory name and the dependencies are required'));
+        return;
+    }
+
+    var statements = [];
+    var logit = function(message) {
+        statements.push(message);
+    };
+    var onDone = function(err, results) {
+        npm.removeListener('log', logit);
+        cb(err, results);
+    };
+
+    //ensure the node_modules directory exists
+    var prefixPath = path.join(PluginService.getPluginsDir(), pluginDirName);
+
+    //log and load
+    npm.on('log', logit);
+    npm.load({prefix: prefixPath}, function(err) {
+        if (util.isError(err)) {
+            onDone(err);
+            return;
+        }
+
+        //lines up the install tasks
+        var tasks = pb.utils.getTasks(Object.keys(dependencies), function(keys, i) {
+            return function(callback) {
+
+                var modVer  = keys[i]+'@'+dependencies[keys[i]];
+                var command = [modVer];
+                npm.commands.install(command, callback);
+            };
+        });
+        async.series(tasks, function(err, results) {
+            var result = {
+                log: statements,
+                results: results,
+                err: err? err.stack : null
+            }
+            onDone(err, results);
+        });
+    });
+};
+
+/**
+ * Loads a module dependencies for the specified plugin.
+ * @static
+ * @method require
+ * @param {String} pluginDirName
+ * @param {String} moduleName
+ * @returns {*} The entity returned by the "require" call.
+ */
+PluginService.require = function(pluginDirName, moduleName) {
+    var modulePath = path.join(PluginService.getPluginsDir(), pluginDirName, 'node_modules', moduleName);
+    return require(modulePath);
 };
 
 /**
@@ -1628,6 +1710,20 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 			errors.push("The theme block must be an object");
 		}
 	}
+
+    //validate the plugin's dependencies
+    if (details.dependencies) {
+        if (!pb.utils.isObject(details.dependencies)) {
+            errors.push("The dependencies block must be an object");
+        }
+        else {
+            for (var moduleName in details.dependencies) {
+                if (!pb.validation.validateNonEmptyStr(details.dependencies[moduleName], true)) {
+                    errors.push("An invalid dependencies ["+moduleName+"] with version ["+(typeof details.dependencies[moduleName])+"]["+details.dependencies[moduleName]+"] was found");
+                }
+            }
+        }
+    }
 
 	//prepare validation response
 	var error   = null;
