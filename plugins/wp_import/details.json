@@ -37,8 +37,7 @@
 	"main_module": {
 		"path": "wp_import.js"
 	},
-	"theme": {
-		"settings": [],
-		"content_templates":[]
-	}
+    "dependencies": {
+        "xml2js": "0.4.4"
+    }
 }
