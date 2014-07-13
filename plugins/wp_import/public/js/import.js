@@ -29,7 +29,7 @@ $(function()
                 window.location = '/admin/plugins/settings/wp_import/import';
                 return;
             }
-            window.location = '/admin/plugins/settings/wp_import';
+            window.location = '/admin/plugins/settings/wp_import/manage_new_users';
         },
         progressall: function (error, data)
         {

@@ -58,7 +58,7 @@ WPImportForm.getRoutes = function(cb) {
             method: 'get',
             path: '/admin/plugins/settings/wp_import/import',
             auth_required: true,
-            access_level: ACCESS_EDITOR,
+            access_level: ACCESS_MANAGING_EDITOR,
             content_type: 'text/html'
         }
     ];

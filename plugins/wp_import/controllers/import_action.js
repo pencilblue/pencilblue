@@ -62,6 +62,7 @@ ImportWP.prototype.render = function(cb) {
                     self.saveNewTopics(channel, function(topics) {
                         self.saveNewArticlesAndPages(channel, users, topics, function(articles, pages, media) {
                             self.session.success = '^loc_WP_IMPORT_SUCCESS^';
+                            self.session.importedUsers = users;
                             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Successfully imported WordPress content')});
                         });
                     });
@@ -285,8 +286,11 @@ ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb
             var author;
             for(i = 0; i < users.length; i++) {
                 if(users[i].username === authorUsername) {
-                    author = users[i];
+                    author = users[i]._id.toString();
                 }
+            }
+            if(!author) {
+                author = self.session.authentication.user_id;
             }
 
             self.retrieveMediaObjects(rawArticle['content:encoded'][0], function(updatedContent, mediaObjects) {
@@ -297,7 +301,7 @@ ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb
                 }
                 self.addMedia(mediaObjects);
 
-                var newArticle = pb.DocumentCreator.create('article', {url: rawArticle['wp:post_name'][0], headline: rawArticle.title[0], publish_date: new Date(rawArticle['wp:post_date'][0]), article_layout: updatedContent, article_topics: articleTopics, article_sections: [], article_media: articleMedia, seo_title: rawArticle.title[0], author: author._id.toString()});
+                var newArticle = pb.DocumentCreator.create('article', {url: rawArticle['wp:post_name'][0], headline: rawArticle.title[0], publish_date: new Date(rawArticle['wp:post_date'][0]), article_layout: updatedContent, article_topics: articleTopics, article_sections: [], article_media: articleMedia, seo_title: rawArticle.title[0], author: author});
                 dao.update(newArticle).then(function(result) {
                     articles.push(result);
 
@@ -520,7 +524,7 @@ ImportWP.getRoutes = function(cb) {
             method: 'post',
             path: '/actions/admin/plugins/settings/wp_import/import',
             auth_required: true,
-            access_level: ACCESS_EDITOR,
+            access_level: ACCESS_MANAGING_EDITOR,
             content_type: 'text/html'
         }
     ];

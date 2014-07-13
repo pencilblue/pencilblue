@@ -1,0 +1,53 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form id="home_page_settings_form" method="post" action="/actions/admin/plugins/settings/wp_import/manage_new_users">
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="users">
+                    <div class="panel panel-default" ng-repeat="user in users" ng-cloak>
+                        <div class="panel-heading">
+                            {{user.username}}
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label>^loc_FIRST_NAME^</label>
+                                <input type="text" class="form-control" id="first_name_{{user.username}}" name="first_name_{{user.username}}"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_LAST_NAME^</label>
+                                <input type="text" class="form-control" id="last_name_{{user.username}}" name="last_name_{{user.username}}"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_POSITION^</label>
+                                <input type="text" class="form-control" id="position_{{user.username}}" name="position_{{user.username}}"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_PASSWORD^</label>
+                                <input type="text" class="form-control" id="password_{{user.username}}" name="password_{{user.username}}" value="{{user.generatedPassword}}"></input>
+                            </div>
+                            <div class="form-group">
+                                <label>^loc_USER_TYPE^</label>
+                                <select id="admin_{{user.username}}" name="admin_{{user.username}}" class="form-control">
+                                    <option value="{{adminOption.value}}" ng-repeat="adminOption in adminOptions" ng-selected="user.admin == adminOption.value" ng-cloak>{{adminOption.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="btn btn-default" href="/admin/plugins/settings/wp_import">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                </button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<script type="text/javascript" src="/js/lib/jquery/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="/js/lib/jquery/jquery.fileupload.js"></script>
+<script type="text/javascript" src="/public/wp_import/js/import.js"></script>
+^tmp_admin=footer^
