@@ -17,6 +17,9 @@
 
 //dependencies
 var npm = require('npm');
+npm.on('log', function(message) {
+    pb.log.info(message);
+});
 
 /**
  * PluginService - Provides functions for interacting with plugins.
@@ -1288,19 +1291,24 @@ PluginService.prototype.installPluginDependencies = function(pluginDirName, depe
         npm.removeListener('log', logit);
         cb(err, results);
     };
+
+    //ensure the node_modules directory exists
+    var prefixPath = path.join(PluginService.getPluginsDir(), pluginDirName);
+
+    //log and load
     npm.on('log', logit);
-    npm.load(config, function(err) {
+    npm.load({prefix: prefixPath}, function(err) {
         if (util.isError(err)) {
             onDone(err);
             return;
         }
 
+        //lines up the install tasks
         var tasks = pb.utils.getTasks(Object.keys(dependencies), function(keys, i) {
             return function(callback) {
 
-                var nodeMoudlesDirPath = path.join(PluginService.getPluginsDir(), pluginDirName, 'node_modules');
-                var modVer             = keys[i]+'@'+dependencies[keys[i]];
-                var command            = [modVer, '--prefix', nodeModulesDirPath];
+                var modVer  = keys[i]+'@'+dependencies[keys[i]];
+                var command = [modVer];
                 npm.commands.install(command, callback);
             };
         });
@@ -1705,13 +1713,13 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 
     //validate the plugin's dependencies
     if (details.dependencies) {
-        if (pb.utils.isObject(details.dependencies)) {
+        if (!pb.utils.isObject(details.dependencies)) {
             errors.push("The dependencies block must be an object");
         }
         else {
             for (var moduleName in details.dependencies) {
                 if (!pb.validation.validateNonEmptyStr(details.dependencies[moduleName], true)) {
-                    errors.push("An invalid dependencies ["+moduleName+"] with version ["+details.dependencies[moduleName]+"] was found");
+                    errors.push("An invalid dependencies ["+moduleName+"] with version ["+(typeof details.dependencies[moduleName])+"]["+details.dependencies[moduleName]+"] was found");
                 }
             }
         }
