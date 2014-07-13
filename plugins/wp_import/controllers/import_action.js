@@ -348,9 +348,10 @@ ImportWP.prototype.retrieveMediaObjects = function(content, cb) {
             var startIndex = content.indexOf('<img');
             var mediaType = 'image';
             if(startIndex === -1) {
-                cb(content, mediaObjects);
+                self.checkForVideo();
                 return;
             }
+
 
             var endIndex1 = content.substr(startIndex).indexOf('/>');
             var endIndex2 = content.substr(startIndex).indexOf('/img>');
@@ -403,6 +404,39 @@ ImportWP.prototype.retrieveMediaObjects = function(content, cb) {
                     content = content.split(mediaString).join('^media_display_' + mediaObject._id.toString() + '/position:center^');
                     self.replaceMediaObject();
                 });
+            }
+        };
+
+        self.checkForVideo = function() {
+            var startIndex;
+            var endIndex;
+            var mediaString;
+            var location;
+
+            if(content.indexOf('[youtube=') > -1) {
+                startIndex = content.indexOf('[youtube=');
+                endIndex = content.substr(startIndex).indexOf(']') + 1;
+                mediaString = content.substr(startIndex, endIndex);
+                location = mediaString.substr(mediaString.indexOf('?v=') + 3, mediaString.substr(mediaString.indexOf('?v=') + 3).length - 1);
+
+                self.saveMediaObject('youtube', location, function(mediaObject) {
+                    content = content.split(mediaString).join('^media_display_' + mediaObject._id.toString() + '/position:center^');
+                    self.checkForVideo();
+                });
+            }
+            else if(content.indexOf('[dailymotion') > -1) {
+                startIndex = content.indexOf('[dailymotion');
+                endIndex = content.substr(startIndex).indexOf(']') + 1;
+                mediaString = content.substr(startIndex, endIndex);
+                location = mediaString.substr(mediaString.indexOf('id=') + 3, mediaString.substr(mediaString.indexOf('id=') + 3).length - 1);
+
+                self.saveMediaObject('daily_motion', location, function(mediaObject) {
+                    content = content.split(mediaString).join('^media_display_' + mediaObject._id.toString() + '/position:center^');
+                    self.checkForVideo();
+                });
+            }
+            else {
+                cb(content, mediaObjects);
             }
         };
 
