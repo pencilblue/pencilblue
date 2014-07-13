@@ -21,6 +21,12 @@
 
 function ImportWP(){}
 
+//setup
+var MEDIA_DIRECTORY = DOCUMENT_ROOT + '/public/media/';
+if(!fs.existsSync(MEDIA_DIRECTORY)){
+    fs.mkdirSync(MEDIA_DIRECTORY);
+}
+
 //inheritance
 util.inherits(ImportWP, pb.BaseController);
 
@@ -55,8 +61,8 @@ ImportWP.prototype.render = function(cb) {
                 self.saveNewUsers(channel, function(users){
                     self.saveNewTopics(channel, function(topics) {
                         self.saveNewArticlesAndPages(channel, users, topics, function(articles, pages, media) {
-                            self.session.success = 'Good so far';
-                            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Good so far')});
+                            self.session.success = '^loc_WP_IMPORT_SUCCESS^';
+                            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Successfully imported WordPress content')});
                         });
                     });
                 });
@@ -167,7 +173,7 @@ ImportWP.prototype.saveNewTopics = function(channel, cb) {
                 }
             }
 
-            if(!topicMatch && categories[i]['wp:cat_name'][j] !== 'uncategorized') {
+            if(!topicMatch && categories[i]['wp:cat_name'][j].toLowerCase() !== 'uncategorized') {
                 topics.push({name: categories[i]['wp:cat_name'][j]});
             }
         }
@@ -190,7 +196,7 @@ ImportWP.prototype.saveNewTopics = function(channel, cb) {
         }
     }
 
-    self.checkForExistingUser(0);
+    self.checkForExistingTopic(0);
 };
 
 ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb) {
@@ -209,7 +215,7 @@ ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb
         }
 
         var rawPage = rawPages[index];
-        dao.loadByValue('url', rawPage['wp:post_name'], 'page', function(err, existingPage) {
+        dao.loadByValue('url', rawPage['wp:post_name'][0], 'page', function(err, existingPage) {
             if(existingPage) {
                 pages.push(existingPage);
                 index++;
@@ -218,6 +224,7 @@ ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb
             }
 
             var pageTopics = [];
+            rawPage.category = rawPage.category || [];
             for(var i = 0; i < rawPage.category.length; i++) {
                 if(typeof rawPage.category[i] === 'string') {
                     for(var j = 0; j < topics.length; j++) {
@@ -229,13 +236,15 @@ ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb
             }
 
             self.retrieveMediaObjects(rawPage['content:encoded'][0], function(updatedContent, mediaObjects) {
+                updatedContent = updatedContent.split("\r\n").join("<br/>");
+
                 var pageMedia = [];
                 for(var i = 0; i < mediaObjects.length; i++) {
                     pageMedia.push(mediaObjects[i]._id.toString());
                 }
                 self.addMedia(mediaObjects);
 
-                var newPage = pb.DocumentCreator.create('page', {url: rawPage['wp:post_name'], headline: rawPage.title[0], publish_date: new Date(rawPage['wp:post_date']), page_layout: updatedContent, page_topics: pageTopics, page_media: pageMedia});
+                var newPage = pb.DocumentCreator.create('page', {url: rawPage['wp:post_name'][0], headline: rawPage.title[0], publish_date: new Date(rawPage['wp:post_date'][0]), page_layout: updatedContent, page_topics: pageTopics, page_media: pageMedia, seo_title: rawPage.title[0], author: self.session.authentication.user_id});
                 dao.update(newPage).then(function(result) {
                     pages.push(result);
 
@@ -253,9 +262,9 @@ ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb
         }
 
         var rawArticle = rawArticles[index];
-        dao.loadByValue('url', rawArticle['wp:post_name'], 'article', function(err, existingArticle) {
+        dao.loadByValue('url', rawArticle['wp:post_name'][0], 'article', function(err, existingArticle) {
             if(existingArticle) {
-                articles.push(existingArticl);
+                articles.push(existingArticle);
                 index++;
                 self.checkForExistingArticle(index);
                 return;
@@ -272,14 +281,23 @@ ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb
                 }
             }
 
+            var authorUsername = rawArticle['dc:creator'][0];
+            var author;
+            for(i = 0; i < users.length; i++) {
+                if(users[i].username === authorUsername) {
+                    author = users[i];
+                }
+            }
+
             self.retrieveMediaObjects(rawArticle['content:encoded'][0], function(updatedContent, mediaObjects) {
+                updatedContent = updatedContent.split("\r\n").join("<br/>");
                 var articleMedia = [];
                 for(var i = 0; i < mediaObjects.length; i++) {
                     articleMedia.push(mediaObjects[i]._id.toString());
                 }
                 self.addMedia(mediaObjects);
 
-                var newArticle = pb.DocumentCreator.create('article', {url: rawArticle['wp:post_name'], headline: rawArticle.title[0], publish_date: new Date(rawArticle['wp:post_date']), article_layout: updatedContent, article_topics: articleTopics, article_media: articleMedia});
+                var newArticle = pb.DocumentCreator.create('article', {url: rawArticle['wp:post_name'][0], headline: rawArticle.title[0], publish_date: new Date(rawArticle['wp:post_date'][0]), article_layout: updatedContent, article_topics: articleTopics, article_sections: [], article_media: articleMedia, seo_title: rawArticle.title[0], author: author._id.toString()});
                 dao.update(newArticle).then(function(result) {
                     articles.push(result);
 
@@ -294,7 +312,7 @@ ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb
         for(var i = 0; i < mediaObjects.length; i++) {
             var mediaMatch = false;
             for(var j = 0; j < media.length; j++) {
-                if(media[j]._id.equals(mediaObjects[i])) {
+                if(media[j]._id.equals(mediaObjects[i]._id)) {
                     mediaMatch = true;
                     break;
                 }
@@ -319,8 +337,134 @@ ImportWP.prototype.saveNewArticlesAndPages = function(channel, users, topics, cb
     self.checkForExistingPage(0);
 };
 
-ImportWP.prototype.retrieveMediaObject = function(content, cb) {
-    cb(content, []);
+ImportWP.prototype.retrieveMediaObjects = function(content, cb) {
+    var https = require('https');
+    var self = this;
+    var mediaObjects = [];
+    var dao = new pb.DAO();
+
+    pb.plugins.getSetting('download_media', 'wp_import', function(err, downloadMedia) {
+        self.replaceMediaObject = function() {
+            var startIndex = content.indexOf('<img');
+            var mediaType = 'image';
+            if(startIndex === -1) {
+                cb(content, mediaObjects);
+                return;
+            }
+
+            var endIndex1 = content.substr(startIndex).indexOf('/>');
+            var endIndex2 = content.substr(startIndex).indexOf('/img>');
+            var endIndex3 = content.substr(startIndex).indexOf('>');
+            var endIndex;
+
+            if(endIndex1 > -1 && endIndex1 < endIndex2) {
+                endIndex = endIndex1 + 2;
+            }
+            else if(endIndex2 > -1) {
+                endIndex = endIndex2 + 4;
+            }
+            else {
+                endIndex = endIndex3 + 1;
+            }
+
+            var mediaString = content.substr(startIndex, endIndex);
+            var srcString = mediaString.substr(mediaString.indexOf('src="') + 5);
+            srcString = srcString.substr(0, srcString.indexOf('"'));
+            if(srcString.indexOf('?') > -1) {
+                srcString = srcString.substr(0, srcString.indexOf('?'));
+            }
+
+            if(downloadMedia && mediaType === 'image') {
+                var ht = http;
+                if(srcString.indexOf('https://') > -1) {
+                    ht = https;
+                }
+
+                ht.get(srcString, function(res) {
+                    var imageData = '';
+                    res.setEncoding('binary');
+
+                    res.on('data', function(chunk){
+                        imageData += chunk;
+                    });
+
+                    res.on('end', function(){
+                        self.saveDownloadedImage(srcString, imageData, function(location) {
+                            self.saveMediaObject(mediaType, location, function(mediaObject) {
+                                content = content.split(mediaString).join('^media_display_' + mediaObject._id.toString() + '/position:center^');
+                                self.replaceMediaObject();
+                            });
+                        });
+                    });
+                });
+            }
+            else {
+                self.saveMediaObject(mediaType, srcString, function(mediaObject) {
+                    content = content.split(mediaString).join('^media_display_' + mediaObject._id.toString() + '/position:center^');
+                    self.replaceMediaObject();
+                });
+            }
+        };
+
+        self.saveDownloadedImage = function(originalFilename, imageData, cb) {
+            var self  = this;
+
+            var date = new Date();
+            var monthDir = MEDIA_DIRECTORY + date.getFullYear() + '/';
+            if(!fs.existsSync(monthDir)) {
+                fs.mkdirSync(monthDir);
+            }
+
+            var uploadDirectory = monthDir + (date.getMonth() + 1) + '/';
+            if(!fs.existsSync(uploadDirectory)) {
+                fs.mkdirSync(uploadDirectory);
+            }
+
+            filename = self.generateFilename(originalFilename);
+            filePath = uploadDirectory + filename;
+
+            fs.writeFile(filePath, imageData, 'binary', function(err) {
+                cb('/media/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + filename);
+            });
+        };
+
+        self.saveMediaObject = function(mediaType, location, cb) {
+            dao.loadByValue('location', location, 'media', function(err, existingMedia) {
+                if(existingMedia) {
+                    mediaObjects.push(existingMedia);
+                    cb(existingMedia);
+                    return;
+                }
+
+                var isFile = null;
+                if(location.indexOf('/media') === 0) {
+                    isFile = 'on';
+                }
+
+                var newMedia = pb.DocumentCreator.create('media', {is_file: isFile, media_type: mediaType, location: location, thumb: location, name: 'Media_' + pb.utils.uniqueId(), caption: '', media_topics: []});
+                dao.update(newMedia).then(function(result) {
+                    mediaObjects.push(result);
+                    cb(result);
+                });
+            });
+        };
+
+        self.generateFilename = function(originalFilename){
+            var now = new Date();
+
+            //calculate extension
+            var ext = '';
+            var extIndex = originalFilename.lastIndexOf('.');
+            if (extIndex >= 0){
+                ext = originalFilename.substr(extIndex);
+            }
+
+            //build file name
+            return pb.utils.uniqueId() + '-' + now.getTime() + ext;
+        };
+
+        self.replaceMediaObject();
+    });
 };
 
 ImportWP.prototype.generatePassword = function()
