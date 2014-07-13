@@ -17,6 +17,11 @@
 
 /**
  * Responsible for processing a single req by delegating it to the correct controllers
+ * @class RequestHandler
+ * @constructor
+ * @param {Server} server The http server that the request came in on
+ * @param {Request} req The incoming request
+ * @param {Response} resp The outgoing response
  */
 function RequestHandler(server, req, resp){
 	this.startTime = (new Date()).getTime();
@@ -25,6 +30,13 @@ function RequestHandler(server, req, resp){
 	this.resp      = resp;
 	this.url       = url.parse(req.url, true);
 }
+
+/**
+ * The fallback theme (pencilblue)
+ * @static
+ * @property DEFAULT_THEME
+ * @type {String}
+ */
 RequestHandler.DEFAULT_THEME = 'pencilblue';
 
 RequestHandler.storage = [];
@@ -1642,4 +1654,5 @@ RequestHandler.isSystemSafeURL = function(url, id, cb) {
 	});
 };
 
+//exports
 module.exports.RequestHandler = RequestHandler;

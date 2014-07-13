@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
  * PluginService - Provides functions for interacting with plugins.
  * Install/uninstall, setting retrieval, plugin retrieval, etc.
@@ -11,18 +28,57 @@ function PluginService(){
 
 	//construct settings services
 	var caching = pb.config.plugins.caching;
+
+    /**
+     * A setting service that sets and retrieves the settings for plugins
+     * @property pluginSettingsService
+     * @type {SimpleLayeredService}
+     */
 	this.pluginSettingsService = PluginService.genSettingsService('plugin_settings', caching.useMemory, caching.useCache, 'PluginSettingService');
+
+    /**
+     * A setting service that sets and retrieves the settings for plugins
+     * @property pluginSettingsService
+     * @type {SimpleLayeredService}
+     */
 	this.themeSettingsService  = PluginService.genSettingsService('theme_settings', caching.useMemory, caching.useCache, 'ThemeSettingService');
 }
 
 //constants
+/**
+ * The absolute path to the plugins directory for this PecilBlue installation
+ * @property PLUGINS_DIR
+ * @type {String}
+ */
 var PLUGINS_DIR       = path.join(DOCUMENT_ROOT, 'plugins');
+
+/**
+ * The name of the file that defines the plugin's properties
+ * @property DETAILS_FILE_NAME
+ * @type {String}
+ */
 var DETAILS_FILE_NAME = 'details.json';
+
+/**
+ * The name of the directory for each plugin that contains the public resources
+ * @property PUBLIC_DIR_NAME
+ * @type {String}
+ */
 var PUBLIC_DIR_NAME   = 'public';
 
 //statics
+/**
+ * A hash of the plugins that are installed and active in this instance of PB.
+ * @property ACTIVE_PLUGINS
+ * @type {Object}
+ */
 var ACTIVE_PLUGINS = {};
 
+/**
+ * Retrieves the path to the active fav icon.
+ * @method getActiveIcon
+ * @param {Function} cb A callback that provides two parameters: cb(Error, URL_PATH_TO_ICON)
+ */
 PluginService.prototype.getActiveIcon = function(cb) {
 	pb.settings.get('active_theme', function(err, theme) {
 		if (ACTIVE_PLUGINS[theme] && ACTIVE_PLUGINS[theme].icon) {
@@ -473,6 +529,14 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 	});
 };
 
+/**
+ * Retrieves the permission set for a given role.  All active plugins are
+ * inspected.
+ * @static
+ * @method getPermissionsForRole
+ * @param {Integer|String} role The role to get permissions for
+ * @returns {Object} A hash of the permissions
+ */
 PluginService.getPermissionsForRole = function(role) {
 	if (!isNaN(role)) {
 		role = pb.security.getRoleName(role);
@@ -492,6 +556,13 @@ PluginService.getPermissionsForRole = function(role) {
 	return perms;
 };
 
+/**
+ * Retrieves the file path to the public directory for the specified plugin.
+ * @static
+ * @method getActivePluginDir
+ * @param {String} pluginUid A plugin's UID value
+ * @returns {String} File path to the plugin's public directory
+ */
 PluginService.getActivePluginPublicDir = function(pluginUid) {
 	var publicPath = null;
 	if (ACTIVE_PLUGINS[pluginUid]) {
@@ -500,10 +571,26 @@ PluginService.getActivePluginPublicDir = function(pluginUid) {
 	return publicPath;
 };
 
+/**
+ * Inidicates if the specified plugin is active in this instance of PB.
+ * @static
+ * @method isActivePlugin
+ * @param {String} uid The unique identifier for a plugin
+ * @returns {Boolean} TRUE if the plugin is active, FALSE if not
+ */
 PluginService.isActivePlugin = function(uid) {
 	return ACTIVE_PLUGINS[uid] !== undefined;
 };
 
+/**
+ * Generates a URL path to a public resource for a plugin.
+ * @static
+ * @method genPublicPath
+ * @param {String} plugin The UID of the plugin
+ * @param {String} relativePathToMedia The relative path to the resource from
+ * the plugin's public directory.
+ * @returns {String} URL path to the resource
+ */
 PluginService.genPublicPath = function(plugin, relativePathToMedia) {
 	if (!pb.utils.isString(plugin) || !pb.utils.isString(relativePathToMedia)) {
 		return '';
@@ -511,6 +598,11 @@ PluginService.genPublicPath = function(plugin, relativePathToMedia) {
 	return pb.UrlService.urlJoin('/public', plugin, relativePathToMedia);
 };
 
+/**
+ * Retrieves the details for the active plugins.
+ * @method getActivePlugins
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
+ */
 PluginService.prototype.getActivePlugins = function(cb) {
 
 	var where = {uid: {'$in': this.getActivePluginNames()}};
@@ -526,6 +618,12 @@ PluginService.prototype.getActivePlugins = function(cb) {
 	});
 };
 
+/**
+ * Retrieves the content templates for all of the active plugins
+ * @static
+ * @method getActiveContentTemplates
+ * @returns {Array} An array of objects
+ */
 PluginService.getActiveContentTemplates = function() {
 
     var templates = [];
@@ -542,6 +640,13 @@ PluginService.getActiveContentTemplates = function() {
     return templates;
 };
 
+/**
+ * Retrieves the inactive plugins for this instance of PencilBlue.  An inactive
+ * plugin is considered one who failed to install or one that failed to start
+ * properly.
+ * @method getInactivePlugins
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
+ */
 PluginService.prototype.getInactivePlugins = function(cb) {
 	var where = {uid: {'$nin': this.getActivePluginNames()}};
 	var order = {created: pb.DAO.ASC};
@@ -556,6 +661,16 @@ PluginService.prototype.getInactivePlugins = function(cb) {
 	});
 };
 
+/**
+ * Retrieves the available plugins.  An available plugin is one who is
+ * uninstalled but available to be installed.
+ * @method getAvailablePlugins
+ * @param {Array} active An array of plugin detail objects.  Each object is
+ * required to have a uid property that is a string.
+ * @param {Array} inactive An array of plugin details objects. Each object is
+ * required to have a uid property that is a string.
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
+ */
 PluginService.prototype.getAvailablePlugins = function(active, inactive, cb) {
 	if (util.isArray(active)) {
 		active = pb.utils.arrayToHash(active, function(active, i) {
@@ -626,6 +741,12 @@ PluginService.prototype.getAvailablePlugins = function(active, inactive, cb) {
 	});
 };
 
+/**
+ * Retrieves a map of the system's plugin.  The map provides three properties:
+ * active, inactive, available.
+ * @method getPluginMap
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Object)
+ */
 PluginService.prototype.getPluginMap = function(cb) {
 	var self  = this;
 	var tasks = {
@@ -651,6 +772,12 @@ PluginService.prototype.getPluginMap = function(cb) {
 	});
 };
 
+/**
+ * Uninstalls the plugin with the specified UID.
+ * @method uninstallPlugin
+ * @param {String} pluginUid The unique plugin identifier
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
+ */
 PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
 	var self = this;
 
@@ -884,6 +1011,11 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
 	});
 };
 
+/**
+ * Attempts to initialize all installed plugins.
+ * @method initPlugins
+ * @param {Function} A callback that provides two parameters: cb(Error, Boolean)
+ */
 PluginService.prototype.initPlugins = function(cb) {
 	pb.log.debug('PluginService: Beginning plugin initilization...');
 
@@ -945,8 +1077,9 @@ PluginService.prototype.initPlugins = function(cb) {
 
 /**
  * Initializes a plugin during startup or just after a plugin has been installed.
- * @param {plugin} pluginName
- * @param {function} cb
+ * @method initPlugin
+ * @param {plugin} plugin The plugin details
+ * @param {function} cb A callback that provides two parameters: cb(Error, Boolean)
  */
 PluginService.prototype.initPlugin = function(plugin, cb) {
 	var self = this;
@@ -1028,7 +1161,7 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
          //call plugin's onStartup function
          function(callback) {
              pb.log.info('PluginService:[INIT] Attempting to call onStartup function for %s.', details.uid);
-             
+
         	var mainModule = ACTIVE_PLUGINS[details.uid].main_module;
         	if (typeof mainModule.onStartup === 'function') {
 
@@ -1059,7 +1192,7 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 
                         if (timeoutProtect) {
                             pb.log.debug('PluginService:[INIT] Plugin %s onStartup returned with result: %s', details.uid, didStart);
-                            
+
                             clearTimeout(timeoutProtect);
                             callback(err, didStart);
                         }
@@ -1121,6 +1254,13 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 	});
 };
 
+/**
+ * Loads the localization files from the specified plugin directory and places
+ * them into a hash where the key is the name of the localization file.
+ * @method getLocalizations
+ * @param {String} pluginDirName The name of the plugin directory
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Object)
+ */
 PluginService.prototype.getLocalizations = function(pluginDirName, cb) {
 	var localizationDir = path.join(PluginService.getPublicPath(pluginDirName), 'localization');
 
@@ -1161,6 +1301,16 @@ PluginService.prototype.getLocalizations = function(pluginDirName, cb) {
 	});
 };
 
+/**
+ * Retrieves a plugin service prototype.  It is expected to be a prototype but
+ * it may also be an instance as along as that instance fufills all
+ * responsbilities of the service interface.  When the desired service does not
+ * exist NULL is returned.
+ * @method getService
+ * @param {String} serviceName
+ * @param {String} pluginUid The unique plugin identifier
+ * @returns {Object} Service prototype
+ */
 PluginService.prototype.getService = function(serviceName, pluginUid) {
 	if (ACTIVE_PLUGINS[pluginUid]) {
 		if (ACTIVE_PLUGINS[pluginUid].services && ACTIVE_PLUGINS[pluginUid].services[serviceName]) {
@@ -1170,6 +1320,18 @@ PluginService.prototype.getService = function(serviceName, pluginUid) {
 	return null;
 };
 
+/**
+ * Attempts to require the main module file for a plugin.
+ * @static
+ * @method loadMainModule
+ * @param {String} pluginDirName The name of the directory that the plugin is
+ * contained within.
+ * @param {String} pathToModule The name of the main module file.  It is also
+ * to pass this parameter as the absolute file path to the module.  The
+ * function first checks if the parameter is just the file name then checks to
+ * see if it is an absolute path.
+ * @returns {Function} The mainmodule prototype
+ */
 PluginService.loadMainModule = function(pluginDirName, pathToModule) {
 	var pluginMM = path.join(PLUGINS_DIR, pluginDirName, pathToModule);
 	var paths    = [pluginMM, pathToModule];
@@ -1192,14 +1354,16 @@ PluginService.loadMainModule = function(pluginDirName, pathToModule) {
  * @method getPublicPath
  * @param pluginDirName The name of the directory that contains the intended
  * plugin
- * @return {string} the absolute file path to a plugin's public directory
+ * @returns {string} the absolute file path to a plugin's public directory
  */
 PluginService.getPublicPath = function(pluginDirName) {
 	return path.join(PLUGINS_DIR, pluginDirName, PUBLIC_DIR_NAME);
 };
 
 /**
- * @return {string} The absolute file path to the plugins directory
+ * @static
+ * @method getPluginsDir
+ * @returns {string} The absolute file path to the plugins directory
  */
 PluginService.getPluginsDir = function() {
 	return PLUGINS_DIR;
@@ -1207,7 +1371,11 @@ PluginService.getPluginsDir = function() {
 
 /**
  * Constructs the path to a specific plugin's details.json file
- * @return {string} The absolute file path to the details.json file for a plugin
+ * @static
+ * @method getDetailsPath
+ * @param {String} pluginDirName The name of the directory that the plugin is
+ * contained within.
+ * @returns {string} The absolute file path to the details.json file for a plugin
  */
 PluginService.getDetailsPath = function(pluginDirName) {
 	return path.join(PLUGINS_DIR, pluginDirName, DETAILS_FILE_NAME);
@@ -1215,8 +1383,10 @@ PluginService.getDetailsPath = function(pluginDirName) {
 
 /**
  * Attempts to load and parse the details.json file for a plugin.
- * @param filePath The absolute path to the details.json file
- * @param cb A callback that provides two parameters: cb(error, detailsObject)
+ * @static
+ * @method loadDetailsFile
+ * @param {String} filePath The absolute path to the details.json file
+ * @param {Function} cb A callback that provides two parameters: cb(error, detailsObject)
  */
 PluginService.loadDetailsFile = function(filePath, cb) {
 	fs.readFile(filePath, function(err, data){
@@ -1240,16 +1410,17 @@ PluginService.loadDetailsFile = function(filePath, cb) {
 
 /**
  * Validates a plugin's details.json file.
- *
- * @param details The details object to validate
- * @param pluginDirName The name of the directory containing the original
+ * @static
+ * @method validateDetails
+ * @param {Object} details The details object to validate
+ * @param {String} pluginDirName The name of the directory containing the original
  * details.json file that the details object was derived from.
- * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
+ * @param {Function} cb A callback that provides two parameters: cb(error, TRUE/FALSE).
  * TRUE if the details object passes validation, FALSE if not.
  */
 PluginService.validateDetails = function(details, pluginDirName, cb) {
-	if (!details) {
-		cb(new Error("Details cannot be null"), false);
+	if (!pb.utils.isObject(details)) {
+		cb(new Error("Details cannot be null and must be an object"), false);
 		return;
 	}
 
@@ -1472,10 +1643,11 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
  * Validates the path to the plugin's icon file.  The path is considered valid
  * if the path to a valid file.  The path may be absolute or relative to the
  * plugin's public directory.
- *
+ * @static
+ * @method validateIconPath
  * @param iconPath The path to the icon (image) file
  * @param pluginDirName The name of the directory housing the plugin
- * @return {Boolean} TRUE if the path is valid, FALSE if not
+ * @returns {Boolean} TRUE if the path is valid, FALSE if not
  */
 PluginService.validateIconPath = function(iconPath, pluginDirName) {
 	var pluginPublicIcon = path.join(PluginService.getPublicPath(pluginDirName), iconPath);
@@ -1496,7 +1668,7 @@ PluginService.validateIconPath = function(iconPath, pluginDirName) {
  *
  * @param mmPath The relative or absolute path to the main module file
  * @param pluginDirName The name of the directory housing the plugin
- * @return {Boolean} TRUE if the path is valid, FALSE if not
+ * @returns {Boolean} TRUE if the path is valid, FALSE if not
  */
 PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
 	return PluginService.loadMainModule(pluginDirName, mmPath) !== null;
@@ -1508,7 +1680,7 @@ PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
  * @param setting The setting to validate
  * @param position The position in the settings array where the setting resides
  * as a 0 based index.
- * @return {Array} The array of errors that were generated.  If no errors were
+ * @returns {Array} The array of errors that were generated.  If no errors were
  * produced an empty array is returned.
  */
 PluginService.validateSetting = function(setting, position) {
@@ -1541,9 +1713,10 @@ PluginService.validateSetting = function(setting, position) {
  * Validates a details.json file's setting value.  The value is required to be a
  * string or a number.  Null, undefined, Arrays, Objects, and prototypes are NOT
  * allowed.
- *
- * @param value The value to validate
- * @return {Boolean} TRUE if the value is valid, FALSE if not
+ * @static
+ * @method validateSettingValue
+ * @param {Boolean|Integer|Float|String} value The value to validate
+ * @returns {Boolean} TRUE if the value is valid, FALSE if not
  */
 PluginService.validateSettingValue = function(value) {
 	return pb.utils.isString(value) || !isNaN(value) || value === true || value === false;
@@ -1552,9 +1725,10 @@ PluginService.validateSettingValue = function(value) {
 /**
  * Retrieves all services (initialized).  The services are provided in the
  * callback.
- *
- * @param pathToPlugin The absolute file path to the specific plugin directory.
- * @param cb A callback that provides two parameters: cb(error, servicesHash);
+ * @static
+ * @method getServices
+ * @param {String} pathToPlugin The absolute file path to the specific plugin directory.
+ * @param {Function} cb A callback that provides two parameters: cb(error, servicesHash);
  */
 PluginService.getServices = function(pathToPlugin, cb) {
 	var servicesDir = path.join(pathToPlugin, 'services');
@@ -1593,9 +1767,10 @@ PluginService.getServices = function(pathToPlugin, cb) {
  * Loads a plugin service and initializes it.  The service is required to
  * implement an "init" function. The service is then provided as a parameter in
  * the callback.
- *
- * @param pathToService The absolute file path to the service javascript file.
- * @param cb A callback that provides two parameters: cb(error, initializedService)
+ * @static
+ * @method loadService
+ * @param {String} pathToService The absolute file path to the service javascript file.
+ * @param {Function} cb A callback that provides two parameters: cb(error, initializedService)
  */
 PluginService.loadService = function(pathToService, cb) {
 	try {
@@ -1613,6 +1788,15 @@ PluginService.loadService = function(pathToService, cb) {
 	}
 };
 
+/**
+ * Loads the controllers for a plugin by iterating through the files in the
+ * plugin's controllers directory.
+ * @static
+ * @method loadControllers
+ * @param {String} pathToPlugin The absolute file path to the plugin =
+ * @param {String} pluginUid The unique identifier for the plugin
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
+ */
 PluginService.loadControllers = function(pathToPlugin, pluginUid, cb) {
 	var controllersDir = path.join(pathToPlugin, 'controllers');
 
@@ -1642,6 +1826,15 @@ PluginService.loadControllers = function(pathToPlugin, pluginUid, cb) {
 	});
 };
 
+/**
+ * Loads a controller for a plugin and attempts to register the route with the
+ * RequestHandler.
+ * @static
+ * @method loadController
+ * @param {String} pathToController The absolute file path to the controller
+ * @param {String} pluginUid The unique identifier for the plugin
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
+ */
 PluginService.loadController = function(pathToController, pluginUid, cb) {
 	try {
 
@@ -1690,10 +1883,11 @@ PluginService.loadController = function(pathToController, pluginUid, cb) {
  * the name of the service by looking to see if the service has implemented the
  * getName function.  If it has not then the service name is set to be the file
  * name minus any extension.
- *
+ * @static
+ * @method getServiceName
  * @param pathToService The file path to the service
  * @param service The service prototype
- * @return {String} The derived service name
+ * @returns {String} The derived service name
  */
 PluginService.getServiceName = function(pathToService, service) {
 	var name = 'UNKNOWN';
