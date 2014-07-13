@@ -45,6 +45,8 @@ var REGISTRANTS = {};
  */
 var COMMAND_CHANNEL = 'pencilblue-command-channel';
 
+var AWAITING_RESPONSE = {};
+
 /**
  * Initializes the service and the broker implementation.  The broker is
  * determined by the configuration value of "command.broker".  This value can
@@ -181,6 +183,12 @@ CommandService.notifyOfCommand = function(command) {
         return;
     }
 
+    //check if this is a response to a message that was sent
+    if (command.isResponse && AWAITING_RESPONSE[command.id]) {
+        AWAITING_RESPONSE[command.id](command);
+        return;
+    }
+
     //emit command to each handler
     var emitFunction = function(type, i, command){
         return function() {
@@ -193,11 +201,162 @@ CommandService.notifyOfCommand = function(command) {
 };
 
 /**
+ * Sends a command to all processes iin the cluster and waits for a response
+ * from all before calling back.
+ * @static
+ * @method sendCommandToAllGetResponses
+ * @param {String} type The name/type of the command being sent
+ * @param {Object} [options] The options for the command.  The options object
+ * becomes the command object.  Custom properties to be part of the command can
+ * be added.  However, certain properties do have special meaning such as "id",
+ * "to", "from", "timeout", "includeme".  These special properties may be
+ * overriden by this function or one it calls in order for the commands to
+ * function properly.
+ * @param {String} [options.id]
+ * @param {Boolean} [options.ignoreme]
+ * @param {Integer} [options.timeout=2000] Timeout in milliseconds for each process to respond.
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
+ */
+CommandService.sendCommandToAllGetResponses = function(type, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+    else if (!options) {
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        cb(new Error('The options parameter must be an object'));
+        return;
+    }
+
+    //get all proceses in the cluster
+    var serverResigration = new pb.ServerRegistration();
+    serverResigration.getClusterStatus(function(err, statuses) {
+        if (util.isError(err)) {
+            cb(err);
+            return;
+        }
+
+        var me    = null;
+        var myKey = pb.ServerRegistration.generateKey();
+        var tasks = pb.utils.getTasks(statuses, function(statuses, i) {
+            if (myKey === statuses[i]._id) {
+                me = i;
+            }
+
+            //create the task function
+            return function(callback) {
+
+                var opts = pb.utils.clone(options);
+                opts.to  = statuses[i]._id;
+
+                CommandService.sendCommandGetResponse(type, opts, function(err, command) {
+                    var result = {
+                        err: err ? err.stack : undefined,
+                        command: command
+                    };
+                    callback(null, result);
+                });
+            };
+        });
+
+        //remove me if specified
+        if (options.ignoreme && me !== null) {
+            tasks.splice(me, 1);
+        }
+
+        //send commands for each process
+        async.series(tasks, cb);
+    });
+};
+
+/**
+ * Sends a command to a single process in the cluster expecting a response.
+ * @static
+ * @method sendCommandGetResponse
+ * @param {String} type
+ * @param {Object} options
+ * @param{Function} onResponse
+ */
+CommandService.sendCommandGetResponse = function(type, options, onResponse) {
+    if (!pb.utils.isObject(options) || !pb.validation.validateNonEmptyStr(options.to, true)) {
+        onResponse(new Error('A to field must be provided when expecting a response to a message.'));
+        return;
+    }
+
+    var doSend = function(type, options, onResponse) {
+
+        var timeout = options.timeout || 2000;
+        var d       = domain.create();
+        d.on('error', onResponse);
+        d.run(function() {
+            CommandService.sendCommand(type, options, function(err, commandId) {
+                if (util.isError(err)) {
+                    onResponse(err);
+                    return;
+                }
+                else if (!pb.validation.validateNonEmptyStr(commandId, true)) {
+                    onResponse(new Error('Failed to publish the command to the cluster'));
+                    return;
+                }
+
+                var handle = setTimeout(function() {
+                    delete AWAITING_RESPONSE[commandId];
+                    onResponse(new Error('Timed out waiting for response to command ['+commandId+']'));
+                    handle = null;
+                }, timeout);
+                AWAITING_RESPONSE[commandId] = function(command) {
+                    if (handle) {
+                        clearTimeout(handle);
+                        handle = null;
+                        onResponse(null, command);
+                    }
+                    else {
+                        pb.log.silly('CommandService: A response to command [%s] came back but it was after the timeout. %s', commandId, JSON.stringify(command));
+                    }
+                    delete AWAITING_RESPONSE[commandId];
+                };
+            });
+        });
+    }
+    doSend(type, options, onResponse);
+};
+
+/**
+ * Provides a mechanism to respond to a the entity that sent the command.
+ * @static
+ * @method sendInResponseTo
+ * @param {Object} command The command that was sent to ths process
+ * @param {Object} responseCommand The command to send back to the entity that sent the first command.
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Command ID)
+ */
+CommandService.sendInResponseTo = function(command, responseCommand, cb) {
+    if (!pb.utils.isObject(command)) {
+        cb(new Error('The command parameter must be an object'));
+        return;
+    }
+
+    if (!pb.utils.isObject(responseCommand)) {
+        responseCommand = {};
+    }
+
+    responseCommand.id         = command.id;
+    responseCommand.to         = command.from;
+    responseCommand.isResponse = true;
+
+    var type = responseCommand.type || command.type;
+    CommandService.sendCommand(type, responseCommand, cb);
+};
+
+/**
  * Sends a command to the cluster
  * @static
  * @method sendCommand
  * @param {String} type The command name/type
- * @param {Object} options The options that will be serialized and sent to the other processes in the cluster
+ * @param {Object} [options] The options that will be serialized and sent to the other processes in the cluster
+ * @param {String} [options.to] The cluster process that should handle the message
+ * @param {Function} [cb] A callback that provides two parameters: cb(Error, Command ID)
  */
 CommandService.sendCommand = function(type, options, cb) {
     if (!pb.validation.validateNonEmptyStr(type, true)) {
@@ -229,11 +388,13 @@ CommandService.sendCommand = function(type, options, cb) {
     //ensure each command is sent with an ID.  Allow the ID to already be set
     //in the event that we are sending a response.
     if (!options.id) {
-        options.id = pb.utils.uniqueId();
+        options.id = pb.utils.uniqueId().toString();
     }
 
     //instruct the broker to broadcast the command
-    BROKER.publish(COMMAND_CHANNEL, options, cb);
+    BROKER.publish(COMMAND_CHANNEL, options, function(err, result) {
+        cb(err, result ? options.id : null);
+    });
 };
 
 /**
