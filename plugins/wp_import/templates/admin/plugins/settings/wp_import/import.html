@@ -1,0 +1,27 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form id="home_page_settings_form" method="post" action="/actions/admin/plugins/settings/wp_import/import">
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="import">
+                    <div id="upload_progress" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div>
+                    <a type="button" class="btn btn-default" href="/admin/plugins/settings/wp_import">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </a>
+                    <span class="btn btn-success fileinput-button">
+                        <i class="fa fa-plus"></i>
+                        <span>^loc_SELECT_FILE^...</span>
+                        <input id="wp_file" type="file" name="wp_file">
+                    </span>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<script type="text/javascript" src="/js/lib/jquery/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="/js/lib/jquery/jquery.fileupload.js"></script>
+<script type="text/javascript" src="/public/wp_import/js/import.js"></script>
+^tmp_admin=footer^

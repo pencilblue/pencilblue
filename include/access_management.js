@@ -32,6 +32,8 @@ global.ACCESS_EDITOR          = 2;
 global.ACCESS_MANAGING_EDITOR = 3;
 global.ACCESS_ADMINISTRATOR   = 4;
 
+var PASSWORD_CHARS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '!', '@', '#', '$', '%', '^', '&', '*', '?'];
+
 SecurityService.AUTHENTICATED = 'authenticated';
 SecurityService.ADMIN_LEVEL   = 'admin_level';
 
@@ -157,6 +159,25 @@ SecurityService.encrypt = function(valStr) {
 	var whirlpool = crypto.createHash('whirlpool');
     whirlpool.update(valStr);
     return whirlpool.digest('hex');
+};
+
+/**
+ * @static
+ * @method generatePassword
+ * @param {Integer} [length=8]
+ */
+SecurityService.generatePassword = function(length) {
+
+    //ensure a length
+    if (pb.validation.isInt(length, true, true)) {
+        length = 8;
+    }
+
+    var password = [];
+    while(password.length < length) {
+        password.push(PASSWORD_CHARS[parseInt(Math.random() * PASSWORD_CHARS.length)]);
+    }
+    return password.join('');
 };
 
 //exports
