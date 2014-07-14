@@ -361,7 +361,7 @@ DAO.prototype.command = function(command, cb) {
  * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
  */
 DAO.prototype.ensureIndex = function(procedure, cb) {
-    if (!util.isObject(procedure)) {
+    if (!pb.utils.isObject(procedure)) {
         cb(new Error('A valid procedure object is required in order to execute the indexing operation'));
         return;
     }

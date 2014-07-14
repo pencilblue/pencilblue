@@ -147,5 +147,49 @@ ValidationService.validateObject = function(value, required) {
 	return pb.utils.isObject(value);
 };
 
+/**
+ * Validates that the value is an integer.
+ * @static
+ * @method isInt
+ * @param {Integer} val The value under test
+ * @param {Boolean} [required=false] Indicates if the value is required. When
+ * FALSE, null will be an acceptable value.
+ * @param {Boolean} Indicates if the value must be a number rather than a string representing a number.
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
+ */
+ValidationService.isInt = function(val, required, strict) {
+    if (!required && (val === null || val === undefined)) {
+        return true;
+    }
+
+    var parsed = parseInt(val, 10);
+    if (strict && val !== parsed) {
+        return false;
+    }
+    return val == parsed;
+};
+
+/**
+ * Validates that the value is a float.
+ * @static
+ * @method isFloat
+ * @param {Float} val The value under test
+ * @param {Boolean} [required=false] Indicates if the value is required. When
+ * FALSE, null will be an acceptable value.
+ * @param {Boolean} Indicates if the value must be a number rather than a string representing a number.
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
+ */
+ValidationService.isFloat = function(val, required, strict) {
+    if (!required && (val === null || val === undefined)) {
+        return true;
+    }
+
+    var parsed = parseFloat(val, 10);
+    if (strict && val !== parsed) {
+        return false;
+    }
+    return val == parsed;
+}
+
 //exports
 module.exports = ValidationService;

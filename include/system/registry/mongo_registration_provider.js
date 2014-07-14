@@ -141,13 +141,19 @@ MongoRegistrationProvider.init = function(cb) {
  * @param {Function} cb A callback that takes two parameters: cb(Error, [RESULT])
  */
 MongoRegistrationProvider.shutdown = function(id, cb) {
+    pb.log.debug('MongoRegistrationProvider: Shutting down...');
+
+    //verify an ID was passed
     if (!id) {
         pb.log.error('MongoRegistrationProvider: A valid ID is needed in order to properly shutdown');
         cb(null, false);
     }
 
+    var where = {
+        _id: id
+    };
     var dao = new pb.DAO();
-    dao.deleteById(id, pb.config.registry.key).then(function(result) {
+    dao.deleteMatching(where, pb.config.registry.key).then(function(result) {
         if (util.isError(result)) {
             cb(result);
             return;

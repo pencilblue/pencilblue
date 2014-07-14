@@ -188,7 +188,7 @@ function getMediaLink(mediaType, mediaLocation, isFile)
         case 'video/ogg':
         default:
             if(isFile) {
-                return pb.config.siteRoot + mediaLocation;
+                return siteRoot + mediaLocation;
             }
             return mediaLocation;
     }
