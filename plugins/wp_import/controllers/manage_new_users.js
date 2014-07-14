@@ -26,17 +26,14 @@ util.inherits(WPManageUsers, pb.BaseController);
 WPManageUsers.prototype.render = function(cb) {
     var self = this;
 
-    var content = {
-        content_type: "text/html",
-        code: 200
-    };
+
 
     if(!self.session.importedUsers) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/plugins/settings/wp_import/import'));
+        this.redirect('/admin/plugins/settings/wp_import/import', cb);
         return;
     }
     else if(!self.session.importedUsers.length) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/plugins/settings/wp_import/import'));
+        this.redirect('/admin/plugins/settings/wp_import/import', cb);
         return;
     }
 
@@ -48,39 +45,44 @@ WPManageUsers.prototype.render = function(cb) {
         }
     }
     if(!newUsers) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/plugins/settings/wp_import/import'));
+        this.redirect('/admin/plugins/settings/wp_import/import', cb);
         return;
     }
 
-    self.ts.load('/admin/plugins/settings/wp_import/manage_new_users', function(err, result) {
-        var tabs = [
-            {
-                active: 'active',
-                href: '#users',
-                icon: 'users',
-                title: self.ls.get('USERS')
-            }
-        ];
 
-        var pills = [
+    var tabs = [
         {
-            name: 'content_settings',
-            title: self.ls.get('MANAGE_NEW_USERS'),
-            icon: 'chevron-left',
-            href: '/admin/plugins/settings/wp_import'
-        }];
+            active: 'active',
+            href: '#users',
+            icon: 'users',
+            title: self.ls.get('USERS')
+        }
+    ];
 
-        var objects = {
-            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-            pills: pills,
-            tabs: tabs,
-            users: self.session.importedUsers,
-            adminOptions: pb.users.getAdminOptions(self.session, self.localizationService)
+    var pills = [
+    {
+        name: 'content_settings',
+        title: self.ls.get('MANAGE_NEW_USERS'),
+        icon: 'chevron-left',
+        href: '/admin/plugins/settings/wp_import'
+    }];
+
+    var objects = {
+        navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+        pills: pills,
+        tabs: tabs,
+        users: self.session.importedUsers,
+        adminOptions: pb.users.getAdminOptions(self.session, self.localizationService)
+    };
+    var angularData = pb.js.getAngularController(objects);
+    self.ts.registerLocal('angular_script', angularData);
+    self.ts.load('/admin/plugins/settings/wp_import/manage_new_users', function(err, result) {
+
+        var content = {
+            content: result,
+            content_type: "text/html",
+            code: 200
         };
-        var angularData = pb.js.getAngularController(objects);
-        result  = result.split('^angular_script^').join(angularData);
-
-        content.content = result;
         cb(content);
     });
 };

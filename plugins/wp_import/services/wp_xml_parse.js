@@ -15,17 +15,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var xml2js         = pb.PluginService.require('wp_import', 'xml2js');
+var BaseController = pb.BaseController;
+
+/**
+ *
+ *
+ */
 function WPXMLParseService() {}
 
-var xml2js = pb.PluginService.require('wp_import', 'xml2js');
+//constants
+/**
+ * The absolute file path to the directory that stores media
+ * @private
+ * @static
+ * @property MEDIA_DIRECTORY
+ * @type {String}
+ */
+var MEDIA_DIRECTORY = path.join(DOCUMENT_ROOT, '/public/media/');
 
-//setup
-var MEDIA_DIRECTORY = DOCUMENT_ROOT + '/public/media/';
-if(!fs.existsSync(MEDIA_DIRECTORY)){
-    fs.mkdirSync(MEDIA_DIRECTORY);
-}
-
+/**
+ * @static
+ * @method init
+ */
 WPXMLParseService.init = function(cb) {
+    if(!fs.existsSync(MEDIA_DIRECTORY)){
+        fs.mkdirSync(MEDIA_DIRECTORY);
+    }
+
     pb.log.debug("WPXMLParseService: Initialized");
     cb(null, true);
 };
@@ -133,6 +151,7 @@ WPXMLParseService.saveNewTopics = function(channel, cb) {
                 return;
             }
 
+            topics[index].name = BaseController.sanitize(topics[index].name);
             var newTopic = pb.DocumentCreator.create('topic', topics[index]);
             dao.update(newTopic).then(function(result) {
                 topics[index]._id = result._id;
@@ -207,7 +226,7 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
             var pageTopics = [];
             rawPage.category = rawPage.category || [];
             for(var i = 0; i < rawPage.category.length; i++) {
-                if(typeof rawPage.category[i] === 'string') {
+                if(pb.utils.isString(rawPage.category[i])) {
                     for(var j = 0; j < topics.length; j++) {
                         if(topics[j].name == rawPage.category[i]) {
                             pageTopics.push(topics[j]._id.toString());
@@ -225,7 +244,17 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
                 }
                 self.addMedia(mediaObjects);
 
-                var newPage = pb.DocumentCreator.create('page', {url: rawPage['wp:post_name'][0], headline: rawPage.title[0], publish_date: new Date(rawPage['wp:post_date'][0]), page_layout: updatedContent, page_topics: pageTopics, page_media: pageMedia, seo_title: rawPage.title[0], author: defaultUserId});
+                var pagedoc = {
+                    url: rawPage['wp:post_name'][0],
+                    headline: BaseController.sanitize(rawPage.title[0]),
+                    publish_date: new Date(rawPage['wp:post_date'][0]),
+                    page_layout: BaseController.sanitize(updatedContent, BaseController.getContentSanitizationRules()),
+                    page_topics: pageTopics,
+                    page_media: pageMedia,
+                    seo_title: BaseController.sanitize(rawPage.title[0]),
+                    author: defaultUserId
+                }
+                var newPage = pb.DocumentCreator.create('page', pagedoc);
                 dao.update(newPage).then(function(result) {
                     pages.push(result);
 
@@ -253,7 +282,7 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
 
             var articleTopics = [];
             for(var i = 0; i < rawArticle.category.length; i++) {
-                if(typeof rawArticle.category[i] === 'string') {
+                if(pb.utils.isString(rawArticle.category[i])) {
                     for(var j = 0; j < topics.length; j++) {
                         if(topics[j].name == rawArticle.category[i]) {
                             articleTopics.push(topics[j]._id.toString());
@@ -281,7 +310,18 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
                 }
                 self.addMedia(mediaObjects);
 
-                var newArticle = pb.DocumentCreator.create('article', {url: rawArticle['wp:post_name'][0], headline: rawArticle.title[0], publish_date: new Date(rawArticle['wp:post_date'][0]), article_layout: updatedContent, article_topics: articleTopics, article_sections: [], article_media: articleMedia, seo_title: rawArticle.title[0], author: author});
+                var articleDoc = {
+                    url: rawArticle['wp:post_name'][0],
+                    headline: BaseController.sanitize(rawArticle.title[0]),
+                    publish_date: new Date(rawArticle['wp:post_date'][0]),
+                    article_layout: BaseController.sanitize(updatedContent, BaseController.getContentSanitizationRules()),
+                    article_topics: articleTopics,
+                    article_sections: [],
+                    article_media: articleMedia,
+                    seo_title: BaseController.sanitize(rawArticle.title[0]),
+                    author: author
+                };
+                var newArticle = pb.DocumentCreator.create('article', articleDoc);
                 dao.update(newArticle).then(function(result) {
                     articles.push(result);
 
@@ -459,7 +499,16 @@ WPXMLParseService.retrieveMediaObjects = function(content, cb) {
                     isFile = 'on';
                 }
 
-                var newMedia = pb.DocumentCreator.create('media', {is_file: isFile, media_type: mediaType, location: location, thumb: location, name: 'Media_' + pb.utils.uniqueId(), caption: '', media_topics: []});
+                var mediadoc = {
+                    is_file: isFile,
+                    media_type: mediaType,
+                    location: location,
+                    thumb: location,
+                    name: 'Media_' + pb.utils.uniqueId(),
+                    caption: '',
+                    media_topics: []
+                };
+                var newMedia = pb.DocumentCreator.create('media', mediadoc);
                 dao.update(newMedia).then(function(result) {
                     mediaObjects.push(result);
                     cb(result);
@@ -485,17 +534,8 @@ WPXMLParseService.retrieveMediaObjects = function(content, cb) {
     });
 };
 
-WPXMLParseService.generatePassword = function()
-{
-    var characters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '!', '@', '#', '$', '%', '^', '&', '*', '?'];
-
-    var password = '';
-    while(password.length < 8)
-    {
-        password = password.concat(characters[parseInt(Math.random() * characters.length)]);
-    }
-
-    return password;
+WPXMLParseService.generatePassword = function() {
+    return pb.security.generatePassword(8);
 };
 
 //exports

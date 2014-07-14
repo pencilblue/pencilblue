@@ -15,24 +15,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function ImportWP(){}
-
+//dependencies
 var wpXMLParse = pb.plugins.getService('wp_xml_parse', 'wp_import');
+
+/**
+ * @class ImportWP
+ * @constructor
+ * @extends BaseController
+ */
+function ImportWP(){}
 
 //inheritance
 util.inherits(ImportWP, pb.BaseController);
 
+/**
+ * @see BaseController#render
+ * @method render
+ * @param {Function} cb
+ */
 ImportWP.prototype.render = function(cb) {
     var self  = this;
     var files = [];
 
     var form = new formidable.IncomingForm();
-    form.on('file', function(field, file)
-    {
+    form.on('file', function(field, file) {
         files.push(file);
     });
+    form.on('error', function(err) {
+        self.session.error = '^loc_NO_FILE^';
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'No file provided')});
+    });
     form.parse(this.req, function() {
-        //TODO handle error, max size, etc.
+
         fs.readFile(files[0].path, function(err, data) {
             if(util.isError(err)) {
                 self.session.error = '^loc_NO_FILE^';

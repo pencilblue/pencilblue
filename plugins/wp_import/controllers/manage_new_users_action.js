@@ -26,7 +26,7 @@ ManageNewWPUsers.prototype.onPostParamsRetrieved = function(post, cb) {
 
     if(!self.session.importedUsers || !post) {
         self.session.error = self.ls.get('ERROR_SAVING');
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/plugins/settings/wp_import/manage_new_users'));
+        this.redirect('/admin/plugins/settings/wp_import/manage_new_users', cb);
         return;
     }
 
@@ -36,7 +36,7 @@ ManageNewWPUsers.prototype.onPostParamsRetrieved = function(post, cb) {
         if(index >= users.length) {
             self.session.success = self.ls.get('USERS') + ' ' + self.ls.get('SAVED');
             delete self.session.importedUsers;
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/plugins/settings/wp_import'));
+            self.redirect('/admin/plugins/settings/wp_import', cb);
             return;
         }
 
