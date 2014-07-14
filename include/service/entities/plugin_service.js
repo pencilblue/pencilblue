@@ -958,7 +958,7 @@ PluginService.prototype.installPlugin = function(pluginDirName, cb) {
                 self.installPluginDependencies(pluginDirName, details.dependencies, callback);
             }
             else {
-                cb(null, true);
+                callback(null, true);
             }
         },
 
