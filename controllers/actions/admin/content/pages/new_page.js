@@ -17,14 +17,16 @@
 
 /**
  * Creates a new page
+ * @class NewPagePostController
+ * @constructor
+ * @extends FormController
  */
-
-function NewPage(){}
+function NewPagePostController(){}
 
 //inheritance
-util.inherits(NewPage, pb.FormController);
+util.inherits(NewPagePostController, pb.FormController);
 
-NewPage.prototype.onPostParamsRetrieved = function(post, cb) {
+NewPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
     delete post.topic_search;
@@ -82,5 +84,11 @@ NewPage.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
+NewPagePostController.prototype.getSanitizationRules = function() {
+    return {
+        page_layout: pb.BaseController.getContentSanitizationRules()
+    };
+};
+
 //exports
-module.exports = NewPage;
+module.exports = NewPagePostController;
