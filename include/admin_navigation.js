@@ -92,7 +92,7 @@ function getDefaultNavigation(ls) {
             title: ls.get('PLUGINS'),
             icon: 'puzzle-piece',
             href: '#',
-            access: ACCESS_MANAGING_EDITOR,
+            access: ACCESS_ADMINISTRATOR,
             children:
             [
                 {
