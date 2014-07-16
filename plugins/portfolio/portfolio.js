@@ -37,7 +37,7 @@ Portfolio.onUninstall = function(cb) {
  * The result is ignored
  */
 Portfolio.onStartup = function(cb) {
-    pb.AdminSubnavService.registerFor('portfolio', function(navKey, localization) {
+    pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization) {
         return [
             {
                 title: 'Home page settings',
