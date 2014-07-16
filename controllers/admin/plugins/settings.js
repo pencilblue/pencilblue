@@ -109,10 +109,16 @@ PluginSettingsController.prototype.renderGet = function(cb) {
 				}
 			];
 
+			var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, plugin);
+			var pluginPills = pb.AdminSubnavService.get(self.pathVars.id, self.ls, null, plugin);
+			for(i = 0; i < pluginPills.length; i++) {
+				pills.push(pluginPills[i]);
+			}
+
 			//setup angular
 			var angularData = pb.js.getAngularController(
 	            {
-	            	pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, plugin),
+	            	pills: pills,
 					tabs: tabs,
 	                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
 	                settings: clone
