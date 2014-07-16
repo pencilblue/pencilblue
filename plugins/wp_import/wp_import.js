@@ -37,7 +37,7 @@ WPImport.onUninstall = function(cb) {
  * The result is ignored
  */
 WPImport.onStartup = function(cb) {
-	pb.AdminSubnavService.registerFor('wp_import', function(navKey, localization) {
+	pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization) {
      return [
          {
              title: 'Import WordPress XML',
