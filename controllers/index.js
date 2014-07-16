@@ -239,12 +239,13 @@ Index.prototype.loadContent = function(articleCallback) {
 Index.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
     var self = this;
 
-    var isPage        = content.object_type === 'page'
-    var showByLine    = contentSettings.display_bylines && !isPage;
-    var showTimestamp = contentSettings.display_timestamp && !isPage;
-    var ats           = new pb.TemplateService(this.ls);
+    var isPage           = content.object_type === 'page'
+    var showByLine       = contentSettings.display_bylines && !isPage;
+    var showTimestamp    = contentSettings.display_timestamp && !isPage;
+    var ats              = new pb.TemplateService(this.ls);
+    var contentUrlPrefix = isPage ? '/page/' : '/article/';
     self.ts.reprocess = false;
-    ats.registerLocal('article_headline', new pb.TemplateValue('<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>', false));
+    ats.registerLocal('article_headline', new pb.TemplateValue('<a href="' + pb.UrlService.urlJoin(contentUrlPrefix, content.url) + '">' + content.headline + '</a>', false));
     ats.registerLocal('article_headline_nolink', content.headline);
     ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
     ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
@@ -261,7 +262,7 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
     ats.registerLocal('author_position', content.author_position ? content.author_position : '');
     ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
     ats.registerLocal('comments', function(flag, cb) {
-       if (content.object_type === 'page' || !contentSettings.allow_comments) {
+       if (isPage || !contentSettings.allow_comments) {
            cb(null, '');
            return;
        }
