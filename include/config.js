@@ -14,7 +14,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+//dependencies
 var cluster = require('cluster');
+var process = require('process');
 var utils   = require('./util.js');
 
 /**
@@ -48,8 +51,10 @@ var config = {
     //your domain name if in production use.
 	siteIP:   'localhost',
 
-    //The primary port to listen for traffic on.
-	sitePort: 8080,
+    //The primary port to listen for traffic on.  Some environment such as
+    //heroku force you to use whatever port they have available.  In such cases
+    //the port is passed as an environment variable.
+	sitePort: process.env.port || process.env.PORT || 8080,
 
     //the absolute file path to the directory where installation lives
 	docRoot:  DOCUMENT_ROOT,
