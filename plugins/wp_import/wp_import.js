@@ -37,16 +37,20 @@ WPImport.onUninstall = function(cb) {
  * The result is ignored
  */
 WPImport.onStartup = function(cb) {
-	pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization) {
-     return [
-         {
-             title: 'Import WordPress XML',
-             icon: 'upload',
-             href: '/admin/plugins/settings/wp_import/import'
-         }
-     ];
- });
- cb(null, true);
+	pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization, plugin) {
+        if(plugin.uid === 'wp_import') {
+            return [
+                {
+                    name: 'import_xml',
+                    title: 'Import WordPress XML',
+                    icon: 'upload',
+                    href: '/admin/plugins/settings/wp_import/import'
+                }
+            ];
+        }
+        return [];
+    });
+    cb(null, true);
 };
 
 /**
