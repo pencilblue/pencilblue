@@ -623,6 +623,13 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'manage_users.js'),
     },
     {
+        method: 'get',
+        path: "/admin/users/unverified_users",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'unverified_users.js'),
+    },
+    {
     	method: 'get',
     	path: "/admin/users/edit_user/:id",
     	auth_required: true,
@@ -642,6 +649,20 @@ RequestHandler.CORE_ROUTES = [
         auth_required: true,
         access_level: ACCESS_EDITOR,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_user.js'),
+    },
+    {
+        method: 'get',
+        path: "/actions/admin/users/delete_unverified_user/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_unverified_user.js'),
+    },
+    {
+        method: 'get',
+        path: "/actions/admin/users/verify_user/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'verify_user.js'),
     },
     {
     	method: 'get',
