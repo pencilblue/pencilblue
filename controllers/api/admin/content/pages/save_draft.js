@@ -101,5 +101,16 @@ SavePageDraftController.prototype.getRequiredFields = function() {
 	return ['url', 'headline', 'page_layout', 'id'];
 };
 
+/**
+ * @see BaseController#getSanitizationRules
+ * @method getSanitizationRules
+ * @return {Object}
+ */
+SavePageDraftController.prototype.getSanitizationRules = function() {
+    return {
+        page_layout: pb.BaseController.getContentSanitizationRules()
+    };
+};
+
 //exports
 module.exports = SavePageDraftController;

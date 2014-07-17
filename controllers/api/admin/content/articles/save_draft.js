@@ -104,5 +104,16 @@ SaveArticleDraft.prototype.getRequiredFields = function() {
 	return ['url', 'headline', 'article_layout', 'id'];
 };
 
+/**
+ * @see BaseController#getSanitizationRules
+ * @method getSanitizationRules
+ * @return {Object}
+ */
+SaveArticleDraft.prototype.getSanitizationRules = function() {
+    return {
+        article_layout: pb.BaseController.getContentSanitizationRules()
+    };
+};
+
 //exports
 module.exports = SaveArticleDraft;
