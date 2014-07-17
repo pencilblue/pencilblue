@@ -41,13 +41,18 @@ AsyncJobRunner.prototype.run = function(cb) {
     d.once('error', cb);
     d.run(function() {
 
-        var tasks = self.getTasks();
-        if (this.parallelLimit <= 1) {
-            async.series(tasks, cb);
-        }
-        else {
-            async.parallelLimt(tasks, this.parallelLimit, cb);
-        }
+        self.getTasks(function(err, tasks){
+            if (util.isError(err)) {
+                throw err;
+            }
+
+            if (this.parallelLimit <= 1) {
+                async.series(tasks, cb);
+            }
+            else {
+                async.parallelLimt(tasks, this.parallelLimit, cb);
+            }
+        });
     });
 };
 
