@@ -481,7 +481,7 @@ DAO.updateChangeHistory = function(dbObject){
  * @param {String} to The type to convert it to
  */
 DAO.transfer = function(obj, to) {
-    if (!util.isObject(obj) || !util.isString(to)) {
+    if (!pb.utils.isObject(obj) || !pb.utils.isString(to)) {
         throw new Error('The obj must be an object and the to parameter must be a string');
     }
 
