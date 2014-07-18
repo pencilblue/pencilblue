@@ -330,6 +330,7 @@ var loc =
     users:
     {
         MANAGE_USERS: 'Manage users',
+        UNVERIFIED_USERS: 'Unverified users',
         NEW_USER: 'New user',
         ACCOUNT_INFO: 'Account info',
         PERSONAL_INFO: 'Personal info',
@@ -370,7 +371,10 @@ var loc =
         NEW_PASSWORD: 'New password',
         INVALID_PASSWORD: 'Invalid current password',
         PASSWORD_CHANGED: 'Your password was successfully changed',
-        NO_PERMISSIONS: 'None of your installed plugins have permissions set'
+        NO_PERMISSIONS: 'None of your installed plugins have permissions set',
+        CONFIRM_VERIFY: 'Are you sure you want to verify',
+        VERIFY: 'Verify',
+        VERIFIED: 'was verified'
     },
     plugins:
     {
