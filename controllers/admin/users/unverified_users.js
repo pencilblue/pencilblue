@@ -35,7 +35,7 @@ UnverifiedUsers.prototype.render = function(cb) {
     var dao  = new pb.DAO();
     dao.query('unverified_user', {}).then(function(users) {
         if(util.isError(users)) {
-            self.redirect(pb.config.siteRoot + '/admin', cb);
+            self.redirect('/admin', cb);
             return;
         }
 

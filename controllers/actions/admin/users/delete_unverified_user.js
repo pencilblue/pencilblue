@@ -43,14 +43,14 @@ DeleteUnverifiedUser.prototype.render = function(cb) {
         }
 
         //delete the user
-        dao.deleteMatching({_id: ObjectID(vars.id)}, 'unverified_user').then(function(result) {
+        dao.deleteById(vars.id, 'unverified_user').then(function(result) {
             if(result < 1) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/unverified_users', cb);
                 return;
             }
 
             self.session.success = user.username + ' ' + self.ls.get('DELETED');
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/users/unverified_users'));
+            self.redirect('/admin/users/unverified_users', cb);
         });
     });
 };

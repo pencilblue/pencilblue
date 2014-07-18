@@ -16,7 +16,7 @@
 */
 
 /**
- * Deletes an unverified user
+ * Verifies a user
  */
 
 function VerifyUser(){}
@@ -42,12 +42,14 @@ VerifyUser.prototype.render = function(cb) {
             return;
         }
 
-        dao.deleteById(unverifiedUser._id, 'unverified_user').then(function(result)  {
+        dao.deleteById(vars.id, 'unverified_user').then(function(result)  {
             //TODO handle error
 
             //convert to user
             var user = unverifiedUser;
             delete user._id;
+            delete user.created;
+            delete user.last_modified;
             user.object_type = 'user';
 
             dao.update(user).then(function(result) {
@@ -57,7 +59,7 @@ VerifyUser.prototype.render = function(cb) {
                 }
 
                 self.session.success = user.username + ' ' + self.ls.get('VERIFIED');
-                self.redirect(pb.config.siteRoot + '/admin/users/unverified_users', cb);
+                self.redirect('/admin/users/unverified_users', cb);
             });
         });
     });
