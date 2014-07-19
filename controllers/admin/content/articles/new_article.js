@@ -31,21 +31,17 @@ util.inherits(NewArticle, pb.BaseController);
 NewArticle.prototype.render = function(cb) {
 	var self  = this;
 
-	this.ts.load(this.getTemplateLocation(), function(err, data) {
-		self.onTemplateRetrieved('' + data, function(err, data) {
-	        var result = '' + data;
-	        var tabs   = self.getTabs();
+    self.gatherData(function(err, results){
+        //TODO handle error
+        var tabs   = self.getTabs();
 
-	        self.gatherData(function(err, results){
-	        	//TODO handle error
-
-	        	self.checkForFormRefill(result, function(newResult) {
-
-	                result = newResult.split('^angular_script^').join(self.getAngularController(tabs, results));
-	                cb({content: result});
-	            });
-	        });
-		});
+        self.ts.registerLocal('angular_script', self.getAngularController(tabs, results));
+    	self.ts.load(self.getTemplateLocation(), function(err, data) {
+    		self.onTemplateRetrieved('' + data, function(err, data) {
+    	        var result = '' + data;
+                cb({content: result});
+    		});
+        });
     });
 };
 
