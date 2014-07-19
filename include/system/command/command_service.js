@@ -341,10 +341,15 @@ CommandService.sendInResponseTo = function(command, responseCommand, cb) {
         responseCommand = {};
     }
 
+    //ensure a callback
+    cb = cb || pb.utils.cb;
+
+    //complete the response
     responseCommand.id         = command.id;
     responseCommand.to         = command.from;
     responseCommand.isResponse = true;
 
+    //send the response
     var type = responseCommand.type || command.type;
     CommandService.sendCommand(type, responseCommand, cb);
 };

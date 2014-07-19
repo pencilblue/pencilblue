@@ -110,6 +110,11 @@ pb.ServerRegistration        = require(DOCUMENT_ROOT+'/include/system/server_reg
 pb.RedisCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/redis_command_broker.js'));
 pb.CommandService     = require(path.join(DOCUMENT_ROOT, '/include/system/command/command_service.js'));
 
+//Jobs
+pb.JobRunner      = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/job_runner.js'));
+pb.AsyncJobRunner = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/async_job_runner'));
+pb.PluginUninstallJob = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_uninstall_job.js'));
+
 //Email settings and functions
 pb.EmailService = require(DOCUMENT_ROOT+'/include/email').EmailService;
 pb.email        = new pb.EmailService();

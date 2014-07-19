@@ -40,11 +40,16 @@ function JobRunner(){
 //constants
 var JOB_LOG_STORE_NAME = 'job_log';
 
-JobRunner.prototype.init = function(name) {
+JobRunner.prototype.init = function(name, jobId) {
     this.name = name;
     this.dao  = new pb.DAO();
-    this.id   = pb.utils.uniqueId().toString();
+    this.id   = jobId || pb.utils.uniqueId().toString();
+    return this;
 }
+
+JobRunner.prototype.getId = function() {
+    return this.id;
+};
 
 JobRunner.prototype.run = function(cb) {
     throw new Error('This function must be overriden by an extending prototype');
@@ -71,7 +76,7 @@ JobRunner.prototype.log = function() {
             message: message,
             metadata: meta
         };
-        this.dao.save(statement);
+        this.dao.update(statement);
         pb.log.debug.apply(pb.log, arguments);
     }
 };

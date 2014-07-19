@@ -782,14 +782,29 @@ PluginService.prototype.getPluginMap = function(cb) {
  * Uninstalls the plugin with the specified UID.
  * @method uninstallPlugin
  * @param {String} pluginUid The unique plugin identifier
+ * @param {Object} options
+ * @param {String} [options.jobId] Required when unintalling from the executing
+ * process instead of calling upon the cluster.
+ * @param {Boolean} [options.forCluster=true] When true or not provided the function
+ * instructs the cluster to uninstall the plugin.  When explicitly FALSE the
+ * function installs the plugin from the executing process.
  * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
  */
-PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
+PluginService.prototype.uninstallPlugin = function(pluginUid, options, cb) {
 	var self = this;
+
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        cb(new Error('The options parameter must be an object'));
+        return;
+    }
 
 	//log start of operation
 	if (pb.log.isDebug()) {
-		pb.log.debug("PluginService:[%s] Attempting uninstall", pluginUid);
+		pb.log.debug("PluginService:[%s] Attempting uninstall with options: %s", pluginUid, util.inspect(options));
 	}
 
 	//construct sequential tasks
@@ -886,9 +901,16 @@ PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
         	 process.nextTick(function(){callback(null, false);});
          }
     ];
-	async.series(tasks, function(err, results) {
-		cb(err, !util.isError(err));
-	});
+	//async.series(tasks, function(err, results) {
+	//	cb(err, !util.isError(err));
+	//});
+
+    var name  = util.format('UNINSTALL_PLUGIN_%s', pluginUid);
+    var jobId = options.jobId;
+    var job = new pb.PluginUninstallJob();
+    job.init(name, jobId);
+    job.setRunAsInitiator(options.forCluster === false ? false : true);
+    job.run(cb);
 };
 
 /**
@@ -2000,6 +2022,29 @@ PluginService.getServiceName = function(pathToService, service) {
 	}
 	return name;
 };
+
+PluginService.onUninstallPluginCommandReceived = function(command) {
+    if (!pb.utils.isObject(command)) {
+        pb.log.error('PluginService: an invalid uninstall plugin command object was passed. %s', util.inspect(command));
+        return;
+    }
+
+    var options = {
+        forCluster: false,
+        jobId: command.jobId
+    }
+    pb.plugins.uninstallPlugin(command.pluginUid, options, function(err, result) {
+
+        var response = {
+            err: err ? err.stack : undefined,
+            result: result
+        };
+        pb.CommandService.sendInResponseTo(command, response);
+    });
+};
+
+//register for commands
+pb.CommandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
 
 //exports
 module.exports = PluginService;

@@ -30,7 +30,7 @@ util.inherits(AsyncJobRunner, JobRunner);
 
 AsyncJobRunner.prototype.parallelLimit = 1;
 
-AsyncJobRunner.prototype.setParallelLimit(max) {
+AsyncJobRunner.prototype.setParallelLimit = function(max) {
    this.parallelLimit = max;
 };
 
@@ -46,11 +46,11 @@ AsyncJobRunner.prototype.run = function(cb) {
                 throw err;
             }
 
-            if (this.parallelLimit <= 1) {
+            if (self.parallelLimit <= 1) {
                 async.series(tasks, cb);
             }
             else {
-                async.parallelLimt(tasks, this.parallelLimit, cb);
+                async.parallelLimit(tasks, self.parallelLimit, cb);
             }
         });
     });
