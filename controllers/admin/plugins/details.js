@@ -45,12 +45,10 @@ PluginDetailsController.prototype.render = function(cb) {
 			return;
 		}
 
-		var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj);
-
 		//angular data
 		var angularData = pb.js.getAngularController(
 	        {
-	        	pills: pills,
+	        	pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj),
 	            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
 	            d: obj.details,
 	            status: obj.status,
@@ -62,12 +60,10 @@ PluginDetailsController.prototype.render = function(cb) {
 		//render page
 		self.setPageName(obj.details.name);
 		self.ts.registerLocal('plugin_icon', PluginService.genPublicPath(obj.details.uid, obj.details.icon));
-		self.ts.load('/admin/plugins/details', function(err, content) {
-
-			//TODO move angular out as flag & replacement when can add option to
-			//skip the check for replacements in replacement
-			content = content.replace('^angular_script^', angularData);
-			cb({content: content});
+		self.ts.registerLocal('angular_script', angularData);
+		self.ts.load('/admin/plugins/details', function(err, data) {
+			var result = '' + data;
+			cb({content: result});
 		});
 	});
 };

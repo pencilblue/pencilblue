@@ -19,7 +19,7 @@
  * Interface for displaying the site's configuration settings
  */
 
-function Configuration(){};
+function Configuration(){}
 
 //dependencies
 var SiteSettings = require('../site_settings');
@@ -39,12 +39,12 @@ Configuration.prototype.render = function(cb) {
             return;
         }
 
-        var pills   = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration');
-        var objects = {
-            navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-            pills: pills
-        };
-        var angularData = pb.js.getAngularController(objects);
+        var angularData = pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration')
+            }
+        );
 
         self.setPageName(self.ls.get('CONFIGURATION'));
         self.ts.registerLocal('yes_checked', callHome ? 'checked' : '');
