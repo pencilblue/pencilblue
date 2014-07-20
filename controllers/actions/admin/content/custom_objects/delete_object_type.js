@@ -35,12 +35,12 @@ DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
     }
 
     var dao = new pb.DAO();
-    dao.query('custom_object_type', {_id: ObjectID(vars['id'])}).then(function(customObjectTypes) {
+    dao.query('custom_object_type', {_id: ObjectID(vars.id)}).then(function(customObjectTypes) {
         if (util.isError(customObjectTypes)) {
             //TODO handle this
         }
 
-        if(customObjectTypes.length == 0)
+        if(customObjectTypes.length === 0)
         {
             cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
             return;
@@ -48,15 +48,15 @@ DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
 
         var customObjectType = customObjectTypes[0];
 
-        dao.deleteById(vars['id'], 'custom_object_type').then(function(recordsDeleted) {
+        dao.deleteById(vars.id, 'custom_object_type').then(function(recordsDeleted) {
             if(recordsDeleted <= 0) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/manage_object_types', cb);
                 return;
             }
 
-            dao.deleteMatching({type: vars['id']}, 'custom_object').then(function(recordsDeleted) {
+            dao.deleteMatching({type: vars.id}, 'custom_object').then(function(recordsDeleted) {
                 self.session.success = customObjectType.name + ' ' + self.ls.get('DELETED');
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+                self.redirect('/admin/content/custom_objects/manage_object_types', cb);
             });
         });
     });
