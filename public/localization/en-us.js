@@ -348,6 +348,7 @@ var loc =
         GENERATE: 'Generate',
         USER_TYPE: 'User type',
         CREATE_USER: 'Create user',
+        USER_DELETE_SELF: 'Users cannot delete their own account',
         PASSWORD_MISMATCH: 'Passwords do not match',
         EXISTING_USERNAME: 'Username is already registered',
         EXISTING_EMAIL: 'Email address is already registered',
