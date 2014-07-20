@@ -39,7 +39,10 @@ NewArticle.prototype.render = function(cb) {
     	self.ts.load(self.getTemplateLocation(), function(err, data) {
     		self.onTemplateRetrieved('' + data, function(err, data) {
     	        var result = '' + data;
-                cb({content: result});
+                self.checkForFormRefill(result, function(newResult) {
+                    result = newResult;
+                    cb({content: result});
+                });
     		});
         });
     });
@@ -59,7 +62,7 @@ NewArticle.prototype.getAngularController = function(tabs, data) {
         topics: data.topics,
         media: data.media
     };
-	return angular = pb.js.getAngularController(
+	return pb.js.getAngularController(
 		objects,
 		[],
 		'initMediaPagination();initSectionsPagination();initTopicsPagination()'

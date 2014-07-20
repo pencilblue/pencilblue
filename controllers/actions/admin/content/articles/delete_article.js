@@ -48,7 +48,7 @@ DeleteArticle.prototype.render = function(cb) {
             }
 
             self.session.success = article.headline + ' ' + self.ls.get('DELETED');
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
+            self.redirect('/admin/content/articles/manage_articles', cb);
         });
     });
 };
