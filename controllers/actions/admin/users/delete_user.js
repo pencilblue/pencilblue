@@ -34,6 +34,11 @@ DeleteUser.prototype.render = function(cb) {
         return;
     }
 
+    if(vars.id === self.session.authentication.user_id) {
+        self.formError(self.ls.get('USER_DELETE_SELF'), '/admin/users/manage_users', cb);
+        return;
+    }
+
     //ensure existence
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'user', function(err, user) {
