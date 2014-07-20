@@ -118,7 +118,7 @@ UserService.prototype.getEditorSelectList = function(currId, cb) {
 		var editors = [];
 		for(var i = 0; i < data.length; i++) {
 
-			var editor = {_id: data[0]._id, name: data[0].first_name + ' ' + data[0].last_name};
+			var editor = {_id: data[i]._id, name: data[i].first_name + ' ' + data[i].last_name};
             if(currId == data[i]._id.toString()) {
                 editor.selected = 'selected';
             }
