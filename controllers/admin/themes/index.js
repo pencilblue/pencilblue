@@ -55,13 +55,11 @@ ThemesController.prototype.render = function(cb) {
 
 			});
 
-			var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls);
-
 			//setup angular
 			var angularData = pb.js.getAngularController(
 	            {
 	                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes'], self.ls),
-					pills: pills,
+					pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
 	                tabs: self.getTabs(),
 	                themes: themes,
 	                options: options,
@@ -71,7 +69,6 @@ ThemesController.prototype.render = function(cb) {
 	        );
 
 			//load the template
-			//self.ts.registerLocal('angular_script', angularData);
 			self.ts.registerLocal('uploaded_image', function(flag, callback) {
 				pb.settings.get('site_logo', function(err, logo) {
 					if (util.isError(err)) {
@@ -91,12 +88,10 @@ ThemesController.prototype.render = function(cb) {
 				});
 			});
 			self.ts.registerLocal('image_title', ' ');
-			self.ts.load('/admin/themes/index', function(err, content) {
-
-				//TODO move angular out as flag & replacement when can add option to
-				//skip the check for replacements in replacement
-				content = content.replace('^angular_script^', angularData);
-				cb({content: content});
+			self.ts.registerLocal('angular_script', angularData);
+			self.ts.load('/admin/themes/index', function(err, data) {
+				var result = '' + data;
+				cb({content: result});
 			});
 		});
 	});

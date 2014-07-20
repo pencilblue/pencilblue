@@ -39,19 +39,17 @@ UnverifiedUsers.prototype.render = function(cb) {
             return;
         }
 
+        var angularData = pb.js.getAngularController(
+        {
+            navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
+            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+            users: users
+        }, [], 'initUsersPagination()');
+
         self.setPageName(self.ls.get('MANAGE_USERS'));
+        self.ts.registerLocal('angular_script', angularData);
         self.ts.load('admin/users/unverified_users', function(err, data){
             var result = '' + data;
-
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-
-            result = result.split('^angular_script^').join(pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
-                pills: pills,
-                users: users
-            }, [], 'initUsersPagination()'));
-
             cb({content: result});
         });
     });

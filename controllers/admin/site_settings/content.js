@@ -19,7 +19,7 @@
  * Interface for the site's content settings
  */
 
-function Content(){};
+function Content(){}
 
 //dependencies
 var SiteSettings = require('../site_settings');
@@ -33,51 +33,48 @@ var SUB_NAV_KEY = 'content_settings';
 Content.prototype.render = function(cb) {
     var self = this;
 
-    this.setPageName(self.ls.get('CONTENT'));
-	this.ts.load('admin/site_settings/content', function(err, data) {
-        var result = data;
+    var tabs =
+    [
+        {
+            active: 'active',
+            href: '#articles',
+            icon: 'files-o',
+            title: self.ls.get('ARTICLES')
+        },
+        {
+            href: '#timestamp',
+            icon: 'clock-o',
+            title: self.ls.get('TIMESTAMP')
+        },
+        {
+            href: '#authors',
+            icon: 'user',
+            title: self.ls.get('AUTHOR')
+        },
+        {
+            href: '#comments',
+            icon: 'comment',
+            title: self.ls.get('COMMENTS')
+        }
+    ];
 
-        var tabs =
-        [
+    pb.content.getSettings(function(err, contentSettings) {
+        self.setFormFieldValues(contentSettings);
+
+        var angularData = pb.js.getAngularController(
             {
-                active: 'active',
-                href: '#articles',
-                icon: 'files-o',
-                title: self.ls.get('ARTICLES')
-            },
-            {
-                href: '#timestamp',
-                icon: 'clock-o',
-                title: self.ls.get('TIMESTAMP')
-            },
-            {
-                href: '#authors',
-                icon: 'user',
-                title: self.ls.get('AUTHOR')
-            },
-            {
-                href: '#comments',
-                icon: 'comment',
-                title: self.ls.get('COMMENTS')
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content'),
+                tabs: tabs
             }
-        ];
+        );
 
-        pb.content.getSettings(function(err, contentSettings) {
-            self.setFormFieldValues(contentSettings);
-
+        self.setPageName(self.ls.get('CONTENT'));
+        self.ts.registerLocal('angular_script', angularData);
+        self.ts.load('admin/site_settings/content', function(err, data) {
+            var result = '' + data;
             self.checkForFormRefill(result, function(newResult) {
                 result = newResult;
-
-                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content');
-
-                var objects     = {
-                    navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                    pills: pills,
-                    tabs: tabs
-                };
-                var angularData = pb.js.getAngularController(objects);
-                result          = result.split('^angular_script^').join(angularData);
-
                 cb({content: result});
             });
         });

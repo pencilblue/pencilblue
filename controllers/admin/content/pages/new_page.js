@@ -34,54 +34,52 @@ var SUB_NAV_KEY = 'new_page';
 NewPage.prototype.render = function(cb) {
 	var self = this;
 
-	this.setPageName(self.ls.get('NEW_PAGE'));
-	self.ts.load('admin/content/pages/new_page', function(err, data) {
-        var result = '' + data;
-        var tabs   =
-        [
-            {
-                active: 'active',
-                href: '#content',
-                icon: 'quote-left',
-                title: self.ls.get('CONTENT')
-            },
-            {
-                href: '#media',
-                icon: 'camera',
-                title: self.ls.get('MEDIA')
-            },
-            {
-                href: '#topics_dnd',
-                icon: 'tags',
-                title: self.ls.get('TOPICS')
-            },
-            {
-                href: '#seo',
-                icon: 'tasks',
-                title: self.ls.get('SEO')
-            }
-        ];
+    var tabs   =
+    [
+        {
+            active: 'active',
+            href: '#content',
+            icon: 'quote-left',
+            title: self.ls.get('CONTENT')
+        },
+        {
+            href: '#media',
+            icon: 'camera',
+            title: self.ls.get('MEDIA')
+        },
+        {
+            href: '#topics_dnd',
+            icon: 'tags',
+            title: self.ls.get('TOPICS')
+        },
+        {
+            href: '#seo',
+            icon: 'tasks',
+            title: self.ls.get('SEO')
+        }
+    ];
 
-        var templates = pb.TemplateService.getAvailableContentTemplates();
-        var dao = new pb.DAO();
-        dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
-            //TODO handle errors
+    var dao = new pb.DAO();
+    dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
+        //TODO handle errors
+        Media.getAll(function(media){
+            var templates = pb.TemplateService.getAvailableContentTemplates();
+            var angularData = pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'new_page'),
+                tabs: tabs,
+                templates: templates,
+                topics: topics,
+                media: media
+            }, [], 'initMediaPagination();initTopicsPagination()');
 
-            Media.getAll(function(media){
+            self.setPageName(self.ls.get('NEW_PAGE'));
+            self.ts.registerLocal('angular_script', angularData);
+            self.ts.load('admin/content/pages/new_page', function(err, data) {
+                var result = '' + data;
                 self.checkForFormRefill(result, function(newResult) {
                     result = newResult;
-
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'new_page');
-                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                    {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
-                        pills: pills,
-                        tabs: tabs,
-                        templates: templates,
-                        topics: topics,
-                        media: media
-                    }, [], 'initMediaPagination();initTopicsPagination()'));
-
                     cb({content: result});
                 });
             });

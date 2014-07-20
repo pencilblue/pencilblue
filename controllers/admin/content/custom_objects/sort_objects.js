@@ -86,21 +86,20 @@ SortObjects.prototype.render = function(cb) {
                     customObjects = sortedObjects;
                 }
 
+                var angularData = pb.js.getAngularController(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType),
+                    customObjects: customObjects,
+                    objectType: objectType
+                });
+
 		        self.setPageName(self.ls.get('MANAGE') + ' ' + objectType.name);
 		        self.ts.registerLocal('object_type_id', objectType._id);
                 self.ts.registerLocal('object_type_name', objectType.name);
+                self.ts.registerLocal('angular_script', angularData);
                 self.ts.load('admin/content/custom_objects/sort_objects', function(err, data) {
-                    var result = ''+data;
-
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType);
-                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                    {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                        pills: pills,
-                        customObjects: customObjects,
-                        objectType: objectType
-                    }));
-
+                    var result = '' + data;
                     cb({content: result});
                 });
             });
