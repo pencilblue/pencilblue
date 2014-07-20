@@ -85,7 +85,7 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
                 }
 
                 self.session.success = objectTypeDocument.name + ' ' + self.ls.get('EDITED');
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/edit_object_type/' +  vars.id));
+                self.redirect('/admin/content/custom_objects/edit_object_type/' +  vars.id, cb);
             });
         });
     });

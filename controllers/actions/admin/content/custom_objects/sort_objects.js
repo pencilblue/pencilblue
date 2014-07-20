@@ -74,7 +74,7 @@ SortObjects.prototype.onPostParamsRetrieved = function(post, cb) {
                 }
 
                 self.session.success = customObjectType.name + ' ' + self.ls.get('SORT_SAVED');
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_objects/' + customObjectType._id));
+                self.redirect('/admin/content/custom_objects/manage_objects/' + customObjectType._id, cb);
             });
         });
     });
