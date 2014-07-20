@@ -74,13 +74,14 @@ EditMedia.prototype.render = function(cb) {
                 media: media,
                 topics: topics
             };
-            var angularData = pb.js.getAngularController(objects, [], 'getMediaEmbed(' + JSON.stringify(media) + ');initTopicsPagination()');
+            var angularData = pb.js.getAngularController(objects);
 
             self.session.fieldValues = {media_topics: media.media_topics.join(',')};
-            
+
             self.setPageName(self.ls.get('EDIT') + ' ' + media.name);
             self.ts.registerLocal('angular_script', angularData);
             self.ts.registerLocal('media_id', media._id);
+            self.ts.registerLocal('media', new pb.TemplateValue(JSON.stringify(media), false));
             self.ts.load('admin/content/media/edit_media', function(err, data) {
                 var result = '' + data;
                 self.checkForFormRefill(result, function(newResult) {
