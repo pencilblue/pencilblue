@@ -43,7 +43,8 @@ ManageUsers.prototype.render = function(cb) {
         {
             navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-            users: users
+            users: users,
+            currentUserId: self.session.authentication.user_id
         }, [], 'initUsersPagination()');
 
         self.setPageName(self.ls.get('MANAGE_USERS'));
