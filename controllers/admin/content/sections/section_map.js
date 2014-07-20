@@ -47,27 +47,25 @@ SectionMap.prototype.render = function(cb) {
                 return;
             }
 
-            self.setPageName(self.ls.get('NAV_MAP'));
-	        self.ts.load('admin/content/sections/section_map', function(err, data) {
-                var result = data;
-
-                var pills   = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-                var objects = {
+            var angularData = pb.js.getAngularController(
+                {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
-                    pills: pills,
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                     sections: SectionMap.getOrderedSections(sections, sectionMap),
                     icons: {
-                    	container: 'inbox',
-                    	section: 'th-large',
-                    	article: 'files-o',
-                    	page: 'file-o',
-                    	link: 'link'
+                        container: 'inbox',
+                        section: 'th-large',
+                        article: 'files-o',
+                        page: 'file-o',
+                        link: 'link'
                     }
-                };
+                }
+            );
 
-                var angularData = pb.js.getAngularController(objects);
-                result          = result.split('^angular_script^').join(angularData);
-
+            self.setPageName(self.ls.get('NAV_MAP'));
+            self.ts.registerLocal('angular_script', angularData);
+	        self.ts.load('admin/content/sections/section_map', function(err, data) {
+                var result = '' + data;
                 cb({content: result});
             });
         });

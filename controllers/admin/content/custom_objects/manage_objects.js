@@ -89,27 +89,27 @@ ManageObjects.prototype.render = function(cb) {
                     customObjects = sortedObjects;
                 }
 
+                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', objectType);
+                for(var i = 0; i < pills.length; i++) {
+                    if(pills[i].name == 'manage_objects') {
+                        pills[i].title += ' (' + customObjects.length + ')';
+                        break;
+                    }
+                }
+
+                var angularData = pb.js.getAngularController(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                    pills: pills,
+                    customObjects: customObjects,
+                    objectType: objectType
+                }, [], 'initCustomObjectsPagination()');
+
 		        var title = self.ls.get('MANAGE') + ' ' + objectType.name;
 		        self.setPageName(title);
+                self.ts.registerLocal('angular_script', angularData);
                 self.ts.load('admin/content/custom_objects/manage_objects', function(err, data) {
-                    var result = ''+data;
-
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', objectType);
-                    for(var i = 0; i < pills.length; i++) {
-                        if(pills[i].name == 'manage_objects') {
-                            pills[i].title += ' (' + customObjects.length + ')';
-                            break;
-                        }
-                    }
-
-                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                    {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                        pills: pills,
-                        customObjects: customObjects,
-                        objectType: objectType
-                    }, [], 'initCustomObjectsPagination()'));
-
+                    var result = '' + data;
                     cb({content: result});
                 });
             });

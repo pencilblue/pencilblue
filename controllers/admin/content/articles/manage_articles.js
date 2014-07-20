@@ -45,22 +45,20 @@ ManageArticles.prototype.render = function(cb) {
             return;
         }
 
-        var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
-        self.setPageName(manageArticlesStr);
-    	self.ts.load('admin/content/articles/manage_articles',  function(err, data) {
-            var result = '' + data;
+        pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
+            articles = self.getArticleStatuses(articlesWithAuthorNames);
+            var angularData = pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                articles: articles
+            }, [], 'initArticlesPagination()');
 
-
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-            pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
-                articles = self.getArticleStatuses(articlesWithAuthorNames);
-                result = result.split('^angular_script^').join(pb.js.getAngularController(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
-                    pills: pills,
-                    articles: articles
-                }, [], 'initArticlesPagination()'));
-
+            var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
+            self.setPageName(manageArticlesStr);
+            self.ts.registerLocal('angular_script', angularData);
+            self.ts.load('admin/content/articles/manage_articles',  function(err, data) {
+                var result = '' + data;
                 cb({content: result});
             });
         });

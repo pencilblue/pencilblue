@@ -47,8 +47,8 @@ NewSection.prototype.render = function(cb) {
 
 		self.navItem = data.section;
         var angularData = pb.js.getAngularController(data);
+        self.ts.registerLocal('angular_script', angularData);
     	self.getTemplate(function(err, result) {
-			result = result.split('^angular_script^').join(angularData);
             cb({content: result});
         });
 	});

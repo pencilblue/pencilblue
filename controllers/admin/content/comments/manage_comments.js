@@ -61,7 +61,7 @@ ManageComments.prototype.render = function(cb) {
 
                 //create the angular controller
                 var pills   = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-                var angular = pb.js.getAngularController(
+                var angularData = pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
                         pills: pills,
@@ -71,13 +71,14 @@ ManageComments.prototype.render = function(cb) {
 
                 //load the template
                 self.setPageName(self.ls.get('MANAGE_COMMENTS'));
-                self.ts.registerLocal('angular_script', angular);
-                self.ts.load('admin/content/comments/manage_comments', function(err, html) {
+                self.ts.registerLocal('angular_script', angularData);
+                self.ts.load('admin/content/comments/manage_comments', function(err, data) {
                     if (util.isError(err)) {
                         self.reqHandler.serveError(err);
                         return;
                     }
-                    cb({content: html});
+                    var result = '' + data;
+                    cb({content: result});
                 });
             });
         });

@@ -46,49 +46,48 @@ EditObjectType.prototype.render = function(cb) {
             return;
 	    }
 
-	    self.setPageName(objectType.name);
-	    self.ts.registerLocal('object_type_id', objectType._id);
-	    self.ts.load('admin/content/custom_objects/edit_object_type',  function(err, data) {
-            var result = ''+data;
-            var tabs   =
-            [
-                {
-                    active: 'active',
-                    href: '#object_settings',
-                    icon: 'cog',
-                    title: self.ls.get('SETTINGS')
-                },
-                {
-                    href: '#object_fields',
-                    icon: 'list-ul',
-                    title: self.ls.get('FIELDS')
-                }
-            ];
+        var tabs   =
+        [
+            {
+                active: 'active',
+                href: '#object_settings',
+                icon: 'cog',
+                title: self.ls.get('SETTINGS')
+            },
+            {
+                href: '#object_fields',
+                icon: 'list-ul',
+                title: self.ls.get('FIELDS')
+            }
+        ];
 
-            var objectTypes = ['article', 'page', 'section', 'topic', 'media', 'user'];
+        var objectTypes = ['article', 'page', 'section', 'topic', 'media', 'user'];
 
-            dao.query('custom_object_type', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(customObjectTypes) {
-		        if (util.isError(customObjectTypes)) {
-			        //TODO handle this
-		        }
+        dao.query('custom_object_type', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(customObjectTypes) {
+            if (util.isError(customObjectTypes)) {
+                //TODO handle this
+            }
 
-                // Case insensitive test for duplicate name
-                for (var i =0; i < customObjectTypes.length; i++) {
-                    objectTypes.push('custom:' + customObjectTypes[i].name);
-                }
+            // Case insensitive test for duplicate name
+            for (var i =0; i < customObjectTypes.length; i++) {
+                objectTypes.push('custom:' + customObjectTypes[i].name);
+            }
 
-                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_object_type', objectType);
-                result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                    pills: pills,
-                    tabs: tabs,
-                    objectTypes: objectTypes,
-                    objectType: objectType
-                }));
+            var angularData = pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_object_type', objectType),
+                tabs: tabs,
+                objectTypes: objectTypes,
+                objectType: objectType
+            });
 
-                result += pb.js.getJSTag('var customObject = ' + JSON.stringify(objectType));
-
+    	    self.setPageName(objectType.name);
+    	    self.ts.registerLocal('object_type_id', objectType._id);
+            self.ts.registerLocal('angular_script', angularData);
+            self.ts.registerLocal('custom_object_script', pb.js.getJSTag('var customObject = ' + JSON.stringify(objectType)));
+    	    self.ts.load('admin/content/custom_objects/edit_object_type',  function(err, data) {
+                var result = '' + data;
                 cb({content: result});
             });
         });

@@ -40,21 +40,19 @@ ManagePages.prototype.render = function(cb) {
             return;
         }
 
-        var title = self.ls.get('MANAGE_PAGES');
-        self.setPageName(title);
-        self.ts.load('admin/content/pages/manage_pages', function(err, data) {
-            var result = '' + data;
+        pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
+            var angularData = pb.js.getAngularController(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_pages'),
+                pages: self.getPageStatuses(pagesWithAuthor)
+            }, [], 'initPagesPagination()');
 
-            pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-                pages = self.getPageStatuses(pagesWithAuthor);
-            	var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_pages');
-                result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
-                    pills: pills,
-                    pages: pages
-                }, [], 'initPagesPagination()'));
-
+            var title = self.ls.get('MANAGE_PAGES');
+            self.setPageName(title);
+            self.ts.registerLocal('angular_script', angularData);
+            self.ts.load('admin/content/pages/manage_pages', function(err, data) {
+                var result = '' + data;
                 cb({content: result});
             });
         });
