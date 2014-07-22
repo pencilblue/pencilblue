@@ -36,7 +36,7 @@ Logout.prototype.render = function(cb) {
 		cookies.set(pb.SessionHandler.COOKIE_NAME, null, cookie);
 
 		//send redirect
-		cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot));
+		self.redirect('/', cb);
 	});
 };
 

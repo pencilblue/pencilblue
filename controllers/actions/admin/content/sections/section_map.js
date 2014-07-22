@@ -33,7 +33,7 @@ SectionMap.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
 
-    var sectionMap = JSON.parse(decodeURIComponent(post['map']));
+    var sectionMap = JSON.parse(decodeURIComponent(post.map));
     if(sectionMap.length <= 0 || !sectionMap[0].uid) {
         this.formError(self.ls.get('ERROR_SAVING'), '/admin/content/sections/section_map', cb);
         return;
@@ -46,7 +46,7 @@ SectionMap.prototype.onPostParamsRetrieved = function(post, cb) {
         }
 
         self.session.success = self.ls.get('NAV_MAP_SAVED');
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
+        self.redirect('/admin/content/sections/section_map', cb);
     });
 };
 

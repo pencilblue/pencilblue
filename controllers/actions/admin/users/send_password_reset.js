@@ -36,7 +36,7 @@ SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
 
 	var dao = new pb.DAO();
 	dao.loadById(vars.id, 'user', function(err, user) {
-        if(util.isError(err) || user == null) {
+        if(util.isError(err) || user === null) {
             self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/manage_users', cb);
             return;
         }
@@ -60,7 +60,7 @@ SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
                 }
 
                 self.session.success = self.ls.get('VERIFICATION_SENT') + ' ' + user.email;
-                cb(pb.RequestHandler.generateRedirect('/admin/users/edit_user/' + vars.id));
+                self.redirect('/admin/users/edit_user/' + vars.id, cb);
                 pb.users.sendPasswordResetEmail(user, passwordReset, pb.utils.cb);
             });
         });

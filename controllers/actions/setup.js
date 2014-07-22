@@ -71,14 +71,13 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
     }
 
     //set the access level (role)
-    post['admin'] = 4;
+    post.admin = 4;
 
     //get call home allowance
     var callHome = 1 == post.call_home;
     delete post.call_home;
 
     //do setup events
-    var self      = this;
     async.series(
 		[
 			function(callback) {
@@ -123,7 +122,7 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
     		}
 
     		self.session.success = self.ls.get('READY_TO_USE');
-    		cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/login'));
+    		self.redirect('/admin/login', cb);
 		}
     );
 };

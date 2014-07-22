@@ -68,7 +68,7 @@ EditUser.prototype.onPostParamsRetrieved = function(post, cb) {
                 }
 
                 self.session.success = self.ls.get('USER_EDITED');
-                self.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
+                self.redirect('/admin/users/manage_users', cb);
             });
         });
     });

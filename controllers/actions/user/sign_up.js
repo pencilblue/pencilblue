@@ -88,7 +88,7 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
                 }
 
                 self.session.success = successMsg;
-                self.redirect(pb.config.siteRoot + successRedirect, cb);
+                self.redirect(successRedirect, cb);
 
                 //send email for verification when required
                 if (contentSettings.require_verification) {

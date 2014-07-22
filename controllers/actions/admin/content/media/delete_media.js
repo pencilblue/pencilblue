@@ -35,13 +35,13 @@ DeleteMedia.prototype.onPostParamsRetrieved = function(post, cb) {
     }
 
     var dao = new pb.DAO();
-    dao.query('media', {_id: ObjectID(vars['id'])}).then(function(mediaData) {
-        if(util.isError(mediaData) || mediaData.length == 0) {
+    dao.query('media', {_id: ObjectID(vars.id)}).then(function(mediaData) {
+        if(util.isError(mediaData) || mediaData.length === 0) {
             self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/media/manage_media', cb);
             return;
         }
 
-        dao.deleteById(vars['id'], 'media').then(function(recordsDeleted) {
+        dao.deleteById(vars.id, 'media').then(function(recordsDeleted) {
             if(recordsDeleted <= 0) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/media/manage_media', cb);
                 return;
@@ -49,7 +49,7 @@ DeleteMedia.prototype.onPostParamsRetrieved = function(post, cb) {
 
             self.removeLocal(mediaData[0], function(err) {
             	self.session.success = mediaData[0].name + ' ' + self.ls.get('DELETED');
-            	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/manage_media'));
+            	self.redirect('/admin/content/media/manage_media', cb);
             });
         });
     });

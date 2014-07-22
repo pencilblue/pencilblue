@@ -35,21 +35,21 @@ DeletePage.prototype.render = function(cb) {
     }
 
     var dao = new pb.DAO();
-    dao.query('page', {_id: ObjectID(vars['id'])}).then(function(pages) {
-        if(pages.length == 0) {
+    dao.query('page', {_id: ObjectID(vars.id)}).then(function(pages) {
+        if(pages.length === 0) {
             self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/manage_pages', cb);
             return;
         }
 
         var page = pages[0];
-        dao.deleteMatching({_id: ObjectID(vars['id'])}, 'page').then(function(pagesDeleted) {
+        dao.deleteMatching({_id: ObjectID(vars.id)}, 'page').then(function(pagesDeleted) {
             if(util.isError(pagesDeleted) || pagesDeleted <= 0) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/manage_pages', cb);
                 return;
             }
 
             self.session.success = page.headline + ' ' + self.ls.get('DELETED');
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
+            self.redirect('/admin/content/pages/manage_pages', cb);
         });
     });
 };
