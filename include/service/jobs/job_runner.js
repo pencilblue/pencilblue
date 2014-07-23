@@ -39,6 +39,11 @@ function JobRunner(){
 
 //constants
 var JOB_LOG_STORE_NAME = 'job_log';
+var JOB_STORE_NAME     = 'job_run';
+
+var DEFAULT_START_STATUS = 'RUNNING';
+var DEFAULT_DONE_STATUS  = 'COMPLETED';
+var DEFAULT_ERROR_STATUS = 'ERRORED';
 
 JobRunner.prototype.init = function(name, jobId) {
     this.name = name;
@@ -57,15 +62,15 @@ JobRunner.prototype.run = function(cb) {
 
 JobRunner.prototype.log = function() {
 
-
-    if (arguments.length > 0) {
-        arguments[0] = this.name+': '+arguments[0];
+    var args = Array.prototype.splice.call(arguments, 0);
+    if (args.length > 0) {
+        args[0] = this.name+': '+args[0];
 
         var meta    = [];
-        var message = arguments[0];
-        if (arguments.length > 1) {
+        var message = args[0];
+        if (args.length > 1) {
 
-            meta = arguments.splice(0,1);
+            meta = args.slice(0,1);
             message = util.format(message, meta);
         }
         var statement = {
@@ -77,8 +82,65 @@ JobRunner.prototype.log = function() {
             metadata: meta
         };
         this.dao.update(statement);
-        pb.log.debug.apply(pb.log, arguments);
+        pb.log.debug.apply(pb.log, args);
     }
+};
+
+JobRunner.prototype.onStart = function(status) {
+    var job         = pb.DAO.getIDWhere(this.getId());
+    job.object_type = JOB_STORE_NAME;
+    job.name        = this.name;
+    job.status      = status || DEFAULT_START_STATUS;
+    job.progress    = 0;
+    this.dao.update(job).then(function(result) {
+        if (util.isError(result)) {
+            pb.log.error('JobRunner: Failed to mark job as started', result.stack);
+        }
+    });
+};
+
+JobRunner.prototype.onUpdate = function(progressIncrement, status) {
+
+    var query = pb.DAO.getIDWhere(this.getId());
+    var updates = {
+        '$set': {},
+        '$inc': {}
+    };
+    if (pb.validation.isInt(progressIncrement, true, true)) {
+        updates['$inc'] = {progress: progressIncrement};
+    }
+    if (pb.validation.validateNonEmptyStr(status, true)) {
+        updates['$set'] = {status: status};
+    }
+
+    this.dao.updateFields(JOB_STORE_NAME, query, updates, function(err, result) {
+        if (util.isError(err)) {
+            pb.log.error('JobRunner: Failed to update job progress', err.stack);
+        }
+    });
+};
+
+JobRunner.prototype.onCompleted = function(status, err) {
+    if (util.isError(status)) {
+        err = status;
+        status = DEFAULT_ERROR_STATUS;
+    }
+    else if (!status) {
+        status = DEFAULT_DONE_STATUS;
+    }
+
+    var sets = {
+        $set: {
+            status: status,
+            progress: 100,
+            error: err ? err.stack : undefined
+        }
+    };
+    this.dao.updateFields(JOB_STORE_NAME, query, sets, function(err, result) {
+        if (util.isError(err)) {
+            pb.log.error('JobRunner: Failed to update job progress', err.stack);
+        }
+    });
 };
 
 //exports

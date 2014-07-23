@@ -214,7 +214,11 @@ CommandService.notifyOfCommand = function(command) {
  * function properly.
  * @param {String} [options.id]
  * @param {Boolean} [options.ignoreme]
- * @param {Integer} [options.timeout=2000] Timeout in milliseconds for each process to respond.
+ * @param {Integer} [options.timeout=2000] Timeout in milliseconds for each
+ * process to respond.
+ * @param {Function} [options.progress] A function called right before each
+ * command is sent.  The function should take two parameters.  The first is the
+ * index of the task being executed and the second is the total number of tasks.
  * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
  */
 CommandService.sendCommandToAllGetResponses = function(type, options, cb) {
@@ -229,6 +233,13 @@ CommandService.sendCommandToAllGetResponses = function(type, options, cb) {
         cb(new Error('The options parameter must be an object'));
         return;
     }
+
+    //set the progress callback
+    var progressCb = null;
+    if (pb.utils.isFunction(options.progress)) {
+        progressCb = options.progress;
+    }
+    delete options.progress;
 
     //get all proceses in the cluster
     var serverResigration = new pb.ServerRegistration();
@@ -248,9 +259,16 @@ CommandService.sendCommandToAllGetResponses = function(type, options, cb) {
             //create the task function
             return function(callback) {
 
+                //make progress callback
+                if (progressCb) {
+                    progressCb(i, statuses.length);
+                }
+
+                //create command
                 var opts = pb.utils.clone(options);
                 opts.to  = statuses[i]._id;
 
+                //execute command against the cluster
                 CommandService.sendCommandGetResponse(type, opts, function(err, command) {
                     var result = {
                         err: err ? err.stack : undefined,

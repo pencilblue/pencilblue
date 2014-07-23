@@ -46,18 +46,36 @@ AsyncJobRunner.prototype.run = function(cb) {
                 throw err;
             }
 
-            if (self.parallelLimit <= 1) {
-                async.series(tasks, cb);
-            }
-            else {
-                async.parallelLimit(tasks, self.parallelLimit, cb);
-            }
+            self.onBeforeFirstTask(function(err) {
+                if (util.isError(err)) {
+                    throw err;
+                }
+
+                if (self.parallelLimit <= 1) {
+                    async.series(tasks, function(err, results) {
+                        self.processResults(err, results, cb);
+                    });
+                }
+                else {
+                    async.parallelLimit(tasks, self.parallelLimit, function(err, results) {
+                        self.processResults(err, results, cb);
+                    });
+                }
+            });
         });
     });
 };
 
 AsyncJobRunner.prototype.getTasks = function() {
     throw new Error('The getTasks function must be overriden by an extending prototype');
+};
+
+AsyncJobRunner.prototype.processResults = function(err, results, cb) {
+    cb(err, results);
+};
+
+AsyncJobRunner.prototype.onBeforeFirstTask = function(cb) {
+    cb(null);
 };
 
 //exports

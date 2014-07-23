@@ -88,16 +88,9 @@ PluginAPI.prototype.install = function(uid, cb) {
 PluginAPI.prototype.uninstall = function(uid, cb) {
 	var self = this;
 
-	pb.plugins.uninstallPlugin(uid, function(err, result) {
-		if (util.isError(err)) {
-			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('UNINSTALL_FAILED'), uid), [err.message]);
-			cb({content: content, code: 400});
-			return;
-		}
-
-		var content = BaseController.apiResponse(BaseController.API_SUCCESS, util.format(self.ls.get('UNINSTALL_SUCCESS'), uid));
-		cb({content: content});
-	});
+	var jobId   = pb.plugins.uninstallPlugin(uid, function(err){pb.log.error(util.inspect(err));});
+    var content = BaseController.apiResponse(BaseController.API_SUCCESS, '');
+    cb({content: content});
 };
 
 PluginAPI.prototype.reset_settings = function(uid, cb) {

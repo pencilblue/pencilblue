@@ -285,6 +285,15 @@ DAO.prototype.update = function(dbObj) {
 	return promise;
 };
 
+DAO.prototype.updateFields = function(collection, query, updates, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+
+    pb.dbm[this.dbName].collection(collection).update(query, updates, options, cb);
+};
+
 /**
  * Removes an object from persistence
  *
