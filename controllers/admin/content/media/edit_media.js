@@ -36,14 +36,14 @@ EditMedia.prototype.render = function(cb) {
 
 	//make sure an ID was passed
     if(!vars.id) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/media/manage_media'));
+        self.redirect('/admin/media/manage_media', cb);
         return;
     }
 
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'media', function(err, media) {
         if(media === null) {
-        	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/media/manage_media'));
+        	self.redirect('/admin/media/manage_media', cb);
             return;
         }
 

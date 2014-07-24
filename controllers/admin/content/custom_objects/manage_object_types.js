@@ -40,7 +40,7 @@ ManageObjectTypes.prototype.render = function(cb) {
 
 		//none to manage
         if(customObjectTypes.length === 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
+            self.redirect('/admin/content/custom_objects/new_object_type', cb);
             return;
         }
 

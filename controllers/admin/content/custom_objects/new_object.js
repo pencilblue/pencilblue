@@ -31,14 +31,14 @@ NewObject.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
     if(!vars.type_id) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+        self.redirect('/admin/content/custom_objects/manage_object_types', cb);
         return;
     }
 
 	var dao  = new pb.DAO();
 	dao.loadById(vars.type_id, 'custom_object_type', function(err, objectType) {
 		if(util.isError(err) || objectType === null) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+            self.redirect('/admin/content/custom_objects/manage_object_types', cb);
             return;
         }
 
