@@ -29,7 +29,7 @@ VerificationSent.prototype.render = function(cb) {
 
 	pb.content.getSettings(function(err, contentSettings) {
         if(!contentSettings.allow_comments || !contentSettings.require_verification) {
-            self.redirect(pb.config.siteRoot, cb);
+            self.redirect('/', cb);
             return;
         }
 

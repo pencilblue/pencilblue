@@ -36,7 +36,7 @@ ManagePages.prototype.render = function(cb) {
 
     dao.query('page', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {headline: pb.DAO.ASC}).then(function(pages) {
         if(pages.length === 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/new_page'));
+            self.redirect('/admin/content/pages/new_page', cb);
             return;
         }
 

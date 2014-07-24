@@ -33,19 +33,19 @@ EditArticle.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
     if(!vars.id)  {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
+        self.redirect('/admin/content/articles/manage_articles', cb);
         return;
     }
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'article', function(err, article) {
         if(util.isError(err) || article === null) {
-        	self.redirect(pb.config.siteRoot + '/admin/content/articles/manage_articles', cb);
+        	self.redirect('/admin/content/articles/manage_articles', cb);
             return;
         }
 
         if(!pb.security.isAuthorized(self.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
             if(!self.session.authentication.user_id.equals(article.author)) {
-                cb({redirect: pb.config.siteRoot + '/admin/content/articles/manage_articles'});
+                self.redirect('/admin/content/articles/manage_articles', cb);
                 return;
             }
         }

@@ -30,7 +30,7 @@ ChangePasswordController.prototype.render = function(cb) {
     var dao = new pb.DAO();
     dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
         if(util.isError(err) || user === null) {
-            self.redirect(pb.config.siteRoot, cb);
+            self.redirect('/', cb);
             return;
         }
 

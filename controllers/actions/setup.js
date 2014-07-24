@@ -39,7 +39,7 @@ Setup.prototype.render = function(cb) {
 
     	//when user count is 1 or higher the system has already been initialized
     	if (isSetup) {
-    		cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot));
+    		self.redirect('/', cb);
     		return;
     	}
 

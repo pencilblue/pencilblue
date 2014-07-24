@@ -42,7 +42,7 @@ DeleteObject.prototype.onPostParamsRetrieved = function(post, cb) {
 
         if(customObjects.length === 0)
         {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+            self.redirect('/admin/content/custom_objects/manage_object_types', cb);
             return;
         }
 
@@ -55,7 +55,7 @@ DeleteObject.prototype.onPostParamsRetrieved = function(post, cb) {
 
             if(customObjectTypes.length === 0)
             {
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+                self.redirect('/admin/content/custom_objects/manage_object_types', cb);
                 return;
             }
 

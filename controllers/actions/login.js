@@ -50,18 +50,18 @@ Login.prototype.onPostParamsRetrieved = function(post, cb) {
         else if(adminAttempt) {
             location += '/admin';
         }
-        self.redirect(location, cb);
+        self.redirect('/', cb);
     });
 };
 
 Login.prototype.loginError = function(adminAttempt, cb) {
     this.session.error = this.ls.get('INVALID_LOGIN');
     if(adminAttempt){
-        this.redirect(pb.config.siteRoot + '/admin/login', cb);
+        this.redirect('/admin/login', cb);
         return;
     }
 
-    this.redirect(pb.config.siteRoot + '/user/login', cb);
+    this.redirect('/user/login', cb);
 };
 
 //exports

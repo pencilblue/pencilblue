@@ -30,7 +30,7 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
 
 	if(!vars.id)
 	{
-	    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+	    self.redirect('/admin/content/custom_objects/manage_object_types', cb);
 	    return;
 	}
 
@@ -42,7 +42,7 @@ EditObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
 
 		if(customObjectTypes.length === 0)
 		{
-		    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+		    self.redirect('/admin/content/custom_objects/manage_object_types', cb);
 	        return;
 		}
 
