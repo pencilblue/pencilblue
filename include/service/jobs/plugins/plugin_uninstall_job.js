@@ -60,7 +60,7 @@ PluginUninstallJob.prototype.getInitiatorTasks = function(cb) {
                 //we provide a progress function to update the job listing
                 progress: function(indexOfExecutingTask, totalTasks) {
 
-                    var increment = 100 / totalTasks;
+                    var increment = indexOfExecutingTask > 0 ? 100 / totalTasks : 0;
                     self.onUpdate(increment);
                 }
             };
@@ -94,14 +94,14 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
         //call onUninstall
         function(callback) {
             if (!pb.PluginService.isActivePlugin(pluginUid)) {
-                self.log("[%s] Skipping call to plugin's onUninstall function.  Main module was not active.", pluginUid);
+                self.log("Skipping call to plugin's onUninstall function.  Main module was not active.");
                 callback(null, true);
                 return;
             }
 
             var mm = pb.PluginService.getActiveMainModule(pluginUid);
             if (pb.utils.isFunction(mm.onUninstall)) {
-                self.log('[%s] Calling plugin onUnstall', pluginUid);
+                self.log('Calling plugin onUnstall', pluginUid);
 
                 var d = domain.create();
                 d.on('error', callback);
@@ -110,7 +110,7 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
                 });
             }
             else {
-                self.log('[%s] Plugin onUninstall function does not exist.  Skipping.', pluginUid);
+                self.log('Plugin onUninstall function does not exist.  Skipping.');
                 callback(null, true);
             }
         },
@@ -118,7 +118,7 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
         //unregister routes
         function(callback) {
             var routesRemoved = pb.RequestHandler.unregisterThemeRoutes(pluginUid);
-            self.log('[%s] Unregistered %d routes', pluginUid, routesRemoved);
+            self.log('Unregistered %d routes', routesRemoved);
             process.nextTick(function(){callback(null, true);});
         },
 
@@ -134,7 +134,7 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
 
         //remove settings
         function(callback) {
-            self.log('[%s] Attemping to remove plugin settings', pluginUid);
+            self.log('Attemping to remove plugin settings');
 
             pb.plugins.pluginSettingsService.purge(pluginUid, function (err, result) {
                 callback(err, !util.isError(err) && result);
@@ -143,7 +143,7 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
 
         //remove theme settings
         function(callback) {
-            self.log('[%s] Attemping to remove theme settings', pluginUid);
+            self.log('Attemping to remove theme settings');
 
             pb.plugins.themeSettingsService.purge(pluginUid, function (err, result) {
                 callback(err, !util.isError(err) && result);
@@ -152,7 +152,7 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
 
         //remove plugin record from "plugin" collection
         function(callback) {
-            self.log('[%s] Attemping to remove plugin from persistent storage', pluginUid);
+            self.log('Attemping to remove plugin from persistent storage');
 
             var where = {
                 uid: pluginUid
@@ -167,7 +167,7 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
 
         //roll over to default theme
         function(callback) {
-            self.log('[%s] Inspecting the active theme', pluginUid);
+            self.log('Inspecting the active theme');
 
             //retrieve the plugin so we can see if the value matches what we
             //are uninstalling
@@ -179,7 +179,7 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
 
                 //check if we need to reset the active theme
                 if (activeTheme === pluginUid) {
-                    self.log('[%s] Uninstalling the active theme.  Switching to pencilblue');
+                    self.log('Uninstalling the active theme.  Switching to pencilblue');
 
                     pb.settings.set('active_theme', 'pencilblue', function(err, result) {
                         callback(err, result ? true : false);
@@ -218,10 +218,10 @@ PluginUninstallJob.prototype.processResults = function(err, results, cb) {
     };
 
     if (this.isInitiator) {
-        this.processClusterResults(err, results, cb);
+        this.processClusterResults(err, results, finishUp);
     }
     else {
-        this.processWorkerResults(err, results, cb);
+        this.processWorkerResults(err, results, finishUp);
     }
 };
 

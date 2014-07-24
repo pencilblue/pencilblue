@@ -831,7 +831,6 @@ PluginService.prototype.uninstallPlugin = function(pluginUid, options, cb) {
     }
     if (!pb.utils.isObject(options)) {
         options = {};
-        return;
     }
     if (!pb.utils.isFunction(cb)) {
         cb = pb.utils.cb;

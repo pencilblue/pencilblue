@@ -62,16 +62,17 @@ JobRunner.prototype.run = function(cb) {
 
 JobRunner.prototype.log = function() {
 
-    var args = Array.prototype.splice.call(arguments, 0);
+    var args = Array.prototype.splice.call(arguments, 0);console.log('***ARGS='+util.inspect(args));
     if (args.length > 0) {
         args[0] = this.name+': '+args[0];
 
         var meta    = [];
         var message = args[0];
-        if (args.length > 1) {
+        if (args.length > 1) {console.log('**MSG2='+message);
 
-            meta = args.slice(0,1);
-            message = util.format(message, meta);
+            var slice = pb.utils.clone(args);
+            slice.splice(0,1);console.log('********HERE********'+util.inspect(slice));
+            message = util.format.apply(util, args);console.log('**MSG2='+message);
         }
         var statement = {
             object_type: JOB_LOG_STORE_NAME,
@@ -100,6 +101,7 @@ JobRunner.prototype.onStart = function(status) {
 };
 
 JobRunner.prototype.onUpdate = function(progressIncrement, status) {
+    this.log('Updating job [%s:%s] by %s percent with status: %s', this.getId(), this.name, progressIncrement, status);
 
     var query = pb.DAO.getIDWhere(this.getId());
     var updates = {
@@ -129,7 +131,12 @@ JobRunner.prototype.onCompleted = function(status, err) {
         status = DEFAULT_DONE_STATUS;
     }
 
-    var sets = {
+    //log result
+    this.log('Setting job [%s:%s] as completed with status: %s', this.getId(), this.name, status);
+
+    //persist result
+    var query = pb.DAO.getIDWhere(this.getId());
+    var sets  = {
         $set: {
             status: status,
             progress: 100,

@@ -38,7 +38,9 @@ AsyncJobRunner.prototype.run = function(cb) {
     var self = this;
 
     var d = domain.create();
-    d.once('error', cb);
+    d.on('error', function(err) {console.log('here in error handler');
+        self.processResults(err, null, cb);
+    });
     d.run(function() {
 
         self.getTasks(function(err, tasks){

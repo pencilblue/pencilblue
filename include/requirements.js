@@ -128,6 +128,7 @@ pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subn
 pb.AnalyticsManager   = require(path.join(DOCUMENT_ROOT, '/include/system/analytics_manager.js'));
 pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
 pb.CallHomeService    = require(path.join(DOCUMENT_ROOT, '/include/system/call_home_service.js'));
+pb.JobService         = require(path.join(DOCUMENT_ROOT, '/include/service/entities/job_service.js'));
 
 //create plugin service
 pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_service.js');

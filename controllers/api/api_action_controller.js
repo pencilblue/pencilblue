@@ -98,6 +98,8 @@ ApiActionController.prototype.validateParameters = function(action, cb) {
                         if (self.getAutoSanitize()) {
                             self.sanitizeObject(post);
                         }
+
+                        self.post = post;
             			self.validatePostParameters(action, post, callback);
             		});
             	}
@@ -136,6 +138,9 @@ ApiActionController.prototype.setAutoSanitize = function(val) {
  * value for the action in the value returned by ApiActionController#getActions.
  * If the value evaluates to true then the implementation will validate that an
  * "id" path parameter was passed.
+ * @method validatePathParameters
+ * @param {String} action
+ * @param {Function} cb
  */
 ApiActionController.prototype.validatePathParameters = function(action, cb) {
 	//validate identifier
@@ -152,6 +157,9 @@ ApiActionController.prototype.validatePathParameters = function(action, cb) {
  * provide an array of validation errors. When the array is empty it is safe to
  * assume that validation succeeded. The default implementation passes an empty
  * error array.
+ * @method validateQueryParameters
+ * @param {String} action
+ * @param {Function} cb
  */
 ApiActionController.prototype.validateQueryParameters = function(action, cb) {
 	cb(null, []);
@@ -162,6 +170,10 @@ ApiActionController.prototype.validateQueryParameters = function(action, cb) {
  * provide an array of validation errors. When the array is empty it is safe to
  * assume that validation succeeded. The default implementation passes an empty
  * error array.
+ * @method validatePostParameters
+ * @param {String} action
+ * @param {Object} post
+ * @param {Function} cb
  */
 ApiActionController.prototype.validatePostParameters = function(action, post, cb) {
 	cb(null, []);

@@ -88,8 +88,8 @@ PluginAPI.prototype.install = function(uid, cb) {
 PluginAPI.prototype.uninstall = function(uid, cb) {
 	var self = this;
 
-	var jobId   = pb.plugins.uninstallPlugin(uid, function(err){pb.log.error(util.inspect(err));});
-    var content = BaseController.apiResponse(BaseController.API_SUCCESS, '');
+	var jobId   = pb.plugins.uninstallPlugin(uid);
+    var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', jobId);
     cb({content: content});
 };
 
