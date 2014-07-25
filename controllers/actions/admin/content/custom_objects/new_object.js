@@ -50,19 +50,20 @@ NewObject.prototype.onPostParamsRetrieved = function(post, cb) {
 
 		var message = self.hasRequiredParams(post, ['name']);
 	    if(message) {
-            self.formError(message, '/admin/content/custom_objects/new_object/' + customObjectType.name, cb);
+            self.formError(message, '/admin/content/custom_objects/new_object/' + customObjectType._id, cb);
             return;
         }
 
         // Test for duplicate name
-        dao.query('custom_object', {type: vars.type_id, name: post.name}).then(function(customObjects) {
-		    if (util.isError(customObjects)) {
-			    //TODO handle this
+        dao.count('custom_object', {type: vars.type_id, name: post.name}, function(err, count) {
+		    if (util.isError(err)) {
+                self.reqHandler.serveError(err);
+                return;
 		    }
 
-		    if(customObjects.length > 0)
-		    {
-		        self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT'), '/admin/content/custom_objects/new_object/' + customObjectType.name, cb);
+		    if(count > 0) {
+                self.setFormFieldValues(post);
+		        self.formError(self.ls.get('EXISTING_CUSTOM_OBJECT'), '/admin/content/custom_objects/new_object/' + customObjectType._id, cb);
                 return;
 		    }
 

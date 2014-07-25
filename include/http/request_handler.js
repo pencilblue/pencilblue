@@ -1512,9 +1512,12 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, method, cb){
 RequestHandler.prototype.onControllerInitialized = function(controller) {
 	var self = this;
     var d = domain.create();
+    d.add(controller);
     d.run(function() {
-        controller.render(function(result){
-            self.onRenderComplete(result);
+        process.nextTick(function() {
+            controller.render(function(result){
+                self.onRenderComplete(result);
+            });
         });
 	});
     d.on('error', function(err) {
