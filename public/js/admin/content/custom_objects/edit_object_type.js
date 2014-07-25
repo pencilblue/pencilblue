@@ -37,7 +37,6 @@ $(document).ready(function()
     });
 
     $('#custom_fields_container').sortable({items: '.form-group', containment: 'document', cursor: 'move', axis: 'y'});
-    $('#custom_fields_container').disableSelection();
 
     addInitialCustomFields();
 });
