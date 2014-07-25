@@ -43,48 +43,50 @@ NewObject.prototype.render = function(cb) {
         }
 
         NewObject.loadFieldOptions(dao, objectType, function(objectType) {
-
-        	var title = self.ls.get('NEW') + ' ' + objectType.name;
-        	self.setPageName(title);
-        	self.ts.registerLocal('object_type_id', objectType._id);
-            self.ts.load('admin/content/custom_objects/new_object', function(err, data) {
-                var result = ''+data;
-                var tabs   =
-                [
-                    {
-                        active: 'active',
-                        href: '#object_fields',
-                        icon: 'list-ul',
-                        title: self.ls.get('FIELDS')
-                    }
-                ];
-
-                var fieldOrder = [];
-                for(var key in objectType.fields)
+            var tabs   =
+            [
                 {
-                    fieldOrder.push(key);
+                    active: 'active',
+                    href: '#object_fields',
+                    icon: 'list-ul',
+                    title: self.ls.get('FIELDS')
+                }
+            ];
+
+            var fieldOrder = [];
+            for(var key in objectType.fields)
+            {
+                fieldOrder.push(key);
+            }
+
+            dao.query('custom_object', {type: vars.type_id}).then(function(customObjects) {
+                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType);
+                if(customObjects.length === 0) {
+                    pills[0].href = '/admin/content/custom_objects/manage_object_types';
                 }
 
-                dao.query('custom_object', {type: vars.type_id}).then(function(customObjects) {
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType);
-                    if(customObjects.length === 0) {
-                        pills[0].href = '/admin/content/custom_objects/manage_object_types';
-                    }
+                var angularData = pb.js.getAngularController(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                    pills: pills,
+                    tabs: tabs,
+                    customObjectType: objectType,
+                    fieldOrder: fieldOrder
+                }, [], 'initCustomObjectsPagination()');
 
-                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                    {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                        pills: pills,
-                        tabs: tabs,
-                        customObjectType: objectType,
-                        fieldOrder: fieldOrder
-                    }, [], 'initCustomObjectsPagination()'));
-
-                    result += pb.js.getJSTag('var customObjectType = ' + JSON.stringify(objectType));
-
+                var title = self.ls.get('NEW') + ' ' + objectType.name;
+                self.setPageName(title);
+                self.ts.registerLocal('object_type_id', objectType._id);
+                self.ts.registerLocal('angular_script', angularData);
+                self.ts.registerLocal('custom_object_script', pb.js.getJSTag('var customObjectType = ' + JSON.stringify(objectType)));
+                self.ts.load('admin/content/custom_objects/new_object', function(err, data) {
+                    var result = '' + data;
                     cb({content: result});
                 });
             });
+
+
+
         });
     });
 };

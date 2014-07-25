@@ -1,9 +1,9 @@
 [PencilBlue](http://pencilblue.org)
 =====
 
-**Full stack online publishing for Node.js**
+**Full stack online publishing and CMS for Node.js**
 
-The first open source publishing platform to meet all the needs of a modern website:
+The first open source content management system to meet all the needs of a modern website:
 
  - Full blogging capabilities, out of the box
  - Relational data creation and management, through the admin interface

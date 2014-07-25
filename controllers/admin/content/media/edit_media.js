@@ -35,56 +35,57 @@ EditMedia.prototype.render = function(cb) {
 	var vars = this.pathVars;
 
 	//make sure an ID was passed
-    if(!vars['id']) {
+    if(!vars.id) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/media/manage_media'));
         return;
     }
 
     var dao = new pb.DAO();
-    dao.loadById(vars['id'], 'media', function(err, media) {
-        if(media == null) {
+    dao.loadById(vars.id, 'media', function(err, media) {
+        if(media === null) {
         	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/media/manage_media'));
             return;
         }
 
-	    self.setPageName(self.ls.get('EDIT') + ' ' + media.name);
-	    self.ts.load('admin/content/media/edit_media', function(err, data) {
-            var result = '' + data;
-            var tabs   =
-            [
-                {
-                    active: 'active',
-                    href: '#media_upload',
-                    icon: 'film',
-                    title: self.ls.get('SETTINGS')
-                },
-                {
-                    href: '#topics_dnd',
-                    icon: 'tags',
-                    title: self.ls.get('TOPICS')
-                }
-            ];
+        var tabs   =
+        [
+            {
+                active: 'active',
+                href: '#media_upload',
+                icon: 'film',
+                title: self.ls.get('SETTINGS')
+            },
+            {
+                href: '#topics_dnd',
+                icon: 'tags',
+                title: self.ls.get('TOPICS')
+            }
+        ];
 
-            var dao = new pb.DAO();
-            dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
+        var dao = new pb.DAO();
+        dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
 
-                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, media);
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, media);
 
-                var objects = {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
-                    pills: pills,
-                    tabs: tabs,
-                    media: media,
-                    topics: topics
-                };
+            var objects = {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
+                pills: pills,
+                tabs: tabs,
+                media: media,
+                topics: topics
+            };
+            var angularData = pb.js.getAngularController(objects);
 
-                self.session.fieldValues = {media_topics: media.media_topics.join(',')};
+            self.session.fieldValues = {media_topics: media.media_topics.join(',')};
+
+            self.setPageName(self.ls.get('EDIT') + ' ' + media.name);
+            self.ts.registerLocal('angular_script', angularData);
+            self.ts.registerLocal('media_id', media._id);
+            self.ts.registerLocal('media', new pb.TemplateValue(JSON.stringify(media), false));
+            self.ts.load('admin/content/media/edit_media', function(err, data) {
+                var result = '' + data;
                 self.checkForFormRefill(result, function(newResult) {
-	                result = newResult;
-
-                    result = result.split('^media_id^').join(media._id);
-                    result = result.split('^angular_script^').join(pb.js.getAngularController(objects, [], 'getMediaEmbed(' + JSON.stringify(media) + ');initTopicsPagination()'));
-
+                    result = newResult;
                     cb({content: result});
                 });
             });

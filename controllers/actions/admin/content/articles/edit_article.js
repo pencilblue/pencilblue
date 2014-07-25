@@ -87,7 +87,7 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
 
                 self.session.success = article.headline + ' ' + self.ls.get('EDITED');
                 delete self.session.fieldValues;
-                self.redirect(pb.config.siteRoot + '/admin/content/articles/edit_article/' + post.id, cb);
+                self.redirect('/admin/content/articles/edit_article/' + post.id, cb);
             });
         });
     });

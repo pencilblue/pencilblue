@@ -33,27 +33,27 @@ var SUB_NAV_KEY = 'new_topic';
 NewTopic.prototype.render = function(cb) {
 	var self = this;
 
-	this.setPageName(self.ls.get('NEW_TOPIC'));
-	this.ts.load('admin/content/topics/new_topic', function(err, data) {
-        var result = ''+data;
-        var tabs   =
-        [
-            {
-                active: 'active',
-                href: '#topic_settings',
-                icon: 'cog',
-                title: self.ls.get('SETTINGS')
-            }
-        ];
-
-        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-        result = result.split('^angular_script^').join(pb.js.getAngularController(
+    var tabs   =
+    [
         {
-            navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-            pills: pills,
-            tabs: tabs
-        }));
+            active: 'active',
+            href: '#topic_settings',
+            icon: 'cog',
+            title: self.ls.get('SETTINGS')
+        }
+    ];
 
+    var angularData = pb.js.getAngularController(
+    {
+        navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
+        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+        tabs: tabs
+    });
+
+	this.setPageName(self.ls.get('NEW_TOPIC'));
+    self.ts.registerLocal('angular_script', angularData);
+	this.ts.load('admin/content/topics/new_topic', function(err, data) {
+        var result = '' + data;
         cb({content: result});
     });
 };

@@ -22,6 +22,10 @@
         {
             "name": "google_analytics_tracking_id",
             "value": ""
+        },
+        {
+            "name": "demographics_support",
+            "value": false
         }
     ],
     "permissions": {

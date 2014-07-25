@@ -32,13 +32,13 @@ util.inherits(EditArticle, NewArticle);
 EditArticle.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
-    if(!vars['id'])  {
+    if(!vars.id)  {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
         return;
     }
     var dao = new pb.DAO();
-    dao.loadById(vars['id'], 'article', function(err, article) {
-        if(util.isError(err) || article == null) {
+    dao.loadById(vars.id, 'article', function(err, article) {
+        if(util.isError(err) || article === null) {
         	self.redirect(pb.config.siteRoot + '/admin/content/articles/manage_articles', cb);
             return;
         }
@@ -79,7 +79,7 @@ EditArticle.prototype.getAngularController = function(tabs, data) {
         media: data.media,
         article: self.article
     };
-	return angular = pb.js.getAngularController(
+	return pb.js.getAngularController(
 		objects,
 		[],
 		'initMediaPagination();initSectionsPagination();initTopicsPagination()'

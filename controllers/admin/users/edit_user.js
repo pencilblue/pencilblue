@@ -39,51 +39,49 @@ EditUser.prototype.render = function(cb) {
     }
 
     var dao = new pb.DAO();
-    dao.loadById(vars['id'], 'user', function(err, user) {
-        if(util.isError(err) || user == null) {
+    dao.loadById(vars.id, 'user', function(err, user) {
+        if(util.isError(err) || user === null) {
             self.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
             return;
         }
+
+        var tabs = [
+            {
+                active: 'active',
+                href: '#account_info',
+                icon: 'cog',
+                title: self.ls.get('ACCOUNT_INFO')
+            },
+            {
+                href: '#personal_info',
+                icon: 'user',
+                title: self.ls.get('PERSONAL_INFO')
+            }
+        ];
+
+        // Administrators can't downgrade themselves
+        var adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR}];
+        if(self.session.authentication.user_id != user._id.toString()) {
+            adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
+        }
+
+        var angularData = pb.js.getAngularController(
+        {
+            navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
+            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: user}),
+            tabs: tabs,
+            adminOptions: adminOptions,
+            user: user
+        });
 
         delete user.password;
         self.setPageName('Edit User');
         self.ts.registerLocal('user_id', user._id);
         self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
         self.ts.registerLocal('uploaded_image', (user.photo ? user.photo : ''));
+        self.ts.registerLocal('angular_script', angularData);
         self.ts.load('admin/users/edit_user', function(err, data) {
             var result = '' + data;
-
-            var tabs = [
-                {
-                    active: 'active',
-                    href: '#account_info',
-                    icon: 'cog',
-                    title: self.ls.get('ACCOUNT_INFO')
-                },
-                {
-                    href: '#personal_info',
-                    icon: 'user',
-                    title: self.ls.get('PERSONAL_INFO')
-                }
-            ];
-
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: user});
-
-            // Administrators can't downgrade themselves
-            var adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR}];
-            if(self.session.authentication.user_id != user._id.toString()) {
-                adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
-            }
-
-            result = result.split('^angular_script^').join(pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
-                pills: pills,
-                tabs: tabs,
-                adminOptions: adminOptions,
-                user: user
-            }));
-
             cb({content: result});
         });
     });

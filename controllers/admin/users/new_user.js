@@ -33,36 +33,34 @@ var SUB_NAV_KEY = 'new_user';
 NewUser.prototype.render = function(cb) {
 	var self = this;
 
+    var tabs = [
+        {
+            active: 'active',
+            href: '#account_info',
+            icon: 'cog',
+            title: self.ls.get('ACCOUNT_INFO')
+        },
+        {
+            href: '#personal_info',
+            icon: 'user',
+            title: self.ls.get('PERSONAL_INFO')
+        }
+    ];
+
+    var angularData = pb.js.getAngularController(
+    {
+        navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
+        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+        tabs: tabs,
+        adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
+    });
+
 	this.setPageName(self.ls.get('NEW_USER'));
 	this.ts.registerLocal('image_title', this.ls.get('USER_PHOTO'));
 	this.ts.registerLocal('uploaded_image', '');
+    this.ts.registerLocal('angular_script', angularData);
 	this.ts.load('admin/users/new_user', function(err, data) {
         var result = '' + data;
-
-        var tabs = [
-            {
-                active: 'active',
-                href: '#account_info',
-                icon: 'cog',
-                title: self.ls.get('ACCOUNT_INFO')
-            },
-            {
-                href: '#personal_info',
-                icon: 'user',
-                title: self.ls.get('PERSONAL_INFO')
-            }
-        ];
-
-        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-
-        result = result.split('^angular_script^').join(pb.js.getAngularController(
-        {
-            navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
-            pills: pills,
-            tabs: tabs,
-            adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
-        }));
-
         cb({content: result});
     });
 };

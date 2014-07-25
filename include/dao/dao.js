@@ -504,5 +504,25 @@ DAO.updateChangeHistory = function(dbObject){
 	dbObject.last_modified = now;
 };
 
+/**
+ * Transfers a system object from one type to another.  The system specific
+ * properties are cleared so that when the object is persisted it will receive
+ * its own properties.
+ * @static
+ * @method transfer
+ * @param {Object} obj The object to convert
+ * @param {String} to The type to convert it to
+ */
+DAO.transfer = function(obj, to) {
+    if (!pb.utils.isObject(obj) || !pb.utils.isString(to)) {
+        throw new Error('The obj must be an object and the to parameter must be a string');
+    }
+
+    delete obj._id;
+    delete obj.created;
+    delete obj.last_modified;
+    obj.object_type = to;
+};
+
 //exports
 module.exports = DAO;

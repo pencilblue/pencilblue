@@ -127,12 +127,10 @@ PluginSettingsController.prototype.renderGet = function(cb) {
 				});
 			});
 			self.ts.registerLocal('form_action', self.getFormAction(uid));
-			self.ts.load('/admin/plugins/settings', function(err, content) {
-
-				//TODO move angular out as flag & replacement when can add option to
-				//skip the check for replacements in replacement
-				content = content.replace('^angular_script^', angularData);
-				cb({content: content});
+			self.ts.registerLocal('angular_script', angularData);
+			self.ts.load('/admin/plugins/settings', function(err, data) {
+				var result = '' + data;
+				cb({content: result});
 			});
 		});
 	});

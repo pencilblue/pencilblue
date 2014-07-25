@@ -75,7 +75,7 @@ NewArticlePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 
             self.session.success = articleDocument.headline + ' ' + self.ls.get('CREATED');
             delete self.session.fieldValues;
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/edit_article/' + result._id));
+            self.redirect('/admin/content/articles/edit_article/' + result._id, cb);
         });
     });
 };

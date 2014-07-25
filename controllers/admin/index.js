@@ -49,7 +49,7 @@ AdminIndexController.prototype.render = function(cb) {
     	name = self.localizationService.get('PAGES');
     	contentInfo.push({name: name, count: data.pageCount, href: '/admin/content/pages/manage_pages'});
 
-    	var angular = pb.js.getAngularController(
+    	var angularData = pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService),
                 contentInfo: contentInfo,
@@ -58,9 +58,8 @@ AdminIndexController.prototype.render = function(cb) {
             }
         );
     	self.setPageName(self.localizationService.get('DASHBOARD'));
-        self.templateService.load('admin/index', function(error, result) {
-
-        	result = result.replace('^angular_script^', angular);
+        self.ts.registerLocal('angular_script', angularData);
+        self.ts.load('admin/index', function(error, result) {
             cb({content: result});
         });
 	});

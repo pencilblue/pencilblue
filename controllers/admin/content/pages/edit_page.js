@@ -35,14 +35,14 @@ EditPage.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-    if(!vars['id']) {
+    if(!vars.id) {
         cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
         return;
     }
 
     var dao = new pb.DAO();
-    dao.loadById(vars['id'], 'page', function(err, page) {
-        if(page == null) {
+    dao.loadById(vars.id, 'page', function(err, page) {
+        if(page ==- null) {
         	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
             return;
         }
@@ -58,55 +58,52 @@ EditPage.prototype.render = function(cb) {
             return;
         }
 
-        self.setPageName(page.headline);
-        self.ts.registerLocal('page_id', vars['id']);
-        self.ts.load('admin/content/pages/edit_page', function(err, data) {
-            var result = '' + data;
-            var tabs   =
-            [
-                {
-                    active: true,
-                    href: '#content',
-                    icon: 'quote-left',
-                    title: self.ls.get('CONTENT')
-                },
-                {
-                    href: '#media',
-                    icon: 'camera',
-                    title: self.ls.get('MEDIA')
-                },
-                {
-                    href: '#topics_dnd',
-                    icon: 'tags',
-                    title: self.ls.get('TOPICS')
-                },
-                {
-                    href: '#seo',
-                    icon: 'tasks',
-                    title: self.ls.get('SEO')
-                }
-            ];
+        var tabs   =
+        [
+            {
+                active: true,
+                href: '#content',
+                icon: 'quote-left',
+                title: self.ls.get('CONTENT')
+            },
+            {
+                href: '#media',
+                icon: 'camera',
+                title: self.ls.get('MEDIA')
+            },
+            {
+                href: '#topics_dnd',
+                icon: 'tags',
+                title: self.ls.get('TOPICS')
+            },
+            {
+                href: '#seo',
+                icon: 'tasks',
+                title: self.ls.get('SEO')
+            }
+        ];
 
-            var templates = pb.TemplateService.getAvailableContentTemplates();
-            dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
+        var templates = pb.TemplateService.getAvailableContentTemplates();
+        dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
+            Media.getAll(function(media) {
+                var angularData = pb.js.getAngularController(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_page', page),
+                    tabs: tabs,
+                    templates: templates,
+                    topics: topics,
+                    media: media,
+                    page: page
+                }, [], 'initMediaPagination();initTopicsPagination()');
 
-                Media.getAll(function(media) {
-
+                self.setPageName(page.headline);
+                self.ts.registerLocal('page_id', vars.id);
+                self.ts.registerLocal('angular_script', angularData);
+                self.ts.load('admin/content/pages/edit_page', function(err, data) {
+                    var result = '' + data;
                     self.checkForFormRefill(result, function(newResult) {
                         result = newResult;
-
-                        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_page', page);
-                        result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                        {
-                            navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
-                            pills: pills,
-                            tabs: tabs,
-                            templates: templates,
-                            topics: topics,
-                            media: media,
-                            page: page
-                        }, [], 'initMediaPagination();initTopicsPagination()'));
-
                         cb({content: result});
                     });
                 });
