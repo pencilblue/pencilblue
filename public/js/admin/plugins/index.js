@@ -38,6 +38,7 @@ function onUninstallSuccess(data) {
     //poll for logs
     var loghandle = null;
     var starting  = 0;
+    var console   = $('#progress_console');
     var doLogRetrieve = function() {
 
         doJobAPIAction('getLogs', jobId, {starting: starting}, function(data) {
@@ -45,18 +46,20 @@ function onUninstallSuccess(data) {
                 return;
             }
 
+            var toAppend = '';
             var nextStarting = starting;
             for (var i = 0; i < data.data.length; i++) {
 
                 var item = data.data[i];
                 var line = '\n'+item.created+':['+item.worker_id+'] '+item.message;
-                $('#progress_console').val($('#progress_console').val()+line);
+                toAppend += line;
 
                 var date = new Date(item.created).getTime();
                 if (date > nextStarting) {
                     nextStarting = date;
                 }
             }
+            console.val(console.val()+toAppend);
 
             //offset so we don't get repeats
             starting = starting === nextStarting ? nextStarting + 1 : nextStarting;
@@ -68,6 +71,7 @@ function onUninstallSuccess(data) {
     doLogRetrieve();
 
     //check for job completion
+    var progressBar    = $('#bar');
     var retrieveHandle = null;
     var doJobRetrieve  = function() {
 
@@ -78,7 +82,7 @@ function onUninstallSuccess(data) {
 
             //set progress bar
             if (!isNaN(data.data.progress)) {
-                $('#bar').css('width',data.data.progress+'%');
+                progressBar.css('width', data.data.progress+'%');
             }
 
             //verify status
