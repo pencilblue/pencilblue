@@ -142,6 +142,7 @@ var loc =
         CLOSE: 'Close',
         APPLY_SETTINGS: 'Apply Settings',
         CONFIGURATION_SETTINGS: 'Configuration Settings',
+        EXISTING_CUSTOM_OBJECT: 'The custom object with the given name already exists',
     },
     error:
     {

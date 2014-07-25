@@ -80,13 +80,11 @@ NewObject.prototype.render = function(cb) {
                 self.ts.registerLocal('angular_script', angularData);
                 self.ts.registerLocal('custom_object_script', pb.js.getJSTag('var customObjectType = ' + JSON.stringify(objectType)));
                 self.ts.load('admin/content/custom_objects/new_object', function(err, data) {
-                    var result = '' + data;
-                    cb({content: result});
+                    self.checkForFormRefill('' + data, function(result) {
+                        cb({content: result});
+                    });
                 });
             });
-
-
-
         });
     });
 };
