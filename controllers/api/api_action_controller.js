@@ -15,17 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Controller interface used to map simple actions to handlers and provide
- * a flow for validation and error handling.
- */
-
-function ApiActionController(){}
-
 //dependencies
 var BaseController = pb.BaseController;
 var PluginService  = pb.PluginService;
 var RequestHandler = pb.RequestHandler;
+
+/**
+ * Controller interface used to map simple actions to handlers and provide
+ * a flow for validation and error handling.
+ * @class ApiActionController
+ * @constructor
+ * @extends BaseController
+ */
+function ApiActionController(){}
 
 //inheritance
 util.inherits(ApiActionController, BaseController);
@@ -34,12 +36,16 @@ util.inherits(ApiActionController, BaseController);
  * Flag to indicate if the form should automatically sanitize the incoming
  * values.  In this case sanitize means it will attempt to strip away any
  * HTML tags to prevent HTML injection and XSS.
+ * @property autoSanitize
+ * @type {Boolean}
  */
 ApiActionController.prototype.autoSanitize = true;
 
 /**
  * The entry point called by the RequestHandler.  Executes the calls to the
  * validation framework then, if passes, executes the action handler.
+ * @method render
+ * @param {Function} cb
  */
 ApiActionController.prototype.render = function(cb) {
 
@@ -62,6 +68,9 @@ ApiActionController.prototype.render = function(cb) {
 
 /**
  * Provides the hash of all actions supported by this controller
+ * @method getActions
+ * @return {Object} An empty hash of actions since this is meant to be
+ * overriden.
  */
 ApiActionController.prototype.getActions = function() {
 	return {};
@@ -70,6 +79,9 @@ ApiActionController.prototype.getActions = function() {
 /**
  * Validates the query, path, and post parameters in parallel and calls back
  * with any validation errors.
+ * @method validateParameters
+ * @param {String} action
+ * @param {Function} cb
  */
 ApiActionController.prototype.validateParameters = function(action, cb) {
 
@@ -123,10 +135,18 @@ ApiActionController.prototype.validateParameters = function(action, cb) {
 	}
 };
 
+/**
+ * @method getAutoSanitize
+ * @return {Boolean
+ */
 ApiActionController.prototype.getAutoSanitize = function() {
     return this.autoSanitize;
 };
 
+/**
+ * @method setAutoSanitize
+ * @param {Boolean} val
+ */
 ApiActionController.prototype.setAutoSanitize = function(val) {
     this.autoSanitize = val ? true : false;
 };

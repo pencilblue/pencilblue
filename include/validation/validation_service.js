@@ -25,10 +25,50 @@
  */
 function ValidationService(){}
 
+//constants
+/**
+ * Pattern to validate a file name
+ * @private
+ * @static
+ * @property
+ * @type {RegExp}
+ */
 var FILE_NAME_SAFE_REGEX = /^[a-zA-Z0-9-_\.]+$/;
+
+/**
+ * Pattern to validate a semantic package version
+ * @private
+ * @static
+ * @property
+ * @type {RegExp}
+ */
 var VERSION_REGEX        = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+
+/**
+ * A pattern to validate an email address
+ * @private
+ * @static
+ * @property
+ * @type {RegExp}
+ */
 var EMAIL_REGEX          = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+/**
+ * A pattern to validate a fully qualified URL
+ * @private
+ * @static
+ * @property
+ * @type {RegExp}
+ */
 var URL_REGEX            = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/;
+
+/**
+ * A pattern to validate a relative URL (no protocol, host, or port)
+ * @private
+ * @static
+ * @property
+ * @type {RegExp}
+ */
 var URL_REGEX_NO_HOST    = /^\/.*\/{0,1}$/;
 
 /**

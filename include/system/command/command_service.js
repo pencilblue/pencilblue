@@ -45,6 +45,15 @@ var REGISTRANTS = {};
  */
 var COMMAND_CHANNEL = 'pencilblue-command-channel';
 
+/**
+ * A hash of the commands that were sent and expect a response.  Each hash key
+ * contains a callback function that will be called when either the receiving
+ * entity responds or the timeout occurs.
+ * @private
+ * @static
+ * @property AWAITING_RESPONSE
+ * @type {Object}
+ */
 var AWAITING_RESPONSE = {};
 
 /**

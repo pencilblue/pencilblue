@@ -19,21 +19,44 @@
 var JobRunner = require('./job_runner.js');
 
 /**
- *
+ * An abstract implementation of JobRunner that handles performing a series of
+ * asynchronous tasks.  The runner provides the ability to run the tasks in
+ * parallel or 1 after another.  The extending implementation must provides the
+ * set of tasks to execute
  * @class AsyncJobRunner
  * @constructor
+ * @extends JobRunner
  */
 function AsyncJobRunner() {}
 
 //ineritance
 util.inherits(AsyncJobRunner, JobRunner);
 
+/**
+ * The number of tasks to run in parallel
+ * @property parallelLimit
+ * @type {Integer}
+ */
 AsyncJobRunner.prototype.parallelLimit = 1;
 
+/**
+ * Sets the number of tasks to run in parallel
+ * @method setParallelLimit
+ * @param {Integer} max The maximum number of tasks to run in parallel
+ */
 AsyncJobRunner.prototype.setParallelLimit = function(max) {
    this.parallelLimit = max;
 };
 
+/**
+ * Kicks off the set of tasks for the job.  The implementation wraps the items
+ * in a domain in an attempt to provide a level of error handling.  When a
+ * qualifying error is intercepted by the domain processResults is called
+ * providing the error and all other task execution is halted.
+ * @see JobRunner#run
+ * @method run
+ * @param {Function} cb
+ */
 AsyncJobRunner.prototype.run = function(cb) {
     var self = this;
 
@@ -68,14 +91,36 @@ AsyncJobRunner.prototype.run = function(cb) {
     });
 };
 
-AsyncJobRunner.prototype.getTasks = function() {
+/**
+ * Responsible for providing an array or hash of tasks that will be executed by
+ * the job.  The extending implmentation MUST override this function or an
+ * error will be thrown.
+ * @method getTasks
+ * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
+ */
+AsyncJobRunner.prototype.getTasks = function(cb) {
     throw new Error('The getTasks function must be overriden by an extending prototype');
 };
 
+/**
+ * Called once after job execution.  It is recommended that extending
+ * implmentations use this function to peform any ETL operations to prepare
+ * data for the callback.
+ * @method processResults
+ * @param {Error} err The error generated during task execution if exists
+ * @param {Object|Array} results The result of each tasks' execution.
+ */
 AsyncJobRunner.prototype.processResults = function(err, results, cb) {
     cb(err, results);
 };
 
+/**
+ * Called directly before the first tasks begins to execute.  It is recommended
+ * that the extending implementation override this function in order to call
+ * the "onStart" function.
+ * @method onBeforeFirstTask
+ * @param {Function} cb A callback that takes one optional error parameter
+ */
 AsyncJobRunner.prototype.onBeforeFirstTask = function(cb) {
     cb(null);
 };

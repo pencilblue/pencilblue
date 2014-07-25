@@ -820,7 +820,7 @@ PluginService.prototype.getPluginMap = function(cb) {
  * @param {Boolean} [options.forCluster=true] When true or not provided the function
  * instructs the cluster to uninstall the plugin.  When explicitly FALSE the
  * function installs the plugin from the executing process.
- * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
+ * @param {Function} [cb] A callback that provides two parameters: cb(Error, Boolean)
  */
 PluginService.prototype.uninstallPlugin = function(pluginUid, options, cb) {
 	var self = this;
@@ -1962,6 +1962,18 @@ PluginService.getServiceName = function(pathToService, service) {
 	return name;
 };
 
+/**
+ * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+ * The function is called when a command is recevied to uninstall a plugin.
+ * The function builds out the appropriate options then calls the
+ * uninstallPlugin function.  The result is then sent back to the calling
+ * process via the CommandService.
+ * @static
+ * @method onUninstallPluginCommandReceived
+ * @param {Object} command
+ * @param {String} command.jobId The ID of the in-progress job that this
+ * process is intended to join.
+ */
 PluginService.onUninstallPluginCommandReceived = function(command) {
     if (!pb.utils.isObject(command)) {
         pb.log.error('PluginService: an invalid uninstall plugin command object was passed. %s', util.inspect(command));
