@@ -713,7 +713,8 @@ PluginService.prototype.getAvailablePlugins = function(active, inactive, cb) {
 						plugins.push({
 							uid: dirName,
 							dirName: dirName,
-							description: "An invalid details file was provided for plugin. "+err.stack
+							description: "Failed to load & parse the details.json file.",
+                            validationErrors: ['An invalid details file was provided for plugin. '+err.stack]
 						});
 						callback(null, false);
 						return;
