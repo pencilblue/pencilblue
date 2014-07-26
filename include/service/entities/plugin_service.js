@@ -1994,8 +1994,38 @@ PluginService.onUninstallPluginCommandReceived = function(command) {
     });
 };
 
+/**
+ * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+ * The function is called when a command is recevied to validate that a plugin is available to this process for install.
+ * The function builds out the appropriate options then calls the
+ * uninstallPlugin function.  The result is then sent back to the calling
+ * process via the CommandService.
+ * @static
+ * @method onUninstallPluginCommandReceived
+ * @param {Object} command
+ * @param {String} command.jobId The ID of the in-progress job that this
+ * process is intended to join.
+ */
+PluginService.onIsPluginAvailableCommandReceived = function(command) {
+    if (!pb.utils.isObject(command)) {
+        pb.log.error('PluginService: an invalid is_plugin_available command object was passed. %s', util.inspect(command));
+        return;
+    }
+
+    var filePath = PluginService.getDetailsPath(command.pluginUid);
+    pb.plugins.loadDetailsFile(filePath, function(err, result) {
+
+        var response = {
+            error: err ? err.stack : undefined,
+            result: result ? true : false
+        };
+        pb.CommandService.sendInResponseTo(command, response);
+    });
+};
+
 //register for commands
 pb.CommandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
+pb.CommandService.registerForType('is_plugin_available', PluginService.onIsPluginAvailableCommandReceived);
 
 //exports
 module.exports = PluginService;
