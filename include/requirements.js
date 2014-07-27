@@ -118,6 +118,7 @@ pb.PluginUninstallJob    = require(path.join(DOCUMENT_ROOT, '/include/service/jo
 pb.PluginAvailableJob    = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_available_job.js'));
 pb.PluginDependenciesJob = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_dependencies_job.js'));
 pb.PluginInitializeJob   = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_initialize_job.js'));
+pb.PluginInstallJob      = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_install_job.js'));
 
 //Email settings and functions
 pb.EmailService = require(DOCUMENT_ROOT+'/include/email').EmailService;

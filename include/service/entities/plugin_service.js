@@ -874,119 +874,128 @@ PluginService.prototype.uninstallPlugin = function(pluginUid, options, cb) {
  * @param {function} cb A callback that provides two parameters: cb(err, TRUE/FALSE)
  */
 PluginService.prototype.installPlugin = function(pluginDirName, cb) {
-	var self            = this;
-	var detailsFilePath = PluginService.getDetailsPath(pluginDirName);
-	var details         = null;
-	var plugin          = null;
+//	var self            = this;
+//	var detailsFilePath = PluginService.getDetailsPath(pluginDirName);
+//	var details         = null;
+//	var plugin          = null;
+//
+//	pb.log.info("PluginService: Beginning install of %s", pluginDirName);
+//	var tasks = [
+//
+//         //load the details file
+//         function(callback) {
+//        	 pb.log.info("PluginService: Attempting to load details.json file for %s", pluginDirName);
+//
+//			PluginService.loadDetailsFile(detailsFilePath, function(err, loadedDetails) {
+//				details = loadedDetails;
+//				callback(err, null);
+//			});
+//         },
+//
+//         //validate the details
+//         function(callback) {
+//        	 pb.log.info("PluginService: Validating details of %s", pluginDirName);
+//
+//        	 PluginService.validateDetails(details, pluginDirName, callback);
+//         },
+//
+//         //verify that the plugin is not installed
+//         function(callback) {
+//        	 pb.log.info("PluginService: Verifying that plugin %s is not already installed", details.uid);
+//
+//        	 self.isInstalled(details.uid, function(err, isInstalled){
+//        		if (util.isError(err)) {
+//        			callback(err, isInstalled);
+//        		}
+//        		else {
+//        			err = isInstalled ? (new Error('PluginService: The '+details.uid+' plugin is already installed')) : null;
+//        			callback(err, isInstalled);
+//                }
+//             });
+//         },
+//
+//        //install dependencies
+//        function(callback) {
+//            if (details.dependencies) {
+//                self.installPluginDependencies(pluginDirName, details.dependencies, callback);
+//            }
+//            else {
+//                callback(null, true);
+//            }
+//        },
+//
+//        //create plugin entry
+//        function(callback) {
+//        	 pb.log.info("PluginService: Setting system install flags for %s", details.uid);
+//
+//        	 var clone     = pb.utils.clone(details);
+//        	 clone.dirName = pluginDirName;
+//
+//        	 var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
+//        	 var dao              = new pb.DAO();
+//        	 dao.update(pluginDescriptor).then(function(result) {
+//        		 plugin = pluginDescriptor;
+//        		 callback(util.isError(result) ? result : null, result);
+//        	 });
+//         },
+//
+//         //load plugin settings
+//         function(callback) {
+//        	 pb.log.info("PluginService: Adding settings for %s", details.uid);
+//        	 self.resetSettings(details, callback);
+//         },
+//
+//         //load theme settings
+//         function(callback) {
+//        	 if (details.theme && details.theme.settings) {
+//        		 pb.log.info("PluginService: Adding theme settings for %s", details.uid);
+//
+//        		 self.resetThemeSettings(details, callback);
+//        	 }
+//        	 else {
+//        		 callback(null, null);
+//        	 }
+//         },
+//
+//        //call plugin's onInstall function
+//        function(callback) {
+//
+//            var mainModule = PluginService.loadMainModule(pluginDirName, details.main_module.path);
+//    		if (mainModule !== null && typeof mainModule.onInstall === 'function') {
+//    			pb.log.info("PluginService: Executing %s 'onInstall' function", details.uid);
+//    			mainModule.onInstall(callback);
+//    		}
+//    		else {
+//    			pb.log.warn("PluginService: Plugin %s did not provide an 'onInstall' function.", details.uid);
+//    			callback(null, false);
+//    		}
+//        },
+//
+//         //do plugin initialization
+//         function(callback) {
+//        	pb.log.info("PluginService: Initializing %s", details.uid);
+//        	self.initPlugin(plugin, callback);
+//         },
+//
+//         //notify cluster of plugin install
+//         function(callback) {
+//        	 pb.log.warn("PluginService: Cluster Notification for install of %s is not yet supported", pluginDirName);
+//        	 //TODO PluginInstall Notifications across cluster
+//        	callback(null, null);
+//         }
+//	];
+//	async.series(tasks, function(err, results) {
+//		cb(err, !util.isError(err));
+//	});
 
-	pb.log.info("PluginService: Beginning install of %s", pluginDirName);
-	var tasks = [
-
-         //load the details file
-         function(callback) {
-        	 pb.log.info("PluginService: Attempting to load details.json file for %s", pluginDirName);
-
-			PluginService.loadDetailsFile(detailsFilePath, function(err, loadedDetails) {
-				details = loadedDetails;
-				callback(err, null);
-			});
-         },
-
-         //validate the details
-         function(callback) {
-        	 pb.log.info("PluginService: Validating details of %s", pluginDirName);
-
-        	 PluginService.validateDetails(details, pluginDirName, callback);
-         },
-
-         //verify that the plugin is not installed
-         function(callback) {
-        	 pb.log.info("PluginService: Verifying that plugin %s is not already installed", details.uid);
-
-        	 self.isInstalled(details.uid, function(err, isInstalled){
-        		if (util.isError(err)) {
-        			callback(err, isInstalled);
-        		}
-        		else {
-        			err = isInstalled ? (new Error('PluginService: The '+details.uid+' plugin is already installed')) : null;
-        			callback(err, isInstalled);
-                }
-             });
-         },
-
-        //install dependencies
-        function(callback) {
-            if (details.dependencies) {
-                self.installPluginDependencies(pluginDirName, details.dependencies, callback);
-            }
-            else {
-                callback(null, true);
-            }
-        },
-
-        //create plugin entry
-        function(callback) {
-        	 pb.log.info("PluginService: Setting system install flags for %s", details.uid);
-
-        	 var clone     = pb.utils.clone(details);
-        	 clone.dirName = pluginDirName;
-
-        	 var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
-        	 var dao              = new pb.DAO();
-        	 dao.update(pluginDescriptor).then(function(result) {
-        		 plugin = pluginDescriptor;
-        		 callback(util.isError(result) ? result : null, result);
-        	 });
-         },
-
-         //load plugin settings
-         function(callback) {
-        	 pb.log.info("PluginService: Adding settings for %s", details.uid);
-        	 self.resetSettings(details, callback);
-         },
-
-         //load theme settings
-         function(callback) {
-        	 if (details.theme && details.theme.settings) {
-        		 pb.log.info("PluginService: Adding theme settings for %s", details.uid);
-
-        		 self.resetThemeSettings(details, callback);
-        	 }
-        	 else {
-        		 callback(null, null);
-        	 }
-         },
-
-        //call plugin's onInstall function
-        function(callback) {
-
-            var mainModule = PluginService.loadMainModule(pluginDirName, details.main_module.path);
-    		if (mainModule !== null && typeof mainModule.onInstall === 'function') {
-    			pb.log.info("PluginService: Executing %s 'onInstall' function", details.uid);
-    			mainModule.onInstall(callback);
-    		}
-    		else {
-    			pb.log.warn("PluginService: Plugin %s did not provide an 'onInstall' function.", details.uid);
-    			callback(null, false);
-    		}
-        },
-
-         //do plugin initialization
-         function(callback) {
-        	pb.log.info("PluginService: Initializing %s", details.uid);
-        	self.initPlugin(plugin, callback);
-         },
-
-         //notify cluster of plugin install
-         function(callback) {
-        	 pb.log.warn("PluginService: Cluster Notification for install of %s is not yet supported", pluginDirName);
-        	 //TODO PluginInstall Notifications across cluster
-        	callback(null, null);
-         }
-	];
-	async.series(tasks, function(err, results) {
-		cb(err, !util.isError(err));
-	});
+    cb       = cb || pb.utils.cb;
+    var name = util.format('INSTALL_PLUGIN_%s', pluginDirName);
+    var job  = new pb.PluginInstallJob();
+    job.init(name);
+    job.setRunAsInitiator(true);
+    job.setPluginUid(pluginDirName);
+    job.run(cb);
+    return job.getId();
 };
 
 /**
@@ -2015,9 +2024,9 @@ PluginService.onIsPluginAvailableCommandReceived = function(command) {
 
     var name = util.format("IS_AVAILABLE_%s", command.pluginUid);
     var job  = new pb.PluginAvailableJob();
-    job.setIsInitiator(false)
+    job.setRunAsInitiator(false)
     .init(name, command.jobId)
-    .setPuginUid(command.pluginUid)
+    .setPluginUid(command.pluginUid)
     .run(function(err, result) {
 
         var response = {
@@ -2047,9 +2056,9 @@ PluginService.onInstallPluginDependenciesCommandReceived = function(command) {
 
     var name = util.format("INSTALL_DEPENDENCIES_%s", command.pluginUid);
     var job  = new pb.PluginDependenciesJob();
-    job.setIsInitiator(false)
+    job.setRunAsInitiator(false)
     .init(name, command.jobId)
-    .setPuginUid(command.pluginUid)
+    .setPluginUid(command.pluginUid)
     .run(function(err, result) {
 
         var response = {
@@ -2079,9 +2088,9 @@ PluginService.onInitializePluginCommandReceived = function(command) {
 
     var name = util.format("INITIALIZE_PLUGIN_%s", command.pluginUid);
     var job  = new pb.PluginInitializeJob();
-    job.setIsInitiator(false)
+    job.setRunAsInitiator(false)
     .init(name, command.jobId)
-    .setPuginUid(command.pluginUid)
+    .setPluginUid(command.pluginUid)
     .run(function(err, result) {
 
         var response = {

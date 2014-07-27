@@ -56,16 +56,33 @@ PluginInstallJob.prototype.getInitiatorTasks = function(cb) {
     var self = this;
 
     //progress function
+    var jobId     = self.getId();
+    var pluginUid = self.getPluginUid();
     var tasks = [
+
+        //verify that the plugin is not already installed
+        function(callback) {
+            self.log("Verifying that plugin %s is not already installed", pluginUid);
+
+            pb.plugins.isInstalled(pluginUid, function(err, isInstalled){
+                if (util.isError(err)) {
+                    callback(err, isInstalled);
+                }
+                else {
+                    err = isInstalled ? (new Error('The '+pluginUid+' plugin is already installed')) : null;
+                    callback(err, isInstalled);
+                }
+            });
+        },
 
         //validate available for all
         function(callback) {
 
-            var name = util.format("IS_AVAILABLE_%s", command.pluginUid);
+            var name = util.format("IS_AVAILABLE_%s", pluginUid);
             var job  = new pb.PluginAvailableJob();
-            job.setIsInitiator(false)
-            .init(name, self.getJobId())
-            .setPuginUid(self.getPluginUid())
+            job.setRunAsInitiator(false)
+            .init(name, jobId)
+            .setPluginUid(pluginUid)
             .setChunkOfWorkPercentage(1/3)
             .run(callback);
         },
@@ -73,11 +90,11 @@ PluginInstallJob.prototype.getInitiatorTasks = function(cb) {
         //install dependencies across cluster
         function(callback) {
 
-            var name = util.format("INSTALL_DEPENDENCIES_%s", command.pluginUid);
+            var name = util.format("INSTALL_DEPENDENCIES_%s", pluginUid);
             var job  = new pb.PluginDependenciesJob();
-            job.setIsInitiator(false)
-            .init(name, self.getJobId())
-            .setPuginUid(self.getPluginUid())
+            job.setRunAsInitiator(false)
+            .init(name, jobId)
+            .setPluginUid(pluginUid)
             .setChunkOfWorkPercentage(1/3)
             .run(callback);
         },
@@ -95,9 +112,9 @@ PluginInstallJob.prototype.getInitiatorTasks = function(cb) {
 
             var name = util.format("INITIALIZE_PLUGIN_%s", command.pluginUid);
             var job  = new pb.PluginInitializeJob();
-            job.setIsInitiator(false)
-            .init(name, self.getJobId())
-            .setPuginUid(self.getPluginUid())
+            job.setRunAsInitiator(false)
+            .init(name, jobId)
+            .setPluginUid(pluginUid)
             .setChunkOfWorkPercentage(1/3)
             .run(callback);
         }
@@ -121,6 +138,81 @@ PluginInstallJob.prototype.getWorkerTasks = function(cb) {
  */
 PluginInstallJob.prototype.doPersistenceTasks = function(cb) {
 
+    var details = null;
+    var tasks   = [
+
+        //load details file
+        function(callback) {
+            var filePath = PluginService.getDetailsPath(pluginUid);
+
+            self.log("Loading details file for install persistence operations from: %s", filePath);
+            pb.plugins.loadDetailsFile(filePath, function(err, loadedDetails) {
+                details = loadedDetails;
+                callback(err, loadedDetails ? true : false);
+            });
+        },
+
+        //create plugin entry
+        function(callback) {
+        	 self.log("Setting system install flags for %s", details.uid);
+
+        	 var clone     = pb.utils.clone(details);
+        	 clone.dirName = pluginDirName;
+
+        	 var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
+        	 self.dao.update(pluginDescriptor).then(function(result) {
+        		 plugin = pluginDescriptor;
+        		 callback(util.isError(result) ? result : null, result);
+        	 });
+         },
+
+         //load plugin settings
+         function(callback) {
+        	 self.log("Adding settings for %s", details.uid);
+        	 pb.plugins.resetSettings(details, callback);
+         },
+
+         //load theme settings
+         function(callback) {
+        	 if (details.theme && details.theme.settings) {
+        		 self.log("Adding theme settings for %s", details.uid);
+
+        		 pb.plugins.resetThemeSettings(details, callback);
+        	 }
+        	 else {
+        		 callback(null, true);
+        	 }
+         },
+
+        //call plugin's onInstall function
+        function(callback) {
+
+            var mainModule = PluginService.loadMainModule(pluginDirName, details.main_module.path);
+    		if (mainModule !== null && typeof mainModule.onInstall === 'function') {
+    			self.log("Executing %s 'onInstall' function", details.uid);
+    			mainModule.onInstall(callback);
+    		}
+    		else {
+    			self.log("WARN: Plugin %s did not provide an 'onInstall' function.", details.uid);
+    			callback(null, true);
+    		}
+        },
+    ];
+    async.series(tasks, function(err, results) {
+        if(util.isError(err)) {
+            cb(err);
+            return;
+        }
+
+        //check results
+        for (var i = 0; i < results.length; i++) {
+            if (!results[i]) {
+                cb(new Error('An error occured while attempting persistence task ['+i+']. RESULT=['+util.inspect(results[i])+']'), false);
+                return;
+            }
+        }
+        cb(null, true);
+    });
 };
 
 //exports
