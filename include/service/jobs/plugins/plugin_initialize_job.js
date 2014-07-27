@@ -99,7 +99,9 @@ PluginInitializeJob.prototype.getWorkerTasks = function(cb) {
                 }
 
                 self.log('Initializing plugin %s', pluginUid);
-                pb.plugins.initPlugin(plugin, callback);
+                pb.plugins.initPlugin(plugin, function(err, result) {
+                    self.log('Completed initialization RESULT=[%s] ERROR=[%s]', result, err ? err.message : 'n/a');
+                });
             });
         }
     ];

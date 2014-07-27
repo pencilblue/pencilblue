@@ -73,6 +73,7 @@ PluginJobRunner.prototype.getPluginUid = function() {
  */
 PluginJobRunner.prototype.processClusterResults = function(err, results, cb) {
     if (util.isError(err)) {
+        this.log(err.stack);
         cb(err, results);
         return;
     }
@@ -81,12 +82,18 @@ PluginJobRunner.prototype.processClusterResults = function(err, results, cb) {
     var success  = true;
     for (var i = 0; i < results.length; i++) {
         if (!results[i]) {
-            firstErr = 'An error occurred while attempting to uninstall ['+this.getPluginUid()+']';
+            firstErr = util.format('An error occurred while attempting to execute the job for plugin [%s]. RESULT=[%s] TASK=[%d]', this.getPluginUid(), util.inspect(results[i]), i);
             success = false;
             break;
         }
     }
 
+    //log any errors
+    if (firstErr) {
+        this.log(firstErr);
+    }
+
+    //callback with result
     var result = {
         success: success,
         id: this.getId(),

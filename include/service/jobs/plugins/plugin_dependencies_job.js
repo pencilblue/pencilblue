@@ -55,14 +55,15 @@ PluginDependenciesJob.prototype.getInitiatorTasks = function(cb) {
     var dependenciesCommand = {
         jobId: this.getId(),
         pluginUid: this.getPluginUid(),
-        progress: progress
+        progress: progress,
+        timeout: 120000
     };
 
     //build out the tasks to execute
     var tasks = [
 
         //install dependencies for all
-        this.createCommandTask('install_plugin_dependencies', validateCommand),
+        this.createCommandTask('install_plugin_dependencies', dependenciesCommand),
     ];
     cb(null, tasks);
 };
@@ -82,10 +83,10 @@ PluginDependenciesJob.prototype.getWorkerTasks = function(cb) {
 
         //verify plugin is available
         function(callback) {
-            var filePath = PluginService.getDetailsPath(pluginUid);
+            var filePath = pb.PluginService.getDetailsPath(pluginUid);
 
             self.log("Loading plugin details to extract dependencies from: %s", filePath);
-            pb.plugins.loadDetailsFile(filePath, function(err, details) {
+            pb.PluginService.loadDetailsFile(filePath, function(err, details) {
                 var didLoad = pb.utils.isObject(details);
                 if (didLoad) {
                     dependencies = details.dependencies;

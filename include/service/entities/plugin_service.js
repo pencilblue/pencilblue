@@ -2105,7 +2105,7 @@ PluginService.onInitializePluginCommandReceived = function(command) {
 pb.CommandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
 pb.CommandService.registerForType('is_plugin_available', PluginService.onIsPluginAvailableCommandReceived);
 pb.CommandService.registerForType('install_plugin_dependencies', PluginService.onInstallPluginDependenciesCommandReceived);
-pb.CommandService.registerForType('install_plugin_dependencies', PluginService.onInitializePluginCommandReceived);
+pb.CommandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
 
 //exports
 module.exports = PluginService;

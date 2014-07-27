@@ -61,31 +61,33 @@ AsyncJobRunner.prototype.run = function(cb) {
     var self = this;
 
     var d = domain.create();
-    d.on('error', function(err) {console.log('here in error handler');
+    d.on('error', function(err) {console.log('here in error handler: '+err.stack);
         self.processResults(err, null, cb);
     });
     d.run(function() {
+        process.nextTick(function() {
 
-        self.getTasks(function(err, tasks){
-            if (util.isError(err)) {
-                throw err;
-            }
-
-            self.onBeforeFirstTask(function(err) {
+            self.getTasks(function(err, tasks){
                 if (util.isError(err)) {
                     throw err;
                 }
 
-                if (self.parallelLimit <= 1) {
-                    async.series(tasks, function(err, results) {
-                        self.processResults(err, results, cb);
-                    });
-                }
-                else {
-                    async.parallelLimit(tasks, self.parallelLimit, function(err, results) {
-                        self.processResults(err, results, cb);
-                    });
-                }
+                self.onBeforeFirstTask(function(err) {
+                    if (util.isError(err)) {
+                        throw err;
+                    }
+
+                    if (self.parallelLimit <= 1) {
+                        async.series(tasks, function(err, results) {
+                            self.processResults(err, results, cb);
+                        });
+                    }
+                    else {
+                        async.parallelLimit(tasks, self.parallelLimit, function(err, results) {
+                            self.processResults(err, results, cb);
+                        });
+                    }
+                });
             });
         });
     });

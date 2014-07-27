@@ -81,10 +81,10 @@ PluginAvailableJob.prototype.getWorkerTasks = function(cb) {
 
         //verify plugin is available
         function(callback) {
-            var filePath = PluginService.getDetailsPath(pluginUid);
+            var filePath = pb.PluginService.getDetailsPath(pluginUid);
 
             self.log("Inspecting plugin on disk at: %s", filePath);
-            pb.plugins.loadDetailsFile(filePath, callback);
+            pb.PluginService.loadDetailsFile(filePath, callback);
         }
     ];
     cb(null, tasks);
