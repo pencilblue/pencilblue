@@ -42,6 +42,20 @@ function JobRunner(){
      * @type {String}
      */
     this.id = null;
+
+    /**
+     * The percentage of the overall work that this job accounts for.  If this
+     * job is run by itself then the value should be 1.  This means that 100%
+     * of the job is completed by this job.  If, for example, the value is .333
+     * then it is assumed that this job accounts for 33% or one third of the
+     * over all work necessary to complete the job.  This is handy when a large
+     * job is made up of smaller jobs.  This value will assist in allowing the
+     * jobs to calculate their update increments.  The number must be a value
+     * between 0 (exclusive) & 1 (inclusive).
+     * @property taskFactor
+     * @type {Float}
+     */
+    this.chunkOfWorkPercentage = 1;
 }
 
 //constants
@@ -113,6 +127,19 @@ JobRunner.prototype.init = function(name, jobId) {
  */
 JobRunner.prototype.getId = function() {
     return this.id;
+};
+
+JobRunner.prototype.setChunkOfWorkPercentage = function(chunkOfWorkPercentage) {
+    if (isNaN(chunkOfWorkPercentage) || chunkOfWorkPercentage <= 0 || chunkOfWorkPercentage > 1) {
+        throw new Error('The chunkOfWorkPercentage must be a value between 0 (exclusive) and 1 (inclusive)');
+    }
+
+    this.chunkOfWorkPercentage = chunkOfWorkPercentage;
+    return this;
+};
+
+JobRunner.prototype.getChunkOfWorkPercentage = function() {
+    return this.chunkOfWorkPercentage;
 };
 
 /**
