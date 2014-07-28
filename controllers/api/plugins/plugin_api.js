@@ -90,22 +90,26 @@ PluginApiController.prototype.render = function(cb) {
 PluginApiController.prototype.install = function(uid, cb) {
 	var self = this;
 
-	pb.plugins.installPlugin(uid, function(err, result) {
-		if (util.isError(err)) {
-			var data = [err.message];
-			if (util.isArray(err.validationErrors)) {
-				for(var i = 0; i < err.validationErrors.length; i++) {
-					data.push(err.validationErrors[i].message);
-				}
-			}
-			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INSTALL_FAILED'), uid), data);
-			cb({content: content, code: 400});
-			return;
-		}
+//	pb.plugins.installPlugin(uid, function(err, result) {
+//		if (util.isError(err)) {
+//			var data = [err.message];
+//			if (util.isArray(err.validationErrors)) {
+//				for(var i = 0; i < err.validationErrors.length; i++) {
+//					data.push(err.validationErrors[i].message);
+//				}
+//			}
+//			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INSTALL_FAILED'), uid), data);
+//			cb({content: content, code: 400});
+//			return;
+//		}
+//
+//		var content = BaseController.apiResponse(BaseController.API_SUCCESS, util.format(self.ls.get('INSTALL_SUCCESS'), uid));
+//		cb({content: content});
+//	});
 
-		var content = BaseController.apiResponse(BaseController.API_SUCCESS, util.format(self.ls.get('INSTALL_SUCCESS'), uid));
-		cb({content: content});
-	});
+    var jobId   = pb.plugins.installPlugin(uid);
+    var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', jobId);
+    cb({content: content});
 };
 
 /**

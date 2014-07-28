@@ -109,7 +109,7 @@ function onUninstallSuccess(data) {
 }
 
 function installPlugin(pid) {
-	doPluginAPIAction('install', pid);
+	doPluginAPIAction('install', pid, onUninstallSuccess);
 }
 
 function resetSettings(pid) {
