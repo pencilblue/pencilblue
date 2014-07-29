@@ -110,6 +110,11 @@ pb.ServerRegistration        = require(DOCUMENT_ROOT+'/include/system/server_reg
 pb.RedisCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/redis_command_broker.js'));
 pb.CommandService     = require(path.join(DOCUMENT_ROOT, '/include/system/command/command_service.js'));
 
+//Jobs
+pb.JobRunner      = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/job_runner.js'));
+pb.AsyncJobRunner = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/async_job_runner'));
+pb.PluginUninstallJob = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_uninstall_job.js'));
+
 //Email settings and functions
 pb.EmailService = require(DOCUMENT_ROOT+'/include/email').EmailService;
 pb.email        = new pb.EmailService();
@@ -123,6 +128,7 @@ pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subn
 pb.AnalyticsManager   = require(path.join(DOCUMENT_ROOT, '/include/system/analytics_manager.js'));
 pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
 pb.CallHomeService    = require(path.join(DOCUMENT_ROOT, '/include/system/call_home_service.js'));
+pb.JobService         = require(path.join(DOCUMENT_ROOT, '/include/service/entities/job_service.js'));
 
 //create plugin service
 pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_service.js');

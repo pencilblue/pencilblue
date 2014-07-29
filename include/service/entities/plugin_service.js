@@ -97,6 +97,38 @@ PluginService.prototype.getActiveIcon = function(cb) {
 };
 
 /**
+ * Remove the active plugin entry from the current PB process.
+ * NOTE: it is not recommended to call this directly.
+ * @static
+ * @method deactivatePlugin
+ * @param {String} pluginUid
+ * @return {Boolean}
+ */
+PluginService.deactivatePlugin = function(pluginUid) {
+    if (!pb.validation.validateNonEmptyStr(pluginUid)) {
+        throw new Error('A non-existent or empty plugin UID was passed');
+    }
+
+    if (ACTIVE_PLUGINS[pluginUid]) {
+
+        delete ACTIVE_PLUGINS[pluginUid];
+        return true;
+    }
+    return false;
+};
+
+/**
+ * Retrieves the main module prototype for the specified active plugin
+ * @static
+ * @method getActiveMainModule
+ * @param {String} pluginUid
+ * @return {Function} The prototype that is the plugin's main module.
+ */
+PluginService.getActiveMainModule = function(pluginUid) {
+    return ACTIVE_PLUGINS[pluginUid] ? ACTIVE_PLUGINS[pluginUid].main_module : null;
+};
+
+/**
  * Retrieves the names of the active plugins for this instance
  * @method getActivePluginNames
  * @return {array} An array that contain the names of the plugins that
@@ -783,113 +815,42 @@ PluginService.prototype.getPluginMap = function(cb) {
  * Uninstalls the plugin with the specified UID.
  * @method uninstallPlugin
  * @param {String} pluginUid The unique plugin identifier
- * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
+ * @param {Object} options
+ * @param {String} [options.jobId] Required when unintalling from the executing
+ * process instead of calling upon the cluster.
+ * @param {Boolean} [options.forCluster=true] When true or not provided the function
+ * instructs the cluster to uninstall the plugin.  When explicitly FALSE the
+ * function installs the plugin from the executing process.
+ * @param {Function} [cb] A callback that provides two parameters: cb(Error, Boolean)
  */
-PluginService.prototype.uninstallPlugin = function(pluginUid, cb) {
+PluginService.prototype.uninstallPlugin = function(pluginUid, options, cb) {
 	var self = this;
+
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+    if (!pb.utils.isObject(options)) {
+        options = {};
+    }
+    if (!pb.utils.isFunction(cb)) {
+        cb = pb.utils.cb;
+    }
 
 	//log start of operation
 	if (pb.log.isDebug()) {
-		pb.log.debug("PluginService:[%s] Attempting uninstall", pluginUid);
+		pb.log.debug("PluginService:[%s] Attempting uninstall with options: %s", pluginUid, util.inspect(options));
 	}
 
-	//construct sequential tasks
-	var plugin = null;
-	var tasks = [
 
-         //load plugin
-         function(callback) {
-        	 pb.log.debug('PluginService:[%s] Attempting to load plugin ', pluginUid);
-        	 self.getPlugin(pluginUid, function(err, pluginObj) {
-        		if (util.isError(err)) {
-        			callback(err, false);
-        			return;
-        		}
-        		else if (!pluginObj) {
-        			callback(new Error("The ["+pluginUid+"] plugin is not installed"), false);
-        			return;
-        		}
-        		plugin = pluginObj;
-        		callback(err, true);
-        	 });
-         },
-
-         //call onUninstall
-         function(callback) {
-        	 if (!PluginService.isActivePlugin(pluginUid)) {
-        		 pb.log.warn("PluginService:[%s] Skipping call to plugin's onUninstall function.  Main module was not active.", pluginUid);
-        		 callback(null, true);
-        		 return;
-        	 }
-
-        	 var mm = ACTIVE_PLUGINS[pluginUid].main_module;
-        	 if (typeof mm.onUninstall === 'function') {
-        		 pb.log.debug('PluginService:[%s] Calling plugin onUnstall', pluginUid);
-
-        		 mm.onUninstall(callback);
-        	 }
-        	 else {
-        		 pb.log.debug('PluginService:[%s] Plugin onUninstall function does not exist.  Skipping.', pluginUid);
-        		 callback(null, true);
-        	 }
-         },
-
-         //unregister routes
-         function(callback) {
-        	 var routesRemoved = pb.RequestHandler.unregisterThemeRoutes(plugin.uid);
-        	 pb.log.debug('PluginService:[%s] Unregistered %d routes', pluginUid, routesRemoved);
-        	 process.nextTick(function(){callback(null, true);});
-         },
-
-         //remove localization
-         function(callback) {
-        	 //TODO refactor localization to figure out how to remove only those
-        	 //that were overriden. For now any overriden localizations will be
-        	 //left until the server cycles.  This is not ideal but will suffice
-        	 //for most use cases.  The only affected use case is if a default
-        	 //label is overriden.
-        	 process.nextTick(function(){callback(null, false);});
-         },
-
-         //remove settings
-         function(callback) {
-     		self.pluginSettingsService.purge(pluginUid, function (err, result) {
-     			callback(err, !util.isError(err) && result);
-     		});
-         },
-
-         //remove theme settings
-         function(callback) {
-     		self.themeSettingsService.purge(pluginUid, function (err, result) {
-     			callback(err, !util.isError(err) && result);
-     		});
-         },
-
-         //remove plugin record from "plugin" collection
-         function(callback) {
-        	 var dao = new pb.DAO();
-        	 dao.deleteById(plugin._id, 'plugin').then(function(result) {
-        		var error = util.isError(result) ? result : null;
-        		callback(error, error == null);
-        	 });
-         },
-
-         //roll over to default theme
-         function(callback) {
-        	pb.settings.set('active_theme', 'pencilblue', function(err, result) {
-        		callback(err, result ? true : false);
-        	});
-         },
-
-         //remove from ACTIVE_PLUGINS//unregister services
-         function(callback) {
-        	 delete ACTIVE_PLUGINS[pluginUid];
-        	 process.nextTick(function(){callback(null, false);});
-         }
-    ];
-	async.series(tasks, function(err, results) {
-		cb(err, !util.isError(err));
-	});
+    var name  = util.format('UNINSTALL_PLUGIN_%s', pluginUid);
+    var jobId = options.jobId;
+    var job = new pb.PluginUninstallJob();
+    job.init(name, jobId);
+    job.setPluginUid(pluginUid);
+    job.setRunAsInitiator(options.forCluster === false ? false : true);
+    job.run(cb);
+    return job.getId();
 };
 
 /**
@@ -2001,6 +1962,41 @@ PluginService.getServiceName = function(pathToService, service) {
 	}
 	return name;
 };
+
+/**
+ * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+ * The function is called when a command is recevied to uninstall a plugin.
+ * The function builds out the appropriate options then calls the
+ * uninstallPlugin function.  The result is then sent back to the calling
+ * process via the CommandService.
+ * @static
+ * @method onUninstallPluginCommandReceived
+ * @param {Object} command
+ * @param {String} command.jobId The ID of the in-progress job that this
+ * process is intended to join.
+ */
+PluginService.onUninstallPluginCommandReceived = function(command) {
+    if (!pb.utils.isObject(command)) {
+        pb.log.error('PluginService: an invalid uninstall plugin command object was passed. %s', util.inspect(command));
+        return;
+    }
+
+    var options = {
+        forCluster: false,
+        jobId: command.jobId
+    }
+    pb.plugins.uninstallPlugin(command.pluginUid, options, function(err, result) {
+
+        var response = {
+            error: err ? err.stack : undefined,
+            result: result
+        };
+        pb.CommandService.sendInResponseTo(command, response);
+    });
+};
+
+//register for commands
+pb.CommandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
 
 //exports
 module.exports = PluginService;

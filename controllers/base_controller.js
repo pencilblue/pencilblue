@@ -212,7 +212,7 @@ BaseController.prototype.getPostParams = function(cb) {
 };
 
 /**
- *
+ * Parses the incoming payload of a request as JSON formatted data.
  * @method getJSONPostParams
  * @param {Function} cb
  */

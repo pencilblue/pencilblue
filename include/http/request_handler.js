@@ -956,6 +956,14 @@ RequestHandler.CORE_ROUTES = [
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'comments', 'delete_comment.js'),
         content_type: 'text/html'
     },
+    {
+    	method: 'post',
+    	path: "/api/jobs/:action/:id",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'jobs', 'job_api_controller.js'),
+    	content_type: 'application/json'
+    },
 ];
 
 RequestHandler.init = function(){

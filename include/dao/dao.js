@@ -21,10 +21,19 @@
  * @module Database
  * @class DAO
  * @constructor
- * @param {String} [dbName] Will default to the config.db.name DB when not provided.
+ * @param {String} [dbName] Will default to the config.db.name DB when not
+ * provided.
  * @main Database
  */
 function DAO(dbName){
+
+    /**
+     * The name of the DB that this instance is intended to interact with.  By
+     * default, it goes to the name of the DB provided by system configuration
+     * property db.name.
+     * @property dbName
+     * @type {String}
+     */
 	this.dbName  = typeof dbName  !== 'undefined' ? dbName : pb.config.db.name;
 }
 
@@ -36,6 +45,7 @@ function DAO(dbName){
  * @type {Object}
  */
 DAO.PROJECT_ALL   = {};
+
 /**
  * Static variable to indicate that documents should be retrieve from anywhere
  *
@@ -43,6 +53,7 @@ DAO.PROJECT_ALL   = {};
  * @type {Object}
  */
 DAO.ANYWHERE      = {};
+
 /**
  * Static variable to indicate that documents should be returned in their
  * natural order
@@ -59,6 +70,7 @@ DAO.NATURAL_ORDER = [];
  * @type {Number}
  */
 DAO.ASC  = 1;
+
 /**
  * Static variable to sort descending
  *
@@ -213,6 +225,7 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
  * @param {Array} [orderBy] The ordering
  * @param {Integer} [limit] The maximum number of results to return
  * @param {Integer} [offset] The number of results to skip before returning results.
+ * @return {Cursor} The MongoDB cursor that provides the results of the query
  */
 DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, offset) {
 	//verify a collection was provided
@@ -255,7 +268,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
  *
  * @method insert
  * @param  {Object} dbObject The database object to persist
- * @return {Promise}          Promise object
+ * @return {Promise} Promise object
  */
 DAO.prototype.insert = function(dbObject) {
 	var promise = new Promise();
@@ -272,7 +285,7 @@ DAO.prototype.insert = function(dbObject) {
  *
  * @method update
  * @param  {Object} dbObj The new document object
- * @return {Promise}          Promise object
+ * @return {Promise} Promise object
  */
 DAO.prototype.update = function(dbObj) {
 
@@ -283,6 +296,26 @@ DAO.prototype.update = function(dbObj) {
 		promise.resolve(err ? err : doc);
 	});
 	return promise;
+};
+
+/**
+ * Updates a specific set of fields. This is handy for performing upserts.
+ * @method updateFields
+ * @param {String} collection The collection to update object(s) in
+ * @param {Object} query The query to execute to find the existing object
+ * @param {Object} updates The updates to perform
+ * @param {Object} options Any options to go along with the update
+ * @param {Boolean} [options.upsert=false] Inserts the object is not found
+ * @param {Boolean} [options.multi=false] Updates multiple records if the query
+ * finds more than 1
+ */
+DAO.prototype.updateFields = function(collection, query, updates, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+
+    pb.dbm[this.dbName].collection(collection).update(query, updates, options, cb);
 };
 
 /**
