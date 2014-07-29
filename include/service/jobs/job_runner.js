@@ -223,7 +223,7 @@ JobRunner.prototype.onUpdate = function(progressIncrement, status) {
         '$set': {},
         '$inc': {}
     };
-    if (pb.validation.isInt(progressIncrement, true, true)) {
+    if (pb.validation.isFloat(progressIncrement, true, true)) {
         updates['$inc'] = {progress: progressIncrement};
     }
     if (pb.validation.validateNonEmptyStr(status, true)) {

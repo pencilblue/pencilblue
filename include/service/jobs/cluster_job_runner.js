@@ -170,7 +170,7 @@ ClusterJobRunner.prototype.processWorkerResults = function(err, results, cb) {
  * execution begins.
  */
 ClusterJobRunner.prototype.onBeforeFirstTask = function(cb) {
-    if (this.isInitiator) {
+    if (this.isInitiator && this.getChunkOfWorkPercentage() === 1) {
         this.onStart();
     }
     cb(null, true);
