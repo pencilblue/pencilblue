@@ -44,7 +44,7 @@ AddMedia.prototype.onPostParamsRetrieved = function(post, cb) {
         }
 
         self.onSaveSuccessful(mediaDocument);
-        cb(self.genReturnVal(result));
+		self.redirect('/admin/content/media/add_media', cb);
     });
 };
 
@@ -58,10 +58,6 @@ AddMedia.prototype.getRequiredParams = function() {
 
 AddMedia.prototype.getFormErrorRedirect = function(){
 	return '/admin/content/media/add_media';
-};
-
-AddMedia.prototype.genReturnVal = function(result) {
-	return pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/add_media');
 };
 
 //exports

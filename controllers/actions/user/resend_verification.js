@@ -35,13 +35,13 @@ ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
 
 	var dao = new pb.DAO();
 	dao.loadByValue('email', post.email, 'user', function(err, user) {
-        if(util.isError(err) || user == null) {
+        if(util.isError(err) || user === null) {
             self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
             return;
         }
 
         dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
-        	if(util.isError(err) || user == null) {
+        	if(util.isError(err) || user === null) {
                 self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
                 return;
             }
@@ -55,7 +55,7 @@ ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
                 }
 
                 self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/user/verification_sent'));
+                self.redirect('/user/verification_sent', cb);
                 pb.users.sendVerificationEmail(user, pb.utils.cb);
             });
         });

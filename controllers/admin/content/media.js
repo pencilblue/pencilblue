@@ -25,7 +25,7 @@ function Media(){}
 util.inherits(Media, pb.BaseController);
 
 Media.prototype.render = function(cb) {
-	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/manage_media'));
+	self.redirect('/admin/content/media/manage_media', cb);
 };
 
 Media.getPillNavOptions = function(activePill) {
@@ -51,7 +51,6 @@ Media.getMediaIcon = function(mediaType) {
     switch(mediaType) {
         case 'image':
             return 'picture-o';
-            break;
         case 'video/mp4':
         case 'video/webm':
         case 'video/ogg':
@@ -72,7 +71,6 @@ Media.getMediaIcon = function(mediaType) {
             return 'key fa-flip-horizontal';
         default:
             return 'question';
-            break;
     }
 };
 

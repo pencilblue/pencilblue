@@ -29,7 +29,7 @@ SignUp.prototype.render = function(cb) {
 
 	pb.content.getSettings(function(err, contentSettings) {
         if(!contentSettings.allow_comments) {
-            self.redirect(pb.config.siteRoot, cb);
+            self.redirect('/', cb);
             return;
         }
 

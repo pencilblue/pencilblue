@@ -29,11 +29,11 @@ Login.prototype.render = function(cb) {
 
 
     if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: ACCESS_WRITER})) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin'));
+        this.redirect('/admin', cb);
         return;
     }
     else if(pb.security.isAuthenticated(this.session)) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot));
+        this.redirect('/', cb);
         return;
     }
 

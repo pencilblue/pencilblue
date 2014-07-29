@@ -39,7 +39,7 @@ ManageTopics.prototype.render = function(cb) {
 
 		//none to manage
         if(topics.length === 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/topics/new_topic'));
+            self.redirect('/admin/content/topics/new_topic', cb);
             return;
         }
 

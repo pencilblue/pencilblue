@@ -34,14 +34,14 @@ EditUser.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
     if(!vars.id) {
-        this.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
+        this.redirect('/admin/users/manage_users', cb);
         return;
     }
 
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'user', function(err, user) {
         if(util.isError(err) || user === null) {
-            self.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
+            self.redirect('/admin/users/manage_users', cb);
             return;
         }
 

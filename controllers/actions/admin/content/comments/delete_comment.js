@@ -48,7 +48,7 @@ DeleteComment.prototype.onPostParamsRetrieved = function(post, cb) {
             }
 
             self.session.success = self.ls.get('COMMENT') + ' ' + self.ls.get('DELETED');
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/comments/manage_comments'));
+            self.redirect('/admin/content/comments/manage_comments', cb);
         });
     });
 };

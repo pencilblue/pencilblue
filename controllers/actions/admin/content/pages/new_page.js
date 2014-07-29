@@ -78,7 +78,7 @@ NewPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 
                 self.session.success = pageDocument.headline + ' ' + self.ls.get('CREATED');
                 delete self.session.fieldValues;
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/edit_page/' + result._id));
+                self.redirect('/admin/content/pages/edit_page/' + result._id, cb);
             });
         });
     });

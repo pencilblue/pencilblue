@@ -25,7 +25,7 @@ function SiteSettings(){}
 util.inherits(SiteSettings, pb.BaseController);
 
 SiteSettings.prototype.render = function(cb) {
-	this.redirect(pb.config.siteRoot + '/admin/site_settings/configuration', cb);
+	this.redirect('/admin/site_settings/configuration', cb);
 };
 
 SiteSettings.getPillNavOptions = function(ls) {

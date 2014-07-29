@@ -86,7 +86,7 @@ EditSectionPostController.prototype.onPostParamsRetrieved = function(post, cb){
 
                 		//finally do the callback
                 		self.session.success = self.getSuccessMessage(navItem);
-                    	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/section_map'));
+                    	self.redirect('/admin/content/sections/section_map', cb);
                 	});
             	});
             });

@@ -84,7 +84,7 @@ EditPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 
                 self.session.success = page.headline + ' ' + self.ls.get('EDITED');
                 delete self.session.fieldValues;
-                self.redirect(pb.config.siteRoot + '/admin/content/pages/edit_page/' + post.id, cb);
+                self.redirect('/admin/content/pages/edit_page/' + post.id, cb);
             });
         });
     });

@@ -30,7 +30,7 @@ EditObject.prototype.onPostParamsRetrieved = function(post, cb) {
 
 	if(!vars.id)
 	{
-	    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+	    self.redirect('/admin/content/custom_objects/manage_object_types', cb);
 	    return;
 	}
 
@@ -43,7 +43,7 @@ EditObject.prototype.onPostParamsRetrieved = function(post, cb) {
 
 		if(customObjects.length === 0)
 		{
-		    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+		    self.redirect('/admin/content/custom_objects/manage_object_types', cb);
 	        return;
 		}
 
@@ -57,7 +57,7 @@ EditObject.prototype.onPostParamsRetrieved = function(post, cb) {
 
 	        if(customObjectTypes.length === 0)
 	        {
-	            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+	            self.redirect('/admin/content/custom_objects/manage_object_types', cb);
                 return;
 	        }
 
@@ -105,7 +105,7 @@ EditObject.prototype.onPostParamsRetrieved = function(post, cb) {
                     }
 
                     self.session.success = customObjectDocument.name + ' ' + self.ls.get('EDITED');
-                    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_objects/' + customObjectType._id));
+                    self.redirect('/admin/content/custom_objects/manage_objects/' + customObjectType._id, cb);
                 });
             });
         });

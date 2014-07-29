@@ -27,8 +27,8 @@ util.inherits(Email, pb.FormController);
 Email.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
-	delete post['layout_link_url'];
-    delete post['media_max_height'];
+	delete post.layout_link_url;
+    delete post.media_max_height;
 
     post = pb.DocumentCreator.formatIntegerItems(post, ['secure_connection', 'port']);
     self.setFormFieldValues(post);
@@ -40,7 +40,7 @@ Email.prototype.onPostParamsRetrieved = function(post, cb) {
         }
 
         self.session.success = self.ls.get('EMAIL_SETTINGS') + ' ' +  self.ls.get('EDITED');
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/email'));
+        self.redirect('/admin/site_settings/email', cb);
     });
 };
 

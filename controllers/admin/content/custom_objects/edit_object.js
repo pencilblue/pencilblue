@@ -30,7 +30,7 @@ EditObject.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
     if(!vars.id) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+        self.redirect('/admin/content/custom_objects/manage_object_types', cb);
         return;
     }
 
@@ -42,7 +42,7 @@ EditObject.prototype.render = function(cb) {
 
 		//none to manage
         if(customObjects.length === 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+            self.redirect('/admin/content/custom_objects/manage_object_types', cb);
             return;
         }
 
@@ -55,7 +55,7 @@ EditObject.prototype.render = function(cb) {
 
 	        //none to manage
             if(customObjectTypes.length === 0) {
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+                self.redirect('/admin/content/custom_objects/manage_object_types', cb);
                 return;
             }
 
