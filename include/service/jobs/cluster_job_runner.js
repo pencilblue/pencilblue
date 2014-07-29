@@ -26,7 +26,7 @@ var AsyncJobRunner = require('./async_job_runner.js');
  * @extends AsyncJobRunner
  */
 function ClusterJobRunner(){
-    AsyncJobRunner.constructor.apply(this, []);
+    ClusterJobRunner.super_.call(this);
 }
 
 //inheritance
@@ -112,8 +112,9 @@ ClusterJobRunner.prototype.processResults = function(err, results, cb) {
     var self = this;
     var finishUp = function(err, result) {
 
-        //only set done if we were the process that organized this uninstall.
-        if (self.isInitiator) {
+        //only set done if we were the process that organized this job.
+        //The second condition ensures we aren't a sub-job
+        if (self.isInitiator && self.getChunkOfWorkPercentage() === 1) {
             self.onCompleted(err);
         }
         cb(err, result);

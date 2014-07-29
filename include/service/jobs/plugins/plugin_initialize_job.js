@@ -26,7 +26,7 @@ var PluginJobRunner = require('./plugin_job_runner.js');
  * @extends PluginJobRunner
  */
 function PluginInitializeJob(){
-    PluginJobRunner.constructor.apply(this, []);
+    PluginInitializeJob.super_.call(this);
 
     //initialize
     this.setParallelLimit(1);
@@ -101,6 +101,7 @@ PluginInitializeJob.prototype.getWorkerTasks = function(cb) {
                 self.log('Initializing plugin %s', pluginUid);
                 pb.plugins.initPlugin(plugin, function(err, result) {
                     self.log('Completed initialization RESULT=[%s] ERROR=[%s]', result, err ? err.message : 'n/a');
+                    callback(err, result);
                 });
             });
         }

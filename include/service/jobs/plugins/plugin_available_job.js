@@ -26,7 +26,7 @@ var PluginJobRunner = require('./plugin_job_runner.js');
  * @extends PluginJobRunner
  */
 function PluginAvailableJob(){
-    PluginJobRunner.constructor.apply(this, []);
+    PluginAvailableJob.super_.call(this);
 
     //initialize
     this.setParallelLimit(1);

@@ -27,7 +27,9 @@ var JobRunner = require('./job_runner.js');
  * @constructor
  * @extends JobRunner
  */
-function AsyncJobRunner() {}
+function AsyncJobRunner() {
+    AsyncJobRunner.super_.call(this);
+}
 
 //ineritance
 util.inherits(AsyncJobRunner, JobRunner);
@@ -61,7 +63,7 @@ AsyncJobRunner.prototype.run = function(cb) {
     var self = this;
 
     var d = domain.create();
-    d.on('error', function(err) {console.log('here in error handler: '+err.stack);
+    d.on('error', function(err) {
         self.processResults(err, null, cb);
     });
     d.run(function() {

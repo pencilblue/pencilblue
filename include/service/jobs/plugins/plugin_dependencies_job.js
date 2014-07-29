@@ -26,7 +26,7 @@ var PluginJobRunner = require('./plugin_job_runner.js');
  * @extends PluginJobRunner
  */
 function PluginDependenciesJob(){
-    PluginJobRunner.constructor.apply(this, []);
+    PluginDependenciesJob.super_.call(this);
 
     //initialize
     this.setParallelLimit(1);

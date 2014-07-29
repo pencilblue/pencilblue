@@ -36,7 +36,7 @@ var PluginJobRunner = require('./plugin_job_runner.js');
  * @extends PluginJobRunner
  */
 function PluginInstallJob(){
-    PluginJobRunner.constructor.apply(this, []);
+    PluginInstallJob.super_.call(this);
 
     //initialize
     this.init();

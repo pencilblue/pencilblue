@@ -349,8 +349,8 @@ DAO.prototype.deleteMatching = function(where, collection){
 	}
 
 	//output delete command
-	if(pb.log.isDebug()){
-		pb.log.debug("DAO: DELETE FROM "+collection+" WHERE "+JSON.stringify(where));
+	if(pb.config.db.query_logging){
+		pb.log.info("DAO: DELETE FROM "+collection+" WHERE "+JSON.stringify(where));
 	}
 
 	var promise = new Promise();

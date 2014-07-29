@@ -25,7 +25,7 @@ var ClusterJobRunner = require('../cluster_job_runner.js');
  * @extends ClusterJobRunner
  */
 function PluginJobRunner() {
-    ClusterJobRunner.constructor.apply(this, []);
+    PluginJobRunner.super_.call(this);
 };
 
 //inheritance

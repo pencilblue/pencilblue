@@ -62,7 +62,7 @@ function onUninstallSuccess(data) {
             console.val(console.val()+toAppend);
 
             //offset so we don't get repeats
-            starting = starting === nextStarting ? nextStarting + 1 : nextStarting;
+            starting = nextStarting + 1;
 
             //check for more log entries
             loghandle = setTimeout(doLogRetrieve, 2000);
