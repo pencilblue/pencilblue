@@ -224,7 +224,8 @@ ServerRegistration.doRegistration = function(cb) {
 		 }
 
 		 if (update) {
-			 var key = ServerRegistration.generateKey();
+			 var key            = ServerRegistration.generateKey();
+             update.id          = key;
 			 update.last_update = new Date();
 			 PROVIDER.set(key, update, function(err, result) {
 				 pb.log.debug("ServerRegistration: Attempted to update registration. KEY=[%s] Result=[%s] ERROR=[%s]", key, util.inspect(result), err ? err.message : 'NONE');
@@ -255,7 +256,7 @@ ServerRegistration.doRegistration = function(cb) {
  * @returns {String} The unique identifier
  */
 ServerRegistration.generateKey = function() {
-	 return  ServerRegistration.getIp() + ':' + pb.config.sitePort + ':' + (cluster.worker ? cluster.worker.id : 'master') + ':' + os.hostname();
+	 return  ServerRegistration.getIp() + ':' + pb.config.sitePort + ':' + (cluster.worker ? cluster.worker.id : 'M') + ':' + os.hostname();
 };
 
 /**
