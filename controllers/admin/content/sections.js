@@ -28,7 +28,7 @@ var BaseController = pb.BaseController;
 util.inherits(Sections, BaseController);
 
 Sections.prototype.render = function(cb) {
-	this.redirect(pb.config.siteRoot + '/admin/content/sections/section_map', cb);
+	this.redirect('/admin/content/sections/section_map', cb);
 };
 
 //exports

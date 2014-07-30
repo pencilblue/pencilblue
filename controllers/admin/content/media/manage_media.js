@@ -35,7 +35,7 @@ ManageMedia.prototype.render = function(cb) {
 	var dao  = new pb.DAO();
 	dao.query('media').then(function(mediaData) {
         if(util.isError(mediaData) || mediaData.length === 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/add_media'));
+            self.redirect('/admin/content/media/add_media', cb);
             return;
         }
 

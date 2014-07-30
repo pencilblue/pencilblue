@@ -41,12 +41,12 @@ VerifyEmail.prototype.render = function(cb) {
         }
 
         dao.loadByValue('email', get.email, 'unverified_user', function(err, unverifiedUser) {
-            if(unverifiedUser == null) {
+            if(unverifiedUser === null) {
                 self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
                 return;
             }
 
-            if(unverifiedUser['verification_code'] != get['code']) {
+            if(unverifiedUser.verification_code != get.code) {
                 self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/resend_verification', cb);
                 return;
             }
@@ -66,7 +66,7 @@ VerifyEmail.prototype.render = function(cb) {
                     }
 
                     self.session.success = self.ls.get('EMAIL_VERIFIED');
-                    self.redirect(pb.config.siteRoot + '/user/login', cb);
+                    self.redirect('/user/login', cb);
                 });
             });
         });

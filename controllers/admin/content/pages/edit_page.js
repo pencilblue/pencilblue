@@ -36,14 +36,14 @@ EditPage.prototype.render = function(cb) {
 	var vars = this.pathVars;
 
     if(!vars.id) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
+        self.redirect('/admin/content/pages/manage_pages', cb);
         return;
     }
 
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'page', function(err, page) {
         if(page ==- null) {
-        	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/pages/manage_pages'));
+        	self.redirect('/admin/content/pages/manage_pages', cb);
             return;
         }
 
@@ -54,7 +54,7 @@ EditPage.prototype.render = function(cb) {
         //ensure that only the author can edit page
         //TODO should global administrator be able to do this too?
         if(self.session.authentication.user_id !== page.author) {
-        	self.redirect(pb.config.siteRoot + '/admin/content/pages/manage_pages', cb);
+        	self.redirect('/admin/content/pages/manage_pages', cb);
             return;
         }
 

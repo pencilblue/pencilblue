@@ -27,7 +27,7 @@ util.inherits(ForgotPassword, pb.FormController);
 ForgotPassword.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
-	var returnURL = this.query['admin'] ? '/admin/login' : '/user/login';
+	var returnURL = this.query.admin ? '/admin/login' : '/user/login';
 
 	var message = this.hasRequiredParams(post, ['username']);
 	if(message) {
@@ -39,10 +39,10 @@ ForgotPassword.prototype.onPostParamsRetrieved = function(post, cb) {
 		object_type : 'user',
 		$or : [
 	        {
-	        	username : post['username']
+	        	username : post.username
 	        },
 	        {
-	        	email : post['username']
+	        	email : post.username
 	        }
         ]
 	};
@@ -50,7 +50,7 @@ ForgotPassword.prototype.onPostParamsRetrieved = function(post, cb) {
 	//search for user
 	var dao = new pb.DAO();
 	dao.loadByValues(query, 'user', function(err, user) {
-        if(util.isError(err) || user == null) {
+        if(util.isError(err) || user === null) {
             self.formError(self.ls.get('NOT_REGISTERED'), returnURL, cb);
             return;
         }
@@ -75,7 +75,7 @@ ForgotPassword.prototype.onPostParamsRetrieved = function(post, cb) {
                 }
 
                 self.session.success = self.ls.get('YOUR_PASSWORD_RESET');
-                cb(pb.RequestHandler.generateRedirect(returnURL));
+                self.redirect(returnURL, cb);
                 pb.users.sendPasswordResetEmail(user, passwordReset, pb.utils.cb);
             });
         });

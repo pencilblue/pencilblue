@@ -37,13 +37,13 @@ SectionMap.prototype.render = function(cb) {
 
 		//when no sections exist redirect to create page
         if(sections.length === 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
+            self.redirect('/admin/content/sections/new_section', cb);
             return;
         }
 
         pb.settings.get('section_map', function(err, sectionMap) {
             if(sectionMap === null) {
-            	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
+            	self.redirect('/admin/content/sections/new_section', cb);
                 return;
             }
 
@@ -91,7 +91,7 @@ SectionMap.getOrderedSections = function(sections, sectionMap) {
         }
 
         for(var o = 0; o < sectionMap[i].children.length; o++) {
-            for(var j = 0; j < sections.length; j++) {
+            for(j = 0; j < sections.length; j++) {
                 if(sectionMap[i].children[o].uid == sections[j]._id) {
                     parentSection.children.push(sections[j]);
                     break;

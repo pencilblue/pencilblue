@@ -35,14 +35,14 @@ EditObjectType.prototype.render = function(cb) {
 	var vars = this.pathVars;
 
     if(!vars.id) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+        self.redirect('/admin/content/custom_objects/manage_object_types', cb);
         return;
     }
 
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'custom_object_type', function(err, objectType) {
 	    if(util.isError(err) || objectType === null) {
-	        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+	        self.redirect('/admin/content/custom_objects/manage_object_types', cb);
             return;
 	    }
 

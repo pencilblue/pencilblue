@@ -57,10 +57,10 @@ NewTopic.prototype.onPostParamsRetrieved = function(post, cb) {
 
             self.session.success = topicDocument.name + ' ' + self.ls.get('CREATED');
             if(get.manage) {
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/topics/manage_topics'));
+                self.redirect('/admin/content/topics/manage_topics', cb);
                 return;
             }
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/topics/new_topic'));
+            self.redirect('/admin/content/topics/new_topic', cb);
         });
     });
 };

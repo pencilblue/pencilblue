@@ -35,7 +35,7 @@ ManageUsers.prototype.render = function(cb) {
 	var dao  = new pb.DAO();
 	dao.query('user', {admin: {$lte: self.session.authentication.user.admin}}).then(function(users) {
         if(util.isError(users) || users.length === 0) {
-            self.redirect(pb.config.siteRoot + '/admin', cb);
+            self.redirect('/admin', cb);
             return;
         }
 

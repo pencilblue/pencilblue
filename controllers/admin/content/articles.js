@@ -25,7 +25,7 @@ function Articles(){}
 util.inherits(Articles, pb.BaseController);
 
 Articles.prototype.render = function(cb) {
-	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/manage_articles'));
+	this.redirect('/admin/content/articles/manage_articles', cb);
 };
 
 //exports

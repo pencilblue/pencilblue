@@ -25,7 +25,7 @@ function Users(){}
 util.inherits(Users, pb.BaseController);
 
 Users.prototype.render = function(cb) {
-	this.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
+	this.redirect('/admin/users/manage_users', cb);
 };
 
 Users.getPillNavOptions = function() {

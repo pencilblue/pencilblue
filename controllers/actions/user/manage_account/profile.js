@@ -46,7 +46,7 @@ Profile.prototype.onPostParamsRetrieved = function(post, cb) {
 
     var dao = new pb.DAO();
     dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
-        if(util.isError(err) || user == null) {
+        if(util.isError(err) || user === null) {
             self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
             return;
         }
@@ -61,7 +61,7 @@ Profile.prototype.onPostParamsRetrieved = function(post, cb) {
 
             self.session.authentication.user = user;
             self.session.success = self.ls.get('ACCOUNT') + ' ' + self.ls.get('EDITED');
-            self.redirect(pb.config.siteRoot + '/user/manage_account', cb);
+            self.redirect('/user/manage_account', cb);
         });
     });
 };

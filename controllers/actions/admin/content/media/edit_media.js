@@ -56,7 +56,7 @@ EditMedia.prototype.onPostParamsRetrieved = function(post, cb) {
             }
 
             self.onSaveSuccessful(media);
-            cb(self.genReturnVal(result));
+			self.redirect('/admin/content/media/manage_media', cb);
         });
     });
 };
@@ -71,10 +71,6 @@ EditMedia.prototype.getRequiredParams = function() {
 
 EditMedia.prototype.getFormErrorRedirect = function(id){
 	return '/admin/content/media/edit_media/' + id;
-};
-
-EditMedia.prototype.genReturnVal = function(result) {
-	return pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/manage_media');
 };
 
 //exports

@@ -35,13 +35,13 @@ console.log(util.inspect(get));
 
     var dao = new pb.DAO();
     dao.loadByValue('email', get.email, 'user', function(err, user) {
-        if(user == null) {
+        if(user === null) {
             self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
             return;
         }
 
         dao.loadByValue('user_id', user._id.toString(), 'password_reset', function(err, passwordReset) {
-            if(passwordReset == null) {
+            if(passwordReset === null) {
                 self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
                 return;
             }

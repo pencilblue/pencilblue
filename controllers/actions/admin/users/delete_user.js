@@ -59,7 +59,7 @@ DeleteUser.prototype.render = function(cb) {
                     }
 
                     self.session.success = user.username + ' ' + self.ls.get('DELETED');
-                    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/users/manage_users'));
+                    self.redirect('/admin/users/manage_users', cb);
                 });
             });
         });

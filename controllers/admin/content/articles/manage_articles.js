@@ -41,7 +41,7 @@ ManageArticles.prototype.render = function(cb) {
 
     dao.query('article', where, pb.DAO.PROJECT_ALL, {publish_date: pb.DAO.ASC}).then(function(articles) {
         if(util.isError(articles) || articles.length <= 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/articles/new_article'));
+            self.redirect('/admin/content/articles/new_article', cb);
             return;
         }
 
