@@ -61,12 +61,12 @@ function showImageModal(subsection)
 
 function validateImageURL(imageURL)
 {
-    if(imageURL.length == 0)
+    if(imageURL.length === 0)
     {
         return;
     }
 
-    var fileType = imageURL.substr(imageURL.lastIndexOf('.') + 1);
+    var fileType = imageURL.substr(imageURL.lastIndexOf('.') + 1).toLowerCase();
 
     switch(fileType)
     {
@@ -75,6 +75,7 @@ function validateImageURL(imageURL)
         case 'png':
         case 'gif':
         case 'svg':
+        case 'webp':
             setImageURL(imageURL);
             return;
         default:

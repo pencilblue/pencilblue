@@ -23,7 +23,7 @@ function validateMediaURL(mediaURL, isFile)
         return;
     }
 
-    var fileType = mediaURL.substr(mediaURL.lastIndexOf('.') + 1);
+    var fileType = mediaURL.substr(mediaURL.lastIndexOf('.') + 1).toLowerCase();
 
     switch(fileType)
     {
@@ -32,6 +32,7 @@ function validateMediaURL(mediaURL, isFile)
         case 'png':
         case 'gif':
         case 'svg':
+        case 'webp':
             setMediaValues(isFile, 'image', mediaURL);
             previewImage(mediaURL);
             return;

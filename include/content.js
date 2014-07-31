@@ -52,8 +52,10 @@ ContentService.getDefaultSettings = function() {
         auto_break_articles: 0,
         display_timestamp: 1,
         date_format: 'M dd, YYYY',
+        two_digit_date: 0,
         display_hours_minutes: 1,
         time_format: '12',
+        two_digit_time: 0,
         display_bylines: 1,
         display_author_photo: 1,
         display_author_position: 1,
@@ -72,11 +74,11 @@ ContentService.getDefaultSettings = function() {
  * @param {Object} contentSettings
  */
 ContentService.getTimestampTextFromSettings = function(date, contentSettings) {
-	return ContentService.getTimestampText(date, contentSettings.date_format,
-    		contentSettings.display_hours_minutes, contentSettings.time_format);
+	return ContentService.getTimestampText(date, contentSettings.date_format, contentSettings.two_digit_date,
+    		contentSettings.display_hours_minutes, contentSettings.time_format, contentSettings.two_digit_time);
 };
 
-ContentService.getTimestampText = function(date, format, displayTime, timeFormat, ls) {
+ContentService.getTimestampText = function(date, format, twoDigitDate, displayTime, timeFormat, twoDigitTime, ls) {
     if (!ls) {
         ls = new pb.Localization();
     }
@@ -97,11 +99,14 @@ ContentService.getTimestampText = function(date, format, displayTime, timeFormat
       ls.get('DEC')
     ];
 
+    var month = twoDigitDate ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1).toString();
+    var day = twoDigitDate ? '0' + date.getDate() : date.getDate().toString();
+
     dateString = dateString.split('YYYY').join(date.getFullYear());
     dateString = dateString.split('yy').join(date.getYear());
     dateString = dateString.split('M').join(monthNames[date.getMonth()]);
-    dateString = dateString.split('mm').join(date.getMonth() + 1);
-    dateString = dateString.split('dd').join(date.getDate());
+    dateString = dateString.split('mm').join(month);
+    dateString = dateString.split('dd').join(day);
 
     if (typeof displayTime !== 'undefined' && displayTime) {
 
@@ -121,10 +126,8 @@ ContentService.getTimestampText = function(date, format, displayTime, timeFormat
                 ampm = ' '+ls.get('TIME_AM');
             }
         }
-        else {
-            if(hours < 10) {
-                hours = '0' + hours;
-            }
+        if(twoDigitTime && hours < 10) {
+            hours = '0' + hours;
         }
 
         dateString = dateString.concat(' ' + hours + ':' + minutes + ampm);

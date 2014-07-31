@@ -27,7 +27,7 @@ util.inherits(Content, pb.FormController);
 Content.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
-	post = pb.DocumentCreator.formatIntegerItems(post, ['articles_per_page', 'auto_break_articles', 'display_timestamp', 'display_hours_minutes', 'display_bylines', 'display_author_photo', 'display_author_position', 'allow_comments', 'default_comments', 'require_account', 'require_verification']);
+	post = pb.DocumentCreator.formatIntegerItems(post, ['articles_per_page', 'auto_break_articles', 'display_timestamp', 'two_digit_date', 'display_hours_minutes', 'two_digit_time', 'display_bylines', 'display_author_photo', 'display_author_position', 'allow_comments', 'default_comments', 'require_account', 'require_verification']);
 	self.setFormFieldValues(post);
 
 	var message = this.hasRequiredParams(post, ['articles_per_page']);
