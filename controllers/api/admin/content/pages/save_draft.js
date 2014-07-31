@@ -18,13 +18,20 @@
 /**
  * Automatic draft saving of pages
  */
-
-function SaveDraft(){}
+function SavePageDraftController(){}
 
 //inheritance
-util.inherits(SaveDraft, pb.FormController);
+util.inherits(SavePageDraftController, pb.FormController);
 
-SaveDraft.prototype.onPostParamsRetrieved = function(post, cb) {
+/**
+ * Processes the request to persist a draft.  Redirects the request after
+ * completion.
+ * @see FormController#onPostParamsRetrieved
+ * @method onPostParamsRetrieved
+ * @param {Object} The posted parameters
+ * @param {Function} cb
+ */
+SavePageDraftController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var vars = this.pathVars;
 
@@ -84,9 +91,26 @@ SaveDraft.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
-SaveDraft.prototype.getRequiredFields = function() {
-	return ['url', 'headline', 'template', 'page_layout', 'id'];
+/**
+ * The required parameters
+ * @method getRequiredFields
+ * @return {Array} Parameter names that must be present in order to pass
+ * validation.
+ */
+SavePageDraftController.prototype.getRequiredFields = function() {
+	return ['url', 'headline', 'page_layout', 'id'];
+};
+
+/**
+ * @see BaseController#getSanitizationRules
+ * @method getSanitizationRules
+ * @return {Object}
+ */
+SavePageDraftController.prototype.getSanitizationRules = function() {
+    return {
+        page_layout: pb.BaseController.getContentSanitizationRules()
+    };
 };
 
 //exports
-module.exports = SaveDraft;
+module.exports = SavePageDraftController;

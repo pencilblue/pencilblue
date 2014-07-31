@@ -75,7 +75,7 @@ NewObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
                 }
 
                 self.session.success = objectTypeDocument.name + ' ' + self.ls.get('CREATED');
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
+                self.redirect('/admin/content/custom_objects/new_object_type', cb);
             });
         });
     });

@@ -43,7 +43,7 @@ Content.prototype.onPostParamsRetrieved = function(post, cb) {
         }
 
         self.session.success = self.ls.get('CONTENT_SETTINGS') + ' ' + self.ls.get('EDITED');
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/site_settings/content'));
+        self.redirect('/admin/site_settings/content', cb);
     });
 };
 

@@ -31,14 +31,14 @@ SortObjects.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
     if(!vars.type_id) {
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+        self.redirect('/admin/content/custom_objects/manage_object_types', cb);
         return;
     }
 
 	var dao  = new pb.DAO();
 	dao.loadById(vars.type_id, 'custom_object_type', function(err, objectType) {
 		if(util.isError(err) || objectType === null) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/manage_object_types'));
+            self.redirect('/admin/content/custom_objects/manage_object_types', cb);
             return;
         }
 
@@ -49,7 +49,7 @@ SortObjects.prototype.render = function(cb) {
 
 		    //none to manage
             if(customObjects.length === 0) {
-                cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object/' + vars.type_id));
+                self.redirect('/admin/content/custom_objects/new_object/' + vars.type_id, cb);
                 return;
             }
 
@@ -86,21 +86,20 @@ SortObjects.prototype.render = function(cb) {
                     customObjects = sortedObjects;
                 }
 
+                var angularData = pb.js.getAngularController(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType),
+                    customObjects: customObjects,
+                    objectType: objectType
+                });
+
 		        self.setPageName(self.ls.get('MANAGE') + ' ' + objectType.name);
 		        self.ts.registerLocal('object_type_id', objectType._id);
                 self.ts.registerLocal('object_type_name', objectType.name);
+                self.ts.registerLocal('angular_script', angularData);
                 self.ts.load('admin/content/custom_objects/sort_objects', function(err, data) {
-                    var result = ''+data;
-
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType);
-                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
-                    {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                        pills: pills,
-                        customObjects: customObjects,
-                        objectType: objectType
-                    }));
-
+                    var result = '' + data;
                     cb({content: result});
                 });
             });

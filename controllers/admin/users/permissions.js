@@ -87,12 +87,10 @@ PermissionsMapController.prototype.render = function(cb) {
 
 	//render page
 	this.setPageName(this.ls.get('PERMISSIONS'));
-	this.ts.load('/admin/users/permissions', function(err, content) {
-
-		//TODO move angular out as flag & replacement when can add option to
-		//skip the check for replacements in replacement
-		content = content.replace('^angular_script^', angularData);
-		cb({content: content});
+	this.ts.registerLocal('angular_script', angularData);
+	this.ts.load('/admin/users/permissions', function(err, data) {
+		var result = '' + data;
+		cb({content: result});
 	});
 };
 

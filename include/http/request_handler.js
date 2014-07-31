@@ -17,6 +17,11 @@
 
 /**
  * Responsible for processing a single req by delegating it to the correct controllers
+ * @class RequestHandler
+ * @constructor
+ * @param {Server} server The http server that the request came in on
+ * @param {Request} req The incoming request
+ * @param {Response} resp The outgoing response
  */
 function RequestHandler(server, req, resp){
 	this.startTime = (new Date()).getTime();
@@ -25,6 +30,13 @@ function RequestHandler(server, req, resp){
 	this.resp      = resp;
 	this.url       = url.parse(req.url, true);
 }
+
+/**
+ * The fallback theme (pencilblue)
+ * @static
+ * @property DEFAULT_THEME
+ * @type {String}
+ */
 RequestHandler.DEFAULT_THEME = 'pencilblue';
 
 RequestHandler.storage = [];
@@ -611,6 +623,13 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'manage_users.js'),
     },
     {
+        method: 'get',
+        path: "/admin/users/unverified_users",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'unverified_users.js'),
+    },
+    {
     	method: 'get',
     	path: "/admin/users/edit_user/:id",
     	auth_required: true,
@@ -630,6 +649,20 @@ RequestHandler.CORE_ROUTES = [
         auth_required: true,
         access_level: ACCESS_EDITOR,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_user.js'),
+    },
+    {
+        method: 'get',
+        path: "/actions/admin/users/delete_unverified_user/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_unverified_user.js'),
+    },
+    {
+        method: 'get',
+        path: "/actions/admin/users/verify_user/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'verify_user.js'),
     },
     {
     	method: 'get',
@@ -923,6 +956,14 @@ RequestHandler.CORE_ROUTES = [
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'comments', 'delete_comment.js'),
         content_type: 'text/html'
     },
+    {
+    	method: 'post',
+    	path: "/api/jobs/:action/:id",
+    	auth_required: true,
+    	access_level: ACCESS_ADMINISTRATOR,
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'jobs', 'job_api_controller.js'),
+    	content_type: 'application/json'
+    },
 ];
 
 RequestHandler.init = function(){
@@ -1166,6 +1207,7 @@ RequestHandler.prototype.servePublicContent = function(absolutePath) {
 			svg: 'image/svg+xml',
 			jpg: 'image/jpeg',
 			gif: 'image/gif',
+            webp: 'image/webp',
 			ico: 'image/vnd.microsoft.icon',
 			tff: 'application/octet-stream',
 			eot: 'application/vnd.ms-fontobject',
@@ -1470,9 +1512,12 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, method, cb){
 RequestHandler.prototype.onControllerInitialized = function(controller) {
 	var self = this;
     var d = domain.create();
+    d.add(controller);
     d.run(function() {
-        controller.render(function(result){
-            self.onRenderComplete(result);
+        process.nextTick(function() {
+            controller.render(function(result){
+                self.onRenderComplete(result);
+            });
         });
 	});
     d.on('error', function(err) {
@@ -1641,4 +1686,5 @@ RequestHandler.isSystemSafeURL = function(url, id, cb) {
 	});
 };
 
+//exports
 module.exports.RequestHandler = RequestHandler;

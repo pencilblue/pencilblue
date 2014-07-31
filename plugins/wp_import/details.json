@@ -1,0 +1,43 @@
+{
+    "uid": "wp_import",
+    "name": "WordPress Import",
+	"description": "Import a WordPress blog's content into PencilBlue.",
+    "version": "0.0.2",
+	"author": {
+        "name": "PencilBlue",
+        "email": "info@pencilblue.org",
+        "website": "http://pencilblue.org",
+        "contributors": [
+            {
+                "name": "Blake Callens",
+                "email": ""
+            },
+            {
+                "name": "Brian Hyder",
+                "email": ""
+            }
+        ]
+    },
+    "settings": [
+        {
+            "name": "create_new_users",
+            "value": false
+        },
+        {
+            "name": "download_media",
+            "value": true
+        }
+    ],
+	"permissions": {
+		"ACCESS_USER": [],
+		"ACCESS_WRITER": [],
+		"ACCESS_EDITOR": [],
+		"ACCESS_MANAGING_EDITOR": []
+	},
+	"main_module": {
+		"path": "wp_import.js"
+	},
+    "dependencies": {
+        "xml2js": "0.4.4"
+    }
+}

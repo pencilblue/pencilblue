@@ -64,12 +64,9 @@ Article.prototype.render = function(cb) {
 
 		self.req.pencilblue_article = article._id.toString();
 		this.article = article;
+        self.setPageName(article.name);
 		Article.super_.prototype.render.apply(self, [cb]);
 	});
-};
-
-Article.prototype.getPageTitle = function() {
-	return article.name;
 };
 
 //exports

@@ -40,7 +40,7 @@ ManageObjectTypes.prototype.render = function(cb) {
 
 		//none to manage
         if(customObjectTypes.length === 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/custom_objects/new_object_type'));
+            self.redirect('/admin/content/custom_objects/new_object_type', cb);
             return;
         }
 
@@ -55,17 +55,17 @@ ManageObjectTypes.prototype.render = function(cb) {
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
 
+        var angularData = pb.js.getAngularController(
+        {
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_object_types'),
+            customObjectTypes: customObjectTypes
+        }, [], 'initObjectTypesPagination()');
+
         self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
-        self.ts.load('admin/content/custom_objects/manage_object_types', function(err, result) {
-
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_object_types');
-            result = result.split('^angular_script^').join(pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                pills: pills,
-                customObjectTypes: customObjectTypes
-            }, [], 'initObjectTypesPagination()'));
-
+        self.ts.registerLocal('angular_script', angularData);
+        self.ts.load('admin/content/custom_objects/manage_object_types', function(err, data) {
+            var result = '' + data;
             cb({content: result});
         });
     });

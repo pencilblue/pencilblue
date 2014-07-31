@@ -16,7 +16,7 @@
     "keywords": [
         "cms", "website", "platform"
     ],
-   "version": "0.1.2",
+   "version": "0.2.1",
     "repository": {
         "type": "git",
         "url": "https://github.com/pencilblue/pencilblue.git"
@@ -24,7 +24,7 @@
     "dependencies": {
     	"async": "0.2.9",
     	"cookies": "0.4.0",
-    	"fakeredis": "0.1.1",
+    	"fakeredis": "0.2.0",
 	    "formidable": "1.0.14",
         "htmlencode": "0.0.4",
 	    "locale": "0.0.14",
@@ -33,6 +33,7 @@
         "node.extend": "1.0.10",
 	    "node-promise": "0.5.9",
 	    "nodemailer": "0.5.3",
+        "npm": "1.4.20",
 	    "process": "0.5.1",
 	    "redis": "0.10.0",
         "sanitize-html": "1.1.7",

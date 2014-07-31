@@ -17,14 +17,16 @@
 
 /**
  * Edits a page
+ * @cclass EditPagePostController
+ * @constructor
+ * @extends FormController
  */
-
-function EditPage(){}
+function EditPagePostController(){}
 
 //inheritance
-util.inherits(EditPage, pb.FormController);
+util.inherits(EditPagePostController, pb.FormController);
 
-EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
+EditPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var vars = this.pathVars;
 
@@ -82,15 +84,21 @@ EditPage.prototype.onPostParamsRetrieved = function(post, cb) {
 
                 self.session.success = page.headline + ' ' + self.ls.get('EDITED');
                 delete self.session.fieldValues;
-                self.redirect(pb.config.siteRoot + '/admin/content/pages/edit_page/' + post.id, cb);
+                self.redirect('/admin/content/pages/edit_page/' + post.id, cb);
             });
         });
     });
 };
 
-EditPage.prototype.getRequiredParams = function() {
+EditPagePostController.prototype.getRequiredParams = function() {
 	return ['url', 'headline', 'page_layout', 'id'];
 };
 
+EditPagePostController.prototype.getSanitizationRules = function() {
+    return {
+        page_layout: pb.BaseController.getContentSanitizationRules()
+    };
+};
+
 //exports
-module.exports = EditPage;
+module.exports = EditPagePostController;

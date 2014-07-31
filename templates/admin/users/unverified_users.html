@@ -1,0 +1,68 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^error_success^
+    ^tmp_admin=elements=sub_nav^
+    <div class="input-group" style="margin-bottom: .5em">
+        <input type="text" id="user_search" name="user_search" class="form-control"></input>
+        <span class="input-group-btn">
+            <button id="user_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+        </span>
+    </div>
+    <div class="table_container">
+        <table id="users_table" class="table table-responsive table-condensed">
+            <tr id="users_table_header">
+                <th id="user_username_header">^loc_USERNAME^</th>
+                <th id="user_name_header">^loc_NAME^</th>
+                <th id="user_email_header">^loc_EMAIL^</th>
+                <th id="user_date_header">^loc_DATE_ADDED^</th>
+                <th></th>
+            </tr>
+            <tr class="user_row" ng-repeat="user in users track by user._id" on-finish-render ng-cloak>
+                <td>{{user.username}}</td>
+                <td class="user_name">{{user.first_name}} {{user.last_name}}</td>
+                <td class="user_email">{{user.email}}</td>
+                <td class="user_date">{{user.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+                <td><a href="javascript:confirmVerifyUser('{{user._id}}', '{{user.username}}')"><i class="fa fa-check"></i></a>&nbsp;&nbsp;<a href="javascript:confirmDeleteUser('{{user._id}}', '{{user.username}}')"><i class="fa fa-times"></i></a></td>
+            </tr>
+        </table>
+    </div>
+    <ul id="users_pagination" class="pagination"></ul>
+    <div class="modal fade" id="confirm_delete_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    ^loc_CONFIRM_DELETE^ <span id="delete_name" style="font-style: italic"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button type="button" id="delete_button" class="btn btn-danger">
+                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="confirm_verify_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    ^loc_CONFIRM_VERIFY^ <span id="verify_name" style="font-style: italic"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </button>
+                    <button type="button" id="verify_button" class="btn btn-success">
+                        <i class="fa fa-check-circle"></i>&nbsp;^loc_VERIFY^
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
+<script type="text/javascript" src="/js/table_sort.js"></script>
+<script type="text/javascript" src="/js/admin/users/unverified_users.js"></script>
+^tmp_admin=footer^

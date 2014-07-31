@@ -33,26 +33,27 @@ var SUB_NAV_KEY = 'import_topics';
 ImportTopics.prototype.render = function(cb) {
 	var self = this;
 
-	this.setPageName(this.ls.get('NEW_TOPIC'));
-	this.ts.load('admin/content/topics/import_topics', function(err, result) {
-        var tabs   =
-        [
-            {
-                active: 'active',
-                href: '#topic_settings',
-                icon: 'file-text-o',
-                title: self.ls.get('LOAD_FILE')
-            }
-        ];
-
-        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics');
-        result    = result.split('^angular_script^').join(pb.js.getAngularController(
+    var tabs   =
+    [
         {
-            navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-            pills: pills,
-            tabs: tabs
-        }));
+            active: 'active',
+            href: '#topic_settings',
+            icon: 'file-text-o',
+            title: self.ls.get('LOAD_FILE')
+        }
+    ];
 
+    var angularData = pb.js.getAngularController(
+    {
+        navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
+        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics'),
+        tabs: tabs
+    });
+
+	this.setPageName(this.ls.get('NEW_TOPIC'));
+    self.ts.registerLocal('angular_script', angularData);
+	this.ts.load('admin/content/topics/import_topics', function(err, data) {
+        var result = '' + data;
         cb({content: result});
     });
 };

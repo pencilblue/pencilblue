@@ -40,13 +40,11 @@ PluginsIndex.prototype.render = function(cb) {
 			return;
 		}
 
-		var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls);
-
 		//setup angular
 		var angularData = pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-				pills: pills,
+				pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
                 installedPlugins: map.active,
                 inactivePlugins: map.inactive,
                 availablePlugins: map.available
@@ -55,13 +53,10 @@ PluginsIndex.prototype.render = function(cb) {
         );
 
 		//load the template
-		//self.ts.registerLocal('angular_script', angularData);
-		self.ts.load('/admin/plugins/index', function(err, content) {
-
-			//TODO move angular out as flag & replacement when can add option to
-			//skip the check for replacements in replacement
-			content = content.replace('^angular_script^', angularData);
-			cb({content: content});
+		self.ts.registerLocal('angular_script', angularData);
+		self.ts.load('/admin/plugins/index', function(err, data) {
+			var result = '' + data;
+			cb({content: result});
 		});
 	});
 };

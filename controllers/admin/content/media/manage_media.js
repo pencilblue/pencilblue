@@ -35,24 +35,23 @@ ManageMedia.prototype.render = function(cb) {
 	var dao  = new pb.DAO();
 	dao.query('media').then(function(mediaData) {
         if(util.isError(mediaData) || mediaData.length === 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/media/add_media'));
+            self.redirect('/admin/content/media/add_media', cb);
             return;
         }
 
+        var angularData = pb.js.getAngularController(
+        {
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
+            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_media'),
+            media: Media.formatMedia(mediaData)
+        }, [], 'initMediaPagination()');
+
         var title = self.ls.get('MANAGE_MEDIA');
         self.setPageName(title);
+        self.ts.registerLocal('angular_script', angularData);
         self.ts.load('admin/content/media/manage_media', function(err, data) {
            var result = '' + data;
-
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_media');
-            result = result.split('^angular_script^').join(pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
-                pills: pills,
-                media: Media.formatMedia(mediaData)
-            }, [], 'initMediaPagination()'));
-
-            cb({content: result});
+           cb({content: result});
         });
     });
 };

@@ -18,9 +18,11 @@
 /**
  * Controller to properly route and handle remote calls to interact with
  * the PluginService
+ * @class PluginApi
+ * @constructor
+ * @extends BaseController
  */
-
-function PluginAPI(){}//TODO refactor to match api_action_controller
+function PluginApiController(){}//TODO refactor to match api_action_controller
 
 //dependencies
 var BaseController = pb.BaseController;
@@ -28,9 +30,18 @@ var PluginService  = pb.PluginService;
 var RequestHandler = pb.RequestHandler;
 
 //inheritance
-util.inherits(PluginAPI, BaseController);
+util.inherits(PluginApiController, BaseController);
 
 //constants
+/**
+ * The hash of actions that are available to execute for this controller. When
+ * the key's value is TRUE, it indicates that a valid object ID must be part of
+ * the request as a path variable "id".
+ * @private
+ * @static
+ * @property VALID_ACTIONS
+ * @type {Object}
+ */
 var VALID_ACTIONS = {
 	install: true,
 	uninstall: true,
@@ -39,7 +50,13 @@ var VALID_ACTIONS = {
 	set_theme: true,
 };
 
-PluginAPI.prototype.render = function(cb) {
+/**
+ * Properly routes the incoming request to the handler after validation of the
+ * properties
+ * @method render
+ * @param {Function} cb
+ */
+PluginApiController.prototype.render = function(cb) {
 	var action     = this.pathVars.action;
 	var identifier = this.pathVars.id;
 
@@ -64,43 +81,39 @@ PluginAPI.prototype.render = function(cb) {
 	this[action](identifier, cb);
 };
 
-PluginAPI.prototype.install = function(uid, cb) {
-	var self = this;
-
-	pb.plugins.installPlugin(uid, function(err, result) {
-		if (util.isError(err)) {
-			var data = [err.message];
-			if (util.isArray(err.validationErrors)) {
-				for(var i = 0; i < err.validationErrors.length; i++) {
-					data.push(err.validationErrors[i].message);
-				}
-			}
-			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INSTALL_FAILED'), uid), data);
-			cb({content: content, code: 400});
-			return;
-		}
-
-		var content = BaseController.apiResponse(BaseController.API_SUCCESS, util.format(self.ls.get('INSTALL_SUCCESS'), uid));
-		cb({content: content});
-	});
+/**
+ * Triggers the installation of a plugin
+ * @method install
+ * @param {String} uid The unique id of the plugin to install
+ * @param {Function} cb
+ */
+PluginApiController.prototype.install = function(uid, cb) {
+    var jobId   = pb.plugins.installPlugin(uid);
+    var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', jobId);
+    cb({content: content});
 };
 
-PluginAPI.prototype.uninstall = function(uid, cb) {
+/**
+ * Triggers a plugin to uninstall from the cluster
+ * @method uninstall
+ * @param {String} uid The unique id of the plugin to uninstall
+ * @param {Function} cb
+ */
+PluginApiController.prototype.uninstall = function(uid, cb) {
 	var self = this;
 
-	pb.plugins.uninstallPlugin(uid, function(err, result) {
-		if (util.isError(err)) {
-			var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('UNINSTALL_FAILED'), uid), [err.message]);
-			cb({content: content, code: 400});
-			return;
-		}
-
-		var content = BaseController.apiResponse(BaseController.API_SUCCESS, util.format(self.ls.get('UNINSTALL_SUCCESS'), uid));
-		cb({content: content});
-	});
+	var jobId   = pb.plugins.uninstallPlugin(uid);
+    var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', jobId);
+    cb({content: content});
 };
 
-PluginAPI.prototype.reset_settings = function(uid, cb) {
+/**
+ * Triggers the plugin's settings to be flushed and reloaded from the details.json file
+ * @method reset_settings
+ * @param {String} uid The unique id of the plugin to flush the settings for
+ * @param {Function} cb
+ */
+PluginApiController.prototype.reset_settings = function(uid, cb) {
 	var self = this;
 
 	var details = null;
@@ -159,7 +172,13 @@ PluginAPI.prototype.reset_settings = function(uid, cb) {
 	});
 };
 
-PluginAPI.prototype.initialize = function(uid, cb) {
+/**
+ * Attempts to initialize a plugin
+ * @method initialize
+ * @param {String} uid The unique id of the plugin to initialize
+ * @param {Function} cb
+ */
+PluginApiController.prototype.initialize = function(uid, cb) {
 	var self = this;
 
 	pb.plugins.getPlugin(uid, function(err, plugin) {
@@ -182,7 +201,13 @@ PluginAPI.prototype.initialize = function(uid, cb) {
 	});
 };
 
-PluginAPI.prototype.set_theme = function(uid, cb) {
+/**
+ * Attempts to set the active theme
+ * @method set_theme
+ * @param {String} uid The unique id of the plugin to set as the active theme
+ * @param {Function} cb
+ */
+PluginApiController.prototype.set_theme = function(uid, cb) {
 	var self = this;
 
 	//retrieve plugin
@@ -214,4 +239,4 @@ PluginAPI.prototype.set_theme = function(uid, cb) {
 };
 
 //exports
-module.exports = PluginAPI;
+module.exports = PluginApiController;

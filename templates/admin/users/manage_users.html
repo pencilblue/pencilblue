@@ -24,7 +24,7 @@
                 <td class="user_name">{{user.first_name}} {{user.last_name}}</td>
                 <td class="user_email">{{user.email}}</td>
                 <td class="user_date">{{user.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-                <td><a href="javascript:confirmDeleteUser('{{user._id}}', '{{user.username}}')"><i class="fa fa-times"></i></a></td>
+                <td><a href="javascript:confirmDeleteUser('{{user._id}}', '{{user.username}}')" ng-if="user._id.toString() !== currentUserId"><i class="fa fa-times"></i></a></td>
             </tr>
         </table>
     </div>

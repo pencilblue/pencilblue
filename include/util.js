@@ -27,6 +27,15 @@ var extend = require('node.extend');
  */
 function Util(){};
 
+/**
+ * Takes an array of promises and waits for each to be resolved before calling
+ * back.
+ * @static
+ * @method onPromisesOk
+ * @param {Array} promises
+ * @param {Function} A callback that takes zero arguments.  It is executed when
+ * all promises have been resolved.
+ */
 Util.onPromisesOk = function(promises, cb){
 
 	var cnt = 0;
@@ -46,7 +55,7 @@ Util.onPromisesOk = function(promises, cb){
 /**
  * Clones an object by serializing it and then re-parsing it.
  * WARNING: Objects with circular dependencies will cause an error to be thrown.
- *
+ * @static
  * @method clone
  * @param {Object} object The object to clone
  * @return {Object} Cloned object
@@ -59,7 +68,7 @@ Util.clone = function(object){
  * Performs a deep merge and returns the result.  <b>NOTE:</b> DO NOT ATTEMPT
  * TO MERGE PROPERTIES THAT REFERENCE OTHER PROPERTIES.  This could have
  * unintended side-effects as well as cause errors due to circular dependencies.
- *
+ * @static
  * @method deepMerge
  * @param {Object} from
  * @param {Object} to
@@ -72,7 +81,7 @@ Util.deepMerge = function(from, to) {
 /**
  * Checks if the supplied object is an errof. If the object is an error the
  * function will throw the error.
- *
+ * @static
  * @method ane
  * @param {Object} obj The object to check
  */
@@ -82,6 +91,13 @@ Util.ane = function(obj){
 	}
 };
 
+/**
+ * Escapes a regular expression.
+ * @static
+ * @method escapeRegExp
+ * @param {String} The expression to escape
+ * @return {String} Escaped regular expression.
+ */
 Util.escapeRegExp = function(str) {
 	if (!Util.isString(str)) {
 		return null;
@@ -103,6 +119,13 @@ Util.merge = function(from, to) {
 	}
 };
 
+/**
+ * Creates an object that has both the properties of "a" and "b".  When both
+ * objects have a property with the same name, "b"'s value will be preserved.
+ * @static
+ * @method union
+ * @return {Object} The union of properties from both a and b.
+ */
 Util.union = function(a, b) {
 	var union = {};
 	Util.merge(a, union);
@@ -110,6 +133,25 @@ Util.union = function(a, b) {
 	return union;
 };
 
+/**
+ * Creates a set of tasks that can be executed by the "async" module.
+ * @static
+ * @method getTasks
+ * @param {Array} iterable The array of items to build tasks for
+ * @param {Function} getTaskFunction The function that creates and returns the
+ * task to be executed.
+ * @example
+ * <code>
+ * var items = ['apple', 'orange'];
+ * var tasks = pb.utils.getTasks(items, function(items, i) {
+ *     return function(callback) {
+ *         console.log(items[i]);
+ *         callback(null, null);
+ *     };
+ * });
+ * async.series(tasks, pb.utils.cb);
+ * <code>
+ */
 Util.getTasks = function (iterable, getTaskFunction) {
 	var tasks = [];
 	for (var i = 0; i < iterable.length; i++) {
@@ -120,7 +162,7 @@ Util.getTasks = function (iterable, getTaskFunction) {
 
 /**
  * Hashes an array
- *
+ * @static
  * @method arrayToHash
  * @param {Array} array      The array to hash
  * @param {*} defaultVal Default value if the hashing fails
@@ -145,27 +187,33 @@ Util.arrayToHash = function(array, defaultVal) {
 };
 
 /**
- * Converts a hash to an array
- *
+ * Converts a hash to an array. When provided, the hashKeyProp will be the
+ * property name of each object in the array that holds the hash key.
+ * @static
  * @method hashToArray
- * @param {Object} obj Hash object
- * @return {Array}
+ * @param {Object} obj The object to convert
+ * @param {String} [hashKeyProp] The property name that will hold the hash key.
+ * @return {Array} An array of each property value in the hash.
  */
-Util.hashToArray = function(obj) {
+Util.hashToArray = function(obj, hashKeyProp) {
 	if (!Util.isObject(obj)) {
 		return null;
 	}
 
-	var a = [];
+	var a                  = [];
+    var doHashKeyTransform = Util.isString(hashKeyProp);
 	for (var prop in obj) {
 		a.push(obj[prop]);
+        if (doHashKeyTransform) {
+            obj[prop][hashKeyProp] = prop;
+        }
 	}
 	return a;
 };
 
 /**
  * Inverts a hash
- *
+ * @static
  * @method invertHash
  * @param {Object} obj Hash object
  * @return {Object} Inverted hash
@@ -186,7 +234,7 @@ Util.invertHash = function(obj) {
 
 /**
  * Clones an array
- *
+ * @static
  * @method copyArray
  * @param {Array} array
  * @return {Array} Cloned array
@@ -205,6 +253,8 @@ Util.copyArray = function(array) {
 
 /**
  * Pushes all of one array's values into another
+ * @static
+ * @method arrayPushAll
  * @param {Array} from
  * @param {Array} to
  */
@@ -221,6 +271,8 @@ Util.arrayPushAll = function(from, to) {
 /**
  * Empty callback function just used as a place holder if a callback is required
  * and the result is not needed.
+ * @static
+ * @method cb
  */
 Util.cb = function(err, result){
 	//do nothing
@@ -228,9 +280,9 @@ Util.cb = function(err, result){
 
 /**
  * Creates a unique Id
- *
+ * @static
  * @method uniqueId
- * @return {Object} Unique Id Object
+ * @return {ObjectID} Unique Id Object
  */
 Util.uniqueId = function(){
 	return new ObjectID();
@@ -238,7 +290,7 @@ Util.uniqueId = function(){
 
 /**
  * Tests if a value is an object
- *
+ * @static
  * @method isObject
  * @param {*} value
  * @return {Boolean}
@@ -249,7 +301,7 @@ Util.isObject = function(value) {
 
 /**
  * Tests if a value is an string
- *
+ * @static
  * @method isString
  * @param {*} value
  * @return {Boolean}
@@ -260,7 +312,7 @@ Util.isString = function(value) {
 
 /**
  * Tests if a value is a function
- *
+ * @static
  * @method isFunction
  * @param {*} value
  * @return {Boolean}
@@ -271,7 +323,7 @@ Util.isFunction = function(value) {
 
 /**
  * Tests if a value is a boolean
- *
+ * @static
  * @method isBoolean
  * @param {*} value
  * @return {Boolean}
@@ -282,6 +334,8 @@ Util.isBoolean = function(value) {
 
 /**
  * Retrieves the subdirectories of a path
+ * @static
+ * @method getDirectories
  * @param {String}   dirPath The starting path
  * @param {Function} cb      Callback function
  */
@@ -315,6 +369,11 @@ Util.getDirectories = function(dirPath, cb) {
 	});
 };
 
+/**
+ * Provides typical conversions for time
+ * @property TIME
+ * @type {Object}
+ */
 Util.TIME = {
 
 	MILLIS_PER_SEC: 1000,
@@ -323,4 +382,5 @@ Util.TIME = {
 	MILLIS_PER_DAY: 86400000
 };
 
+//exports
 module.exports = Util;

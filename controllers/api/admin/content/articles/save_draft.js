@@ -17,14 +17,23 @@
 
 /**
  * Automatic draft saving of articles
+ * @class SaveArticleDraft
+ * @constructor
  */
-
-function SaveDraft(){}
+function SaveArticleDraft(){}
 
 //inheritance
-util.inherits(SaveDraft, pb.FormController);
+util.inherits(SaveArticleDraft, pb.FormController);
 
-SaveDraft.prototype.onPostParamsRetrieved = function(post, cb) {
+/**
+ * Processes the request to persist a draft.  Redirects the request after
+ * completion.
+ * @see FormController#onPostParamsRetrieved
+ * @method onPostParamsRetrieved
+ * @param {Object} The posted parameters
+ * @param {Function} cb
+ */
+SaveArticleDraft.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var vars = this.pathVars;
 
@@ -85,9 +94,26 @@ SaveDraft.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
-SaveDraft.prototype.getRequiredFields = function() {
-	return ['url', 'headline', 'template', 'article_layout', 'id'];
+/**
+ * The required parameters
+ * @method getRequiredFields
+ * @return {Array} Parameter names that must be present in order to pass
+ * validation.
+ */
+SaveArticleDraft.prototype.getRequiredFields = function() {
+	return ['url', 'headline', 'article_layout', 'id'];
+};
+
+/**
+ * @see BaseController#getSanitizationRules
+ * @method getSanitizationRules
+ * @return {Object}
+ */
+SaveArticleDraft.prototype.getSanitizationRules = function() {
+    return {
+        article_layout: pb.BaseController.getContentSanitizationRules()
+    };
 };
 
 //exports
-module.exports = SaveDraft;
+module.exports = SaveArticleDraft;

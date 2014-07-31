@@ -17,13 +17,17 @@
 
 /**
  * Interface for the admin dashboard
+ * @class AdminIndexController
+ * @constructor
  */
-
 function AdminIndexController(){}
 
 //inheritance
 util.inherits(AdminIndexController, pb.BaseController);
 
+/**
+ * @see BaseController#render
+ */
 AdminIndexController.prototype.render = function(cb) {
 	var self = this;
 
@@ -45,7 +49,7 @@ AdminIndexController.prototype.render = function(cb) {
     	name = self.localizationService.get('PAGES');
     	contentInfo.push({name: name, count: data.pageCount, href: '/admin/content/pages/manage_pages'});
 
-    	var angular = pb.js.getAngularController(
+    	var angularData = pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService),
                 contentInfo: contentInfo,
@@ -54,14 +58,23 @@ AdminIndexController.prototype.render = function(cb) {
             }
         );
     	self.setPageName(self.localizationService.get('DASHBOARD'));
-        self.templateService.load('admin/index', function(error, result) {
-
-        	result = result.replace('^angular_script^', angular);
+        self.ts.registerLocal('angular_script', angularData);
+        self.ts.load('admin/index', function(error, result) {
             cb({content: result});
         });
 	});
 };
 
+/**
+ * Gather all necessary data for rendering the dashboard.
+ * <ul>
+ * <li>Article count</li>
+ * <li>Page Count</li>
+ * <li>Cluster Status</li>
+ * </ul>
+ * @method gatherData
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Object)
+ */
 AdminIndexController.prototype.gatherData = function(cb) {
 	var tasks = {
 
@@ -80,16 +93,7 @@ AdminIndexController.prototype.gatherData = function(cb) {
 		//cluster status
 		clusterStatus: function(callback) {
 			var service = new pb.ServerRegistration();
-			service.getClusterStatus(function(err, clusterObj) {
-				var cluster = [];
-				if (clusterObj) {
-					for (var prop in clusterObj) {
-						try {
-							cluster.push(JSON.parse(clusterObj[prop]));
-						}
-						catch(e){}
-					}
-				}
+			service.getClusterStatus(function(err, cluster) {
 				callback(err, cluster);
 			});
 		}

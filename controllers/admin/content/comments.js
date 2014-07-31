@@ -25,7 +25,7 @@ function Comments(){}
 util.inherits(Comments, pb.BaseController);
 
 Comments.prototype.render = function(cb) {
-    cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/comments/manage_comments'));
+    self.redirect('/admin/content/comments/manage_comments', cb);
 };
 
 Comments.getPillNavOptions = function(activePill) {

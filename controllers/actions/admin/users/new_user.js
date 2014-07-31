@@ -27,9 +27,9 @@ util.inherits(NewUser, pb.FormController);
 NewUser.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
-	post['photo'] = post['uploaded_image'];
-    delete post['uploaded_image'];
-    delete post['image_url'];
+	post.photo = post.uploaded_image;
+    delete post.uploaded_image;
+    delete post.image_url;
 
     var message = this.hasRequiredParams(post, this.getRequiredFields());
     if(message) {
@@ -37,7 +37,7 @@ NewUser.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
 
-    if(!pb.security.isAuthorized(this.session, {admin_level: post['admin']})) {
+    if(!pb.security.isAuthorized(this.session, {admin_level: post.admin})) {
         this.formError(self.ls.get('INSUFFICIENT_CREDENTIALS'), '/admin/users/new_user', cb);
         return;
     }
@@ -57,7 +57,7 @@ NewUser.prototype.onPostParamsRetrieved = function(post, cb) {
             }
 
             self.session.success = self.ls.get('USER_CREATED');
-            self.redirect(pb.config.siteRoot + '/admin/users/manage_users', cb);
+            self.redirect('/admin/users/manage_users', cb);
         });
     });
 };

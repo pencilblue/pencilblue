@@ -38,10 +38,19 @@ CacheFactory.getInstance = function() {
         return CLIENT;
     }
 
+    CLIENT = CacheFactory.createInstance();
+    return CLIENT;
+};
+
+/**
+ *
+ *
+ *
+ */
+CacheFactory.createInstance = function() {
     var moduleAtPlay = pb.config.cache.fake ? "fakeredis" : "redis";
     var Redis        = require(moduleAtPlay);
-    CLIENT           = Redis.createClient(pb.config.cache.port, pb.config.cache.host, pb.config.cache);
-    return CLIENT;
+    return Redis.createClient(pb.config.cache.port, pb.config.cache.host, pb.config.cache);
 };
 
 /**

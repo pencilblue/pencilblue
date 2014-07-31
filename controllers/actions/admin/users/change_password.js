@@ -71,7 +71,7 @@ ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
             }
 
             self.session.success = self.ls.get('PASSWORD_CHANGED');
-            self.redirect(pb.config.siteRoot + '/admin/users/edit_user/' + user.id, cb);
+            self.redirect('/admin/users/edit_user/' + user.id, cb);
         });
     });
 };

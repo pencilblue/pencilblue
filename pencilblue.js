@@ -18,6 +18,14 @@
 // A grouping of all require calls
 global.pb = require('./include/requirements');
 
+/**
+ * The main driver file for PencilBlue.  Provides the function necessary to
+ * start up the master and/or child processes.  In addition, it is responsible
+ * for ensuring that all system services are avaialble by requiring the
+ * "requirements.js" file.
+ * @class PencilBlue
+ * @constructor
+ */
 function PencilBlue(){}
 
 /**
@@ -26,14 +34,14 @@ function PencilBlue(){}
  * connection pool to the core DB.
  */
 PencilBlue.init = function(){
-	var tasks = [
-         PencilBlue.initRequestHandler,
-         PencilBlue.initDBConnections,
-         PencilBlue.initServer,
-         PencilBlue.initPlugins,
-         PencilBlue.initServerRegistration,
-         PencilBlue.registerSystemForEvents
-     ];
+    var tasks = [
+        PencilBlue.initRequestHandler,
+        PencilBlue.initDBConnections,
+        PencilBlue.initServer,
+        PencilBlue.initPlugins,
+        PencilBlue.initServerRegistration,
+        PencilBlue.initCommandService,
+    ];
 	async.series(tasks, function(err, results) {
 		if (util.isError(err)) {
 			throw err;
@@ -42,17 +50,33 @@ PencilBlue.init = function(){
 	});
 };
 
+/**
+ * Initializes the request handler.  This causes all system routes to be
+ * registered.
+ * @static
+ * @method initRequestHandler
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
+ */
 PencilBlue.initRequestHandler = function(cb) {
 	pb.RequestHandler.init();
 	cb(null, true);
 }
 
+/**
+ * Initializes the installed plugins.
+ * @static
+ * @method initPlugins
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
+ */
 PencilBlue.initPlugins = function(cb) {
     pb.plugins.initPlugins(cb);
 };
 
 /**
  * Attempts to initialize a connection pool to the core database
+ * @static
+ * @method initDBConnections
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
  */
 PencilBlue.initDBConnections = function(cb){
 	//setup database connection to core database
@@ -72,7 +96,11 @@ PencilBlue.initDBConnections = function(cb){
 };
 
 /**
- * Initializes the server
+ * Initializes the HTTP server(s).  When SSL is enabled two servers are created.
+ * One to handle incoming HTTP traffic and one to handle HTTPS traffic.
+ * @static
+ * @method initServer
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
  */
 PencilBlue.initServer = function(cb){
 	log.debug('Starting server...');
@@ -107,6 +135,17 @@ PencilBlue.initServer = function(cb){
 	}
 }
 
+/**
+ * The function that handles normal server traffic.  The function ensures that
+ * the incoming request is delegated out appropriately.  When SSL Termination
+ * is in use if the 'x-forwarded-proto' header does equal 'https' then the
+ * request is delegated to the handoff function so the request can be
+ * redirected appropriately.
+ * @static
+ * @method onHttpConnect
+ * @param {Request} req The incoming request
+ * @param {Response} resp The outgoing response
+ */
 PencilBlue.onHttpConnect = function(req, resp){
 	if (pb.log.isSilly()) {
 		req.uid = new ObjectID();
@@ -127,6 +166,14 @@ PencilBlue.onHttpConnect = function(req, resp){
     handler.handleRequest();
 };
 
+/**
+ * Handles traffic that comes in for HTTP when SSL is enabled.  The request is
+ * redirected to the appropriately protected HTTPS url.
+ * @static
+ * @method onHttpConnectForHandoff
+ * @param {Request} req The incoming request
+ * @param {Response} res The outgoing response
+ */
 PencilBlue.onHttpConnectForHandoff = function(req, res) {
     var host = req.headers.host;
     if (host) {
@@ -143,8 +190,24 @@ PencilBlue.onHttpConnectForHandoff = function(req, res) {
     res.end();
 };
 
-PencilBlue.initServerRegistration = function() {
-	pb.ServerRegistration.init();
+/**
+ * Initializes server registration.
+ * @static
+ * @method initServerRegistration
+ * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
+ */
+PencilBlue.initServerRegistration = function(cb) {
+	pb.ServerRegistration.init(cb);
+};
+
+/**
+ * Initializes the command service by calling its "init" function.
+ * @static
+ * @method initCommandService
+ * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
+ */
+PencilBlue.initCommandService = function(cb) {
+    pb.CommandService.init(cb);
 };
 
 //start system
