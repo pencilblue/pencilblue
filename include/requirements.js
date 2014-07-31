@@ -111,9 +111,14 @@ pb.RedisCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/comman
 pb.CommandService     = require(path.join(DOCUMENT_ROOT, '/include/system/command/command_service.js'));
 
 //Jobs
-pb.JobRunner      = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/job_runner.js'));
-pb.AsyncJobRunner = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/async_job_runner'));
-pb.PluginUninstallJob = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_uninstall_job.js'));
+pb.JobRunner             = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/job_runner.js'));
+pb.AsyncJobRunner        = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/async_job_runner'));
+pb.ClusterJobRunner      = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/cluster_job_runner'));
+pb.PluginUninstallJob    = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_uninstall_job.js'));
+pb.PluginAvailableJob    = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_available_job.js'));
+pb.PluginDependenciesJob = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_dependencies_job.js'));
+pb.PluginInitializeJob   = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_initialize_job.js'));
+pb.PluginInstallJob      = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_install_job.js'));
 
 //Email settings and functions
 pb.EmailService = require(DOCUMENT_ROOT+'/include/email').EmailService;

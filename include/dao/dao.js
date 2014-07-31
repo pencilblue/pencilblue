@@ -289,8 +289,19 @@ DAO.prototype.insert = function(dbObject) {
  */
 DAO.prototype.update = function(dbObj) {
 
-	var promise = new Promise();
+    //log interaction
+    if (pb.config.db.query_logging) {
+        var msg;
+        if (dbObj._id) {
+            msg = util.format('UPDATE %s WHERE ID=%s', dbObj.object_type, dbObj._id);
+        }
+        else {
+            msg = util.format('INSERT INTO %s', dbObj.object_type);
+        }
+        pb.log.info(msg);
+    }
 
+	var promise = new Promise();
 	DAO.updateChangeHistory(dbObj);
 	pb.dbm[this.dbName].collection(dbObj.object_type).save(dbObj, function(err, doc){
 		promise.resolve(err ? err : doc);
@@ -315,6 +326,9 @@ DAO.prototype.updateFields = function(collection, query, updates, options, cb) {
         options = {};
     }
 
+    if (pb.config.db.query_logging) {
+        pb.log.info('UPDATE %s %s WHERE %s WITH OPTIONS %s', collection, JSON.stringify(updates), JSON.stringify(query), JSON.stringify(options));
+    }
     pb.dbm[this.dbName].collection(collection).update(query, updates, options, cb);
 };
 
@@ -349,8 +363,8 @@ DAO.prototype.deleteMatching = function(where, collection){
 	}
 
 	//output delete command
-	if(pb.log.isDebug()){
-		pb.log.debug("DAO: DELETE FROM "+collection+" WHERE "+JSON.stringify(where));
+	if(pb.config.db.query_logging){
+		pb.log.info("DAO: DELETE FROM "+collection+" WHERE "+JSON.stringify(where));
 	}
 
 	var promise = new Promise();

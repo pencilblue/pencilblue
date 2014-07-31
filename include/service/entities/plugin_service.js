@@ -874,119 +874,15 @@ PluginService.prototype.uninstallPlugin = function(pluginUid, options, cb) {
  * @param {function} cb A callback that provides two parameters: cb(err, TRUE/FALSE)
  */
 PluginService.prototype.installPlugin = function(pluginDirName, cb) {
-	var self            = this;
-	var detailsFilePath = PluginService.getDetailsPath(pluginDirName);
-	var details         = null;
-	var plugin          = null;
 
-	pb.log.info("PluginService: Beginning install of %s", pluginDirName);
-	var tasks = [
-
-         //load the details file
-         function(callback) {
-        	 pb.log.info("PluginService: Attempting to load details.json file for %s", pluginDirName);
-
-			PluginService.loadDetailsFile(detailsFilePath, function(err, loadedDetails) {
-				details = loadedDetails;
-				callback(err, null);
-			});
-         },
-
-         //validate the details
-         function(callback) {
-        	 pb.log.info("PluginService: Validating details of %s", pluginDirName);
-
-        	 PluginService.validateDetails(details, pluginDirName, callback);
-         },
-
-         //verify that the plugin is not installed
-         function(callback) {
-        	 pb.log.info("PluginService: Verifying that plugin %s is not already installed", details.uid);
-
-        	 self.isInstalled(details.uid, function(err, isInstalled){
-        		if (util.isError(err)) {
-        			callback(err, isInstalled);
-        		}
-        		else {
-        			err = isInstalled ? (new Error('PluginService: The '+details.uid+' plugin is already installed')) : null;
-        			callback(err, isInstalled);
-                }
-             });
-         },
-
-        //install dependencies
-        function(callback) {
-            if (details.dependencies) {
-                self.installPluginDependencies(pluginDirName, details.dependencies, callback);
-            }
-            else {
-                callback(null, true);
-            }
-        },
-
-        //create plugin entry
-        function(callback) {
-        	 pb.log.info("PluginService: Setting system install flags for %s", details.uid);
-
-        	 var clone     = pb.utils.clone(details);
-        	 clone.dirName = pluginDirName;
-
-        	 var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
-        	 var dao              = new pb.DAO();
-        	 dao.update(pluginDescriptor).then(function(result) {
-        		 plugin = pluginDescriptor;
-        		 callback(util.isError(result) ? result : null, result);
-        	 });
-         },
-
-         //load plugin settings
-         function(callback) {
-        	 pb.log.info("PluginService: Adding settings for %s", details.uid);
-        	 self.resetSettings(details, callback);
-         },
-
-         //load theme settings
-         function(callback) {
-        	 if (details.theme && details.theme.settings) {
-        		 pb.log.info("PluginService: Adding theme settings for %s", details.uid);
-
-        		 self.resetThemeSettings(details, callback);
-        	 }
-        	 else {
-        		 callback(null, null);
-        	 }
-         },
-
-        //call plugin's onInstall function
-        function(callback) {
-
-            var mainModule = PluginService.loadMainModule(pluginDirName, details.main_module.path);
-    		if (mainModule !== null && typeof mainModule.onInstall === 'function') {
-    			pb.log.info("PluginService: Executing %s 'onInstall' function", details.uid);
-    			mainModule.onInstall(callback);
-    		}
-    		else {
-    			pb.log.warn("PluginService: Plugin %s did not provide an 'onInstall' function.", details.uid);
-    			callback(null, false);
-    		}
-        },
-
-         //do plugin initialization
-         function(callback) {
-        	pb.log.info("PluginService: Initializing %s", details.uid);
-        	self.initPlugin(plugin, callback);
-         },
-
-         //notify cluster of plugin install
-         function(callback) {
-        	 pb.log.warn("PluginService: Cluster Notification for install of %s is not yet supported", pluginDirName);
-        	 //TODO PluginInstall Notifications across cluster
-        	callback(null, null);
-         }
-	];
-	async.series(tasks, function(err, results) {
-		cb(err, !util.isError(err));
-	});
+    cb       = cb || pb.utils.cb;
+    var name = util.format('INSTALL_PLUGIN_%s', pluginDirName);
+    var job  = new pb.PluginInstallJob();
+    job.init(name);
+    job.setRunAsInitiator(true);
+    job.setPluginUid(pluginDirName);
+    job.run(cb);
+    return job.getId();
 };
 
 /**
@@ -1995,8 +1891,108 @@ PluginService.onUninstallPluginCommandReceived = function(command) {
     });
 };
 
+/**
+ * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+ * The function is called when a command is recevied to validate that a plugin is available to this process for install.
+ * The function builds out the appropriate options then calls the
+ * uninstallPlugin function.  The result is then sent back to the calling
+ * process via the CommandService.
+ * @static
+ * @method onIsPluginAvailableCommandReceived
+ * @param {Object} command
+ * @param {String} command.jobId The ID of the in-progress job that this
+ * process is intended to join.
+ */
+PluginService.onIsPluginAvailableCommandReceived = function(command) {
+    if (!pb.utils.isObject(command)) {
+        pb.log.error('PluginService: an invalid is_plugin_available command object was passed. %s', util.inspect(command));
+        return;
+    }
+
+    var name = util.format("IS_AVAILABLE_%s", command.pluginUid);
+    var job  = new pb.PluginAvailableJob();
+    job.setRunAsInitiator(false)
+    .init(name, command.jobId)
+    .setPluginUid(command.pluginUid)
+    .run(function(err, result) {
+
+        var response = {
+            error: err ? err.stack : undefined,
+            result: result ? true : false
+        };
+        pb.CommandService.sendInResponseTo(command, response);
+    });
+};
+
+/**
+ * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+ * The function is called when a command is recevied to install plugin
+ * dependencies.  The result is then sent back to the calling process via the
+ * CommandService.
+ * @static
+ * @method onIsPluginAvailableCommandReceived
+ * @param {Object} command
+ * @param {String} command.jobId The ID of the in-progress job that this
+ * process is intended to join.
+ */
+PluginService.onInstallPluginDependenciesCommandReceived = function(command) {
+    if (!pb.utils.isObject(command)) {
+        pb.log.error('PluginService: an invalid install_plugin_dependencies command object was passed. %s', util.inspect(command));
+        return;
+    }
+
+    var name = util.format("INSTALL_DEPENDENCIES_%s", command.pluginUid);
+    var job  = new pb.PluginDependenciesJob();
+    job.setRunAsInitiator(false)
+    .init(name, command.jobId)
+    .setPluginUid(command.pluginUid)
+    .run(function(err, result) {
+
+        var response = {
+            error: err ? err.stack : undefined,
+            result: result ? true : false
+        };
+        pb.CommandService.sendInResponseTo(command, response);
+    });
+};
+
+/**
+ * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+ * The function is called when a command is recevied to initialize a plugin.
+ * The result is then sent back to the calling process via the
+ * CommandService.
+ * @static
+ * @method onIsPluginAvailableCommandReceived
+ * @param {Object} command
+ * @param {String} command.jobId The ID of the in-progress job that this
+ * process is intended to join.
+ */
+PluginService.onInitializePluginCommandReceived = function(command) {
+    if (!pb.utils.isObject(command)) {
+        pb.log.error('PluginService: an invalid initialize_plugin command object was passed. %s', util.inspect(command));
+        return;
+    }
+
+    var name = util.format("INITIALIZE_PLUGIN_%s", command.pluginUid);
+    var job  = new pb.PluginInitializeJob();
+    job.setRunAsInitiator(false)
+    .init(name, command.jobId)
+    .setPluginUid(command.pluginUid)
+    .run(function(err, result) {
+
+        var response = {
+            error: err ? err.stack : undefined,
+            result: result ? true : false
+        };
+        pb.CommandService.sendInResponseTo(command, response);
+    });
+};
+
 //register for commands
 pb.CommandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
+pb.CommandService.registerForType('is_plugin_available', PluginService.onIsPluginAvailableCommandReceived);
+pb.CommandService.registerForType('install_plugin_dependencies', PluginService.onInstallPluginDependenciesCommandReceived);
+pb.CommandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
 
 //exports
 module.exports = PluginService;

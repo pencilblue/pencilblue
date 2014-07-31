@@ -275,7 +275,7 @@ CommandService.sendCommandToAllGetResponses = function(type, options, cb) {
 
                 //create command
                 var opts = pb.utils.clone(options);
-                opts.to  = statuses[i]._id;
+                opts.to  = statuses[i].id;
 
                 //execute command against the cluster
                 CommandService.sendCommandGetResponse(type, opts, function(err, command) {
