@@ -125,7 +125,7 @@ CommandService.shutdown = function(cb) {
  * @param {Function} handler A function that takes two parameters:
  * handler(channel, command). where channel is a string and command is an
  * object.
- * @returns {Boolean} TRUE if the the handler was registered, FALSE if not.
+ * @return {Boolean} TRUE if the the handler was registered, FALSE if not.
  */
 CommandService.registerForType = function(type, handler) {
     if (!pb.validation.validateNonEmptyStr(type, true) || !pb.utils.isFunction(handler)) {
@@ -148,7 +148,7 @@ CommandService.registerForType = function(type, handler) {
  * @param {String} type The name/type of the command that the handler is
  * registered for
  * @param {Function} handler The handler function to unregister
- * @returns {Boolean} TRUE if the handler was unregistered, FALSE if not.
+ * @return {Boolean} TRUE if the handler was unregistered, FALSE if not.
  */
 CommandService.unregisterForType = function(type, handler) {
     if (!pb.validation.validateNonEmptyStr(type, true) || !pb.utils.isFunction(handler)) {

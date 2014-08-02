@@ -119,32 +119,38 @@ MediaService.onStyleSettingPosition = function(containerCSS, position) {
     }
 };
 
-MediaService.getCarousel = function(carouselMedia, template, tagToReplace, carouselID, output) {
+MediaService.getCarousel = function(carouselMedia, template, tagToReplace, carouselID, cb) {
     var instance = this;
 
     if(carouselMedia.length === 0) {
-        output(template.split('^carousel^').join(''));
+        cb(template.split('^carousel^').join(''));
         return;
     }
 
-    var mediaOptions = [];
-    for(var i = 0; i < carouselMedia.length; i++) {
-        mediaOptions.push({_id: ObjectID(carouselMedia[i])});
-    }
-
+    //query for media
     var dao = new pb.DAO();
     dao.query('media', pb.DAO.getIDInWhere(carouselMedia)).then(function(carouselItems) {
         if(util.isError(carouselItems) || !carouselItems.length) {
-            output(template.split(tagToReplace).join(''));
+            cb(template.split(tagToReplace).join(''));
             return;
         }
 
         var ts = new pb.TemplateService();
         ts.load('elements/carousel', function(err, data) {
+            if (util.isError(err)) {
+                pb.log.error("Media: An Error occurred attempting to load the carousel template: %s", err.stack);
+                data = data || '';
+            }
+
             template = template.split(tagToReplace).join(data);
             template = template.split('^carousel_id^').join(carouselID);
 
             ts.load('elements/carousel/item', function(err, data) {
+                if (util.isError(err)) {
+                    pb.log.error("Media: An Error occurred attempting to load the carousel template: %s", err.stack);
+                    data = data || '';
+                }
+
                 var carouselItemTemplate = '' + data;
 
                 var carouselIndicators = '';
@@ -172,7 +178,7 @@ MediaService.getCarousel = function(carouselMedia, template, tagToReplace, carou
 
                 template = template.split('^carousel_indicators^').join(carouselIndicators);
                 template = template.split('^carousel_content^').join(carouselContent);
-                output(template);
+                cb(template);
             });
         });
     });

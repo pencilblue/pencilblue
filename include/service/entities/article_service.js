@@ -28,6 +28,9 @@
  * @submodule Entities
  */
 
+//dependencies
+var Media = require('../../theme/media');
+
 /**
  * Retrieves articles and pages
  *
@@ -39,8 +42,9 @@ function ArticleService(){
 	this.object_type = 'article';
 }
 
-//dependencies
-var Media = require('../../theme/media');
+//constants
+var CAROUSEL_PREFIX     = '^carousel_display_';
+var CAROUSEL_PREFIX_LEN = CAROUSEL_PREFIX.length;
 
 /**
  * Rerieves the content type
@@ -466,19 +470,31 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
     });
 };
 
+/**
+ * Replaces carousel tags in content layouts.
+ * @method replaceCarouselTag
+ * @param {String} layout
+ * @param {String} mediaTemplate
+ * @param {Function} cb
+ * @example ^carousel_display_53dd0fcabb9e260000000066-53dd0fe6bb9e260000000078/position:left,maxheight:500px^
+ */
 MediaLoader.prototype.replaceCarouselTag = function(layout, mediaTemplate, cb) {
-	var index = layout.indexOf('^carousel_display_');
+	var index = layout.indexOf(CAROUSEL_PREFIX);
 	if(index == -1) {
         cb(null, layout);
         return;
     }
 
-    var startIndex = layout.indexOf('^carousel_display_') + 18;
-    var endIndex   = layout.substr(startIndex).indexOf('^');
-    var mediaIDs   = layout.substr(startIndex, endIndex).split('-');
+    var startIndex  = index + CAROUSEL_PREFIX_LEN;
+    var endIndex    = layout.indexOf('^', startIndex);
+    var attributes  = layout.substring(startIndex, endIndex);
+    var idsAndStyle = attributes.split('/');
+    var mediaIDs    = idsAndStyle[0].split('-');
+    var style       = idsAndStyle[1];
 
-    var tagToReplace = layout.substr(startIndex - 18, endIndex + 19);
-    var carouselID   = layout.substr(startIndex - 17, endIndex + 17);
+    var tagToReplace = layout.substring(index, endIndex + 1);
+    var carouselID   = layout.substring(index + 1, layout.indexOf('/', index));
+    //console.log("attributes="+attributes);console.log("style="+style);console.log("tagToReplace="+tagToReplace);console.log("CID="+carouselID);
     Media.getCarousel(mediaIDs, layout, tagToReplace, carouselID, function(newLayout) {
     	cb(null, newLayout);
     });
