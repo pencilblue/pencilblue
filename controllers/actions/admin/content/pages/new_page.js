@@ -45,7 +45,6 @@ NewPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 
     post.author       = self.session.authentication.user_id;
     post.publish_date = new Date(post.publish_date);
-    post.page_layout  = decodeURIComponent(post.page_layout);
 
     this.setFormFieldValues(post);
 
