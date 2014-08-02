@@ -53,7 +53,6 @@ SaveArticleDraft.prototype.onPostParamsRetrieved = function(post, cb) {
 
     post['author']         = this.session.authentication.user_id;
     post['publish_date']   = new Date(post['publish_date']);
-    post['article_layout'] = decodeURIComponent(post['article_layout']);
 
     //add vars to post
     pb.utils.merge(vars, post);
