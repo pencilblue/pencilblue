@@ -197,7 +197,7 @@ ServerRegistration.shutdown = function(cb) {
  * @param {String} name The name and/or description of the information being
  * gathered
  * @param {Function} The function to be called to gather the data.
- * @returns {Boolean} TRUE if the function is successfully registered, FALSE if not.
+ * @return {Boolean} TRUE if the function is successfully registered, FALSE if not.
  */
 ServerRegistration.addItem = function(name, itemValueFunction) {
 	 if (!pb.validation.validateNonEmptyStr(name, true) || !pb.utils.isFunction(itemValueFunction)) {
@@ -253,7 +253,7 @@ ServerRegistration.doRegistration = function(cb) {
  * Generates the unique key for the PB process/node.
  * @static
  * @method generateKey
- * @returns {String} The unique identifier
+ * @return {String} The unique identifier
  */
 ServerRegistration.generateKey = function() {
 	 return  ServerRegistration.getIp() + ':' + pb.config.sitePort + ':' + (cluster.worker ? cluster.worker.id : 'M') + ':' + os.hostname();
@@ -263,7 +263,7 @@ ServerRegistration.generateKey = function() {
  * Retrieves the first IP address found for the node.
  * @static
  * @method getIp
- * @returns {String} The first IP address found for the node
+ * @return {String} The first IP address found for the node
  */
 ServerRegistration.getIp = function() {
 	 var interfaces = os.networkInterfaces();

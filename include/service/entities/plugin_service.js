@@ -573,7 +573,7 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
  * @static
  * @method getPermissionsForRole
  * @param {Integer|String} role The role to get permissions for
- * @returns {Object} A hash of the permissions
+ * @return {Object} A hash of the permissions
  */
 PluginService.getPermissionsForRole = function(role) {
 	if (!isNaN(role)) {
@@ -599,7 +599,7 @@ PluginService.getPermissionsForRole = function(role) {
  * @static
  * @method getActivePluginDir
  * @param {String} pluginUid A plugin's UID value
- * @returns {String} File path to the plugin's public directory
+ * @return {String} File path to the plugin's public directory
  */
 PluginService.getActivePluginPublicDir = function(pluginUid) {
 	var publicPath = null;
@@ -614,7 +614,7 @@ PluginService.getActivePluginPublicDir = function(pluginUid) {
  * @static
  * @method isActivePlugin
  * @param {String} uid The unique identifier for a plugin
- * @returns {Boolean} TRUE if the plugin is active, FALSE if not
+ * @return {Boolean} TRUE if the plugin is active, FALSE if not
  */
 PluginService.isActivePlugin = function(uid) {
 	return ACTIVE_PLUGINS[uid] !== undefined;
@@ -627,7 +627,7 @@ PluginService.isActivePlugin = function(uid) {
  * @param {String} plugin The UID of the plugin
  * @param {String} relativePathToMedia The relative path to the resource from
  * the plugin's public directory.
- * @returns {String} URL path to the resource
+ * @return {String} URL path to the resource
  */
 PluginService.genPublicPath = function(plugin, relativePathToMedia) {
 	if (!pb.utils.isString(plugin) || !pb.utils.isString(relativePathToMedia)) {
@@ -660,7 +660,7 @@ PluginService.prototype.getActivePlugins = function(cb) {
  * Retrieves the content templates for all of the active plugins
  * @static
  * @method getActiveContentTemplates
- * @returns {Array} An array of objects
+ * @return {Array} An array of objects
  */
 PluginService.getActiveContentTemplates = function() {
 
@@ -1187,7 +1187,7 @@ PluginService.prototype.installPluginDependencies = function(pluginDirName, depe
  * @method require
  * @param {String} pluginDirName
  * @param {String} moduleName
- * @returns {*} The entity returned by the "require" call.
+ * @return {*} The entity returned by the "require" call.
  */
 PluginService.require = function(pluginDirName, moduleName) {
     var modulePath = path.join(PluginService.getPluginsDir(), pluginDirName, 'node_modules', moduleName);
@@ -1249,7 +1249,7 @@ PluginService.prototype.getLocalizations = function(pluginDirName, cb) {
  * @method getService
  * @param {String} serviceName
  * @param {String} pluginUid The unique plugin identifier
- * @returns {Object} Service prototype
+ * @return {Object} Service prototype
  */
 PluginService.prototype.getService = function(serviceName, pluginUid) {
 	if (ACTIVE_PLUGINS[pluginUid]) {
@@ -1270,7 +1270,7 @@ PluginService.prototype.getService = function(serviceName, pluginUid) {
  * to pass this parameter as the absolute file path to the module.  The
  * function first checks if the parameter is just the file name then checks to
  * see if it is an absolute path.
- * @returns {Function} The mainmodule prototype
+ * @return {Function} The mainmodule prototype
  */
 PluginService.loadMainModule = function(pluginDirName, pathToModule) {
 	var pluginMM = path.join(PLUGINS_DIR, pluginDirName, pathToModule);
@@ -1294,7 +1294,7 @@ PluginService.loadMainModule = function(pluginDirName, pathToModule) {
  * @method getPublicPath
  * @param pluginDirName The name of the directory that contains the intended
  * plugin
- * @returns {string} the absolute file path to a plugin's public directory
+ * @return {string} the absolute file path to a plugin's public directory
  */
 PluginService.getPublicPath = function(pluginDirName) {
 	return path.join(PLUGINS_DIR, pluginDirName, PUBLIC_DIR_NAME);
@@ -1303,7 +1303,7 @@ PluginService.getPublicPath = function(pluginDirName) {
 /**
  * @static
  * @method getPluginsDir
- * @returns {string} The absolute file path to the plugins directory
+ * @return {string} The absolute file path to the plugins directory
  */
 PluginService.getPluginsDir = function() {
 	return PLUGINS_DIR;
@@ -1315,7 +1315,7 @@ PluginService.getPluginsDir = function() {
  * @method getDetailsPath
  * @param {String} pluginDirName The name of the directory that the plugin is
  * contained within.
- * @returns {string} The absolute file path to the details.json file for a plugin
+ * @return {string} The absolute file path to the details.json file for a plugin
  */
 PluginService.getDetailsPath = function(pluginDirName) {
 	return path.join(PLUGINS_DIR, pluginDirName, DETAILS_FILE_NAME);
@@ -1601,7 +1601,7 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
  * @method validateIconPath
  * @param iconPath The path to the icon (image) file
  * @param pluginDirName The name of the directory housing the plugin
- * @returns {Boolean} TRUE if the path is valid, FALSE if not
+ * @return {Boolean} TRUE if the path is valid, FALSE if not
  */
 PluginService.validateIconPath = function(iconPath, pluginDirName) {
 	var pluginPublicIcon = path.join(PluginService.getPublicPath(pluginDirName), iconPath);
@@ -1622,7 +1622,7 @@ PluginService.validateIconPath = function(iconPath, pluginDirName) {
  *
  * @param mmPath The relative or absolute path to the main module file
  * @param pluginDirName The name of the directory housing the plugin
- * @returns {Boolean} TRUE if the path is valid, FALSE if not
+ * @return {Boolean} TRUE if the path is valid, FALSE if not
  */
 PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
 	return PluginService.loadMainModule(pluginDirName, mmPath) !== null;
@@ -1634,7 +1634,7 @@ PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
  * @param setting The setting to validate
  * @param position The position in the settings array where the setting resides
  * as a 0 based index.
- * @returns {Array} The array of errors that were generated.  If no errors were
+ * @return {Array} The array of errors that were generated.  If no errors were
  * produced an empty array is returned.
  */
 PluginService.validateSetting = function(setting, position) {
@@ -1670,7 +1670,7 @@ PluginService.validateSetting = function(setting, position) {
  * @static
  * @method validateSettingValue
  * @param {Boolean|Integer|Float|String} value The value to validate
- * @returns {Boolean} TRUE if the value is valid, FALSE if not
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
  */
 PluginService.validateSettingValue = function(value) {
 	return pb.utils.isString(value) || !isNaN(value) || value === true || value === false;
@@ -1841,7 +1841,7 @@ PluginService.loadController = function(pathToController, pluginUid, cb) {
  * @method getServiceName
  * @param pathToService The file path to the service
  * @param service The service prototype
- * @returns {String} The derived service name
+ * @return {String} The derived service name
  */
 PluginService.getServiceName = function(pathToService, service) {
 	var name = 'UNKNOWN';
