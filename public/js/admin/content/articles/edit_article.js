@@ -116,21 +116,14 @@ function setPublishDateToNow()
     $('#publish_date').val(getDatetimeText(date));
 }
 
-function getDatetimeText(date)
-{
-    var datetime = date.getFullYear() + '/' + getExtraZero(date.getMonth() + 1) + '/' + getExtraZero(date.getDate()) + ' ';
-    datetime += getExtraZero(date.getHours()) + ':' + getExtraZero(date.getMinutes());
-
-    return datetime;
+function getDatetimeText(date) {
+    return date.toLocaleString();
 }
 
-function getExtraZero(dateNumber)
-{
-    if(dateNumber < 10)
-    {
+function getExtraZero(dateNumber) {
+    if(dateNumber < 10) {
         dateNumber = '0' + dateNumber;
     }
-
     return dateNumber;
 }
 
@@ -189,6 +182,10 @@ function checkForEditArticleSave(draft, cb)
                     else {
                         $('#draft').val((draft) ? '1' : '0');
                     }
+
+                    var pubDateStr = $('#publish_date').val();
+                    var pubDateObj = new Date(pubDateStr);
+                    $('#publish_date').val(pubDateObj);
 
                     if(typeof cb === 'undefined')
                     {

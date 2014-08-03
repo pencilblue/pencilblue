@@ -104,12 +104,8 @@ function setPublishDateToNow()
     $('#publish_date').val(getDatetimeText(date));
 }
 
-function getDatetimeText(date)
-{
-    var datetime = date.getFullYear() + '/' + getExtraZero(date.getMonth() + 1) + '/' + getExtraZero(date.getDate()) + ' ';
-    datetime += getExtraZero(date.getHours()) + ':' + getExtraZero(date.getMinutes());
-
-    return datetime;
+function getDatetimeText(date) {
+    return date.toLocaleString();
 }
 
 function getExtraZero(dateNumber)
@@ -165,6 +161,10 @@ function checkForNewPageSave(draft)
                 else {
                     $('#draft').val((draft) ? '1' : '0');
                 }
+
+                var pubDateStr = $('#publish_date').val();
+                var pubDateObj = new Date(pubDateStr);
+                $('#publish_date').val(pubDateObj);
 
                 $('#new_page_form').submit();
             });
