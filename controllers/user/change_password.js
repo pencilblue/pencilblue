@@ -1,31 +1,56 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * ManageAccount - UI for account management
- *
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Interface for logged in user to change password
  */
-function ManageAccount(){}
+
+function ChangePasswordController(){}
 
 //inheritance
-util.inherits(ManageAccount, pb.FormController);
+util.inherits(ChangePasswordController, pb.FormController);
 
-ManageAccount.prototype.render = function(cb) {
+ChangePasswordController.prototype.render = function(cb) {
     var self = this;
 
     var dao = new pb.DAO();
     dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
         if(util.isError(err) || user === null) {
-            self.redirect(pb.config.siteRoot, cb);
+            self.redirect('/', cb);
             return;
         }
 
-        delete user.password;
 
-        var navigation = [
+        self.setPageName(self.ls.get('CHANGE_PASSWORD'));
+        self.ts.registerLocal('angular_script', pb.js.getAngularController(self.gatherData()));
+        self.ts.load('user/change_password', function(err, result) {
+
+            cb({content: result});
+        });
+    });
+};
+
+ChangePasswordController.prototype.gatherData = function() {
+    return {
+        navigation: [
             {
                 id: 'account',
                 active: 'active',
-                title: self.ls.get('ACCOUNT'),
+                title: this.ls.get('ACCOUNT'),
                 icon: 'user',
                 href: '#',
                 dropdown: true,
@@ -33,53 +58,40 @@ ManageAccount.prototype.render = function(cb) {
                 [
                     {
                         id: 'manage',
-                        title: self.ls.get('MANAGE_ACCOUNT'),
+                        title: this.ls.get('MANAGE_ACCOUNT'),
                         icon: 'cog',
                         href: '/user/manage_account',
                     },
                     {
                         id: 'change_password',
                         active: 'active',
-                        title: self.ls.get('CHANGE_PASSWORD'),
+                        title: this.ls.get('CHANGE_PASSWORD'),
                         icon: 'key',
                         href: '/user/change_password',
                     }
                 ]
             }
-        ];
+        ],
 
-        var pills = [
+        pills: [
             {
                 name: 'change_password',
-                title: self.ls.get('CHANGE_PASSWORD'),
+                title: this.ls.get('CHANGE_PASSWORD'),
                 icon: 'refresh',
                 href: '/user/change_password'
             }
-        ];
+        ],
 
-        var tabs = [
+        tabs: [
             {
                 active: 'active',
                 href: '#password',
                 icon: 'key',
-                title: self.ls.get('PASSWORD')
+                title: this.ls.get('PASSWORD')
             }
-        ];
-
-        self.setPageName(self.ls.get('CHANGE_PASSWORD'));
-        self.ts.load('user/change_password', function(err, result) {
-
-            result = result.split('^angular_script^').join(pb.js.getAngularController(
-            {
-                navigation: navigation,
-                pills: pills,
-                tabs: tabs
-            }));
-
-            cb({content: result});
-        });
-    });
+        ]
+    };
 };
 
 //exports
-module.exports = ManageAccount;
+module.exports = ChangePasswordController;

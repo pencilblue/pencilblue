@@ -1,9 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * Organizes the site's sections via drag and drop
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Interface for editing the navigation
  */
+
 function SectionMap(){}
 
 //dependencies
@@ -19,40 +34,38 @@ SectionMap.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
 	dao.query('section', pb.DAO.ANYWHERE).then(function(sections) {
-		
+
 		//when no sections exist redirect to create page
-        if(sections.length == 0) {
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
+        if(sections.length === 0) {
+            self.redirect('/admin/content/sections/new_section', cb);
             return;
         }
 
         pb.settings.get('section_map', function(err, sectionMap) {
-            if(sectionMap == null) {
-            	cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/content/sections/new_section'));
+            if(sectionMap === null) {
+            	self.redirect('/admin/content/sections/new_section', cb);
                 return;
             }
-            
-            self.setPageName(self.ls.get('NAV_MAP'));
-	        self.ts.load('admin/content/sections/section_map', function(err, data) {
-                var result = data;
 
-                var pills   = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-                var objects = {
+            var angularData = pb.js.getAngularController(
+                {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
-                    pills: pills,
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                     sections: SectionMap.getOrderedSections(sections, sectionMap),
                     icons: {
-                    	container: 'fa-inbox',
-                    	section: 'fa-th-large',
-                    	article: 'fa-files-o',
-                    	page: 'fa-file-o',
-                    	link: 'fa-external-link'
+                        container: 'inbox',
+                        section: 'th-large',
+                        article: 'files-o',
+                        page: 'file-o',
+                        link: 'link'
                     }
-                };
-                
-                var angularData = pb.js.getAngularController(objects);
-                result          = result.split('^angular_script^').join(angularData);
-                
+                }
+            );
+
+            self.setPageName(self.ls.get('NAV_MAP'));
+            self.ts.registerLocal('angular_script', angularData);
+	        self.ts.load('admin/content/sections/section_map', function(err, data) {
+                var result = '' + data;
                 cb({content: result});
             });
         });
@@ -63,7 +76,7 @@ SectionMap.getOrderedSections = function(sections, sectionMap) {
 
 	var orderedSections = [];
     for(var i = 0; i < sectionMap.length; i++) {
-        
+
     	var parentSection = null;
         for(var j = 0; j < sections.length; j++) {
             if(sectionMap[i].uid == sections[j]._id) {
@@ -72,23 +85,23 @@ SectionMap.getOrderedSections = function(sections, sectionMap) {
                 break;
             }
         }
-        
+
         if(!parentSection) {
             continue;
         }
-        
+
         for(var o = 0; o < sectionMap[i].children.length; o++) {
-            for(var j = 0; j < sections.length; j++) {
+            for(j = 0; j < sections.length; j++) {
                 if(sectionMap[i].children[o].uid == sections[j]._id) {
                     parentSection.children.push(sections[j]);
                     break;
                 }
             }
         }
-        
+
         orderedSections.push(parentSection);
     }
-    
+
     return orderedSections;
 };
 

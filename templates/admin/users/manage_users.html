@@ -8,24 +8,26 @@
             <button id="user_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
         </span>
     </div>
-    <table id="users_table" class="table table-responsive table-condensed">
-        <tr id="users_table_header">
-            <th id="user_username_header">^loc_USERNAME^</th>
-            <th id="user_name_header">^loc_NAME^</th>
-            <th id="user_email_header">^loc_EMAIL^</th>
-            <th id="user_date_header">^loc_DATE_ADDED^</th>
-            <th></th>
-        </tr>
-        <tr class="user_row" ng-repeat="user in users track by user._id" on-finish-render ng-cloak>
-            <td>
-                <a class="user_username" ng-href="/admin/users/edit_user/{{user._id}}">{{user.username}}</a>
-            </td>
-            <td class="user_name">{{user.first_name}} {{user.last_name}}</td>
-            <td class="user_email">{{user.email}}</td>
-            <td class="user_date">{{user.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-            <td><a href="javascript:confirmDeleteUser('{{user._id}}', '{{user.username}}')"><i class="fa fa-times"></i></a></td>
-        </tr>
-    </table>
+    <div class="table_container">
+        <table id="users_table" class="table table-responsive table-condensed">
+            <tr id="users_table_header">
+                <th id="user_username_header">^loc_USERNAME^</th>
+                <th id="user_name_header">^loc_NAME^</th>
+                <th id="user_email_header">^loc_EMAIL^</th>
+                <th id="user_date_header">^loc_DATE_ADDED^</th>
+                <th></th>
+            </tr>
+            <tr class="user_row" ng-repeat="user in users track by user._id" on-finish-render ng-cloak>
+                <td>
+                    <a class="user_username" ng-href="/admin/users/edit_user/{{user._id}}">{{user.username}}</a>
+                </td>
+                <td class="user_name">{{user.first_name}} {{user.last_name}}</td>
+                <td class="user_email">{{user.email}}</td>
+                <td class="user_date">{{user.created | date: 'yyyy-MM-dd HH:mm'}}</td>
+                <td><a href="javascript:confirmDeleteUser('{{user._id}}', '{{user.username}}')" ng-if="user._id.toString() !== currentUserId"><i class="fa fa-times"></i></a></td>
+            </tr>
+        </table>
+    </div>
     <ul id="users_pagination" class="pagination"></ul>
     <div class="modal fade" id="confirm_delete_modal">
         <div class="modal-dialog">

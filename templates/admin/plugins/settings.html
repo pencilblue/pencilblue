@@ -9,7 +9,16 @@
 				<div class="tab-pane active" id="plugin_settings">
 					<div class="form-group" ng-repeat="item in settings">
 						<label>{{item.displayName}}</label>
-						<input class="form-control" ng-model="item.value" ng-checked="item.type == 'checkbox' && item.value" id="{{item.name}}" name="{{item.name}}" type="{{item.type}}" value="{{item.value}}"></input>
+						<input class="form-control" ng-model="item.value" id="{{item.name}}" name="{{item.name}}" type="{{item.type}}" value="{{item.value}}" ng-if="item.type != 'checkbox'"></input>
+						<br ng-if="item.type == 'checkbox'"/>
+						<div class="btn-group" data-toggle="buttons" ng-if="item.type == 'checkbox'">
+							<label ng-class="{'btn btn-default': true, 'active': item.value}">
+								<input type="radio" name="{{item.name}}" value="1" ng-checked="item.value"> ^loc_YES^
+							</label>
+							<label ng-class="{'btn btn-default': true, 'active': !item.value}" onclick="$('#default_comments_0').click()">
+								<input type="radio" name="{{item.name}}" value="0" ng-checked="!item.value"> ^loc_NO^
+							</label>
+						</div>
 					</div>
 				</div>
 				<a class="btn btn-default" href="/admin/plugins">

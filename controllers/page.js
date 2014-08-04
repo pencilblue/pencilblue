@@ -1,22 +1,43 @@
-/**
- * Page - Responsible for looking up a specific page and rendering it.
- * 
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright PencilBlue, LLC. 2014 All Rights Reserved
- */
-function Page(){}
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 //dependencies
 var Index = require('./index.js');
 
-//inheritance 
-util.inherits(Page, Index);
+/**
+ * Loads a page
+ * @class PageController
+ * @constructor
+ */
+function PageController(){}
 
+//inheritance
+util.inherits(PageController, Index);
 
-Page.prototype.render = function(cb) {
+/**
+ * Looks up a page and renders it
+ * @see BaseController#render
+ * @method render
+ * @param {Function} cb
+ */
+PageController.prototype.render = function(cb) {
 	var self    = this;
 	var custUrl = this.pathVars.customUrl;
-	
+
 	//check for object ID as the custom URL
 	var doRedirect = false;
 	var where      = null;
@@ -34,27 +55,31 @@ Page.prototype.render = function(cb) {
 	if (where === null) {
 		where = {url: custUrl};
 	}
-	
+
 	var dao     = new pb.DAO();
 	dao.loadByValues(where, 'page', function(err, page) {
 		if (util.isError(err) || page == null) {
-			cb({content: 'The page could not be found on this server', code: 404});
+			self.reqHandler.serve404();
 			return;
 		}
 		else if (doRedirect) {
 			self.redirect(pb.UrlService.urlJoin('/page', page.url), cb);
 			return;
 		}
-		
+
 		self.req.pencilblue_page = page._id.toString();
-		this.page = page; 
-		Page.super_.prototype.render.apply(self, [cb]);
+		this.page = page;
+		PageController.super_.prototype.render.apply(self, [cb]);
 	});
 };
 
-Page.prototype.getPageTitle = function() {
-	return page.headline;
+/**
+ * Retrieves the name of the page.  The page's headhile
+ *
+ */
+PageController.prototype.getPageTitle = function() {
+	return this.page.headline;
 };
 
 //exports
-module.exports = Page;
+module.exports = PageController;

@@ -1,3 +1,24 @@
+/*
+	Copyright (C) 2014  PencilBlue, LLC
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+* Interface for viewing plugin details
+*/
+
 function PluginDetailsController(){}
 
 //dependencies
@@ -24,12 +45,10 @@ PluginDetailsController.prototype.render = function(cb) {
 			return;
 		}
 
-		var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj);
-
 		//angular data
 		var angularData = pb.js.getAngularController(
 	        {
-	        	pills: pills,
+	        	pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj),
 	            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
 	            d: obj.details,
 	            status: obj.status,
@@ -41,12 +60,10 @@ PluginDetailsController.prototype.render = function(cb) {
 		//render page
 		self.setPageName(obj.details.name);
 		self.ts.registerLocal('plugin_icon', PluginService.genPublicPath(obj.details.uid, obj.details.icon));
-		self.ts.load('/admin/plugins/details', function(err, content) {
-
-			//TODO move angular out as flag & replacement when can add option to
-			//skip the check for replacements in replacement
-			content = content.replace('^angular_script^', angularData);
-			cb({content: content});
+		self.ts.registerLocal('angular_script', angularData);
+		self.ts.load('/admin/plugins/details', function(err, data) {
+			var result = '' + data;
+			cb({content: result});
 		});
 	});
 };

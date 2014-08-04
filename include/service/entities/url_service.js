@@ -1,15 +1,29 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * A service that provides insight into the system's routes (URLs) along with 
- * other utility functions to assist in examining and constructing URLs for 
+ * A service that provides insight into the system's routes (URLs) along with
+ * other utility functions to assist in examining and constructing URLs for
  * clients to use for interaction with the system.
- * 
+ *
  * @class UrlService
  * @constructor
- * @module Service
+ * @module Services
  * @submodule Entities
- * 
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC. All Rights Reserved
  */
 function UrlService() {}
 
@@ -17,11 +31,11 @@ function UrlService() {}
 var RequestHandler = pb.RequestHandler;
 
 /**
- * Takes the URL path and tests it against registered routes.  
+ * Takes the URL path and tests it against registered routes.
  * @static
  * @method exists
  * @param {string} url
- * @returns  {object} The themed route specification for the first route that 
+ * @return  {object} The themed route specification for the first route that
  * matches the given URL path.  When no routes match NULL is returned.
  */
 UrlService.exists = function(url){
@@ -39,25 +53,25 @@ UrlService.exists = function(url){
 };
 
 /**
- * Look at a specific content type to see if a matching URL key exists.  An 
- * optional ID can be provided to ensure that only an existing key for the 
+ * Look at a specific content type to see if a matching URL key exists.  An
+ * optional ID can be provided to ensure that only an existing key for the
  * object with that ID exists.
- * @method existsForType 
- * @param {object} params Contains the options for the function.  "url" 
+ * @method existsForType
+ * @param {object} params Contains the options for the function.  "url"
  * (string) and "type" (string) are required.  "id" (string) is optional.
- * @param {function} cb A call back that provides two parameters: cb(Error, Boolean)
+ * @param {function} cb Callback function
  */
 UrlService.prototype.existsForType = function(params, cb) {
 	var url  = params.url;
 	var type = params.type;
 	var id   = params.id;
-	
+
 	//validate required params
 	if (!url || !type) {
 		cb(new Error("The url and type parameters are required. URL=["+url+"] TYPE=["+type+"]"), false);
 		return;
 	}
-	
+
 	//build pattern
 	if (url.charAt(0) === '/') {
 		url = url.substring(1);
@@ -66,7 +80,7 @@ UrlService.prototype.existsForType = function(params, cb) {
 		url = url.substring(0, url.length - 1);
 	}
 	var pattern = "^\\/{0,1}" + pb.utils.escapeRegExp(url) + "\\/{0,1}$";
-	
+
 	var where = {url: new RegExp(pattern)};
 	if (id) {
 		try {
@@ -78,7 +92,7 @@ UrlService.prototype.existsForType = function(params, cb) {
 			return;
 		}
 	}
-	
+
 	var dao = new pb.DAO();
 	dao.count(type, where, function(err, count) {
         cb(err, count > 0);
@@ -87,9 +101,8 @@ UrlService.prototype.existsForType = function(params, cb) {
 
 /**
  * Takes a variable set of arguments and joins them together to form a URL path.
- * @static
  * @method urlJoin
- * @returns a URL path
+ * @return {string} a URL path
  */
 UrlService.urlJoin = function() {
 	var parts = [];
@@ -105,26 +118,23 @@ UrlService.urlJoin = function() {
 };
 
 /**
- * Takes a url and extracts the wild card part.  
- * @exampleFor 
- * 		If a registered route had a URL path as "/api/something/*" and a request 
- * came in for "/api/something/good/i/hope" then the function would extract the 
- * "good/i/hope" and return it.
+ * Takes a url and extracts the wild card part.
+ * @method getCustomUrl
  * @param {string} prefix
  * @param {string} url
- * @returns {string|null}The custom part of the URL
+ * @return {string}The custom part of the URL
  */
 UrlService.getCustomUrl = function(prefix, url) {
 	var index = prefix.lastIndexOf('/');
 	if (index != prefix.length - 1) {
 		prefix += '/';
 	}
-	
+
 	index = url.lastIndexOf(prefix);
 	if (index < 0) {
 		return null;
 	}
-	
+
 	//check for prefix at the end
 	if (index == url.length - 1) {
 		return '';
@@ -133,20 +143,21 @@ UrlService.getCustomUrl = function(prefix, url) {
 };
 
 /**
- * Determines whether a URL is external to the system by parsing the URL and 
+ * Determines whether a URL is external to the system by parsing the URL and
  * then looking to see if the host matches that of the provided request.
+ * @method isExternalUrl
  * @param {string} urlStr
  * @param {Request} request
- * @returns {Boolean} TRUE if the link is external to the system, FALSE if not.
+ * @return {Boolean} TRUE if the link is external to the system, FALSE if not.
  */
 UrlService.isExternalUrl = function(urlStr, request) {console.log(util.inspect(urlStr));
 	var obj    = url.parse(urlStr);
     var reqUrl = null;
-    
+
     if(!obj.host) {
         return false;
     }
-    
+
     if(request) {
         reqUrl = url.parse(request.url);
     }
@@ -158,10 +169,11 @@ UrlService.isExternalUrl = function(urlStr, request) {console.log(util.inspect(u
 };
 
 /**
- * Indicates if the URL is fully qualified, meaning that the URL provides the 
+ * Indicates if the URL is fully qualified, meaning that the URL provides the
  * 'http' protocol at the beginning of the URL.
+ * @method isFullyQualifiedUrl
  * @param {string} urlStr The URL to inspect
- * @returns {Boolean} TRUE if fully qualified, FALSE if not
+ * @return {Boolean} TRUE if fully qualified, FALSE if not
  */
 UrlService.isFullyQualifiedUrl = function(urlStr) {
 	return pb.utils.isString(urlStr) && urlStr.indexOf('http') === 0;

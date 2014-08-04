@@ -1,42 +1,83 @@
-/**
- * Manage Comments - Interface for managing the site's comments
- *
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
- */
-function ManageComments() {}
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 //dependencies
 var Comments = require('../comments');
 
+/**
+ * Interface for managing comments
+ * @class ManageComments
+ * @constructor
+ */
+function ManageComments() {}
+
 //inheritance
 util.inherits(ManageComments, pb.BaseController);
 
+/**
+ *
+ * @private
+ * @static
+ * @property SUB_NAV_KEY
+ * @type {String}
+ */
 var SUB_NAV_KEY = 'manage_comments';
 
+/**
+ * @see BaseController.render
+ * @method render
+ * @param {Function} cb
+ */
 ManageComments.prototype.render = function(cb) {
     var self = this;
+
+    //query for comments (limited to 500)
     var dao  = new pb.DAO();
     dao.query('comment', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {created: -1}, 500).then(function(comments) {
         if (util.isError(comments)) {
-            //TODO handle this
+            self.reqHandler.serveError(comments);
+            return;
         }
 
-        pb.settings.get('content_settings', function(err, contentSettings) {
-            self.getCommentDetails(comments, dao, function(commentsWithDetails) {
-                self.setPageName(self.ls.get('MANAGE_COMMENTS'));
-                self.ts.load('admin/content/comments/manage_comments', function(err, data) {
-                    var result = ''+data;
+        //retrieve the content settings or defaults if they have not yet been configured
+        pb.content.getSettings(function(err, contentSettings) {
 
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-                    result    = result.split('^angular_script^').join(pb.js.getAngularController(
+            //retrieve any details
+            self.getCommentDetails(comments, dao, function(commentsWithDetails) {
+
+                //create the angular controller
+                var pills   = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
+                var angularData = pb.js.getAngularController(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
                         pills: pills,
                         comments: commentsWithDetails,
                         allowComments: contentSettings.allow_comments
-                    }, [], 'initCommentsPagination()'));
+                    }, [], 'initCommentsPagination()');
 
+                //load the template
+                self.setPageName(self.ls.get('MANAGE_COMMENTS'));
+                self.ts.registerLocal('angular_script', angularData);
+                self.ts.load('admin/content/comments/manage_comments', function(err, data) {
+                    if (util.isError(err)) {
+                        self.reqHandler.serveError(err);
+                        return;
+                    }
+                    var result = '' + data;
                     cb({content: result});
                 });
             });
@@ -44,6 +85,13 @@ ManageComments.prototype.render = function(cb) {
     });
 };
 
+/**
+ *
+ * @method getCommentDetails
+ * @param {Array} comments
+ * @param {DAO} dao
+ * @param {Function} cb
+ */
 ManageComments.prototype.getCommentDetails = function(comments, dao, cb) {
     var self = this;
 
@@ -78,6 +126,14 @@ ManageComments.prototype.getCommentDetails = function(comments, dao, cb) {
     this.getCommentingUser(0);
 };
 
+/**
+ *
+ * @static
+ * @method getSubNavItems
+ * @param {String} key
+ * @param {Localization} ls
+ * @param {*} data
+ */
 ManageComments.getSubNavItems = function(key, ls, data) {
     var pills = Comments.getPillNavOptions();
     pills.unshift(

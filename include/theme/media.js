@@ -1,13 +1,41 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * MediaService -
  * TODO: add options like sizing
  * TODO: move hard coded HTML to template
+ */
+
+/**
+ * Retrieves media information
  *
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC.
+ * @module Services
+ * @submodule Theme
+ * @class MediaService
+ * @constructor
  */
 function MediaService(){}
 
+/**
+ * Retrieves the correct embed HTML for a media object
+ *
+ * @method getMediaEmbed
+ * @param {Object} mediaObject
+ */
 MediaService.getMediaEmbed = function(mediaObject, options) {
     switch(mediaObject.media_type) {
         case 'image':
@@ -30,10 +58,20 @@ MediaService.getMediaEmbed = function(mediaObject, options) {
         case 'slideshare':
             return '<iframe src="http://www.slideshare.net/slideshow/embed_code/' + mediaObject.location + '" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" allowfullscreen></iframe>';
         case 'trinket':
-            return '<iframe src="https://trinket.io/embed/python/' + mediaObject.location + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>';
+            if(mediaObject.location.indexOf('/') === -1) {
+                return '<iframe src="https://trinket.io/embed/python/' + mediaObject.location + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>';
+            }
+            return '<iframe src="https://trinket.io/embed/' + mediaObject.location + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>';
     }
 };
 
+/**
+ * Gets the proper CSS style for a media object
+ *
+ * @method getMediaStyleString
+ * @param {String} template    Media embed HTML template
+ * @param {String} styleString The style string from the article layout's media directive
+ */
 MediaService.getMediaStyle = function(template, styleString) {
     var styleElements = styleString.split(',');
     var containerCSS  = [];
@@ -81,32 +119,38 @@ MediaService.onStyleSettingPosition = function(containerCSS, position) {
     }
 };
 
-MediaService.getCarousel = function(carouselMedia, template, tagToReplace, carouselID, output) {
+MediaService.getCarousel = function(carouselMedia, template, tagToReplace, carouselID, cb) {
     var instance = this;
 
     if(carouselMedia.length === 0) {
-        output(template.split('^carousel^').join(''));
+        cb(template.split('^carousel^').join(''));
         return;
     }
 
-    var mediaOptions = [];
-    for(var i = 0; i < carouselMedia.length; i++) {
-        mediaOptions.push({_id: ObjectID(carouselMedia[i])});
-    }
-
+    //query for media
     var dao = new pb.DAO();
     dao.query('media', pb.DAO.getIDInWhere(carouselMedia)).then(function(carouselItems) {
         if(util.isError(carouselItems) || !carouselItems.length) {
-            output(template.split(tagToReplace).join(''));
+            cb(template.split(tagToReplace).join(''));
             return;
         }
 
         var ts = new pb.TemplateService();
         ts.load('elements/carousel', function(err, data) {
+            if (util.isError(err)) {
+                pb.log.error("Media: An Error occurred attempting to load the carousel template: %s", err.stack);
+                data = data || '';
+            }
+
             template = template.split(tagToReplace).join(data);
             template = template.split('^carousel_id^').join(carouselID);
 
             ts.load('elements/carousel/item', function(err, data) {
+                if (util.isError(err)) {
+                    pb.log.error("Media: An Error occurred attempting to load the carousel template: %s", err.stack);
+                    data = data || '';
+                }
+
                 var carouselItemTemplate = '' + data;
 
                 var carouselIndicators = '';
@@ -134,7 +178,7 @@ MediaService.getCarousel = function(carouselMedia, template, tagToReplace, carou
 
                 template = template.split('^carousel_indicators^').join(carouselIndicators);
                 template = template.split('^carousel_content^').join(carouselContent);
-                output(template);
+                cb(template);
             });
         });
     });

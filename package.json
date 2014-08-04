@@ -14,25 +14,29 @@
     "name": "pencileblue",
     "description": "An awesome & flexible CMS",
     "keywords": [
-        "cms", "website", "framework"
+        "cms", "website", "platform"
     ],
-   "version": "0.0.5-beta",
+   "version": "0.2.2",
     "repository": {
         "type": "git",
-        "url": "git://bitbucket.org/pencilblue/pencilblue.git"
+        "url": "https://github.com/pencilblue/pencilblue.git"
     },
     "dependencies": {
     	"async": "0.2.9",
     	"cookies": "0.4.0",
-    	"fakeredis": "0.1.1",
+    	"fakeredis": "0.2.0",
 	    "formidable": "1.0.14",
+        "htmlencode": "0.0.4",
 	    "locale": "0.0.14",
 	    "mongodb": "1.3.19",
 	    "minify": "0.2.3",
+        "node.extend": "1.0.10",
 	    "node-promise": "0.5.9",
 	    "nodemailer": "0.5.3",
+        "npm": "1.4.20",
 	    "process": "0.5.1",
 	    "redis": "0.10.0",
+        "sanitize-html": "1.1.7",
 	    "winston": "0.7.2"
     },
     "devDependencies": {
@@ -43,8 +47,7 @@
         "node": ">= 0.10.0"
     },
     "scripts": {
-    	"start": "node pencilblue.js",
-        "test": "nodeunit test/include/dao/dao_test.js"
+    	"start": "node pencilblue.js"
     },
     "licenses": [
         {
@@ -55,7 +58,7 @@
     "readme": "See README file",
     "readmeFilename": "README.md",
     "bugs": {
-        "url": "https://bitbucket.org/pencilblue/pencilblue/issues"
+        "url": "https://github.com/pencilblue/pencilblue/issues"
     },
     "_id": "pencileblue@0.0.1"
 }

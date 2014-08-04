@@ -3,14 +3,16 @@
     ^error_success^
     ^tmp_admin=elements=sub_nav^
     <div id="topics" class="row">
-        <div class="col-md-12" style="margin-bottom: .5em">
-            <div class="input-group">
-                <input type="text" id="topic_search" name="topic_search" class="form-control"></input>
-                <span class="input-group-btn">
-                    <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-                </span>
+        <form id="new_topic_form" method="post">
+            <div class="col-md-12" style="margin-bottom: .5em">
+                <div class="input-group">
+                    <input type="text" id="name" name="name" class="form-control" autofocus="autofocus"></input>
+                    <span class="input-group-btn">
+                        <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+                    </span>
+                </div>
             </div>
-        </div>
+        </form>
         <div class="col-md-12">
             <div id="topic_{{topic._id}}" class="label label-info topic" ng-repeat="topic in topics track by topic._id" on-finish-render ng-cloak>
                 <a href="javascript:confirmDeleteTopic('{{topic._id}}', '{{topic.name}}')">

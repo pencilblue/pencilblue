@@ -36,9 +36,9 @@ Index.prototype.render = function(cb) {
     TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
         TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
 
-            self.ts.registerLocal('navigation', navigation);
-            self.ts.registerLocal('account_buttons', accountButtons);
-            self.ts.load('index', function(err, template) {
+            self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
+            self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));
+            self.ts.load('landing_page', function(err, template) {
                 if(util.isError(err)) {
                     content.content = '';
                 }
@@ -93,9 +93,14 @@ Index.prototype.render = function(cb) {
                             calloutsHTML += calloutTemplate;
                         }
 
-                        content.content = content.content.split('^layout^').join(decodeURIComponent(settings.page_layout));
-                        content.content = content.content.split('^hero_image^').join(settings.home_page_hero);
+                        content.content = content.content.split('^layout^').join(decodeURIComponent(settings.page_layout ? settings.page_layout : ''));
+                        content.content = content.content.split('^hero_image^').join(settings.home_page_hero ? settings.home_page_hero : '');
                         content.content = content.content.split('^callouts^').join(calloutsHTML);
+
+                        content.content = self.ls.localize([], content.content);
+
+                        var angularData = pb.js.getAngularController({}, ['ngSanitize']);
+                        content.content = content.content.concat(angularData);
 
                         cb(content);
                     });
@@ -106,6 +111,9 @@ Index.prototype.render = function(cb) {
 };
 
 Index.prototype.getCallouts = function(settings) {
+    if(!settings.callout_headline_1) {
+        return [];
+    }
     return [
         {
             headline: settings.callout_headline_1,

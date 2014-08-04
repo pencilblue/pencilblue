@@ -1,17 +1,43 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * ChangePassword - Edit a user password
- *
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Changes the logged in user's password
  */
+
+
+//dependencies
+var BaseController = pb.BaseController;
+var FormController = pb.FormController;
+
 function ChangePassword(){}
 
 //inheritance
-util.inherits(ChangePassword, pb.FormController);
+util.inherits(ChangePassword, FormController);
 
 ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
+    //sanitize
+    post.current_password = BaseController.sanitize(post.current_password);
+    post.new_password     = BaseController.sanitize(post.new_password);
+    post.confirm_password = BaseController.sanitize(post.confirm_password);
+
+    //validate
 	var message = this.hasRequiredParams(post, ['current_password', 'new_password', 'confirm_password']);
 	if(message) {
         this.formError(message, '/user/manage_account', cb);
@@ -48,7 +74,7 @@ ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
             }
 
             self.session.success = self.ls.get('PASSWORD_CHANGED');
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/user/change_password'));
+            self.redirect('/user/change_password', cb);
         });
     });
 };

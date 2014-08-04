@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 function validateMediaURL(mediaURL, isFile)
 {
     if(!mediaURL.length)
@@ -6,7 +23,7 @@ function validateMediaURL(mediaURL, isFile)
         return;
     }
 
-    var fileType = mediaURL.substr(mediaURL.lastIndexOf('.') + 1);
+    var fileType = mediaURL.substr(mediaURL.lastIndexOf('.') + 1).toLowerCase();
 
     switch(fileType)
     {
@@ -15,6 +32,7 @@ function validateMediaURL(mediaURL, isFile)
         case 'png':
         case 'gif':
         case 'svg':
+        case 'webp':
             setMediaValues(isFile, 'image', mediaURL);
             previewImage(mediaURL);
             return;
@@ -139,9 +157,15 @@ function validateMediaURL(mediaURL, isFile)
             previewSlideshare(slideshowID);
         });
     }
-    else if(mediaURL.indexOf('trinket.io/embed') != -1)
+    else if(mediaURL.indexOf('trinket.io') != -1)
     {
-        var mediaID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
+        if(mediaURL.indexOf('/embed') != -1) {
+            var mediaID = mediaURL.substr(mediaURL.lastIndexOf('/embed') + 7);
+        }
+        else {
+            mediaID = mediaURL.substr(mediaURL.lastIndexOf('trinket.io') + 11);
+        }
+
         setMediaValues(isFile, 'trinket', mediaID);
         previewTrinket(mediaID);
     }
@@ -229,5 +253,5 @@ function previewSlideshare(slideshowID)
 
 function previewTrinket(trinketID)
 {
-    $('#media_display').html('<iframe src="https://trinket.io/embed/python/' + trinketID + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" style="max-width: 100%" allowfullscreen> </iframe>');
+    $('#media_display').html('<iframe src="https://trinket.io/embed/' + trinketID + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" style="max-width: 100%" allowfullscreen> </iframe>');
 }

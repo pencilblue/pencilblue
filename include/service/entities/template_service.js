@@ -1,57 +1,80 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//dependencies
+var HtmlEncoder = require('htmlencode');
+
 /**
- * A templating engine that provides the ability to read in file snippets and 
- * call back for data based on the flags in the template file.  The instance 
- * can be provided a Localization instance which will be used to perform 
- * translations for localization flags are encountered.  Flags are marked in 
- * html files by the pattern ^xzy^.  The values provided here are not HTML 
- * encoded.  Any reserved characters must be manually encoded by any flag 
+ * A templating engine that provides the ability to read in file snippets and
+ * call back for data based on the flags in the template file.  The instance
+ * can be provided a Localization instance which will be used to perform
+ * translations for localization flags are encountered.  Flags are marked in
+ * html files by the pattern ^xzy^.  The values provided here are not HTML
+ * encoded.  Any reserved characters must be manually encoded by any flag
  * call backs.
- * 
+ *
  * @class TemplateService
  * @constructor
- * @module Service
+ * @module Services
  * @submodule Entities
- * @param {Localization} localizationService
- * 
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC. All Rights Reserved
+ * @param {Object} [localizationService] The localization service object
  */
 function TemplateService(localizationService){
 	this.localCallbacks      = {
 		year: (new Date()).getFullYear()
 	};
-	
+
 	this.localizationService = null;
 	if (localizationService) {
 		this.localizationService = localizationService;
 	}
-	
+
 	//set the prioritized template as not specified
 	this.theme = null;
-	
+
 	//ensure template loader is initialized
 	if (TEMPLATE_LOADER === null) {
 		var objType  = 'template';
 		var services = [];
-		
+
 		//add in-memory service
 		if (pb.config.templates.use_memory){
 			services.push(new pb.MemoryEntityService(objType));
 		}
-		
+
 		//add cache service
 		if (pb.config.templates.use_cache) {
 			services.push(new pb.CacheEntityService(objType));
 		}
-		
+
 		//always add fs service
-		services.push(new pb.FSEntityService(objType));
-		
+		services.push(new pb.TemplateEntityService());
+
 		TEMPLATE_LOADER = new pb.SimpleLayeredService(services, 'TemplateService');
 	}
-    
-    this.reprocess = true;
-};
+
+    /**
+     * Indicates if the data from the registered flags
+     * should be reprocessed.  The value is FALSE by default.
+     * @property reprocess
+     * @type {Boolean}
+     */
+    this.reprocess = false;
+}
 
 //constants
 var TEMPLATE_PREFIX         = 'tmp_';
@@ -63,10 +86,13 @@ var SYSTEM_PREFIX_LEN       = SYSTEM_PREFIX.length;
 
 var TEMPLATE_LOADER = null;
 
+var TEMPLATE_PIECE_STATIC = 'static';
+var TEMPLATE_PIECE_FLAG   = 'flag';
+
 /**
- * A container that provides the mapping for global call backs.  These should 
+ * A container that provides the mapping for global call backs.  These should
  * only be added to at the start of the application or on plugin install/update.
- * 
+ *
  * @private
  * @property
  */
@@ -86,6 +112,7 @@ var GLOBAL_CALLBACKS = {
 
 /**
  * Sets the prioritized theme to use when loading templates
+ *
  * @method setTheme
  * @param {string} theme The name of the theme.
  */
@@ -94,16 +121,18 @@ TemplateService.prototype.setTheme = function(theme) {
 };
 
 /**
+ * Retrieves the prioratized theme
+ *
  * @method getTheme
- * @returns {string} The prioritized theme to use when loading templates
+ * @return {string} The prioritized theme to use when loading templates
  */
 TemplateService.prototype.getTheme = function() {
 	return this.theme;
 };
 
 /**
- * Retrieves the raw template based on a priority.  The path to the template is 
- * derived from the specified relative path and the following order of 
+ * Retrieves the raw template based on a priority.  The path to the template is
+ * derived from the specified relative path and the following order of
  * directories:
  * <ol>
  * <li>The theme provided by "getTheme" if not null</li>
@@ -111,12 +140,13 @@ TemplateService.prototype.getTheme = function() {
  * <li>Iterates over the list of active plugins looking for the template</li>
  * <li>The system template directory</li>
  * </ol>
+ *
  * @method getTemplateContentsByPriority
  * @param {string} relativePath
- * @param {function} cb
+ * @param {function} cb Callback function
  */
 TemplateService.prototype.getTemplateContentsByPriority = function(relativePath, cb) {
-	
+
 	//build set of paths to search through
 	var hintedTheme   = this.getTheme();
 	var paths         = [];
@@ -127,7 +157,7 @@ TemplateService.prototype.getTemplateContentsByPriority = function(relativePath,
 		if (activeTheme !== null) {
 			paths.push(TemplateService.getCustomPath(activeTheme, relativePath));
 		}
-		
+
 		var activePlugins = pb.plugins.getActivePluginNames();
 		for (var i = 0; i < activePlugins.length; i++) {
 			if (hintedTheme !== activePlugins[i] && 'pencilblue' !== activePlugins[i]) {
@@ -135,7 +165,7 @@ TemplateService.prototype.getTemplateContentsByPriority = function(relativePath,
 			}
 		}
 		paths.push(TemplateService.getDefaultPath(relativePath));
-		
+
 		//iterate over paths until a valid template is found
 		var i        = 0;
 		var doLoop   = true;
@@ -143,11 +173,11 @@ TemplateService.prototype.getTemplateContentsByPriority = function(relativePath,
 		async.whilst(
 			function(){return i < paths.length && doLoop;},
 			function(callback) {
-	    		
+
 	    		//attempt to load template
 	    		TEMPLATE_LOADER.get(paths[i], function(err, templateData){
 					template = templateData;
-					doLoop   = template === null;
+					doLoop   = util.isError(err) || !pb.utils.isObject(template);
 					i++;
 					callback();
 				});
@@ -160,132 +190,102 @@ TemplateService.prototype.getTemplateContentsByPriority = function(relativePath,
 };
 
 /**
- * Loads a template file along with any encountered sub-template files and 
- * processes any flags.  The call back provides any error encountered and a 
+ * Loads a template file along with any encountered sub-template files and
+ * processes any flags.  The call back provides any error encountered and a
  * second parameter that is the transformed content.
- * 
+ *
  * @method load
- * @see TemplateService#getTemplateContentsByPriority
- * @param {string} templateLocation The relative location of the template file.
- * @param {function} cb A call back that provides two parameters: cb(error, content)
+ * @param {string}   templateLocation The relative location of the template file.
+ * @param {function} cb               Callback function
  */
 TemplateService.prototype.load = function(templateLocation, cb) {
-	
+
 	var self = this;
 	this.getTemplateContentsByPriority(templateLocation, function(err, templateContents) {
 		if (util.isError(err)) {
-			cb(err, templateContents);
+			cb(err, null);
 			return;
 		}
-		
+
 		self.process(templateContents, cb);
 	});
 };
 
 /**
- * Scans the template for flags.  The callback provides any error and a second 
+ * Scans the template for flags.  The callback provides any error and a second
  * parameter that is the populated template with any registered flags replaced.
- * 
+ *
  * @method process
  * @param {string} content The raw content to be inspected for flags
- * @param {function} cb A call back that provides two parameters: cb(err, content)
+ * @param {function} cb Callback function
  */
 TemplateService.prototype.process = function(content, cb) {
-	
-	//error checking
-	if (typeof content !== 'string') {
+	if (!pb.utils.isObject(content)) {
 		cb(new Error("TemplateService: A valid content string is required in order for the template engine to process the value"), content);
 		return;
 	}
-	
-	//iterate content characters
-	var self      = this;
-	var rf        = false;
-	var flag      = '';
-	
-	var cnt = 0;
-	var doCallback = function(cb, err, val) {
-		if (++cnt % 1000) {
-			process.nextTick(function() {cb(err, val);});
-		}
-		else {
-			cb(err, val);
-		}
-	};
-	var getIteratorFunc = function(index) {
-		return function(next) {
-			
-			var curr = content.charAt(index);
-			switch (curr) {
-			
-			case '^':
-				if (rf) {
-					process.nextTick(function() {
-						self.processFlag(flag, function(err, subContent) {						
-							if (pb.log.isSilly()) {
-								var str = subContent;
-								if (pb.utils.isString(str) && str.length > 20) {
-									str = str.substring(0, 17)+'...';
-								}
-								pb.log.silly("TemplateService: Processed flag [%s] Content=[%s]", flag, str);
-							}
-							rf   = false;
-							flag = '';
-							doCallback(next, null, subContent);
-						});
-					}, 0);
-				}
-				else {
-					rf = true;
-					doCallback(next, null, '');
-				}
-				break;
-			default:
-				if (rf) {
-					flag += curr;
-					doCallback(next, null, '');
-				}
-				else {
-					doCallback(next, null, curr);
-				}
-			}
-		};
-	};
-	var tasks = [];
-	for (var i = 0; i < content.length; i++) {
-		tasks.push(getIteratorFunc(i));
-	};
-	async.series(tasks, function(err, contentArray) {
-		doCallback(cb, err, contentArray.join(''));
-	});
+
+    //iterate parts
+    var self  = this;
+    var tasks = pb.utils.getTasks(content.parts, function(parts, i) {
+        return function(callback) {
+
+            //callback with static content
+            var part = parts[i];
+            if (part.type === TEMPLATE_PIECE_STATIC) {
+                callback(null, part.val);
+                return;
+            }
+            else if (part.type === TEMPLATE_PIECE_FLAG) {
+
+                self.processFlag(part.val, function(err, subContent) {
+                    if (pb.log.isSilly()) {
+                        var str = subContent;
+                        if (pb.utils.isString(str) && str.length > 20) {
+                            str = str.substring(0, 17)+'...';
+                        }
+                        pb.log.silly("TemplateService: Processed flag [%s] Content=[%s]", part.val, str);
+                    }
+                    callback(err, subContent);
+                });
+            }
+            else {
+                pb.log.error('An invalid template part type was provided: %s', part.type);
+                cb(new Error('An invalid template part type was provided: '+part.type));
+            }
+        };
+    });
+    async.series(tasks, function(err, results) {
+        cb(err, util.isArray(results) ? results.join('') : '');
+    });
 };
 
 /**
- * Called when a flag is encountered by the processing engine.  The function is 
- * responsible for delegating out the responsibility of the flag to the 
- * registered entity.  Some flags are handled by default (although they can 
- * always be overriden locally or globally).  The following flags are considered 
+ * Called when a flag is encountered by the processing engine.  The function is
+ * responsible for delegating out the responsibility of the flag to the
+ * registered entity.  Some flags are handled by default (although they can
+ * always be overriden locally or globally).  The following flags are considered
  * "baked in" and will be handled automatically unless overriden:
  * <ul>
- * <li>^loc_xyz^ - A localization flag.  When provided, the Localization 
- * instance will have its "get" function called in an attempt to retrieve the 
- * properly translated value for the key (the part betwee "^loc_" and the ending 
+ * <li>^loc_xyz^ - A localization flag.  When provided, the Localization
+ * instance will have its "get" function called in an attempt to retrieve the
+ * properly translated value for the key (the part betwee "^loc_" and the ending
  * "^").
  * </li>
- * <li>^tmp_somedir=someotherdir=templatefileminusext^ - Specifies a 
- * sub-template that should be loaded processed.  The file is expected to have 
+ * <li>^tmp_somedir=someotherdir=templatefileminusext^ - Specifies a
+ * sub-template that should be loaded processed.  The file is expected to have
  * a .html extension.
  * </li>
  * </ul>
- * 
+ *
  * @method processFlag
- * @param {string} flag The flag to be processed.  The value should NOT contain 
+ * @param {string} flag The flag to be processed. The value should NOT contain
  * the carrot (^) prefix or postfix.
- * @param {function} cb A call back that provides two parameters: cb(err, content)
+ * @param {function} cb Callback function
  */
 TemplateService.prototype.processFlag = function(flag, cb) {
 	var self = this;
-	
+
 	//check local
 	var doFlagProcessing = function(flag, cb) {
 		var tmp;
@@ -319,18 +319,18 @@ TemplateService.prototype.processFlag = function(flag, cb) {
 };
 
 /**
- * When a sub-template flag is encountered by the processing engine this 
- * function is called to parse the flag and delegate out the loading and 
+ * When a sub-template flag is encountered by the processing engine this
+ * function is called to parse the flag and delegate out the loading and
  * processing of the sub-template.
- * 
+ *
  * @method handleTemplateReplacement
  * @param {string} flag The sub-template flag
- * @param {function} cb A call back that provides two parameters: cb(err, content)
+ * @param {function} cb Callback function
  */
 TemplateService.prototype.handleTemplateReplacement = function(flag, cb) {
 	var pattern      = flag.substring(TEMPLATE_PREFIX_LEN);
 	var templatePath = pattern.replace(/=/g, path.sep);
-	
+
 	if (pb.log.isSilly()) {
 		pb.log.silly("Template Serice: Loading Sub-Template. FLAG=[%s] Path=[%s]", flag, templatePath);
 	}
@@ -340,31 +340,39 @@ TemplateService.prototype.handleTemplateReplacement = function(flag, cb) {
 };
 
 /**
- * Called when the processing engine encounters a non-sub-template flag.  The 
- * function delegates the content transformation out to either the locally or 
- * globally registered function.  In the event that a value was registered and not 
- * a function then the value is used as the second parameter in the callback.  
+ * Called when the processing engine encounters a non-sub-template flag.  The
+ * function delegates the content transformation out to either the locally or
+ * globally registered function.  In the event that a value was registered and not
+ * a function then the value is used as the second parameter in the callback.
  * During template re-assembly the value will be converted to a string.
- * 
+ *
  * @method handleReplacement
  * @param {string} flag The flag to transform
- * @param {mixed} replacement The value can either be a function to handle the 
+ * @param {mixed} replacement The value can either be a function to handle the
  * replacement or a value.
- * @param {function} cb {function} cb A call back that provides two parameters: cb(err, content)
+ * @param {function} cb Callback function
  */
 TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
 	var self    = this;
 	var handler = function(err, content) {
-		
+
+        //check for special condition
+        if (content instanceof TemplateValue) {
+            content = content.val();
+        }
+        else if (pb.utils.isObject(content) || pb.utils.isString(content)){;
+            content = HtmlEncoder.htmlEncode(content.toString());
+        }
+
 		//prevent infinite loops
-		if (!this.reprocess || (pb.utils.isString(content) && (content.length === 0 || ('^'+flag+'^') === content))) {
+		if (!this.reprocess || TemplateService.isFlag(content)) {
 			cb(err, content);
 		}
 		else {
 			self.process(content, cb);
 		}
 	};
-	
+
 	//do replacement
 	if (typeof replacement === 'function') {
 		replacement(flag, handler);
@@ -376,13 +384,13 @@ TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
 
 /**
  * Registers a value or function for the specified
- * 
+ *
  * @method registerLocal
- * @param {string} flag The flag name to map to the value when encountered in a 
+ * @param {string} flag The flag name to map to the value when encountered in a
  * template.
- * @param {mixed} callbackFunctionOrValue The function to execute to perform the 
+ * @param {mixed} callbackFunctionOrValue The function to execute to perform the
  * transformation or the value to substitute in place of the flag.
- * @returns {Boolean} TRUE when registered successfully, FALSE if not
+ * @return {Boolean} TRUE when registered successfully, FALSE if not
  */
 TemplateService.prototype.registerLocal = function(flag, callbackFunctionOrValue) {
 	this.localCallbacks[flag] = callbackFunctionOrValue;
@@ -391,22 +399,22 @@ TemplateService.prototype.registerLocal = function(flag, callbackFunctionOrValue
 
 /**
  * Retrieves the content template names and locations for the active theme.
- * 
+ *
  * @method getTemplatesForActiveTheme
  * @param {function} cb A call back that provides two parameters: cb(err, [{templateName: templateLocation])
  */
 TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
-	
+
 	pb.settings.get('active_theme', function(err, activeTheme) {
         if(util.isError(err) || activeTheme == null) {
         	cb(err, []);
         	return;
         }
-        
+
         //function to retrieve plugin
         var getPlugin = function(uid, callback) {
         	if (uid === 'pencilblue') {
-        		
+
         		//load pencilblue plugin
             	var file = pb.PluginService.getDetailsPath('pencilblue');
             	pb.PluginService.loadDetailsFile(file, function(err, pb) {
@@ -421,15 +429,15 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
                 pb.plugins.getPlugin(activeTheme, callback);
         	}
         };
-        
+
         //do plugin retrieval
         getPlugin(activeTheme, function(err, plugin) {
-        	
+
         	var templates = [];
         	if (plugin && plugin.theme && plugin.theme.content_templates) {
-    			
+
     			for (var j = 0; j < plugin.theme.content_templates.length; j++) {
-    				
+
     				var template = plugin.theme.content_templates[j];
     				templates.push(template);
     			}
@@ -439,19 +447,16 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
     });
 };
 
+TemplateService.isFlag = function(content) {
+    return pb.utils.isString(content) && (content.length === 0 || ('^'+flag+'^') === content);
+};
+
 /**
- * Retrieves the content templates that are available for use to render 
+ * Retrieves the content templates that are available for use to render
  * Articles and pages.
- * @static
+ *
  * @method getAvailableContentTemplates
- * @returns {Array} An array of template definitions
- * @example
- *  [{
- *      theme_uid: 'pencilblue',
- *      theme_name: 'PencilBlue',
- *      name: "Default",
- *      file: "index"
- *  }]
+ * @return {Array} An array of template definitions
  */
 TemplateService.getAvailableContentTemplates = function() {
     var templates = pb.PluginService.getActiveContentTemplates();
@@ -468,14 +473,14 @@ TemplateService.getAvailableContentTemplates = function() {
 
 /**
  * Registers a value or function for the specified
- * 
+ *
  * @static
  * @method registerGlobal
- * @param {string} flag The flag name to map to the value when encountered in a 
+ * @param {string} flag The flag name to map to the value when encountered in a
  * template.
- * @param {mixed} callbackFunctionOrValue The function to execute to perform the 
+ * @param {mixed} callbackFunctionOrValue The function to execute to perform the
  * transformation or the value to substitute in place of the flag.
- * @returns {Boolean} TRUE when registered successfully, FALSE if not
+ * @return {Boolean} TRUE when registered successfully, FALSE if not
  */
 TemplateService.registerGlobal = function(key, callbackFunctionOrValue) {
 	GLOBAL_CALLBACKS[key] = callbackFunctionOrValue;
@@ -483,67 +488,176 @@ TemplateService.registerGlobal = function(key, callbackFunctionOrValue) {
 };
 
 /**
- * Retrieves the default path to a template file based on the assumption that 
+ * Retrieves the default path to a template file based on the assumption that
  * the provided path is relative to the pencilblue/templates/ directory.
- * 
+ *
  * @static
  * @method getDefaultPath
  * @param {string} templateLocation
- * @returns {string} The absolute path
+ * @return {string} The absolute path
  */
 TemplateService.getDefaultPath = function(templateLocation){
 	return path.join(DOCUMENT_ROOT, 'templates', templateLocation + '.html');
 };
 
 /**
- * Retrieves the path to a template file based on the assumption that 
+ * Retrieves the path to a template file based on the assumption that
  * the provided path is relative to the pencilblue/plugins/[themeName]/templates/ directory.
- * 
+ *
  * @static
  * @method getCustomPath
  * @param {string} templateLocation
- * @returns {string} The absolute path
+ * @return {string} The absolute path
  */
 TemplateService.getCustomPath = function(themeName, templateLocation){
 	return path.join(DOCUMENT_ROOT, 'plugins', themeName, 'templates', templateLocation + '.html');
 };
 
-TemplateService.compile = function(text) {
-    if (!pb.validation.validateNonEmptyStr(text)) {
-        return [];   
+/**
+ * Compiles the content be eagerly searching for flags/directives.  The static
+ * content is also placed into an object.  Whether static or a flag, an object
+ * is created and pushed into an array.  Each object has two properties: "type"
+ * that describes the type of template part it is (static, flag).  "val" the
+ * string value of the part.
+ * @static
+ * @method compile
+ * @param {String} text The template text to compile
+ * @param {String} [start='^'] The starting flag marker
+ * @param {String} [end='^'] The ending flag marker
+ * @return {Array} The array template parts
+ */
+TemplateService.compile = function(text, start, end) {
+    if (!pb.validation.validateNonEmptyStr(text, true)) {
+        pb.log.warn('TemplateService: Cannot parse the content because it is not a valid string: '+text);
+        return [];
     }
-    
-    var start = '^$';
-    var end   = '$^';
-    var compiled = [];
-    
+    if (!pb.validation.validateNonEmptyStr(start, true)) {
+        start = '^';
+    }
+    if (!pb.validation.validateNonEmptyStr(end, true)) {
+        end = '^';
+    }
+
+    //generates the proper part form
+    var genPiece = function(type, val) {
+        return {
+            type: type,
+            val: val
+        };
+    };
+
     var i;
-    var pipe = 0;
-    var flag = null;
+    var pipe      = 0;
+    var flag      = null;
+    var static    = null;
     var flagFound = 0;
+    var compiled  = [];
     while ( (i = text.indexOf(start)) >= 0) {
-        
-        var start_pos = i + 1;
+
+        var start_pos = i + start.length;
         var end_pos   = text.indexOf(end, start_pos);
-        if (end_pos) {
-            
-            var flag   = text.substring(start_pos, end_pos);
-            var static = text.substring(0, start_pos);
-            
-            compiled.push(static, flag);
-            text       = text.substring(end_pos + 1);
+        if (end_pos >= 0) {
+
+            //determine precursing static content & flag
+            flag   = text.substring(start_pos, end_pos);
+            static = text.substring(0, start_pos - start.length);
+
+            //add the static content
+            if (static) {
+                compiled.push(genPiece(TEMPLATE_PIECE_STATIC, static));
+            }
+
+            //add the flag
+            if (flag) {
+                compiled.push(genPiece(TEMPLATE_PIECE_FLAG, flag));
+            }
+
+            //cut the text down to after the current flag
+            text = text.substring(end_pos + end.length);
             if (!text) {
-                break;   
+                break;
             }
         }
         else {
             break;
         }
     }
-    
+
     //add what's left
-    compiled.push(text);
+    if (text) {
+        compiled.push(genPiece(TEMPLATE_PIECE_STATIC, text));
+    }
+    return compiled;
 };
 
+/**
+ * A value that has special meaning to TemplateService.  It acts as a wrapper
+ * for a value to be used in a template along with special processing
+ * instructions.
+ * @class TemplateValue
+ * @constructor
+ * @param {String} The raw value to be included in the template processing
+ * @param {Boolean} [htmlEncode=true] Indicates if the value should be
+ * encoded during serialization.
+ */
+function TemplateValue(val, htmlEncode){
+
+    this.raw        = val;
+    this.htmlEncode = pb.utils.isBoolean(htmlEncode) ? htmlEncode : true;
+};
+
+/**
+ * Encodes the value for an HTML document when a value is provided.
+ * @method encode
+ * @param {Boolean} [doHtmlEncoding] Sets the property to encode the value to HTML
+ * @return {Boolean} The current value of the htmlEncode property
+ */
+TemplateValue.prototype.encode = function(doHtmlEncoding) {
+    if (doHtmlEncoding == true || doHtmlEncoding == false) {
+        this.htmlEncode = doHtmlEncoding;
+    }
+    return this.htmlEncode;
+};
+
+/**
+ * Specifies that the value should not be encoded for HTML
+ * @method skipEncode
+ */
+TemplateValue.prototype.skipEncode = function() {
+    this.enocde(false);
+};
+
+/**
+ * Specifies that the value should be encoded for HTML
+ * @method doEncode
+ */
+TemplateValue.prototype.doEncode = function() {
+    this.encode(true);
+};
+
+/**
+ * Retrieves the processed value represented by this object.
+ * @method val
+ * @return {String} The processed value
+ */
+TemplateValue.prototype.val = function() {
+    var val = this.raw;
+    if (this.encode()) {
+        val = HtmlEncoder.htmlEncode(this.raw);
+    }
+    return val;
+};
+
+/**
+ * Overrides the toString function in order to properly serialize the value.
+ * @method toString
+ * @return {String} A string representation of the value that follows the
+ * processing instructions.
+ */
+TemplateValue.prototype.toString = function() {
+    return this.val();
+}
+
 //exports
-module.exports = TemplateService;
+module.exports.TemplateService = TemplateService;
+module.exports.TemplateValue   = TemplateValue;

@@ -1,9 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * AddMedia - Adds new media
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Adds new media from inside a non-media form
  */
+
 function InlineAddMedia(){}
 
 //dependencies
@@ -13,12 +28,12 @@ var AddMedia = require('./add_media.js');
 util.inherits(InlineAddMedia, AddMedia);
 
 AddMedia.prototype.onSaveSuccessful = function(mediaDocument) {
-	//don't do anything.  We just want to override the default behavior since 
+	//don't do anything.  We just want to override the default behavior since
 	//we are returning JSON
 };
 
 InlineAddMedia.prototype.getRequiredParams = function() {
-	return ['media_type', 'location', 'caption'];
+	return ['media_type', 'location'];
 };
 
 InlineAddMedia.prototype.getFormErrorRedirect = function(){
@@ -27,7 +42,7 @@ InlineAddMedia.prototype.getFormErrorRedirect = function(){
 
 InlineAddMedia.prototype.genReturnVal = function(result) {
 	return {
-		content: JSON.stringify(result), 
+		content: JSON.stringify(result),
 		content_type: 'application/json'
 	};
 };

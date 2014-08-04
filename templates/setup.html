@@ -7,13 +7,13 @@
         <meta name="description" content="^meta_desc^">
         <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 
-        <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
         <link rel="stylesheet" type="text/css" href="/css/admin.css">
 
         <script type="text/javascript" src="//code.jquery.com/jquery-1.11.1.min.js"></script>
         <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.min.js"></script>
-        <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     </head>
     <body>
         <div class="container">
@@ -42,11 +42,11 @@
                                     </div>
                                     <div class="form-group">
                                         <label>^loc_EMAIL^</label>
-                                        <input type="email" id="email" name="email" class="form-control"></input>
+                                        <input type="email" id="email" name="email" class="form-control" autocomplete="false"></input>
                                     </div>
                                     <div class="form-group">
                                         <label>^loc_PASSWORD^</label>
-                                        <input type="password" id="password" name="password" class="form-control" onkeyup="checkPasswordMatch()"></input>
+                                        <input type="password" id="password" name="password" class="form-control" onkeyup="checkPasswordMatch()" autocomplete="false"></input>
                                     </div>
                                     <div class="form-group">
                                         <label>^loc_CONFIRM_PASSWORD^</label>
@@ -54,6 +54,18 @@
                                             <input type="password" id="confirm_password" name="confirm_password" class="form-control" onkeyup="checkPasswordMatch()"></input>
                                             <span class="input-group-addon"><i id="password_check" class="fa fa-thumbs-down" style="color: #AA0000"></i></span>
                                         </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>^loc_MAKE_PB_BETTER^.</label><br/>
+                                        <div class="btn-group" data-toggle="buttons" style="margin-bottom: .5em">
+                                            <label class="btn btn-default active">
+                                                <input type="radio" name="call_home" value="1" checked="checked"> ^loc_YES^
+                                            </label>
+                                            <label class="btn btn-default">
+                                                <input type="radio" name="call_home" value="0"> ^loc_NO^
+                                            </label>
+                                        </div><br/>
+                                        <a href="#privacy_policy_modal" data-toggle="modal" style="font-size:.9em">^loc_PRIVACY_POLICY^</a>
                                     </div>
                                     <input type="submit" class="btn btn-lg btn-primary btn-block" value="^loc_SUBMIT^">
                                 </fieldset>
@@ -63,6 +75,7 @@
                 </div>
             </div>
         </div>
+        ^tmp_elements=privacy_policy^
         <script type="text/javascript" src="^site_root^/js/setup.js"></script>
     </body>
 </html>

@@ -1,6 +1,37 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 $(document).ready(function() {
-    $.get('http://pencilblue.org/feed', function(feed) {
+    $.get('https://pencilblue.org/feed', function(feed) {
+        if(!feed) {
+            onFeedFail();
+            return;
+        }
+        else if(feed instanceof XMLDocument === false) {
+            onFeedFail();
+            return;
+        }
+        else if($(feed).find('rss').length === 0) {
+            onFeedFail();
+            return;
+        }
+
         var item = $(feed).find('rss').find('item');
+
         $('#news_title').html(item.find('title').html());
         $('.news_link').attr('href', item.find('link').html());
 
@@ -14,12 +45,19 @@ $(document).ready(function() {
         $('#news_loader').hide();
         $('#news_container').show();
     });
-    
+
     $('.modal[data-color]').on('show hidden', function(e) {
       $('body')
         .toggleClass('modal-color-' + $(this).data('color'));
     });
 });
+
+function onFeedFail() {
+    $('#news_copy').html(loc.admin.FEED_UNAVAILABLE);
+    $('#news_loader').hide();
+    $('#news_container').show();
+    $('#news_link').hide();
+}
 
 function cleanNewsCopy(copy) {
 
@@ -61,10 +99,13 @@ function refreshServers() {
       left: '50%' // Left position relative to parent
     };
     $('#cluster_info_table').spin(opts);
-    $.post('/api/cluster/refresh', {}, function(data, status, xhr) {
-        setTimeout(function() {window.location.reload();}, data.data.wait);
-    }, 'json')
-    .failure(function() {
-        
+
+    var xhr = $.post('/api/cluster/refresh', {}, function(data, status, xhr) {
+        setTimeout(function() {
+            window.location.reload();
+        }, data.data.wait);
+    }, 'json');
+    xhr.fail(function() {
+        window.location.reload();
     });
 }

@@ -8,22 +8,26 @@
             <button id="page_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
         </span>
     </div>
-    <table id="pages_table" class="table table-responsive table-condensed">
-        <tr id="pages_table_header">
-            <th id="page_headline_header">^loc_HEADLINE^</th>
-            <th id="page_url_header">^loc_PAGE_URL^</th>
-            <th id="page_author_header">^loc_AUTHOR^</th>
-            <th id="page_date_header">^loc_PUBLISH_DATE^</th>
-            <th></th>
-        </tr>
-        <tr class="page_row" ng-repeat="page in pages track by page._id" on-finish-render ng-cloak>
-            <td><a class="page_headline" ng-href="/admin/content/pages/edit_page/{{page._id}}">{{page.headline}}</a></td>
-            <td class="page_url">{{page.url}}</td>
-            <td class="page_author">{{page.author_name}}</td>
-            <td class="page_date">{{page.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
-            <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
-        </tr>
-    </table>
+    <div class="table_container">
+        <table id="pages_table" class="table table-responsive table-condensed">
+            <tr id="pages_table_header">
+                <th id="page_headline_header">^loc_HEADLINE^</th>
+                <th id="page_status_header">^loc_STATUS^</th>
+                <th id="page_url_header">^loc_PAGE_URL^</th>
+                <th id="page_author_header">^loc_AUTHOR^</th>
+                <th id="page_date_header">^loc_PUBLISH_DATE^</th>
+                <th></th>
+            </tr>
+            <tr class="page_row" ng-repeat="page in pages track by page._id" on-finish-render ng-cloak>
+                <td><a class="page_headline" ng-href="/admin/content/pages/edit_page/{{page._id}}">{{page.headline}}</a></td>
+                <td class="page_status">{{page.status}}</td>
+                <td class="page_url">{{page.url}}</td>
+                <td class="page_author">{{page.author_name}}</td>
+                <td class="page_date">{{page.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
+                <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
+            </tr>
+        </table>
+    </div>
     <ul id="pages_pagination" class="pagination"></ul>
     <div class="modal fade" id="confirm_delete_modal">
         <div class="modal-dialog">

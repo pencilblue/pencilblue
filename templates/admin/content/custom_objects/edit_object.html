@@ -18,7 +18,7 @@
                         </div>
                         <div class="form-group" ng-if="customObjectType.fields[key].field_type == 'date'">
                             <label>{{key}}</label>
-                            <input type="text" id="{{key}}" name="{{key}}" class="form-control" value="{{customObject[key] | date: 'yyyy-MM-dd HH:mm'}}"></input>
+                            <input type="text" id="{{key}}" name="{{key}}" class="form-control" value="{{customObject[key] | date: 'yyyy/MM/dd HH:mm'}}"></input>
                         </div>
                         <div class="form-group" ng-if="customObjectType.fields[key].field_type == 'peer_object'">
                             <label>{{key}}</label>
@@ -66,4 +66,5 @@
 </div>
 <script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
 <script type="text/javascript" src="/js/admin/content/custom_objects/edit_object.js"></script>
+^custom_object_script^
 ^tmp_admin=footer^

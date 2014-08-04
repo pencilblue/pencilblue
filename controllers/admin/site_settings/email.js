@@ -1,10 +1,25 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * Interface for changing the site's email configuration
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Interface for the site's email settings
  */
-function Email(){};
+
+function Email(){}
 
 //dependencies
 var SiteSettings = require('../site_settings');
@@ -17,42 +32,39 @@ var SUB_NAV_KEY = 'site_email_settings';
 
 Email.prototype.render = function(cb) {
     var self = this;
-    
-    this.setPageName(self.ls.get('EMAIL'));
-	this.ts.load('admin/site_settings/email', function(err, data) {
-        var result = data;
-        
-        var tabs =
-        [
+
+    var tabs =
+    [
+        {
+            active: 'active',
+            href: '#preferences',
+            icon: 'wrench',
+            title: self.ls.get('PREFERENCES')
+        },
+        {
+            href: '#smtp',
+            icon: 'upload',
+            title: self.ls.get('SMTP')
+        }
+    ];
+
+    pb.email.getSettings(function(err, emailSettings) {
+        self.setFormFieldValues(emailSettings);
+
+        var angularData = pb.js.getAngularController(
             {
-                active: 'active',
-                href: '#preferences',
-                icon: 'wrench',
-                title: self.ls.get('PREFERENCES')
-            },
-            {
-                href: '#smtp',
-                icon: 'upload',
-                title: self.ls.get('SMTP')
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email'),
+                tabs: tabs
             }
-        ];
-        
-        pb.email.getSettings(function(emailSettings) {
-            self.setFormFieldValues(emailSettings);
-            
+        );
+
+        self.setPageName(self.ls.get('EMAIL'));
+        self.ts.registerLocal('angular_script', angularData);
+        self.ts.load('admin/site_settings/email', function(err, data) {
+            var result = data;
             self.checkForFormRefill(result, function(newResult) {
                 result = newResult;
-                
-                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email');
-                
-                var objects     = {
-                    navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                    pills: pills,
-                    tabs: tabs
-                };
-                var angularData = pb.js.getAngularController(objects);
-                result          = result.split('^angular_script^').join(angularData);
-                
                 cb({content: result});
             });
         });

@@ -5,27 +5,29 @@
     <div id="section_map">
         <div id="section_{{section._id}}" class="panel panel-info section" ng-repeat="section in sections track by section._id" ng-cloak>
             <div class="panel-heading">
-                <i class="fa {{icons[section.type]}}" style="float: left;"></i>&nbsp;&nbsp;
-                {{section.name}}
-                <a href="javascript:confirmDeleteSection('{{section._id}}', '{{section.name}}')">
-                    <i class="fa fa-times fa-lg" style="float: right;"></i>&nbsp;&nbsp;
-                </a>
-                <a href="/admin/content/sections/edit_section/{{section._id}}">
-                    <i class="fa fa-pencil fa-lg" style="float: right; margin-right: .5em;"></i>
-                </a>
+                <h5>
+                    <a href="/admin/content/sections/edit_section/{{section._id}}">
+                        <i class="fa fa-fw fa-{{icons[section.type]}}" style="float: left;"></i>&nbsp;&nbsp;
+                        {{section.name}}
+                    </a>
+                    <a href="javascript:confirmDeleteSection('{{section._id}}', '{{section.name}}')">
+                        <i class="fa fa-times fa-fw" style="float: right;"></i>&nbsp;&nbsp;
+                    </a>
+                </h5>
             </div>
-            <div class="panel-body" ng-hide="section.children.length == 0">
+            <div class="panel-body" ng-hide="section.children.length == 0" style="padding: 1em 0 0 0">
                 <div id="subsection_{{child._id}}" class="col-md-3 subsection" ng-repeat="child in section.children track by child._id">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                        <i class="fa {{icons[child.type]}}" style="float: left;"></i>&nbsp;&nbsp;
-                            {{child.name}}
-                            <a href="javascript:confirmDeleteSection('{{child._id}}', '{{child.name}}')">
-                                <i class="fa fa-times fa-lg" style="float: right;"></i>&nbsp;&nbsp;
-                            </a>
-                            <a href="/admin/content/sections/edit_section/{{child._id}}">
-                                <i class="fa fa-pencil fa-lg" style="float: right; margin-right: .5em;"></i>
-                            </a>
+                            <h5>
+                                <a href="/admin/content/sections/edit_section/{{child._id}}">
+                                    <i class="fa fa-fw fa-{{icons[child.type]}}" style="float: left;"></i>&nbsp;&nbsp;
+                                    {{child.name}}
+                                </a>
+                                <a href="javascript:confirmDeleteSection('{{child._id}}', '{{child.name}}')">
+                                    <i class="fa fa-times fa-fw" style="float: right;"></i>&nbsp;&nbsp;
+                                </a>
+                            </h5>
                         </div>
                     </div>
                 </div>

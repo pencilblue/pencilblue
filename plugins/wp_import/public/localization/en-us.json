@@ -1,0 +1,8 @@
+{
+	"IMPORT_WORDPRESS": "Import WordPress XML",
+	"UPLOAD_XML": "Upload XML",
+	"NO_FILE": "No file provided",
+	"INVALID_XML": "Invalid XML file provided",
+	"WP_IMPORT_SUCCESS": "Successfully imported WordPress content",
+	"MANAGE_NEW_USERS": "Manage new users"
+}

@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 $(document).ready(function()
 {
     setupInputs();
@@ -11,36 +28,36 @@ function setupInputs()
         {
             if(customObjectType.fields[key].field_type == 'date')
             {
-                $('#' + key).datetimepicker(
-                {
-                    language: 'en',
-                    format: 'Y-m-d H:m'
-                });
+                $('#' + key).datetimepicker();
             }
             else if(customObjectType.fields[key].field_type == 'child_objects')
             {
-                $('#' + key + '_draggable .child_object').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
-
-                $('#active_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
-                {
-                    $('#active_' + key).append(ui.draggable);
-                }});
-
-                $('#inactive_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
-                {
-                    $('#inactive_' + key).append(ui.draggable);
-                }});
-
-                new jNarrow('#' + key + '_search', '#inactive_' + key + ' .child_object',
-                {
-                    searchChildElement: '.' + key + '_name',
-                    searchButton: '#' + key + '_search_button',
-                    searchText: '<i class="fa fa-search"></i>',
-                    clearText: '<i class="fa fa-times"></i>',
-                });
+                setupChildObjectInput(key);
             }
         }
     }
+}
+
+function setupChildObjectInput(key) {
+    $('#' + key + '_draggable .child_object').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
+
+    $('#active_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
+    {
+        $('#active_' + key).append(ui.draggable);
+    }});
+
+    $('#inactive_' + key).droppable({accept: '#' + key + '_draggable .child_object', drop: function(event, ui)
+    {
+        $('#inactive_' + key).append(ui.draggable);
+    }});
+
+    new jNarrow('#' + key + '_search', '#inactive_' + key + ' .child_object',
+    {
+        searchChildElement: '.' + key + '_name',
+        searchButton: '#' + key + '_search_button',
+        searchText: '<i class="fa fa-search"></i>',
+        clearText: '<i class="fa fa-times"></i>',
+    });
 }
 
 function initCustomObjectsPagination()

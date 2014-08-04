@@ -1,63 +1,82 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * Feed - RSS Feed
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * RSS Feed
  */
-function Feed(){}
 
 //dependencies
-var MediaLoader = require('../include/service/entities/article_service').MediaLoader;
+var HtmlEncoder    = require('htmlencode');
+var ArticleService = require('../include/service/entities/article_service').ArticleService;
+var MediaLoader    = require('../include/service/entities/article_service').MediaLoader;
+
+function ArticleFeed(){}
 
 //inheritance
-util.inherits(Feed, pb.BaseController);
+util.inherits(ArticleFeed, pb.BaseController);
 
-Feed.prototype.render = function(cb) {
+ArticleFeed.prototype.render = function(cb) {
 	var self = this;
-	
+
 	this.ts.registerLocal('language', pb.config.defaultLanguage ? pb.config.defaultLanguage : 'en-us');
+    this.ts.registerLocal('last_build', self.getBuildDate());
 	this.ts.registerLocal('items', function(flag, cb){
-		
-		var dao   = new pb.DAO();
+
+        var dao   = new pb.DAO();
         var where = {publish_date: {$lte: new Date()}};
         var sort  = {publish_date: pb.DAO.DESC};
         dao.query('article', where, pb.DAO.PROJECT_ALL, sort).then(function(articles) {
-		
+
 			pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
 	            articles = articlesWithAuthorNames;
-	            
+
 	            self.getSectionNames(articles, function(articlesWithSectionNames) {
 	                articles = articlesWithSectionNames;
-	                
+
 	                self.getMedia(articles, function(articlesWithMedia) {
 	                    articles = articlesWithMedia;
-	                    
-	                    
-	                    var tasks = pb.utils.getTasks(articles, function(articles, i) {
-	                    	return function(callback) {
-	                    		
-	                    		self.ts.registerLocal('url', '/article/' + articles[i].url);
-	                    		self.ts.registerLocal('title', articles[i].headline);
-	                    		self.ts.registerLocal('pub_date', Feed.getRSSDate(articles[i].publish_date));
-	                    		self.ts.registerLocal('author', articles[i].author_name);
-	                    		self.ts.registerLocal('description', articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading);
-	                    		self.ts.registerLocal('content', articles[i].article_layout);
-	                    		self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
-	                    			var categories = '';
-	                                for(var j = 0; j < articles[i].section_names.length; j++) {
-	                                    categories = categories.concat('<category>' + articles[i].section_names[j] + '</category>');
-	                                }
-	                                onFlagProccessed(null, categories);
-	                    		});
-	                    		self.ts.load('xml_feeds/rss/item', callback);
-	                    	};
-	                    });
-	                    async.series(tasks, function(err, results) {
-	                    	cb(err, results.join(''));
-	                    });
-	                });
-	            });
-			});
+
+
+
+                        var tasks = pb.utils.getTasks(articles, function(articles, i) {
+                            return function(callback) {
+
+                                self.ts.registerLocal('url', '/article/' + articles[i].url);
+                                self.ts.registerLocal('title', articles[i].headline);
+                                self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
+                                self.ts.registerLocal('author', articles[i].author_name);
+                                self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
+                                self.ts.registerLocal('content', new pb.TemplateValue(articles[i].article_layout, false));
+                                self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
+                                    var categories = '';
+                                    for(var j = 0; j < articles[i].section_names.length; j++) {
+                                        categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
+                                    }
+                                    onFlagProccessed(null, new pb.TemplateValue(categories, false));
+                                });
+                                self.ts.load('xml_feeds/rss/item', callback);
+                            };
+                        });
+                        async.series(tasks, function(err, results) {
+                            cb(err, new pb.TemplateValue(results.join(''), false));
+                        });
+                    });
+                });
+            });
         });
 	});
 	self.ts.load('xml_feeds/rss', function(err, content) {
@@ -71,39 +90,57 @@ Feed.prototype.render = function(cb) {
     });
 };
 
+ArticleFeed.prototype.getBuildDate = function() {
+    var date = new Date();
+    //Thu, 03 Jul 2014 18:21:05 +0000
 
-Feed.prototype.getSectionNames = function(articles, cb) {
-	
+    var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    this.zeroNum = function(num) {
+        if(num < 10) {
+            return '0' + num;
+        }
+
+        return num.toString();
+    };
+
+    return days[date.getDay()] + ', ' + this.zeroNum(date.getDate()) + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() + ' ' + this.zeroNum(date.getHours()) + ':' + this.zeroNum(date.getMinutes()) + ':' + this.zeroNum(date.getSeconds()) + ' +0000';
+};
+
+
+ArticleFeed.prototype.getSectionNames = function(articles, cb) {
+
 	var dao = new pb.DAO();
 	dao.query('section', pb.DAO.ANYWHERE, {name: 1}, {parent: 1}).then(function(sections) {
         //TODO handle error
-		
+
 		for(var i = 0; i < articles.length; i++) {
-            
+
 			var sectionNames = [];
             for(var j = 0; j < articles[i].article_sections.length; j++) {
-                
+
             	for(var o = 0; o < sections.length; o++) {
-                    
+
                 	if(sections[o]._id.equals(ObjectID(articles[i].article_sections[j]))) {
                         sectionNames.push(sections[o].name);
                         break;
                     }
                 }
             }
-            
+
             articles[i].section_names = sectionNames;
         }
-        
+
         cb(articles);
     });
 };
 
-Feed.prototype.getMedia = function(articles, cb) {
-    
+ArticleFeed.prototype.getMedia = function(articles, cb) {
+
     var tasks = pb.utils.getTasks(articles, function(articles, i) {
     	return function (callback) {
-    		
+
     		var mediaLoader = new MediaLoader();
     	    mediaLoader.start(articles[i].article_layout, function(err, newLayout) {
     	        articles[i].layout = newLayout;
@@ -116,20 +153,20 @@ Feed.prototype.getMedia = function(articles, cb) {
     });
 };
 
-Feed.getRSSDate = function(date) {
-    
+ArticleFeed.getRSSDate = function(date) {
+
     var dayNames   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     function getTrailingZero(number)  {
         if(number < 10) {
             return '0' + number;
         }
         return number;
     }
-    
+
     return dayNames[date.getDay()] + ', ' + date.getDate() + ' ' + monthNames[date.getMonth()] + ' ' + date.getFullYear() + ' ' + getTrailingZero(date.getHours()) + ':' + getTrailingZero(date.getMinutes()) + ':' + getTrailingZero(date.getSeconds()) + ' +0000';
 };
 
 //exports
-module.exports = Feed;
+module.exports = ArticleFeed;

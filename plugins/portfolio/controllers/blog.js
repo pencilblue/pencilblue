@@ -35,8 +35,8 @@ Blog.prototype.render = function(cb) {
                 self.ts.registerLocal('meta_title', metaTitle);
                 self.ts.registerLocal('meta_lang', localizationLanguage);
                 self.ts.registerLocal('current_url', self.req.url);
-                self.ts.registerLocal('navigation', data.nav.navigation);
-                self.ts.registerLocal('account_buttons', data.nav.accountButtons);
+                self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
+                self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));
                 self.ts.registerLocal('infinite_scroll', function(flag, cb) {
                     if(article || page) {
                         cb(null, '');
@@ -49,7 +49,7 @@ Blog.prototype.render = function(cb) {
                         else if(topic) {
                             infiniteScrollScript += pb.js.getJSTag('var infiniteScrollTopic = "' + topic + '";');
                         }
-                        cb(null, infiniteScrollScript);
+                        cb(null, new pb.TemplateValue(infiniteScrollScript, false));
                     }
                 });
                 self.ts.registerLocal('articles', function(flag, cb) {
@@ -63,7 +63,7 @@ Blog.prototype.render = function(cb) {
                         };
                     });
                     async.parallel(tasks, function(err, result) {
-                        cb(err, result.join(''));
+                        cb(err, new pb.TemplateValue(result.join(''), false));
                     });
                 });
                 self.ts.registerLocal('page_name', function(flag, cb) {
@@ -76,28 +76,32 @@ Blog.prototype.render = function(cb) {
                             sideNavTemplate = '';
                         }
 
-                        self.ts.registerLocal('side_nav', sideNavTemplate);
+                        self.ts.registerLocal('side_nav', new pb.TemplateValue(sideNavTemplate, false));
 
                         self.getTemplate(data.content, function(err, template) {
                             if (util.isError(err)) {
                                 throw err;
                             }
 
-                            // TODO: NEED TO FIX THIS TO LOAD DYNAMIC TEMPLATE
-                            self.ts.load('blog', function(err, result) {
+                            self.ts.load(template, function(err, result) {
                                 if (util.isError(err)) {
                                     throw err;
                                 }
 
                                 var loggedIn = pb.security.isAuthenticated(self.session);
                                 var commentingUser = loggedIn ? Comments.getCommentingUser(self.session.authentication.user) : null;
+                                var heroImage = null;
+                                if(data.content[0]) {
+                                    heroImage = data.content[0].hero_image ? data.content[0].hero_image: null;
+                                }
+
                                 var objects = {
                                     contentSettings: contentSettings,
                                     loggedIn: loggedIn,
                                     commentingUser: commentingUser,
                                     themeSettings: data.nav.themeSettings,
                                     articles: data.content,
-                                    hero_image: data.content[0].hero_image ? data.content[0].hero_image: null,
+                                    hero_image: heroImage,
                                     sideNavItems: sideNavItems,
                                     trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
                                 };
@@ -207,7 +211,8 @@ Blog.prototype.loadContent = function(articleCallback) {
                 service.setContentType('page');
             }
             var where = pb.DAO.getIDWhere(page || article);
-            where.draft = {$gte: 0};
+            where.draft = {$exists: true};
+            where.publish_date = {$exists: true};
             service.find(where, articleCallback);
         }
         else {
@@ -234,19 +239,23 @@ Blog.prototype.loadContent = function(articleCallback) {
 
 Blog.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
     var self = this;
-    var ats  = new pb.TemplateService(this.ls);
+
+    var isPage        = content.object_type === 'page'
+    var showByLine    = contentSettings.display_bylines && !isPage;
+    var showTimestamp = contentSettings.display_timestamp && !isPage;
+    var ats           = new pb.TemplateService(this.ls);
     self.ts.reprocess = false;
-    ats.registerLocal('article_headline', '<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>');
+    ats.registerLocal('article_headline', new pb.TemplateValue('<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>', false));
     ats.registerLocal('article_headline_nolink', content.headline);
     ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
     ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
     ats.registerLocal('article_id', content._id.toString());
     ats.registerLocal('article_index', index);
-    ats.registerLocal('article_timestamp', contentSettings.display_timestamp ? content.timestamp : '');
-    ats.registerLocal('article_timestamp_display', contentSettings.display_timestamp ? '' : 'display:none;');
-    ats.registerLocal('article_layout', content.layout);
+    ats.registerLocal('article_timestamp', showTimestamp && content.timestamp ? content.timestamp : '');
+    ats.registerLocal('article_timestamp_display', showTimestamp ? '' : 'display:none;');
+    ats.registerLocal('article_layout', new pb.TemplateValue(content.layout, false));
     ats.registerLocal('article_url', content.url);
-    ats.registerLocal('display_byline', contentSettings.display_bylines ? '' : 'display:none;');
+    ats.registerLocal('display_byline', showByLine ? '' : 'display:none;');
     ats.registerLocal('author_photo', content.author_photo ? content.author_photo : '');
     ats.registerLocal('author_photo_display', content.author_photo ? '' : 'display:none;');
     ats.registerLocal('author_name', content.author_name ? content.author_name : '');
@@ -258,7 +267,9 @@ Blog.prototype.renderContent = function(content, contentSettings, themeSettings,
            return;
        }
 
-        self.renderComments(content, ats, cb);
+        self.renderComments(content, ats, function(err, comments) {
+            cb(err, new pb.TemplateValue(comments, false));
+        });
     });
     ats.load('elements/article', cb);
 };
@@ -291,7 +302,7 @@ Blog.prototype.renderComments = function(content, ts, cb) {
     ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
     ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
     ts.registerLocal('individual_comments', function(flag, cb) {
-        if (!util.isArray(content.comments) || content.comments.length === 0) {
+        if (!util.isArray(content.comments) || content.comments.length == 0) {
             cb(null, '');
             return;
         }
@@ -302,7 +313,7 @@ Blog.prototype.renderComments = function(content, ts, cb) {
             };
         });
         async.parallel(tasks, function(err, results) {
-            cb(err, results.join(''));
+            cb(err, new pb.TemplateValue(results.join(''), false));
         });
     });
     ts.load('elements/comments', cb);
@@ -358,19 +369,11 @@ Blog.prototype.getNavigation = function(cb) {
 
 Blog.prototype.getSideNavigation = function(articles, cb) {
     var self = this;
-    var ps = new PluginService();
 
-    ps.getSettings('portfolio', function(err, settings) {
-        for(var i = 0; i < settings.length; i++) {
-            if(settings[i].name === 'show_side_navigation') {
-                if(!settings[i].value) {
-                    cb('', null);
-                    return;
-                }
-                else {
-                    break;
-                }
-            }
+    pb.plugins.getSetting('show_side_navigation', 'portfolio', function(err, showSideNavigation) {
+        if(!showSideNavigation) {
+            cb('', null);
+            return;
         }
 
         var topics = [];
@@ -405,7 +408,7 @@ Blog.prototype.getSideNavigation = function(articles, cb) {
                     for(var i = 0; i < topics.length && articleTopics.length < 20; i++) {
                         for(var j = 0; j < topicObjects.length; j++) {
                             if(ObjectID(topics[i]).equals(topicObjects[j]._id)) {
-                                articleTopics.push(topicObjects[i]);
+                                articleTopics.push(topicObjects[j]);
                                 topicObjects.splice(j, 1);
                                 break;
                             }

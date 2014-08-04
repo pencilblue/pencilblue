@@ -1,10 +1,18 @@
 /*
+    Copyright (C) 2014  PencilBlue, LLC
 
-    Organizes the site's sections via drag and drop
-    
-    @author Blake Callens <blake.callens@gmail.com>
-    @copyright PencilBlue 2013, All rights reserved
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 $(document).ready(function()
@@ -21,17 +29,17 @@ $(document).ready(function()
 function buildSectionMap()
 {
     var sectionMap = [];
-    
+
     var sectionElements = $('#section_map').find('.section');
     sectionElementCount = 0;
-    
+
     sectionElements.each(function()
     {
         var section = {uid: $(this).attr('id').split('section_').join(''), children: []};
-        
+
         var subsectionElements = $(this).find('.subsection');
         subsectionElementCount = 0;
-        
+
         if(subsectionElements.length == 0)
         {
             sectionMap.push(section);
@@ -42,7 +50,7 @@ function buildSectionMap()
             }
         }
         else
-        {        
+        {
             subsectionElements.each(function()
             {
                 section.children.push({uid: $(this).attr('id').split('subsection_').join('')});

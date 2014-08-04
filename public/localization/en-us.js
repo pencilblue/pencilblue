@@ -101,7 +101,6 @@ var loc =
 		ERRORED: 'Errored',
 		ACTIVE: 'Active',
 		INACTIVE: 'Inactive',
-		AVAILABLE: 'Available',
 		STATUS: 'Status',
 		THEME_INFORMATION: 'Theme Information',
 		TEMPLATES: 'Templates',
@@ -136,7 +135,14 @@ var loc =
 		NO_AVAILABLE_PLUGINS: 'No available plugins',
         READ_MORE: 'Read more',
         THEME_DEFAULT: 'Theme Default',
-        USER: 'User'
+        USER: 'User',
+        SUBSCRIBE: 'Subscribe',
+        PRIVACY_POLICY: 'Privacy policy',
+        MAKE_PB_BETTER: 'Help to improve PencilBlue by sending us information about your installation',
+        CLOSE: 'Close',
+        APPLY_SETTINGS: 'Apply Settings',
+        CONFIGURATION_SETTINGS: 'Configuration Settings',
+        EXISTING_CUSTOM_OBJECT: 'The custom object with the given name already exists',
     },
     error:
     {
@@ -214,6 +220,7 @@ var loc =
         SAVED: 'was saved',
         NARROW_RESULTS: 'Narrow results',
         URL_KEY: 'URL Key',
+        FEED_UNAVAILABLE: 'Unable to load the news feed.'
     },
     topics:
     {
@@ -280,13 +287,17 @@ var loc =
         HEADING_6: 'Heading 6',
         ADD_LINK: 'Add a link',
         LINK_URL: 'Link URL',
+        LINK_TEXT: 'Link text',
         LINK_IN_TAB: 'Open link in a new tab/window',
         TEST_LINK: 'Test link',
         INSERT_LINK: 'Insert link',
         ADD_MEDIA: 'Add media',
         INSERT_MEDIA: 'Insert media',
         SELECT_MEDIA: 'Select media to insert (multiple selections will create a carousel)',
-        ASSOCIATE_MEDIA: 'Associate media with the article'
+        ASSOCIATE_MEDIA: 'Associate media with the article',
+        PUBLISHED: 'Published',
+        UNPUBLISHED: 'Unpublished',
+        DRAFT: 'Draft'
     },
     comments:
     {
@@ -314,11 +325,13 @@ var loc =
         ACTIVE_OBJECTS: 'Drag associated objects here',
         INACTIVE_OBJECTS: 'Drag unassociated objects here',
         OBJECTS: 'objects',
-        DESCRIPTION: 'Description'
+        DESCRIPTION: 'Description',
+        INVALID_FIELD: 'Invalid field was submitted. Make sure there are no duplicate field names or unselected field types'
     },
     users:
     {
         MANAGE_USERS: 'Manage users',
+        UNVERIFIED_USERS: 'Unverified users',
         NEW_USER: 'New user',
         ACCOUNT_INFO: 'Account info',
         PERSONAL_INFO: 'Personal info',
@@ -336,6 +349,7 @@ var loc =
         GENERATE: 'Generate',
         USER_TYPE: 'User type',
         CREATE_USER: 'Create user',
+        USER_DELETE_SELF: 'Users cannot delete their own account',
         PASSWORD_MISMATCH: 'Passwords do not match',
         EXISTING_USERNAME: 'Username is already registered',
         EXISTING_EMAIL: 'Email address is already registered',
@@ -343,12 +357,13 @@ var loc =
         USER_EDITED: 'The user was successfully edited',
         CREATE_ACCOUNT: 'Create an account',
         LOGIN_EXISTING: 'Login to an existing account',
-        VERIFICATION_SENT: 'Verification email sent to',
+        VERIFICATION_SENT: 'Verification email sent to ',
         YOUR_VERIFICATION: 'A verification email has been sent to your email address.',
+        YOUR_PASSWORD_RESET: 'A password reset email has been sent to your email address.',
         CHECK_INBOX: 'Please check your inbox and click the link provided.',
         RESEND_VERIFICATION: 'Resend the verification email',
         USER_VERIFIED: 'That email address has already been verified',
-        NOT_REGISTERED: 'That email address has not been registered',
+        NOT_REGISTERED: 'That username or email address has not been registered',
         INVALID_VERIFICATION: 'The verification parameters were invalid. Please re-enter your email address.',
         EMAIL_VERIFIED: 'Thank you for verifying your email address. You may now login.',
         MANAGE_ACCOUNT: 'Manage account',
@@ -357,7 +372,11 @@ var loc =
         OLD_PASSWORD: 'Old password',
         NEW_PASSWORD: 'New password',
         INVALID_PASSWORD: 'Invalid current password',
-        PASSWORD_CHANGED: 'Your password was successfully changed'
+        PASSWORD_CHANGED: 'Your password was successfully changed',
+        NO_PERMISSIONS: 'None of your installed plugins have permissions set',
+        CONFIRM_VERIFY: 'Are you sure you want to verify',
+        VERIFY: 'Verify',
+        VERIFIED: 'was verified'
     },
     plugins:
     {
@@ -389,8 +408,10 @@ var loc =
         TIMESTAMP: 'Timestamp',
         DISPLAY_TIMESTAMP: 'Display timestamps in articles',
         DATE_FORMAT: 'Date format',
+        TWO_DIGIT_DATE: 'Always display months and days as two digits',
         DISPLAY_HOURS_MINUTES: 'Display hours and minutes',
         TIME_FORMAT: 'Time format',
+        TWO_DIGIT_TIME: 'Always display hours as two digits',
         AUTHORS: 'AUTHORS',
         DISPLAY_BYLINES: 'Display author bylines in articles',
         DISPLAY_AUTHOR_PHOTO: 'Display author photos in bylines',
@@ -408,8 +429,8 @@ var loc =
         CUSTOM: 'Custom',
         HOST: 'Host',
         SECURE_CONNECTION: 'Secure connection (SSL)',
-        PORT: 'Port',
-        EMAIL_SETTINGS: 'Email settings'
+        EMAIL_SETTINGS: 'Email settings',
+        EMAIL_DIRECTIVES_DESCRIPTION: 'Directives: ^verification_url^, ^first_name^, ^last_name^'
     }
 };
 

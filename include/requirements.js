@@ -1,5 +1,5 @@
 /**
- * Requirements - Responsible for declaring all of the system types and modules 
+ * Requirements - Responsible for declaring all of the system types and modules
  * needed to construct the system API object.
  * @copyright PencilBlue, all rights reserved.
  */
@@ -7,6 +7,7 @@
 global.url        = require('url');
 global.fs         = require('fs');
 global.http       = require('http');
+global.https      = require('https');
 global.path       = require('path');
 global.formidable = require('formidable');
 global.process    = require('process');
@@ -38,7 +39,7 @@ pb.config = require('./config');
 //configure basic services
 //setup utils
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
-global.log = 
+global.log =
 pb.log     = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, pb.config);
 pb.system  = require(path.join(DOCUMENT_ROOT, 'include/system/system.js'));
 
@@ -74,7 +75,9 @@ pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').
 pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
 
 //setup template service
-pb.TemplateService = require(DOCUMENT_ROOT+'/include/service/entities/template_service.js');
+var TemplateModule = require(DOCUMENT_ROOT+'/include/service/entities/template_service.js');
+pb.TemplateService = TemplateModule.TemplateService;
+pb.TemplateValue   = TemplateModule.TemplateValue;
 
 //setup security
 pb.security                       = require(DOCUMENT_ROOT+'/include/access_management.js').SecurityService;
@@ -99,16 +102,39 @@ global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js').PBError;
 pb.Localization = require(DOCUMENT_ROOT+'/include/localization.js').Localization;
 pb.Localization.init();
 
+//server registration
+pb.MongoRegistrationProvider = require(path.join(DOCUMENT_ROOT, '/include/system/registry/mongo_registration_provider.js'));
+pb.RedisRegistrationProvider = require(path.join(DOCUMENT_ROOT, '/include/system/registry/redis_registration_provider.js'));
+pb.ServerRegistration        = require(DOCUMENT_ROOT+'/include/system/server_registration.js');
+
+//command service
+pb.RedisCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/redis_command_broker.js'));
+pb.CommandService     = require(path.join(DOCUMENT_ROOT, '/include/system/command/command_service.js'));
+
+//Jobs
+pb.JobRunner             = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/job_runner.js'));
+pb.AsyncJobRunner        = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/async_job_runner'));
+pb.ClusterJobRunner      = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/cluster_job_runner'));
+pb.PluginUninstallJob    = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_uninstall_job.js'));
+pb.PluginAvailableJob    = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_available_job.js'));
+pb.PluginDependenciesJob = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_dependencies_job.js'));
+pb.PluginInitializeJob   = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_initialize_job.js'));
+pb.PluginInstallJob      = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/plugins/plugin_install_job.js'));
+
 //Email settings and functions
 pb.EmailService = require(DOCUMENT_ROOT+'/include/email').EmailService;
 pb.email        = new pb.EmailService();
 
 //system requires
 pb.DocumentCreator    = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
-pb.content            = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions			        
+pb.content            = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions
 pb.js                 = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
 pb.AdminNavigation    = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
-pb.ServerRegistration = require(DOCUMENT_ROOT+'/include/system/server_registration.js');
+pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subnav_service.js');
+pb.AnalyticsManager   = require(path.join(DOCUMENT_ROOT, '/include/system/analytics_manager.js'));
+pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
+pb.CallHomeService    = require(path.join(DOCUMENT_ROOT, '/include/system/call_home_service.js'));
+pb.JobService         = require(path.join(DOCUMENT_ROOT, '/include/service/entities/job_service.js'));
 
 //create plugin service
 pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_service.js');
@@ -117,10 +143,7 @@ pb.plugins       = new pb.PluginService();
 //content services
 pb.SectionService     = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
 pb.MediaService       = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
-pb.UrlService         = require(DOCUMENT_ROOT+'/include/service/entities/url_service.js');
 pb.TopMenuService     = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
-pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subnav_service.js');
-pb.AnalyticsManager   = require(path.join(DOCUMENT_ROOT, '/include/system/analytics_manager.js'));
 
 //Export system object
 module.exports = pb;

@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 var formRefillOptions =
 [
     {
@@ -48,11 +65,7 @@ $(document).ready(function()
         }
     });
 
-    $('#publish_date').datetimepicker(
-    {
-        language: 'en',
-        format: 'Y-m-d H:m'
-    });
+    $('#publish_date').datetimepicker();
 
     if($('#save_draft_button').position())
     {
@@ -103,21 +116,14 @@ function setPublishDateToNow()
     $('#publish_date').val(getDatetimeText(date));
 }
 
-function getDatetimeText(date)
-{
-    var datetime = date.getFullYear() + '-' + getExtraZero(date.getMonth() + 1) + '-' + getExtraZero(date.getDate()) + ' ';
-    datetime += getExtraZero(date.getHours()) + ':' + getExtraZero(date.getMinutes());
-
-    return datetime;
+function getDatetimeText(date) {
+    return date.toLocaleString();
 }
 
-function getExtraZero(dateNumber)
-{
-    if(dateNumber < 10)
-    {
+function getExtraZero(dateNumber) {
+    if(dateNumber < 10) {
         dateNumber = '0' + dateNumber;
     }
-
     return dateNumber;
 }
 
@@ -162,9 +168,24 @@ function checkForEditArticleSave(draft, cb)
 
                 getContentLayout(function(contentLayout)
                 {
-                    $('fieldset .additions').append('<textarea id="article_layout" name="article_layout">' + encodeURIComponent(contentLayout) + '</textarea>');
+                    var layout = contentLayout;
+                    if(!$('#article_layout').position()) {
+                        $('fieldset .additions').append('<textarea id="article_layout" name="article_layout" style="display: none">' + layout + '</textarea>');
+                    }
+                    else {
+                        $('#article_layout').val(layout);
+                    }
 
-                    $('fieldset .additions').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '"></input>');
+                    if(!$('#draft').position()) {
+                        $('fieldset .additions').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
+                    }
+                    else {
+                        $('#draft').val((draft) ? '1' : '0');
+                    }
+
+                    var pubDateStr = $('#publish_date').val();
+                    var pubDateObj = new Date(pubDateStr);
+                    $('#publish_date').val(pubDateObj);
 
                     if(typeof cb === 'undefined')
                     {

@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 var siteRoot;
 var saveMediaURL;
 var mediaItemTemplate = '<div id="media_^media_id^" class="label label-default media_item"><i class="fa fa-bars"></i>&nbsp;<span class="media_name">^media_name^</span><a href="^media_link^" target="_blank">&nbsp;<i class="fa fa-^media_icon^"></i></a></div>';
@@ -64,10 +81,12 @@ function setupUpload(root)
 
 function showMediaModal(subsection)
 {
-    $('#media_display').html('');
     $('#link_to_media').hide();
     $('#upload_media').hide();
+    $('#link_to_media_header').hide();
+    $('#upload_media_header').hide();
     $(subsection).show();
+    $(subsection + '_header').show();
 
     $('#media_modal').modal({backdrop: 'static', keyboard: true});
 }
@@ -116,7 +135,6 @@ function getMediaIcon(mediaType)
     switch(mediaType) {
         case 'image':
             return 'picture-o';
-            break;
         case 'video/mp4':
         case 'video/webm':
         case 'video/ogg':
@@ -133,9 +151,10 @@ function getMediaIcon(mediaType)
             return 'instagram';
         case 'slideshare':
             return 'list-alt';
+        case 'trinket':
+            return 'key fa-flip-horizontal';
         default:
             return 'question';
-            break;
     }
 
     return '<i class="fa fa-' + iconID + '"></i>';
@@ -158,13 +177,18 @@ function getMediaLink(mediaType, mediaLocation, isFile)
             return 'http://instagram.com/p/' + mediaLocation;
         case 'slideshare':
             return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
+        case 'trinket':
+            if(mediaLocation.indexOf('/') === -1) {
+                return 'https://trinket.io/embed/python/' + mediaLocation;
+            }
+            return 'https://trinket.io/embed/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':
         case 'video/ogg':
         default:
             if(isFile) {
-                return pb.config.siteRoot + mediaLocation;
+                return siteRoot + mediaLocation;
             }
             return mediaLocation;
     }

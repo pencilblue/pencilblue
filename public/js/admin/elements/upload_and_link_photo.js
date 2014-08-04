@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 var siteRoot;
 var saveimageURL;
 
@@ -6,7 +23,7 @@ function setupUpload(root)
     siteRoot = root;
     saveimageURL = siteRoot + '/actions/admin/content/media/inline_add_media';
 
-    $(function() 
+    $(function()
     {
         'use strict';
         // Change this to the location of your server-side upload handler:
@@ -38,19 +55,19 @@ function showImageModal(subsection)
     $('#link_to_image').hide();
     $('#upload_image').hide();
     $(subsection).show();
-    
+
     $('#image_modal').modal({backdrop: 'static', keyboard: true});
 }
 
 function validateImageURL(imageURL)
 {
-    if(imageURL.length == 0)
+    if(imageURL.length === 0)
     {
         return;
     }
-    
-    var fileType = imageURL.substr(imageURL.lastIndexOf('.') + 1);
-    
+
+    var fileType = imageURL.substr(imageURL.lastIndexOf('.') + 1).toLowerCase();
+
     switch(fileType)
     {
         case 'jpg':
@@ -58,6 +75,7 @@ function validateImageURL(imageURL)
         case 'png':
         case 'gif':
         case 'svg':
+        case 'webp':
             setImageURL(imageURL);
             return;
         default:

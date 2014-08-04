@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 var layoutRange;
 var selectedHTML;
 
@@ -254,6 +271,7 @@ function showContentLayoutModal(subsection)
             $('.add_layout_media').hide();
             $('.add_layout_link').show();
             $('#layout_link_url').focus();
+            $('#layout_link_text').val(selectedHTML);
             break;
         case 'add_layout_media':
         default:
@@ -289,11 +307,11 @@ function addLayoutLink()
     {
         if($('#link_in_tab').is(':checked'))
         {
-            layoutFormat('inserthtml', '<a href="' + $('#layout_link_url').val() + '" target="_blank">' + selectedHTML + '</a>');
+            layoutFormat('inserthtml', '<a href="' + $('#layout_link_url').val() + '" target="_blank">' + $('#layout_link_text').val() + '</a>');
         }
         else
         {
-            layoutFormat('createlink', $('#layout_link_url').val());
+            layoutFormat('inserthtml', '<a href="' + $('#layout_link_url').val() + '">' + $('#layout_link_text').val() + '</a>');
         }
     }
 

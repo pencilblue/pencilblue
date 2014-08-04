@@ -1,9 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * UploadMedia - Uploads photos and video to media folder
- * 
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Uploads a media file to the system
  */
+
 function UploadMedia(){}
 
 //setup
@@ -17,18 +32,18 @@ util.inherits(UploadMedia, pb.BaseController);
 
 UploadMedia.prototype.render = function(cb) {
 	var self  = this;
-    
+
     var date = new Date();
     var monthDir = MEDIA_DIRECTORY + date.getFullYear() + '/';
     if(!fs.existsSync(monthDir)) {
         fs.mkdirSync(monthDir);
     }
-    
+
     var uploadDirectory = monthDir + (date.getMonth() + 1) + '/';
     if(!fs.existsSync(uploadDirectory)) {
         fs.mkdirSync(uploadDirectory);
-    }        
-    
+    }
+
     var filename = '';
     var form = new formidable.IncomingForm();
     form.on('fileBegin', function(name, file) {
@@ -37,7 +52,7 @@ UploadMedia.prototype.render = function(cb) {
     });
 
     form.parse(this.req, function() {
-    	
+
     	var content = {
 			content: JSON.stringify({
 				filename: '/media/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + filename
@@ -51,14 +66,14 @@ UploadMedia.prototype.render = function(cb) {
 
 UploadMedia.prototype.generateFilename = function(originalFilename){
 	var now = new Date();
-	
+
 	//calculate extension
 	var ext = '';
 	var extIndex = originalFilename.lastIndexOf('.');
 	if (extIndex >= 0){
 		ext = originalFilename.substr(extIndex);
 	}
-	
+
 	//build file name
     return pb.utils.uniqueId() + '-' + now.getTime() + ext;
 };

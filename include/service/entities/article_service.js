@@ -1,30 +1,111 @@
-function ArticleService(){
-	this.object_type = 'article';
-}
+/*
+	Copyright (C) 2014  PencilBlue, LLC
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ * Reusable service classes to be called from controllers
+ *
+ * @module Services
+ */
+
+/**
+ * Service calls for individual entities in the system
+ *
+ * @module Services
+ * @submodule Entities
+ */
 
 //dependencies
 var Media = require('../../theme/media');
 
+/**
+ * Retrieves articles and pages
+ *
+ * @class ArticleService
+ * @constructor
+ *
+ */
+function ArticleService(){
+	this.object_type = 'article';
+}
+
+//constants
+var CAROUSEL_PREFIX     = '^carousel_display_';
+var CAROUSEL_PREFIX_LEN = CAROUSEL_PREFIX.length;
+
+/**
+ * Rerieves the content type
+ *
+ * @method getContentType
+ * @return {String} Content type
+ */
 ArticleService.prototype.getContentType = function() {
 	return this.object_type;
 };
 
+/**
+ * Sets the content type (article, page)
+ *
+ * @method setContentType
+ * @param {String} type The content type
+ */
 ArticleService.prototype.setContentType = function(type) {
 	this.object_type = type;
 };
 
+/**
+ * Finds an article or page by Id
+ *
+ * @method findById
+ * @param {String}   articleId The article's object Id
+ * @param {Function} cb        Callback function
+ */
 ArticleService.prototype.findById = function(articleId, cb) {
 	this.find(pb.DAO.getIDWhere(articleId), cb);
 };
 
+/**
+ * Finds articles by section
+ *
+ * @method findBySection
+ * @param {String}   sectionId The section's object Id
+ * @param {Function} cb        Callback function
+ */
 ArticleService.prototype.findBySection = function(sectionId, cb) {
 	this.find({article_sections: sectionId}, cb);
 };
 
+/**
+ * Finds articles and pages by topic
+ *
+ * @method findByTopic
+ * @param {[type]}   topicId The topic's object Id
+ * @param {Function} cb      Callback function
+ */
 ArticleService.prototype.findByTopic = function(topicId, cb) {
 	this.find({article_topics: topicId}, cb);
 };
 
+/**
+ * Finds articles and pages matching criteria
+ *
+ * @method find
+ * @param  {Object}   where Key value pair object
+ * @param  {Function} cb    Callback function
+ */
 ArticleService.prototype.find = function(where,  cb) {
 	var self = this;
 
@@ -67,6 +148,16 @@ ArticleService.prototype.find = function(where,  cb) {
 
 };
 
+/**
+ * Retrieves data necessary for displaying an articles and appends it to the
+ * article object
+ *
+ * @method processArticleForDisplay
+ * @param {[type]}   article         The artice to process
+ * @param {[type]}   authors         Available authors retrieved from the database
+ * @param {[type]}   contentSettings Content settings to use for processing
+ * @param {Function} cb              Callback function
+ */
 ArticleService.prototype.processArticleForDisplay = function(article, authors, contentSettings, cb) {
 	var self = this;
 
@@ -125,6 +216,13 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
     });
 };
 
+/**
+ * Retrieves the authors of an array of articles
+ *
+ * @method getArticleAuthors
+ * @param {Array}    articles Array of article objects
+ * @param {Function} cb       Callback function
+ */
 ArticleService.prototype.getArticleAuthors = function(articles, cb) {
 
 	//gather all author IDs
@@ -142,6 +240,14 @@ ArticleService.prototype.getArticleAuthors = function(articles, cb) {
 	});
 };
 
+/**
+ * Retrieves the commenters for an array of comments
+ *
+ * @method getCommenters
+ * @param {Array}    comments        Array of comment objects
+ * @param {Object}   contentSettings Content settings to use for processing
+ * @param {Function} cb              Callback function
+ */
 ArticleService.prototype.getCommenters = function(comments, contentSettings, cb) {
 
 	//callback for iteration to handle setting the commenter attributes
@@ -197,6 +303,12 @@ ArticleService.prototype.getCommenters = function(comments, contentSettings, cb)
     });
 };
 
+/**
+ * Retrieves the article and byline templates
+ *
+ * @method getTemplates
+ * @param {Function} cb Callback function
+ */
 ArticleService.prototype.getTemplates = function(cb) {
 	var ts = new pb.TemplateService();
     ts.load('elements/article', function(err, articleTemplate) {
@@ -206,6 +318,13 @@ ArticleService.prototype.getTemplates = function(cb) {
     });
 };
 
+/**
+ * Retrieves the meta info for an article or page
+ *
+ * @method getMetaInfo
+ * @param {Object}   article An article or page object
+ * @param {Function} cb      Callback function
+ */
 ArticleService.getMetaInfo = function(article, cb)
 {
     if(typeof article === 'undefined')
@@ -267,14 +386,22 @@ ArticleService.getMetaInfo = function(article, cb)
 };
 
 /**
- * @private
+ * Handles retrieval and injection of media in articles and pages
+ *
+ * @module Services
  * @class MediaLoader
  * @constructor
- * @module Service
  * @submodule Entities
  */
 function MediaLoader() {};
 
+/**
+ * Processes an article or page to insert media
+ *
+ * @method start
+ * @param  {String}   articleLayout The HTML layout of the article or page
+ * @param  {Function} cb            [description]
+ */
 MediaLoader.prototype.start = function(articleLayout, cb) {
 	var self = this;
 	var ts   = new pb.TemplateService();
@@ -307,6 +434,12 @@ MediaLoader.prototype.start = function(articleLayout, cb) {
     });
 };
 
+/**
+ * Replaces an article or page layout's ^media_display^ tag with a media embed
+ * @param {String}   layout        The HTML layout of the article or page
+ * @param {String}   mediaTemplate The template of the media embed
+ * @param {Function} cb            Callback function
+ */
 MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
 	var index = layout.indexOf('^media_display_');
 	if (index == -1) {
@@ -337,19 +470,31 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
     });
 };
 
+/**
+ * Replaces carousel tags in content layouts.
+ * @method replaceCarouselTag
+ * @param {String} layout
+ * @param {String} mediaTemplate
+ * @param {Function} cb
+ * @example ^carousel_display_53dd0fcabb9e260000000066-53dd0fe6bb9e260000000078/position:left,maxheight:500px^
+ */
 MediaLoader.prototype.replaceCarouselTag = function(layout, mediaTemplate, cb) {
-	var index = layout.indexOf('^carousel_display_');
+	var index = layout.indexOf(CAROUSEL_PREFIX);
 	if(index == -1) {
         cb(null, layout);
         return;
     }
 
-    var startIndex = layout.indexOf('^carousel_display_') + 18;
-    var endIndex   = layout.substr(startIndex).indexOf('^');
-    var mediaIDs   = layout.substr(startIndex, endIndex).split('-');
+    var startIndex  = index + CAROUSEL_PREFIX_LEN;
+    var endIndex    = layout.indexOf('^', startIndex);
+    var attributes  = layout.substring(startIndex, endIndex);
+    var idsAndStyle = attributes.split('/');
+    var mediaIDs    = idsAndStyle[0].split('-');
+    var style       = idsAndStyle[1];
 
-    var tagToReplace = layout.substr(startIndex - 18, endIndex + 19);
-    var carouselID   = layout.substr(startIndex - 17, endIndex + 17);
+    var tagToReplace = layout.substring(index, endIndex + 1);
+    var carouselID   = layout.substring(index + 1, layout.indexOf('/', index));
+    //console.log("attributes="+attributes);console.log("style="+style);console.log("tagToReplace="+tagToReplace);console.log("CID="+carouselID);
     Media.getCarousel(mediaIDs, layout, tagToReplace, carouselID, function(newLayout) {
     	cb(null, newLayout);
     });

@@ -1,40 +1,61 @@
-^tmp_admin=head^      
+^tmp_admin=head^
 <div class="col-md-9">
+    ^error_success^
     ^tmp_admin=elements=sub_nav^
     ^edit_instructions^
-    <table class="table table-responsive table-condensed table-bordered">
-        <tr>
-            <td><b>^loc_SITE_NAME^</b></td>
-            <td>^site_name^</td>
-        </tr>
-        <tr>
-            <td><b>^loc_SITE_ROOT^</b></td>
-            <td>^site_root^</td>
-        </tr>
-        <tr>
-            <td><b>^loc_DOCUMENT_ROOT^</b></td>
-            <td>^document_root^</td>
-        </tr>
-        <tr>
-            <td><b>^loc_IP_ADDRESS^</b></td>
-            <td>^site_ip^</td>
-        </tr>
-        <tr>
-            <td><b>^loc_PORT^</b></td>
-            <td>^site_port^</td>
-        </tr>
-        <tr>
-            <td><b>^loc_DB_TYPE^</b></td>
-            <td>^db_type^</td>
-        </tr>
-        <tr>
-            <td><b>^loc_DB_NAME^</b></td>
-            <td>^db_name^</td>
-        </tr>
-        <tr>
-            <td><b>^loc_DB_SERVERS^</b></td>
-            <td>^db_servers^</td>
-        </tr>
-    </table>
+    <form class="form" method="post" action="/actions/admin/site_settings/configuration">
+    <div class="table_container">
+        <table class="table table-responsive table-condensed table-bordered">
+            <tr>
+                <td><b>^loc_SITE_NAME^</b></td>
+                <td>^site_name^</td>
+            </tr>
+            <tr>
+                <td><b>^loc_SITE_ROOT^</b></td>
+                <td>^site_root^</td>
+            </tr>
+            <tr>
+                <td><b>^loc_DOCUMENT_ROOT^</b></td>
+                <td>^document_root^</td>
+            </tr>
+            <tr>
+                <td><b>^loc_IP_ADDRESS^</b></td>
+                <td>^site_ip^</td>
+            </tr>
+            <tr>
+                <td><b>^loc_PORT^</b></td>
+                <td>^site_port^</td>
+            </tr>
+            <tr>
+                <td><b>^loc_DB_TYPE^</b></td>
+                <td>^db_type^</td>
+            </tr>
+            <tr>
+                <td><b>^loc_DB_NAME^</b></td>
+                <td>^db_name^</td>
+            </tr>
+            <tr>
+                <td><b>^loc_DB_SERVERS^</b></td>
+                <td>^db_servers^</td>
+            </tr>
+            <tr>
+                <td><b>^loc_MAKE_PB_BETTER^</b></td>
+                <td>
+                    <div class="btn-group" data-toggle="buttons" style="margin-bottom: .5em">
+                        <label ng-class="{btn: true, 'btn-default': true, active: callHome}">
+                            <input type="radio" name="call_home" value="1" ng-checked="callHome">^loc_YES^
+                        </label>
+                        <label ng-class="{btn: true, 'btn-default': true, active: !callHome}">
+                            <input type="radio" name="call_home" value="0" ng-checked="!callHome">^loc_NO^
+                        </label>
+                    </div><br/>
+                    <a href="#privacy_policy_modal" data-toggle="modal" style="font-size:.9em">^loc_PRIVACY_POLICY^</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+        <input class="btn btn-sm btn-primary" type="submit" value="^loc_APPLY_SETTINGS^"/>
+    </form>
+    ^tmp_elements=privacy_policy^
 </div>
 ^tmp_admin=footer^

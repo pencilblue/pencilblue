@@ -315,6 +315,20 @@ form .error
     padding: .5em .5em .5em 1em;
 }
 
+/* NAVIGATION */
+
+.section h5, .subsection h5 {
+    font-size: 1em;
+    margin: 0;
+}
+
+/* INTERFACE OBJECTS */
+
+.table_container {
+    width: 100%;
+    overflow: auto;
+}
+
 .topic, .media_item, .section_item, .child_object, .custom_object
 {
     font-size: 1.05em;

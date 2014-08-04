@@ -1,13 +1,24 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /**
- * Interface for adding a new article
- * 
- * @class NewArticle
- * @constructor
- * @module Controllers
- * @submodule Admin
- * @author Blake Callens <blake@pencilblue.org>
- * @copyright PencilBlue 2014, All rights reserved
+ * Interface for creating a new article
  */
+
 function NewArticle(){}
 
 //dependencies
@@ -19,22 +30,21 @@ util.inherits(NewArticle, pb.BaseController);
 
 NewArticle.prototype.render = function(cb) {
 	var self  = this;
-	
-	this.ts.load(this.getTemplateLocation(), function(err, data) {
-		self.onTemplateRetrieved('' + data, function(err, data) {
-	        var result = '' + data;
-	        var tabs   = self.getTabs();
-	        
-	        self.gatherData(function(err, results){
-	        	//TODO handle error
-	        	
-	        	self.checkForFormRefill(result, function(newResult) {
-	                
-	                result = newResult.split('^angular_script^').join(self.getAngularController(tabs, results));
-	                cb({content: result});
-	            });
-	        });
-		});
+
+    self.gatherData(function(err, results){
+        //TODO handle error
+        var tabs   = self.getTabs();
+
+        self.ts.registerLocal('angular_script', self.getAngularController(tabs, results));
+    	self.ts.load(self.getTemplateLocation(), function(err, data) {
+    		self.onTemplateRetrieved('' + data, function(err, data) {
+    	        var result = '' + data;
+                self.checkForFormRefill(result, function(newResult) {
+                    result = newResult;
+                    cb({content: result});
+                });
+    		});
+        });
     });
 };
 
@@ -52,9 +62,9 @@ NewArticle.prototype.getAngularController = function(tabs, data) {
         topics: data.topics,
         media: data.media
     };
-	return angular = pb.js.getAngularController(
-		objects, 
-		[], 
+	return pb.js.getAngularController(
+		objects,
+		[],
 		'initMediaPagination();initSectionsPagination();initTopicsPagination()'
 	);
 };
@@ -96,22 +106,22 @@ NewArticle.prototype.gatherData = function(cb) {
     	templates: function(callback) {
             callback(null, pb.TemplateService.getAvailableContentTemplates());
     	},
-    	
+
     	sections: function(callback) {
     		var where = {
-    			type: {$in: ['container', 'section']}	
+    			type: {$in: ['container', 'section']}
     		};
     		dao.query('section', where, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(sections){
     			callback(util.isError(sections) ? sections : null, sections);
     		});
     	},
-    	
+
     	topics: function(callback) {
     		dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics){
     			callback(util.isError(topics) ? topics : null, topics);
     		});
     	},
-    	
+
     	media: function(callback) {
     		Media.getAll(function(media){
     			callback(null, media);
