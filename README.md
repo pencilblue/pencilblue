@@ -1,7 +1,7 @@
 [PencilBlue](http://pencilblue.org)
 =====
 
-**Full stack online publishing and CMS for Node.js**
+##### Full featured online publishing and CMS for Node.js
 
 The first open source content management system to meet all the needs of a modern website:
 
@@ -18,6 +18,14 @@ Installation
 
 The instructions below assume that Node.js and MongoDB are installed on your machine. If they are not then please visit http://nodejs.org and http://www.mongodb.org to install them.
 
+##### PencilBlue Command-line interface
+ 1. Install the pencilblue-cli module: ```sudo npm install -g pencilblue-cli```
+ 2. Run ```pencilblue install <directory>``` where <directory> is the directory you want PencilBlue to be installed to.
+ 3. Follow the install instructions
+ 4. After the installation is done, ```cd``` into the folder where you installed PencilBlue
+ 5. Run ```pencilblue start```
+
+##### Manual installation
  1. Clone the PencilBlue repository
  2. ```cd``` into the cloned repository's folder
  3. Run ```npm install``` to retrieve PencilBlue's dependencies. Depending on your system access privileges, you may have to run  ```sudo npm install```
