@@ -48,7 +48,8 @@ pb.CacheFactory = require(DOCUMENT_ROOT+'/include/dao/cache.js');
 pb.cache = pb.CacheFactory.getInstance();
 
 //configure the DB manager
-pb.dbm = new (require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager);
+pb.DBManager = require(DOCUMENT_ROOT+'/include/dao/db_manager').DBManager;
+pb.dbm       = new pb.DBManager();
 
 //setup system class types
 pb.DAO = require(DOCUMENT_ROOT+'/include/dao/dao');
@@ -68,6 +69,7 @@ pb.DBEntityService              = require(DOCUMENT_ROOT+'/include/service/db_ent
 pb.FSEntityService              = require(DOCUMENT_ROOT+'/include/service/fs_entity_service.js').FSEntityService;
 pb.JSONFSEntityService          = require(DOCUMENT_ROOT+'/include/service/json_fs_entity_service.js').JSONFSEntityService;
 pb.ReadOnlySimpleLayeredService = require(DOCUMENT_ROOT+'/include/service/read_only_simple_layered_service.js').ReadOnlySimpleLayeredService;
+pb.TemplateEntityService        = require(DOCUMENT_ROOT+'/include/service/template_entity_service.js').TemplateEntityService;
 
 //setup settings service
 pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').SettingServiceFactory;
