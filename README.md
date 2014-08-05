@@ -20,7 +20,7 @@ The instructions below assume that Node.js and MongoDB are installed on your mac
 
 ##### PencilBlue Command-line interface
  1. Install the pencilblue-cli module: ```sudo npm install -g pencilblue-cli```
- 2. Run ```pencilblue install <directory>``` where <directory> is the directory you want PencilBlue to be installed to.
+ 2. Run ```pencilblue install [directory]``` where [directory] is the directory you want PencilBlue to be installed to.
  3. Follow the install instructions
  4. After the installation is done, ```cd``` into the folder where you installed PencilBlue
  5. Run ```pencilblue start```
