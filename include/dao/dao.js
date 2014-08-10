@@ -171,7 +171,7 @@ DAO.prototype.unique = function(collection, where, exclusionId, cb) {
 
 	//set the exclusion
 	if (exclusionId) {
-		where._id = {$ne: new ObjectID(exclusionId + '')};
+		where[DAO.getIdField()] = DAO.getNotIDField(exclusionId);
 	}
 
 	//checks to see how many docs were available
@@ -536,6 +536,17 @@ DAO.transfer = function(obj, to) {
     delete obj.created;
     delete obj.last_modified;
     obj.object_type = to;
+};
+
+/**
+ * Retrieves the field in system objects that represents the unique identifier.
+ * The default implementation returns the mongo field '_id'.
+ * @static
+ * @method getIdField
+ * @return {String} '_id'
+ */
+DAO.getIdField = function() {
+    return '_id';
 };
 
 //exports
