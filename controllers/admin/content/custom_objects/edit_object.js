@@ -34,32 +34,22 @@ EditObject.prototype.render = function(cb) {
         return;
     }
 
-	var dao  = new pb.DAO();
-	dao.query('custom_object', {_id: ObjectID(vars.id)}).then(function(customObjects) {
-		if (util.isError(customObjects)) {
-			//TODO handle this
+    var service = new pb.CustomObjectService();
+    service.loadById(vars.id, function(err, customObject) {
+		if (util.isError(err)) {
+			return self.reqHandler.serveError(err);
 		}
-
-		//none to manage
-        if(customObjects.length === 0) {
-            self.redirect('/admin/content/custom_objects/manage_object_types', cb);
-            return;
+        else if (!pb.utils.isObject(customObject)) {
+            return self.reqHandler.serve404();
         }
 
-        var customObject = customObjects[0];
-
-        dao.query('custom_object_type', {_id: ObjectID(customObject.type)}).then(function(customObjectTypes) {
-	        if (util.isError(customObjectTypes)) {
-		        //TODO handle this
-	        }
-
-	        //none to manage
-            if(customObjectTypes.length === 0) {
-                self.redirect('/admin/content/custom_objects/manage_object_types', cb);
-                return;
+        service.loadTypeById(customObject.type, function(err, custObjType) {
+	        if (util.isError(err)) {
+                return self.reqHandler.serveError(err);
             }
 
-            EditObject.loadFieldOptions(dao, customObjectTypes[0], function(objectType) {
+
+            EditObject.loadFieldOptions(service, custObjType, function(objectType) {
                 var tabs   =
                 [
                     {
@@ -70,6 +60,7 @@ EditObject.prototype.render = function(cb) {
                     }
                 ];
 
+                //TODO: experiment to see if this is needed.  Who makes guarantees about key ordering?
                 var fieldOrder = [];
                 for(var key in objectType.fields) {
                     fieldOrder.push(key);
@@ -79,7 +70,7 @@ EditObject.prototype.render = function(cb) {
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                     pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, {objectType: objectType, customObject: customObject}),
-                    tabs: tabs,
+                    tabs: EditObject.getTabs(self.ls),
                     customObjectType: objectType,
                     customObject: customObject,
                     fieldOrder: fieldOrder
@@ -98,13 +89,34 @@ EditObject.prototype.render = function(cb) {
     });
 };
 
-EditObject.loadFieldOptions = function(dao, objectType, cb) {
-    var self = this;
-    var keys = [];
+EditObject.getTabs = function(ls) {
+    return [
+        {
+            active: 'active',
+            href: '#object_fields',
+            icon: 'list-ul',
+            title: ls.get('FIELDS')
+        }
+    ];
+};
 
-    for(var key in objectType.fields) {
-        keys.push(key);
-    }
+EditObject.loadFieldOptions = function(service, objectType, cb) {
+    var self = this;
+    var keys = Object.keys(objectType.fields);
+    var custObjTypes = {};
+    var dao = new pb.DAO();
+
+    //wrapper function to load cust object type
+    var loadType = function(name, callback) {
+        if (custObjTypes[name]) {
+            return callback(null, custObjTypes[name]);
+        }
+
+        service.loadTypeByName(name, function(err, custObjType) {
+            custObjTypes[name] = custObjType;
+            callback(err, custObjType);
+        });
+    };
 
     this.loadObjectOptions = function(index) {
         if(index >= keys.length) {
@@ -113,30 +125,22 @@ EditObject.loadFieldOptions = function(dao, objectType, cb) {
         }
 
         var key = keys[index];
-
-        if(objectType.fields[key].field_type != 'peer_object' && objectType.fields[key].field_type != 'child_objects') {
+        if(!pb.CustomObjectService.isReferenceFieldType(objectType.fields[key].field_type)) {
             index++;
             self.loadObjectOptions(index);
             return;
         }
 
-        if(objectType.fields[key].object_type.indexOf('custom:') > -1) {
-            var customObjectTypeName = objectType.fields[key].object_type.split('custom:').join('');
-            dao.query('custom_object_type', {name: customObjectTypeName}).then(function(customObjectTypes)
-            {
-                if (util.isError(customObjectTypes)) {
+        //field represents a reference to a custom field
+        if(pb.CustomObjectService.isCustomObjectType(objectType.fields[key].object_type)) {
+
+            loadType(objectType.fields[key].object_type, function(err, customObjectType) {
+                if (util.isError(err)) {
 		            //TODO handle this
 	            }
 
-	            if(customObjectTypes.length === 0)
-	            {
-                    index++;
-                    self.loadObjectOptions(index);
-	                return;
-	            }
-
-	            var customObjectType = customObjectTypes[0];
-
+                //TODO: This is REALLY bad for large systems.  This needs to move to an API call (searchable and pagable)
+                //TODO: decide if we should exclude the iD of the item we are working on
                 dao.query('custom_object', {type: customObjectType._id.toString()}).then(function(customObjects) {
 		            if (util.isError(customObjects)) {
 			            //TODO handle this

@@ -57,9 +57,11 @@ function setupChildObjectInput(key) {
         clearText: '<i class="fa fa-times"></i>',
     });
 
-    for(var i = 0; i < customObject[key].length; i++)
-    {
-        $('#active_' + key).append($('#' + key + '_' + customObject[key][i]));
+    var val = customObject[key];
+    if (val && val.length) {
+        for (var i = 0; i < val.length; i++) {
+            $('#active_' + key).append($('#' + key + '_' + val[i]));
+        }
     }
 }
 

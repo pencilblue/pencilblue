@@ -58,6 +58,15 @@ var CHILD_OBJECTS_TYPE = 'child_objects';
  *
  * @private
  * @static
+ * @property CUST_OBJ_TYPE_PREFIX
+ * @type {String}
+ */
+var CUST_OBJ_TYPE_PREFIX = 'custom:';
+
+/**
+ *
+ * @private
+ * @static
  * @property AVAILABLE_FIELD_TYPES
  * @type {Object}
  */
@@ -85,51 +94,146 @@ var AVAILABLE_REFERENCE_TYPES = [
     'user'
 ];
 
-CustomObjectService.prototype.loadById = function(type, id, cb) {
-    this.loadBy(type, pb.DAO.getIdWhere(id), cb);
+CustomObjectService.prototype.loadById = function(id, cb) {
+    this.loadBy(undefined, pb.DAO.getIDWhere(id), cb);
 };
 
 CustomObjectService.prototype.loadByName = function(type, name, cb) {
-
     var where = {};
     where[NAME_FIELD] = name;
     this.loadBy(type, where, cb);
 };
 
 CustomObjectService.prototype.loadBy = function(type, where, cb) {
-    if (!pb.valiation.isIdStr(type, true) || !pb.validation.isObj(where, true) || pb.validation.isEmpty(where)) {
+    if (!pb.validation.isIdStr(type, false) || !pb.validation.isObj(where, true) || pb.validation.isEmpty(where)) {
         throw new Error('The type, where must be provided in order to load a custom object');
     }
 
-    where.type = type;
+    if (type) {
+        where.type = type;
+    }
     var dao = new pb.DAO();
-    dao.loadBy(CustomObjectService.CUST_OBJ_COLL, where, cb);
+    dao.loadByValues(where, CustomObjectService.CUST_OBJ_COLL, cb);
 };
 
 CustomObjectService.prototype.loadTypeById = function(id, cb) {
-    this.loadTypeBy(type, pb.DAO.getIdWhere(id), cb);
+    this.loadTypeBy(pb.DAO.getIDWhere(id), cb);
 };
 
-CustomObjectService.prototype.loadTypeByName = function(type, name, cb) {
-
+CustomObjectService.prototype.loadTypeByName = function(name, cb) {
+    name      = CustomObjectService.getCustTypeSimpleName(name);
     var where = {};
     where[NAME_FIELD] = name;
-    this.loadTypeBy(type, where, cb);
+    this.loadTypeBy(where, cb);
 };
 
 CustomObjectService.prototype.loadTypeBy = function(where, cb) {
-    if (!pb.valiation.isIdStr(type, true) || !pb.validation.isObj(where, true) || pb.validation.isEmpty(where)) {
+    if (!pb.validation.isObj(where, true) || pb.validation.isEmpty(where)) {
         throw new Error('The type, where must be provided in order to load a custom object type');
     }
 
     var dao = new pb.DAO();
-    dao.loadBy(CustomObjectService.CUST_OBJ_TYPE_COLL, where, cb);
+    dao.loadByValues(where, CustomObjectService.CUST_OBJ_TYPE_COLL, cb);
 };
 
 CustomObjectService.prototype.validate = function(custObj, custObjType, options, cb) {
-    cb(null, []);//TODO start here
+
+    var self   = this;
+    var errors = [];
+    var dao    = new pb.DAO();
+    var tasks  = [
+
+        //validate object type
+        function(callback) {
+            if (custObj.object_type !== CustomObjectService.CUST_OBJ_COLL) {
+                errors.push(CustomObjectService.err('type', "The object type must be: "+custObj.object_type));
+            }
+            callback(null);
+        },
+
+        //validate the type
+        function(callback) {
+            if (!pb.validation.isIdStr(custObj.type) || custObj.type !== custObjType[pb.DAO.getIdField()].toString()) {
+                errors.push(CustomObjectService.err('type', "The type must be an ID string and must match the describing custom object type's ID"));
+            }
+            callback(null);
+        },
+
+        //validate the name
+        function(callback) {
+            if (!pb.validation.isNonEmptyStr(custObj.name)) {
+                errors.push(CustomObjectService.err('name', 'The name cannot be empty'));
+                return callback(null);
+            }
+
+            //test uniqueness of name
+            var where = {
+                type: custObjType[pb.DAO.getIdField()].toString(),
+                NAME_FIELD: custObjType.name
+            };
+            dao.unique(CustomObjectService.CUST_OBJ_COLL, where, custObj[pb.DAO.getIdField()], function(err, isUnique){
+                if (!isUnique) {
+                    errors.push(CustomObjectService.err('name', 'The name '+custObjType.name+' is not unique'));
+                }
+                callback(err);
+            });
+        },
+
+        //validate other fields
+        function(callback) {
+            self.validateCustObjFields(custObj, custObjType, function(err, fieldErrors) {
+                if (util.isArray(fieldErrors)) {
+                    pb.utils.arrayPushAll(fieldErrors, errors);
+                }
+                callback(err);
+            });
+        }
+    ];
+    async.series(tasks, function(err, results) {
+        cb(err, errors);
+    });
 };
 
+CustomObjectService.prototype.validateCustObjFields = function(custObj, custObjType, cb) {
+
+    var errors = [];
+    var tasks = pb.utils.getTasks(Object.keys(custObjType.fields), function(keys, i) {
+        return function(callback) {
+
+            //check for excption
+            var fieldName = keys[i];
+            if (fieldName === NAME_FIELD) {
+                //validated independently in main validation function
+                return callback(null);
+            }
+
+            //get value
+            var val = custObj[fieldName];
+
+            //execute validation procedure
+            var field          = custObjType.fields[fieldName];
+            var fieldType      = field.field_type;
+            var isValid        = AVAILABLE_FIELD_TYPES[fieldType];
+            if (!isValid(val, false)) {
+                errors.push(CustomObjectService.err(fieldName, 'An invalid value ['+val+'] was found.'));
+            }
+            callback(null);
+        };
+    });
+    async.series(tasks, function(err, results) {
+        cb(err, errors);
+    });
+};
+
+/**
+ * Validates a Custom Object Type.
+ * @method validateType
+ * @param {Object} custObjType The object to validate
+ * @param {Function} cb A callback function that provides two parameters: The
+ * first, an error, if exists. The second is an array of objects that represent
+ * validation errors.  If the 2nd parameter is an empty array it is safe to
+ * assume that validation passed.
+ */
 CustomObjectService.prototype.validateType = function(custObjType, cb) {
     if (!pb.validation.isObj(custObjType)) {
         return cb(new Error('The type descriptor must be an object: '+(typeof custObjType)));
@@ -190,6 +294,14 @@ CustomObjectService.prototype.validateType = function(custObjType, cb) {
     });
 };
 
+/**
+ * Validates that the field descriptor for a custom object type.
+ * @method validateFieldDescriptor
+ * @param {String} field
+ * @param {Array} customTypes
+ * @return {Array} An array of objects that contain two properties: field and
+ * error
+ */
 CustomObjectService.prototype.validateFieldDescriptor = function(field, customTypes) {
     var errors = [];
     if (!pb.validation.isObj(field)) {
@@ -209,13 +321,20 @@ CustomObjectService.prototype.validateFieldDescriptor = function(field, customTy
     return errors;
 };
 
+/**
+ * Retrieves an array of all of the available object types that can be
+ * referenced as a child or peer object.
+ * @method getReferenceTypes
+ * @param {Function} cb A callback that takes two parameters: The first, an
+ * error, if occurs.  The second is an array of all of the available object
+ * types that can be referenced as a peer or child object.
+ */
 CustomObjectService.prototype.getReferenceTypes = function(cb) {
 
-    var select = {
-        NAME_FIELD: 1
-    };
+    var select                  = {};
+    select[NAME_FIELD]          = 1;
     select[pb.DAO.getIdField()] = 0;
-    var dao = new pb.DAO();
+    var dao                     = new pb.DAO();
     dao.query(CustomObjectService.CUST_OBJ_TYPE_COLL, {}, select).then(function(types) {
         if (util.isError(types)) {
             return cb(result);
@@ -225,10 +344,71 @@ CustomObjectService.prototype.getReferenceTypes = function(cb) {
         for (var i = 0; i < types.length; i++) {
             allTypes.push('custom:'+types[i][NAME_FIELD]);
         }
-        cb(null, types);
+        cb(null, allTypes);
     });
 };
 
+CustomObjectService.prototype.save = function(custObj, custObjType, cb) {
+    if (!pb.validation.isObj(custObj, true)) {
+        throw new Error('The custom object must be a valid object.');
+    }
+
+    var self = this;
+    custObj.object_type = CustomObjectService.CUST_OBJ_COLL;
+    this.validate(custObj, custObjType, function(err, errors) {
+        if (util.isError(err) || errors.length > 0) {
+            return cb(err, errors);
+        }
+
+        var dao = new pb.DAO();
+        dao.update(custObj);
+    });
+};
+
+CustomObjectService.prototype.saveType = function(custObjType, cb) {
+    if (!pb.validation.isObj(custObjType, true)) {
+        throw new Error('The custom object type must be a valid object.');
+    }
+
+    var self = this;
+    custObjType.object_type = CustomObjectService.CUST_OBJ_COLL;
+    this.validateType(custObjType, function(err, errors) {
+        if (util.isError(err) || errors.length > 0) {
+            return cb(err, errors);
+        }
+
+        var dao = new pb.DAO();
+        dao.update(custObjType);
+    });
+};
+
+CustomObjectService.getStaticReferenceTypes = function() {
+    return pb.utils.clone(AVAILABLE_REFERENCE_TYPES);
+};
+
+CustomObjectService.isReferenceFieldType = function(fieldType) {
+    return fieldType === PEER_OBJECT_TYPE || fieldType === CHILD_OBJECTS_TYPE;
+};
+
+CustomObjectService.isCustomObjectType = function(objType) {
+    return pb.utils.isString(objType) && objType.indexOf(CUST_OBJ_TYPE_PREFIX) === 0;
+};
+
+CustomObjectService.getCustTypeSimpleName = function(name) {
+    if (pb.utils.isString(name)) {
+        name = name.replace(CUST_OBJ_TYPE_PREFIX, '');
+    }
+    return name;
+};
+
+/**
+ * Creates a validation error field
+ * @static
+ * @method err
+ * @param {String} field The field in the object that contains the error
+ * @param {String} err A string description of the error
+ * @return {Object} An object that describes the validation error
+ */
 CustomObjectService.err = function(field, err) {
     return {
         field: field,

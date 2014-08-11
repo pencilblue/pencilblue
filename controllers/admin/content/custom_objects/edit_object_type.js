@@ -15,14 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for editing an object type
- */
-
-function EditObjectType(){}
-
 //dependencies
 var CustomObjects = require('../custom_objects');
+
+/**
+ * Interface for editing an object type
+ * @class EditObjectType
+ * @constructor
+ * @extends BaseController
+ */
+function EditObjectType(){}
 
 //inheritance
 util.inherits(EditObjectType, pb.BaseController);
@@ -39,51 +41,31 @@ EditObjectType.prototype.render = function(cb) {
         return;
     }
 
-    var dao = new pb.DAO();
-    dao.loadById(vars.id, 'custom_object_type', function(err, objectType) {
-	    if(util.isError(err) || objectType === null) {
-	        self.redirect('/admin/content/custom_objects/manage_object_types', cb);
-            return;
+    var service = new pb.CustomObjectService();
+    service.loadTypeById(vars.id, function(err, objectType) {
+	    if(util.isError(err)) {
+	        return self.reqHandler.serveError(err);
 	    }
+        else if (!pb.utils.isObject(objectType)) {
+            return self.reqHandler.serve404();
+        }
 
-        var tabs   =
-        [
-            {
-                active: 'active',
-                href: '#object_settings',
-                icon: 'cog',
-                title: self.ls.get('SETTINGS')
-            },
-            {
-                href: '#object_fields',
-                icon: 'list-ul',
-                title: self.ls.get('FIELDS')
-            }
-        ];
-
-        var objectTypes = ['article', 'page', 'section', 'topic', 'media', 'user'];
-
-        dao.query('custom_object_type', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(customObjectTypes) {
-            if (util.isError(customObjectTypes)) {
-                //TODO handle this
-            }
-
-            // Case insensitive test for duplicate name
-            for (var i =0; i < customObjectTypes.length; i++) {
-                objectTypes.push('custom:' + customObjectTypes[i].name);
+        service.getReferenceTypes(function(err, objectTypes) {
+            if(util.isError(err)) {
+                return self.reqHandler.serveError(err);
             }
 
             var angularData = pb.js.getAngularController(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_object_type', objectType),
-                tabs: tabs,
+                tabs: EditObjectType.getTabs(self.ls),
                 objectTypes: objectTypes,
                 objectType: objectType
             });
 
     	    self.setPageName(objectType.name);
-    	    self.ts.registerLocal('object_type_id', objectType._id);
+    	    self.ts.registerLocal('object_type_id', objectType[pb.DAO.getIdField()]);
             self.ts.registerLocal('angular_script', angularData);
             self.ts.registerLocal('custom_object_script', pb.js.getJSTag('var customObject = ' + JSON.stringify(objectType)));
     	    self.ts.load('admin/content/custom_objects/edit_object_type',  function(err, data) {
@@ -92,6 +74,22 @@ EditObjectType.prototype.render = function(cb) {
             });
         });
     });
+};
+
+EditObjectType.getTabs = function(ls) {
+    return [
+        {
+            active: 'active',
+            href: '#object_settings',
+            icon: 'cog',
+            title: ls.get('SETTINGS')
+        },
+        {
+            href: '#object_fields',
+            icon: 'list-ul',
+            title: ls.get('FIELDS')
+        }
+    ];
 };
 
 EditObjectType.getSubNavItems = function(key, ls, data) {
