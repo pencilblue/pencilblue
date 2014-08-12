@@ -137,19 +137,16 @@ EditObject.loadFieldOptions = function(service, objectType, cb) {
             loadType(objectType.fields[key].object_type, function(err, customObjectType) {
                 if (util.isError(err)) {
 		            //TODO handle this
+                    pb.log.error(err.stack);
 	            }
 
                 //TODO: This is REALLY bad for large systems.  This needs to move to an API call (searchable and pagable)
                 //TODO: decide if we should exclude the iD of the item we are working on
-                dao.query('custom_object', {type: customObjectType._id.toString()}).then(function(customObjects) {
-		            if (util.isError(customObjects)) {
+                var options = { select: { name: 1 } };
+                service.findByType(customObjectType, options, function(err, customObjectsInfo) {
+		            if (util.isError(err)) {
 			            //TODO handle this
-		            }
-
-		            var customObjectsInfo = [];
-		            for(var i = 0; i < customObjects.length; i++)
-		            {
-		                customObjectsInfo.push({_id: customObjects[i]._id, name: customObjects[i].name});
+                        pb.log.error(err.stack);
 		            }
 
 		            objectType.fields[key].available_objects = customObjectsInfo;
@@ -161,9 +158,17 @@ EditObject.loadFieldOptions = function(service, objectType, cb) {
 	        return;
         }
 
-        dao.query(objectType.fields[key].object_type, pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(availableObjects) {
+        //TODO: This is REALLY bad for large systems.  This needs to move to an API call (searchable and pagable)
+        var select = {
+            name: 1,
+            headline: 1,
+            first_name: 1,
+            last_name: 1
+        };
+        dao.query(objectType.fields[key].object_type, pb.DAO.ANYWHERE, select).then(function(availableObjects) {
 		    if (util.isError(availableObjects)) {
 			    //TODO handle this
+                pb.log.error(err.stack);
 		    }
 
 		    var objectsInfo = [];

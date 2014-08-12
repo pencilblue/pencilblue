@@ -94,6 +94,51 @@ var AVAILABLE_REFERENCE_TYPES = [
     'user'
 ];
 
+CustomObjectService.prototype.findByType = function(type, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        options = {};
+    }
+
+    //ensure a where clause
+    if (!pb.utils.isObject(options.where)) {
+        options.where = {};
+    }
+
+    var typeStr = type;
+    if (pb.utils.isObject(type)) {
+        typeStr = type[pb.DAO.getIdField()] + '';
+    }
+    options.where.type = typeStr;
+
+    var dao = new pb.DAO();
+    dao.query(CustomObjectService.CUST_OBJ_COLL, options.where, options.select, options.order, options.limit, options.offset).then(function(result) {
+        cb(util.isError(result) ? result : null, result);
+    });
+};
+
+CustomObjectService.prototype.countByType = function(type, where, cb) {
+    if (pb.utils.isFunction(where)) {
+        cb = where;
+        where = {};
+    }
+    else if (!pb.utils.isObject(where)) {
+        where = {};
+    }
+
+    var typeStr = type;
+    if (pb.utils.isObject(type)) {
+        typeStr = type[pb.DAO.getIdField()] + '';
+    }
+    where.type = typeStr;
+
+    var dao = new pb.DAO();
+    dao.count(CustomObjectService.CUST_OBJ_COLL, where, cb);
+};
+
 CustomObjectService.prototype.loadById = function(id, cb) {
     this.loadBy(undefined, pb.DAO.getIDWhere(id), cb);
 };
