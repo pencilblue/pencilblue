@@ -27,7 +27,7 @@ var AddMedia = require('./add_media.js');
 //inheritance
 util.inherits(InlineAddMedia, AddMedia);
 
-AddMedia.prototype.onSaveSuccessful = function(mediaDocument, cb) {
+InlineAddMedia.prototype.onSaveSuccessful = function(mediaDocument, cb) {
 	cb({content: JSON.stringify(mediaDocument)});
 };
 

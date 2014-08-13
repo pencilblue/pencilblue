@@ -47,8 +47,8 @@ AddMedia.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
-AddMedia.prototype.onSaveSuccessful = function(mediaDocument) {
-	this.session.success = mediaDocument.name + ' ' + self.ls.get('ADDED');
+AddMedia.prototype.onSaveSuccessful = function(mediaDocument, cb) {
+	this.session.success = mediaDocument.name + ' ' + this.ls.get('ADDED');
 	this.redirect('/admin/content/media/add_media', cb);
 };
 
