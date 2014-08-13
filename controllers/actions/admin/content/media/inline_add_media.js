@@ -27,9 +27,8 @@ var AddMedia = require('./add_media.js');
 //inheritance
 util.inherits(InlineAddMedia, AddMedia);
 
-AddMedia.prototype.onSaveSuccessful = function(mediaDocument) {
-	//don't do anything.  We just want to override the default behavior since
-	//we are returning JSON
+AddMedia.prototype.onSaveSuccessful = function(mediaDocument, cb) {
+	cb({content: JSON.stringify(mediaDocument)});
 };
 
 InlineAddMedia.prototype.getRequiredParams = function() {

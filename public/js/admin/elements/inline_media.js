@@ -101,7 +101,7 @@ function setMediaValues(isFile, type, location)
     {
         $('#link_loading').hide();
         $('#thumb').val(thumb);
-        $('#save_button').removeAttr('disabled');
+        $('#save_button').prop('disabled', false);
     });
 }
 
@@ -109,12 +109,16 @@ function setMediaValues(isFile, type, location)
 
 function checkForAddMediaSave()
 {
+    $('#save_button').prop('disabled', true);
+
     buildTopics(function(topicsCSV)
     {
         $('#media_topics').val(topicsCSV);
 
         $.post(saveMediaURL, $('#media_modal fieldset').serialize(), function(newMedia)
         {
+            newMedia = JSON.parse(newMedia);
+
             var mediaItemElement = mediaItemTemplate.split('^media_id^').join(newMedia._id.toString());
             mediaItemElement = mediaItemElement.split('^media_name^').join(newMedia.name);
             mediaItemElement = mediaItemElement.split('^media_icon^').join(getMediaIcon(newMedia.media_type));
@@ -123,6 +127,7 @@ function checkForAddMediaSave()
 
             $('#active_media').append(mediaItemElement);
             $('#media .col-md-3').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
+            $('#save_button').prop('disabled', false);
             $('#media_modal').modal('hide');
         });
     });
