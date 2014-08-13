@@ -1,0 +1,32 @@
+^tmp_admin=head^
+<div class="col-md-9">
+	^error_success^
+	^tmp_admin=elements=sub_nav^
+	^tmp_admin=elements=tab_nav^
+	<form id="content_form" method="post" action="^site_root^/actions/admin/site_settings/libraries">
+		<fieldset>
+			<div class="tab-content">
+				<div class="form-group" style="margin-top: .5em">
+					<button type="button" class="btn btn-default" onclick="loadCDNDefaults()"><i class="fa fa-cloud"></i>&nbsp;^loc_USE_CDN^</button>
+					<button type="button" class="btn btn-default" onclick="loadBowerDefaults()"><i class="fa fa-hdd-o"></i>&nbsp;^loc_USE_BOWER^</button>
+				</div>
+				<div class="tab-pane active" id="css">
+					<div class="form-group">
+						<label>jQuery</label>
+						<input type="string" id="jquery_ui_css" name="jquery_ui_css" class="form-control"></input>
+					</div>
+				</div>
+				<a class="btn btn-default" href="/admin/site_settings">
+					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+				</a>
+				<button type="submit" class="btn btn-primary">
+					<i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+				</button>
+			</div>
+		</fieldset>
+	</form>
+</div>
+^cdn_defaults^
+^bower_defaults^
+<script type="text/javascript" src="/js/admin/site_settings/libraries.js"></script>
+^tmp_admin=footer^
