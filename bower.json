@@ -1,0 +1,27 @@
+{
+  "name": "pencilblue",
+  "version": "0.2.2",
+  "description": "Full stack online publishing and CMS for Node.js",
+  "authors": [
+    {
+      "name": "PencilBlue, LLC",
+      "email": "info@pencilblue.com"
+    }
+  ],
+  "private": true,
+  "dependencies": {
+    "angular-route": "~1.2.16",
+    "angular-sanitize": "~1.2.16",
+    "angular": "~1.2.16",
+    "jquery": "~1.11.1",
+    "bootstrap": "~3.1.1",
+    "fontawesome": "~4.1.0",
+    "datetimepicker": "~2.2.8",
+    "html5shiv": "~3.7.2",
+    "respond": "~1.4.2",
+    "jqueryui": "~1.11.0",
+    "jqueryui-touch-punch": "*",
+    "jquery-file-upload": "~9.7.0",
+    "jqueryvalidate": "*"
+  }
+}
