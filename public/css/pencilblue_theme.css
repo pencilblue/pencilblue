@@ -64,27 +64,6 @@ form .error
     text-align: left;
 }
 
-#index_carousel .item
-{
-    max-height: 320px;
-}
-
-#index_carousel img
-{
-    width: 100%;
-    min-width: 800px;
-}
-
-.carousel .inner-item
-{
-    text-align: center;
-}
-
-.carousel .inner-item img
-{
-    margin: 0 auto;
-}
-
 #no_articles
 {
     font-size: 1.25em;
