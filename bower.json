@@ -22,6 +22,8 @@
     "jqueryui": "~1.11.0",
     "jqueryui-touch-punch": "*",
     "jquery-file-upload": "~9.7.0",
-    "jqueryvalidate": "*"
+    "jquery.iframe-transport": "~1.0.0",
+    "jquery.validation": "~1.13.0",
+    "jquery.spinjs": "*"
   }
 }

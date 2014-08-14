@@ -48,21 +48,20 @@ Libraries.prototype.render = function(cb) {
 		}
 	];
 
-	//pb.libraries.getSettings(function(err, librarySettings) {
-		//self.setFormFieldValues(librarySettings);
-
+	pb.libraries.getSettings(function(err, librarySettings) {
 		var angularData = pb.js.getAngularController(
 			{
 				navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
 				pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'libraries'),
 				tabs: tabs,
-				//cdnDefaults: pb.libraries.getCDNDefaults(),
-				//bowerDefaults: pb.libraries.getBowerDefaults()
+				librarySettings: librarySettings
 			}
 		);
 
 		self.setPageName(self.ls.get('LIBRARIES'));
 		self.ts.registerLocal('angular_script', angularData);
+		self.ts.registerLocal('cdn_defaults', pb.js.getJSTag('var cdnDefaults = ' + JSON.stringify(pb.libraries.getCDNDefaults()) + ';'));
+		self.ts.registerLocal('bower_defaults', pb.js.getJSTag('var bowerDefaults = ' + JSON.stringify(pb.libraries.getBowerDefaults()) + ';'));
 		self.ts.load('admin/site_settings/libraries', function(err, data) {
 			var result = '' + data;
 			self.checkForFormRefill(result, function(newResult) {
@@ -70,7 +69,7 @@ Libraries.prototype.render = function(cb) {
 				cb({content: result});
 			});
 		});
-	//});
+	});
 };
 
 

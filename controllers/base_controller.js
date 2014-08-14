@@ -114,6 +114,14 @@ BaseController.prototype.init = function(props, cb) {
 		pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
 	});
 	this.ts = this.templateService;
+
+	// Register library sources
+	pb.libraries.getSettings(function(err, settings) {
+		for(var key in settings) {
+			self.templateService.registerLocal(key + '_src', settings[key]);
+		}
+	});
+
 	cb();
 };
 

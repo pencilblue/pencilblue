@@ -1244,7 +1244,7 @@ RequestHandler.prototype.servePublicContent = function(absolutePath) {
 };
 
 RequestHandler.isPublicRoute = function(path){
-	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/media/', '/localization/', '/favicon.ico', '/docs/'];
+	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/media/', '/localization/', '/favicon.ico', '/docs/', '/bower_components/'];
 	for (var i = 0; i < publicRoutes.length; i++) {
 		if (path.indexOf(publicRoutes[i]) == 0) {
 			return true;

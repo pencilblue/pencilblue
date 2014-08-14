@@ -3,17 +3,87 @@
 	^error_success^
 	^tmp_admin=elements=sub_nav^
 	^tmp_admin=elements=tab_nav^
-	<form id="content_form" method="post" action="^site_root^/actions/admin/site_settings/libraries">
+	<form id="content_form" method="post" action="/actions/admin/site_settings/libraries">
 		<fieldset>
 			<div class="tab-content">
 				<div class="form-group" style="margin-top: .5em">
-					<button type="button" class="btn btn-default" onclick="loadCDNDefaults()"><i class="fa fa-cloud"></i>&nbsp;^loc_USE_CDN^</button>
-					<button type="button" class="btn btn-default" onclick="loadBowerDefaults()"><i class="fa fa-hdd-o"></i>&nbsp;^loc_USE_BOWER^</button>
+					<button type="button" class="btn btn-default" onclick="loadLibrariesDefaults(cdnDefaults)"><i class="fa fa-cloud"></i>&nbsp;^loc_USE_CDN^</button>
+					<button type="button" class="btn btn-default" onclick="loadLibrariesDefaults(bowerDefaults)"><i class="fa fa-hdd-o"></i>&nbsp;^loc_USE_BOWER^</button>
 				</div>
 				<div class="tab-pane active" id="css">
 					<div class="form-group">
+						<label>jQuery UI</label>
+						<input type="string" id="jquery_ui_css" name="jquery_ui_css" class="form-control" value="{{librarySettings.jquery_ui_css}}"></input>
+					</div>
+					<div class="form-group">
+						<label>jQuery File Upload CSS</label>
+						<input type="string" id="jquery_file_upload_css" name="jquery_file_upload_css" class="form-control" value="{{librarySettings.jquery_file_upload_css}}"></input>
+					</div>
+					<div class="form-group">
+						<label>jQuery Datetime Picker</label>
+						<input type="string" id="jquery_datetime_picker_css" name="jquery_datetime_picker_css" class="form-control" value="{{librarySettings.jquery_datetime_picker_css}}"></input>
+					</div>
+					<div class="form-group">
+						<label>Bootstrap</label>
+						<input type="string" id="bootstrap_css" name="bootstrap_css" class="form-control" value="{{librarySettings.bootstrap_css}}"></input>
+					</div>
+					<div class="form-group">
+						<label>Font Awesome</label>
+						<input type="string" id="font_awesome" name="font_awesome" class="form-control" value="{{librarySettings.font_awesome}}"></input>
+					</div>
+				</div>
+				<div class="tab-pane" id="javascript">
+					<div class="form-group">
 						<label>jQuery</label>
-						<input type="string" id="jquery_ui_css" name="jquery_ui_css" class="form-control"></input>
+						<input type="string" id="jquery" name="jquery" class="form-control" value="{{librarySettings.jquery}}"></input>
+					</div>
+					<div class="form-group">
+						<label>jQuery UI</label>
+						<input type="string" id="jquery_ui_js" name="jquery_ui_js" class="form-control" value="{{librarySettings.jquery_ui_js}}"></input>
+					</div>
+					<div class="form-group">
+						<label>jQuery UI Touch-Punch</label>
+						<input type="string" id="jquery_ui_touch_punch" name="jquery_ui_touch_punch" class="form-control" value="{{librarySettings.jquery_ui_touch_punch}}"></input>
+					</div>
+					<div class="form-group">
+						<label>jQuery File Upload</label>
+						<input type="string" id="jquery_file_upload_js" name="jquery_file_upload_js" class="form-control" value="{{librarySettings.jquery_file_upload_js}}"></input>
+					</div>
+					<div class="form-group">
+						<label>jQuery iFrame Transport</label>
+						<input type="string" id="jquery_iframe_transport" name="jquery_iframe_transport" class="form-control" value="{{librarySettings.jquery_iframe_transport}}"></input>
+					</div>
+					<div class="form-group">
+						<label>jQuery Datetime Picker</label>
+						<input type="string" id="jquery_datetime_picker_js" name="jquery_datetime_picker_js" class="form-control" value="{{librarySettings.jquery_datetime_picker_js}}"></input>
+					</div>
+					<div class="form-group">
+						<label>jQuery Validate</label>
+						<input type="string" id="jquery_validate" name="jquery_validate" class="form-control" value="{{librarySettings.jquery_validate}}"></input>
+					</div>
+					<div class="form-group">
+						<label>Bootstrap</label>
+						<input type="string" id="bootstrap_js" name="bootstrap_js" class="form-control" value="{{librarySettings.bootstrap_js}}"></input>
+					</div>
+					<div class="form-group">
+						<label>Angular</label>
+						<input type="string" id="angular" name="angular" class="form-control" value="{{librarySettings.angular}}"></input>
+					</div>
+					<div class="form-group">
+						<label>Angular Route</label>
+						<input type="string" id="angular_route" name="angular_route" class="form-control" value="{{librarySettings.angular_route}}"></input>
+					</div>
+					<div class="form-group">
+						<label>Angular Sanitize</label>
+						<input type="string" id="angular_sanitize" name="angular_sanitize" class="form-control" value="{{librarySettings.angular_sanitize}}"></input>
+					</div>
+					<div class="form-group">
+						<label>Spin</label>
+						<input type="string" id="spin" name="spin" class="form-control" value="{{librarySettings.spin}}"></input>
+					</div>
+					<div class="form-group">
+						<label>jQuery Spin</label>
+						<input type="string" id="jquery_spin" name="jquery_spin" class="form-control" value="{{librarySettings.jquery_spin}}"></input>
 					</div>
 				</div>
 				<a class="btn btn-default" href="/admin/site_settings">

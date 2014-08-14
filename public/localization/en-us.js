@@ -403,6 +403,7 @@ var loc =
         DB_SERVERS: 'Database server(s)',
         CONTENT_SETTINGS: 'Content settings',
         LIBRARIES: 'Libraries',
+        LIBRARY_SETTINGS: 'Library settings',
         ARTICLES_PER_PAGE: 'Articles per page',
         AUTO_BREAK_ARTICLES: 'Auto break articles after # of paragraphs',
         DONT_BREAK: 'Don\'t break',
