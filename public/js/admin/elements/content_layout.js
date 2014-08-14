@@ -368,13 +368,8 @@ function addLayoutMedia()
         {
             var mediaFormat = getMediaFormat();
 
-            if(associatedMedia.length == 1)
-            {
-                layoutFormat('inserthtml', '<div>^media_display_' + associatedMedia[0] + mediaFormat + '^</div>');
-            }
-            else if(associatedMedia.length > 1)
-            {
-                layoutFormat('inserthtml', '<div>^carousel_display_' + associatedMedia.join('-') + mediaFormat + '^</div>');
+            for(var i = 0; i < associatedMedia.length; i++) {
+                layoutFormat('inserthtml', '<div>^media_display_' + associatedMedia[i] + mediaFormat + '^</div>');
             }
 
             loadLayoutMediaPreviews();

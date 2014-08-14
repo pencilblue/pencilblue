@@ -42,7 +42,7 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
 	    var tasks = {
 			themeSettings: function(callback) {
 				pb.settings.get('site_logo', function(err, logo) {
-					callback(null, {site_logo: logo, carousel_media: []});
+					callback(null, {site_logo: logo});
 				});
 			},
 

@@ -293,7 +293,7 @@ var loc =
         INSERT_LINK: 'Insert link',
         ADD_MEDIA: 'Add media',
         INSERT_MEDIA: 'Insert media',
-        SELECT_MEDIA: 'Select media to insert (multiple selections will create a carousel)',
+        SELECT_MEDIA: 'Select media to insert',
         ASSOCIATE_MEDIA: 'Associate media with the article',
         PUBLISHED: 'Published',
         UNPUBLISHED: 'Unpublished',
