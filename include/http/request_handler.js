@@ -253,6 +253,22 @@ RequestHandler.CORE_ROUTES = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'email.js'),
     	content_type: 'text/html'
     },
+	{
+		method: 'get',
+		path: "/admin/site_settings/libraries",
+		access_level: ACCESS_ADMINISTRATOR,
+		auth_required: true,
+		controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'libraries.js'),
+		content_type: 'text/html'
+	},
+	{
+		method: 'post',
+		path: "/actions/admin/site_settings/libraries",
+		access_level: ACCESS_ADMINISTRATOR,
+		auth_required: true,
+		controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'libraries.js'),
+		content_type: 'text/html'
+	},
     {
     	method: 'get',
     	path: "/admin/content/topics/new_topic",
