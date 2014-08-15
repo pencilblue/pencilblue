@@ -3,6 +3,7 @@
 config.json
 public/media/
 public/docs/
+public/bower_components/
 node_modules/minify/min/
 log/
 node_modules

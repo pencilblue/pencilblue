@@ -114,6 +114,7 @@ BaseController.prototype.init = function(props, cb) {
 		pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
 	});
 	this.ts = this.templateService;
+
 	cb();
 };
 

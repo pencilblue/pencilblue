@@ -1,6 +1,6 @@
 {
     "author": {
-        "name": "PencilBlue LLC.",
+        "name": "PencilBlue, LLC",
         "email": "info@pencilblue.com"
     },
     "contributors": [
@@ -11,8 +11,8 @@
             "name": "Brian Hyder"
         }
     ],
-    "name": "pencileblue",
-    "description": "An awesome & flexible CMS",
+    "name": "pencilblue",
+    "description": "Full stack online publishing and CMS for Node.js",
     "keywords": [
         "cms", "website", "platform"
     ],
