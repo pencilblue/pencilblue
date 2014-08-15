@@ -404,6 +404,7 @@ var loc =
         CONTENT_SETTINGS: 'Content settings',
         LIBRARIES: 'Libraries',
         LIBRARY_SETTINGS: 'Library settings',
+        LIBRARY_CLUSTER: 'If you are running PencilBlue on a server cluster, a restart is needed for the changes to take full effect',
         ARTICLES_PER_PAGE: 'Articles per page',
         AUTO_BREAK_ARTICLES: 'Auto break articles after # of paragraphs',
         DONT_BREAK: 'Don\'t break',

@@ -44,7 +44,7 @@ Libraries.prototype.onPostParamsRetrieved = function(post, cb) {
             pb.TemplateService.registerGlobal(key + '_src', post[key]);
         }
 
-        self.session.success = self.ls.get('LIBRARY_SETTINGS') + ' ' + self.ls.get('EDITED');
+        self.session.success = self.ls.get('LIBRARY_SETTINGS') + ' ' + self.ls.get('EDITED') + '<br/>' + self.ls.get('LIBRARY_CLUSTER');
         self.redirect('/admin/site_settings/libraries', cb);
     });
 };

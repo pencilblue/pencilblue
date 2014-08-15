@@ -41,6 +41,28 @@ LibrariesService.getSettings = function(cb){
 };
 
 /**
+ * Loads the libraries settings into template service globals. Called on system
+ * startup
+ *
+ * @method init
+ * @param  {Function} cb Callback function
+ */
+LibrariesService.init = function(cb) {
+    LibrariesService.getSettings(function(err, settings) {
+        if(util.isError(err)) {
+            cb(err);
+            return;
+        }
+
+        for(var key in settings) {
+            pb.TemplateService.registerGlobal(key + '_src', settings[key]);
+        }
+
+        cb(null, true);
+    });
+};
+
+/**
  * Retrieves the default library settings for CDNs
  *
  * @method getCDNDefaults
