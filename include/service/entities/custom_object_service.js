@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var HtmlEncoder = require('htmlencode');
+
 /**
  *
  * @class CustomObjectService
@@ -74,8 +77,8 @@ var AVAILABLE_FIELD_TYPES = {
     'text': pb.validation.isStr,
     'number': pb.validation.isNum,
     'date': pb.validation.isDate,
-    PEER_OBJECT_TYPE: pb.validation.isIdStr,
-    CHILD_OBJECTS_TYPE: pb.validation.isArray
+    'peer_object': pb.validation.isIdStr,
+    'child_objects': pb.validation.isArray
 };
 
 /**
@@ -181,7 +184,7 @@ CustomObjectService.prototype.loadTypeBy = function(where, cb) {
     dao.loadByValues(where, CustomObjectService.CUST_OBJ_TYPE_COLL, cb);
 };
 
-CustomObjectService.prototype.validate = function(custObj, custObjType, options, cb) {
+CustomObjectService.prototype.validate = function(custObj, custObjType, cb) {
 
     var self   = this;
     var errors = [];
@@ -258,7 +261,7 @@ CustomObjectService.prototype.validateCustObjFields = function(custObj, custObjT
             //execute validation procedure
             var field          = custObjType.fields[fieldName];
             var fieldType      = field.field_type;
-            var isValid        = AVAILABLE_FIELD_TYPES[fieldType];
+            var isValid        = AVAILABLE_FIELD_TYPES[fieldType];console.log(util.format('FN=[%s] FV=[%s] FT=[%s] FUNC=\n%s', fieldName, val, fieldType, isValid));
             if (!isValid(val, false)) {
                 errors.push(CustomObjectService.err(fieldName, 'An invalid value ['+val+'] was found.'));
             }
@@ -446,6 +449,29 @@ CustomObjectService.getCustTypeSimpleName = function(name) {
     return name;
 };
 
+CustomObjectService.formatRawForType = function(post, custObjType) {
+
+    for(var key in customObjectType.fields) {
+
+        if(customObjectType.fields[key].field_type == 'number') {
+            if(post[key]) {
+                post[key] = parseFloat(post[key]);
+            }
+        }
+        else if(customObjectType.fields[key].field_type == 'date') {
+            if(post[key]) {
+                post[key] = new Date(post[key]);
+            }
+        }
+        else if(customObjectType.fields[key].field_type == 'child_objects') {
+            if(post[key]) {
+                post[key] = post[key].split(',');
+            }
+        }
+    }
+    post.type = custObjType[pb.DAO.getIdField()].toString();
+};
+
 /**
  * Creates a validation error field
  * @static
@@ -457,8 +483,28 @@ CustomObjectService.getCustTypeSimpleName = function(name) {
 CustomObjectService.err = function(field, err) {
     return {
         field: field,
-        error: err
+        msg: err
     };
+};
+
+CustomObjectService.createErrorStr = function(errors, msg) {
+    var errStr = '';
+    if (msg) {
+        errStr += msg + '\n';
+    }
+
+    errStr += '<ul>';
+    for(var i = 0; i < errors.length; i++) {
+        var err = errors[i];
+
+        errStr += '<li>';
+        if (err.field) {
+            errStr += err.field + ': ';
+        }
+        errStr += HtmlEncoder.htmlEncode(err.msg) + '</li>';
+    }
+    errStr += '</ul>';
+    return errStr;
 };
 
 //exports

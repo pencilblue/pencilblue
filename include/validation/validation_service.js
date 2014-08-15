@@ -84,7 +84,7 @@ ValidationService.isIdStr = function(val, required) {
     if (!required && (val === null || val === undefined)) {
         return true;
     }
-    else if (!util.isString(val)) {
+    else if (!pb.utils.isString(val)) {
         return false;
     }
 
@@ -382,7 +382,7 @@ ValidationService.isEmpty = function(val) {
  * @param {*} val The value under test
  * @return {Boolean} TRUE if the value is valid, FALSE if not
  */
-ValidationService.isDate = function(val) {
+ValidationService.isDate = function(val, required) {
     if (!required && (val === null || val === undefined)) {
         return true;
     }
