@@ -218,11 +218,8 @@ JobRunner.prototype.onStart = function(status) {
 JobRunner.prototype.onUpdate = function(progressIncrement, status) {
     this.log('Updating job [%s:%s] by %s percent with status: %s', this.getId(), this.name, progressIncrement, status);
 
-    var query = pb.DAO.getIDWhere(this.getId());
-    var updates = {
-        '$set': {},
-        '$inc': {}
-    };
+    var query   = pb.DAO.getIDWhere(this.getId());
+    var updates = {};
     if (pb.validation.isFloat(progressIncrement, true, true)) {
         updates['$inc'] = {progress: progressIncrement};
     }
@@ -230,11 +227,15 @@ JobRunner.prototype.onUpdate = function(progressIncrement, status) {
         updates['$set'] = {status: status};
     }
 
-    this.dao.updateFields(JOB_STORE_NAME, query, updates, function(err, result) {
-        if (util.isError(err)) {
-            pb.log.error('JobRunner: Failed to update job progress', err.stack);
-        }
-    });
+    //ensure we need to update
+    if (updates !== {}) {
+
+        this.dao.updateFields(JOB_STORE_NAME, query, updates, function(err, result) {
+            if (util.isError(err)) {
+                pb.log.error('JobRunner: Failed to update job progress - ', err.stack);
+            }
+        });
+    }
 };
 
 /**
@@ -270,7 +271,7 @@ JobRunner.prototype.onCompleted = function(status, err) {
     };
     this.dao.updateFields(JOB_STORE_NAME, query, sets, function(err, result) {
         if (util.isError(err)) {
-            pb.log.error('JobRunner: Failed to update job progress', err.stack);
+            pb.log.error('JobRunner: Failed to update job as completed - ', err.stack);
         }
     });
 };
