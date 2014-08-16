@@ -306,18 +306,29 @@ function resetAutoSaveTimeout()
 function getDraftTime()
 {
     var date = new Date();
+
+    var month = date.getMonth() + 1;
+    if(month < 10){
+        month = '0' + month;
+    }
+    var day = date.getDate();
+    if(day < 10) {
+        day = '0' + day;
+    }
     var hour = date.getHours();
-    if(hour < 10)
-    {
+    if(hour < 10){
         hour = '0' + hour;
     }
     var minutes = date.getMinutes();
-    if(minutes < 10)
-    {
+    if(minutes < 10){
         minutes = '0' + minutes;
     }
+    var seconds = date.getSeconds();
+    if(seconds < 10){
+        seconds = '0' + seconds;
+    }
 
-    return hour + ':' + minutes;
+    return date.getFullYear() + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds;
 }
 
 function previewArticle(draft)
