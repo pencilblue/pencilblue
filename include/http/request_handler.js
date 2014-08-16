@@ -1609,6 +1609,9 @@ RequestHandler.prototype.writeResponse = function(data){
     			this.resp.setHeader(header, data.headers[header]);
     		}
     	}
+        if (pb.config.server.x_powered_by) {
+            this.resp.setHeader('x-powered-by', pb.config.server.x_powered_by);
+        }
     	this.resp.setHeader('content-type', contentType);
     	this.resp.writeHead(data.code);
     	this.resp.end(data.content);
