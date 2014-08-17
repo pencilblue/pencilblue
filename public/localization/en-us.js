@@ -402,6 +402,9 @@ var loc =
         DB_NAME: 'Database name',
         DB_SERVERS: 'Database server(s)',
         CONTENT_SETTINGS: 'Content settings',
+        LIBRARIES: 'Libraries',
+        LIBRARY_SETTINGS: 'Library settings',
+        LIBRARY_CLUSTER: 'If you are running PencilBlue on a server cluster, a restart is needed for the changes to take full effect',
         ARTICLES_PER_PAGE: 'Articles per page',
         AUTO_BREAK_ARTICLES: 'Auto break articles after # of paragraphs',
         DONT_BREAK: 'Don\'t break',
@@ -430,7 +433,9 @@ var loc =
         HOST: 'Host',
         SECURE_CONNECTION: 'Secure connection (SSL)',
         EMAIL_SETTINGS: 'Email settings',
-        EMAIL_DIRECTIVES_DESCRIPTION: 'Directives: ^verification_url^, ^first_name^, ^last_name^'
+        EMAIL_DIRECTIVES_DESCRIPTION: 'Directives: ^verification_url^, ^first_name^, ^last_name^',
+        USE_CDN: 'Use CDNs (default)',
+        USE_BOWER: 'Use Bower'
     }
 };
 

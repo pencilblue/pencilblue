@@ -193,7 +193,12 @@ var config = {
             key: "ssl/key.pem",
             cert: "ssl/cert.crt",
             chain: "ssl/chain.crt"
-        }
+        },
+
+        //when non-empty, a header (X-POWERED-BY) will be added to each outgoing
+        //response with "PencilBlue".  Cheesy but it helps the BuiltWith tools
+        //of the world kep track of who uses what
+        x_powered_by: "PencilBlue"
     },
 
     //PB uses a publish subscribe model to announce events to other members of

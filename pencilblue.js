@@ -41,6 +41,7 @@ PencilBlue.init = function(){
         PencilBlue.initPlugins,
         PencilBlue.initServerRegistration,
         PencilBlue.initCommandService,
+        PencilBlue.initLibraries
     ];
 	async.series(tasks, function(err, results) {
 		if (util.isError(err)) {
@@ -208,6 +209,16 @@ PencilBlue.initServerRegistration = function(cb) {
  */
 PencilBlue.initCommandService = function(cb) {
     pb.CommandService.init(cb);
+};
+
+/**
+ * Initializes the libraries service
+ * @static
+ * @method initLibraries
+ * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
+ */
+PencilBlue.initLibraries = function(cb) {
+    pb.libraries.init(cb);
 };
 
 //start system

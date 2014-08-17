@@ -41,7 +41,13 @@ SiteSettings.getPillNavOptions = function(ls) {
             title: ls.get('EMAIL'),
             icon: 'envelope',
             href: '/admin/site_settings/email'
-        }
+        },
+		{
+			name: 'libraries',
+			title: ls.get('LIBRARIES'),
+			icon: 'book',
+			href: '/admin/site_settings/libraries'
+		}
     ];
     return pillNavOptions;
 };

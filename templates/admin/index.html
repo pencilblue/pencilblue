@@ -25,7 +25,7 @@
             <div class="table_container">
                 <table id="cluster_info_table" class="table table-striped">
                     <th>^loc_SERVER^</th><th>^loc_PROCESS_TYPE^</th><th>^loc_UPTIME^</th><th>^loc_MEMORY_USED^</th><th>^loc_ACTIVE_PLUGINS^</th><th><a ng-if="access === 4" class="btn" onclick="refreshServers();"><i class="fa fa-refresh"></i></a></th>
-                    <tr ng-repeat="val in cluster">
+                    <tr ng-repeat="val in cluster" ng-cloak>
                         <td>{{val.ip}}::{{val.port}}</td>
                         <td title="{{val.worker_id}}">{{val.process_type}}</td>
                         <td>{{(val.uptime) | number:0}} ^loc_SECONDS_ABBR^</td>
@@ -38,7 +38,7 @@
     </div>
 </div>
 
-<script type="text/javascript" src="//fgnass.github.io/spin.js/spin.min.js"></script>
-<script type="text/javascript" src="//fgnass.github.io/spin.js/jquery.spin.js"></script>
+<script type="text/javascript" src="^spin_src^"></script>
+<script type="text/javascript" src="^jquery_spin_src^"></script>
 <script type="text/javascript" src="/js/admin/index.js"></script>
 ^tmp_admin=footer^

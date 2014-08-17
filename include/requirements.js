@@ -129,7 +129,8 @@ pb.email        = new pb.EmailService();
 
 //system requires
 pb.DocumentCreator    = require(DOCUMENT_ROOT+'/include/model/create_document.js').DocumentCreator;	// Document creation
-pb.content            = require(DOCUMENT_ROOT+'/include/content').ContentService;			        	// Content settings and functions
+pb.content            = require(DOCUMENT_ROOT+'/include/content').ContentService; // Content settings and functions
+pb.libraries          = require(DOCUMENT_ROOT+'/include/libraries').LibrariesService; // JS libraries settings and functions
 pb.js                 = require(DOCUMENT_ROOT+'/include/client_js').ClientJS;							// Client JS
 pb.AdminNavigation    = require(DOCUMENT_ROOT+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
 pb.AdminSubnavService = require(DOCUMENT_ROOT+'/include/service/admin/admin_subnav_service.js');
