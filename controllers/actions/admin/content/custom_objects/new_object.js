@@ -45,6 +45,8 @@ NewObject.prototype.onPostParamsRetrieved = function(post, cb) {
 
 		//format post object
         var customObjectDocument = pb.DocumentCreator.create('custom_object', post);
+        pb.CustomObjectService.formatRawForType(customObjectDocument, customObjectType);
+
         service.save(customObjectDocument, customObjectType, function(err, result) {
             if (util.isError(err)) {
                 return self.serveError(err);
@@ -57,7 +59,7 @@ NewObject.prototype.onPostParamsRetrieved = function(post, cb) {
             }
 
             self.session.success = customObjectDocument.name + ' ' + self.ls.get('CREATED');
-            self.redirect('/admin/content/custom_objects/new_object/' + customObjectType._id, cb);
+            self.redirect('/admin/content/custom_objects/new_object/' + customObjectType[pb.DAO.getIdField()], cb);
         });
     });
 };

@@ -28,6 +28,7 @@ function CustomObjectService() {}
 //statics
 CustomObjectService.CUST_OBJ_COLL = 'custom_object';
 CustomObjectService.CUST_OBJ_TYPE_COLL = 'custom_object_type';
+CustomObjectService.CUST_OBJ_SORT_COLL = 'custom_object_sort';
 
 //constants
 /**
@@ -97,6 +98,110 @@ var AVAILABLE_REFERENCE_TYPES = [
     'user'
 ];
 
+CustomObjectService.prototype.saveSortOrdering = function(sortOrder, cb) {
+    if (!pb.validation.isObj(sortOrder, true)) {
+        throw new Error('The custom object type must be a valid object.');
+    }
+
+    var self = this;
+    sortOrder.object_type = CustomObjectService.CUST_OBJ_SORT_COLL;
+    this.validateSortOrdering(sortOrder, function(err, errors) {
+        if (util.isError(err) || errors.length > 0) {
+            return cb(err, errors);
+        }
+
+        var dao = new pb.DAO();
+        dao.update(sortOrder).then(function(result) {
+            cb(util.isError(result) ? result : null, result);
+        });
+    });
+};
+
+CustomObjectService.prototype.validateSortOrdering = function(sortOrder, cb) {
+    if (!pb.utils.isObject(sortOrder)) {
+        throw new Error('The sortOrder parameter must be a valid object');
+    };
+
+    //validat sorted IDs
+    var errors = [];
+    if (!util.isArray(sortOrder.sorted_objects)) {
+        errors.push(CustomObjectService.err('sorted_objects', 'The sorted_objects property must be an array of IDs'));
+    }
+    else {
+        if (sortOrder.length === 0) {
+            errors.push(CustomObjectService.err('sorted_objects', 'The sorted objects ID list cannot be empty'));
+        }
+
+        for (var i = 0; i < sortOrder.length; i++) {
+
+            if (!pb.validation.isIdStr(sortOrder[i], true)) {
+                errors.push(CustomObjectService.err('sorted_objects.'+i, 'An invalid ID was found in the sorted_objects array at index '+i));
+            }
+        }
+    }
+
+    //validate that an object type Id is present
+    if (!pb.validation.isIdStr(sortOrder.custom_object_type, true)) {
+        errors.push(CustomObjectService.err('custom_object_type', 'An invalid ID value was passed for the custom_object_type property'));
+    }
+
+    //validate an object type exists
+    if (sortOrder.object_type !== CustomObjectService.CUST_OBJ_SORT_COLL) {
+        errors.push(CustomObjectService.err('object_type', 'The object_type value must be set to: '+CustomObjectService.CUST_OBJ_SORT_COLL));
+    }
+
+    cb(null, errors);
+};
+
+CustomObjectService.prototype.findByTypeWithOrdering = function(custObjType, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        options = {};
+    }
+
+    var sortOrder   = null;
+    var custObjects = null;
+    var self        = this;
+    var tasks       = [
+
+        //load objects
+        function(callback) {
+            self.findByType(custObjType, options, function(err, custObjectDocs) {
+                custObjects = custObjectDocs;
+                callback(err);
+            });
+        },
+
+        //load ordering
+        function(callback) {
+            self.loadSortOrdering(custObjType, function(err, ordering) {
+                sortOrder = ordering;
+                callback(err);
+            });
+        }
+    ];
+    async.parallel(tasks, function(err, results) {
+        custObjects = CustomObjectService.applyOrder(custObjects, sortOrder);
+        cb(err, custObjects);
+    });
+};
+
+
+CustomObjectService.prototype.loadSortOrdering = function(custObjType, cb) {
+    if (pb.utils.isObject(custObjType)) {
+        custObjType = custObjType[pb.DAO.getIdField()] + '';
+    }
+    else if (!pb.utils.isString(custObjType)) {
+        throw new Error('An invalid custom object type was provided: '+(typeof custObjType)+':'+custObjType);
+    }
+
+    var dao = new pb.DAO();
+    dao.loadByValue('custom_object_type', custObjType, CustomObjectService.CUST_OBJ_SORT_COLL, cb);
+};
+
 CustomObjectService.prototype.findByType = function(type, options, cb) {
     if (pb.utils.isFunction(options)) {
         cb = options;
@@ -120,6 +225,27 @@ CustomObjectService.prototype.findByType = function(type, options, cb) {
     var dao = new pb.DAO();
     dao.query(CustomObjectService.CUST_OBJ_COLL, options.where, options.select, options.order, options.limit, options.offset).then(function(result) {
         cb(util.isError(result) ? result : null, result);
+    });
+};
+
+CustomObjectService.prototype.findTypes = function(cb) {
+
+    var order = [
+        [NAME_FIELD, pb.DAO.ASC]
+    ];
+    var dao  = new pb.DAO();
+	dao.query(CustomObjectService.CUST_OBJ_TYPE_COLL, pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, order).then(function(custObjTypes) {
+        if (util.isArray(custObjTypes)) {
+            //currently, mongo cannot do case-insensitive sorts.  We do it manually
+            //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
+            custObjTypes.sort(function(a, b) {
+                var x = a.name.toLowerCase();
+                var y = b.name.toLowerCase();
+
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            });
+        }
+        cb(util.isError(custObjTypes) ? custObjTypes : null, custObjTypes);
     });
 };
 
@@ -209,19 +335,19 @@ CustomObjectService.prototype.validate = function(custObj, custObjType, cb) {
 
         //validate the name
         function(callback) {
-            if (!pb.validation.isNonEmptyStr(custObj.name)) {
+            if (!pb.validation.isNonEmptyStr(custObj.name, true)) {
                 errors.push(CustomObjectService.err('name', 'The name cannot be empty'));
                 return callback(null);
             }
 
             //test uniqueness of name
             var where = {
-                type: custObjType[pb.DAO.getIdField()].toString(),
-                NAME_FIELD: custObjType.name
+                type: custObjType[pb.DAO.getIdField()].toString()
             };
+            where[NAME_FIELD] = new RegExp('^'+pb.utils.escapeRegExp(custObj.name)+'$', 'i');
             dao.unique(CustomObjectService.CUST_OBJ_COLL, where, custObj[pb.DAO.getIdField()], function(err, isUnique){
                 if (!isUnique) {
-                    errors.push(CustomObjectService.err('name', 'The name '+custObjType.name+' is not unique'));
+                    errors.push(CustomObjectService.err('name', 'The name '+custObj.name+' is not unique'));
                 }
                 callback(err);
             });
@@ -261,7 +387,7 @@ CustomObjectService.prototype.validateCustObjFields = function(custObj, custObjT
             //execute validation procedure
             var field          = custObjType.fields[fieldName];
             var fieldType      = field.field_type;
-            var isValid        = AVAILABLE_FIELD_TYPES[fieldType];console.log(util.format('FN=[%s] FV=[%s] FT=[%s] FUNC=\n%s', fieldName, val, fieldType, isValid));
+            var isValid        = AVAILABLE_FIELD_TYPES[fieldType];
             if (!isValid(val, false)) {
                 errors.push(CustomObjectService.err(fieldName, 'An invalid value ['+val+'] was found.'));
             }
@@ -300,7 +426,8 @@ CustomObjectService.prototype.validateType = function(custObjType, cb) {
             }
 
             //test uniqueness of name
-            var where = {NAME_FIELD: custObjType.name};
+            var where = {};
+            where[NAME_FIELD] = new RegExp('^'+pb.utils.escapeRegExp(custObjType.name)+'$', 'i');
             dao.unique(CustomObjectService.CUST_OBJ_TYPE_COLL, where, custObjType[pb.DAO.getIdField()], function(err, isUnique){
                 if (!isUnique) {
                     errors.push(CustomObjectService.err('name', 'The name '+custObjType.name+' is not unique'));
@@ -409,7 +536,9 @@ CustomObjectService.prototype.save = function(custObj, custObjType, cb) {
         }
 
         var dao = new pb.DAO();
-        dao.update(custObj);
+        dao.update(custObj).then(function(result) {
+            cb(util.isError(result) ? result : null, result);
+        });
     });
 };
 
@@ -419,14 +548,16 @@ CustomObjectService.prototype.saveType = function(custObjType, cb) {
     }
 
     var self = this;
-    custObjType.object_type = CustomObjectService.CUST_OBJ_COLL;
+    custObjType.object_type = CustomObjectService.CUST_OBJ_TYPE_COLL;
     this.validateType(custObjType, function(err, errors) {
         if (util.isError(err) || errors.length > 0) {
             return cb(err, errors);
         }
 
         var dao = new pb.DAO();
-        dao.update(custObjType);
+        dao.update(custObjType).then(function(result) {
+            cb(util.isError(result) ? result : null, result);
+        });
     });
 };
 
@@ -451,25 +582,204 @@ CustomObjectService.getCustTypeSimpleName = function(name) {
 
 CustomObjectService.formatRawForType = function(post, custObjType) {
 
-    for(var key in customObjectType.fields) {
+    //remove system fields if posted back
+    delete post[pb.DAO.getIdField()];
+    delete post.created;
+    delete post.last_modified;
 
-        if(customObjectType.fields[key].field_type == 'number') {
+    //apply types to fields
+    for(var key in custObjType.fields) {
+
+        if(custObjType.fields[key].field_type == 'number') {
             if(post[key]) {
                 post[key] = parseFloat(post[key]);
             }
+            if (isNaN(post[key]) || !post[key]) {
+                post[key] = null;
+            }
         }
-        else if(customObjectType.fields[key].field_type == 'date') {
+        else if(custObjType.fields[key].field_type == 'date') {
             if(post[key]) {
                 post[key] = new Date(post[key]);
             }
+            else {
+                post[key] = null;
+            }
         }
-        else if(customObjectType.fields[key].field_type == 'child_objects') {
+        else if(custObjType.fields[key].field_type == CHILD_OBJECTS_TYPE) {
             if(post[key]) {
                 post[key] = post[key].split(',');
+            }
+            else {
+                post[key] = [];
+            }
+        }
+        else if (custObjType.fields[key].field_type == PEER_OBJECT_TYPE) {
+            if (!post[key]) {
+                post[key] = null;
             }
         }
     }
     post.type = custObjType[pb.DAO.getIdField()].toString();
+};
+
+CustomObjectService.formatRawType = function(post, ls) {
+
+    //document shell
+    var objectTypeDocument = {
+        object_type: CustomObjectService.CUST_OBJ_TYPE_COLL,
+        name: post.name,
+        fields: {
+            name: {
+                field_type: 'text'
+            }
+        }
+    };
+
+    //ensure the field order is specified
+    if(!post.field_order) {
+        return objectTypeDocument;
+    }
+
+    //create an array from the comma delimited list
+    fieldOrder = post.field_order.split(',');
+
+    //iterate over posted field orderings to build the field definitions
+    for(var i = 0; i < fieldOrder.length; i++) {
+
+        var index = fieldOrder[i];
+        var field = post['value_' + index];
+        if(field) {
+            if(objectTypeDocument.fields[field]) {
+                continue;
+            }
+
+            objectTypeDocument.fields[field] = {
+                field_type: post['field_type_' + index]
+            };
+        }
+        else if(post['date_' + index]) {
+            if(objectTypeDocument.fields[post['date_' + index]]) {
+                continue;
+            }
+
+            objectTypeDocument.fields[post['date_' + index]] = {
+                field_type: 'date'
+            };
+        }
+        else if(post['peer_object_' + index]) {
+            if(objectTypeDocument.fields[post['peer_object_' + index]]) {
+                continue;
+            }
+
+            if(post['field_type_' + index] == ls.get('OBJECT_TYPE')) {
+                return null;
+            }
+
+            objectTypeDocument.fields[post['peer_object_' + index]] = {
+                field_type: 'peer_object', object_type: post['field_type_' + index]
+            };
+        }
+        else if(post['child_objects_' + index]) {
+            if(objectTypeDocument.fields[post['child_objects_' + index]]) {
+                continue;
+            }
+
+            if(post['field_type_' + index] == ls.get('OBJECT_TYPE')) {
+                return null;
+            }
+
+            objectTypeDocument.fields[post['child_objects_' + index]] = {
+                field_type: 'child_objects', object_type: post['field_type_' + index]
+            };
+        }
+    }
+
+    return objectTypeDocument;
+};
+
+CustomObjectService.formatRawSortOrdering = function(post, sortOrder) {
+    delete post.last_modified;
+    delete post.created;
+    delete post[pb.DAO.getIdField()];
+
+    var sortOrderDoc = pb.DocumentCreator.create('custom_object_sort', post, ['sorted_objects']);
+    if (!sortOrderDoc) {
+        return sortOrderDoc;
+    }
+
+    //merge the old and new
+    if (pb.utils.isObject(sortOrder)) {
+        pb.utils.merge(sortOrderDoc, sortOrder);
+        return sortOrder;
+    }
+    return sortOrderDoc;
+};
+
+CustomObjectService.setFieldTypesUsed = function(custObjTypes, ls) {
+    if (!util.isArray(custObjTypes)) {
+        return;
+    }
+
+    var map                 = {};
+    map['text']             = ls.get('TEXT');
+    map['number']           = ls.get('NUMBER');
+    map['date']             = ls.get('DATE');
+    map[PEER_OBJECT_TYPE]   = ls.get('PEER_OBJECT');
+    map[CHILD_OBJECTS_TYPE] = ls.get('CHILD_OBJECTS');
+
+    // Make the list of field types used in each custom object type, for display
+    for(var i = 0; i < custObjTypes.length; i++) {
+
+        var fieldTypesUsed = {};
+        for(var key in custObjTypes[i].fields) {
+
+            var fieldType = custObjTypes[i].fields[key].field_type;
+            fieldTypesUsed[map[fieldType]] = 1;
+        }
+
+        fieldTypesUsed = Object.keys(fieldTypesUsed);
+        custObjTypes[i].fieldTypesUsed = fieldTypesUsed.join(', ');
+    }
+};
+
+
+CustomObjectService.applyOrder = function(custObjects, sortOrder) {
+    if (!util.isArray(custObjects)) {
+        throw new Error('The custObjects parameter must be an array');
+    }
+
+    //sort by name (case-insensitive)
+    if(!pb.utils.isObject(sortOrder)) {
+        //currently, mongo cannot do case-insensitive sorts.  We do it manually
+        //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
+        custObjects.sort(function(a, b) {
+            var x = a.name.toLowerCase();
+            var y = b.name.toLowerCase();
+
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+    }
+    else {
+        var customObjectSort = sortOrder.sorted_objects;
+        var sortedObjects    = [];
+        for(var i = 0; i < customObjectSort.length; i++)
+        {
+            for(var j = 0; j < custObjects.length; j++)
+            {
+                if(custObjects[j]._id.equals(ObjectID(customObjectSort[i])))
+                {
+                    sortedObjects.push(custObjects[j]);
+                    custObjects.splice(j, 1);
+                    break;
+                }
+            }
+        }
+
+        sortedObjects.concat(custObjects);
+        custObjects = sortedObjects;
+    }
+    return custObjects;
 };
 
 /**

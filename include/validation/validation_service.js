@@ -386,7 +386,7 @@ ValidationService.isDate = function(val, required) {
     if (!required && (val === null || val === undefined)) {
         return true;
     }
-    return util.isDate(val);
+    return util.isDate(val) && !isNaN(val.getTime());
 };
 
 //exports
