@@ -15,17 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var CustomObjects = require('../custom_objects');
+
 /**
  * Interface for creating a new object type
+ * @class NewObjectType
+ * @constructor
+ * @extends BaseController
  */
-
 function NewObjectType(){}
 
 //inheritance
 util.inherits(NewObjectType, pb.BaseController);
-
-//dependencies
-var CustomObjects = require('../custom_objects');
 
 //statics
 var SUB_NAV_KEY = 'new_custom_object_type';
@@ -33,31 +35,11 @@ var SUB_NAV_KEY = 'new_custom_object_type';
 NewObjectType.prototype.render = function(cb) {
 	var self = this;
 
-    var tabs   =
-    [
-        {
-            active: 'active',
-            href: '#object_settings',
-            icon: 'cog',
-            title: self.ls.get('SETTINGS')
-        },
-        {
-            href: '#object_fields',
-            icon: 'list-ul',
-            title: self.ls.get('FIELDS')
-        }
-    ];
-
-    var objectTypes = ['article', 'page', 'section', 'topic', 'media', 'user'];
-    var dao = new pb.DAO();
-    dao.query('custom_object_type', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(customObjectTypes) {
-        if (util.isError(customObjectTypes)) {
-            //TODO handle this
-        }
-
-        // Case insensitive test for duplicate name
-        for(var i =0; i < customObjectTypes.length; i++) {
-            objectTypes.push('custom:' + customObjectTypes[i].name);
+    var tabs      = NewObjectType.getTabs(this.ls);
+    var coService = new pb.CustomObjectService();
+    coService.getReferenceTypes(function(err, objectTypes) {
+        if (util.isError(err)) {
+            return self.reqHandler.serveError(err);
         }
 
         var angularData = pb.js.getAngularController(
@@ -75,6 +57,22 @@ NewObjectType.prototype.render = function(cb) {
             cb({content: result});
         });
     });
+};
+
+NewObjectType.getTabs = function(ls) {
+    return [
+        {
+            active: 'active',
+            href: '#object_settings',
+            icon: 'cog',
+            title: ls.get('SETTINGS')
+        },
+        {
+            href: '#object_fields',
+            icon: 'list-ul',
+            title: ls.get('FIELDS')
+        }
+    ];
 };
 
 NewObjectType.getSubNavItems = function(key, ls, data) {

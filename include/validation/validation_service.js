@@ -72,6 +72,33 @@ var URL_REGEX            = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/
 var URL_REGEX_NO_HOST    = /^\/.*\/{0,1}$/;
 
 /**
+ * Checks to see if the value is a valid ID string
+ * @static
+ * @method isIdStr
+ * @param {String} val The value under test
+ * @param {Boolean} [required=false] Indicates if the value is required. When
+ * FALSE, null will be an acceptable value.
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
+ */
+ValidationService.isIdStr = function(val, required) {
+    if (!required && (val === null || val === undefined)) {
+        return true;
+    }
+    else if (!pb.utils.isString(val)) {
+        return false;
+    }
+
+    try {
+        new pb.DAO.getObjectID(val);
+        return true;
+    }
+    catch(e) {
+        log.silly("ValidationService: Failed to validate VAL=[%s], REQ=[%s] ERR=%s", val, required, e.message);
+        return false;
+    }
+};
+
+/**
  * Validates an email address
  *
  * @method validateEmail
@@ -79,6 +106,17 @@ var URL_REGEX_NO_HOST    = /^\/.*\/{0,1}$/;
  * @param {Boolean} required
  */
 ValidationService.validateEmail = function(value, required) {
+	return ValidationService.isEmail(value, required);
+};
+
+/**
+ * Validates an email address
+ *
+ * @method isEmail
+ * @param {String} value
+ * @param {Boolean} required
+ */
+ValidationService.isEmail = function(value, required) {
 	if (!value && !required) {
 		return true;
 	}
@@ -88,12 +126,23 @@ ValidationService.validateEmail = function(value, required) {
 
 /**
  * Validates a version number
- *
+ * @deprecated
  * @method validateVersionNum
  * @param {String} value
  * @param {Boolean} required
  */
 ValidationService.validateVersionNum = function(value, required) {
+	return ValidationService.isVersionNum(value, required);
+};
+
+/**
+ * Validates a version number
+ *
+ * @method isVersionNum
+ * @param {String} value
+ * @param {Boolean} required
+ */
+ValidationService.isVersionNum = function(value, required) {
 	if (!value && !required) {
 		return true;
 	}
@@ -103,12 +152,23 @@ ValidationService.validateVersionNum = function(value, required) {
 
 /**
  * Validates an URL
- *
+ * @deprecated
  * @method validateUrl
  * @param {String} value
  * @param {Boolean} required
  */
 ValidationService.validateUrl = function(value, required) {
+	return ValidationService.isUrl(value, required);
+};
+
+/**
+ * Validates an URL
+ *
+ * @method isUrl
+ * @param {String} value
+ * @param {Boolean} required
+ */
+ValidationService.isUrl = function(value, required) {
 	if (!value && !required) {
 		return true;
 	}
@@ -118,12 +178,23 @@ ValidationService.validateUrl = function(value, required) {
 
 /**
  * Validates a file name
- *
+ * @deprecated
  * @method validateSafeFileName
  * @param {String} value
  * @param {Boolean} required
  */
 ValidationService.validateSafeFileName = function(value, required) {
+	return ValidationService.isSafeFileName(value, required);
+};
+
+/**
+ * Validates a file name
+ *
+ * @method isSafeFileName
+ * @param {String} value
+ * @param {Boolean} required
+ */
+ValidationService.isSafeFileName = function(value, required) {
 	if (!value && !required) {
 		return true;
 	}
@@ -133,12 +204,23 @@ ValidationService.validateSafeFileName = function(value, required) {
 
 /**
  * Validates a string
- *
+ * @deprecated
  * @method validateStr
  * @param {String} value
  * @param {Boolean} required
  */
 ValidationService.validateStr = function(value, required) {
+	return ValidationService.isStr(value, required);
+};
+
+/**
+ * Validates a string
+ *
+ * @method isStr
+ * @param {String} value
+ * @param {Boolean} required
+ */
+ValidationService.isStr = function(value, required) {
 	if (!value && !required) {
 		return true;
 	}
@@ -147,12 +229,23 @@ ValidationService.validateStr = function(value, required) {
 
 /**
  * Validates a string is not empty
- *
+ * @deprecated
  * @method validateNonEmptyStr
  * @param {String} value
  * @param {Boolean} required
  */
 ValidationService.validateNonEmptyStr = function(value, required) {
+	return ValidationService.isNonEmptyStr(value, required);
+};
+
+/**
+ * Validates a string is not empty
+ *
+ * @method isNonEmptyStr
+ * @param {String} value
+ * @param {Boolean} required
+ */
+ValidationService.isNonEmptyStr = function(value, required) {
 	if (!value && !required) {
 		return true;
 	}
@@ -161,12 +254,23 @@ ValidationService.validateNonEmptyStr = function(value, required) {
 
 /**
  * Validates an array
- *
+ * @deprecated
  * @method validateArray
  * @param {Array} value
  * @param {Boolean} required
  */
 ValidationService.validateArray = function(value, required) {
+	return ValidationService.isArray(value, required);
+};
+
+/**
+ * Validates an array
+ *
+ * @method isArray
+ * @param {Array} value
+ * @param {Boolean} required
+ */
+ValidationService.isArray = function(value, required) {
 	if (!value && !required) {
 		return true;
 	}
@@ -175,12 +279,23 @@ ValidationService.validateArray = function(value, required) {
 
 /**
  * Validates an object
- *
+ * @deprecated
  * @method validateObject
  * @param {Object} value
  * @param {Boolean} required
  */
 ValidationService.validateObject = function(value, required) {
+	return ValidationService.isObj(value, required);
+};
+
+/**
+ * Validates an object
+ *
+ * @method isObject
+ * @param {Object} value
+ * @param {Boolean} required
+ */
+ValidationService.isObj = function(value, required) {
 	if (!value && !required) {
 		return true;
 	}
@@ -229,7 +344,50 @@ ValidationService.isFloat = function(val, required, strict) {
         return false;
     }
     return val == parsed;
-}
+};
+
+/**
+ * Validates that the value is a number.
+ * @static
+ * @method isNum
+ * @param {Number} val The value under test
+ * @param {Boolean} [required=false] Indicates if the value is required. When
+ * FALSE, null will be an acceptable value.
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
+ */
+ValidationService.isNum = function(val, required) {
+    if (!required && (val === null || val === undefined)) {
+        return true;
+    }
+
+    return !isNaN(val);
+};
+
+/**
+ * Validates that the value is null, defined, an empty object, or an empty
+ * string.
+ * @static
+ * @method isEmpty
+ * @param {*} val The value under test
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
+ */
+ValidationService.isEmpty = function(val) {
+    return val === null || val === undefined || val === '' || val === {};
+};
+
+/**
+ * Validates that the value is a date object
+ * @static
+ * @method isDate
+ * @param {*} val The value under test
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
+ */
+ValidationService.isDate = function(val, required) {
+    if (!required && (val === null || val === undefined)) {
+        return true;
+    }
+    return util.isDate(val) && !isNaN(val.getTime());
+};
 
 //exports
 module.exports = ValidationService;

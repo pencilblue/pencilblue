@@ -17,62 +17,48 @@
 
 /**
  * Sets the sorting of objects
+ * @class SortObjectsPostController
  */
-
-function SortObjects(){}
+function SortObjectsPostController(){}
 
 //inheritance
-util.inherits(SortObjects, pb.FormController);
+util.inherits(SortObjectsPostController, pb.FormController);
 
-SortObjects.prototype.onPostParamsRetrieved = function(post, cb) {
+SortObjectsPostController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-	if(!vars.type_id)
-	{
-	    self.redirect('/admin/content/custom_objects/manage_object_types', cb);
-	    return;
+	if(!vars.type_id) {
+	    return this.reqHandler.serve404();
 	}
 
-	var dao = new pb.DAO();
-    dao.query('custom_object_type', {_id: ObjectID(vars.type_id)}).then(function(customObjectTypes) {
-		if (util.isError(customObjectTypes)) {
-			//TODO handle this
+    var service = new pb.CustomObjectService();
+    service.loadTypeById(vars.type_id, function(err, customObjectType) {
+		if (util.isError(err)) {
+			return self.reqHandler.serveError(err);
+		}
+        else if(!pb.utils.isObject(customObjectType)) {
+		    return self.reqHandler.serve404();
 		}
 
-		if(customObjectTypes.length === 0)
-		{
-		    self.redirect('/admin/content/custom_objects/manage_object_types', cb);
-	        return;
-		}
+        service.loadSortOrdering(customObjectType, function(err, sortOrder) {
+            if (util.isError(err)) {
+                return self.reqHandler.serveError(err);
+            }
 
-		var customObjectType = customObjectTypes[0];
+            post.custom_object_type = vars.type_id;console.log('pos:'+util.inspect(post));
+            var sortDocument        = pb.CustomObjectService.formatRawSortOrdering(post, sortOrder);console.log('doc:'+util.inspect(sortDocument));
 
-	    post.custom_object_type = vars.type_id;
-	    var sortDocument = pb.DocumentCreator.create('custom_object_sort', post, ['sorted_objects']);
+            service.saveSortOrdering(sortDocument, function(err, result) {
+                if(util.isError(err)) {
+                    return self.reqHandler.serveError(err);
+                }
+                else if (util.isArray(result) && result.length > 0) {
 
-	    if(sortDocument.sorted_objects.length === 0)
-	    {
-	        self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/sort_objects/' + customObjectType.name, cb);
-            return;
-	    }
-
-        dao.query('custom_object_sort', {custom_object_type: vars.type_id}).then(function(customObjectSorts) {
-		    if (util.isError(customObjectTypes)) {
-			    //TODO handle this
-		    }
-
-		    if(customObjectSorts.length > 0)
-		    {
-		        sortDocument._id = customObjectSorts[0]._id;
-		    }
-
-            dao.update(sortDocument).then(function(result) {
-                if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/sort_objects/' + customObjectType._id, cb);
+                    self.setFormFieldValues(post);
+                    self.formError(pb.CustomObjectService.createErrorStr(result), '/admin/content/custom_objects/sort_objects/' + vars.type_id, cb);
                     return;
                 }
-
                 self.session.success = customObjectType.name + ' ' + self.ls.get('SORT_SAVED');
                 self.redirect('/admin/content/custom_objects/manage_objects/' + customObjectType._id, cb);
             });
@@ -81,4 +67,4 @@ SortObjects.prototype.onPostParamsRetrieved = function(post, cb) {
 };
 
 //exports
-module.exports = SortObjects;
+module.exports = SortObjectsPostController;

@@ -17,8 +17,10 @@
 
 /**
  * Edits an object
+ * @class EditObject
+ * @constructor
+ * @extends FormController
  */
-
 function EditObject(){}
 
 //inheritance
@@ -28,106 +30,49 @@ EditObject.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-	if(!vars.id)
-	{
-	    self.redirect('/admin/content/custom_objects/manage_object_types', cb);
-	    return;
+	if(!vars.id) {
+        return this.serve404();
 	}
 
-    var dao = new pb.DAO();
-    // Check for duplicate name
-    dao.query('custom_object', {_id: ObjectID(vars.id)}).then(function(customObjects) {
-		if (util.isError(customObjects)) {
-			//TODO handle this
+    var service = new pb.CustomObjectService();
+    service.loadById(vars.id, function(err, custObj) {
+		if (util.isError(err)) {
+			return self.serveError(err);
 		}
+        else if (!pb.utils.isObject(custObj)) {
+            return self.serve404();
+        }
 
-		if(customObjects.length === 0)
-		{
-		    self.redirect('/admin/content/custom_objects/manage_object_types', cb);
-	        return;
-		}
+        //load the type definition
+        service.loadTypeById(custObj.type, function(err, custObjType) {
+            if (util.isError(err)) {
+                return self.serveError(err);
+            }
+            else if (!pb.utils.isObject(custObjType)) {
+                return self.serveError(new Error('The custom object type specified for the persisted custom object was invalid'));
+            }
 
-		var customObject = customObjects[0];
+            //format post fields
+            pb.CustomObjectService.formatRawForType(post, custObjType);
+            pb.utils.merge(post, custObj);
 
-        // Test for duplicate name
-        dao.query('custom_object_type', {_id: ObjectID(customObject.type)}).then(function(customObjectTypes) {
-	        if (util.isError(customObjectTypes)) {
-		        //TODO handle this
-	        }
+            //validate and persist
+	        service.save(custObj, custObjType, function(err, result) {
+                if (util.isError(err)) {
+                    return self.serveError(err);
+                }
+                else if (util.isArray(result) && result.length > 0) {
 
-	        if(customObjectTypes.length === 0)
-	        {
-	            self.redirect('/admin/content/custom_objects/manage_object_types', cb);
-                return;
-	        }
-
-	        var customObjectType = customObjectTypes[0];
-
-	        EditObject.validateName(dao, post, customObject, function(isValidName)
-		    {
-                if(!isValidName)
-                {
-                    self.formError(self.ls.get('EXISTING_OBJECT'), '/admin/content/custom_objects/edit_object/' +  vars.id, cb);
+                    self.setFormFieldValues(post);
+                    self.formError(pb.CustomObjectService.createErrorStr(result), '/admin/content/custom_objects/edit_object/' + custObj[pb.DAO.getIdField()], cb);
                     return;
                 }
 
-	            for(var key in customObjectType.fields)
-	            {
-	                if(customObjectType.fields[key].field_type == 'number')
-	                {
-	                    if(post[key])
-	                    {
-	                        post[key] = parseFloat(post[key]);
-	                    }
-	                }
-	                else if(customObjectType.fields[key].field_type == 'date')
-	                {
-	                    if(post[key])
-	                    {
-	                        post[key] = new Date(post[key]);
-	                    }
-	                }
-	                else if(customObjectType.fields[key].field_type == 'child_objects') {
-	                    if(post[key]) {
-	                        post[key] = post[key].split(',');
-	                    }
-	                }
-	            }
-
-	            post.type = customObject.type;
-	            var customObjectDocument = pb.DocumentCreator.create('custom_object', post);
-	            customObjectDocument._id = customObject._id;
-
-                dao.update(customObjectDocument).then(function(result) {
-                    if(util.isError(result)) {
-                        self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/custom_objects/edit_object/' + vars.id, cb);
-                        return;
-                    }
-
-                    self.session.success = customObjectDocument.name + ' ' + self.ls.get('EDITED');
-                    self.redirect('/admin/content/custom_objects/manage_objects/' + customObjectType._id, cb);
-                });
+                self.session.success = custObj.name + ' ' + self.ls.get('EDITED');
+                self.redirect('/admin/content/custom_objects/edit_object/' + custObj[pb.DAO.getIdField()], cb);
             });
         });
     });
-};
-
-EditObject.validateName = function(dao, post, customObject, cb) {
-    if(post.name == customObject.name) {
-        cb(true);
-        return;
-    }
-
-    dao.query('custom_object', {type: customObject.type}).then(function(customObjects) {
-        for(var i = 0; i < customObjects.length; i++) {
-            if(customObjects[i].name == post.name) {
-                cb(false);
-                return;
-            }
-        }
-    });
-
-    cb(true);
 };
 
 //exports

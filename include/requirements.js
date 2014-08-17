@@ -70,6 +70,7 @@ pb.FSEntityService              = require(DOCUMENT_ROOT+'/include/service/fs_ent
 pb.JSONFSEntityService          = require(DOCUMENT_ROOT+'/include/service/json_fs_entity_service.js').JSONFSEntityService;
 pb.ReadOnlySimpleLayeredService = require(DOCUMENT_ROOT+'/include/service/read_only_simple_layered_service.js').ReadOnlySimpleLayeredService;
 pb.TemplateEntityService        = require(DOCUMENT_ROOT+'/include/service/template_entity_service.js').TemplateEntityService;
+pb.CustomObjectService          = require(path.join(DOCUMENT_ROOT, 'include/service/entities/custom_object_service.js'));
 
 //setup settings service
 pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').SettingServiceFactory;
