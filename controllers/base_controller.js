@@ -113,6 +113,14 @@ BaseController.prototype.init = function(props, cb) {
     this.templateService.registerLocal('analytics', function(flag, cb) {
 		pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
 	});
+	this.templateService.registerLocal('wysiwyg', function(flag, cb) {
+		var wysiwygId = pb.utils.uniqueId().toString();
+
+		self.templateService.registerLocal('wys_id', wysiwygId);
+		self.templateService.load('admin/elements/wysiwyg', function(err, data) {
+			cb(err, new pb.TemplateValue(data, false));
+		});
+	});
 	this.ts = this.templateService;
 
 	cb();

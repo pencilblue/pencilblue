@@ -277,6 +277,11 @@ var loc =
         PUBLISH_DATE: 'Publish date',
         ACTIVE_SECTIONS: 'Drag associated sections here',
         INACTIVE_SECTIONS: 'Drag unassociated sections here',
+        PUBLISHED: 'Published',
+        UNPUBLISHED: 'Unpublished',
+        DRAFT: 'Draft'
+    },
+    wysiwyg: {
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',
         HEADING_1: 'Heading 1',
@@ -295,9 +300,22 @@ var loc =
         INSERT_MEDIA: 'Insert media',
         SELECT_MEDIA: 'Select media to insert',
         ASSOCIATE_MEDIA: 'Associate media with the article',
-        PUBLISHED: 'Published',
-        UNPUBLISHED: 'Unpublished',
-        DRAFT: 'Draft'
+        BOLD: 'Bold',
+        ITALIC: 'Italic',
+        UNDERLINE: 'Underline',
+        STRIKETHROUGH: 'Strikethough',
+        CLEAR_STYLES: 'Clear all styles',
+        ALIGN_LEFT: 'Align left',
+        ALIGN_CENTER: 'Align center',
+        ALIGN_RIGHT: 'Align right',
+        JUSTIFY: 'Justify',
+        ORDERED_LIST: 'Ordered list',
+        UNORDERED_LIST: 'Unordered list',
+        INSERT_OBJECT: 'Insert object',
+        WYSIWYG_VIEW: 'WYSIWYG view',
+        HTML_VIEW: 'HTML view',
+        MARKDOWN_VIEW: 'Markdown view',
+        TOGGLE_FULLSCREEN: 'Toggle fullscreen'
     },
     comments:
     {

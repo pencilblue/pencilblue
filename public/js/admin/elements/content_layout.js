@@ -15,7 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var layoutRange;
+$(document).ready(function() {
+    $('.one_active .btn').click(function() {
+        $(this).addClass('active').siblings().removeClass('active');
+    });
+    $('.content_layout').resizable({handles: 'n,s'});
+    $('.wysiwyg .btn').tooltip({
+        delay: {show: 500, hide: 100},
+        placement: 'top'
+    });
+});
+
+/*var layoutRange;
 var selectedHTML;
 
 $(document).ready(function()
@@ -491,4 +502,4 @@ function getContentLayout(cb)
             cb($('#temp_editable').html());
         }
     });
-}
+}*/
