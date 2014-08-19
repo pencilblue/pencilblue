@@ -66,7 +66,6 @@ SortObjects.prototype.render = function(cb) {
 
             self.setPageName(self.ls.get('MANAGE') + ' ' + objectType.name);
             self.ts.registerLocal('object_type_id', objectType._id);
-            self.ts.registerLocal('object_type_name', objectType.name);
             self.ts.registerLocal('angular_script', angularData);
             self.ts.load('admin/content/custom_objects/sort_objects', function(err, data) {
                 var result = '' + data;
