@@ -161,8 +161,7 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
  */
 UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
 	cb = cb || pb.utils.cb;
-console.log(util.inspect(user));
-console.log(util.inspect(passwordReset));
+
     var verficationUrl = pb.UrlService.urlJoin(pb.config.siteRoot, '/actions/user/reset_password') + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
 	var options = {
 		to: user.email,
