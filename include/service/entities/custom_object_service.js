@@ -156,6 +156,20 @@ CustomObjectService.prototype.validateSortOrdering = function(sortOrder, cb) {
     cb(null, errors);
 };
 
+/**
+ * Retrieves custom objects of the specified type based on the specified options.
+ * @method findByTypeWithOrdering
+ * @param {Object|String} The custom object type descriptor object or the ID
+ * string of the type descriptor.
+ * @param {Object} [options={}] The filters and other flags.  The options object
+ * supports the same fields as the DAO.query function.
+ * @param {Integer} [options.fetch_depth=0] The depth indicates how many levels
+ * of referenced child and peer objects to load.  At the bottom level the
+ * references will be left as ID strings.
+ * @param {Function} cb A callback that takes two parameters. The first is any
+ * error, if ocurred. The second is an array of objects sorted by the ordering
+ * assigned for the custom object or by name if no ordering exists.
+ */
 CustomObjectService.prototype.findByTypeWithOrdering = function(custObjType, options, cb) {
     if (pb.utils.isFunction(options)) {
         cb = options;
@@ -192,6 +206,18 @@ CustomObjectService.prototype.findByTypeWithOrdering = function(custObjType, opt
     });
 };
 
+/**
+ * Coordinates the eager fetching of peer and child objects for the specified custom object.
+ * @method fetchChildren
+ * @param {Object} custObj The custom object to inspect
+ * @param {Object} options The options specified for the retrieval
+ * @param {Integer} options.fetch_depth The number of levels of peer and child
+ * objects to retrieve
+ * @param {Object|String} custObjType The custom object type for the specified
+ * custom object.  This can also be the ID string value.
+ * @param {Function} cb A callback function that takes two parameters. The
+ * first is an Error, if occurred. The second is the specified custom object.
+ */
 CustomObjectService.prototype.fetchChildren = function(custObj, options, custObjType, cb) {
     if (!pb.utils.isObject(custObj) || !pb.utils.isObject(options)) {
         throw new Error('The custObj and options parameters must be an objects');
