@@ -23,7 +23,10 @@ var HtmlEncoder = require('htmlencode');
  * @class CustomObjectService
  * @constructor
  */
-function CustomObjectService() {}
+function CustomObjectService() {
+    this.typesCache = {};
+    this.typesNametoId = {};
+};
 
 //statics
 CustomObjectService.CUST_OBJ_COLL = 'custom_object';
@@ -189,6 +192,148 @@ CustomObjectService.prototype.findByTypeWithOrdering = function(custObjType, opt
     });
 };
 
+CustomObjectService.prototype.fetchChildren = function(custObj, options, custObjType, cb) {
+    if (!pb.utils.isObject(custObj) || !pb.utils.isObject(options)) {
+        throw new Error('The custObj and options parameters must be an objects');
+    }
+    else if (pb.utils.isFunction(custObjType)) {
+        cb          = custObjType;
+        custObjType = null;
+    }
+    else if (!pb.validation.isInt(options.fetch_depth, true, true) || options.fetch_depth <= 0) {
+        return cb(null, custObj);
+    }
+
+    //private function to retrieve the custom object type if not available
+    var self           = this;
+    var getCustObjType = function(type, cb) {
+        if (pb.utils.isObject(type)) {
+            return cb(null, type);
+        }
+        else if (self.typesCache[type]) {
+            return cb(null, self.typesCache[type]);
+        }
+        else if (self.typesNametoId[type]) {
+            return cb(null, self.typesCache[self.typesNametoId[type]]);
+        }
+
+        //build out the where clause
+        var where = null;
+        if (pb.validation.isIdStr(type, true)) {
+            where = pb.DAO.getIDWhere(type);
+        }
+        else {
+            where = {
+                name: type
+            };
+        }
+        self.loadTypeBy(where, function(err, custObjType) {
+            if (pb.utils.isObject(custObjType)) {
+                self.typesCache[type] = custObjType;
+                self.typesNametoId[custObjType.name] = custObjType[pb.DAO.getIdField()];
+            }
+            cb(err, custObjType);
+        });
+    };
+
+    //loads up a peer object
+    var loadPeerObject = function(id, objType, cb) {
+        if (!pb.validation.isIdStr(id, true)) {
+            return cb(null, null);
+        }
+
+        //we must determine if we are loading a regular object or a custom object
+        if (CustomObjectService.isCustomObjectType(objType)) {
+            getCustObjType(CustomObjectService.getCustTypeSimpleName(objType), function(err, type) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+                self.loadById(id, {fetch_depth: options.fetch_depth - 1}, cb);
+            });
+        }
+        else {
+            //we know that we are a system object so we resort to DAO
+            var dao = new pb.DAO();
+            dao.loadById(id, objType, cb);
+        }
+    };
+
+    //load up child objects
+    var loadChildObjects = function(ids, objType, cb) {
+        if (!util.isArray(ids) || ids === []) {
+            return cb(null, []);
+        }
+
+        //we must determine if we are loading custom objects or regular system objects
+        if (CustomObjectService.isCustomObjectType(objType)) {
+            getCustObjType(CustomObjectService.getCustTypeSimpleName(objType), function(err, type) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+
+                var opts = {
+                    where: pb.DAO.getIDInWhere(ids),
+                    fetch_depth: options.fetch_depth - 1
+                };
+                self.findByType(type, opts, cb);
+            });
+        }
+        else {
+
+            var where = pb.DAO.getIDInWhere(ids);
+            var dao   = new pb.DAO();
+            dao.query(objType, where).then(function(objs) {
+               cb(util.isError(objs) ? objs : null, objs);
+            });
+        }
+    };
+
+    //make sure we have the type for the object passed in
+    getCustObjType(custObjType, function(err, custObjType) {
+       if (util.isError(err)) {
+           return cb(err);
+       }
+
+        var tasks = pb.utils.getTasks(Object.keys(custObjType.fields), function(fieldNames, i) {
+            return function(callback) {
+
+                var field = custObjType.fields[fieldNames[i]];
+                if (!CustomObjectService.isReferenceFieldType(field.field_type)) {
+                    return callback();
+                }
+
+                //load a peer object
+                if (field.field_type === PEER_OBJECT_TYPE) {
+
+                    //load and set the peer object
+                    loadPeerObject(custObj[fieldNames[i]], field.object_type, function(err, peerObj) {
+                        if (pb.utils.isObject(peerObj)) {
+                            custObj[fieldNames[i]] = peerObj;
+                        }
+                        callback(err);
+                    });
+                }//load child objects
+                else if (field.field_type === CHILD_OBJECTS_TYPE) {
+
+                    //load and set the child objects
+                    //TODO add original order by sorting them
+                    loadChildObjects(custObj[fieldNames[i]], field.object_type, function(err, childObjs) {
+                         if (util.isArray(childObjs)) {
+                             custObj[fieldNames[i]] = childObjs;
+                         }
+                        callback(err);
+                    });
+                }
+                else {
+                    callback(new Error('An invalid field type was provided: '+field.field_type));
+                }
+            };
+        });
+        async.series(tasks, function(err, results) {
+            cb(err, custObj);
+        });
+    });
+};
 
 CustomObjectService.prototype.loadSortOrdering = function(custObjType, cb) {
     if (pb.utils.isObject(custObjType)) {
@@ -222,9 +367,20 @@ CustomObjectService.prototype.findByType = function(type, options, cb) {
     }
     options.where.type = typeStr;
 
-    var dao = new pb.DAO();
-    dao.query(CustomObjectService.CUST_OBJ_COLL, options.where, options.select, options.order, options.limit, options.offset).then(function(result) {
-        cb(util.isError(result) ? result : null, result);
+    var self = this;
+    var dao  = new pb.DAO();
+    dao.query(CustomObjectService.CUST_OBJ_COLL, options.where, options.select, options.order, options.limit, options.offset).then(function(custObjs) {
+        if (util.isArray(custObjs)) {
+
+            var tasks = pb.utils.getTasks(custObjs, function(custObjs, i) {
+                return function(callback) {
+                    self.fetchChildren(custObjs[i], options, type, callback);
+                };
+            });
+            async.series(tasks, cb);
+            return;
+        }
+        cb(util.isError(custObjs) ? custObjs : null, custObjs);
     });
 };
 
@@ -268,26 +424,40 @@ CustomObjectService.prototype.countByType = function(type, where, cb) {
     dao.count(CustomObjectService.CUST_OBJ_COLL, where, cb);
 };
 
-CustomObjectService.prototype.loadById = function(id, cb) {
-    this.loadBy(undefined, pb.DAO.getIDWhere(id), cb);
+CustomObjectService.prototype.loadById = function(id, options, cb) {
+    this.loadBy(undefined, pb.DAO.getIDWhere(id), options, cb);
 };
 
-CustomObjectService.prototype.loadByName = function(type, name, cb) {
+CustomObjectService.prototype.loadByName = function(type, name, options, cb) {
     var where = {};
     where[NAME_FIELD] = name;
-    this.loadBy(type, where, cb);
+    this.loadBy(type, where, options, cb);
 };
 
-CustomObjectService.prototype.loadBy = function(type, where, cb) {
+CustomObjectService.prototype.loadBy = function(type, where, options, cb) {
     if (!pb.validation.isIdStr(type, false) || !pb.validation.isObj(where, true) || pb.validation.isEmpty(where)) {
         throw new Error('The type, where must be provided in order to load a custom object');
+    }
+    else if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {};
+    }
+    else if (pb.utils.isObject(options)) {
+        throw new Error('The options object must be an object');
     }
 
     if (type) {
         where.type = type;
     }
-    var dao = new pb.DAO();
-    dao.loadByValues(where, CustomObjectService.CUST_OBJ_COLL, cb);
+
+    var self = this;
+    var dao  = new pb.DAO();
+    dao.loadByValues(where, CustomObjectService.CUST_OBJ_COLL, function(err, custObj) {
+        if (pb.utils.isObject(custObj)) {
+            return self.fetchChildren(custObj, options, type, cb);
+        }
+        cb(err, custObj);
+    });
 };
 
 CustomObjectService.prototype.loadTypeById = function(id, cb) {
@@ -303,7 +473,7 @@ CustomObjectService.prototype.loadTypeByName = function(name, cb) {
 
 CustomObjectService.prototype.loadTypeBy = function(where, cb) {
     if (!pb.validation.isObj(where, true) || pb.validation.isEmpty(where)) {
-        throw new Error('The type, where must be provided in order to load a custom object type');
+        throw new Error("The where parameter must be provided in order to load a custom object type");
     }
 
     var dao = new pb.DAO();
