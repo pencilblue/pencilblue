@@ -9,7 +9,7 @@
 function TestPage(){}
 
 //dependencies
-var TestPage  = pb.PluginService;
+var PluginService  = pb.PluginService;
 
 //inheritance
 util.inherits(TestPage, pb.BaseController);

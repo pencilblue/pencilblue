@@ -34,7 +34,11 @@ function JobService(){
  * @param {Function} cb A callback that takes two parameters: cb(Error, Array)
  */
 JobService.prototype.getLogs = function(jid, startingDate, cb) {
-
+    if (pb.utils.isFunction(startingDate)) {
+        cb           = startingDate;
+        startingDate = new Date(0);
+    }
+    
     var where = {
         job_id: jid,
         created: {$gte: startingDate}

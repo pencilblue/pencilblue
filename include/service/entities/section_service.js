@@ -490,6 +490,39 @@ SectionService.prototype.validateNavItemEditor = function(editor, cb) {
 	});
 };
 
+SectionService.prototype.save = function(navItem, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {};
+    }
+    
+    //validate
+    var self = this;
+    self.validate(navItem, function(err, validationErrors) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        else if (validationErrors.length > 0) {
+            return cb(null, validationErrors);
+        }
+
+        //persist the changes
+        var dao = new pb.DAO();
+        dao.update(navItem).then(function(data) {
+            if(util.isError(data)) {
+                return cb(err);
+            }
+
+            //update the navigation map
+            self.updateNavMap(navItem, function() {
+
+                //ok, now we can delete the orhphans if they exist
+                self.deleteChildren(navItem[pb.DAO.getIdField()], cb);
+            });
+        });
+    });
+};
+
 SectionService.getSectionData = function(uid, navItems) {
     var self = this;
     for(var i = 0; i < navItems.length; i++) {
