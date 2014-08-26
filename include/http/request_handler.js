@@ -410,12 +410,17 @@ RequestHandler.prototype.serve404 = function() {
  * TODO install an encoder entity since node prints out function names in angle brackets
  */
 RequestHandler.prototype.serveError = function(err) {
+    if (this.resp.headerSent) {
+        return false;
+    }
+    
 	var data = {
 		content: '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>'+(err ? err.stack : err)+'</pre></body></html>',
 		content_type: 'text/html',
 		code: 500
 	};
 	this.onRenderComplete(data);
+    return true;
 };
 
 RequestHandler.prototype.onSessionRetrieved = function(err, session) {

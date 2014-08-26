@@ -25,7 +25,7 @@ function Media(){}
 util.inherits(Media, pb.BaseController);
 
 Media.prototype.render = function(cb) {
-	self.redirect('/admin/content/media/manage_media', cb);
+	this.redirect('/admin/content/media/manage_media', cb);
 };
 
 Media.getPillNavOptions = function(activePill) {
