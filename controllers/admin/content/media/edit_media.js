@@ -76,7 +76,9 @@ EditMedia.prototype.render = function(cb) {
             };
             var angularData = pb.js.getAngularController(objects);
 
-            self.session.fieldValues = {media_topics: media.media_topics.join(',')};
+            self.session.fieldValues = {
+                media_topics: util.isArray(media.media_topics) ? media.media_topics.join(',') : []
+            };
 
             self.setPageName(self.ls.get('EDIT') + ' ' + media.name);
             self.ts.registerLocal('angular_script', angularData);
