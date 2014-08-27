@@ -40,6 +40,11 @@ $(document).ready(function() {
 function initWYSIWYG() {
     $('.wysiwyg .layout_code').val($('.wysiwyg .layout_editable').html());
     $('.wysiwyg .layout_markdown').val(toMarkdown($('.wysiwyg .layout_editable').html()).split('<div>').join("\n").split('</div>').join(''));
+
+    $('.wysiwyg').each(function() {
+        var wysId = $(this).attr('id').split('wysiwyg_').join('');
+        loadLayoutMediaPreviews(wysId);
+    });
 }
 
 function toolbarAction(wysId, action, argument) {
@@ -93,6 +98,21 @@ function restoreSelection(wysId) {
 		selection.addRange(selectedRange);
 	}
     updateToolbar(wysId);
+}
+
+function getSelectedHTML()
+{
+    var sel = window.getSelection();
+    if(sel.rangeCount)
+    {
+        var container = document.createElement("div");
+        for(var i = 0, len = sel.rangeCount; i < len; ++i)
+        {
+            container.appendChild(sel.getRangeAt(i).cloneContents());
+        }
+
+        return container.innerHTML;
+    }
 }
 
 function updateToolbar(wysId) {
@@ -178,6 +198,209 @@ function closeLayoutFullscreen(wysId) {
     $('#wysiwyg_' + wysId + ' .content_layout').resizable('enable');
 }
 
-function getContent(wysId) {
-    return $('#wysiwyg_' + wysId + ' .layout_editable').html();
+function showContentLayoutModal(wysId, subsection)
+{
+    switch(subsection)
+    {
+        case 'add_layout_link':
+            $('.add_layout_media').hide();
+            $('.add_layout_link').show();
+            $('#wysiwyg_modal_' + wysId + ' #layout_link_url').focus();
+            $('#wysiwyg_modal_' + wysId + ' #layout_link_text').val(getSelectedHTML());
+            break;
+        case 'add_layout_media':
+        default:
+            $('.add_layout_link').hide();
+            $('.add_layout_media').show();
+            $('#wysiwyg_modal_' + wysId + ' #layout_media_options').html(getLayoutMediaOptions(wysId));
+            break;
+    }
+
+    closeLayoutFullscreen(wysId);
+    $('#wysiwyg_modal_' + wysId + ' #layout_link_url').val('');
+    $('#wysiwyg_modal_' + wysId).modal({backdrop: 'static', keyboard: true});
+}
+
+function addLayoutLink(wysId)
+{
+    if($('#wysiwyg_modal_' + wysId + ' #layout_link_url').val().length > 0)
+    {
+        if($('#wysiwyg_modal_' + wysId + ' #link_in_tab').is(':checked'))
+        {
+            toolbarAction(wysId, 'inserthtml', '<a href="' + $('#wysiwyg_modal_' + wysId + ' #layout_link_url').val() + '" target="_blank">' + $('#wysiwyg_modal_' + wysId + ' #layout_link_text').val() + '</a>');
+        }
+        else
+        {
+            toolbarAction(wysId, 'inserthtml', '<a href="' + $('#wysiwyg_modal_' + wysId + ' #layout_link_url').val() + '">' + $('#wysiwyg_modal_' + wysId + ' #layout_link_text').val() + '</a>');
+        }
+    }
+
+    $('#wysiwyg_modal_' + wysId).modal('hide');
+}
+
+function getLayoutMediaOptions(wysId)
+{
+    var activeMedia = $('#active_media .media_item');
+    if(activeMedia.length === 0)
+    {
+        return '<button type="button" class="btn btn-sm btn-default" onclick="associateMedia(\'' + wysId + '\')">' + loc.wysiwyg.ASSOCIATE_MEDIA + '</button><br/>&nbsp;';
+    }
+
+    var mediaHTML = '';
+    activeMedia.each(function()
+    {
+        var mediaCheckbox = '<div class="checkbox"><label><input type="checkbox" id="layout_media_^media_id^">^media_name^</label></div>';
+        mediaCheckbox = mediaCheckbox.split('^media_id^').join($(this).attr('id').substr(6));
+        mediaCheckbox = mediaCheckbox.split('^media_name^').join($(this).find('.media_name').html());
+
+        mediaHTML = mediaHTML.concat(mediaCheckbox);
+    });
+
+    $('#layout_media_format').show();
+    return mediaHTML;
+}
+
+function addLayoutMedia(wysId)
+{
+    var associatedMedia = [];
+    var mediaOptionsChecked = 0;
+    $('#wysiwyg_modal_' + wysId + ' #layout_media_options input').each(function()
+    {
+        if($(this).is(':checked'))
+        {
+            associatedMedia.push($(this).attr('id').substr(13));
+        }
+        mediaOptionsChecked++;
+
+        if(mediaOptionsChecked >= $('#layout_media_options input').length)
+        {
+            var mediaFormat = getMediaFormat(wysId);
+
+            for(var i = 0; i < associatedMedia.length; i++) {
+                toolbarAction(wysId, 'inserthtml', '<div>^media_display_' + associatedMedia[i] + mediaFormat + '^</div>');
+            }
+
+            loadLayoutMediaPreviews(wysId);
+            $('#wysiwyg_modal_' + wysId).modal('hide');
+        }
+    });
+}
+
+function getMediaFormat(wysId)
+{
+    var mediaFormat = '/position:' + $('#wysiwyg_modal_' + wysId + ' #media_position_radio').find('.active').first().find('input').attr('id');
+
+    if($('#wysiwyg_modal_' + wysId + ' #media_max_height').val())
+    {
+        mediaFormat = mediaFormat.concat(',maxheight:' + $('#wysiwyg_modal_' + wysId + ' #media_max_height').val() + $('#wysiwyg_modal_' + wysId + ' #media_max_height_unit').html());
+    }
+
+    return mediaFormat;
+}
+
+function loadLayoutMediaPreviews(wysId)
+{
+    var layout = $('#wysiwyg_' + wysId + ' .layout_editable').html();
+    var index = layout.indexOf('^media_display_');
+    if(index == -1)
+    {
+        return;
+    }
+
+    var startIndex = index + 15;
+    var endIndex = layout.substr(startIndex).indexOf('^');
+    var mediaProperties = layout.substr(startIndex, endIndex).split('/');
+    var mediaID = mediaProperties[0];
+    var styles = getLayoutMediaStyle(mediaProperties[1]);
+    var mediaTag = layout.substr(startIndex - 14, endIndex + 14);
+
+    $.getJSON('/api/content/get_media_embed?id=' + mediaID, function(result)
+    {
+        if(result.code === 0)
+        {
+            var mediaPreview = '<div id="media_preview_' + mediaID + '" class="media_preview" media-tag="' + mediaTag + '" + style="' + styles.containerCSS + '">' + result.data + '</div>';
+
+            layout = layout.split('^' + mediaTag + '^').join(mediaPreview);
+            $('#wysiwyg_' + wysId + ' .layout_editable').html(layout);
+
+            $('#wysiwyg_' + wysId + ' #media_preview_' + mediaID).children().first().attr('style', styles.mediaCSS);
+
+            if(layout.indexOf('^media_display_') > -1) {
+                loadLayoutMediaPreviews();
+            }
+        }
+    });
+}
+
+function getLayoutMediaStyle(styleString)
+{
+    var styleElements = styleString.split(',');
+    var containerCSS = [];
+    var mediaCSS = [];
+
+    for(var i = 0; i < styleElements.length; i++)
+    {
+        var styleSetting = styleElements[i].split(':');
+
+        switch(styleSetting[0])
+        {
+            case 'position':
+                switch(styleSetting[1]) {
+                    case 'left':
+                        containerCSS.push('float: left');
+                        containerCSS.push('margin-right: 1em');
+                        break;
+
+                    case 'right':
+                        containerCSS.push('float: right');
+                        containerCSS.push('margin-left: 1em');
+                        break;
+                    case 'center':
+                        containerCSS.push('text-align: center');
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case 'maxheight':
+                mediaCSS.push('max-height: ' + styleSetting[1]);
+                break;
+            default:
+                break;
+        }
+    }
+
+    return {containerCSS: containerCSS.join('; '), mediaCSS: mediaCSS.join('; ')};
+}
+
+function associateMedia(wysId)
+{
+    $('#wysiwyg_modal_' + wysId).modal('hide');
+    $('.nav-tabs a[href="#media"]').tab('show');
+}
+
+function getWYSIWYGLayout(wysId, cb) {
+    if(!$('#temp_editable').position()){
+        $('body').append('<div id="temp_editable" style="display:none"></div>');
+    }
+    $('#temp_editable').html($('#wysiwyg_' + wysId + ' .layout_editable').html());
+
+    var i = 0;
+    var mediaCount = $('#temp_editable .media_preview').length;
+    if(mediaCount === 0)
+    {
+        cb($('#temp_editable').html());
+        return;
+    }
+
+    $('#temp_editable .media_preview').each(function()
+    {
+        $(this).replaceWith('^' + $(this).attr('media-tag') + '^');
+        i++;
+
+        if(i >= mediaCount)
+        {
+            cb($('#temp_editable').html());
+        }
+    });
 }
