@@ -139,6 +139,45 @@ function onLayoutMarkdownChanged(wysId) {
     $('#wysiwyg_' + wysId + ' .layout_code').val(markdown.toHTML($('#wysiwyg_' + wysId + ' .layout_markdown').val()));
 }
 
+function toggleLayoutFullscreen(wysId) {
+    if(!$('#wysiwyg_' + wysId).attr('style')) {
+        openLayoutFullscreen(wysId);
+    }
+    else if($('#wysiwyg_' + wysId).attr('style').length === 0) {
+        openLayoutFullscreen(wysId);
+    }
+    else {
+        closeLayoutFullscreen(wysId);
+    }
+}
+
+function openLayoutFullscreen(wysId) {
+    $('#wysiwyg_' + wysId).css({
+        'background-color': '#FFFFFF',
+        'position': 'fixed',
+        'top': '0',
+        'left': '0',
+        'width': '100%',
+        'height': '100%',
+        'overflow': 'auto',
+        'z-index': '10000'
+    });
+
+    $('#wysiwyg_' + wysId + ' .content_layout').resizable('disable');
+    $('#wysiwyg_' + wysId + ' .content_layout').css({
+        'height': '100%',
+        'margin': '0'
+    });
+
+    $('#wysiwyg_' + wysId).focus();
+}
+
+function closeLayoutFullscreen(wysId) {
+    $('#wysiwyg_' + wysId).attr('style', '');
+    $('#wysiwyg_' + wysId + ' .content_layout').attr('style', '');
+    $('#wysiwyg_' + wysId + ' .content_layout').resizable('enable');
+}
+
 function getContent(wysId) {
     return $('#wysiwyg_' + wysId + ' .layout_editable').html();
 }
