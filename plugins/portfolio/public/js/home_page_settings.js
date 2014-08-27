@@ -64,18 +64,15 @@ function prepareHomePageSettingsSave() {
             $('#page_media').val(mediaCSV);
         }
 
-        getContentLayout(function(contentLayout) {
+        var layout = $('#page_wysiwyg .layout_editable').html();
+        if(!$('#page_layout').position()) {
+            $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
+        }
+        else {
+            $('#page_layout').val(layout);
+        }
 
-            var layout = contentLayout;
-            if(!$('#page_layout').position()) {
-                $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
-            }
-            else {
-                $('#page_layout').val(layout);
-            }
-
-            $('#home_page_settings_form').submit();
-        });
+        $('#home_page_settings_form').submit();
     });
 }
 

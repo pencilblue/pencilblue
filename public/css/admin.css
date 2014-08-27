@@ -363,7 +363,7 @@ form .error
 {
     background-color: #FFFFFF;
     margin-bottom: 1em;
-    padding: .5em;
+    padding: 0;
     min-height: 200px;
 }
 
@@ -378,6 +378,7 @@ form .error
     width: 100%;
     height: 100%;
     border: none;
+    padding: .5em;
 }
 
 .layout_editable:focus, .layout_code:focus, .layout_markdown:focus
@@ -390,6 +391,10 @@ form .error
     background-color: #333333;
     color: #FFFFFF;
     resize: none;
+}
+
+.layout_markdown {
+    background-color: #333344;
 }
 
 #column_inches

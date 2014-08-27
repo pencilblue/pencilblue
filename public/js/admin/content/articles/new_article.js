@@ -162,30 +162,27 @@ function checkForNewArticleSave(draft)
                     $('#article_media').val(mediaCSV);
                 }
 
-                getContentLayout(function(contentLayout)
-                {
-                    var layout = contentLayout;
-                    if(!$('#article_layout').position()) {
-                        $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + layout + '</textarea>');
-                    }
-                    else {
-                        $('#article_layout').val(layout);
-                    }
+                var layout = $('#article_wysiwyg .layout_editable').html();
+                if(!$('#article_layout').position()) {
+                    $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + layout + '</textarea>');
+                }
+                else {
+                    $('#article_layout').val(layout);
+                }
 
-                    if(!$('#draft').position()) {
-                        $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
-                    }
-                    else {
-                        $('#draft').val((draft) ? '1' : '0');
-                    }
+                if(!$('#draft').position()) {
+                    $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
+                }
+                else {
+                    $('#draft').val((draft) ? '1' : '0');
+                }
 
-                    var pubDateStr = $('#publish_date').val();
-                    var pubDateObj = new Date(pubDateStr);
-                    $('#publish_date').val(pubDateObj);
+                var pubDateStr = $('#publish_date').val();
+                var pubDateObj = new Date(pubDateStr);
+                $('#publish_date').val(pubDateObj);
 
 
-                    $('#new_article_form').submit();
-                });
+                $('#new_article_form').submit();
             });
         });
     });

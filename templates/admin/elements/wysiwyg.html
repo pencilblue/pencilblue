@@ -6,52 +6,51 @@
                     <span class="text_type_name">^loc_NORMAL_TEXT^</span>&nbsp;<i class="fa fa-chevron-down"></i>
                 </button>
                 <ul class="dropdown-menu" id="format_type_dropdown" role="menu">
-                    <li><a href="javascript:formatBlock('div', '^loc_NORMAL_TEXT^')">^loc_NORMAL_TEXT^</a></li>
-                    <li><a href="javascript:formatBlock('blockquote', '^loc_QUOTE^')">^loc_QUOTE^</a></li>
-                    <li><a href="javascript:formatBlock('h1', '^loc_HEADING_1^')">^loc_HEADING_1^</a></li>
-                    <li><a href="javascript:formatBlock('h2', '^loc_HEADING_2^')">^loc_HEADING_2^</a></li>
-                    <li><a href="javascript:formatBlock('h3', '^loc_HEADING_3^')">^loc_HEADING_3^</a></li>
-                    <li><a href="javascript:formatBlock('h4', '^loc_HEADING_4^')">^loc_HEADING_4^</a></li>
-                    <li><a href="javascript:formatBlock('h5', '^loc_HEADING_5^')">^loc_HEADING_5^</a></li>
-                    <li><a href="javascript:formatBlock('h6', '^loc_HEADING_6^')">^loc_HEADING_6^</a></li>
+                    <li><a href="#" onclick="formatBlock('^wys_id^', 'div', '^loc_NORMAL_TEXT^')" data-format-type="div">^loc_NORMAL_TEXT^</a></li>
+                    <li><a href="#" onclick="formatBlock('^wys_id^', 'blockquote', '^loc_QUOTE^')" data-format-type="blockquote">^loc_QUOTE^</a></li>
+                    <li><a href="#" onclick="formatBlock('^wys_id^', 'h1', '^loc_HEADING_1^')" data-format-type="h1">^loc_HEADING_1^</a></li>
+                    <li><a href="#" onclick="formatBlock('^wys_id^', 'h2', '^loc_HEADING_2^')" data-format-type="h2">^loc_HEADING_2^</a></li>
+                    <li><a href="#" onclick="formatBlock('^wys_id^', 'h3', '^loc_HEADING_3^')" data-format-type="h3">^loc_HEADING_3^</a></li>
+                    <li><a href="#" onclick="formatBlock('^wys_id^', 'h4', '^loc_HEADING_4^')" data-format-type="h4">^loc_HEADING_4^</a></li>
+                    <li><a href="#" onclick="formatBlock('^wys_id^', 'h5', '^loc_HEADING_5^')" data-format-type="h5">^loc_HEADING_5^</a></li>
+                    <li><a href="#" onclick="formatBlock('^wys_id^', 'h6', '^loc_HEADING_6^')" data-format-type="h6">^loc_HEADING_6^</a></li>
                 </ul>
             </div>
-            <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-default" onclick="layoutFormat('bold')" data-format-type="bold" title="^loc_BOLD^"><i class="fa fa-bold"></i></button>
-                <button type="button" class="btn btn-default" onclick="layoutFormat('italic')" data-format-type="italic" title="^loc_ITALIC^"><i class="fa fa-italic"></i></button>
-                <button type="button" class="btn btn-default" onclick="layoutFormat('underline')" data-format-type="underline" title="^loc_UNDERLINE^"><i class="fa fa-underline"></i></button>
-                <button type="button" class="btn btn-default" onclick="layoutFormat('strikeThrough')" data-format-type="strikethrough" title="^loc_STRIKETHROUGH^"><i class="fa fa-strikethrough"></i></button>
-                <button id="clear_button" type="button" class="btn btn-default" onclick="clearAllLayoutStyles()" title="^loc_CLEAR_STYLES^"><i class="fa fa-ban"></i></button>
+            <div class="btn-group btn-group-sm btn-group-format">
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'bold')" data-format-type="bold" title="^loc_BOLD^"><i class="fa fa-bold"></i></button>
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'italic')" data-format-type="italic" title="^loc_ITALIC^"><i class="fa fa-italic"></i></button>
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'underline')" data-format-type="underline" title="^loc_UNDERLINE^"><i class="fa fa-underline"></i></button>
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'strikeThrough')" data-format-type="strikethrough" title="^loc_STRIKETHROUGH^"><i class="fa fa-strikethrough"></i></button>
+                <!--<button id="clear_button" type="button" class="btn btn-default" onclick="clearAllLayoutStyles()" title="^loc_CLEAR_STYLES^"><i class="fa fa-ban"></i></button>-->
             </div>
-            <div class="btn-group btn-group-sm" data-toggle="buttons">
-                <button type="button" class="btn btn-default" onclick="layoutFormat('justifyleft')" data-format-type="justifyleft" title="^loc_ALIGN_LEFT^"><i class="fa fa-align-left"></i></button>
-                <button type="button" class="btn btn-default" onclick="layoutFormat('justifycenter')" data-format-type="justifycenter" title="^loc_ALIGN_CENTER^"><i class="fa fa-align-center"></i></button>
-                <button type="button" class="btn btn-default" onclick="layoutFormat('justifyright')" data-format-type="justifyright" title="^loc_ALIGN_RIGHT^"><i class="fa fa-align-right"></i></button>
-                <button type="button" class="btn btn-default" onclick="layoutFormat('justifyfull')" data-format-type="justifyfull" title="^loc_JUSTIFY^"><i class="fa fa-align-justify"></i></button>
+            <div class="btn-group btn-group-sm btn-group-format" data-toggle="buttons">
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'justifyleft')" data-format-type="justifyleft" title="^loc_ALIGN_LEFT^"><i class="fa fa-align-left"></i></button>
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'justifycenter')" data-format-type="justifycenter" title="^loc_ALIGN_CENTER^"><i class="fa fa-align-center"></i></button>
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'justifyright')" data-format-type="justifyright" title="^loc_ALIGN_RIGHT^"><i class="fa fa-align-right"></i></button>
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'justifyfull')" data-format-type="justifyfull" title="^loc_JUSTIFY^"><i class="fa fa-align-justify"></i></button>
             </div>
-            <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-default" onclick="layoutFormat('insertorderedlist')" data-format-type="insertorderedlist" title="^loc_ORDERED_LIST^"><i class="fa fa-list-ol"></i></button>
-                <button type="button" class="btn btn-default" onclick="layoutFormat('insertunorderedlist')" data-format-type="insertunorderedlist" title="^loc_UNORDERED_LIST^"><i class="fa fa-list-ul"></i></button>
+            <div class="btn-group btn-group-sm btn-group-format">
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'insertorderedlist')" data-format-type="insertorderedlist" title="^loc_ORDERED_LIST^"><i class="fa fa-list-ol"></i></button>
+                <button type="button" class="btn btn-default" onclick="toolbarAction('^wys_id^', 'insertunorderedlist')" data-format-type="insertunorderedlist" title="^loc_UNORDERED_LIST^"><i class="fa fa-list-ul"></i></button>
             </div>
             <div class="btn-group btn-group-sm">
                 <button type="button" class="btn btn-default" onclick="showContentLayoutModal('add_layout_link')" title="^loc_INSERT_LINK^"><i class="fa fa-link"></i></button>
                 <button type="button" id="media_button" class="btn btn-default" onclick="showContentLayoutModal('add_layout_media')" title="^loc_INSERT_MEDIA^"><i class="fa fa-picture-o"></i></button>
-                <button type="button" id="media_button" class="btn btn-default" onclick="" title="^loc_INSERT_OBJECT^"><i class="fa fa-sitemap"></i></button>
             </div>
             <div class="btn-group btn-group-sm one_active">
-                <button type="button" class="btn btn-default" onclick="showWYSIWYGView()" title="^loc_WYSIWYG_VIEW^"><i class="fa fa-pencil-square-o"></i></button>
-                <button type="button" class="btn btn-default" onclick="showCodeView()" title="^loc_HTML_VIEW^"><i class="fa fa-code"></i></button>
-                <button type="button" class="btn btn-default" onclick="showMarkdownView()" title="^loc_MARKDOWN_VIEW^"><i class="fa fa-dot-circle-o"></i></button>
+                <button type="button" class="btn btn-default active" onclick="showLayoutView('^wys_id^', 'editable')" title="^loc_WYSIWYG_VIEW^"><i class="fa fa-pencil-square-o"></i></button>
+                <button type="button" class="btn btn-default" onclick="showLayoutView('^wys_id^', 'code')" title="^loc_HTML_VIEW^"><i class="fa fa-code"></i></button>
+                <button type="button" class="btn btn-default" onclick="showLayoutView('^wys_id^', 'markdown')" title="^loc_MARKDOWN_VIEW^"><i class="fa fa-dot-circle-o"></i></button>
             </div>
             <div class="btn-group btn-group-sm">
                 <button type="button" class="btn btn-default" data-toggle="button" onclick="toggleLayoutFullscreen()" title="^loc_TOGGLE_FULLSCREEN^"><i class="fa fa-arrows-alt"></i></button>
             </div>
         </div>
     </div>
-    <div class="content_layout form-control" onmouseup="onLayoutEditableChanged()">
-        <div class="layout_editable" onkeyup="onLayoutEditableChanged()" contenteditable></div>
-        <textarea class="layout_code" style="display: none" onkeyup="onLayoutCodeChanged()"></textarea>
-        <textarea class="layout_markdown" style="display: none" onkeyup="onLayoutMarkdownChanged()"></textarea>
+    <div class="content_layout form-control">
+        <div class="layout_editable" onkeyup="onLayoutEditableChanged('^wys_id^')" onmouseup="saveSelection('^wys_id^')" onmouseout="saveSelection('^wys_id^')" contenteditable></div>
+        <textarea class="layout_code" style="display: none" onkeyup="onLayoutCodeChanged('^wys_id^')"></textarea>
+        <textarea class="layout_markdown" style="display: none" onkeyup="onLayoutMarkdownChanged('^wys_id^')"></textarea>
     </div>
 </div>
 
@@ -133,4 +132,7 @@
     </div>
 </div>
 
-<script type="text/javascript" src="/js/admin/elements/content_layout.js"></script>
+<script type="text/javascript" src="^he_src^"></script>
+<script type="text/javascript" src="^to_markdown_src^"></script>
+<script type="text/javascript" src="^markdown_src^"></script>
+<script type="text/javascript" src="/js/admin/elements/wysiwyg.js"></script>

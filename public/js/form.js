@@ -41,9 +41,9 @@ function refillForm(fieldValues)
                     $('#' + option.id).val(getDatetimeText(new Date(fieldValues[option.id])));
                     break;
                 case 'layout':
-                    $('#layout_editable').html(fieldValues[option.id]);
-                    $('#layout_editable').focus();
-                    initLayoutEditable();
+                    $('.layout_editable').html(fieldValues[option.id]);
+                    $('.layout_editable').focus();
+                    initWYSIWYG();
                     break;
                 case 'drag_and_drop':
                     refillDragAndDrop(option, fieldValues);

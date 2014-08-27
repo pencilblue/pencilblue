@@ -151,36 +151,33 @@ function checkForEditPageSave(draft, cb)
                 $('#page_media').val(mediaCSV);
             }
 
-            getContentLayout(function(contentLayout)
+            var layout = $('#page_wysiwyg .layout_editable').html();
+            if(!$('#page_layout').position()) {
+                $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
+            }
+            else {
+                $('#page_layout').val(layout);
+            }
+
+            if(!$('#draft').position()) {
+                $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
+            }
+            else {
+                $('#draft').val((draft) ? '1' : '0');
+            }
+
+            var pubDateStr = $('#publish_date').val();
+            var pubDateObj = new Date(pubDateStr);
+            $('#publish_date').val(pubDateObj);
+
+            if(typeof cb === 'undefined')
             {
-                var layout = contentLayout;
-                if(!$('#page_layout').position()) {
-                    $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
-                }
-                else {
-                    $('#page_layout').val(layout);
-                }
-
-                if(!$('#draft').position()) {
-                    $('fieldset').append('<input type="number" id="draft" name="draft" value="' + ((draft) ? '1' : '0') + '" style="display: none"></input>');
-                }
-                else {
-                    $('#draft').val((draft) ? '1' : '0');
-                }
-
-                var pubDateStr = $('#publish_date').val();
-                var pubDateObj = new Date(pubDateStr);
-                $('#publish_date').val(pubDateObj);
-
-                if(typeof cb === 'undefined')
-                {
-                    $('#edit_page_form').submit();
-                }
-                else
-                {
-                    asyncEditPageSave(cb);
-                }
-            });
+                $('#edit_page_form').submit();
+            }
+            else
+            {
+                asyncEditPageSave(cb);
+            }
         });
     });
 }
@@ -191,7 +188,7 @@ function buildTopics(output)
     topicElementCount = 0;
     topicsArray = [];
 
-    if(topicElements.length == 0)
+    if(topicElements.length === 0)
     {
         output('');
         return;
@@ -215,7 +212,7 @@ function buildMedia(output)
     mediaElementCount = 0;
     mediaArray = [];
 
-    if(mediaElements.length == 0)
+    if(mediaElements.length === 0)
     {
         output('');
         return;
