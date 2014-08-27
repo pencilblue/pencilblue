@@ -86,12 +86,6 @@ HomePageSettings.prototype.render = function(cb) {
     });
 };
 
-HomePageSettings.prototype.getSanitizationRules = function() {
-    return {
-        page_layout: pb.BaseController.getContentSanitizationRules()
-    };
-};
-
 HomePageSettings.getRoutes = function(cb) {
     var routes = [
         {
