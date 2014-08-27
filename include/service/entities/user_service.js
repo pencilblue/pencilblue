@@ -161,8 +161,7 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
  */
 UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
 	cb = cb || pb.utils.cb;
-console.log(util.inspect(user));
-console.log(util.inspect(passwordReset));
+
     var verficationUrl = pb.UrlService.urlJoin(pb.config.siteRoot, '/actions/user/reset_password') + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
 	var options = {
 		to: user.email,
@@ -210,9 +209,14 @@ UserService.prototype.isUserNameOrEmailTaken = function(username, email, id, cb)
  * @param {Function} cb       Callback function
  */
 UserService.prototype.getExistingUsernameEmailCounts = function(username, email, id, cb) {
+    if (pb.utils.isFunction(id)) {
+        cb = id;
+        id = null;
+    }
+    
 	var getWhere = function(where) {
 		if (id) {
-			where._id = {$ne: new ObjectID(id)};
+			where[pb.DAO.getIdField()] = {$ne: pb.DAO.getObjectID(id)};
 		}
 		return where;
 	};
@@ -232,6 +236,24 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 		},
 	};
 	async.series(tasks, cb);
+};
+
+UserService.prototype.findByAccessLevel = function(level, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        throw new Error('The options parameter must be an object');
+    }
+    
+    var where = {
+        admin: level
+    };
+    var dao = new pb.DAO();
+    dao.query('user', where, options.select, options.orderBy, options.limit, options.offset).then(function(result) {
+        cb(util.isError(result) ? result : null, result);
+    });
 };
 
 /**

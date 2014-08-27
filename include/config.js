@@ -71,7 +71,7 @@ var config = {
         name: 'pencil_blue',
 
         //http://docs.mongodb.org/manual/core/write-concern/
-        writeConern: 1,
+        writeConcern: 1,
 
         //PB provides the ability to log queries.  This is handy during
         //development to see how many trips to the DB a single request is

@@ -2,6 +2,7 @@
 =====
 
 ##### Full featured online publishing and CMS for Node.js
+###### To learn how to build websites with PencilBlue, read our [tutorials](https://pencilblue.org/section/tutorials).
 
 The first open source content management system to meet all the needs of a modern website:
 

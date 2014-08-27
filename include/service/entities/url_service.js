@@ -150,7 +150,7 @@ UrlService.getCustomUrl = function(prefix, url) {
  * @param {Request} request
  * @return {Boolean} TRUE if the link is external to the system, FALSE if not.
  */
-UrlService.isExternalUrl = function(urlStr, request) {console.log(util.inspect(urlStr));
+UrlService.isExternalUrl = function(urlStr, request) {
 	var obj    = url.parse(urlStr);
     var reqUrl = null;
 

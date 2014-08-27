@@ -15,9 +15,9 @@
     </div>
     <form id="sort_objects_form" method="post" action="^site_root^/actions/admin/content/custom_objects/sort_objects/^object_type_id^">
         <fieldset>
-            <button type="button" class="btn btn-default" onclick="window.location = '/admin/content/custom_objects/manage_objects/^object_type_name^';">
+            <a class="btn btn-default" href="/admin/content/custom_objects/manage_objects/^object_type_id^">
                 <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-            </button>
+            </a>
             <button type="button" class="btn btn-primary" onclick="prepareSortObjectsSave()">
                 <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
             </button>
