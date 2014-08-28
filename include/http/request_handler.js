@@ -340,7 +340,7 @@ RequestHandler.prototype.handleRequest = function(){
 RequestHandler.prototype.servePublicContent = function(absolutePath) {
 
 	//check for provided path, then default if necessary
-	if (absolutePath === undefined) {
+    if (absolutePath === undefined) {
 		absolutePath = path.join(DOCUMENT_ROOT, 'public', this.url.pathname);
 	}
 
@@ -357,35 +357,40 @@ RequestHandler.prototype.servePublicContent = function(absolutePath) {
 		};
 
 		//guess at content-type
-		var map = {
-			js: 'text/javascript',
-			css: 'text/css',
-			png: 'image/png',
-			svg: 'image/svg+xml',
-			jpg: 'image/jpeg',
-			gif: 'image/gif',
-            webp: 'image/webp',
-			ico: 'image/vnd.microsoft.icon',
-			tff: 'application/octet-stream',
-			eot: 'application/vnd.ms-fontobject',
-			woff: 'application/x-font-woff',
-            html: 'text/html'
-		};
-		var index = absolutePath.lastIndexOf('.');
-		if (index >= 0) {
-			var mime = map[absolutePath.substring(index + 1)];
-			if (mime != undefined) {
-				data.content_type = mime;
-			}
-		}
+		var mime = RequestHandler.getMimeFromPath(absolutePath);
+        if (mime) {
+            data.content_type = mime;
+        }
 
 		//send response
 		self.writeResponse(data);
 	});
 };
 
+RequestHandler.getMimeFromPath = function(resourcePath) {
+    var map = {
+        js: 'text/javascript',
+        css: 'text/css',
+        png: 'image/png',
+        svg: 'image/svg+xml',
+        jpg: 'image/jpeg',
+        gif: 'image/gif',
+        webp: 'image/webp',
+        ico: 'image/vnd.microsoft.icon',
+        tff: 'application/octet-stream',
+        eot: 'application/vnd.ms-fontobject',
+        woff: 'application/x-font-woff',
+        html: 'text/html'
+    };
+    var index = resourcePath.lastIndexOf('.');
+    if (index >= 0) {
+        return map[resourcePath.substring(index + 1)];
+    }
+    return undefined;
+};
+
 RequestHandler.isPublicRoute = function(path){
-	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/media/', '/localization/', '/favicon.ico', '/docs/', '/bower_components/'];
+	var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', '/favicon.ico', '/docs/', '/bower_components/'];
 	for (var i = 0; i < publicRoutes.length; i++) {
 		if (path.indexOf(publicRoutes[i]) == 0) {
 			return true;

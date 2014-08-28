@@ -26,7 +26,96 @@ var http = require('http');
  * @class MediaService
  * @constructor
  */
-function MediaService(){}
+function MediaService(){
+    
+    /**
+     * @property provider
+     */
+    this.provider = new pb.FsMediaProvider(pb.config.media.parent_dir);
+};
+
+MediaService.COLL = 'media';
+
+MediaService.prototype.loadById = function(mid, cb) {
+    var dao = new pb.DAO();
+    dao.loadById(mid.toString(), MediaService.COLL, cb);
+};
+
+MediaService.prototype.deleteById = function(mid, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb     = options;
+        optons = {delete_content: true};
+    }
+    
+    var self = this;
+    var dao  = new pb.DAO();
+    dao.deleteById(mid, MediaService.COLL).then(function(result) {
+        if (util.isError(result)) {
+            return cb(result);
+        }
+        cb(null, result);
+    });
+};
+
+MediaService.prototype.get = function(options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {
+            format_media: true,
+            order: {name: 1}
+        };
+    }
+
+    var dao  = new pb.DAO();
+    dao.query('media', options.where, options.select, options.order, options.limit, options.offset).then(function(media) {
+    	if (util.isError(media)) {
+    		return cb(media, []);
+    	}
+
+        //set the link and icon if specified
+        if (options.format_media) {
+            MediaService.formatMedia(media);
+        }
+        cb(null, media);
+    });
+};
+
+MediaService.prototype.getContentByPath = function(mediaPath, cb) {
+    this.provider.get(mediaPath, cb);
+};
+
+MediaService.prototype.getContentStreamByPath = function(mediaPath) {
+    return this.provider.getStream(mediaPath);
+};
+
+MediaService.prototype.setContent = function(fileDataStrOrBuff, fileName, cb) {
+    throw new Error('implement me');
+};
+
+MediaService.prototype.setContentStream = function(stream, fileName, cb) {
+    throw new Error('implement me');
+};
+
+MediaService.prototype.createContentWriteStream = function(fileName) {
+    var mediaPath = MediaService.generateMediaPath(fileName);
+    var wstream   = this.provider.createWriteStream(mediaPath);
+    return {
+        mediaPath: mediaPath,
+        stream: wstream
+    };
+};
+
+MediaService.prototype.existsByPath = function(mediaPath, cb) {
+    this.provider.exists(mediaPath, cb);
+};
+
+MediaService.prototype.deleteContentByPath = function(mediaPath, cb) {
+    this.provider.delete(mediaPath, cb);
+};
+
+MediaService.prototype.statByPath = function(mediaPath, cb) {
+    this.provider.stat(mediaPath, cb);
+};
 
 /**
  * Retrieves whether a media's file path is valid
@@ -349,6 +438,92 @@ MediaService.getMediaFlag = function(mid, options) {
     }
     flag += '^';
     return flag;
+};
+
+MediaService.generateMediaPath = function(originalFilename) {
+    var now = new Date();
+    var fn  = MediaService.generateFilename(originalFilename);
+    return path.join('/media', now.getFullYear() + '', (now.getMonth() + 1) + '', fn);
+};
+
+MediaService.generateFilename = function(originalFilename){
+	var now = new Date();
+
+	//calculate extension
+	var ext = '';
+	var extIndex = originalFilename.lastIndexOf('.');
+	if (extIndex >= 0){
+		ext = originalFilename.substr(extIndex);
+	}
+
+	//build file name
+    return pb.utils.uniqueId() + '-' + now.getTime() + ext;
+};
+
+MediaService.getMediaIcon = function(mediaType) {
+    switch(mediaType) {
+        case 'image':
+            return 'picture-o';
+        case 'video/mp4':
+        case 'video/webm':
+        case 'video/ogg':
+            return 'film';
+        case 'youtube':
+            return 'youtube';
+        case 'vimeo':
+            return 'vimeo-square';
+        case 'daily_motion':
+            return 'play-circle-o';
+        case 'vine':
+            return 'vine';
+        case 'instagram':
+            return 'instagram';
+        case 'slideshare':
+            return 'list-alt';
+        case 'trinket':
+            return 'key fa-flip-horizontal';
+        default:
+            return 'question';
+    }
+};
+
+MediaService.getMediaLink = function(mediaType, mediaLocation, isFile) {
+    switch(mediaType) {
+        case 'youtube':
+            return 'http://youtube.com/watch/?v=' + mediaLocation;
+        case 'vimeo':
+            return 'http://vimeo.com/' + mediaLocation;
+        case 'daily_motion':
+            return 'http://dailymotion.com/video/' + mediaLocation;
+        case 'vine':
+            return 'https://vine.co/v/' + mediaLocation;
+        case 'instagram':
+            return 'http://instagram.com/p/' + mediaLocation;
+        case 'slideshare':
+            return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
+        case 'trinket':
+            if(mediaLocation.indexOf('/') === -1) {
+                return 'https://trinket.io/embed/python/' + mediaLocation;
+            }
+            return 'https://trinket.io/embed/' + mediaLocation;
+        case 'image':
+        case 'video/mp4':
+        case 'video/webm':
+        case 'video/ogg':
+        default:
+            if(isFile) {
+                return pb.config.siteRoot + mediaLocation;
+            }
+            return mediaLocation;
+    }
+};
+
+MediaService.formatMedia = function(media) {
+    for(var i = 0; i < media.length; i++) {
+        media[i].icon = MediaService.getMediaIcon(media[i].media_type);
+        media[i].link = MediaService.getMediaLink(media[i].media_type, media[i].location, media[i].is_file);
+    }
+    return media;
 };
 
 //exports
