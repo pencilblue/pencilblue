@@ -62,7 +62,14 @@ NewPage.prototype.render = function(cb) {
     var dao = new pb.DAO();
     dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
         //TODO handle errors
-        Media.getAll(function(media){
+        
+        var mservice = new pb.MediaService();
+        mservice.get(function(err, media){
+            if (util.isError(err)) {
+                //TODO handle error
+                pb.log.error('NewPageController: an unhandled error occurred while attempting to load all media: %s', err.stack);
+            }
+            
             var templates = pb.TemplateService.getAvailableContentTemplates();
             var angularData = pb.js.getAngularController(
             {

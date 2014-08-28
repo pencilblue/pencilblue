@@ -32,8 +32,19 @@ var SUB_NAV_KEY = 'manage_media';
 
 ManageMedia.prototype.render = function(cb) {
 	var self = this;
-	var dao  = new pb.DAO();
-	dao.query('media').then(function(mediaData) {
+    
+    var options = {
+        select: {
+            name: 1,
+            caption: 1,
+            created: 1,
+            media_type: 1
+        },
+        order: {created: pb.DAO.DESC},
+        format_media: true
+    };
+    var mservice = new pb.MediaService();
+    mservice.get(options, function(err, mediaData) {
         if(util.isError(mediaData) || mediaData.length === 0) {
             self.redirect('/admin/content/media/add_media', cb);
             return;
@@ -43,7 +54,7 @@ ManageMedia.prototype.render = function(cb) {
         {
             navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_media'),
-            media: Media.formatMedia(mediaData)
+            media: pb.MediaService.formatMedia(mediaData)
         }, [], 'initMediaPagination()');
 
         var title = self.ls.get('MANAGE_MEDIA');
