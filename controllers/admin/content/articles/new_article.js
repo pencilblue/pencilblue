@@ -123,9 +123,8 @@ NewArticle.prototype.gatherData = function(cb) {
     	},
 
     	media: function(callback) {
-    		Media.getAll(function(media){
-    			callback(null, media);
-    		});
+            var mservice = new pb.MediaService();
+    		mservice.get(callback);
     	}
     };
     async.parallelLimit(tasks, 2, cb);

@@ -31,6 +31,7 @@ var loc =
         SEO: 'SEO',
         FORM_INCOMPLETE: 'The form is incomplete',
         ERROR_SAVING: 'There was an error saving',
+        ERROR_DELETING: 'There was an error deleting',
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
         SAVE: 'Save',
         SAVE_DRAFT: 'Save draft',

@@ -40,10 +40,13 @@ EditMedia.prototype.render = function(cb) {
         return;
     }
 
-    var dao = new pb.DAO();
-    dao.loadById(vars.id, 'media', function(err, media) {
-        if(media === null) {
-        	self.redirect('/admin/media/manage_media', cb);
+    var mservice = new pb.MediaService();
+    mservice.loadById(vars.id, function(err, media) {
+        if (util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if(media === null) {
+        	self.reqHandler.serve404();
             return;
         }
 

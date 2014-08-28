@@ -32,50 +32,43 @@ util.inherits(UploadMedia, pb.BaseController);
 
 UploadMedia.prototype.render = function(cb) {
 	var self  = this;
-
-    var date = new Date();
-    var monthDir = MEDIA_DIRECTORY + date.getFullYear() + '/';
-    if(!fs.existsSync(monthDir)) {
-        fs.mkdirSync(monthDir);
+    
+    var mservice = new pb.MediaService();
+    var sresult  = null;
+    var form     = new formidable.IncomingForm();
+    form.onPart  = function(part) {
+        
+        //we don't care about anything else that got posted just the file so 
+        //let formidable parse it but we'll ignore it.
+        if (!part.filename) {
+            form.handlePart(part);
+            return;
+        }
+        
+        sresult = mservice.createContentWriteStream(part.filename);
+        part.addListener('data', function(data) {
+            sresult.stream.write(data);
+        });
     }
 
-    var uploadDirectory = monthDir + (date.getMonth() + 1) + '/';
-    if(!fs.existsSync(uploadDirectory)) {
-        fs.mkdirSync(uploadDirectory);
-    }
-
-    var filename = '';
-    var form = new formidable.IncomingForm();
-    form.on('fileBegin', function(name, file) {
-        filename = self.generateFilename(file.name);
-        file.path = uploadDirectory + filename;
-    });
-
+    //parse the form out and let us know when its done
     form.parse(this.req, function() {
 
+        //close out the stream
+        if (sresult.stream) {
+            sresult.stream.end();
+        }
+        
+        //write the response
     	var content = {
 			content: JSON.stringify({
-				filename: '/media/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + filename
+				filename: sresult.mediaPath
 			}),
 			content_type: 'application/json'
 		};
         cb(content);
         return;
     });
-};
-
-UploadMedia.prototype.generateFilename = function(originalFilename){
-	var now = new Date();
-
-	//calculate extension
-	var ext = '';
-	var extIndex = originalFilename.lastIndexOf('.');
-	if (extIndex >= 0){
-		ext = originalFilename.substr(extIndex);
-	}
-
-	//build file name
-    return pb.utils.uniqueId() + '-' + now.getTime() + ext;
 };
 
 //exports
