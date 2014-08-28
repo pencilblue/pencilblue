@@ -218,7 +218,7 @@ AdminNavigation.get = function(session, activeMenuItems, ls) {
  * @param parentId
  * @param node
  */
-AdminNavigation.registerFor = function (parentId, node) {
+AdminNavigation.addChild = function (parentId, node) {
     if (!AdminNavigation.childrenAdditions[parentId]) {
         AdminNavigation.childrenAdditions[parentId] = [];
     }
@@ -231,7 +231,7 @@ AdminNavigation.registerFor = function (parentId, node) {
  *
  * @param node
  */
-AdminNavigation.register = function (node) {
+AdminNavigation.add = function (node) {
     AdminNavigation.additions.push(node);
 };
 

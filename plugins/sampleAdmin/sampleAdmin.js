@@ -4,7 +4,7 @@ function sampleAdmin() {
 sampleAdmin.onStartup = function (cb) {
 
     // Add a new top level node
-    pb.AdminNavigation.register({
+    pb.AdminNavigation.add({
         id: "sample",
         title: "Sample",
         icon: "cogs",
@@ -22,7 +22,7 @@ sampleAdmin.onStartup = function (cb) {
     });
 
     // Add a child to the top level node "sample"
-    pb.AdminNavigation.registerFor("sample", {
+    pb.AdminNavigation.addChild("sample", {
         id: "sample_2",
         title: "Sample Child 2",
         icon: "cog",
