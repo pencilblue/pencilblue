@@ -19,7 +19,8 @@
 var HtmlEncoder = require('htmlencode');
 
 /**
- *
+ * Provides a service to do the heavy lifting of retrieving custom objects with 
+ * the ability to eagerly fetch the related objects.
  * @class CustomObjectService
  * @constructor
  */
@@ -229,6 +230,11 @@ CustomObjectService.prototype.fetchChildren = function(custObj, options, custObj
     else if (!pb.validation.isInt(options.fetch_depth, true, true) || options.fetch_depth <= 0) {
         return cb(null, custObj);
     }
+    
+    //log what we are doing. this shit gets confusing
+    if (pb.log.isSilly()) {
+        pb.log.silly('CustomObjectService: Fetching children for [%s][%s] at depth:[%d]', custObj.type, custObj.name, options.fetch_depth);
+    }
 
     //private function to retrieve the custom object type if not available
     var self           = this;
@@ -241,6 +247,9 @@ CustomObjectService.prototype.fetchChildren = function(custObj, options, custObj
         }
         else if (self.typesNametoId[type]) {
             return cb(null, self.typesCache[self.typesNametoId[type]]);
+        }
+        else if (!type) {
+            type = custObj.type;
         }
 
         //build out the where clause
@@ -316,10 +325,10 @@ CustomObjectService.prototype.fetchChildren = function(custObj, options, custObj
 
     //make sure we have the type for the object passed in
     getCustObjType(custObjType, function(err, custObjType) {
-       if (util.isError(err)) {
+        if (util.isError(err)) {
            return cb(err);
-       }
-
+        }
+        console.log('COT='+util.inspect(custObjType));
         var tasks = pb.utils.getTasks(Object.keys(custObjType.fields), function(fieldNames, i) {
             return function(callback) {
 
@@ -468,7 +477,7 @@ CustomObjectService.prototype.loadBy = function(type, where, options, cb) {
         cb      = options;
         options = {};
     }
-    else if (pb.utils.isObject(options)) {
+    else if (!pb.utils.isObject(options)) {
         throw new Error('The options object must be an object');
     }
 
