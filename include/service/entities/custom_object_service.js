@@ -328,7 +328,6 @@ CustomObjectService.prototype.fetchChildren = function(custObj, options, custObj
         if (util.isError(err)) {
            return cb(err);
         }
-        console.log('COT='+util.inspect(custObjType));
         var tasks = pb.utils.getTasks(Object.keys(custObjType.fields), function(fieldNames, i) {
             return function(callback) {
 
