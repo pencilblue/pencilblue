@@ -25,7 +25,7 @@ function CustomObjects(){}
 util.inherits(CustomObjects, pb.BaseController);
 
 CustomObjects.prototype.render = function(cb) {
-	self.redirect('/admin/content/custom_objects/manage_object_types', cb);
+	this.redirect('/admin/content/custom_objects/manage_object_types', cb);
 };
 
 CustomObjects.getPillNavOptions = function() {

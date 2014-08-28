@@ -17,15 +17,17 @@
 
 /**
  * Parent media controller
+ * @class ContentMediaController
+ * @constructor
+ * @extends BaseController
  */
-
 function Media(){}
 
 //inheritance
 util.inherits(Media, pb.BaseController);
 
 Media.prototype.render = function(cb) {
-	self.redirect('/admin/content/media/manage_media', cb);
+	this.redirect('/admin/content/media/manage_media', cb);
 };
 
 Media.getPillNavOptions = function(activePill) {
@@ -39,72 +41,11 @@ Media.getPillNavOptions = function(activePill) {
     ];
 };
 
-Media.formatMedia = function(media) {
-    for(var i = 0; i < media.length; i++) {
-        media[i].icon = Media.getMediaIcon(media[i].media_type);
-        media[i].link = Media.getMediaLink(media[i].media_type, media[i].location, media[i].is_file);
-    }
-    return media;
-};
-
-Media.getMediaIcon = function(mediaType) {
-    switch(mediaType) {
-        case 'image':
-            return 'picture-o';
-        case 'video/mp4':
-        case 'video/webm':
-        case 'video/ogg':
-            return 'film';
-        case 'youtube':
-            return 'youtube';
-        case 'vimeo':
-            return 'vimeo-square';
-        case 'daily_motion':
-            return 'play-circle-o';
-        case 'vine':
-            return 'vine';
-        case 'instagram':
-            return 'instagram';
-        case 'slideshare':
-            return 'list-alt';
-        case 'trinket':
-            return 'key fa-flip-horizontal';
-        default:
-            return 'question';
-    }
-};
-
-Media.getMediaLink = function(mediaType, mediaLocation, isFile) {
-    switch(mediaType) {
-        case 'youtube':
-            return 'http://youtube.com/watch/?v=' + mediaLocation;
-        case 'vimeo':
-            return 'http://vimeo.com/' + mediaLocation;
-        case 'daily_motion':
-            return 'http://dailymotion.com/video/' + mediaLocation;
-        case 'vine':
-            return 'https://vine.co/v/' + mediaLocation;
-        case 'instagram':
-            return 'http://instagram.com/p/' + mediaLocation;
-        case 'slideshare':
-            return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
-        case 'trinket':
-            if(mediaLocation.indexOf('/') === -1) {
-                return 'https://trinket.io/embed/python/' + mediaLocation;
-            }
-            return 'https://trinket.io/embed/' + mediaLocation;
-        case 'image':
-        case 'video/mp4':
-        case 'video/webm':
-        case 'video/ogg':
-        default:
-            if(isFile) {
-                return pb.config.siteRoot + mediaLocation;
-            }
-            return mediaLocation;
-    }
-};
-
+/**
+ * @deprecated
+ * @method getAll
+ * @param {Function} cb
+ */
 Media.getAll = function(cb) {
 
     var dao  = new pb.DAO();
@@ -115,10 +56,7 @@ Media.getAll = function(cb) {
     		media = [];
     	}
 
-        for(var i = 0; i < media.length; i++) {
-            media[i].icon = Media.getMediaIcon(media[i].media_type);
-            media[i].link = Media.getMediaLink(media[i].media_type, media[i].location, media[i].is_file);
-        }
+        pb.MediaService.formatMedia(media);
 
         cb(media);
     });

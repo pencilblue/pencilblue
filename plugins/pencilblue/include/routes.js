@@ -15,6 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 module.exports = [
+    {
+        method: 'get',
+        path: '/media/*',
+        auth_required: false,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'media_content_controller.js')
+    },
 	{
 		method: 'get',
 		path: "/public/:plugin/*",

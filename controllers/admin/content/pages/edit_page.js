@@ -85,7 +85,14 @@ EditPage.prototype.render = function(cb) {
 
         var templates = pb.TemplateService.getAvailableContentTemplates();
         dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
-            Media.getAll(function(media) {
+            
+            var mservice = new pb.MediaService();
+            mservice.get(function(err, media) {
+                if (util.isError(err)) {
+                    //TODO handle error
+                    pb.log.error('EditPageController: an unhandled error occurred while attempting to load all media: %s', err.stack);
+                }
+                
                 var angularData = pb.js.getAngularController(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),

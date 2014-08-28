@@ -53,43 +53,21 @@ EditSectionPostController.prototype.onPostParamsRetrieved = function(post, cb){
 
 		//validate
 		var navService = new pb.SectionService();
-		navService.validate(navItem, function(err, validationErrors) {
+        navService.save(navItem, function(err, result) {
 			if (util.isError(err)) {
-				throw err;
+				return self.reqHandler.serveError(err);
 			}
-			else if (validationErrors.length > 0) {
+			else if (util.isArray(result) && result.length > 0) {
 				self.setFormFieldValues(post);
-				var errMsg = EditSectionPostController.getHtmlErrorMsg(validationErrors);
+				var errMsg   = EditSectionPostController.getHtmlErrorMsg(result);
 				var redirect = self.getFormLocation();
 				self.formError(errMsg, redirect, cb);
 				return;
 			}
 
-			//persist the changes
-			var dao = new pb.DAO();
-			dao.update(navItem).then(function(data) {
-                if(util.isError(data)) {
-                	self.setFormFieldValues(post);
-                    self.formError(self.ls.get('ERROR_SAVING'), self.getFormLocation(), cb);
-                    return;
-                }
-
-                //update the navigation map
-                self.checkForNavMapUpdate(navItem, function() {
-
-                	//ok, now we can delete the orhphans if they exist
-                	self.deleteOrphans(navItem, function(err, orphanCount) {
-                		if(util.isError(err)) {
-                            self.formError(self.ls.get('ERROR_SAVING'), self.getFormLocation(), cb);
-                            return;
-                        }
-
-                		//finally do the callback
-                		self.session.success = self.getSuccessMessage(navItem);
-                    	self.redirect('/admin/content/sections/section_map', cb);
-                	});
-            	});
-            });
+			//finally do the callback
+            self.session.success = self.getSuccessMessage(navItem);
+            self.redirect('/admin/content/sections/section_map', cb);
 		});
 	});
 };
