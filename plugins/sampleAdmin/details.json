@@ -1,0 +1,35 @@
+{
+    "uid": "sampleAdmin",
+    "name": "Sample Admin Plugin",
+    "description": "This is a sample of the new admin functionality",
+    "version": "0.0.1",
+	"icon": "/imgs/sample.ico",
+	"author": {
+		"name": "Dominik Kienzler",
+		"email": "kienzler@dominik-kienzler.de",
+		"website": "http://www.dominik-kienzler.de",
+		"contributors": [
+			{
+				"name": "Dominik Kienzler",
+				"email": "kienzler@dominik-kienzler.de"
+			}
+		]
+	},
+    "settings": [
+	],
+	"permissions": {
+		"ACCESS_USER": [],
+		"ACCESS_WRITER": [],
+		"ACCESS_EDITOR": [],
+		"ACCESS_MANAGING_EDITOR": []
+	},
+	"main_module": {
+		"path": "sampleAdmin.js"
+	},
+	"theme": {
+		"settings": [
+		],
+		"content_templates": [
+		]
+	}
+}

@@ -26,6 +26,9 @@
  */
 function AdminNavigation(){}
 
+AdminNavigation.additions = [];
+AdminNavigation.childrenAdditions = {};
+
 function getDefaultNavigation(ls) {
 	return [
         {
@@ -162,6 +165,34 @@ function getDefaultNavigation(ls) {
     ];
 }
 
+function buildNavigation (navigation) {
+    var i;
+
+    for (i = 0; i < AdminNavigation.additions.length; i++) {
+        navigation.push(AdminNavigation.additions[i]);
+    }
+
+    for (var id in AdminNavigation.childrenAdditions) {
+        var children = AdminNavigation.childrenAdditions[id];
+
+        for (i = 0; i < navigation.length; i++) {
+            if (navigation[i].id == id) {
+                if (!navigation[i].children) {
+                    navigation[i].children = [];
+                }
+
+                for (var j = 0; j < children.length; j++) {
+                    navigation[i].children.push(children[j]);
+                }
+
+                break;
+            }
+        }
+    }
+
+    return navigation;
+};
+
 /**
  * Retrive the admin navigation hierarchy
  *
@@ -172,11 +203,36 @@ function getDefaultNavigation(ls) {
  * @return {object} Admin navigation
  */
 AdminNavigation.get = function(session, activeMenuItems, ls) {
+    var navigation = buildNavigation(getDefaultNavigation(ls));
+
     return AdminNavigation.removeUnauthorized(
 		session,
-		getDefaultNavigation(ls),
+		navigation,
 		activeMenuItems
 	);
+};
+
+/**
+ * Adds a new child node to an existing top level node
+ *
+ * @param parentId
+ * @param node
+ */
+AdminNavigation.registerFor = function (parentId, node) {
+    if (!AdminNavigation.childrenAdditions[parentId]) {
+        AdminNavigation.childrenAdditions[parentId] = [];
+    }
+
+    AdminNavigation.childrenAdditions[parentId].push(node);
+};
+
+/**
+ * Adds a new top level node
+ *
+ * @param node
+ */
+AdminNavigation.register = function (node) {
+    AdminNavigation.additions.push(node);
 };
 
 AdminNavigation.removeUnauthorized = function(session, adminNavigation, activeItems) {
