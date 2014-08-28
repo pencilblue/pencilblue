@@ -52,8 +52,36 @@ AdminSubnavService.registerFor = function(key, getSubNavItems) {
 	if (CALLBACKS[key] === undefined) {
 		CALLBACKS[key] = [];
 	}
+    else if (CALLBACKS[key].indexOf(getSubNavItems) > -1) {
+        return true;
+    }
+    
 	CALLBACKS[key].push(getSubNavItems);
 	return true;
+};
+
+/**
+ * Unregisters a callback function
+ * @static
+ * @method unregisterFor
+ * @param {String} key
+ * @param {Function} Function to unregister
+ * @return {Boolean} TRUE if function was unregistered, FALSE if not
+ */
+AdminSubnavService.unregisterFor = function(key, registeredFunc) {
+    if (!pb.validation.validateNonEmptyStr(key, true) || !pb.utils.isFunction(registeredFunc)) {
+		return false;
+	}
+    else if (!util.isArray(CALLBACKS[key])) {
+        return false;
+    }
+    
+    var index = CALLBACKS[key].indexOf(registeredFunc);
+    if (index > -1) {
+        CALLBACKS[key].splice(index, 1);
+        return true;
+    }
+    return false;
 };
 
 /**
