@@ -43,7 +43,12 @@ MediaContentController.prototype.render = function(cb) {
         //do nothing. content was streamed out and closed
     })
     .once('error', function(err) {
-        self.reqHandler.serve404();
+        if (err.message.indexOf('ENOENT') === 0) {
+            self.reqHandler.serve404();
+        }
+        else {
+            self.reqHandler.serveError(err);
+        }
     });
     mstream.pipe(this.res);
 };
