@@ -23,6 +23,13 @@ BlogFilter.prototype.render = function(cb) {
 
     if(self.req.url.indexOf('/preview/') > -1) {
         self.req.pencilblue_preview = this.pathVars.id;
+        if(self.req.url.indexOf('/article/') > -1) {
+            self.req.pencilblue_article = this.pathVars.id;
+        }
+        else if(self.req.url.indexOf('/page/') > -1) {
+            self.req.pencilblue_page = this.pathVars.id;
+        }
+
         BlogFilter.super_.prototype.render.apply(self, [cb]);
         return;
     }
