@@ -2,6 +2,10 @@
 <div class="col-md-9">
     ^error_success^
     ^tmp_admin=elements=sub_nav^
+    <div class="alert alert-info">
+        ^loc_IMPORT_TOPICS_HELP^
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    </div>
     ^tmp_admin=elements=tab_nav^
     <form id="import_topics_form" enctype="multipart/form-data" accept="text/csv" method="post">
         <fieldset>
@@ -13,7 +17,7 @@
                 <span class="btn btn-success fileinput-button">
                     <i class="fa fa-plus"></i>
                     <span>^loc_SELECT_FILE^...</span>
-                    <input id="topics_file" type="file" name="topics_file">
+                    <input id="topics_file" type="file" name="topics_file" accept=".csv">
                 </span>
             </div>
         </fieldset>
