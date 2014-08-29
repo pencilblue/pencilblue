@@ -200,6 +200,11 @@ function closeLayoutFullscreen(wysId) {
 
 function showContentLayoutModal(wysId, subsection)
 {
+    if(typeof selectedRange === 'undefined') {
+        $('#wysiwyg_' + wysId + ' .layout_editable').focus();
+        saveSelection(wysId);
+    }
+
     switch(subsection)
     {
         case 'add_layout_link':
