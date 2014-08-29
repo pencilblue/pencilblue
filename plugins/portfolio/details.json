@@ -22,6 +22,14 @@
         {
             "name": "show_side_navigation",
             "value": true
+        },
+        {
+            "name": "home_page_keywords",
+            "value": "pencilblue,portfolio,plugin"
+        },
+        {
+            "name": "home_page_description",
+            "value": "This is the landing page of the PencilBlue portfolio theme plugin."
         }
     ],
     "permissions": {
