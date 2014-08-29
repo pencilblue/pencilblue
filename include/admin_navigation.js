@@ -26,6 +26,7 @@
  */
 function AdminNavigation(){}
 
+AdminNavigation.navigation = null;
 AdminNavigation.additions = [];
 AdminNavigation.childrenAdditions = {};
 
@@ -165,8 +166,9 @@ function getDefaultNavigation(ls) {
     ];
 }
 
-function buildNavigation (navigation) {
+function buildNavigation (ls) {
     var i;
+    var navigation = getDefaultNavigation(ls);
 
     for (i = 0; i < AdminNavigation.additions.length; i++) {
         navigation.push(AdminNavigation.additions[i]);
@@ -184,7 +186,6 @@ function buildNavigation (navigation) {
                 for (var j = 0; j < children.length; j++) {
                     navigation[i].children.push(children[j]);
                 }
-
                 break;
             }
         }
@@ -203,11 +204,15 @@ function buildNavigation (navigation) {
  * @return {object} Admin navigation
  */
 AdminNavigation.get = function(session, activeMenuItems, ls) {
-    var navigation = buildNavigation(getDefaultNavigation(ls));
+
+    // ensure the navigation is only built once
+    if(!AdminNavigation.navigation) {
+        AdminNavigation.navigation = buildNavigation(ls);
+    }
 
     return AdminNavigation.removeUnauthorized(
 		session,
-		navigation,
+        AdminNavigation.navigation,
 		activeMenuItems
 	);
 };
