@@ -36,6 +36,14 @@ ContentService.getSettings = function(cb){
 			settings = ContentService.getDefaultSettings();
 			pb.settings.set('content_settings', settings, pb.utils.cb);
 		}
+		else {
+			var defaultSettings = ContentService.getDefaultSettings();
+			for(var key in defaultSettings) {
+				if(typeof settings[key] === 'undefined') {
+					settings[key] = defaultSettings[key];
+				}
+			}
+		}
 		cb(err, settings);
 	});
 };
@@ -50,6 +58,7 @@ ContentService.getDefaultSettings = function() {
     return {
         articles_per_page: 5,
         auto_break_articles: 0,
+		read_more_text: 'Read more',
         display_timestamp: 1,
         date_format: 'M dd, YYYY',
         two_digit_date: 0,

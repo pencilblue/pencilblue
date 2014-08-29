@@ -130,7 +130,7 @@ ArticleService.prototype.find = function(where,  cb) {
 
 				var tasks = pb.utils.getTasks(articles, function(articles, i) {
 					return function(callback) {
-						self.processArticleForDisplay(articles[i], authors, contentSettings, function(){
+						self.processArticleForDisplay(articles[i], articles.length, authors, contentSettings, function(){
 							callback(null, null);
 						});
 					};
@@ -149,12 +149,13 @@ ArticleService.prototype.find = function(where,  cb) {
  * article object
  *
  * @method processArticleForDisplay
- * @param {[type]}   article         The artice to process
- * @param {[type]}   authors         Available authors retrieved from the database
- * @param {[type]}   contentSettings Content settings to use for processing
+ * @param {Object}   article         The artice to process
+ * @param {Number}   articleCount    The total number of articles
+ * @param {Array}    authors         Available authors retrieved from the database
+ * @param {Object}   contentSettings Content settings to use for processing
  * @param {Function} cb              Callback function
  */
-ArticleService.prototype.processArticleForDisplay = function(article, authors, contentSettings, cb) {
+ArticleService.prototype.processArticleForDisplay = function(article, articleCount, authors, contentSettings, cb) {
 	var self = this;
 
 	if (this.getContentType() === 'article') {
@@ -181,6 +182,54 @@ ArticleService.prototype.processArticleForDisplay = function(article, authors, c
 	        		contentSettings
 			);
 	    }
+
+		if(articleCount > 1 && contentSettings.auto_break_articles) {
+			var breakString = '<br>';
+			var tempLayout;
+
+			var brIndex = article.article_layout.indexOf('<br>');
+			if(brIndex === -1) {
+				brIndex = article.article_layout.indexOf('<br />');
+				breakString = '<br />';
+			}
+			var divIndex = article.article_layout.indexOf('</div>');
+
+			if(divIndex === -1 || (brIndex > -1 && divIndex > -1 && brIndex < divIndex)) {
+				tempLayout = article.article_layout.split(breakString + breakString).join(breakString + '^dbl_pgf_break^');
+			}
+			else {
+				breakString = '</div>';
+				tempLayout = article.article_layout.split('<div><br></div>').join(breakString + '^dbl_pgf_break^')
+				.split('<div><br /></div>').join(breakString + '^dbl_pgf_break^');
+			}
+
+			var tempLayoutArray = tempLayout.split(breakString);
+			for(var i = 0; i < tempLayoutArray.length; i++) {
+				if(!tempLayoutArray[i].length) {
+					tempLayoutArray.splice(i, 1);
+					i--;
+				}
+			}
+
+			if(tempLayoutArray.length > 1) {
+				var newLayout = '';
+				for(i = 0; i < tempLayoutArray.length && i < contentSettings.auto_break_articles; i++) {
+					if(i === contentSettings.auto_break_articles -1 && i != tempLayoutArray.length - 1) {
+						newLayout += tempLayoutArray[i] + '&nbsp;<a href="' + pb.config.siteRoot + '/article/' + article.url + '">' + contentSettings.read_more_text + '...</a>' + breakString;
+						continue;
+					}
+					newLayout += tempLayoutArray[i] + breakString;
+				}
+
+				if(breakString === '</div>') {
+					breakString = '<div><br /></div>';
+				}
+
+				newLayout = newLayout.split('^dbl_pgf_break^').join(breakString);
+
+				article.article_layout = newLayout;
+			}
+		}
 	}
 
     article.layout  = article.article_layout;
