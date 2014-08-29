@@ -143,9 +143,12 @@ pb.JobService         = require(path.join(DOCUMENT_ROOT, '/include/service/entit
 pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_service.js');
 pb.plugins       = new pb.PluginService();
 
+//media
+pb.FsMediaProvider = require(path.join(DOCUMENT_ROOT, '/include/service/media/fs_media_provider.js'));
+pb.MediaService    = require(path.join(DOCUMENT_ROOT, '/include/service/entities/media_service.js'));
+
 //content services
 pb.SectionService     = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
-pb.MediaService       = require(DOCUMENT_ROOT+'/include/service/entities/media_service.js');
 pb.TopMenuService     = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
 
 //Export system object

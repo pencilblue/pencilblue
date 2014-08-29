@@ -25,7 +25,8 @@ WPImport.onInstall = function(cb) {
  * The result is ignored
  */
 WPImport.onUninstall = function(cb) {
-	cb(null, true);
+    var result = pb.AdminSubnavService.unregisterFor('plugin_settings', WPImport.onPluginSettingsSubNav);console.log('**Removed PS:'+result);
+	cb(null, result);
 };
 
 /**
@@ -37,20 +38,30 @@ WPImport.onUninstall = function(cb) {
  * The result is ignored
  */
 WPImport.onStartup = function(cb) {
-	pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization, plugin) {
-        if(plugin.uid === 'wp_import') {
-            return [
-                {
-                    name: 'import_xml',
-                    title: 'Import WordPress XML',
-                    icon: 'upload',
-                    href: '/admin/plugins/settings/wp_import/import'
-                }
-            ];
-        }
-        return [];
-    });
-    cb(null, true);
+	var result = pb.AdminSubnavService.registerFor('plugin_settings', WPImport.onPluginSettingsSubNav);console.log('**Added PS:'+result);
+    cb(null, result);
+};
+
+/**
+ * @static
+ * @method onPluginSettingsSubNav
+ * @param {String} navKey
+ * @param {Localization}
+ * @param {Object} The plugin object
+ * @return {Array}
+ */
+WPImport.onPluginSettingsSubNav = function(navKey, localization, plugin) {
+    if(plugin.uid === 'wp_import') {
+        return [
+            {
+                name: 'import_xml',
+                title: 'Import WordPress XML',
+                icon: 'upload',
+                href: '/admin/plugins/settings/wp_import/import'
+            }
+        ];
+    }
+    return [];
 };
 
 /**

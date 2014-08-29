@@ -455,7 +455,7 @@ DAO.getIDInWhere = function(objArray, idProp) {
     	else{
     		rawId = objArray[i];
     	}
-    	idArray.push(new ObjectID(rawId));
+    	idArray.push(DAO.getObjectID(rawId));
     }
     return {
     	_id: {$in: idArray}

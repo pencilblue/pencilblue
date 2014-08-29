@@ -360,17 +360,17 @@ BaseController.getContentSanitizationRules = function() {
     return {
         allowedTags: [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u', 'span' ],
         allowedAttributes: {
-            a: [ 'href', 'name', 'target', 'class' ],
-            img: [ 'src', 'class' ],
+            a: [ 'href', 'name', 'target', 'class', 'align'],
+            img: [ 'src', 'class', 'align'],
             p: ['align', 'class'],
-            h1: ['style', 'class'],
-            h2: ['style', 'class'],
-            h3: ['style', 'class'],
-            h4: ['style', 'class'],
-            h5: ['style', 'class'],
-            h6: ['style', 'class'],
-            div: ['style', 'class'],
-            span: ['style', 'class']
+            h1: ['style', 'class', 'align'],
+            h2: ['style', 'class', 'align'],
+            h3: ['style', 'class', 'align'],
+            h4: ['style', 'class', 'align'],
+            h5: ['style', 'class', 'align'],
+            h6: ['style', 'class', 'align'],
+            div: ['style', 'class', 'align'],
+            span: ['style', 'class', 'align']
         },
 
         // Lots of these won't come up by default because we don't allow them

@@ -209,6 +209,13 @@ var config = {
     //field.
     command: {
         broker: 'redis'
+    },
+    
+    //The media block specifies the options for how media is persisted.  
+    media: {
+        
+        provider: 'fs',
+        parent_dir: 'public',
     }
 };
 

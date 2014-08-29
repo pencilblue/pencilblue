@@ -17,14 +17,14 @@
 
 /**
  * Edits media
+ * @class EditMediaPostController
  */
-
-function EditMedia(){}
+function EditMediaPostController(){}
 
 //inheritance
-util.inherits(EditMedia, pb.FormController);
+util.inherits(EditMediaPostController, pb.FormController);
 
-EditMedia.prototype.onPostParamsRetrieved = function(post, cb) {
+EditMediaPostController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var vars = this.pathVars;
 
@@ -38,17 +38,19 @@ EditMedia.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
 
-	var dao = new pb.DAO();
-	dao.loadById(post.id, 'media', function(err, media) {
-    	//TODO handle error
-
-        if(media === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), this.getFormErrorRedirect(post.id), cb);
+    var mservice = new pb.MediaService();
+    mservice.loadById(post.id, function(err, media) {
+    	if (util.isError(err)) {
+            self.reqHandler.serveError(err);
+        }
+        else if(media === null) {
+            self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(post.id), cb);
             return;
         }
 
         //update existing document
         pb.DocumentCreator.update(post, media, ['media_topics'], ['is_file']);
+        var dao = new pb.DAO();
         dao.update(media).then(function(result) {
             if (util.isError(result)) {
                 self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(), cb);
@@ -61,17 +63,17 @@ EditMedia.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
-EditMedia.prototype.onSaveSuccessful = function(mediaDocument) {
+EditMediaPostController.prototype.onSaveSuccessful = function(mediaDocument) {
 	this.session.success = mediaDocument.name + ' ' + this.ls.get('EDITED');
 };
 
-EditMedia.prototype.getRequiredParams = function() {
+EditMediaPostController.prototype.getRequiredParams = function() {
 	return ['media_type', 'location', 'name'];
 };
 
-EditMedia.prototype.getFormErrorRedirect = function(id){
+EditMediaPostController.prototype.getFormErrorRedirect = function(id){
 	return '/admin/content/media/edit_media/' + id;
 };
 
 //exports
-module.exports = EditMedia;
+module.exports = EditMediaPostController;
