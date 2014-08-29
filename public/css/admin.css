@@ -391,6 +391,7 @@ form .error
     background-color: #333333;
     color: #FFFFFF;
     resize: none;
+    font-family: monospace;
 }
 
 .layout_markdown {
