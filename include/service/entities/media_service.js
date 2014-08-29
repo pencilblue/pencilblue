@@ -89,20 +89,28 @@ MediaService.prototype.getContentStreamByPath = function(mediaPath) {
 };
 
 MediaService.prototype.setContent = function(fileDataStrOrBuff, fileName, cb) {
-    throw new Error('implement me');
+    var mediaPath = MediaService.generateMediaPath(fileName);
+    this.provider.set(fileDataStrOrBuff, mediaPath, function(err, result) {
+        cb(err, { mediaPath: mediaPath, result: result});
+    });
 };
 
 MediaService.prototype.setContentStream = function(stream, fileName, cb) {
-    throw new Error('implement me');
+    var mediaPath = MediaService.generateMediaPath(fileName);
+    this.provider.setStream(stream, mediaPath, function(err, result) {
+        cb(err, { mediaPath: mediaPath, result: result});
+    });
 };
 
-MediaService.prototype.createContentWriteStream = function(fileName) {
+MediaService.prototype.createContentWriteStream = function(fileName, cb) {
     var mediaPath = MediaService.generateMediaPath(fileName);
-    var wstream   = this.provider.createWriteStream(mediaPath);
-    return {
-        mediaPath: mediaPath,
-        stream: wstream
-    };
+    this.provider.createWriteStream(mediaPath, function(err, stream) {
+        var result = {
+            mediaPath: mediaPath,
+            stream: stream
+        };
+        cb(err, result);
+    });
 };
 
 MediaService.prototype.existsByPath = function(mediaPath, cb) {

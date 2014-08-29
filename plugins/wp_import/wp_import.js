@@ -25,7 +25,7 @@ WPImport.onInstall = function(cb) {
  * The result is ignored
  */
 WPImport.onUninstall = function(cb) {
-    var result = pb.AdminSubnavService.unregisterFor('plugin_settings', WPImport.onPluginSettingsSubNav);console.log('**Removed PS:'+result);
+    var result = pb.AdminSubnavService.unregisterFor('plugin_settings', WPImport.onPluginSettingsSubNav);
 	cb(null, result);
 };
 
@@ -38,7 +38,7 @@ WPImport.onUninstall = function(cb) {
  * The result is ignored
  */
 WPImport.onStartup = function(cb) {
-	var result = pb.AdminSubnavService.registerFor('plugin_settings', WPImport.onPluginSettingsSubNav);console.log('**Added PS:'+result);
+	var result = pb.AdminSubnavService.registerFor('plugin_settings', WPImport.onPluginSettingsSubNav);
     cb(null, result);
 };
 

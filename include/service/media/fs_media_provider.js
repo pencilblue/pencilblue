@@ -38,10 +38,16 @@ FsMediaProvider.prototype.get = function(mediaPath, cb) {
 
 FsMediaProvider.prototype.setStream = function(stream, mediaPath, cb) {
     
-    var fileStream = this.createWriteStream(mediaPath);
-    fileStream.once('end', cb);
-    fileStream.once('error', cb);
-    stream.pipe(fileStream);
+    this.createWriteStream(mediaPath, function(err, fileStream) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        
+        pb.log.silly('FsMediaProvider: Piping stream to [%s]', mediaPath);
+        stream.pipe(fileStream);
+        stream.on('end', cb);
+        stream.on('error', cb);
+    });
 };
 
 FsMediaProvider.prototype.set = function(fileDataStrOrBuff, mediaPath, cb) {
@@ -54,9 +60,20 @@ FsMediaProvider.prototype.set = function(fileDataStrOrBuff, mediaPath, cb) {
     });
 };
 
-FsMediaProvider.prototype.createWriteStream = function(mediaPath) {
+FsMediaProvider.prototype.createWriteStream = function(mediaPath, cb) {
     var ap = FsMediaProvider.getMediaPath(this.parentDir, mediaPath);
-    return fs.createWriteStream(ap);
+    this.mkdirs(ap, function(err) {
+        if(util.isError(err)) {
+            return cb(err);
+        }
+        
+        try {
+            cb(null, fs.createWriteStream(ap));
+        }
+        catch(e) {
+            cb(e);
+        }
+    });
 };
 
 FsMediaProvider.prototype.exists = function(mediaPath, cb) {
@@ -81,6 +98,7 @@ FsMediaProvider.prototype.stat = function(mediaPath, cb) {
 FsMediaProvider.prototype.mkdirs = function(absoluteFilePath, cb) {
     
     var pieces = absoluteFilePath.split('/');
+    pb.log.silly('FsMediaProvider: Ensuring directories exist for path: %s', absoluteFilePath);
     
     var curr = '';
     var tasks = pb.utils.getTasks(pieces, function(pieces, i) {
@@ -95,7 +113,15 @@ FsMediaProvider.prototype.mkdirs = function(absoluteFilePath, cb) {
             }
             
             curr += '/' + p;
-            fs.mkdir(curr, callback);
+            fs.exists(curr, function(exists) {
+                if (exists) {
+                    pb.log.silly('FsMediaProvider: Skipping creation of [%s] because it already exists', curr);
+                    return callback();
+                }
+            
+                pb.log.silly('FsMediaProvider: Creating directory [%s]', curr);
+                fs.mkdir(curr, callback);
+            });
         };
     });
     async.series(tasks, cb);
