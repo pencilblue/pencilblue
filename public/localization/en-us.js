@@ -231,7 +231,8 @@ var loc =
         EXISTING_TOPIC: 'A topic with this name already exists',
         TOPICS_CREATED: 'The topics were successfully created',
         IMPORT_TOPICS: 'Import topics',
-        TOPICS_CSV_FILE: 'CSV file containing topic names'
+        IMPORT_TOPICS_HELP: 'Here you can import a CSV file of topic names into PencilBlue. The file should contain no other information.',
+        TOPICS_CSV_FILE: 'CSV file containing topic names',
     },
     media:
     {
