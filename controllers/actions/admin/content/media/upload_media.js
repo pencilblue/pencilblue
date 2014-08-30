@@ -45,9 +45,15 @@ UploadMedia.prototype.render = function(cb) {
         if (util.isError(error)) {
             return self.reqHandler.serveError(error);
         }
-
-        var stream = fs.createReadStream(files.media_file.path);
-        mservice.setContentStream(stream, files.media_file.name, function(err, sresult) {
+        
+        var keys = Object.keys(files);
+        if (keys.length === 0) {
+            return self.serveError(new Error('No file inputs were submitted'));
+        }
+        var fileDescriptor = files[keys[0]];
+        
+        var stream = fs.createReadStream(fileDescriptor.path);
+        mservice.setContentStream(stream, fileDescriptor.name, function(err, sresult) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);   
             }
