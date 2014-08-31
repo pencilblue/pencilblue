@@ -439,14 +439,20 @@ WPXMLParseService.retrieveMediaObjects = function(content, cb) {
 
                     res.on('data', function(chunk){
                         imageData += chunk;
-                    });
-
-                    res.on('end', function(){
+                    })
+                    .once('end', function(){
                         self.saveDownloadedImage(srcString, imageData, function(location) {
                             self.saveMediaObject(mediaType, location, function(mediaObject) {
                                 content = content.split(mediaString).join('^media_display_' + mediaObject._id.toString() + '/position:center^');
                                 self.replaceMediaObject();
                             });
+                        });
+                    })
+                    .once('error', function(err) {
+                        pb.log.error('WPXMLParseService: Failed to download media [%s]: %s', srcString, err.stack);
+                        self.saveMediaObject(mediaType, srcString, function(mediaObject) {
+                            content = content.split(mediaString).join('^media_display_' + mediaObject._id.toString() + '/position:center^');
+                            self.replaceMediaObject();
                         });
                     });
                 });
