@@ -162,9 +162,8 @@ function checkForNewArticleSave(draft)
                     $('#article_media').val(mediaCSV);
                 }
 
-                getContentLayout(function(contentLayout)
-                {
-                    var layout = contentLayout;
+                var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
+                getWYSIWYGLayout(wysId, function(layout) {
                     if(!$('#article_layout').position()) {
                         $('fieldset').append('<textarea id="article_layout" name="article_layout" style="display: none">' + layout + '</textarea>');
                     }

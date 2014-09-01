@@ -359,37 +359,43 @@ form .error
     color: #428BCA;
 }
 
-#layout_content
+.content_layout
 {
     background-color: #FFFFFF;
     margin-bottom: 1em;
-    padding: .5em;
+    padding: 0;
     min-height: 200px;
 }
 
-#layout_editable
+.layout_editable
 {
     overflow-x: hidden;
     overflow-y: scroll;
 }
 
-#layout_editable, #layout_code
+.layout_editable, .layout_code, .layout_markdown
 {
     width: 100%;
     height: 100%;
     border: none;
+    padding: .5em;
 }
 
-#layout_editable:focus, #layout_code:focus
+.layout_editable:focus, .layout_code:focus, .layout_markdown:focus
 {
     outline: none;
 }
 
-#layout_code
+.layout_code, .layout_markdown
 {
     background-color: #333333;
     color: #FFFFFF;
     resize: none;
+    font-family: monospace;
+}
+
+.layout_markdown {
+    background-color: #333344;
 }
 
 #column_inches

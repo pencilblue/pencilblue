@@ -47,6 +47,12 @@ SaveHomePageSettings.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
+SaveHomePageSettings.prototype.getSanitizationRules = function() {
+    return {
+        page_layout: pb.BaseController.getContentSanitizationRules()
+    };
+};
+
 SaveHomePageSettings.getRoutes = function(cb) {
     var routes = [
         {

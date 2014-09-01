@@ -64,9 +64,8 @@ function prepareHomePageSettingsSave() {
             $('#page_media').val(mediaCSV);
         }
 
-        getContentLayout(function(contentLayout) {
-
-            var layout = contentLayout;
+        var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
+        getWYSIWYGLayout(wysId, function(layout) {
             if(!$('#page_layout').position()) {
                 $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
             }

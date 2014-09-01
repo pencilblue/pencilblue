@@ -87,7 +87,10 @@ LibrariesService.getCDNDefaults = function() {
         angular_route: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-route.min.js',
         angular_sanitize: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.min.js',
         spin: '//fgnass.github.io/spin.js/spin.min.js',
-        jquery_spin: '//fgnass.github.io/spin.js/jquery.spin.js'
+        jquery_spin: '//fgnass.github.io/spin.js/jquery.spin.js',
+        he: '/js/lib/he/he.js',
+        to_markdown: '/js/lib/to_markdown/to-markdown.js',
+        markdown: '/js/lib/markdown/lib/markdown.js'
     };
 };
 
@@ -116,7 +119,10 @@ LibrariesService.getBowerDefaults = function() {
         angular_route: '/bower_components/angular-route/angular-route.min.js',
         angular_sanitize: '/bower_components/angular-sanitize/angular-sanitize.min.js',
         spin: '/bower_components/jquery.spinjs/libs/spin/spin.js',
-        jquery_spin: '/bower_components/jquery.spinjs/dist/jquery.spin.min.js'
+        jquery_spin: '/bower_components/jquery.spinjs/dist/jquery.spin.min.js',
+        he: '/bower_components/he/he.js',
+        to_markdown: '/bower_components/to-markdown/src/to-markdown.js',
+        markdown: '/bower_components/markdown/lib/markdown.js'
     };
 };
 

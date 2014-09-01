@@ -57,7 +57,7 @@ $(document).ready(function()
         }
     });
 
-    if($('#publish_date').val().length == 0)
+    if($('#publish_date').val().length === 0)
     {
         setPublishDateToNow();
     }
@@ -145,9 +145,8 @@ function checkForNewPageSave(draft)
                 $('#page_media').val(mediaCSV);
             }
 
-            getContentLayout(function(contentLayout)
-            {
-                var layout = contentLayout;
+            var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
+            getWYSIWYGLayout(wysId, function(layout) {
                 if(!$('#page_layout').position()) {
                     $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
                 }
@@ -178,7 +177,7 @@ function buildTopics(output)
     topicElementCount = 0;
     topicsArray = [];
 
-    if(topicElements.length == 0)
+    if(topicElements.length === 0)
     {
         output('');
         return;
@@ -202,7 +201,7 @@ function buildMedia(output)
     mediaElementCount = 0;
     mediaArray = [];
 
-    if(mediaElements.length == 0)
+    if(mediaElements.length === 0)
     {
         output('');
         return;
