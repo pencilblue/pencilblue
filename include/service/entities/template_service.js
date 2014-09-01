@@ -131,6 +131,17 @@ TemplateService.prototype.getTheme = function() {
 };
 
 /**
+ * Sets the option that when true, instructs the engine to inspect the content 
+ * provided by a flag for more flags.  This is one way of providing iterative 
+ * processing of items.  See the sample plugin for an example.
+ * @method setReprocess
+ * @param {Boolean} reprocess
+ */
+TemplateService.prototype.setReprocess = function(reprocess) {
+    this.reprocess = reprocess ? true : false;
+};
+
+/**
  * Retrieves the raw template based on a priority.  The path to the template is
  * derived from the specified relative path and the following order of
  * directories:
@@ -365,10 +376,13 @@ TemplateService.prototype.handleReplacement = function(flag, replacement, cb) {
         }
 
 		//prevent infinite loops
-		if (!this.reprocess || TemplateService.isFlag(content)) {
+		if (!self.reprocess || TemplateService.isFlag(content, flag)) {
 			cb(err, content);
 		}
 		else {
+            content = {
+                parts: TemplateService.compile(content)
+            };
 			self.process(content, cb);
 		}
 	};
@@ -447,7 +461,7 @@ TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
     });
 };
 
-TemplateService.isFlag = function(content) {
+TemplateService.isFlag = function(content, flag) {
     return pb.utils.isString(content) && (content.length === 0 || ('^'+flag+'^') === content);
 };
 

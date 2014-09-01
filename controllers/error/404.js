@@ -41,7 +41,7 @@ NotFoundController.prototype.render = function(cb) {
     pb.content.getSettings(function(err, contentSettings) {
         
         var options = {
-            currUrl: this.req.url
+            currUrl: self.req.url
         };
         TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {

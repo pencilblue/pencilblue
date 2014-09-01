@@ -193,7 +193,6 @@ SectionService.prototype.getFormattedSections = function(localizationService, cu
         	var formattedSections = [];
             for(var i = 0; i < sectionMap.length; i++) {
                 var section    = SectionService.getSectionData(sectionMap[i].uid, sections, currUrl);
-                console.log('Parent: N='+section.name+' CURL='+currUrl+' SURL='+section.url);
 
                 if(sectionMap[i].children.length == 0) {
                     if(section) {
@@ -538,7 +537,7 @@ SectionService.getSectionData = function(uid, navItems, currUrl) {
 
     	var navItem = navItems[i];
         if(navItem[pb.DAO.getIdField()].toString() === uid) {
-        	SectionService.formatUrl(navItem);console.log('CHILD: N='+navItem.name+' CURL='+currUrl+' SURL='+navItem.url);
+        	SectionService.formatUrl(navItem);
             
             //check for URL comparison
             if (currUrl === navItem.url) {
