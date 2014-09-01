@@ -409,6 +409,7 @@ var loc =
         LIBRARY_CLUSTER: 'If you are running PencilBlue on a server cluster, a restart is needed for the changes to take full effect',
         ARTICLES_PER_PAGE: 'Articles per page',
         AUTO_BREAK_ARTICLES: 'Auto break articles after # of paragraphs',
+        READ_MORE_TEXT: 'Read more text',
         DONT_BREAK: 'Don\'t break',
         TIMESTAMP: 'Timestamp',
         DISPLAY_TIMESTAMP: 'Display timestamps in articles',

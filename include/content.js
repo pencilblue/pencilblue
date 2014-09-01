@@ -32,10 +32,11 @@ function ContentService(){}
  */
 ContentService.getSettings = function(cb){
 	pb.settings.get('content_settings', function(err, settings){
-		if (settings == null) {
+		if (settings === null) {
 			settings = ContentService.getDefaultSettings();
 			pb.settings.set('content_settings', settings, pb.utils.cb);
 		}
+		
 		cb(err, settings);
 	});
 };
@@ -50,6 +51,7 @@ ContentService.getDefaultSettings = function() {
     return {
         articles_per_page: 5,
         auto_break_articles: 0,
+		read_more_text: 'Read more',
         display_timestamp: 1,
         date_format: 'M dd, YYYY',
         two_digit_date: 0,
