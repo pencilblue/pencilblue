@@ -151,7 +151,7 @@ function checkForEditPageSave(draft, cb)
                 $('#page_media').val(mediaCSV);
             }
 
-            var wysId = $('.wysiwyg').attr('id').split('wysiwyg_').join('');
+            var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
             getWYSIWYGLayout(wysId, function(layout) {
                 if(!$('#page_layout').position()) {
                     $('fieldset').append('<textarea id="page_layout" name="page_layout" style="display: none">' + layout + '</textarea>');
