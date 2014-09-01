@@ -66,7 +66,7 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 	var reqParams = ['username', 'email', 'password', 'confirm_password', 'call_home'];
 	var message   = this.hasRequiredParams(post, reqParams);
 	if(message) {
-        formError(request, session, message, '/setup', cb);
+        this.formError(message, '/setup', cb);
         return;
     }
 
