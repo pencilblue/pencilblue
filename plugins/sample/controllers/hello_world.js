@@ -87,7 +87,11 @@ HelloWorld.prototype.render = function(cb) {
  * @param {function} cb Callback that provides three parameters: cb(Error, navigation, accountButtons);
  */
 HelloWorld.prototype.getNavigation = function(cb) {
-	TopMenuService.getTopMenu(this.session, this.localizationService, function(themeSettings, navigation, accountButtons) {
+    
+    var options = {
+        currUrl: this.req.url
+    };
+	TopMenuService.getTopMenu(this.session, this.localizationService, options, function(themeSettings, navigation, accountButtons) {
         TopMenuService.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
         	cb(null, navigation, accountButtons);
         });

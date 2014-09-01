@@ -360,7 +360,10 @@ Blog.prototype.getContentSpecificPageName = function(content, cb) {
 };
 
 Blog.prototype.getNavigation = function(cb) {
-    TopMenu.getTopMenu(this.session, this.ls, function(themeSettings, navigation, accountButtons) {
+    var options = {
+        currUrl: this.req.url
+    };
+    TopMenu.getTopMenu(this.session, this.ls, options, function(themeSettings, navigation, accountButtons) {
         TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
             cb(themeSettings, navigation, accountButtons);
         });

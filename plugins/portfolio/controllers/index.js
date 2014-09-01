@@ -33,7 +33,10 @@ Index.prototype.render = function(cb) {
         code: 200
     };
 
-    TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
+    var options = {
+        currUrl: this.req.url
+    };
+    TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
         TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
             pb.plugins.getSettings('portfolio', function(err, portfolioSettings) {
                 var homePageKeywords = '';
