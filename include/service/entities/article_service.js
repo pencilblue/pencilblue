@@ -187,10 +187,13 @@ ArticleService.prototype.processArticleForDisplay = function(article, articleCou
 			);
 	    }
 
+		// No need to cutoff article if there's only 1
 		if(articleCount > 1 && contentSettings.auto_break_articles) {
 			var breakString = '<br>';
 			var tempLayout;
 
+			// Firefox uses br and Chrome uses div in content editables.
+			// We need to see which one is being used
 			var brIndex = article.article_layout.indexOf('<br>');
 			if(brIndex === -1) {
 				brIndex = article.article_layout.indexOf('<br />');
@@ -198,6 +201,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, articleCou
 			}
 			var divIndex = article.article_layout.indexOf('</div>');
 
+			// Temporarily replace double breaks with a directive so we don't mess up the count
 			if(divIndex === -1 || (brIndex > -1 && divIndex > -1 && brIndex < divIndex)) {
 				tempLayout = article.article_layout.split(breakString + breakString).join(breakString + '^dbl_pgf_break^');
 			}
@@ -207,6 +211,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, articleCou
 				.split('<div><br /></div>').join(breakString + '^dbl_pgf_break^');
 			}
 
+			// Split the layout by paragraphs and remove any empty indices
 			var tempLayoutArray = tempLayout.split(breakString);
 			for(var i = 0; i < tempLayoutArray.length; i++) {
 				if(!tempLayoutArray[i].length) {
@@ -215,8 +220,11 @@ ArticleService.prototype.processArticleForDisplay = function(article, articleCou
 				}
 			}
 
+			// Only continue if we have more than 1 paragraph
 			if(tempLayoutArray.length > 1) {
 				var newLayout = '';
+
+				// Cutoff the article at the right number of paragraphs
 				for(i = 0; i < tempLayoutArray.length && i < contentSettings.auto_break_articles; i++) {
 					if(i === contentSettings.auto_break_articles -1 && i != tempLayoutArray.length - 1) {
 						newLayout += tempLayoutArray[i] + '&nbsp;<a href="' + pb.config.siteRoot + '/article/' + article.url + '">' + contentSettings.read_more_text + '...</a>' + breakString;
@@ -229,6 +237,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, articleCou
 					breakString = '<div><br /></div>';
 				}
 
+				// Replace the double breaks
 				newLayout = newLayout.split('^dbl_pgf_break^').join(breakString);
 
 				article.article_layout = newLayout;
