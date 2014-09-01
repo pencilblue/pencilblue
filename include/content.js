@@ -99,8 +99,11 @@ ContentService.getTimestampText = function(date, format, twoDigitDate, displayTi
       ls.get('DEC')
     ];
 
-    var month = twoDigitDate ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1).toString();
-    var day = twoDigitDate ? '0' + date.getDate() : date.getDate().toString();
+    var month = date.getMonth() + 1;
+	var day = date.getDate();
+
+	month = (twoDigitDate && month < 10) ? '0' + month : month.toString();
+	day = (twoDigitDate && day < 10) ? '0' + day : day.toString();
 
     dateString = dateString.split('YYYY').join(date.getFullYear());
     dateString = dateString.split('yy').join(date.getYear());
