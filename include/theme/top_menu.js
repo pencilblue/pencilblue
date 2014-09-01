@@ -16,7 +16,8 @@
 */
 
 /**
- * Service for top menu navigation
+ * Service for top menu navigation.
+ * NOTE: This is not for administrative pages.
  *
  * @module Services
  * @submodule Theme
@@ -29,16 +30,31 @@ function TopMenuService(){}
 var SectionService = pb.SectionService;
 
 /**
- * Retrieves the data needed for the top menu
+ * Retrieves the theme settings, navigation data structure, and account buttons.  
  *
  * @method getTopMenu
- * @param {Object}   session
- * @param {Object}   localizationService
- * @param {Function} cb                  Callback function
+ * @param {Object} session The current user's session
+ * @param {Localization} localizationService An instance of Localization to 
+ * translate default items
+ * @param {Object} [options] An optional argument to provide more flexibility 
+ * to the menu construction.
+ * @param {String} [options.currUrl] The current request URL.
+ * @param {Function} cb Callback function that takes three parameters. The 
+ * first are the theme's settings, the second is the navigation structure, and 
+ * the third is the account button structure.
  */
-TopMenuService.getTopMenu = function(session, localizationService, cb) {
+TopMenuService.getTopMenu = function(session, localizationService, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {
+            currUrl: null
+        };
+    }
+    else if (!pb.utils.isObject(options)) {
+        throw new Error('The options parameter must be an object');
+    }
 
-    var getTopMenu = function(session, localizationService, cb) {
+    var getTopMenu = function(session, localizationService, options, cb) {
 	    var tasks = {
 			themeSettings: function(callback) {
 				pb.settings.get('site_logo', function(err, logo) {
@@ -48,7 +64,7 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
 
 			formattedSections: function(callback) {
 				var sectionService = new SectionService();
-				sectionService.getFormattedSections(localizationService, function(err, formattedSections) {
+				sectionService.getFormattedSections(localizationService, options.currUrl, function(err, formattedSections) {
 					callback(null, formattedSections);
 				});
 			},
@@ -61,7 +77,7 @@ TopMenuService.getTopMenu = function(session, localizationService, cb) {
     		cb(result.themeSettings, result.formattedSections, result.accountButtons);
     	});
     };
-    getTopMenu(session, localizationService, cb);
+    getTopMenu(session, localizationService, options, cb);
 };
 
 /**

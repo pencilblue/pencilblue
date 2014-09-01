@@ -187,6 +187,29 @@ Util.arrayToHash = function(array, defaultVal) {
 };
 
 /**
+ * Converts an array of objects into a hash where the key the value of the 
+ * specified property. If multiple objects in the array have the same value for 
+ * the specified value then the last one found will be kept.
+ * @static
+ * @method objArrayToHash
+ * @param {Array} array The array to convert
+ * @param {String} hashProp The property who's value will be used as the key 
+ * for each object in the array.
+ * @return {Object} A hash of the values in the array
+ */
+Util.objArrayToHash = function(array, hashProp) {
+    if (!util.isArray(array)) {
+		return null;
+	}
+    
+    var hash = {};
+	for(var i = 0; i < array.length; i++) {
+        hash[array[i][hashProp]] = array[i];
+	}
+	return hash;
+};
+
+/**
  * Converts a hash to an array. When provided, the hashKeyProp will be the
  * property name of each object in the array that holds the hash key.
  * @static

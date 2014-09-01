@@ -57,17 +57,23 @@ HelloWorld.prototype.render = function(cb) {
 			self.setPageName(self.ls.get('SAMPLE_HELLO_WORLD'));
 			self.ts.registerLocal('sample_plugin_icon', PluginService.genPublicPath('sample', 'imgs/sample.ico'));
 			self.ts.registerLocal('sample_text', text);
-			self.ts.registerLocal('navigation', navigation);
+			self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
 			self.ts.registerLocal('account_buttons', accountButtons);
             self.ts.registerLocal('items', function(flag, cb) {
                 if (i >= items.length) {
+                    
+                    //we are done iterating so we shouldn't continue to 
+                    //reprocess content.
+                    self.ts.setReprocess(false);
                     cb(null, '');
                     return;
                 }
-               
-                var content = '<li>'+items[i]+'</li>^items^';
-                i+=1;
-                cb(null, content);
+                
+                //make sure the flag appended to the end is processed
+                self.ts.setReprocess(true);
+                
+                var content = '<li>'+items[i++]+'</li>^items^';
+                cb(null, new pb.TemplateValue(content, false));
             });
 			self.ts.load(path.join('sample', 'index'), function(err, template) {
 				if (util.isError(err)) {
@@ -87,7 +93,11 @@ HelloWorld.prototype.render = function(cb) {
  * @param {function} cb Callback that provides three parameters: cb(Error, navigation, accountButtons);
  */
 HelloWorld.prototype.getNavigation = function(cb) {
-	TopMenuService.getTopMenu(this.session, this.localizationService, function(themeSettings, navigation, accountButtons) {
+    
+    var options = {
+        currUrl: this.req.url
+    };
+	TopMenuService.getTopMenu(this.session, this.localizationService, options, function(themeSettings, navigation, accountButtons) {
         TopMenuService.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
         	cb(null, navigation, accountButtons);
         });

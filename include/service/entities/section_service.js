@@ -173,7 +173,12 @@ SectionService.prototype.deleteChildren = function(parentId, cb) {
     });
 };
 
-SectionService.prototype.getFormattedSections = function(localizationService, cb) {
+SectionService.prototype.getFormattedSections = function(localizationService, currUrl, cb) {
+    if (pb.utils.isFunction(currUrl)) {
+        cb      = currUrl;
+        currUrl = null;
+    }
+    
 	pb.settings.get('section_map', function(err, sectionMap) {
         if (util.isError(err) || sectionMap == null) {
         	cb(err, []);
@@ -187,11 +192,10 @@ SectionService.prototype.getFormattedSections = function(localizationService, cb
 
         	var formattedSections = [];
             for(var i = 0; i < sectionMap.length; i++) {
-                var section = SectionService.getSectionData(sectionMap[i].uid, sections);
+                var section    = SectionService.getSectionData(sectionMap[i].uid, sections, currUrl);
 
                 if(sectionMap[i].children.length == 0) {
                     if(section) {
-                        //TODO: figure out how to tell if were in one of these sections
                         formattedSections.push(section);
                     }
                 }
@@ -200,9 +204,13 @@ SectionService.prototype.getFormattedSections = function(localizationService, cb
                         section.dropdown = 'dropdown';
 
 						section.children = [];
-
                         for(var j = 0; j < sectionMap[i].children.length; j++) {
-                            var child = SectionService.getSectionData(sectionMap[i].children[j].uid, sections);
+                            var child = SectionService.getSectionData(sectionMap[i].children[j].uid, sections, currUrl);
+                            
+                            //when the child is active so is the parent.
+                            if (child.active) {
+                                section.active = true;   
+                            }
                             section.children.push(child);
                         }
 
@@ -523,13 +531,18 @@ SectionService.prototype.save = function(navItem, options, cb) {
     });
 };
 
-SectionService.getSectionData = function(uid, navItems) {
+SectionService.getSectionData = function(uid, navItems, currUrl) {
     var self = this;
     for(var i = 0; i < navItems.length; i++) {
 
     	var navItem = navItems[i];
-        if(navItem._id.equals(ObjectID(uid))) {
+        if(navItem[pb.DAO.getIdField()].toString() === uid) {
         	SectionService.formatUrl(navItem);
+            
+            //check for URL comparison
+            if (currUrl === navItem.url) {
+                navItem.active = true;
+            }
             return navItem;
         }
     }

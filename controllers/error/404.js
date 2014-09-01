@@ -17,22 +17,33 @@
 
 /**
  * 404 error
+ * @class NotFoundController
+ * @constructor
+ * @extends BaseController
  */
-
-function NotFound(){}
+function NotFoundController(){}
 
 //dependencies
 var TopMenu = require('../../include/theme/top_menu');
 
 //inheritance
-util.inherits(NotFound, pb.BaseController);
+util.inherits(NotFoundController, pb.BaseController);
 
-NotFound.prototype.render = function(cb) {
+/**
+ * @see BaseController.render
+ * @method render
+ * @param {Function} cb
+ */
+NotFoundController.prototype.render = function(cb) {
 	var self = this;
 
 	this.setPageName('404');
     pb.content.getSettings(function(err, contentSettings) {
-        TopMenu.getTopMenu(self.session, self.localizationService, function(themeSettings, navigation, accountButtons) {
+        
+        var options = {
+            currUrl: self.req.url
+        };
+        TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
 
                 //load template
@@ -57,4 +68,4 @@ NotFound.prototype.render = function(cb) {
 };
 
 //exports
-module.exports = NotFound;
+module.exports = NotFoundController;
