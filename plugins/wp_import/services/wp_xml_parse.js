@@ -50,9 +50,9 @@ WPXMLParseService.init = function(cb) {
 
 WPXMLParseService.parse = function(xmlString, defaultUserId, cb) {
     var self = this;
-
-    var parseString = xml2js.parseString;
-    parseString(xmlString, function(err, wpData) {
+    pb.log.debug('WPXMLParseService: Starting to parse...');
+    
+    xml2js.parseString(xmlString, function(err, wpData) {
         if(err) {
             cb('^loc_INVALID_XML^');
             return;
@@ -75,6 +75,8 @@ WPXMLParseService.saveNewUsers = function(channel, cb) {
     var users = [];
     var dao = new pb.DAO();
 
+    pb.log.debug('WPXMLParseService: Parsing Users...');
+    
     this.checkForExistingUser = function(index) {
         if(index >= users.length) {
             cb(users);
@@ -83,6 +85,8 @@ WPXMLParseService.saveNewUsers = function(channel, cb) {
 
         dao.loadByValue('username', users[index].username, 'user', function(err, existingUser) {
             if(existingUser) {
+                pb.log.debug('WPXMLParseService: User [%s] already exists', users[index].username);
+                
                 users[index] = existingUser;
                 delete users[index].password;
 
@@ -99,6 +103,8 @@ WPXMLParseService.saveNewUsers = function(channel, cb) {
 
             var newUser = pb.DocumentCreator.create('user', users[index]);
             dao.update(newUser).then(function(result) {
+                
+                pb.log.debug('WPXMLParseService: Created user [%s]', users[index].username);
                 delete users[index].password;
                 users[index].generatedPassword = generatedPassword;
                 users[index]._id = result._id;
@@ -110,9 +116,10 @@ WPXMLParseService.saveNewUsers = function(channel, cb) {
     };
 
     pb.plugins.getSetting('create_new_users', 'wp_import', function(err, createNewUsers) {
-        if(createNewUsers) {
+        if(createNewUsers && util.isArray(channel.item)) {
             for(var i = 0; i < channel.item.length; i++) {
                 for(var j = 0; j < channel.item[i]['dc:creator'].length; j++) {
+                    
                     var userMatch = false;
                     for(var s = 0; s < users.length; s++) {
                         if(users[s].username === channel.item[i]['dc:creator'][j]) {
@@ -136,6 +143,9 @@ WPXMLParseService.saveNewTopics = function(channel, cb) {
     var topics = [];
     var dao = new pb.DAO();
 
+    pb.log.debug('WPXMLParseService: Parsing topics...');
+    
+    
     this.checkForExistingTopic = function(index) {
         if(index >= topics.length) {
             cb(topics);
@@ -144,6 +154,7 @@ WPXMLParseService.saveNewTopics = function(channel, cb) {
 
         dao.loadByValue('name', topics[index].name, 'topic', function(err, existingTopic) {
             if(existingTopic) {
+                pb.log.debug('WPXMLParseService: Topic [%s] already exists', topics[index].name);
                 topics[index] = existingTopic;
 
                 index++;
@@ -162,36 +173,42 @@ WPXMLParseService.saveNewTopics = function(channel, cb) {
         });
     };
 
+    pb.log.silly('WPXMLParseService:Parsing Topics: Inspecting "wp:category" elements...');
     var categories = channel['wp:category'];
-    for(var i = 0; i < categories.length; i++) {
-        for(var j = 0; j < categories[i]['wp:cat_name'].length; j++) {
-            var topicMatch = false;
-            for(var s = 0; s < topics.length; s++) {
-                if(categories[i]['wp:cat_name'][j] === topics[s]) {
-                    topicMatch = true;
-                    break;
+    if (util.isArray(categories)) {
+        for(var i = 0; i < categories.length; i++) {
+            for(var j = 0; j < categories[i]['wp:cat_name'].length; j++) {
+                var topicMatch = false;
+                for(var s = 0; s < topics.length; s++) {
+                    if(categories[i]['wp:cat_name'][j] === topics[s]) {
+                        topicMatch = true;
+                        break;
+                    }
                 }
-            }
 
-            if(!topicMatch && categories[i]['wp:cat_name'][j].toLowerCase() !== 'uncategorized') {
-                topics.push({name: categories[i]['wp:cat_name'][j]});
+                if(!topicMatch && categories[i]['wp:cat_name'][j].toLowerCase() !== 'uncategorized') {
+                    topics.push({name: categories[i]['wp:cat_name'][j]});
+                }
             }
         }
     }
 
+    pb.log.silly('WPXMLParseService:Parsing Topics: Inspecting "wp:tag" elements...');
     var tags = channel['wp:tag'];
-    for(var i = 0; i < tags.length; i++) {
-        for(var j = 0; j < tags[i]['wp:tag_name'].length; j++) {
-            var topicMatch = false;
-            for(var s = 0; s < topics.length; s++) {
-                if(tags[i]['wp:tag_name'][j] === topics[s]) {
-                    topicMatch = true;
-                    break;
+    if (util.isArray(tags)) {
+        for(var i = 0; i < tags.length; i++) {
+            for(var j = 0; j < tags[i]['wp:tag_name'].length; j++) {
+                var topicMatch = false;
+                for(var s = 0; s < topics.length; s++) {
+                    if(tags[i]['wp:tag_name'][j] === topics[s]) {
+                        topicMatch = true;
+                        break;
+                    }
                 }
-            }
 
-            if(!topicMatch) {
-                topics.push({name: tags[i]['wp:tag_name'][j]});
+                if(!topicMatch) {
+                    topics.push({name: tags[i]['wp:tag_name'][j]});
+                }
             }
         }
     }
@@ -208,6 +225,9 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
     var media = [];
     var dao = new pb.DAO();
 
+    pb.log.debug('WPXMLParseService:Parsing Articles and Pages...');
+    
+    
     this.checkForExistingPage = function(index) {
         if(index >= rawPages.length) {
             self.checkForExistingArticle(0);
@@ -281,11 +301,13 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
             }
 
             var articleTopics = [];
-            for(var i = 0; i < rawArticle.category.length; i++) {
-                if(pb.utils.isString(rawArticle.category[i])) {
-                    for(var j = 0; j < topics.length; j++) {
-                        if(topics[j].name == rawArticle.category[i]) {
-                            articleTopics.push(topics[j]._id.toString());
+            if (util.isArray(rawArticle.category)) {
+                for(var i = 0; i < rawArticle.category.length; i++) {
+                    if(pb.utils.isString(rawArticle.category[i])) {
+                        for(var j = 0; j < topics.length; j++) {
+                            if(topics[j].name == rawArticle.category[i]) {
+                                articleTopics.push(topics[j]._id.toString());
+                            }
                         }
                     }
                 }
@@ -302,6 +324,7 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
                 author = defaultUserId;
             }
 
+            pb.log.debug('WPXMLParseService: Retrieving media for [%s]...', rawArticle.title[0]);
             self.retrieveMediaObjects(rawArticle['content:encoded'][0], function(updatedContent, mediaObjects) {
                 updatedContent = updatedContent.split("\r\n").join("<br/>");
                 var articleMedia = [];
@@ -350,11 +373,16 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
 
     var items = channel.item;
     for(var i = 0; i < items.length; i++) {
-        if(items[i]['wp:post_type'][0] === 'page') {
-            rawPages.push(items[i]);
-        }
-        else if(items[i]['wp:post_type'][0] === 'post') {
-            rawArticles.push(items[i]);
+        
+        var postType = items[i]['wp:post_type']
+        if (postType) {
+            
+            if(postType[0] === 'page') {
+                rawPages.push(items[i]);
+            }
+            else if(postType[0] === 'post') {
+                rawArticles.push(items[i]);
+            }
         }
     }
 
@@ -411,14 +439,20 @@ WPXMLParseService.retrieveMediaObjects = function(content, cb) {
 
                     res.on('data', function(chunk){
                         imageData += chunk;
-                    });
-
-                    res.on('end', function(){
+                    })
+                    .once('end', function(){
                         self.saveDownloadedImage(srcString, imageData, function(location) {
                             self.saveMediaObject(mediaType, location, function(mediaObject) {
                                 content = content.split(mediaString).join('^media_display_' + mediaObject._id.toString() + '/position:center^');
                                 self.replaceMediaObject();
                             });
+                        });
+                    })
+                    .once('error', function(err) {
+                        pb.log.error('WPXMLParseService: Failed to download media [%s]: %s', srcString, err.stack);
+                        self.saveMediaObject(mediaType, srcString, function(mediaObject) {
+                            content = content.split(mediaString).join('^media_display_' + mediaObject._id.toString() + '/position:center^');
+                            self.replaceMediaObject();
                         });
                     });
                 });

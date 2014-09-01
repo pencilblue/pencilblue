@@ -34,39 +34,39 @@ UploadMedia.prototype.render = function(cb) {
 	var self  = this;
     
     var mservice = new pb.MediaService();
+    var fpart    = null;
     var sresult  = null;
+    var error    = null;
+    var fdata    = '';
     var form     = new formidable.IncomingForm();
-    form.onPart  = function(part) {
-        
-        //we don't care about anything else that got posted just the file so 
-        //let formidable parse it but we'll ignore it.
-        if (!part.filename) {
-            form.handlePart(part);
-            return;
-        }
-        
-        sresult = mservice.createContentWriteStream(part.filename);
-        part.addListener('data', function(data) {
-            sresult.stream.write(data);
-        });
-    }
 
     //parse the form out and let us know when its done
-    form.parse(this.req, function() {
-
-        //close out the stream
-        if (sresult.stream) {
-            sresult.stream.end();
+    form.parse(this.req, function(err, fields, files) {
+        if (util.isError(error)) {
+            return self.reqHandler.serveError(error);
         }
         
-        //write the response
-    	var content = {
-			content: JSON.stringify({
-				filename: sresult.mediaPath
-			}),
-			content_type: 'application/json'
-		};
-        cb(content);
+        var keys = Object.keys(files);
+        if (keys.length === 0) {
+            return self.serveError(new Error('No file inputs were submitted'));
+        }
+        var fileDescriptor = files[keys[0]];
+        
+        var stream = fs.createReadStream(fileDescriptor.path);
+        mservice.setContentStream(stream, fileDescriptor.name, function(err, sresult) {
+            if (util.isError(err)) {
+                return self.reqHandler.serveError(err);   
+            }
+
+            //write the response
+            var content = {
+                content: JSON.stringify({
+                    filename: sresult.mediaPath
+                }),
+                content_type: 'application/json'
+            };
+            cb(content);
+        });
         return;
     });
 };
