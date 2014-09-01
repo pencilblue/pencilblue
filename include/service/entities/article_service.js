@@ -127,6 +127,10 @@ ArticleService.prototype.find = function(where,  cb) {
 		self.getArticleAuthors(articles, function(err, authors) {
 
 			pb.content.getSettings(function(err, contentSettings) {
+				if(!contentSettings.read_more_text) {
+					var defaultSettings = pb.content.getDefaultSettings();
+					contentSettings.read_more_text = defaultSettings.read_more_text;
+				}
 
 				var tasks = pb.utils.getTasks(articles, function(articles, i) {
 					return function(callback) {

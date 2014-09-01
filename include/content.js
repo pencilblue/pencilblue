@@ -32,18 +32,11 @@ function ContentService(){}
  */
 ContentService.getSettings = function(cb){
 	pb.settings.get('content_settings', function(err, settings){
-		if (settings == null) {
+		if (settings === null) {
 			settings = ContentService.getDefaultSettings();
 			pb.settings.set('content_settings', settings, pb.utils.cb);
 		}
-		else {
-			var defaultSettings = ContentService.getDefaultSettings();
-			for(var key in defaultSettings) {
-				if(typeof settings[key] === 'undefined') {
-					settings[key] = defaultSettings[key];
-				}
-			}
-		}
+		
 		cb(err, settings);
 	});
 };
