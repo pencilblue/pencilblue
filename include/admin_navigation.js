@@ -15,8 +15,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var nodeExtend = require("node.extend");
-
 /**
  * Provides function to construct the structure needed to display the navigation
  * in the Admin section of the application.
@@ -174,7 +172,7 @@ function getDefaultNavigation() {
  * @returns {*}
  */
 function getAdditions() {
-    return nodeExtend(true, [], AdminNavigation.additions);
+    return pb.utils.clone(AdminNavigation.additions);
 };
 
 /**
@@ -182,7 +180,7 @@ function getAdditions() {
  * @returns {*}
  */
 function getChildrenAdditions() {
-    return nodeExtend(true, {}, AdminNavigation.childrenAdditions);
+    return pb.utils.clone(AdminNavigation.childrenAdditions);
 };
 
 /**
@@ -196,13 +194,8 @@ function buildNavigation() {
     var additions = getAdditions();
     var childrenAdditions = getChildrenAdditions();
 
-    for (i = 0; i < defaultNavigation.length; i++) {
-        navigation.push(defaultNavigation[i]);
-    }
-
-    for (i = 0; i < additions.length; i++) {
-        navigation.push(additions[i]);
-    }
+    pb.utils.arrayPushAll(defaultNavigation, navigation);
+    pb.utils.arrayPushAll(additions, navigation);
 
     for (var id in childrenAdditions) {
         var children = childrenAdditions[id];
