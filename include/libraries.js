@@ -82,7 +82,7 @@ LibrariesService.getCDNDefaults = function() {
         jquery_validate: '//ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.min.js',
         bootstrap_js: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js',
         bootstrap_css: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css',
-        font_awesome: '//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css',
+        font_awesome: '//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css',
         angular: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js',
         angular_route: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-route.min.js',
         angular_sanitize: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.min.js',
