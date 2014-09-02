@@ -1,5 +1,6 @@
 .jshintrc
 .project
+.idea
 config.json
 public/media/
 public/docs/
