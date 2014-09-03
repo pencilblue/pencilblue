@@ -26,6 +26,8 @@ SamplePlugin.onInstall = function(cb) {
  * The result should be TRUE on success and FALSE on failure
  */
 SamplePlugin.onUninstall = function(cb) {
+	// Remove "sample" nav during uninstall
+    	pb.AdminNavigation.remove("sample");
 	cb(null, true);
 };
 
