@@ -74,6 +74,12 @@ function TemplateService(localizationService){
      * @type {Boolean}
      */
     this.reprocess = false;
+    
+    /**
+     * @property unregisteredFlagTemplate
+     * @type {Function}
+     */
+    this.unregisteredFlagHandler = null;
 }
 
 //constants
@@ -111,6 +117,15 @@ var GLOBAL_CALLBACKS = {
 };
 
 /**
+ * 
+ * @property unregisteredFlagHandler
+ * @type {Function}
+ */
+TemplateService.unregisteredFlagHandler = function(flag) {
+    return '^'+flag+'^';
+};
+
+/**
  * Sets the prioritized theme to use when loading templates
  *
  * @method setTheme
@@ -128,6 +143,42 @@ TemplateService.prototype.setTheme = function(theme) {
  */
 TemplateService.prototype.getTheme = function() {
 	return this.theme;
+};
+
+/**
+ * When a flag is encountered that is not registered with the engine the 
+ * handler is called as a fail safe.  It is expected to return a string that 
+ * will be put in the place of the flag.
+ *
+ * @method setUnregisteredFlagHandler
+ * @param {Function} unregisteredFlagHandler
+ * @return {Boolean} TRUE when the handler was set, FALSE if not
+ */
+TemplateService.prototype.setUnregisteredFlagHandler = function(unregisteredFlagHandler) {
+    if (!pb.utils.isFunction(unregisteredFlagHandler)) {
+        return false;
+    }
+    
+	this.unregisteredFlagHandler = unregisteredFlagHandler;
+    return true;
+};
+
+/**
+ * When a flag is encountered that is not registered with the engine the 
+ * handler is called as a fail safe unless there is a locally registered handler.  
+ * It is expected to return a string that will be put in the place of the flag.
+ *
+ * @method setGlobalUnregisteredFlagHandler
+ * @param {Function} unregisteredFlagHandler
+ * @return {Boolean} TRUE when the handler was set, FALSE if not
+ */
+TemplateService.setGlobalUnregisteredFlagHandler = function(unregisteredFlagHandler) {
+    if (!pb.utils.isFunction(unregisteredFlagHandler)) {
+        return false;
+    }
+    
+	TemplateService.unregisteredFlagHandler = unregisteredFlagHandler;
+    return true;
 };
 
 /**
@@ -319,11 +370,21 @@ TemplateService.prototype.processFlag = function(flag, cb) {
 			return;
 		}
 		else {
+            //the flag was not registered.  Hand it off to a handler for any 
+            //catch-all processing.
+            
+            
 			//log result
 			if (pb.log.isSilly()) {
 				pb.log.silly("TemplateService: Failed to process flag [%s]", flag);
 			}
-			cb(null, '^'+flag+'^');
+            
+            if (pb.utils.isFunction(self.unregisteredFlagHandler)) {
+                cb(null, self.unregisteredFlagHandler(flag));
+            }
+            else {
+			     cb(null, TemplateService.unregisteredFlagHandler(flag));
+            }
 		}
 	};
 	doFlagProcessing(flag, cb);
