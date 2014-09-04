@@ -32,13 +32,14 @@ var SUB_NAV_KEY = 'manage_media';
 
 ManageMedia.prototype.render = function(cb) {
 	var self = this;
-    
+
     var options = {
         select: {
             name: 1,
             caption: 1,
             created: 1,
-            media_type: 1
+            media_type: 1,
+			location: 1
         },
         order: {created: pb.DAO.DESC},
         format_media: true
