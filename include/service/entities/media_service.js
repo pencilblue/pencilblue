@@ -31,7 +31,29 @@ function MediaService(){
     /**
      * @property provider
      */
-    this.provider = new pb.FsMediaProvider(pb.config.media.parent_dir);
+    this.provider = null;
+    
+    if (pb.config.media.provider === 'fs') {
+        this.provider = new pb.FsMediaProvider(pb.config.media.parent_dir);
+    }
+    else {
+        
+        var paths = [path.join(DOCUMENT_ROOT, pb.config.media.provider), pb.config.media.provider];
+        for(var i = 0; i < paths.length; i++) {
+            try{
+                var ProviderType = require(paths[i]);
+                this.provider = new ProviderType();
+                break;
+            }
+            catch(e){
+                pb.silly(e.stack);
+            }
+        }
+        
+        if (this.provider == null) {
+            throw new Error('A valid media provider was not available: PROVIDER_PATH: '+pb.config.media.provider+' TRIED='+JSON.stringify(paths));
+        }
+    }
 };
 
 MediaService.COLL = 'media';
@@ -84,8 +106,8 @@ MediaService.prototype.getContentByPath = function(mediaPath, cb) {
     this.provider.get(mediaPath, cb);
 };
 
-MediaService.prototype.getContentStreamByPath = function(mediaPath) {
-    return this.provider.getStream(mediaPath);
+MediaService.prototype.getContentStreamByPath = function(mediaPath, cb) {
+    this.provider.getStream(mediaPath, cb);
 };
 
 MediaService.prototype.setContent = function(fileDataStrOrBuff, fileName, cb) {
