@@ -38,19 +38,24 @@ MediaContentController.prototype.render = function(cb) {
     //load the media if available
     var mediaPath = this.req.url;
     var mservice  = new pb.MediaService();
-    var mstream   = mservice.getContentStreamByPath(mediaPath);
-    mstream.once('end', function() {
-        //do nothing. content was streamed out and closed
-    })
-    .once('error', function(err) {
-        if (err.message.indexOf('ENOENT') === 0) {
-            self.reqHandler.serve404();
+    mservice.getContentStreamByPath(mediaPath, function(err, mstream) {
+        if(util.isError(err)) {
+            return self.reqHandler.serveError(err); 
         }
-        else {
-            self.reqHandler.serveError(err);
-        }
+        
+        mstream.once('end', function() {
+            //do nothing. content was streamed out and closed
+        })
+        .once('error', function(err) {
+            if (err.message.indexOf('ENOENT') === 0) {
+                self.reqHandler.serve404();
+            }
+            else {
+                self.reqHandler.serveError(err);
+            }
+        });
+        mstream.pipe(self.res);
     });
-    mstream.pipe(this.res);
 };
 
 //exports

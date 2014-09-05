@@ -23,12 +23,12 @@
  * @constructor
  */
 function FsMediaProvider(parentDir) {
-    this.parentDir = parentDir;
+    this.parentDir = parentDir || pb.config.media.parent_dir;
 };
 
-FsMediaProvider.prototype.getStream = function(mediaPath) {
+FsMediaProvider.prototype.getStream = function(mediaPath, cb) {
     var ap = FsMediaProvider.getMediaPath(this.parentDir, mediaPath);
-    return fs.createReadStream(ap);
+    cb(null, fs.createReadStream(ap));
 };
 
 FsMediaProvider.prototype.get = function(mediaPath, cb) {
