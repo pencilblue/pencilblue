@@ -46,7 +46,7 @@ function MediaService(){
                 break;
             }
             catch(e){
-                pb.silly(e.stack);
+                pb.log.silly(e.stack);
             }
         }
         
