@@ -183,9 +183,8 @@ function openLayoutFullscreen(wysId) {
         'z-index': '10000'
     });
 
-    $('#wysiwyg_' + wysId + ' .content_layout').resizable({disabled: true});
     $('#wysiwyg_' + wysId + ' .content_layout').css({
-        'height': ($(window).height() - $('#wysiwyg_' + wysId + ' .content_layout').position().top) + 'px',
+        'height': ($(window).height() - $('#wysiwyg_' + wysId + ' .content_layout').position().top - 5) + 'px',
         'margin': '0'
     });
 
@@ -195,7 +194,6 @@ function openLayoutFullscreen(wysId) {
 function closeLayoutFullscreen(wysId) {
     $('#wysiwyg_' + wysId).attr('style', '');
     $('#wysiwyg_' + wysId + ' .content_layout').attr('style', '');
-    $('#wysiwyg_' + wysId + ' .content_layout').resizable({disabled: false});
 }
 
 function showContentLayoutModal(wysId, subsection)
