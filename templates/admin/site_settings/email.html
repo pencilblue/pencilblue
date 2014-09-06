@@ -76,6 +76,19 @@
                         <input type="password" id="password" name="password" class="form-control" autocomplete="off"></input>
                     </div>
                 </div>
+                <div class="tab-pane" id="test">
+                    <div class="form-group">
+                        <label>^loc_SEND_TEST_EMAIL^</label>
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="^loc_EMAIL^"></input>
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-default" onclick="sendTestEmail()">
+                                    <i id="send_test_icon" class="fa fa-send"></i>&nbsp;^loc_SEND^
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 <a class="btn btn-default" href="/admin/site_settings">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
                 </a>
