@@ -36,6 +36,12 @@ LibrariesService.getSettings = function(cb){
             settings = LibrariesService.getCDNDefaults();
             pb.settings.set('libraries_settings', settings, pb.utils.cb);
         }
+        else {
+            // Replace any missing libraries with CDN defaults
+            var newSettings = LibrariesService.getCDNDefaults();
+            pb.utils.merge(settings, newSettings);
+            settings = newSettings;
+        }
         cb(err, settings);
     });
 };
