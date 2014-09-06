@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var os = require('os');
 
 /**
  *
@@ -97,14 +98,15 @@ FsMediaProvider.prototype.stat = function(mediaPath, cb) {
 
 FsMediaProvider.prototype.mkdirs = function(absoluteFilePath, cb) {
     
-    var pieces = absoluteFilePath.split('/');
+    var pieces = absoluteFilePath.split(path.sep);
     pb.log.silly('FsMediaProvider: Ensuring directories exist for path: %s', absoluteFilePath);
     
-    var curr = '';
-    var tasks = pb.utils.getTasks(pieces, function(pieces, i) {
+    var curr      = '';
+    var isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
+    var tasks     = pb.utils.getTasks(pieces, function(pieces, i) {
         return function(callback) {
             
-            //we need to skip the first one bc it will probably empty and we 
+            //we need to skip the first one bc it will probably be empty and we 
             //want to skip the last one because it will probably be the file 
             //name not a directory.
             var p = pieces[i];
@@ -112,7 +114,7 @@ FsMediaProvider.prototype.mkdirs = function(absoluteFilePath, cb) {
                 return callback();   
             }
             
-            curr += '/' + p;
+            curr += (isWindows && i === 0 ? '' : path.sep) + p;
             fs.exists(curr, function(exists) {
                 if (exists) {
                     pb.log.silly('FsMediaProvider: Skipping creation of [%s] because it already exists', curr);
