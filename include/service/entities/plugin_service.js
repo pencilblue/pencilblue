@@ -1154,12 +1154,21 @@ PluginService.prototype.installPluginDependencies = function(pluginDirName, depe
     var prefixPath = path.join(PluginService.getPluginsDir(), pluginDirName);
 
     //log and load
+    var config = {
+        prefix: prefixPath
+    };
     npm.on('log', logit);
-    npm.load({prefix: prefixPath}, function(err) {
+    npm.load(config, function(err) {
         if (util.isError(err)) {
             onDone(err);
             return;
         }
+
+        //we set the prefix manually here.  See: 
+        //https://github.com/pencilblue/pencilblue/issues/214
+        //this is a hack to keep it working until the npm team can decouple the 
+        //npmconf module from npm and create a scenario where it can be reloaded.
+        npm.config.prefix = prefixPath;
 
         //lines up the install tasks
         var tasks = pb.utils.getTasks(Object.keys(dependencies), function(keys, i) {
