@@ -19,6 +19,9 @@
  * Saves the site's email settings
  */
 
+//dependencies
+var BaseController = pb.BaseController;
+
 function Email(){}
 
 //inheritance
