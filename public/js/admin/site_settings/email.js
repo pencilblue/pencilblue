@@ -82,5 +82,16 @@ function sendTestEmail() {
         $('#send_test_button').prop('disabled', false);
         $('#send_test_icon').removeClass('fa-spinner fa-spin');
         $('#send_test_icon').addClass('fa-send');
+
+        if(!result.code) {
+            $('#test_result_text').html(loc.site_settings.TEST_EMAIL_SUCCESS);
+            $('#test_result').attr('class', 'alert alert-success');
+            $('#test_result').show();
+        }
+        else {
+            $('#test_result_text').html(result.message);
+            $('#test_result').attr('class', 'alert alert-danger');
+            $('#test_result').show();
+        }
     });
 }

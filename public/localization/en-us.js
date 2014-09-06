@@ -459,7 +459,8 @@ var loc =
         SEND_TEST_EMAIL: 'Send test email',
         SEND: 'Send',
         USE_CDN: 'Use CDNs (default)',
-        USE_BOWER: 'Use Bower'
+        USE_BOWER: 'Use Bower',
+        TEST_EMAIL_SUCCESS: 'Test email successfully sent'
     }
 };
 
