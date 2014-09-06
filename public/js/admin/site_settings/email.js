@@ -74,16 +74,13 @@ function sendTestEmail() {
         return;
     }
 
-    $('#email_test_icon').removeClass('fa-send');
-    $('#email_test_icon').addClass('fa-spinner fa-spin');
+    $('#send_test_button').prop('disabled', true);
+    $('#send_test_icon').addClass('fa-spinner fa-spin');
+    $('#send_test_icon').removeClass('fa-send');
 
-    var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
-    getWYSIWYGLayout(wysId, function(layout) {
-        $.post('/api/admin/site_settings/email/send_test', {email: $('#test_email').val(), content: layout}, function(result) {
-            $('#email_test_icon').removeClass('fa-spinner fa-spin');
-            $('#email_test_icon').addClass('fa-send');
-
-            console.log(result);
-        });
+    $.post('/api/admin/site_settings/email/send_test', {email: $('#test_email').val()}, function(result) {
+        $('#send_test_button').prop('disabled', false);
+        $('#send_test_icon').removeClass('fa-spinner fa-spin');
+        $('#send_test_icon').addClass('fa-send');
     });
 }

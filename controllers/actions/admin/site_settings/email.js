@@ -44,5 +44,11 @@ Email.prototype.onPostParamsRetrieved = function(post, cb) {
     });
 };
 
+Email.prototype.getSanitizationRules = function() {
+	return {
+		verification_content: BaseController.getContentSanitizationRules()
+	};
+};
+
 //exports
 module.exports = Email;

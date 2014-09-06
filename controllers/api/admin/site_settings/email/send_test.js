@@ -29,41 +29,28 @@ SendTestEmail.prototype.onPostParamsRetrieved = function(post, cb) {
 
     var message = this.hasRequiredParams(post, this.getRequiredFields());
     if(message) {
-        self.formError(message, '/user/resend_verification', cb);
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)});
         return;
     }
 
-    var dao = new pb.DAO();
-    dao.loadByValue('email', post.email, 'user', function(err, user) {
-        if(util.isError(err) || user === null) {
-            self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
+    cb = cb || pb.utils.cb;
+
+    var options = {
+        to: post.email,
+        subject: 'Test email from PencilBlue',
+        layout: 'This is a successful test email from the PencilBlue system.',
+    };
+    pb.email.sendFromLayout(options, function(err, response) {
+        if(err) {
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, JSON.stringify(err))});
             return;
         }
-
-        dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
-            if(util.isError(err) || user === null) {
-                self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
-                return;
-            }
-
-           user.verification_code = pb.utils.uniqueId();
-
-           dao.update(user).then(function(result) {
-                if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/user/resend_verification', cb);
-                    return;
-                }
-
-                self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
-                self.redirect('/user/verification_sent', cb);
-                pb.users.sendVerificationEmail(user, pb.utils.cb);
-            });
-        });
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'email successfully sent')});
     });
 };
 
 SendTestEmail.prototype.getRequiredFields = function() {
-    return ['email', 'content'];
+    return ['email'];
 };
 
 //exports
