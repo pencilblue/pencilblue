@@ -19,6 +19,9 @@
  * Saves the site's email settings
  */
 
+//dependencies
+var BaseController = pb.BaseController;
+
 function Email(){}
 
 //inheritance
@@ -42,6 +45,12 @@ Email.prototype.onPostParamsRetrieved = function(post, cb) {
         self.session.success = self.ls.get('EMAIL_SETTINGS') + ' ' +  self.ls.get('EDITED');
         self.redirect('/admin/site_settings/email', cb);
     });
+};
+
+Email.prototype.getSanitizationRules = function() {
+	return {
+		verification_content: BaseController.getContentSanitizationRules()
+	};
 };
 
 //exports

@@ -445,6 +445,7 @@ var loc =
         REQUIRE_ACCOUNT: 'Require an account to comment',
         REQUIRE_VERIFICATION: 'Require new users to verify their email address',
         SMTP: 'SMTP',
+        TEST: 'Test',
         FROM_NAME: 'From name',
         FROM_ADDRESS: 'From address',
         VERIFICATION_SUBJECT: 'Verification subject',
@@ -455,8 +456,11 @@ var loc =
         SECURE_CONNECTION: 'Secure connection (SSL)',
         EMAIL_SETTINGS: 'Email settings',
         EMAIL_DIRECTIVES_DESCRIPTION: 'Directives: ^verification_url^, ^first_name^, ^last_name^',
+        SEND_TEST_EMAIL: 'Send test email',
+        SEND: 'Send',
         USE_CDN: 'Use CDNs (default)',
-        USE_BOWER: 'Use Bower'
+        USE_BOWER: 'Use Bower',
+        TEST_EMAIL_SUCCESS: 'Test email successfully sent'
     }
 };
 

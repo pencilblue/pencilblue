@@ -22,7 +22,9 @@
                     <div class="form-group">
                         <label>^loc_VERIFICATION_CONTENT^</label>&nbsp;
                         <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_EMAIL_DIRECTIVES_DESCRIPTION^"></i>
-                        ^tmp_admin=elements=content_layout^
+                        <div id="email_wysiwyg">
+                            ^wysiwyg^
+                        </div>
                     </div>
                 </div>
                 <div class="tab-pane" id="smtp">
@@ -74,6 +76,22 @@
                     <div class="form-group">
                         <label>^loc_PASSWORD^</label>
                         <input type="password" id="password" name="password" class="form-control" autocomplete="off"></input>
+                    </div>
+                </div>
+                <div class="tab-pane" id="test">
+                    <div class="form-group">
+                        <label>^loc_SEND_TEST_EMAIL^</label>
+                        <div class="input-group">
+                            <input type="email" id="test_email" class="form-control" placeholder="^loc_EMAIL^"></input>
+                            <span class="input-group-btn">
+                                <button type="button" id="send_test_button" class="btn btn-default" onclick="sendTestEmail()">
+                                    <i id="send_test_icon" class="fa fa-send"></i>&nbsp;^loc_SEND^
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div id="test_result" class="alert alert-success" style="display: none">
+                        <span id="test_result_text"></span>
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/site_settings">

@@ -45,6 +45,11 @@ Email.prototype.render = function(cb) {
             href: '#smtp',
             icon: 'upload',
             title: self.ls.get('SMTP')
+        },
+        {
+            href: '#test',
+            icon: 'flask',
+            title: self.ls.get('TEST')
         }
     ];
 

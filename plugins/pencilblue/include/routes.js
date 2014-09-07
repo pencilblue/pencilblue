@@ -958,4 +958,12 @@ module.exports = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'jobs', 'job_api_controller.js'),
     	content_type: 'application/json'
     },
+    {
+        method: 'post',
+        path: "/api/admin/site_settings/email/send_test",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'site_settings', 'email', 'send_test.js'),
+        content_type: 'application/json'
+    }
 ];
