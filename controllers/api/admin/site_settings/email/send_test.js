@@ -33,8 +33,6 @@ SendTestEmail.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
 
-    cb = cb || pb.utils.cb;
-
     var options = {
         to: post.email,
         subject: 'Test email from PencilBlue',

@@ -141,35 +141,25 @@ UserService.prototype.sendVerificationEmail = function(user, cb) {
 	// We need to see if email settings have been saved with verification content
 	var options;
 	pb.email.getSettings(function(err, emailSettings) {
+		options = {
+			to: user.email,
+			replacements: {
+				'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+				'first_name': user.first_name,
+				'last_name': user.last_name
+			}
+		};
 		if(emailSettings.layout) {
-			options = {
-				to: user.email,
-				subject: emailSettings.verification_subject,
-				layout: emailSettings.verification_content,
-				replacements: {
-					'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
-					'first_name': user.first_name,
-					'last_name': user.last_name
-				}
-			};
+			options.subject= emailSettings.verification_subject;
+			options.layout = emailSettings.verification_content;
 			pb.email.sendFromLayout(options, cb);
 		}
 		else {
-			options = {
-				to: user.email,
-				subject: pb.config.siteName + ' Account Confirmation',
-				template: emailSettings.template,
-				replacements: {
-					'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
-					'first_name': user.first_name,
-					'last_name': user.last_name
-				}
-			};
+			options.subject = pb.config.siteName + ' Account Confirmation';
+			options.template = emailSettings.template;
 			pb.email.sendFromTemplate(options, cb);
 		}
 	});
-
-
 };
 
 /**
