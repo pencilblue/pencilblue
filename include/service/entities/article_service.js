@@ -508,7 +508,7 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
             var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data));
             mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
 			mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption.length ? '' : 'display: none');
-            mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString);
+            mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString, data.media_type);
 
             layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);
         }

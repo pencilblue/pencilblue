@@ -62,6 +62,8 @@ MediaService.getMediaEmbed = function(mediaObject, options) {
                 return '<iframe src="https://trinket.io/embed/python/' + mediaObject.location + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>';
             }
             return '<iframe src="https://trinket.io/embed/' + mediaObject.location + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>';
+        case 'storify':
+            return '<iframe src="//storify.com/' + mediaObject.location + '/embed?header=false&border=false" width="100%" height="750" frameborder="0" allowtransparency="true"></iframe>';
     }
 };
 
@@ -72,9 +74,10 @@ MediaService.getMediaEmbed = function(mediaObject, options) {
  * @param {String} template    Media embed HTML template
  * @param {String} styleString The style string from the article layout's media directive
  */
-MediaService.getMediaStyle = function(template, styleString) {
+MediaService.getMediaStyle = function(template, styleString, mediaType) {
     var styleElements = styleString.split(',');
     var containerCSS  = [];
+    var embedCSS      = [];
     var mediaCSS      = [];
 
     for(var i = 0; i < styleElements.length; i++) {
@@ -92,9 +95,14 @@ MediaService.getMediaStyle = function(template, styleString) {
                 break;
         }
     }
+    
+    if(mediaType === 'storify') {
+        embedCSS.push('width: 100%');
+    }
 
     template = template.split('^container_style^').join(containerCSS.join(';'));
     template = template.split('^media_style^').join(mediaCSS.join(';'));
+    template = template.split('^embed_style^').join(embedCSS.join(';'));
 
     return template;
 };
