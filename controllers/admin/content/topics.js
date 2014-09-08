@@ -25,7 +25,7 @@ function Topics(){}
 util.inherits(Topics, pb.BaseController);
 
 Topics.prototype.render = function(cb) {
-	self.redirect('/admin/content/topics/manage_topics', cb);
+	this.redirect('/admin/content/topics/manage_topics', cb);
 };
 
 Topics.getPillNavOptions = function(activePill) {
