@@ -16,6 +16,8 @@ The first open source content management system to meet all the needs of a moder
  - 100% mobile ready through responsive web design
  - Touch friendly, drag and drop website management experience that's easy for non-technical users to learn
 
+### [Read the Quickstart Guide](https://github.com/pencilblue/pencilblue/wiki/Quickstart-Guide)
+
 Installation
 -----
 
