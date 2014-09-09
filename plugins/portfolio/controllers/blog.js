@@ -129,6 +129,9 @@ Blog.prototype.getTemplate = function(content, cb) {
 
     //now we are dealing with a single page or article. the template will be
     //judged based off the article's preference.
+    if (util.isArray(content) && content.length > 0) {
+        content = content[0];
+    }
     var uidAndTemplate = content.template;
 
     //when no template is specified or is empty we no that the article has no
