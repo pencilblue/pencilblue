@@ -240,11 +240,12 @@ Blog.prototype.loadContent = function(articleCallback) {
 Blog.prototype.renderContent = function(content, contentSettings, themeSettings, index, cb) {
     var self = this;
 
-    var isPage        = content.object_type === 'page'
+    var isPage        = content.object_type === 'page';
     var showByLine    = contentSettings.display_bylines && !isPage;
     var showTimestamp = contentSettings.display_timestamp && !isPage;
     var ats           = new pb.TemplateService(this.ls);
     self.ts.reprocess = false;
+    ats.registerLocal('article_permalink', pb.UrlService.urlJoin(pb.config.siteRoot, contentUrlPrefix, content.url));
     ats.registerLocal('article_headline', new pb.TemplateValue('<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>', false));
     ats.registerLocal('article_headline_nolink', content.headline);
     ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
