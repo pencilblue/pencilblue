@@ -138,17 +138,28 @@ UserService.prototype.getEditorSelectList = function(currId, cb) {
 UserService.prototype.sendVerificationEmail = function(user, cb) {
 	cb = cb || pb.utils.cb;
 
-	var options = {
-		to: user.email,
-		subject: pb.config.siteName + ' Account Confirmation',
-		template: 'admin/elements/default_verification_email',
-		replacements: {
-			'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
-			'first_name': user.first_name,
-			'last_name': user.last_name
+	// We need to see if email settings have been saved with verification content
+	var options;
+	pb.email.getSettings(function(err, emailSettings) {
+		options = {
+			to: user.email,
+			replacements: {
+				'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+				'first_name': user.first_name,
+				'last_name': user.last_name
+			}
+		};
+		if(emailSettings.layout) {
+			options.subject= emailSettings.verification_subject;
+			options.layout = emailSettings.verification_content;
+			pb.email.sendFromLayout(options, cb);
 		}
-	};
-	pb.email.sendFromTemplate(options, cb);
+		else {
+			options.subject = pb.config.siteName + ' Account Confirmation';
+			options.template = emailSettings.template;
+			pb.email.sendFromTemplate(options, cb);
+		}
+	});
 };
 
 /**
@@ -213,7 +224,7 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
         cb = id;
         id = null;
     }
-    
+
 	var getWhere = function(where) {
 		if (id) {
 			where[pb.DAO.getIdField()] = {$ne: pb.DAO.getObjectID(id)};
@@ -246,7 +257,7 @@ UserService.prototype.findByAccessLevel = function(level, options, cb) {
     else if (!pb.utils.isObject(options)) {
         throw new Error('The options parameter must be an object');
     }
-    
+
     var where = {
         admin: level
     };

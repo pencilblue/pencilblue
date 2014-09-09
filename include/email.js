@@ -39,7 +39,7 @@ EmailService.prototype.sendFromTemplate = function(options, cb){
 	var self = this;
 	var ts   = new pb.TemplateService();
 	if (options.replacements) {
-		for(key in options.replacements) {
+		for(var key in options.replacements) {
 			ts.registerLocal(key, options.replacements[key]);
 		}
 	}
@@ -48,6 +48,24 @@ EmailService.prototype.sendFromTemplate = function(options, cb){
 		var body = '' + data;
 		self.send(options.from, options.to, options.subject, body, cb);
 	});
+};
+
+/**
+* Uses an HTML layout and sends it as an email
+*
+* @method sendFromTemplate
+* @param {Object}   options Object containing the email settings and template name
+* @param {Function} cb      Callback function
+*/
+EmailService.prototype.sendFromLayout = function(options, cb){
+	var self = this;
+	var layout = options.layout;
+	if (options.replacements) {
+		for(var key in options.replacements) {
+			layout.split('^' + key + '^').join(options.replacements[key]);
+		}
+	}
+	self.send(options.from, options.to, options.subject, layout, cb);
 };
 
 /**
@@ -128,6 +146,7 @@ EmailService.prototype.getDeafultSettings = function() {
         from_name: 'pencilblue',
         from_address: 'no-reply@pencilblue.org',
         verification_subject: 'pencilblue Account Confirmation',
+		template: 'admin/elements/default_verification_email',
         service: 'Gmail',
         host: '',
         secure_connection: 1,

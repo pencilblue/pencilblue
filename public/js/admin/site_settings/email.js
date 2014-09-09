@@ -59,7 +59,39 @@ function checkForCustomService()
 
 function prepareEmailSettingsSave()
 {
-    $('fieldset').append('<textarea id="verification_content" name="verification_content" style="display: none">' + $('#layout_editable').html() + '</textarea>');
+    var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
+    getWYSIWYGLayout(wysId, function(layout) {
+        if(!$('#verification_content').position()) {
+            $('fieldset').append('<textarea id="verification_content" name="verification_content" style="display: none">' + layout + '</textarea>');
+        }
 
-    $('#email_form').submit();
+        $('#email_form').submit();
+    });
+}
+
+function sendTestEmail() {
+    if(!$('#test_email').val().length) {
+        return;
+    }
+
+    $('#send_test_button').prop('disabled', true);
+    $('#send_test_icon').addClass('fa-spinner fa-spin');
+    $('#send_test_icon').removeClass('fa-send');
+
+    $.post('/api/admin/site_settings/email/send_test', {email: $('#test_email').val()}, function(result) {
+        $('#send_test_button').prop('disabled', false);
+        $('#send_test_icon').removeClass('fa-spinner fa-spin');
+        $('#send_test_icon').addClass('fa-send');
+
+        if(!result.code) {
+            $('#test_result_text').html(loc.site_settings.TEST_EMAIL_SUCCESS);
+            $('#test_result').attr('class', 'alert alert-success');
+            $('#test_result').show();
+        }
+        else {
+            $('#test_result_text').html(result.message);
+            $('#test_result').attr('class', 'alert alert-danger');
+            $('#test_result').show();
+        }
+    });
 }

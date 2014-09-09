@@ -32,12 +32,12 @@ function MediaService(){
      * @property provider
      */
     this.provider = null;
-    
+
     if (pb.config.media.provider === 'fs') {
         this.provider = new pb.FsMediaProvider(pb.config.media.parent_dir);
     }
     else {
-        
+
         var paths = [path.join(DOCUMENT_ROOT, pb.config.media.provider), pb.config.media.provider];
         for(var i = 0; i < paths.length; i++) {
             try{
@@ -49,7 +49,7 @@ function MediaService(){
                 pb.log.silly(e.stack);
             }
         }
-        
+
         if (this.provider == null) {
             throw new Error('A valid media provider was not available: PROVIDER_PATH: '+pb.config.media.provider+' TRIED='+JSON.stringify(paths));
         }
@@ -333,6 +333,14 @@ MediaService.prototype.getMediaDescriptor = function(mediaURL, isFile, cb) {
             descriptor.media_type = 'trinket';
             descriptor.location   = videoID;
             cb();
+        },
+
+        'storify.com': function() {
+            var mediaID = mediaURL.substr(mediaURL.indexOf('storify.com') + 12);
+
+            descriptor.media_type = 'storify';
+            descriptor.location   = videoID;
+            cb();
         }
     };
 
@@ -386,6 +394,9 @@ MediaService.prototype.getMediaThumb = function(type, location, cb) {
             cb(null, location);
             break;
         case 'trinket':
+            cb(null, '');
+            break;
+        case 'storify':
             cb(null, '');
             break;
         default:
@@ -512,6 +523,8 @@ MediaService.getMediaIcon = function(mediaType) {
             return 'list-alt';
         case 'trinket':
             return 'key fa-flip-horizontal';
+        case 'storify':
+            return 'arrow-circle-right';
         default:
             return 'question';
     }
@@ -536,6 +549,8 @@ MediaService.getMediaLink = function(mediaType, mediaLocation, isFile) {
                 return 'https://trinket.io/embed/python/' + mediaLocation;
             }
             return 'https://trinket.io/embed/' + mediaLocation;
+        case 'storify':
+            return 'http://storify.com/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':

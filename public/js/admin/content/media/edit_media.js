@@ -73,6 +73,9 @@ function getMediaEmbed(media)
         case 'trinket':
             previewTrinket(media.location);
             break;
+        case 'storify':
+            previewStorify(media.location);
+            break;
         default:
             break;
     }
