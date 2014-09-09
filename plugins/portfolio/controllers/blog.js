@@ -244,6 +244,7 @@ Blog.prototype.renderContent = function(content, contentSettings, themeSettings,
     var showByLine    = contentSettings.display_bylines && !isPage;
     var showTimestamp = contentSettings.display_timestamp && !isPage;
     var ats           = new pb.TemplateService(this.ls);
+    var contentUrlPrefix = isPage ? '/page/' : '/article/';
     self.ts.reprocess = false;
     ats.registerLocal('article_permalink', pb.UrlService.urlJoin(pb.config.siteRoot, contentUrlPrefix, content.url));
     ats.registerLocal('article_headline', new pb.TemplateValue('<a href="' + pb.UrlService.urlJoin('/article/', content.url) + '">' + content.headline + '</a>', false));
