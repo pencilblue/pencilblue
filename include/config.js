@@ -285,6 +285,11 @@ var loadConfiguration = function() {
              new (winston.transports.File)({ filename: LOG_FILE, level: config.log_level, timestamp: true })
        ]
 	};
+
+    //special check to ensure that there is no ending slash on the site root
+    if (config.siteRoot.lastIndexOf('/') === (config.siteRoot.length - 1)) {
+        config.siteRoot = config.siteRoot.substring(0, config.siteRoot.length - 1);
+    }
 	return config;
 };
 
