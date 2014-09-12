@@ -99,8 +99,19 @@ ArticleService.prototype.findByTopic = function(topicId, cb) {
  * Finds articles and pages matching criteria
  *
  * @method find
- * @param  {Object}   where Key value pair object
- * @param  {Function} cb    Callback function
+ * @param {Object} where Defines the where clause for the article search
+ * @param {Object} options The options object that can provide query control 
+ * parameters
+ * @param {Array} [options.order] The order that the results will be returned 
+ * in.  The default is publish date descending and created descending
+ * @param {Object} [options.select] The fields that will be returned for each 
+ * article that matches the criteria
+ * @param {Integer} [options.limit] The number of results to return
+ * @param {Integer} [options.offset] The number of articles to skip before 
+ * returning results
+ * @param {Function} cb Callback function that takes two parameters: the first 
+ * is an error, if occurred.  The second is an array of articles or possibly 
+ * null if an error occurs.
  */
 ArticleService.prototype.find = function(where, options, cb) {
     if (pb.utils.isFunction(options)) {
