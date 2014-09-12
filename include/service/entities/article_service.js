@@ -142,9 +142,21 @@ ArticleService.prototype.find = function(where, options, cb) {
         select = pb.DAO.SELECT_ALL;
     }
     
+    //build out the limit (must be a valid integer)
+    var limit = undefined;
+    if (pb.validation.isInt(options.limit, true, true)) {
+        limit = options.limit;
+    }
+    
+    //build out the limit (must be a valid integer)
+    var offset = 0;
+    if (pb.validation.isInt(options.offset, true, true)) {
+        offset = options.offset;   
+    }
+    
 	var self = this;
 	var dao  = new pb.DAO();
-	dao.query(this.getContentType(), where, select, order).then(function(articles) {
+	dao.query(this.getContentType(), where, select, order, limit, offset).then(function(articles) {
 		if (util.isError(articles)) {
 			cb(articles, []);
 			return;
