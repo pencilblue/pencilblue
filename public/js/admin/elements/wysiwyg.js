@@ -329,7 +329,7 @@ function loadLayoutMediaPreviews(wysId)
             $('#wysiwyg_' + wysId + ' #media_preview_' + mediaID).children().first().attr('style', styles.mediaCSS);
 
             if(layout.indexOf('^media_display_') > -1) {
-                loadLayoutMediaPreviews();
+                loadLayoutMediaPreviews(wysId);
             }
         }
     });
