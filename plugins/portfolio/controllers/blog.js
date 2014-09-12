@@ -83,14 +83,11 @@ Blog.prototype.render = function(cb) {
                                 throw err;
                             }
 
-                            self.ts.load(template, function(err, result) {
-                                if (util.isError(err)) {
-                                    throw err;
-                                }
+                            self.ts.registerLocal('angular', function(flag, cb) {
 
-                                var loggedIn = pb.security.isAuthenticated(self.session);
+                                var loggedIn       = pb.security.isAuthenticated(self.session);
                                 var commentingUser = loggedIn ? Comments.getCommentingUser(self.session.authentication.user) : null;
-                                var heroImage = null;
+                                var heroImage      = null;
                                 if(data.content[0]) {
                                     heroImage = data.content[0].hero_image ? data.content[0].hero_image: null;
                                 }
@@ -106,7 +103,19 @@ Blog.prototype.render = function(cb) {
                                     trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
                                 };
                                 var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
-                                result = result.concat(angularData);
+                                cb(null, angularData);
+                            });
+                            self.ts.load(template, function(err, result) {
+                                if (util.isError(err)) {
+                                    throw err;
+                                }
+
+                                var loggedIn = pb.security.isAuthenticated(self.session);
+                                var commentingUser = loggedIn ? Comments.getCommentingUser(self.session.authentication.user) : null;
+                                var heroImage = null;
+                                if(data.content[0]) {
+                                    heroImage = data.content[0].hero_image ? data.content[0].hero_image: null;
+                                }
                                 cb({content: result});
                             });
                         });

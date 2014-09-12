@@ -102,25 +102,55 @@ ArticleService.prototype.findByTopic = function(topicId, cb) {
  * @param  {Object}   where Key value pair object
  * @param  {Function} cb    Callback function
  */
-ArticleService.prototype.find = function(where,  cb) {
-	var self = this;
-
-	var dao   = new pb.DAO();
-	var order = [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]];
-	if(!where.publish_date) {
+ArticleService.prototype.find = function(where, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {};
+    }
+    else if (!options) {
+        options = {};   
+    }
+    
+    //verify the where is valid
+    if (!pb.utils.isObject(where)) {
+        return cb(new Error('The where clause must be an object'));
+    }
+    
+    //build out query
+    if(!where.publish_date) {
 		where.publish_date = {$lt: new Date()};
 	}
 	if(!where.draft) {
 	    where.draft = {$ne: 1};
     }
-	dao.query(this.getContentType(), where, pb.DAO.SELECT_ALL, order).then(function(articles) {
+    
+    //build out the ordering
+    var order;
+    if (util.isArray(options.order)) {
+        order = options.order;
+    }
+    else {
+        order = [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]];
+    }
+    
+    //build out select
+    var select;
+    if (pb.utils.isObject(options.select)) {
+        select = options.select;
+    }
+    else {
+        select = pb.DAO.SELECT_ALL;
+    }
+    
+	var self = this;
+	var dao  = new pb.DAO();
+	dao.query(this.getContentType(), where, select, order).then(function(articles) {
 		if (util.isError(articles)) {
 			cb(articles, []);
 			return;
 		}
 		else if (articles.length === 0) {
-			cb(null, []);
-			return;
+			return cb(null, []);
 		}
 
 		//get authors

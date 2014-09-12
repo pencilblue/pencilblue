@@ -148,8 +148,9 @@ pb.FsMediaProvider = require(path.join(DOCUMENT_ROOT, '/include/service/media/fs
 pb.MediaService    = require(path.join(DOCUMENT_ROOT, '/include/service/entities/media_service.js'));
 
 //content services
-pb.SectionService     = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
-pb.TopMenuService     = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
+pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
+pb.TopMenuService = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
+pb.ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service.js'));
 
 //Export system object
 module.exports = pb;
