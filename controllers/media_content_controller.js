@@ -51,6 +51,7 @@ MediaContentController.prototype.render = function(cb) {
                 self.reqHandler.serve404();
             }
             else {
+                pb.log.error('Failed to load media: MIME=%s PATH=%s', mime, mediaPath);
                 self.reqHandler.serveError(err);
             }
         });
