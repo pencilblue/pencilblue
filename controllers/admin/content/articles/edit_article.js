@@ -44,7 +44,7 @@ EditArticle.prototype.render = function(cb) {
         }
 
         if(!pb.security.isAuthorized(self.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
-            if(!self.session.authentication.user_id.equals(article.author)) {
+            if(self.session.authentication.user_id !== article.author) {
                 self.redirect('/admin/content/articles/manage_articles', cb);
                 return;
             }
