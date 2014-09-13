@@ -33,10 +33,10 @@ var SUB_NAV_KEY = 'manage_articles';
 ManageArticles.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
-
+	
 	var where = {};
     if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
-        where.author = this.session.user._id.toString();
+        where.author = this.session.authentication.user_id;
     }
 
     dao.query('article', where, pb.DAO.PROJECT_ALL, {publish_date: pb.DAO.ASC}).then(function(articles) {
