@@ -181,6 +181,32 @@ PluginService.prototype.getSettings = function(pluginName, cb) {
 };
 
 /**
+ * Retrieves the settings for a plugin as hash of key/value pairs.  This 
+ * differs from the getSettings function because the getSettings function 
+ * provides the settings in their raw form as an array of objects containing 
+ * multiple properties.  In most circumstances just the k/v pair is needed and 
+ * not any additional information about the property.  The function takes the 
+ * raw settings array and transforms it into an object where the setting name 
+ * is the property and the setting value is the value.
+ * @method getSettingsKV
+ * @param {String} pluginName The unique ID of the plugin who settings are to be retrieved
+ * @param {Function} cb A callback that takes two parameters.  A error, if 
+ * exists, and a hash of of the plugin's settings' names/values.
+ */
+PluginService.prototype.getSettingsKV = function(pluginName, cb) {
+    this.pluginSettingsService.get(pluginName, function(err, settings) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        else if (!util.isArray(settings)) {
+            return cb(null, null);
+        }
+        
+        cb(null, pb.utils.arrayToObj(settings, 'name', 'value'));
+    });
+};
+
+/**
  * Replaces a single setting for the specified plugin
  *
  * @method setSetting
@@ -377,6 +403,32 @@ PluginService.prototype.getThemeSetting = function(settingName, pluginName, cb) 
  */
 PluginService.prototype.getThemeSettings = function(pluginName, cb) {
 	this.themeSettingsService.get(pluginName, cb);
+};
+
+/**
+ * Retrieves the theme settings for a plugin as hash of key/value pairs.  This 
+ * differs from the getThemeSettings function because the getThemeSettings function 
+ * provides the settings in their raw form as an array of objects containing 
+ * multiple properties.  In most circumstances just the k/v pair is needed and 
+ * not any additional information about the property.  The function takes the 
+ * raw settings array and transforms it into an object where the setting name 
+ * is the property and the setting value is the value.
+ * @method getThemeSettingsKV
+ * @param {String} pluginName The unique ID of the plugin who settings are to be retrieved
+ * @param {Function} cb A callback that takes two parameters.  A error, if 
+ * exists, and a hash of of the plugin's settings' names/values.
+ */
+PluginService.prototype.getThemeSettingsKV = function(pluginName, cb) {
+    this.themeSettingsService.get(pluginName, function(err, settings) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        else if (!util.isArray(settings)) {
+            return cb(null, null);
+        }
+        
+        cb(null, pb.utils.arrayToObj(settings, 'name', 'value'));
+    });
 };
 
 /**

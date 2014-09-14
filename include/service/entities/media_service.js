@@ -481,12 +481,26 @@ MediaService.getMediaFlag = function(mid, options) {
     return flag;
 };
 
+/**
+ * Generates the path to uploaded media
+ * @static
+ * @method generateMediaPath
+ * @param {String} originalFilename
+ * @return {String}
+ */
 MediaService.generateMediaPath = function(originalFilename) {
     var now = new Date();
     var fn  = MediaService.generateFilename(originalFilename);
     return path.join('/media', now.getFullYear() + '', (now.getMonth() + 1) + '', fn);
 };
 
+/**
+ * Generates a filename for a new media object
+ * @static
+ * @method generateFilename
+ * @param {String} originalFilename
+ * @return {String}
+ */
 MediaService.generateFilename = function(originalFilename){
 	var now = new Date();
 
@@ -501,6 +515,13 @@ MediaService.generateFilename = function(originalFilename){
     return pb.utils.uniqueId() + '-' + now.getTime() + ext;
 };
 
+/**
+ * Retrieves the font awesome icon for the media type.
+ * @static
+ * @method getMediaIcon
+ * @param {String} mediaType
+ * @return {String}
+ */
 MediaService.getMediaIcon = function(mediaType) {
     switch(mediaType) {
         case 'image':
@@ -530,6 +551,15 @@ MediaService.getMediaIcon = function(mediaType) {
     }
 };
 
+/**
+ * Retrieves the content URL for a media type.
+ * @static
+ * @method getMediaLink
+ * @param {String} mediaType
+ * @param {String} mediaLocation
+ * @param {Boolean} isFile
+ * @return {String}
+ */
 MediaService.getMediaLink = function(mediaType, mediaLocation, isFile) {
     switch(mediaType) {
         case 'youtube':
@@ -557,12 +587,19 @@ MediaService.getMediaLink = function(mediaType, mediaLocation, isFile) {
         case 'video/ogg':
         default:
             if(isFile) {
-                return pb.config.siteRoot + mediaLocation;
+                return pb.config.siteRoot + mediaLocation;//TODO test this: pb.UrlService.urlJoin(pb.config.siteRoot, mediaLocation);
             }
             return mediaLocation;
     }
 };
 
+/**
+ * Sets the proper icon and link for an array of media items
+ * @static
+ * @method formatMedia
+ * @param {Array} media The array of media objects to format
+ * @return {Array} The same array of media that was passed in
+ */
 MediaService.formatMedia = function(media) {
     for(var i = 0; i < media.length; i++) {
         media[i].icon = MediaService.getMediaIcon(media[i].media_type);
