@@ -87,13 +87,28 @@ ValidationService.isIdStr = function(val, required) {
     else if (!pb.utils.isString(val)) {
         return false;
     }
+    return ValidationService.isId(val, required);
+};
 
+/**
+ * Checks to see if the value is a valid ID string or an instance of ObjectID.
+ * @static
+ * @method isId
+ * @param {String|ObjectID} val The value under test
+ * @param {Boolean} [required=false] Indicates if the value is required. When
+ * FALSE, null will be an acceptable value.
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
+ */
+ValidationService.isId = function(val, required) {
+    if (!required && (val === null || val === undefined)) {
+        return true;
+    }
+    
     try {
         new pb.DAO.getObjectID(val);
         return true;
     }
     catch(e) {
-        log.silly("ValidationService: Failed to validate VAL=[%s], REQ=[%s] ERR=%s", val, required, e.message);
         return false;
     }
 };
