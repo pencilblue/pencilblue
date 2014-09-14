@@ -187,6 +187,65 @@ Util.arrayToHash = function(array, defaultVal) {
 };
 
 /**
+ * Converts an array to an object.  
+ * @static
+ * @method arrayToObj
+ * @param {Array} array The array of items to transform from an array to an 
+ * object
+ * @param {String|Function} keyFieldOrTransform When this field is a string it 
+ * is expected that the array contains objects and that the objects contain a 
+ * property that the string represents.  The value of that field will be used 
+ * as the property name in the new object.  When this parameter is a function 
+ * it is passed two parameters: the array being operated on and the index of 
+ * the current item.  It is expected that the function will return a value 
+ * representing the key in the new object.
+ * @param {String|Function} [valFieldOrTransform] When this value is a string 
+ * it is expected that the array contains objects and that the objects contain 
+ * a property that the string represents.  The value of that field will be used 
+ * as the property value in the new object.  When this parameter is a function 
+ * it is passed two parameters: the array being operated on and the index of 
+ * the current item.  It is expected that the function return a value 
+ * representing the value of the derived property for that item.
+ * @return {Object} The converted array.
+ */
+Util.arrayToObj = function(array, keyFieldOrTransform, valFieldOrTransform) {
+    if (!util.isArray(array)) {
+		return null;
+	}
+    
+    var keyIsString = Util.isString(keyFieldOrTransform);
+    var keyIsFunc   = Util.isFunction(keyFieldOrTransform);
+    if (!keyIsString && !keyIsFunc) {
+        return null;
+    }
+    
+    var valIsString = Util.isString(valFieldOrTransform);
+    var valIsFunc   = Util.isFunction(valFieldOrTransform);
+    if (!Util.isString(valFieldOrTransform) && !Util.isFunction(valFieldOrTransform)) {
+        valFieldOrTransform = null;
+    }
+    
+    var obj = {};
+    for (var i = 0; i < array.length; i++) {
+        
+        var item = array[i];
+        var key  = keyIsString ? item[keyFieldOrTransform] : keyFieldOrTransform(array, i);
+        
+        var val;
+        if (valIsString) {
+            obj[key] = item[valFieldOrTransform];
+        }
+        else if (valIsFunc) {
+            obj[key] = valFieldOrTransform(array, i);   
+        }
+        else {
+            obj[key] = item;
+        }
+    }
+    return obj;
+};
+
+/**
  * Converts an array of objects into a hash where the key the value of the 
  * specified property. If multiple objects in the array have the same value for 
  * the specified value then the last one found will be kept.
