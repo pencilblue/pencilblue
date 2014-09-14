@@ -33,6 +33,10 @@ function UserService(){}
  * @param {Function} cb     Callback function
  */
 UserService.prototype.getFullName = function(userId, cb) {
+    if (!pb.validation.isId(userId, true)) {
+        return cb(new Error('The userId parameter must be a valid ID value'));
+    }
+    
 	var self = this;
 	var dao  = new pb.DAO();
 	dao.loadById(userId, 'user', function(err, author){
@@ -45,6 +49,13 @@ UserService.prototype.getFullName = function(userId, cb) {
 	});
 };
 
+/**
+ * Takes the specified user object and formats the first and last name.
+ * @static
+ * @method getFormattedName
+ * @param {Object} user The user object to extract a name for.
+ * @return {String} The user's full name
+ */
 UserService.prototype.getFormattedName = function(user) {
 	var name = user.username;
 	if (user.first_name) {
@@ -97,6 +108,14 @@ UserService.prototype.getAdminOptions = function(session, ls) {
     return adminOptions;
 };
 
+/**
+ * Retrieves a select list (id/name) of available system editors
+ * @method getEditorSelectList
+ * @param {String} currId The Id to be excluded from the list.  
+ * @param {Function} cb A callback that takes two parameters.  The first is an 
+ * error, if exists, the second is an array of objects that represent the 
+ * editor select list.
+ */
 UserService.prototype.getEditorSelectList = function(currId, cb) {
 	var where = {
 		admin: {
@@ -249,6 +268,19 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 	async.series(tasks, cb);
 };
 
+/**
+ * Retrieves users by their access level (role)
+ * @method findByAccessLevel
+ * @param {Integer} level The admin level of the users to find
+ * @param {Object} [options] The search options
+ * @param {Object} [options.select={}] The fields to return
+ * @param {Array} [options.orderBy] The order to return the results in
+ * @param {Integer} [options.limit] The maximum number of results to return
+ * @param {offset} [options.offset=0] The number of results to skip before 
+ * returning results.
+ * @param {Function} cb A callback that takes two parameters: an error, if 
+ * occurred, and the second is an array of User objects.
+ */
 UserService.prototype.findByAccessLevel = function(level, options, cb) {
     if (pb.utils.isFunction(options)) {
         cb      = options;
