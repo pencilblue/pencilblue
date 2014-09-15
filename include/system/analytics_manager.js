@@ -41,13 +41,11 @@ AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
             }
 
             var th = setTimeout(function() {
-                if (pb.log.isSilly()) {
-                    pb.log.silly("AnalyticsManager: Rendering for provider [%s] timed out", keys[i]);
-                }
+                pb.log.warn("AnalyticsManager: Rendering for provider [%s] timed out", keys[i]);
 
-                ts = null;
+                th = null;
                 callback(null, '');
-            }, 20);
+            }, 25);
 
             var d = domain.create();
             d.run(function() {
@@ -60,6 +58,8 @@ AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
                         clearTimeout(th);
                         th = null;
                         
+                        //the error is left out on purpose.  It is logged above 
+                        //and we want all other providers to have a chance.
                         callback(null, result);
                     }
                 });
