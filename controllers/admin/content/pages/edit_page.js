@@ -42,7 +42,7 @@ EditPage.prototype.render = function(cb) {
 
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'page', function(err, page) {
-        if(page ==- null) {
+        if(page === null) {
         	self.redirect('/admin/content/pages/manage_pages', cb);
             return;
         }
@@ -52,11 +52,12 @@ EditPage.prototype.render = function(cb) {
         self.setFormFieldValues(page);
 
         //ensure that only the author can edit page
-        //TODO should global administrator be able to do this too?
-        if(self.session.authentication.user_id !== page.author) {
-        	self.redirect('/admin/content/pages/manage_pages', cb);
-            return;
-        }
+        if(!pb.security.isAuthorized(self.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
+	        if(self.session.authentication.user_id !== page.author) {
+	        	self.redirect('/admin/content/pages/manage_pages', cb);
+	            return;
+	        }
+		}
 
         var tabs   =
         [
@@ -85,14 +86,14 @@ EditPage.prototype.render = function(cb) {
 
         var templates = pb.TemplateService.getAvailableContentTemplates();
         dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
-            
+
             var mservice = new pb.MediaService();
             mservice.get(function(err, media) {
                 if (util.isError(err)) {
                     //TODO handle error
                     pb.log.error('EditPageController: an unhandled error occurred while attempting to load all media: %s', err.stack);
                 }
-                
+
                 var angularData = pb.js.getAngularController(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
