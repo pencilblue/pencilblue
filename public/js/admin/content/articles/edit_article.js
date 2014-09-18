@@ -167,7 +167,6 @@ function checkForEditArticleSave(draft, cb)
                 }
 
                 var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
-                console.log(wysId);
                 getWYSIWYGLayout(wysId, function(layout) {
                     if(!$('#article_layout').position()) {
                         $('fieldset .additions').append('<textarea id="article_layout" name="article_layout" style="display: none">' + layout + '</textarea>');
