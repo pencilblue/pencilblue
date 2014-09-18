@@ -59,9 +59,15 @@ SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
                     return;
                 }
 
-                self.session.success = self.ls.get('VERIFICATION_SENT') + ' ' + user.email;
-                self.redirect('/admin/users/edit_user/' + vars.id, cb);
-                pb.users.sendPasswordResetEmail(user, passwordReset, pb.utils.cb);
+                //send the user an email
+                pb.users.sendPasswordResetEmail(user, passwordReset, function(err, response) {
+                    if (util.isError(err)) {
+                        return self.formError(self.ls.get(err.message), '/admin/users/edit_user/' + vars.id, cb);
+                    }
+                    
+                    self.session.success = self.ls.get('VERIFICATION_SENT') + ' ' + user.email;
+                    self.redirect('/admin/users/edit_user/' + vars.id, cb);
+                });
             });
         });
     });
