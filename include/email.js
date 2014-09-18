@@ -85,7 +85,9 @@ EmailService.prototype.send = function(from, to, subject, body, cb) {
             throw err;
         }
         else if (!emailSettings) {
-            throw new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
+            var err = new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
+            pb.log.error(err.stack); 
+            return cb(err);
         }
 
         var options = {
@@ -113,7 +115,7 @@ EmailService.prototype.send = function(from, to, subject, body, cb) {
 
         smtpTransport.sendMail(mailOptions, function(err, response) {
             if (util.isError(err)) {
-            	pb.log.error("EmailService: Failed to send email: ", err);
+            	pb.log.error("EmailService: Failed to send email: ", err.stack);
             }
             smtpTransport.close();
 
