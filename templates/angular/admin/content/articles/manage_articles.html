@@ -1,0 +1,13 @@
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript">
+	angular.module('pencilblueApp', ['search'])
+	.controller('PencilBlueController', function($scope, searchService) {
+		^angular_objects^
+
+		$scope.search = function() {
+			searchService.search($scope.searchText, $scope.articles, ['headline', 'subheading'], function(articles) {
+				$scope.articles = articles;
+			});
+		}
+	});
+</script>

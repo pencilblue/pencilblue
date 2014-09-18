@@ -3,9 +3,9 @@
     ^error_success^
     ^tmp_admin=elements=sub_nav^
     <div class="input-group" style="margin-bottom: .5em">
-        <input type="text" id="article_search" name="article_search" class="form-control"></input>
+        <input type="text" ng-model="searchText" ng-change="search()" class="form-control"></input>
         <span class="input-group-btn">
-            <button id="article_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+            <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}"></i></button>
         </span>
     </div>
     <div class="table_container">
@@ -18,7 +18,7 @@
                 <th id="article_date_header">^loc_PUBLISH_DATE^</th>
                 <th></th>
             </tr>
-            <tr class="article_row" ng-repeat="article in articles track by article._id" on-finish-render ng-cloak>
+            <tr class="article_row" ng-repeat="article in articles track by article._id" ng-if="!article.hidden" ng-cloak>
                 <td><a class="article_headline" ng-href="/admin/content/articles/edit_article/{{article._id}}">{{article.headline}}</a></td>
                 <td class="article_status">{{article.status}}</td>
                 <td class="article_url">{{article.url}}</td>
@@ -47,7 +47,8 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
+^tmp_angular=admin=content=articles=manage_articles^
+<!--<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
 <script type="text/javascript" src="/js/table_sort.js"></script>
-<script type="text/javascript" src="/js/admin/content/articles/manage_articles.js"></script>
+<script type="text/javascript" src="/js/admin/content/articles/manage_articles.js"></script>-->
 ^tmp_admin=footer^
