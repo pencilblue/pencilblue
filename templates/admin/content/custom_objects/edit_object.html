@@ -24,7 +24,7 @@
                             <label>{{key}}</label>
                             <select id="{{key}}" name="{{key}}" class="form-control">
                                 <option value="">^loc_SELECT^ {{key}}...</option>
-                                <option value="{{availableObject._id}}" ng-repeat="availableObject in customObjectType.fields[key].available_objects track by availableObject._id" selected="{{(availableObject._id == customObject[key]) ? 'selected' : ''}}" ng-cloak>{{availableObject.name}}</option>
+                                <option value="{{availableObject._id}}" ng-repeat="availableObject in customObjectType.fields[key].available_objects track by availableObject._id" ng-selected="availableObject._id == customObject[key]" ng-cloak>{{availableObject.name}}</option>
                             </select>
                         </div>
                         <div id="{{key}}_draggable" class="form-group child_objects" ng-if="customObjectType.fields[key].field_type == 'child_objects'">
