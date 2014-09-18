@@ -43,7 +43,7 @@ var REGISTRANTS = {};
  * @property COMMAND_CHANNEL
  * @type {String}
  */
-var COMMAND_CHANNEL = 'pencilblue-command-channel';
+var COMMAND_CHANNEL = pb.ServerRegistry.generateKey();
 
 /**
  * A hash of the commands that were sent and expect a response.  Each hash key
@@ -424,7 +424,7 @@ CommandService.sendCommand = function(type, options, cb) {
     }
 
     //instruct the broker to broadcast the command
-    BROKER.publish(COMMAND_CHANNEL, options, function(err, result) {
+    BROKER.publish(options.to, options, function(err, result) {
         cb(err, result ? options.id : null);
     });
 };
