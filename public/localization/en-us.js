@@ -144,6 +144,7 @@ var loc =
         APPLY_SETTINGS: 'Apply Settings',
         CONFIGURATION_SETTINGS: 'Configuration Settings',
         EXISTING_CUSTOM_OBJECT: 'The custom object with the given name already exists',
+        OPTIONS_PARAM_MUST_BE_OBJECT: 'The options parameter must be an object',
     },
     error:
     {

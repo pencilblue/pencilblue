@@ -51,8 +51,8 @@ EditMediaPostController.prototype.onPostParamsRetrieved = function(post, cb) {
         //update existing document
         pb.DocumentCreator.update(post, media, ['media_topics'], ['is_file']);
         var dao = new pb.DAO();
-        dao.update(media).then(function(result) {
-            if (util.isError(result)) {
+        dao.save(media, function(err, result) {
+            if (util.isError(err)) {
                 self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(), cb);
                 return;
             }

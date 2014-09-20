@@ -315,11 +315,9 @@ CustomObjectService.prototype.fetchChildren = function(custObj, options, custObj
         }
         else {
 
-            var where = pb.DAO.getIDInWhere(ids);
-            var dao   = new pb.DAO();
-            dao.query(objType, where).then(function(objs) {
-               cb(util.isError(objs) ? objs : null, objs);
-            });
+            var opts = { where: pb.DAO.getIDInWhere(ids) };
+            var dao  = new pb.DAO();
+            dao.q(objType, opts, cb);
         }
     };
 
@@ -403,7 +401,7 @@ CustomObjectService.prototype.findByType = function(type, options, cb) {
 
     var self = this;
     var dao  = new pb.DAO();
-    dao.query(CustomObjectService.CUST_OBJ_COLL, options.where, options.select, options.order, options.limit, options.offset).then(function(custObjs) {
+    dao.q(CustomObjectService.CUST_OBJ_COLL, options, function(err, custObjs) {
         if (util.isArray(custObjs)) {
 
             var tasks = pb.utils.getTasks(custObjs, function(custObjs, i) {
@@ -414,17 +412,21 @@ CustomObjectService.prototype.findByType = function(type, options, cb) {
             async.series(tasks, cb);
             return;
         }
-        cb(util.isError(custObjs) ? custObjs : null, custObjs);
+        cb(err, custObjs);
     });
 };
 
 CustomObjectService.prototype.findTypes = function(cb) {
 
-    var order = [
-        [NAME_FIELD, pb.DAO.ASC]
-    ];
+    var opts = {
+        where: pb.DAO.ANYWHERE,
+        select: pb.DAO.PROJECT_ALL,
+        order: [
+            [NAME_FIELD, pb.DAO.ASC]
+        ]
+    };
     var dao  = new pb.DAO();
-	dao.query(CustomObjectService.CUST_OBJ_TYPE_COLL, pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, order).then(function(custObjTypes) {
+	dao.q(CustomObjectService.CUST_OBJ_TYPE_COLL, opts, function(err, custObjTypes) {
         if (util.isArray(custObjTypes)) {
             //currently, mongo cannot do case-insensitive sorts.  We do it manually
             //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
@@ -435,7 +437,7 @@ CustomObjectService.prototype.findTypes = function(cb) {
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
             });
         }
-        cb(util.isError(custObjTypes) ? custObjTypes : null, custObjTypes);
+        cb(err, custObjTypes);
     });
 };
 
@@ -713,10 +715,15 @@ CustomObjectService.prototype.getReferenceTypes = function(cb) {
     var select                  = {};
     select[NAME_FIELD]          = 1;
     select[pb.DAO.getIdField()] = 0;
-    var dao                     = new pb.DAO();
-    dao.query(CustomObjectService.CUST_OBJ_TYPE_COLL, {}, select).then(function(types) {
-        if (util.isError(types)) {
-            return cb(result);
+    
+    var opts = {
+        where: pb.DAO.ANYWHERE,
+        select: select
+    };
+    var dao  = new pb.DAO();
+    dao.q(CustomObjectService.CUST_OBJ_TYPE_COLL, opts, function(err, types) {
+        if (util.isError(err)) {
+            return cb(err);
         }
 
         var allTypes = pb.utils.clone(AVAILABLE_REFERENCE_TYPES);
