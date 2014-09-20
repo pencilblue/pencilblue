@@ -145,6 +145,11 @@ var loc =
         CONFIGURATION_SETTINGS: 'Configuration Settings',
         EXISTING_CUSTOM_OBJECT: 'The custom object with the given name already exists',
         OPTIONS_PARAM_MUST_BE_OBJECT: 'The options parameter must be an object',
+        WHERE_CLAUSE_MUST_BE_OBJECT: 'The where parameter must be an object',
+        COLLECTION_MUST_BE_STR: 'The collection parameter must be a string',
+        COMMAND_MUST_BE_OBJECT: 'The command must be a valid object',
+        PROCEDURE_MUST_BE_OBJECT: 'A valid procedure object is required in order to execute the indexing operation',
+        OBJ_TO_PARAMS_MUST_BE: 'The obj must be an object and the to parameter must be a string',
     },
     error:
     {
