@@ -216,7 +216,7 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
 
 /**
  * Queries the database
- * @method query
+ * @method q
  * @param  {String} collection The type of object to search for
  * @param  {Object} [options] The options for the query
  * @param {Object} [options.where={}] The conditions under which results are 
