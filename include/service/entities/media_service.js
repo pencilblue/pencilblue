@@ -71,12 +71,7 @@ MediaService.prototype.deleteById = function(mid, options, cb) {
 
     var self = this;
     var dao  = new pb.DAO();
-    dao.deleteById(mid, MediaService.COLL).then(function(result) {
-        if (util.isError(result)) {
-            return cb(result);
-        }
-        cb(null, result);
-    });
+    dao.deleteById(mid, MediaService.COLL, cb);
 };
 
 MediaService.prototype.get = function(options, cb) {

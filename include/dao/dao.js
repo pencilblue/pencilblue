@@ -115,13 +115,14 @@ DAO.prototype.loadByValue = function(key, val, collection, cb) {
  * @param {Function} cb         Callback function
  */
 DAO.prototype.loadByValues = function(where, collection, cb) {
-	this.query(collection, where, DAO.PROJECT_ALL, DAO.NATURAL_ORDER, 1).then(function(result){
-		if (util.isError(result)) {
-			cb(result, null);
-		}
-		else {
-			cb(null, result.length > 0 ? result[0] : null);
-		}
+    var options = {
+        where: where,
+        select: DAO.PROJECT_ALL,
+        order: DAO.NATURAL_ORDER,
+        limit: 1
+    };
+	this.q(collection, options, function(err, result){
+        cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
 	});
 };
 
@@ -182,7 +183,7 @@ DAO.prototype.unique = function(collection, where, exclusionId, cb) {
 
 /**
  * Queries the database
- *
+ * @deprecated
  * @method query
  * @param  {String} entityType The type of object to search for
  * @param  {Object} [where]    Key value pair object
@@ -214,6 +215,68 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
 };
 
 /**
+ * Queries the database
+ * @method query
+ * @param  {String} collection The type of object to search for
+ * @param  {Object} [options] The options for the query
+ * @param {Object} [options.where={}] The conditions under which results are 
+ * returned
+ * @param  {Object} [options.select] Selection type object
+ * @param  {Array} [options.order]  Order by array (MongoDB syntax)
+ * @param  {Integer} [options.limit] Number of documents to retrieve
+ * @param  {Integer} [options.offset] Start index of retrieval
+ * @param {Function} [options.handler] A function that takes two paramters.  
+ * The first, the Cursor object that contains the results of the query.  The 
+ * second is a callback that takes two parameters.  An error if occurred and by 
+ * default, the documents returned by the query.  Custom handlers may provide 
+ * whatever value it wishes including the cursor if it wishes to handle the 
+ * results itself.
+ * @param {Function} cb A callback function that takes two parameters.  The 
+ * first, an error, if occurred and the second is the result provided by the 
+ * handler.  By default it provides an array of objects that represent the 
+ * items returned by the query.
+ */
+DAO.prototype.q = function(collection, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT')); 
+    }
+    
+    //execute the query
+    var cursor = this._doQuery(collection, options.where, options.select, options.order, options.limit, options.offset);
+    
+    //handle cursor
+    var handler = pb.utils.isFunction(options.handler) ? options.handler : this.toArrayCursorHandler;
+    handler(cursor, function(err, docs) {
+
+        //close the cursor
+        cursor.close(function(err){
+            if (util.isError(err)) {
+                log.error("DAO: An error occurred while attempting to close the cursor. %s", err.stack);
+            }
+        });
+
+        //callback with results
+        cb(err, docs);
+    });
+};
+
+/**
+ * A cursor handler that iterates over each result from the query that created
+ * the cursor and places the result into an array.  The array of documents is
+ * provided as the second argument in the callback.
+ * @method toArrayCursorHandler
+ * @param {Cursor} cursor
+ * @param {Function} cb
+ */
+DAO.prototype.toArrayCursorHandler = function(cursor, cb) {
+    cursor.toArray(cb);
+};
+
+/**
  * The actual implementation for querying.  The function does not do the same
  * type checking as the wrapper function "query".  This funciton is responsible
  * for doing the heavy lifting and returning the result back to the calling intity.
@@ -234,19 +297,19 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 	}
 
 	//set defaults
-	where  = where  ? where  : {};
-	select = select ? select : {};
+	where  = where  ? where  : DAO.ANYWHERE;
+	select = select ? select : DAO.PROJECT_ALL;
 	offset = offset ? offset : 0;
 
 	var cursor = pb.dbm[this.dbName].collection(entityType)
 		.find(where, select)
 		.skip(offset);
 
-	if (typeof orderBy !== 'undefined') {
+	if (orderBy) {
 		cursor.sort(orderBy);
 	}
 
-	if (typeof limit !== 'undefined') {
+	if (limit) {
 		cursor.limit(limit);
 	}
 
@@ -265,7 +328,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 
 /**
  * Persists a DB Object for the first time.
- *
+ * @deprecated
  * @method insert
  * @param  {Object} dbObject The database object to persist
  * @return {Promise} Promise object
@@ -282,7 +345,7 @@ DAO.prototype.insert = function(dbObject) {
 
 /**
  * Replaces an existing document with the specified DB Object
- *
+ * @deprecated
  * @method update
  * @param  {Object} dbObj The new document object
  * @return {Promise} Promise object
@@ -307,6 +370,95 @@ DAO.prototype.update = function(dbObj) {
 		promise.resolve(err ? err : doc);
 	});
 	return promise;
+};
+
+/**
+ * Replaces an existing document with the specified DB Object
+ * @method save
+ * @param {Object} dbObj The system object to persist
+ * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#save
+ * @param {Function} cb A callback that takes two parameters.  The first, an 
+ * error, if occurred.  The second is the result of the persistence operation.
+ */
+DAO.prototype.save = function(dbObj, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
+    }
+    if (!pb.utils.isObject(dbObj)) {
+        return cb(new Error('The dbObj parameter must be an object'));   
+    }
+        
+    //log interaction
+    if (pb.config.db.query_logging) {
+        var msg;
+        if (dbObj._id) {
+            msg = util.format('UPDATE %s WHERE ID=%s', dbObj.object_type, dbObj._id);
+        }
+        else {
+            msg = util.format('INSERT INTO %s', dbObj.object_type);
+        }
+        pb.log.info(msg);
+    }
+    
+    //ensure an object_type was specified & update common fields
+    dbObj.object_type = dbObj.object_type || options.object_type;
+    DAO.updateChangeHistory(dbObj);
+    
+    //execute persistence operation
+	pb.dbm[this.dbName].collection(dbObj.object_type).save(dbObj, options, cb);
+};
+
+/**
+ * Provides a mechanism to save an array of objects all from the same 
+ * collection.  The function handles updates and inserts.  The difference is 
+ * determined by the truth value of the ID field of each object.  
+ * @method saveBatch
+ * @param {Array} objArray The array of objects to persist
+ * @param {String} collection The collection to persist the objects to
+ * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#initializeunorderedbulkop 
+ * @param {Function} cb A callback that takes two arguments.  The first is an 
+ * error, if occurred. The second is the second parameter of the callback 
+ * described here: http://mongodb.github.io/node-mongodb-native/api-generated/unordered.html#execute
+ */
+DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {
+            useLegacyOps: true
+        };
+    }
+    else if (!pb.utils.isObject(options)) {
+        return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
+    }
+    if (!util.isArray(objArray)) {
+        return cb(new Error('The objArray parameter must be an Array'));   
+    }
+    else if (!pb.utils.isString(collection)) {
+        return cb(new Error('COLLECTION_MUST_BE_STR'));
+    }
+    
+    //initialize the batch operation
+    var col   = pb.dbm[this.dbName].collection(collection);
+    var batch = col.initializeUnorderedBulkOp(options);
+    
+    //build the batch
+    for (var i = 0; i < objArray.length; i++) {
+        
+        var item = objArray[i];
+        item.object_type = collection;
+        DAO.updateChangeHistory(item);
+        if (item[DAO.getIdField()]) {
+            batch.update(item);   
+        }
+        else {
+            batch.insert(item);
+        }
+    }
+    batch.execute(cb);
 };
 
 /**
@@ -336,22 +488,42 @@ DAO.prototype.updateFields = function(collection, query, updates, options, cb) {
  * Removes an object from persistence
  *
  * @method deleteById
- * @param {String} oid        The Id of the object to remove
+ * @param {String|ObjectID} oid The Id of the object to remove
  * @param {String} collection The collection the object is in
- * @return {Promise}           Promise object
+ * @param {Function} [cb] A callback that takes two parameters.  The first is 
+ * an error, if occurred.  The second is the number of records deleted by the 
+ * execution of the command.
+ * @return {Promise} Promise object iff a callback is not provided
  */
-DAO.prototype.deleteById = function(oid, collection){
-	if (typeof oid === 'undefined') {
-		throw new Error('An id must be specified in order to delete');
+DAO.prototype.deleteById = function(oid, collection, cb) {
+    var canUseCb = pb.utils.isFunction(cb);
+    
+    //error checking
+	if (!pb.validation.isId(oid)) {
+        
+        var err = new Error('An id must be specified in order to delete');
+        if (canUseCb) {
+            return cb(err);
+        }
+        else {
+            //backward compatibility
+            throw err;
+        }
 	}
 
-	var where   = DAO.getIDWhere(oid);
-	return this.deleteMatching(where, collection);
+	var where = DAO.getIDWhere(oid);
+    if (canUseCb) {
+        this.delete(where, collection, cb);
+    }
+    else {
+        //used for backward compatibility with old way of using promises.
+	   return this.deleteMatching(where, collection);
+    }
 };
 
 /**
  * Removes objects from persistence that match criteria
- *
+ * @deprecated
  * @method deleteMatching
  * @param {Object} where      Key value pair object
  * @param {String} collection The collection to search in
@@ -379,6 +551,43 @@ DAO.prototype.deleteMatching = function(where, collection){
 };
 
 /**
+ * Removes objects from persistence that match criteria
+ *
+ * @method delete
+ * @param {Object} where Key value pair object
+ * @param {String} collection The collection to search in
+ * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#remove
+ * @param {Function} cb A callback that provides two parameter. The first is an 
+ * error, if occurred.  The second is the number of records that were removed 
+ * from persistence.
+ */
+DAO.prototype.delete = function(where, collection, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
+    }
+    
+    //require param error checking
+    if (!pb.utils.isObject(where)) {
+        return cb(new Error('WHERE_CLAUSE_MUST_BE_OBJECT'));
+    }
+    else if (!pb.utils.isString(collection)) {
+        return cb(new Error('COLLECTION_MUST_BE_STR'));
+    }
+    
+    //log interaction
+	if(pb.config.db.query_logging){
+		pb.log.info('DAO: DELETE FROM %s WHERE %s', collection, JSON.stringify(where));
+	}
+    
+    //execute delete command
+    pb.dbm[this.dbName].collection(collection).remove(where, options, cb);
+};
+
+/**
  * Sends a command to the DB.
  * http://mongodb.github.io/node-mongodb-native/api-generated/db.html#command
  * @method command
@@ -387,7 +596,7 @@ DAO.prototype.deleteMatching = function(where, collection){
  */
 DAO.prototype.command = function(command, cb) {
     if (!pb.utils.isObject(command)) {
-        cb(new Error('The command must be a valid object'));
+        cb(new Error('COMMAND_MUST_BE_OBJECT'));
         return;
     }
     pb.dbm[this.dbName].command(command, cb);
@@ -409,7 +618,7 @@ DAO.prototype.command = function(command, cb) {
  */
 DAO.prototype.ensureIndex = function(procedure, cb) {
     if (!pb.utils.isObject(procedure)) {
-        cb(new Error('A valid procedure object is required in order to execute the indexing operation'));
+        cb(new Error('PROCEDURE_MUST_BE_OBJECT'));
         return;
     }
 
@@ -529,7 +738,7 @@ DAO.updateChangeHistory = function(dbObject){
  */
 DAO.transfer = function(obj, to) {
     if (!pb.utils.isObject(obj) || !pb.utils.isString(to)) {
-        throw new Error('The obj must be an object and the to parameter must be a string');
+        throw new Error('OBJ_TO_PARAMS_MUST_BE');
     }
 
     delete obj._id;
