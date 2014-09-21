@@ -16,7 +16,7 @@
     "keywords": [
         "cms", "website", "platform"
     ],
-   "version": "0.2.4",
+   "version": "0.2.5",
     "repository": {
         "type": "git",
         "url": "https://github.com/pencilblue/pencilblue.git"
