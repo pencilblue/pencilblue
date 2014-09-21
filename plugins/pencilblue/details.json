@@ -2,7 +2,7 @@
     "uid": "pencilblue",
     "name": "PencilBlue",
     "description": "The plugin that drives the default core functionality of PencilBlue",
-    "version": "0.0.1",
+    "version": "0.2.5",
     "icon": "pencil",
 	"author": {
 		"name": "PencilBlue",
@@ -36,10 +36,6 @@
 			{
 				"file": "index",
 				"name": "Default"
-			},
-			{
-				"file": "index",
-				"name": "Same as Default"
 			}
 		]
 	}
