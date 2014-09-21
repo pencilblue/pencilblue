@@ -442,7 +442,7 @@ DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
     }
     
     //initialize the batch operation
-    var col   = pb.dbm[this.dbName].collection(dbObj.object_type);
+    var col   = pb.dbm[this.dbName].collection(collection);
     var batch = col.initializeUnorderedBulkOp(options);
     
     //build the batch
@@ -450,7 +450,7 @@ DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
         
         var item = objArray[i];
         item.object_type = collection;
-        DAO.updateChangeHistory(dbObj);
+        DAO.updateChangeHistory(item);
         if (item[DAO.getIdField()]) {
             batch.update(item);   
         }
@@ -459,7 +459,7 @@ DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
         }
     }
     batch.execute(cb);
-});
+};
 
 /**
  * Updates a specific set of fields. This is handy for performing upserts.
