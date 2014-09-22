@@ -36,9 +36,5 @@
     },
     "main_module": {
         "path": "ga.js"
-    },
-    "theme": {
-        "settings": [],
-        "content_templates":[]
     }
 }

@@ -605,7 +605,7 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, method, cb){
 			if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
 				result.success  = false;
 				result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
-				self.session.on_login = self.url.href;
+				self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.urlJoin(pb.config.siteRoot, '/admin');
 				callback(result, result);
 				return;
 			}

@@ -16,7 +16,7 @@
     "keywords": [
         "cms", "website", "platform"
     ],
-   "version": "0.2.4",
+   "version": "0.2.5",
     "repository": {
         "type": "git",
         "url": "https://github.com/pencilblue/pencilblue.git"
@@ -28,7 +28,7 @@
 	    "formidable": "1.0.14",
         "htmlencode": "0.0.4",
 	    "locale": "0.0.14",
-	    "mongodb": "1.3.19",
+	    "mongodb": "1.4.12",
 	    "minify": "0.2.3",
         "node.extend": "1.0.10",
 	    "node-promise": "0.5.9",

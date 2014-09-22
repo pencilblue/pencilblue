@@ -50,7 +50,7 @@ ImportTopics.prototype.render = function(cb) {
         tabs: tabs
     });
 
-	this.setPageName(this.ls.get('NEW_TOPIC'));
+	this.setPageName(this.ls.get('IMPORT_TOPICS'));
     self.ts.registerLocal('angular_script', angularData);
 	this.ts.load('admin/content/topics/import_topics', function(err, data) {
         var result = '' + data;

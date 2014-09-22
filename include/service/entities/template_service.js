@@ -564,7 +564,7 @@ TemplateService.registerGlobal = function(key, callbackFunctionOrValue) {
 
 /**
  * Retrieves the default path to a template file based on the assumption that
- * the provided path is relative to the pencilblue/templates/ directory.
+ * the provided path is relative to the pencilblue/plugins/pencilblue/templates/ directory.
  *
  * @static
  * @method getDefaultPath
@@ -572,7 +572,7 @@ TemplateService.registerGlobal = function(key, callbackFunctionOrValue) {
  * @return {string} The absolute path
  */
 TemplateService.getDefaultPath = function(templateLocation){
-	return path.join(DOCUMENT_ROOT, 'templates', templateLocation + '.html');
+	return path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'templates', templateLocation + '.html');
 };
 
 /**
