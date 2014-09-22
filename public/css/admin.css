@@ -31,6 +31,10 @@ a:hover
     clear: both;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 form .error
 {
     font-size: .85em;

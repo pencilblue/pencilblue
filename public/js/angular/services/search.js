@@ -15,7 +15,7 @@ angular.module('search', [])
 			return;
 		}
 
-		if(!searchText.length <= 2) {
+		if(searchText.length <= 2) {
 			cb(items);
 			return;
 		}
@@ -37,5 +37,5 @@ angular.module('search', [])
 		}
 
 		cb(items);
-	}
+	};
 })

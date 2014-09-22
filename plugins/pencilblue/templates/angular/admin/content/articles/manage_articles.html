@@ -1,0 +1,91 @@
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript" src="/js/angular/services/sort.js"></script>
+<script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript">
+	angular.module('pencilblueApp', ['search', 'sort', 'paginate'])
+	.controller('PencilBlueController', function($scope, searchService, sortService, paginationService) {
+		^angular_objects^
+
+		$scope.pageIndex = 0;
+		$scope.pageLimit = 25;
+		$scope.tableHeaders = [{
+			name: loc.articles.HEADLINE,
+			field: 'headline',
+			sortAsc: false,
+			sortDesc: false
+		}, {
+			name: loc.generic.STATUS,
+			field: 'status',
+			sortAsc: false,
+			sortDesc: false
+		}, {
+			name: loc.articles.ARTICLE_URL,
+			field: 'url',
+			sortAsc: false,
+			sortDesc: false
+		}, {
+			name: loc.admin.AUTHOR,
+			field: 'author_name',
+			sortAsc: false,
+			sortDesc: false
+		}, {
+			name: loc.articles.PUBLISH_DATE,
+			field: 'publish_date',
+			sortAsc: true,
+			sortDesc: false
+		}];
+
+		$scope.search = function() {
+			searchService.search($scope.searchText, $scope.articles, ['headline'], function(articles) {
+				$scope.articles = articles;
+				$scope.paginate(0);
+			});
+		}
+
+		$scope.paginate = function(pageIndex) {
+			$scope.pageIndex = pageIndex;
+
+			paginationService.paginate($scope.articles, $scope.pageIndex, $scope.pageLimit, function(articles, pages) {
+				$scope.articles = articles;
+				$scope.pages = pages;
+			})
+		}
+
+		$scope.pageButtonVisible = function(testIndex) {
+			return paginationService.pageButtonVisible(testIndex, $scope.pageIndex, $scope.pageLimit);
+		};
+
+		$scope.sort = function(headerIndex) {
+			if($scope.tableHeaders[headerIndex].unsorted) {
+				return;
+			}
+
+			var sortDesc = true;
+
+			for(var i = 0; i < $scope.tableHeaders.length; i++) {
+				if(i === headerIndex) {
+					if($scope.tableHeaders[i].sortAsc) {
+						$scope.tableHeaders[i].sortAsc = false;
+						$scope.tableHeaders[i].sortDesc = true;
+					}
+					else {
+						$scope.tableHeaders[i].sortAsc = true;
+						$scope.tableHeaders[i].sortDesc = false;
+						sortDesc = false;
+					}
+				}
+				else {
+					$scope.tableHeaders[i].sortAsc = false;
+					$scope.tableHeaders[i].sortDesc = false;
+				}
+			}
+
+			sortService.sort($scope.articles, $scope.tableHeaders[headerIndex].field, sortDesc, function(articles) {
+				$scope.articles = articles;
+				$scope.paginate(0);
+			});
+		}
+
+		$scope.sort(4);
+	});
+</script>
