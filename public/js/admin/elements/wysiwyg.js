@@ -398,7 +398,15 @@ function getWYSIWYGLayout(wysId, cb) {
 
     $('#temp_editable .media_preview').each(function()
     {
-        $(this).replaceWith('^' + $(this).attr('media-tag') + '^');
+        var innerHTML = $(this).html();
+
+        if(innerHTML.indexOf('<img') === -1 && innerHTML.indexOf('<iframe') === -1 && innerHTML.indexOf('<video') === -1) {
+            $(this).replaceWith('<div>' + innerHTML + '</div>');
+        }
+        else {
+            $(this).replaceWith('^' + $(this).attr('media-tag') + '^');
+        }
+
         i++;
 
         if(i >= mediaCount)

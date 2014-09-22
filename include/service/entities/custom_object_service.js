@@ -30,8 +30,25 @@ function CustomObjectService() {
 };
 
 //statics
+/**
+ * @static
+ * @property CUST_OBJ_COLL
+ * @type {String}
+ */
 CustomObjectService.CUST_OBJ_COLL = 'custom_object';
+
+/**
+ * @static
+ * @property CUST_OBJ_TYPE_COLL
+ * @type {String}
+ */
 CustomObjectService.CUST_OBJ_TYPE_COLL = 'custom_object_type';
+
+/**
+ * @static
+ * @property CUST_OBJ_SORT_COLL
+ * @type {String}
+ */
 CustomObjectService.CUST_OBJ_SORT_COLL = 'custom_object_sort';
 
 //constants
@@ -102,6 +119,12 @@ var AVAILABLE_REFERENCE_TYPES = [
     'user'
 ];
 
+/**
+ * Validates and persists a sort ordering for custom objects of a specific type
+ * @method saveSortOrdering
+ * @param {Object} sortOrder
+ * @param {Function} cb
+ */
 CustomObjectService.prototype.saveSortOrdering = function(sortOrder, cb) {
     if (!pb.validation.isObj(sortOrder, true)) {
         throw new Error('The custom object type must be a valid object.');
@@ -121,6 +144,14 @@ CustomObjectService.prototype.saveSortOrdering = function(sortOrder, cb) {
     });
 };
 
+/**
+ * Validates a sort ordering for custom objects of a specific type
+ * @method validateSortOrdering
+ * @param {Object} sortOrdering
+ * @param {Function} cb A callback that takes two parameters. The first is an 
+ * error, if occurred and the second is an array of validation error objects.  
+ * If the array is empty them it is safe to assume that the object is valid.
+ */
 CustomObjectService.prototype.validateSortOrdering = function(sortOrder, cb) {
     if (!pb.utils.isObject(sortOrder)) {
         throw new Error('The sortOrder parameter must be a valid object');
@@ -315,11 +346,9 @@ CustomObjectService.prototype.fetchChildren = function(custObj, options, custObj
         }
         else {
 
-            var where = pb.DAO.getIDInWhere(ids);
-            var dao   = new pb.DAO();
-            dao.query(objType, where).then(function(objs) {
-               cb(util.isError(objs) ? objs : null, objs);
-            });
+            var opts = { where: pb.DAO.getIDInWhere(ids) };
+            var dao  = new pb.DAO();
+            dao.q(objType, opts, cb);
         }
     };
 
@@ -369,6 +398,13 @@ CustomObjectService.prototype.fetchChildren = function(custObj, options, custObj
     });
 };
 
+/**
+ * Loads an ordering object for a specific custom object type.
+ * @method loadSortOrdering
+ * @param {Object|String} custObjType
+ * @param {Function} cb A callback that takes two parameters.  The first is an 
+ * error, if occurred.  The second is the sort ordering object if found.
+ */
 CustomObjectService.prototype.loadSortOrdering = function(custObjType, cb) {
     if (pb.utils.isObject(custObjType)) {
         custObjType = custObjType[pb.DAO.getIdField()] + '';
@@ -381,6 +417,16 @@ CustomObjectService.prototype.loadSortOrdering = function(custObjType, cb) {
     dao.loadByValue('custom_object_type', custObjType, CustomObjectService.CUST_OBJ_SORT_COLL, cb);
 };
 
+/**
+ * Finds custom objects by the specified type.
+ * @method findByType
+ * @param {Object|String} type The custom object type object or the ID of the 
+ * object as a string
+ * @param {Object} [options] See DAO.q()
+ * @param {Function} cb A callback that takes two arguments. The first is an 
+ * error, if occurred.  The second is an array of custom objects that match the 
+ * specified criteria.
+ */
 CustomObjectService.prototype.findByType = function(type, options, cb) {
     if (pb.utils.isFunction(options)) {
         cb = options;
@@ -403,7 +449,7 @@ CustomObjectService.prototype.findByType = function(type, options, cb) {
 
     var self = this;
     var dao  = new pb.DAO();
-    dao.query(CustomObjectService.CUST_OBJ_COLL, options.where, options.select, options.order, options.limit, options.offset).then(function(custObjs) {
+    dao.q(CustomObjectService.CUST_OBJ_COLL, options, function(err, custObjs) {
         if (util.isArray(custObjs)) {
 
             var tasks = pb.utils.getTasks(custObjs, function(custObjs, i) {
@@ -414,17 +460,27 @@ CustomObjectService.prototype.findByType = function(type, options, cb) {
             async.series(tasks, cb);
             return;
         }
-        cb(util.isError(custObjs) ? custObjs : null, custObjs);
+        cb(err, custObjs);
     });
 };
 
+/**
+ * Retrieves all of the custom object types in the system
+ * @method findTypes
+ * @param {Function} cb A callback that takes two parameters. The first is an 
+ * error, if occurred.  The second is an array of custom object type objects.
+ */
 CustomObjectService.prototype.findTypes = function(cb) {
 
-    var order = [
-        [NAME_FIELD, pb.DAO.ASC]
-    ];
+    var opts = {
+        where: pb.DAO.ANYWHERE,
+        select: pb.DAO.PROJECT_ALL,
+        order: [
+            [NAME_FIELD, pb.DAO.ASC]
+        ]
+    };
     var dao  = new pb.DAO();
-	dao.query(CustomObjectService.CUST_OBJ_TYPE_COLL, pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, order).then(function(custObjTypes) {
+	dao.q(CustomObjectService.CUST_OBJ_TYPE_COLL, opts, function(err, custObjTypes) {
         if (util.isArray(custObjTypes)) {
             //currently, mongo cannot do case-insensitive sorts.  We do it manually
             //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
@@ -435,10 +491,19 @@ CustomObjectService.prototype.findTypes = function(cb) {
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
             });
         }
-        cb(util.isError(custObjTypes) ? custObjTypes : null, custObjTypes);
+        cb(err, custObjTypes);
     });
 };
 
+/**
+ * Retrieves a count based the specified criteria and type
+ * @method countByType
+ * @param {Object|String} type The custom object type object or ID string
+ * @param {Object} [where] The criteria for which objects to count
+ * @param {Function} cb A callback that takes two parameters. The first is an 
+ * error, if occurred. The second is the number of objects that match the 
+ * specified critieria.
+ */
 CustomObjectService.prototype.countByType = function(type, where, cb) {
     if (pb.utils.isFunction(where)) {
         cb = where;
@@ -458,16 +523,39 @@ CustomObjectService.prototype.countByType = function(type, where, cb) {
     dao.count(CustomObjectService.CUST_OBJ_COLL, where, cb);
 };
 
+/** 
+ * Loads a custom object by ID
+ * @method loadById
+ * @param {ObjectID|String} id
+ * @param {Object} [options]
+ * @param {Function} cb
+ */
 CustomObjectService.prototype.loadById = function(id, options, cb) {
     this.loadBy(undefined, pb.DAO.getIDWhere(id), options, cb);
 };
 
+/** 
+ * Loads a custom object by name
+ * @method loadById
+ * @param {String} type The ID string of the custom object type
+ * @param {ObjectID|String} name The unique name of the custom object
+ * @param {Object} [options] 
+ * @param {Function} cb
+ */
 CustomObjectService.prototype.loadByName = function(type, name, options, cb) {
     var where = {};
     where[NAME_FIELD] = name;
     this.loadBy(type, where, options, cb);
 };
 
+/** 
+ * Loads a custom object by the specified where criteria
+ * @method loadBy
+ * @param {String} type
+ * @param {Object} where
+ * @param {Object} [options]
+ * @param {Function} cb
+ */
 CustomObjectService.prototype.loadBy = function(type, where, options, cb) {
     if (!pb.validation.isIdStr(type, false) || !pb.validation.isObj(where, true) || pb.validation.isEmpty(where)) {
         throw new Error('The type, where must be provided in order to load a custom object');
@@ -494,10 +582,22 @@ CustomObjectService.prototype.loadBy = function(type, where, options, cb) {
     });
 };
 
+/**
+ * Loads a custom object type by ID
+ * @method loadTypeById
+ * @param {ObjectID|String} id
+ * @param {Function} cb
+ */
 CustomObjectService.prototype.loadTypeById = function(id, cb) {
     this.loadTypeBy(pb.DAO.getIDWhere(id), cb);
 };
 
+/**
+ * Loads a custom object type by name
+ * @method loadTypeById
+ * @param {String} name
+ * @param {Function} cb
+ */
 CustomObjectService.prototype.loadTypeByName = function(name, cb) {
     name      = CustomObjectService.getCustTypeSimpleName(name);
     var where = {};
@@ -505,6 +605,12 @@ CustomObjectService.prototype.loadTypeByName = function(name, cb) {
     this.loadTypeBy(where, cb);
 };
 
+/**
+ * Loads a custom object type by the specified where criteria
+ * @method loadTypeBy
+ * @param {Object} where
+ * @param {Function} cb
+ */
 CustomObjectService.prototype.loadTypeBy = function(where, cb) {
     if (!pb.validation.isObj(where, true) || pb.validation.isEmpty(where)) {
         throw new Error("The where parameter must be provided in order to load a custom object type");
@@ -514,6 +620,15 @@ CustomObjectService.prototype.loadTypeBy = function(where, cb) {
     dao.loadByValues(where, CustomObjectService.CUST_OBJ_TYPE_COLL, cb);
 };
 
+/**
+ * Validates a custom object
+ * @method validate
+ * @param {Object} custObj The object to validate
+ * @param {Object} custObjType The custom object type to validate against
+ * @param {Function} cb A callback that takes two parameters. The first is an 
+ * error if occurred. The second is an array of validation error objects.  If 
+ * the array is empty it is safe to assume that the object is valid.
+ */
 CustomObjectService.prototype.validate = function(custObj, custObjType, cb) {
 
     var self   = this;
@@ -572,6 +687,14 @@ CustomObjectService.prototype.validate = function(custObj, custObjType, cb) {
     });
 };
 
+/**
+ * Validates the fields of a custom object
+ * @param {Object} custObj The object to validate
+ * @param {Object} custObjType The custom object type to validate against
+ * @param {Function} cb A callback that takes two parameters. The first is an 
+ * error if occurred. The second is an array of validation error objects.  If 
+ * the array is empty it is safe to assume that the object is valid.
+ */
 CustomObjectService.prototype.validateCustObjFields = function(custObj, custObjType, cb) {
 
     var errors = [];
@@ -713,10 +836,15 @@ CustomObjectService.prototype.getReferenceTypes = function(cb) {
     var select                  = {};
     select[NAME_FIELD]          = 1;
     select[pb.DAO.getIdField()] = 0;
-    var dao                     = new pb.DAO();
-    dao.query(CustomObjectService.CUST_OBJ_TYPE_COLL, {}, select).then(function(types) {
-        if (util.isError(types)) {
-            return cb(result);
+    
+    var opts = {
+        where: pb.DAO.ANYWHERE,
+        select: select
+    };
+    var dao  = new pb.DAO();
+    dao.q(CustomObjectService.CUST_OBJ_TYPE_COLL, opts, function(err, types) {
+        if (util.isError(err)) {
+            return cb(err);
         }
 
         var allTypes = pb.utils.clone(AVAILABLE_REFERENCE_TYPES);
@@ -727,6 +855,16 @@ CustomObjectService.prototype.getReferenceTypes = function(cb) {
     });
 };
 
+/**
+ * Validates and persists a custom object
+ * @method save
+ * @param {Object} custObj The object to validate
+ * @param {Object} custObjType The custom object type to validate against
+ * @param {Function} cb A callback that takes two parameters. The first is an 
+ * error if occurred. The second is an array of validation error objects or the 
+ * result of the persistence operation.
+ *
+ */
 CustomObjectService.prototype.save = function(custObj, custObjType, cb) {
     if (!pb.validation.isObj(custObj, true)) {
         throw new Error('The custom object must be a valid object.');
@@ -746,6 +884,14 @@ CustomObjectService.prototype.save = function(custObj, custObjType, cb) {
     });
 };
 
+/**
+ * Validates and persists a custom object type
+ * @method saveType
+ * @param {Object} custObjType The object to persist
+ * @param {Function} cb A callback that takes two parameters. The first is an 
+ * error if occurred. The second is an array of validation error objects or the 
+ * result of the persistence operation.
+ */
 CustomObjectService.prototype.saveType = function(custObjType, cb) {
     if (!pb.validation.isObj(custObjType, true)) {
         throw new Error('The custom object type must be a valid object.');
@@ -765,18 +911,46 @@ CustomObjectService.prototype.saveType = function(custObjType, cb) {
     });
 };
 
+/**
+ * Retrieves the objects types that can be referenced by custom objects
+ * @static
+ * @method getStaticReferenceTypes
+ * @return {Array}
+ */
 CustomObjectService.getStaticReferenceTypes = function() {
     return pb.utils.clone(AVAILABLE_REFERENCE_TYPES);
 };
 
+/**
+ * Determines if a field type is reference to another object type
+ * @static
+ * @method isReferenceFieldType
+ * @param {String} fieldType
+ * @return {Boolean}
+ */
 CustomObjectService.isReferenceFieldType = function(fieldType) {
     return fieldType === PEER_OBJECT_TYPE || fieldType === CHILD_OBJECTS_TYPE;
 };
 
+/**
+ * Determines if the field type is a custom object type or a system reference
+ * @static
+ * @method isCustomObjectType
+ * @param {String} objType
+ * @return {Boolean}
+ */
 CustomObjectService.isCustomObjectType = function(objType) {
     return pb.utils.isString(objType) && objType.indexOf(CUST_OBJ_TYPE_PREFIX) === 0;
 };
 
+/**
+ * Gets the simple custom object name.  The simple name is one that is not 
+ * prefixed to indicate that it is custom
+ * @static
+ * @method getCustTypeSimpleName
+ * @param {String} name
+ * @return {String}
+ */
 CustomObjectService.getCustTypeSimpleName = function(name) {
     if (pb.utils.isString(name)) {
         name = name.replace(CUST_OBJ_TYPE_PREFIX, '');
@@ -784,6 +958,14 @@ CustomObjectService.getCustTypeSimpleName = function(name) {
     return name;
 };
 
+/**
+ * Formats the object by ensuring that each field is in the correct data type.
+ * @static
+ * @method formatRawForType
+ * @param {Object} post The raw post object
+ * @param {Object} custObjType The custom object type describes the data in the 
+ * post obj.
+ */
 CustomObjectService.formatRawForType = function(post, custObjType) {
 
     //remove system fields if posted back
@@ -827,6 +1009,17 @@ CustomObjectService.formatRawForType = function(post, custObjType) {
     post.type = custObjType[pb.DAO.getIdField()].toString();
 };
 
+/**
+ * Formats a custom object type object to ensure each field has the correct 
+ * data type. 
+ * @static
+ * @method formatRawType
+ * @param {Object} post The raw post data
+ * @param {Localization} ls The instance of Localization created for the 
+ * incoming request.  The locale of the Localization service instance must 
+ * match that of the post data.
+ * @return {Object} The formatted custom object type object
+ */
 CustomObjectService.formatRawType = function(post, ls) {
 
     //document shell
@@ -902,6 +1095,15 @@ CustomObjectService.formatRawType = function(post, ls) {
     return objectTypeDocument;
 };
 
+/**
+ * Formats the raw post data for a sort ordering
+ * @static 
+ * @method formatRawSortOrdering
+ * @param {Object} post
+ * @param {Object} sortOrder the existing sort order object that the post data 
+ * will be merged with
+ * @return {Object} The formatted sort ordering object
+ */
 CustomObjectService.formatRawSortOrdering = function(post, sortOrder) {
     delete post.last_modified;
     delete post.created;
@@ -920,6 +1122,14 @@ CustomObjectService.formatRawSortOrdering = function(post, sortOrder) {
     return sortOrderDoc;
 };
 
+/**
+ * Discovers the field types used for each entry in the provided array and sets 
+ * the "fieldTypesUsed" property for the object.
+ * @static
+ * @method setFieldTypesUsed
+ * @param {Array} custObjTypes The array of custom object type objects to inspect
+ * @param {Localization} ls
+ */
 CustomObjectService.setFieldTypesUsed = function(custObjTypes, ls) {
     if (!util.isArray(custObjTypes)) {
         return;
@@ -947,7 +1157,15 @@ CustomObjectService.setFieldTypesUsed = function(custObjTypes, ls) {
     }
 };
 
-
+/**
+ * Orders the custom objects based on the provided sort order
+ * @static
+ * @method applyOrder
+ * @param {Array} custObjects The array of custom objects to be sorted
+ * @param {Object} sortOrder The object describing the ordering of the objects
+ * @param {Array} A refernce to the sorted array of custom objects.  The 
+ * reference is the same as provided to the function.
+ */
 CustomObjectService.applyOrder = function(custObjects, sortOrder) {
     if (!util.isArray(custObjects)) {
         throw new Error('The custObjects parameter must be an array');
@@ -1001,6 +1219,15 @@ CustomObjectService.err = function(field, err) {
     };
 };
 
+/**
+ * Creates an HTML formatted error string out of an array of error objects.
+ * @static
+ * @method createErrorStr
+ * @param {Array} errors An array of objects where each object has a "msg" and 
+ * a "field" property
+ * @param {String} msg
+ * @return {String} HTML formatted string representing the errors
+ */
 CustomObjectService.createErrorStr = function(errors, msg) {
     var errStr = '';
     if (msg) {
