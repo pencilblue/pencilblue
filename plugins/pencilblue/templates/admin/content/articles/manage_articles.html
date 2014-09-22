@@ -1,6 +1,6 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^error_success^
+    ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
     <div class="input-group" style="margin-bottom: .5em">
         <input type="text" ng-model="searchText" ng-change="search()" class="form-control"></input>
@@ -11,49 +11,25 @@
     <div class="table_container">
         <table id="articles_table" class="table table-responsive table-condensed">
             <tr id="articles_table_header">
-                <th ng-repeat="header in tableHeaders" ng-class="{'clickable': !header.unsorted}" ng-click="sort($index)" ng-cloak>
-                    {{header.name}}&nbsp;
+                <th ng-repeat="header in tableHeaders" ng-class="{'clickable': !header.unsorted}" ng-click="sort($index)">
+                    <span ng-bind="header.name"></span>&nbsp;
                     <i class="fa fa-sort-asc" ng-if="header.sortAsc"></i>
                     <i class="fa fa-sort-desc" ng-if="header.sortDesc"></i>
                 </th>
-                <!--<th id="article_headline_header">^loc_HEADLINE^</th>
-                <th id="article_status_header">^loc_STATUS^</th>
-                <th id="article_url_header">^loc_ARTICLE_URL^</th>
-                <th id="article_author_header">^loc_AUTHOR^</th>
-                <th id="article_date_header">^loc_PUBLISH_DATE^</th>-->
                 <th></th>
             </tr>
-            <tr class="article_row" ng-repeat="article in articles track by article._id" ng-if="!article.hidden && !article.paginated" ng-cloak>
-                <td><a class="article_headline" ng-href="/admin/content/articles/edit_article/{{article._id}}">{{article.headline}}</a></td>
-                <td class="article_status">{{article.status}}</td>
-                <td class="article_url">{{article.url}}</td>
-                <td class="article_author">{{article.author_name}}</td>
-                <td class="article_date">{{article.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
-                <td><a href="javascript:confirmDeleteArticle('{{article._id}}', '{{article.headline}}')"><i class="fa fa-times"></i></a></td>
+            <tr class="article_row" ng-repeat="article in articles track by article._id" ng-if="!article.hidden && !article.paginated">
+                <td><a class="article_headline" ng-href="/admin/content/articles/edit_article/{{article._id}}" ng-bind="article.headline"></a></td>
+                <td class="article_status" ng-bind="article.status"></td>
+                <td class="article_url" ng-bind="article.url"></td>
+                <td class="article_author" ng-bind="article.author_name"></td>
+                <td class="article_date" ng-bind="article.publish_date | date: 'yyyy-MM-dd HH:mm'"></td>
+                <td><a href="#" ng-click="confirmDelete($index)"><i class="fa fa-times"></i></a></td>
             </tr>
         </table>
     </div>
     ^tmp_admin=elements=pagination^
-    <div class="modal fade" id="confirm_delete_modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    ^loc_CONFIRM_DELETE^ <span id="delete_name" style="font-style: italic"></span>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                    </button>
-                    <button type="button" id="delete_button" class="btn btn-danger">
-                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    ^tmp_admin=elements=delete_modal^
 </div>
 ^tmp_angular=admin=content=articles=manage_articles^
-<!--<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="/js/table_sort.js"></script>
-<script type="text/javascript" src="/js/admin/content/articles/manage_articles.js"></script>-->
 ^tmp_admin=footer^

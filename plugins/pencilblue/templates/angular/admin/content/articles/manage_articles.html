@@ -3,11 +3,13 @@
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
 <script type="text/javascript">
 	angular.module('pencilblueApp', ['search', 'sort', 'paginate'])
-	.controller('PencilBlueController', function($scope, searchService, sortService, paginationService) {
+	.controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService) {
 		^angular_objects^
 
 		$scope.pageIndex = 0;
 		$scope.pageLimit = 25;
+		$scope.deleteNameKey = 'headline';
+
 		$scope.tableHeaders = [{
 			name: loc.articles.HEADLINE,
 			field: 'headline',
@@ -56,33 +58,37 @@
 		};
 
 		$scope.sort = function(headerIndex) {
-			if($scope.tableHeaders[headerIndex].unsorted) {
+			sortService.sortByHeader($scope.articles, $scope.tableHeaders, headerIndex, function(articles, headers) {
+				$scope.articles = articles;
+				$scope.headers = headers;
+				$scope.paginate(0);
+			});
+		}
+
+		$scope.confirmDelete = function(articleIndex) {
+			$scope.objectToDeleteIndex = articleIndex;
+			$scope.objectToDelete = $scope.articles[articleIndex];
+			$('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+		}
+
+		$scope.deleteObject = function() {
+			if(!$scope.objectToDelete) {
 				return;
 			}
 
-			var sortDesc = true;
-
-			for(var i = 0; i < $scope.tableHeaders.length; i++) {
-				if(i === headerIndex) {
-					if($scope.tableHeaders[i].sortAsc) {
-						$scope.tableHeaders[i].sortAsc = false;
-						$scope.tableHeaders[i].sortDesc = true;
-					}
-					else {
-						$scope.tableHeaders[i].sortAsc = true;
-						$scope.tableHeaders[i].sortDesc = false;
-						sortDesc = false;
-					}
-				}
-				else {
-					$scope.tableHeaders[i].sortAsc = false;
-					$scope.tableHeaders[i].sortDesc = false;
-				}
-			}
-
-			sortService.sort($scope.articles, $scope.tableHeaders[headerIndex].field, sortDesc, function(articles) {
-				$scope.articles = articles;
+			$scope.deleting = true;
+			$http({method: 'DELETE', url: '/actions/admin/content/articles/' + $scope.objectToDelete._id})
+			.success(function(result) {
+				$scope.articles.splice($scope.objectToDeleteIndex, 1);
+				$scope.deleting = false;
+				$scope.successMessage = result.message;
 				$scope.paginate(0);
+				$('#confirm_delete_modal').modal('hide');
+			})
+			.error(function(error, status) {
+				$scope.deleting = false;
+				$scope.errorMessage = error.message;
+				$('#confirm_delete_modal').modal('hide');
 			});
 		}
 
