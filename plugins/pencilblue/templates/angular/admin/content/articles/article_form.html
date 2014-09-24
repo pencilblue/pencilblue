@@ -1,0 +1,10 @@
+<script type="text/javascript">
+	angular.module('pencilblueApp', [])
+	.controller('PencilBlueController', function($scope, $sce, $http) {
+		^angular_objects^
+
+		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
+		$scope.editingObject = $scope.article;
+		$scope.variablePrefix = 'article';
+	});
+</script>

@@ -3,7 +3,7 @@
 	^tmp_admin=elements=error_success^
 	^tmp_admin=elements=sub_nav^
 	^tmp_admin=elements=tab_nav^
-	<form id="edit_article_form" method="post" action="^site_root^/actions/admin/content/articles/edit_article/^article_id^">
+	<form name="editArticleForm" ng-submit="save()" novalidate>
 		<fieldset>
 			<div class="tab-content">
 				<div class="tab-pane active" id="content">
@@ -11,38 +11,38 @@
 						<label>^loc_ARTICLE_URL^</label>
 						<div class="input-group">
 							<span class="input-group-addon">/article/</span>
-							<input type="text" id="url" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" onkeyup="resetURLAvailability()" data-original-url="{{article.url}}" required></input>
+							<input type="text" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="article.url" required></input>
 							<span class="input-group-btn">
-								<button id="availability_button" class="btn btn-default" type="button" onclick="validateURL()">^loc_CHECK^</button>
+								<button type="button" class="btn btn-default" ng-click="validateURL()">^loc_CHECK^</button>
 							</span>
 						</div>
 					</div>
 					<div class="form-group">
 						<label>^loc_STANDALONE_TEMPLATE^</label>
-						<select id="template" name="template" class="form-control">
+						<select class="form-control" ng-model="article.template">
 							<option value="">^loc_THEME_DEFAULT^</option>
-							<option value="{{template.theme_uid}}|{{template.file}}" ng-repeat="template in templates" ng-cloak>{{template.theme_name}}: {{template.name}}</option>
+							<option ng-value="template.theme_uid || template.file" ng-repeat="template in templates" ng-bind="template.theme_name + ': ' + template.name"></option>
 						</select>
 					</div>
 					<div class="form-group">
 						<label>^loc_HEADLINE^</label>
-						<input type="text" id="headline" name="headline" class="form-control"></input>
+						<input type="text" class="form-control" ng-model="article.headline"></input>
 					</div>
 					<div class="form-group">
 						<label>^loc_SUBHEADING^</label>
-						<input type="text" id="subheading" name="subheading" class="form-control"></input>
+						<input type="text" class="form-control" ng-model="article.subheading"></input>
 					</div>
 					<div class="form-group">
 						<label>^loc_PUBLISH_DATE^</label>
 						<div class="input-group">
-							<input type="text" id="publish_date" name="publish_date" class="form-control"></input>
+							<input type="text" class="form-control" ng-model="article.publish_date"></input>
 							<span class="input-group-btn">
-								<button class="btn btn-default" type="button" onclick="setPublishDateToNow()">^loc_NOW^</button>
+								<button class="btn btn-default" type="button" ng-click="">^loc_NOW^</button>
 							</span>
 						</div>
 					</div>
 					<div class="form-group">
-						<label>^loc_CONTENT^&nbsp;<span id="column_inches"></span></label>
+						<label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
 						<div id="article_wysiwyg">
 							^wysiwyg^
 						</div>
@@ -60,19 +60,19 @@
 				<div class="tab-pane" id="seo">
 					<div class="form-group">
 						<label>^loc_FOCUS_KEYWORD^</label>
-						<input type="text" id="focus_keyword" name="focus_keyword" class="form-control" placeholder="^loc_FOCUS_KEYWORD_PLACEHOLDER^"></input>
+						<input type="text" class="form-control" ng-model="article.focus_keyword" placeholder="^loc_FOCUS_KEYWORD_PLACEHOLDER^"></input>
 					</div>
 					<div class="form-group">
 						<label>^loc_SEO_TITLE^</label>
-						<input type="text" id="seo_title" name="seo_title" class="form-control" placeholder="^loc_SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
+						<input type="text" class="form-control" ng-model="article.seo_title" placeholder="^loc_SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
 					</div>
 					<div class="form-group">
 						<label>^loc_META_DESC^</label>
-						<textarea id="meta_desc" name="meta_desc" class="form-control" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
+						<textarea class="form-control" ng-model="article.meta_desc" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
 					</div>
 					<div class="form-group">
 						<label>^loc_META_KEYWORDS^</label>
-						<input type="text" id="meta_keywords" name="meta_keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
+						<input type="text" class="form-control" ng-model="article.meta_keywords" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
 					</div>
 				</div>
 				<a class="btn btn-default" href="/admin/content/articles">
@@ -104,5 +104,5 @@
 		</fieldset>
 	</form>
 </div>
-<script type="text/javascript" src="/js/admin/content/articles/edit_article.js"></script>
+^tmp_angular=admin=content=articles=article_form^
 ^tmp_admin=footer^

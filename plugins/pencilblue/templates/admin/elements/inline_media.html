@@ -1,6 +1,14 @@
 <div class="panel panel-default">
     <div class="panel-heading">^loc_RELATED_MEDIA^...</div>
-    <div id="active_media" class="panel-body" style="min-height: 100px"></div>
+    <div id="active_media" class="panel-body" style="min-height: 100px">
+        <div id="media_{{mediaItem._id}}" class="label label-default media_item" ng-repeat="mediaItem in editingObject[variablePrefix + '_media'] track by mediaItem._id" ng-cloak>
+            <i class="fa fa-bars"></i>&nbsp;
+            <span class="media_name">{{mediaItem.name}}</span>
+            <a href="{{mediaItem.link}}" target="_blank">
+                <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
+            </a>
+        </div>
+    </div>
 </div>
 <div class="panel panel-default">
     <div class="panel-heading">
