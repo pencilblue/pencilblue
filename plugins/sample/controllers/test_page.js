@@ -34,8 +34,25 @@ TestPage.prototype.render = function(cb) {
 		content_type: "text/html",
 		code: 200
 	};
-    content.content = 'Put your API or page content here!';
-    cb(content);
+//    content.content = 'Put your API or page content here!';
+//    cb(content);
+    
+    var start = new Date().getTime();
+    var i = 0;
+    async.whilst(
+        function() { return i++ < 1; },
+        function(callback) {
+            var job = new pb.PluginAvailableJob();
+            job.init('TEST_JOB-'+(new Date()).getTime()+'-'+i);
+            job.setPluginUid('sample');
+            job.run(callback);
+        },
+        function(err) {
+            var end = new Date().getTime() - start;
+            content.content = JSON.stringify({err: err ? err.stack : null, results: end});
+            cb(content);
+        }
+    );
 };
 
 /**
