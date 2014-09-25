@@ -704,7 +704,13 @@ DAO.getNotIDField = function(oid) {
  * @return {Object}    ObjectID object
  */
 DAO.getObjectID = function(oid) {
-	return new ObjectID(oid + '');
+    try {
+	   return new ObjectID(oid + '');
+    }
+    catch(err) {
+        err.message += ' - VALUE=['+util.inspect(oid)+']';
+        throw err;
+    }
 };
 
 /**
