@@ -37,6 +37,7 @@ PencilBlue.init = function(){
     var tasks = [
         PencilBlue.initRequestHandler,
         PencilBlue.initDBConnections,
+        PencilBlue.initDBIndices,
         PencilBlue.initServer,
         PencilBlue.initPlugins,
         PencilBlue.initServerRegistration,
@@ -94,6 +95,25 @@ PencilBlue.initDBConnections = function(cb){
 			cb(null, true);
 		}
 	});
+};
+
+/**
+ * Checks to see if the process should verify that the indices are valid and in 
+ * place.
+ * @static
+ * @method initDBIndices
+ * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
+ */
+PencilBlue.initDBIndices = function(cb) {
+    if (pb.config.db.skip_index_check || !util.isArray(pb.config.db.indices)) {
+        pb.log.info('PencilBlue: Skipping ensurance of indices');
+        return cb(null, true);
+    }
+    
+    pb.log.info('PencilBlue: Ensuring indices...');
+    pb.dbm.processIndices(pb.config.db.indices, function(err, results) {
+        cb(err, !util.isError(err));
+    });
 };
 
 /**

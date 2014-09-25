@@ -123,6 +123,50 @@ DBManager.prototype.hasConnected = function(){
 };
 
 /**
+ * Takes an Array of indexing procedures and delegates them out to paralleled
+ * tasks.
+ * @static
+ * @method processIndices
+ * @param {Array} procedures
+ * @param {Function} cb
+ */
+DBManager.prototype.processIndices = function(procedures, cb) {
+    if (!util.isArray(procedures)) {
+        cb(new Error('The procedures parameter must be an array of Objects'));
+        return;
+    }
+
+    //to prevent a cirular dependency we do the require for DAO here.
+    var DAO = require('./dao.js');
+
+    //create the task list for executing indices.
+    var errors = [];
+    var tasks = pb.utils.getTasks(procedures, function(procedures, i) {
+        return function(callback) {
+
+            var dao = new DAO();
+            dao.ensureIndex(procedures[i], function(err, result) {
+                if (util.isError(err)) {
+                    errors.push(err);
+                    pb.log.error('DBManager: Failed to create INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(procedures[i]), util.inspect(result), err.stack);
+                }
+                else if (pb.log.isDebug()) {
+                    pb.log.debug('DBManager: Attempted to create INDEX=[%s] RESULT=[%s]', JSON.stringify(procedures[i]), util.inspect(result));
+                }
+                callback(null, result);
+            });
+        };
+    });
+    async.parallel(tasks, function(err, results){
+        var result = {
+            errors: errors,
+            results: results
+        };
+        cb(err, result);
+    });
+};
+
+/**
  * Iterates over all database handles and call's their shutdown function.
  *
  * @method shutdown
