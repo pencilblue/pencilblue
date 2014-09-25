@@ -30,30 +30,29 @@ util.inherits(TestPage, pb.BaseController);
 TestPage.prototype.render = function(cb) {
 	var self = this;
 	
-    var content = {content: ''};
-//    var DAO = new pb.DAO();
-//    var where = {bogus_field_here: new Date()}; // something that theoretically should never return anything
-//    DAO.query("media", where, function(ret) {
-//        imgsrc = undefined;
-//        if (ret != undefined && ret.length > 0) {
-//            imgsrc = ret.location;
-//        }
-//
-//        var angularData = pb.js.getAngularController({
-//            "ang_tmp": "/public/exitevent/ang_tmp/article.html",
-//            //"story": a1[0],
-//            "imgsrc": imgsrc
-//        }, ['ngSanitize']);
-//        //self.ts.registerLocal('angular_script', angularData);
-//        content.content = content.content.concat(angularData);
-//
-//        cb(content);
-//    });
+	var content = {
+		content_type: "text/html",
+		code: 200
+	};
+//    content.content = 'Put your API or page content here!';
+//    cb(content);
     
-    pb.plugins.getThemeSettingsKV('sample', function(err, result) {
-        content.content = JSON.stringify(result);
-        cb(content);
-    });
+    var start = new Date().getTime();
+    var i = 0;
+    async.whilst(
+        function() { return i++ < 1; },
+        function(callback) {
+            var job = new pb.PluginAvailableJob();
+            job.init('TEST_JOB-'+(new Date()).getTime()+'-'+i);
+            job.setPluginUid('sample');
+            job.run(callback);
+        },
+        function(err) {
+            var end = new Date().getTime() - start;
+            content.content = JSON.stringify({err: err ? err.stack : null, results: end});
+            cb(content);
+        }
+    );
 };
 
 /**
