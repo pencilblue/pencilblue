@@ -125,10 +125,23 @@ DBManager.prototype.hasConnected = function(){
 /**
  * Takes an Array of indexing procedures and delegates them out to paralleled
  * tasks.
- * @static
  * @method processIndices
- * @param {Array} procedures
- * @param {Function} cb
+ * @param {Array} procedures An array of objects that describe the index to 
+ * place upon a collection.  The object contains three properties.  
+ * "collection" a string that represents the name of the collection to build an 
+ * index for.  "specs" is an object that describes which fields to index.  The 
+ * keys are the field names and the value is -1 for descending order and 1 for 
+ * ascending.  "options" is an object that that provides specific index 
+ * properties such as unique or sparse.  See 
+ * http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#ensureindex 
+ * for specific MongoDB implementation details for specs and options.
+ * @param {Function} cb A callback that provides two parameters: The first, an 
+ * Error, if occurred.  Secondly, an object that contains two properties. 
+ * "result" an array of the results where each object in the array represents 
+ * the result of the request to ensure the index.  "errors" an array of errors 
+ * that occurred while indexing.  The function does not terminate after the 
+ * first error.  Instead it allows all indices to attempt to be created and 
+ * defer the reporting of an error until the end.
  */
 DBManager.prototype.processIndices = function(procedures, cb) {
     if (!util.isArray(procedures)) {
