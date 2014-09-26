@@ -38,6 +38,9 @@ global.LOG_LEVEL = 'info';
 global.LOG_DIR   = path.join(DOCUMENT_ROOT, 'log');
 global.LOG_FILE  = path.join(LOG_DIR, 'pencilblue.log');
 
+var ASC  = 1;
+var DESC = -1;
+
 var config = {
 
     //The name of the site.
@@ -87,7 +90,290 @@ var config = {
                 //authdb: "db name here", //Defaults to the db attempted to be connected to
                 //authSource: "db name here", //Defaults to value of authdb
             }
-        }
+        },
+        
+        //This option instructs the child to skip the checks to ensure that the 
+        //indices are built.  It makes the assumption that the user doesn't care 
+        //or that they are already in place.  This would typically be used in a 
+        //large production system where load can burst.  In that particular case 
+        //you wouldn't want to let your instances annoy the DB to check for 
+        //indices because it would cause greater strain on the DB under heavy 
+        //load.  
+        skip_index_check: false,
+        
+        //The indices that will be ensured by the system.  This list is check 
+        //at startup by every child process.  The override config.json file may 
+        //also provide this attribute.  In that case the items in that array 
+        //will be added to the those that already exist.  NOTE: duplicates can 
+        //exist.
+        indices: [
+
+            //user
+            {
+                collection: 'user',
+                spec: {username: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'user',
+                spec: {email: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'user',
+                spec: {username: ASC, password: ASC},
+                options: {}
+            },
+            {
+                collection: 'user',
+                spec: {created: ASC},
+                options: {}
+            },
+            {
+                collection: 'user',
+                spec: {admin: DESC},
+                options: {}
+            },
+            
+            //theme settings
+            {
+                collection: 'theme_settings',
+                spec: {plugin_uid: ASC},
+                options: {}
+            },
+            {
+                collection: 'theme_settings',
+                spec: {plugin_id: ASC},
+                options: {}
+            },
+            
+            //plugin settings
+            {
+                collection: 'plugin_settings',
+                spec: {plugin_uid: ASC},
+                options: {}
+            },
+            {
+                collection: 'plugin_settings',
+                spec: {plugin_id: ASC},
+                options: {}
+            },
+            
+            //settings
+            {
+                collection: 'settings',
+                spec: {key: ASC},
+                options: {unique: true}
+            },
+            
+            //section
+            {
+                collection: 'section',
+                spec: {parent: ASC},
+                options: {}
+            },
+            {
+                collection: 'section',
+                spec: {created: ASC},
+                options: {}
+            },
+            
+            //plugin
+            {
+                collection: 'plugin',
+                spec: {uid: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'plugin',
+                spec: {created: ASC},
+                options: {}
+            },
+            
+            //password reset
+            {
+                collection: 'password_reset',
+                spec: {verification_code: ASC},
+                options: {unique: true}
+            },
+            
+            //media
+            {
+                collection: 'media',
+                spec: {location: ASC},
+                options: {}
+            },
+            {
+                collection: 'media',
+                spec: {name: ASC},
+                options: {}//TODO make unique once validation is in place
+            },
+            {
+                collection: 'media',
+                spec: {media_type: ASC},
+                options: {}//TODO make unique once validation is in place
+            },
+            {
+                collection: 'media',
+                spec: {created: ASC},
+                options: {}
+            },
+            
+            //job run
+            //NOTHING YET
+            
+            //job log
+            {
+                collection: 'job_log',
+                spec: {job_id: ASC},
+                options: {}//TODO make unique once validation is in place
+            },
+            {
+                collection: 'job_log',
+                spec: {job_id: ASC, created: ASC},
+                options: {}//TODO make unique once validation is in place
+            },
+            {
+                collection: 'job_log',
+                spec: {created: ASC},
+                options: {}
+            },
+            
+            //custom object type
+            {
+                collection: 'custom_object_type',
+                spec: {name: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'custom_object_type',
+                spec: {created: ASC},
+                options: {}
+            },
+            
+            //custom objects
+            {
+                collection: 'custom_object',
+                spec: {name: ASC, type: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'custom_object',
+                spec: {created: ASC},
+                options: {}
+            },
+            
+            //article
+            {
+                collection: 'article',
+                spec: {url: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'article',
+                spec: {headline: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'article',
+                spec: {publish_date: DESC},
+                options: {}
+            },
+            {
+                collection: 'article',
+                spec: {publish_date: DESC, draft: ASC},
+                options: {}
+            },
+            {
+                collection: 'article',
+                spec: {author: ASC},
+                options: {}
+            },
+            {
+                collection: 'article',
+                spec: {author: ASC, publish_date: DESC, draft: ASC},
+                options: {}
+            },
+            {
+                collection: 'article',
+                spec: {article_media: ASC},
+                options: {}
+            },
+            {
+                collection: 'article',
+                spec: {article_topics: ASC},
+                options: {}
+            },
+            {
+                collection: 'article',
+                spec: {article_sections: ASC},
+                options: {}
+            },
+            {
+                collection: 'article',
+                spec: {created: ASC},
+                options: {}
+            },
+            
+            //topic
+            {
+                collection: 'topic',
+                spec: {name: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'topic',
+                spec: {created: ASC},
+                options: {}
+            },
+            
+            //page
+            {
+                collection: 'page',
+                spec: {url: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'page',
+                spec: {headline: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'page',
+                spec: {publish_date: DESC},
+                options: {}
+            },
+            {
+                collection: 'page',
+                spec: {publish_date: DESC, draft: ASC},
+                options: {}
+            },
+            {
+                collection: 'page',
+                spec: {author: ASC},
+                options: {}
+            },
+            {
+                collection: 'page',
+                spec: {author: ASC, publish_date: DESC, draft: ASC},
+                options: {}
+            },
+            {
+                collection: 'page',
+                spec: {page_media: ASC},
+                options: {}
+            },
+            {
+                collection: 'page',
+                spec: {page_topics: ASC},
+                options: {}
+            },
+            {
+                collection: 'page',
+                spec: {created: ASC},
+                options: {}
+            }
+        ]
 	},
 
     //PB supports redis as a caching layer out of the box.  For development
