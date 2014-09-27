@@ -1,0 +1,11 @@
+<script type="text/javascript">
+    angular.module('inlineMedia', ['ui.sortable'])
+    .controller('InlineMediaController', function($scope, $http) {
+        $scope.addedMedia = {};
+
+        $scope.showMediaModal = function(isFile) {
+            $scope.addedMedia.isFile = isFile;
+            $('#media_modal').modal({backdrop: 'static', keyboard: true});
+        }
+    });
+</script>

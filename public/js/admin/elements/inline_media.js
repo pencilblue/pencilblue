@@ -19,34 +19,6 @@ var siteRoot;
 var saveMediaURL;
 var mediaItemTemplate = '<div id="media_^media_id^" class="label label-default media_item"><i class="fa fa-bars"></i>&nbsp;<span class="media_name">^media_name^</span><a href="^media_link^" target="_blank">&nbsp;<i class="fa fa-^media_icon^"></i></a></div>';
 
-$(document).ready(function()
-{
-    $('#media .label').draggable({revert: 'invalid', containment: 'document', helper: 'clone', cursor: 'move'});
-    $('#active_media').droppable({accept: '#media .label', drop: function(event, ui)
-    {
-        $('#active_media').append(ui.draggable);
-    }});
-    $('#inactive_media').droppable({accept: '#media .label', drop: function(event, ui)
-    {
-        $('#inactive_media').append(ui.draggable);
-    }});
-
-    new jNarrow('#media_search', '#inactive_media .media_item',
-    {
-        searchChildElement: '.media_name',
-        searchButton: '#media_search_button',
-        searchText: '<i class="fa fa-search"></i>',
-        clearText: '<i class="fa fa-times"></i>',
-    });
-});
-
-function initMediaPagination()
-{
-    mediaPagination = new Pagination('media_pagination', '#inactive_media .media_item', 75, true);
-    $('#media_search').keyup(mediaPagination.initializeElements);
-    $('#media_search_button').click(mediaPagination.initializeElements);
-}
-
 function setupUpload(root)
 {
     siteRoot = root;
