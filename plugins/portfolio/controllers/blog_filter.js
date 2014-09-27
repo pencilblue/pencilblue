@@ -47,7 +47,16 @@ BlogFilter.prototype.render = function(cb) {
 
     dao.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
         if (util.isError(err) || result === null) {
-            self.reqHandler.serve404();
+            dao.loadById(custUrl, objectType, function(err, result) {
+                if (util.isError(err) || result === null) {
+                    self.reqHandler.serve404();
+                    return;
+                }
+                
+                self.req['pencilblue_' + objectType] = result._id.toString();
+                this.result = result;
+                BlogFilter.super_.prototype.render.apply(self, [cb]);
+            });
             return;
         }
 

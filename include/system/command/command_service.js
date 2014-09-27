@@ -66,9 +66,6 @@ CommandService.init = function(cb) {
     if (pb.config.command.broker === 'redis') {
         BrokerPrototype = pb.RedisCommandBroker;
     }
-    else if (pb.config.command.broker == 'mongo') {
-        BrokerPrototype = pb.MongoCommandBroker;
-    }
     else {
         try {
             BrokerPrototype = require(pb.config.command.broker);
