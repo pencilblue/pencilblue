@@ -965,5 +965,13 @@ module.exports = [
         access_level: ACCESS_ADMINISTRATOR,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'site_settings', 'email', 'send_test.js'),
         content_type: 'application/json'
-    }
+    },
+    {
+        method: 'get',
+        path: "/api/admin/content/media/get_link",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_link.js'),
+        content_type: 'text/html'
+    },
 ];

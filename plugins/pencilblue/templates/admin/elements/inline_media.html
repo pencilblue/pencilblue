@@ -4,8 +4,8 @@
         <div class="panel-body" style="min-height: 50px" sortable="board.dragControlListeners" ng-model="editingObject[variablePrefix + '_media']">
             <span class="draggable_item" ng-repeat="mediaItem in editingObject[variablePrefix + '_media'] track by mediaItem._id" sortable-item sortable-item-handle>
                 <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
-                <span ng-bind="mediaItem.name"></span>
-                <span ng-bind="': ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
+                <span ng-bind="mediaItem.name" style="font-weight: bold"></span>
+                <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
             </span>
         </div>
     </div>
@@ -23,8 +23,8 @@
             <div  sortable="board.dragControlListeners" ng-model="media">
                 <span class="draggable_item" ng-repeat="mediaItem in media track by mediaItem._id" sortable-item sortable-item-handle>
                     <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
-                    <span ng-bind="mediaItem.name"></span>
-                    <span ng-bind="': ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
+                    <span ng-bind="mediaItem.name" style="font-weight: bold"></span>
+                    <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
                 </span>
             </div>
         </div>
@@ -58,10 +58,10 @@
                     <span ng-if="!addedMedia.isFile">
                         <div class="form-group">
                             <label>^loc_MEDIA_URL^</label>
-                            <input type="url" id="media_url" name="media_url" class="form-control" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
+                            <input type="text" class="form-control" ng-model="addedMedia.link" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
                         </div>
                         <div id="link_loading" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div>
-                        <button type="button" id="link_button" class="btn btn-primary" onclick="validateMediaURL($('#media_url').val(), false)">
+                        <button type="button" class="btn btn-primary" ng-click="loadMediaLink()" ng-disabled="!addedMedia.link.length">
                             <i class="fa fa-link"></i>&nbsp;^loc_LOAD_LINK^
                         </button>
                     </span>

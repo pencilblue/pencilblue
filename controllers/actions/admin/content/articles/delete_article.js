@@ -37,8 +37,8 @@ DeleteArticle.prototype.render = function(cb) {
     }
 
     var dao = new pb.DAO();
-    dao.query('article', {_id: ObjectID(vars['id'])}).then(function(articles) {
-        if(articles.length == 0) {
+    dao.query('article', {_id: ObjectID(vars.id)}).then(function(articles) {
+        if(articles.length === 0) {
 			cb({
 				code: 500,
 				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
@@ -47,7 +47,7 @@ DeleteArticle.prototype.render = function(cb) {
         }
 
         var article = articles[0];
-        dao.deleteMatching({_id: ObjectID(vars['id'])}, 'article').then(function(articlesDeleted) {
+        dao.deleteMatching({_id: ObjectID(vars.id)}, 'article').then(function(articlesDeleted) {
             if(util.isError(articlesDeleted) || articlesDeleted <= 0) {
                 cb({
 					code: 500,

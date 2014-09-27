@@ -1,11 +1,29 @@
+<script type="text/javascript" src="/js/angular/services/media.js"></script>
 <script type="text/javascript">
-    angular.module('inlineMedia', ['ui.sortable'])
-    .controller('InlineMediaController', function($scope, $http) {
-        $scope.addedMedia = {};
+    angular.module('inlineMedia', ['media', 'ui.sortable'])
+    .controller('InlineMediaController', function($scope, $http, mediaService) {
+        $scope.addedMedia = {
+            link: ''
+        };
 
         $scope.showMediaModal = function(isFile) {
             $scope.addedMedia.isFile = isFile;
             $('#media_modal').modal({backdrop: 'static', keyboard: true});
+        }
+
+        $scope.loadMediaLink = function() {
+            if(!$scope.addedMedia.link.length) {
+                return;
+            }
+
+            mediaService.loadMediaLink($scope.addedMedia.link, function(err, result) {
+                if(err) {
+                    console.log(err);
+                    return;
+                }
+
+                console.log(result);
+            });
         }
     });
 </script>
