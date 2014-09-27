@@ -33,7 +33,7 @@ var SUB_NAV_KEY = 'manage_articles';
 ManageArticles.prototype.render = function(cb) {
 	var self = this;
 	var dao  = new pb.DAO();
-	
+
 	var where = {};
     if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
         where.author = this.session.authentication.user_id;
@@ -47,16 +47,17 @@ ManageArticles.prototype.render = function(cb) {
 
         pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
             articles = self.getArticleStatuses(articlesWithAuthorNames);
-            var angularData = pb.js.getAngularController(
+            var angularObjects = pb.js.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 articles: articles
-            }, [], 'initArticlesPagination()');
+            });
 
             var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
             self.setPageName(manageArticlesStr);
-            self.ts.registerLocal('angular_script', angularData);
+			self.ts.registerLocal('angular_script', '');
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/content/articles/manage_articles',  function(err, data) {
                 var result = '' + data;
                 cb({content: result});

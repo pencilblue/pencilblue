@@ -448,8 +448,8 @@ module.exports = [
     	content_type: 'text/html'
     },
     {
-    	method: 'get',
-    	path: "/actions/admin/content/articles/delete_article/:id",
+    	method: 'delete',
+    	path: "/actions/admin/content/articles/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),

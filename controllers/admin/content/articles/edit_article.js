@@ -50,11 +50,7 @@ EditArticle.prototype.render = function(cb) {
             }
         }
 
-        self.article             = article;
-        article.article_media    = article.article_media.join(',');
-        article.article_sections = article.article_sections.join(',');
-        article.article_topics   = article.article_topics.join(',');
-        self.setFormFieldValues(article);
+        self.article = article;
 
         //call the parent function
         self.setPageName(article.headline);
@@ -67,8 +63,21 @@ EditArticle.prototype.onTemplateRetrieved = function(template, cb) {
 	cb(null, template);
 };
 
-EditArticle.prototype.getAngularController = function(tabs, data) {
+EditArticle.prototype.getAngularObjects = function(tabs, data) {
     var self = this;
+
+	var media = [];
+	for(var i = 0; i < self.article.article_media.length; i++) {
+		for(var j = 0; j < data.media.length; j++) {
+			if(data.media[j]._id.equals(ObjectID(self.article.article_media[i]))) {
+				media.push(data.media[j]);
+				data.media.splice(j, 1);
+				break;
+			}
+		}
+	}
+	self.article.article_media = media;
+
 	var objects = {
         navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
         pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), self.article),
@@ -79,11 +88,7 @@ EditArticle.prototype.getAngularController = function(tabs, data) {
         media: data.media,
         article: self.article
     };
-	return pb.js.getAngularController(
-		objects,
-		[],
-		'initMediaPagination();initSectionsPagination();initTopicsPagination()'
-	);
+	return pb.js.getAngularObjects(objects);
 };
 
 EditArticle.prototype.getActivePill = function() {
@@ -92,10 +97,6 @@ EditArticle.prototype.getActivePill = function() {
 
 EditArticle.prototype.getPageTitle = function() {
 	return this.ls.get('EDIT') + ' ' + this.article.headline;
-};
-
-EditArticle.prototype.getTemplateLocation = function() {
-	return 'admin/content/articles/edit_article';
 };
 
 EditArticle.getSubNavItems = function(key, ls, data) {

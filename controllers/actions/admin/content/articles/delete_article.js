@@ -29,26 +29,34 @@ DeleteArticle.prototype.render = function(cb) {
 
     var message = this.hasRequiredParams(vars, ['id']);
     if (message) {
-        this.formError(message, '/admin/content/articles/manage_articles', cb);
+		cb({
+			code: 400,
+			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+		});
         return;
     }
 
     var dao = new pb.DAO();
     dao.query('article', {_id: ObjectID(vars['id'])}).then(function(articles) {
         if(articles.length == 0) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/manage_articles', cb);
+			cb({
+				code: 500,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+			});
             return;
         }
 
         var article = articles[0];
         dao.deleteMatching({_id: ObjectID(vars['id'])}, 'article').then(function(articlesDeleted) {
             if(util.isError(articlesDeleted) || articlesDeleted <= 0) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/manage_articles', cb);
+                cb({
+					code: 500,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+				});
                 return;
             }
 
-            self.session.success = article.headline + ' ' + self.ls.get('DELETED');
-            self.redirect('/admin/content/articles/manage_articles', cb);
+			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('DELETED'))});
         });
     });
 };

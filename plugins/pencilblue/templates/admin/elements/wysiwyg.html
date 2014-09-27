@@ -48,7 +48,7 @@
         </div>
     </div>
     <div class="content_layout form-control">
-        <div class="layout_editable" onkeyup="onLayoutEditableChanged('^wys_id^')" onmouseup="saveSelection('^wys_id^')" onmouseout="saveSelection('^wys_id^')" contenteditable></div>
+        <div class="layout_editable" onkeyup="onLayoutEditableChanged('^wys_id^')" onmouseup="saveSelection('^wys_id^')" onmouseout="saveSelection('^wys_id^')" ng-bind-html="layout" contenteditable></div>
         <textarea class="layout_code" style="display: none" onkeyup="onLayoutCodeChanged('^wys_id^')"></textarea>
         <textarea class="layout_markdown" style="display: none" onkeyup="onLayoutMarkdownChanged('^wys_id^')"></textarea>
     </div>

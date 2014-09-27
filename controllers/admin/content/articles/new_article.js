@@ -35,8 +35,9 @@ NewArticle.prototype.render = function(cb) {
         //TODO handle error
         var tabs   = self.getTabs();
 
-        self.ts.registerLocal('angular_script', self.getAngularController(tabs, results));
-    	self.ts.load(self.getTemplateLocation(), function(err, data) {
+		self.ts.registerLocal('angular_script', '');
+		self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
+    	self.ts.load('admin/content/articles/article_form', function(err, data) {
     		self.onTemplateRetrieved('' + data, function(err, data) {
     	        var result = '' + data;
                 self.checkForFormRefill(result, function(newResult) {
@@ -52,7 +53,7 @@ NewArticle.prototype.onTemplateRetrieved = function(template, cb) {
 	cb(null, template);
 };
 
-NewArticle.prototype.getAngularController = function(tabs, data) {
+NewArticle.prototype.getAngularObjects = function(tabs, data) {
 	var objects = {
         navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
         pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), data),
@@ -62,11 +63,7 @@ NewArticle.prototype.getAngularController = function(tabs, data) {
         topics: data.topics,
         media: data.media
     };
-	return pb.js.getAngularController(
-		objects,
-		[],
-		'initMediaPagination();initSectionsPagination();initTopicsPagination()'
-	);
+	return pb.js.getAngularObjects(objects);
 };
 
 
@@ -93,10 +90,6 @@ NewArticle.prototype.getActivePill = function() {
 
 NewArticle.prototype.getPageTitle = function() {
 	return this.ls.get('NEW_ARTICLE');
-};
-
-NewArticle.prototype.getTemplateLocation = function() {
-	return 'admin/content/articles/new_article';
 };
 
 NewArticle.prototype.gatherData = function(cb) {
