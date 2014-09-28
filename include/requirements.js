@@ -111,6 +111,7 @@ pb.ServerRegistration        = require(DOCUMENT_ROOT+'/include/system/server_reg
 
 //command service
 pb.RedisCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/redis_command_broker.js'));
+pb.MongoCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/mongo_command_broker.js'));
 pb.CommandService     = require(path.join(DOCUMENT_ROOT, '/include/system/command/command_service.js'));
 
 //Jobs

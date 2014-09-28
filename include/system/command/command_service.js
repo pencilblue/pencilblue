@@ -63,8 +63,12 @@ CommandService.init = function(cb) {
 
     //figure out which broker to use
     var BrokerPrototype = null;
-    if (pb.config.command.broker === 'redis') {
-        BrokerPrototype = pb.RedisCommandBroker;
+    var defaultBrokers = {
+        redis: pb.RedisCommandBroker,
+        mongo: pb.MongoCommandBroker
+    }
+    if (defaultBrokers[pb.config.command.broker]) {
+        BrokerPrototype = defaultBrokers[pb.config.command.broker]
     }
     else {
         try {

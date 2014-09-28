@@ -632,6 +632,44 @@ DAO.prototype.ensureIndex = function(procedure, cb) {
 };
 
 /**
+ * Determines if a collection exists in the DB
+ * @method entityExists
+ * @param {String} entity The name of the collection
+ * @param {Function} cb A callback that takes two parameters. The first, an 
+ * error, if occurred. The second is a boolean where TRUE means the entity 
+ * exists, FALSE if not.
+ */
+DAO.prototype.entityExists = function(entity, cb) {
+    var options = {
+        namesOnly: true
+    };
+    pb.dbm[this.dbName].collectionNames(entity, options, function(err, results) {
+        cb(err, util.isArray(results) && results.length === 1);
+    });
+};
+
+/**
+ * Creates a collection in the DB
+ * @method createEntity
+ * @param {String} entityName
+ * @param {Object} [options] The options for the collection. See 
+ * http://mongodb.github.io/node-mongodb-native/api-generated/db.html#createcollection
+ * @param {Function} cb A callback that takes two parameters. The first, an 
+ * Error, if occurred. The second is the result of the creation command.
+ */
+DAO.prototype.createEntity = function(entityName, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
+    }
+    
+    pb.dbm[this.dbName].createCollection(entityName, options, cb);
+};
+
+/**
  * Creates a basic where clause based on the specified Id
  * @static
  * @method getIDWhere
