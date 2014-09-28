@@ -370,7 +370,11 @@ BaseController.getContentSanitizationRules = function() {
             h5: ['style', 'class', 'align'],
             h6: ['style', 'class', 'align'],
             div: ['style', 'class', 'align'],
-            span: ['style', 'class', 'align']
+            span: ['style', 'class', 'align'],
+            table: ['style', 'class', 'align'],
+            tr: ['style', 'class', 'align'],
+            th: ['style', 'class', 'align'],
+            td: ['style', 'class', 'align'],
         },
 
         // Lots of these won't come up by default because we don't allow them
