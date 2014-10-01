@@ -190,8 +190,13 @@ CommandService.notifyOfCommand = function(command) {
     }
 
     //check if this is a response to a message that was sent
-    if (AWAITING_RESPONSE[command.replyTo]) {
-        AWAITING_RESPONSE[command.replyTo](command);
+    if (command.replyTo) {
+        if (AWAITING_RESPONSE[command.replyTo]) {
+            AWAITING_RESPONSE[command.replyTo](command);
+        }
+        else {
+            pb.log.warn('CommandService: The command was in reply to [%s] but no callback was registered. Skipping.', command.replyTo);
+        }
         return;
     }
 
@@ -311,7 +316,7 @@ CommandService.sendCommandGetResponse = function(type, options, onResponse) {
 
     var doSend = function(type, options, onResponse) {
 
-        var timeout = options.timeout || 2000;
+        var timeout = options.timeout || pb.config.command.timeout || 2000;
         var d       = domain.create();
         d.on('error', onResponse);
         d.run(function() {

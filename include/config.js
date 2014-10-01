@@ -445,6 +445,7 @@ var config = {
     //key looks like.
 	registry: {
 		enabled: true,
+        logging_enabled: false,
         type: "redis",
 		update_interval: 10000,
 		key: 'server_registry'
@@ -494,7 +495,8 @@ var config = {
     //used by providing the absolute path to the implementation in the "broker"
     //field.
     command: {
-        broker: 'redis'
+        broker: 'redis',
+        timeout: 3000
     },
     
     //The media block specifies the options for how media is persisted.  

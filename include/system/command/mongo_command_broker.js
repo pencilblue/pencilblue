@@ -131,7 +131,7 @@ MongoCommandBroker.prototype.onCommandReceived = function(channel, command) {
         }
     }
     else {
-        pb.log.warn('MongoCommandBroker: A message was received for channel [%s] but no handler was available to accept it.', channel);
+        pb.log.silly('MongoCommandBroker: A message was received for channel [%s] but no handler was available to accept it. This is most likely normal', channel);
     }
 };
 
