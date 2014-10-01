@@ -379,10 +379,15 @@ CustomObjectService.prototype.fetchChildren = function(custObj, options, custObj
                 else if (field.field_type === CHILD_OBJECTS_TYPE) {
 
                     //load and set the child objects
-                    //TODO add original order by sorting them
                     loadChildObjects(custObj[fieldNames[i]], field.object_type, function(err, childObjs) {
                          if (util.isArray(childObjs)) {
-                             custObj[fieldNames[i]] = childObjs;
+                             
+                             //apply the original ordering to the fields.  The 
+                             //DB does not promise to provide the correct ordering.
+                             var sortOrder = {
+                                 sorted_objects: custObj[fieldNames[i]]
+                             };
+                             custObj[fieldNames[i]] = CustomObjectService.applyOrder(childObjs, sortOrder);
                          }
                         callback(err);
                     });
@@ -1163,7 +1168,7 @@ CustomObjectService.setFieldTypesUsed = function(custObjTypes, ls) {
  * @method applyOrder
  * @param {Array} custObjects The array of custom objects to be sorted
  * @param {Object} sortOrder The object describing the ordering of the objects
- * @param {Array} A refernce to the sorted array of custom objects.  The 
+ * @return {Array} A refernce to the sorted array of custom objects.  The 
  * reference is the same as provided to the function.
  */
 CustomObjectService.applyOrder = function(custObjects, sortOrder) {
@@ -1183,14 +1188,12 @@ CustomObjectService.applyOrder = function(custObjects, sortOrder) {
         });
     }
     else {
+        var idField          = pb.DAO.getIdField();
         var customObjectSort = sortOrder.sorted_objects;
         var sortedObjects    = [];
-        for(var i = 0; i < customObjectSort.length; i++)
-        {
-            for(var j = 0; j < custObjects.length; j++)
-            {
-                if(custObjects[j]._id.equals(ObjectID(customObjectSort[i])))
-                {
+        for(var i = 0; i < customObjectSort.length; i++) {
+            for(var j = 0; j < custObjects.length; j++) {
+                if(custObjects[j][idField].equals(pb.DAO.getObjectID(customObjectSort[i]))) {
                     sortedObjects.push(custObjects[j]);
                     custObjects.splice(j, 1);
                     break;
