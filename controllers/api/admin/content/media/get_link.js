@@ -16,10 +16,6 @@
 */
 
 /**
- * Retrieve articles
- */
-
-/**
  * Returns information on a media link
  */
 function GetMediaLink(){}
