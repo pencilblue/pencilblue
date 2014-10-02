@@ -217,14 +217,14 @@ MongoCommandBroker.prototype.subscribe = function(channel, onCommandReceived, cb
             //will invitably ensue from dropped or timed out cursor connections.  
             //In addition, we put failure tolerances in place so that we can 
             //attempt to reconnect.
-            var eot = new pb.ErrorsOverTime(5, 3000);
+            var eot = new pb.ErrorsOverTime(5, 3000, 'MongoCommandBroker: ');
             var d   = domain.create();
             d.on('error', function(err) {
                 pb.log.error('MongoCommandBroker: An error occurred while waiting for commands: %s', err.stack);
                 pb.log.debug('MongoCommandBroker: Reconnecting to %s collection', COMMAND_Q_COLL);
                 
                 //ensure we are still in bounds
-                eot.throwIfOutOfBounds(err, 'MongoCommandBroker: ');
+                eot.throwIfOutOfBounds(err);
                 
                 //when we are still within the acceptable fault tolerance try 
                 //to reconnect
