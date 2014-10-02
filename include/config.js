@@ -101,7 +101,7 @@ var config = {
         //load.  
         skip_index_check: false,
         
-        //The indices that will be ensured by the system.  This list is check 
+        //The indices that will be ensured by the system.  This list is checked 
         //at startup by every child process.  The override config.json file may 
         //also provide this attribute.  In that case the items in that array 
         //will be added to the those that already exist.  NOTE: duplicates can 

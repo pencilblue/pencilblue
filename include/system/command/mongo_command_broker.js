@@ -193,24 +193,46 @@ MongoCommandBroker.prototype.subscribe = function(channel, onCommandReceived, cb
                 pb.log.error('MongoCommandBroker: Error while waiting for the next command: %s', err.stack);
             }
 
-            var query = { created: { $gt: new Date() }};
+            var loop = function() {
+                var query = { created: { $gt: new Date() }};
+
+                var options = { tailable: true, awaitdata: true, numberOfRetries: -1 };
+                var cursor = collection.find(query, options).sort({ $natural: 1 });
+
+                (function next() {
+                    cursor.nextObject(function(err, command) {
+                        if (util.isError(err)) {
+                            throw err;
+                        }
+
+                        if (command) {
+                            self.onCommandReceived(command.channel, command);
+                        }
+                        next();
+                    });
+                })();
+            };
             
-            var options = { tailable: true, awaitdata: true, numberOfRetries: -1 };
-            var cursor = collection.find(query, options).sort({ $natural: 1 });
- 
-            (function next() {
-                cursor.nextObject(function(err, command) {
-                    if (util.isError(err)) {
-                        pb.log.error('MongoCommandBroker: Error while waiting for the next command: %s', err.stack);
-                        return;
-                    }
-                    
-                    if (command) {
-                        self.onCommandReceived(command.channel, command);
-                    }
-                    next();
-                });
-            })();
+            //wrap it all up in a container so we can mitigate the crises that 
+            //will invitably ensue from dropped or timed out cursor connections.  
+            //In addition, we put failure tolerances in place so that we can 
+            //attempt to reconnect.
+            var eot = new pb.ErrorsOverTime(5, 3000);
+            var d   = domain.create();
+            d.on('error', function(err) {
+                pb.log.error('MongoCommandBroker: An error occurred while waiting for commands: %s', err.stack);
+                pb.log.debug('MongoCommandBroker: Reconnecting to %s collection', COMMAND_Q_COLL);
+                
+                //ensure we are still in bounds
+                eot.throwIfOutOfBounds(err, 'MongoCommandBroker: ');
+                
+                //when we are still within the acceptable fault tolerance try 
+                //to reconnect
+                loop();
+            });
+            d.run(function() {
+                process.nextTick(loop);
+            });
             
             SUBSCRIBERS[channel] = onCommandReceived;
             cb(null, true);

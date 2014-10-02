@@ -70,7 +70,7 @@ System.onWorkerDisconntect = function(worker) {
 
     //check for unacceptable failures in specified time frame
     if (DISCONNECTS.length >= pb.config.fatal_error_count) {
-        var range = disconnects[disconnects.length - 1] - disconnects[disconnects.length - config.fatal_error_count];
+        var range = DISCONNECTS[DISCONNECTS.length - 1] - DISCONNECTS[DISCONNECTS.length - config.fatal_error_count];
         if (range <= config.cluster.fatal_error_timeout) {
             okToFork = false;
         }
