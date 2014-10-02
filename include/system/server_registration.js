@@ -228,10 +228,12 @@ ServerRegistration.doRegistration = function(cb) {
              update.id          = key;
 			 update.last_update = new Date();
 			 PROVIDER.set(key, update, function(err, result) {
-				 pb.log.debug("ServerRegistration: Attempted to update registration. KEY=[%s] Result=[%s] ERROR=[%s]", key, util.inspect(result), err ? err.message : 'NONE');
-				 if (pb.log.isSilly) {
-					 pb.log.silly("ServerRegistration: Last Update\n%s", util.inspect(update));
-				 }
+                 if (pb.config.registry.logging_enabled) {
+                     pb.log.debug("ServerRegistration: Attempted to update registration. KEY=[%s] Result=[%s] ERROR=[%s]", key, util.inspect(result), err ? err.message : 'NONE');
+                     if (pb.log.isSilly) {
+                         pb.log.silly("ServerRegistration: Last Update\n%s", util.inspect(update));
+                     }
+                 }
 				 cb(err, result);
 			 });
 		 }

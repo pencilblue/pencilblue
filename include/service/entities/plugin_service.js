@@ -1857,8 +1857,8 @@ PluginService.loadController = function(pathToController, pluginUid, cb) {
 		var ControllerPrototype = require(pathToController);
 
 		//ensure we can get the routes
-		if (typeof ControllerPrototype.getRoutes !== 'function'){
-			throw new Error('Controller at ['+pathToController+'] does not implement function "getRoutes"');
+		if (!pb.utils.isFunction(ControllerPrototype.getRoutes)){
+			return cb(new Error('Controller at ['+pathToController+'] does not implement function "getRoutes"'));
 		}
 
 		//get the routes

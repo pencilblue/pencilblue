@@ -39,13 +39,6 @@ var BROKER = null;
 var REGISTRANTS = {};
 
 /**
- * @private
- * @property COMMAND_CHANNEL
- * @type {String}
- */
-var COMMAND_CHANNEL = 'pencilblue-command-channel';
-
-/**
  * A hash of the commands that were sent and expect a response.  Each hash key
  * contains a callback function that will be called when either the receiving
  * entity responds or the timeout occurs.
@@ -70,8 +63,12 @@ CommandService.init = function(cb) {
 
     //figure out which broker to use
     var BrokerPrototype = null;
-    if (pb.config.command.broker === 'redis') {
-        BrokerPrototype = pb.RedisCommandBroker;
+    var defaultBrokers = {
+        redis: pb.RedisCommandBroker,
+        mongo: pb.MongoCommandBroker
+    }
+    if (defaultBrokers[pb.config.command.broker]) {
+        BrokerPrototype = defaultBrokers[pb.config.command.broker]
     }
     else {
         try {
@@ -95,7 +92,7 @@ CommandService.init = function(cb) {
             return;
         }
 
-        BROKER.subscribe(COMMAND_CHANNEL, CommandService.onCommandReceived, cb);
+        BROKER.subscribe(pb.ServerRegistration.generateKey(), CommandService.onCommandReceived, cb);
     });
 };
 
@@ -193,8 +190,13 @@ CommandService.notifyOfCommand = function(command) {
     }
 
     //check if this is a response to a message that was sent
-    if (command.isResponse && AWAITING_RESPONSE[command.id]) {
-        AWAITING_RESPONSE[command.id](command);
+    if (command.replyTo) {
+        if (AWAITING_RESPONSE[command.replyTo]) {
+            AWAITING_RESPONSE[command.replyTo](command);
+        }
+        else {
+            pb.log.warn('CommandService: The command was in reply to [%s] but no callback was registered. Skipping.', command.replyTo);
+        }
         return;
     }
 
@@ -314,7 +316,7 @@ CommandService.sendCommandGetResponse = function(type, options, onResponse) {
 
     var doSend = function(type, options, onResponse) {
 
-        var timeout = options.timeout || 2000;
+        var timeout = options.timeout || pb.config.command.timeout || 2000;
         var d       = domain.create();
         d.on('error', onResponse);
         d.run(function() {
@@ -372,9 +374,9 @@ CommandService.sendInResponseTo = function(command, responseCommand, cb) {
     cb = cb || pb.utils.cb;
 
     //complete the response
-    responseCommand.id         = command.id;
+    responseCommand.id         = pb.utils.uniqueId().toString();
     responseCommand.to         = command.from;
-    responseCommand.isResponse = true;
+    responseCommand.replyTo    = command.id;
 
     //send the response
     var type = responseCommand.type || command.type;
@@ -424,7 +426,7 @@ CommandService.sendCommand = function(type, options, cb) {
     }
 
     //instruct the broker to broadcast the command
-    BROKER.publish(COMMAND_CHANNEL, options, function(err, result) {
+    BROKER.publish(options.to, options, function(err, result) {
         cb(err, result ? options.id : null);
     });
 };
