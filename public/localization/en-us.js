@@ -152,7 +152,8 @@ var loc =
         OBJ_TO_PARAMS_MUST_BE: 'The obj must be an object and the to parameter must be a string',
         INVALID_URL: 'An invalid URL was provided',
         INVALID_MEDIA_URL: 'The media url does not contain the required information for importing',
-        UNSUPPORTED_MEDIA: 'The supplied media type is unsupported'
+        UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
+        OBJECT_NOT_FOUND: 'The requested object was not found in the system'
     },
     error:
     {

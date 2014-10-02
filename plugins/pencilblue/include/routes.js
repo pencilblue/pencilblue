@@ -974,4 +974,12 @@ module.exports = [
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_link.js'),
         content_type: 'text/html'
     },
+    {
+        method: 'get',
+        path: "/api/admin/content/media/get_preview",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_preview.js'),
+        content_type: 'text/html'
+    }
 ];

@@ -44,6 +44,10 @@ GetMediaLink.prototype.render = function(cb) {
         return;
     }
 
+    if(self.checkForMediaFile(get.url, cb)) {
+        return;
+    }
+
     get.url = get.url.split('https://').join('').split('http://').join('').split('//').join('');
     if(get.url.charAt(get.url.length - 1) === '/') {
         get.url = get.url.substr(0, get.url.length - 1);
@@ -84,6 +88,34 @@ GetMediaLink.prototype.render = function(cb) {
             code: 400,
             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('UNSUPPORTED_MEDIA'))
         });
+    }
+};
+
+GetMediaLink.prototype.checkForMediaFile = function(url, cb) {
+    var self = this;
+    var fileType = url.substr(url.lastIndexOf('.') + 1).toLowerCase();
+
+    switch(fileType)
+    {
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+        case 'gif':
+        case 'svg':
+        case 'webp':
+            self.mediaOutput('image', url, url, cb);
+            return true;
+        case 'mp4':
+            self.mediaOutput('video/mp4', url, '', cb);
+            return true;
+        case 'webm':
+            self.mediaOutput('video/webm', url, '', cb);
+            return true;
+        case 'ogv':
+            self.mediaOutput('video/ogg', url, '', cb);
+            return true;
+        default:
+            break;
     }
 };
 
@@ -300,7 +332,7 @@ GetMediaLink.prototype.getJSON = function(url, cb) {
 
 GetMediaLink.prototype.mediaOutput = function(type, location, thumb, cb) {
     var mediaData = {
-        isFile: false,
+        isFile: type === 'image' || type.indexOf('video/') > -1,
         mediaType: type,
         location: location,
         thumb: thumb
