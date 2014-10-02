@@ -57,14 +57,10 @@ console.log(util.inspect(get));
                 self.session.authentication.user        = user;
                 self.session.authentication.user_id     = user._id.toString();
                 self.session.authentication.admin_level = user.admin;
+				self.session.authentication.reset_password = true;
 
                 //redirect to change password
-                if(user.admin > 0) {
-                    location = '/admin/users/change_password/' + user._id;
-                }
-                else {
-                    location = '/user/manage_account/change_password';
-                }
+                location = '/user/change_password';
                 self.redirect(location, cb);
             });
         });

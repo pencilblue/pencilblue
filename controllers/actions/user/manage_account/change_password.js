@@ -38,16 +38,23 @@ ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
     post.confirm_password = BaseController.sanitize(post.confirm_password);
 
     //validate
-	var message = this.hasRequiredParams(post, ['current_password', 'new_password', 'confirm_password']);
+    if(self.session.authentication.reset_password) {
+		var message = this.hasRequiredParams(post, ['new_password', 'confirm_password']);
+	}
+	else {
+		var message = this.hasRequiredParams(post, ['current_password', 'new_password', 'confirm_password']);
+	}
 	if(message) {
-        this.formError(message, '/user/manage_account', cb);
+        this.formError(message, '/user/change_password', cb);
         return;
     }
 
     var where = {
-		_id: ObjectID(self.session.authentication.user._id),
-		password: pb.security.encrypt(post.current_password)
+		_id: ObjectID(self.session.authentication.user._id)
 	};
+	if(!self.session.authentication.reset_password) {
+		where.password = pb.security.encrypt(post.current_password);
+	}
     delete post.current_password;
 
     if(post.new_password !== post.confirm_password) {
@@ -73,6 +80,7 @@ ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
                 return;
             }
 
+			self.session.authentication.reset_password = false;
             self.session.success = self.ls.get('PASSWORD_CHANGED');
             self.redirect('/user/change_password', cb);
         });
