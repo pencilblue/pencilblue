@@ -25,7 +25,11 @@ function Login(){}
 util.inherits(Login, pb.BaseController);
 
 Login.prototype.render = function(cb) {
-
+    if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: ACCESS_WRITER})) {
+        this.redirect('/admin', cb);
+        return;
+    }
+    
 	this.setPageName(this.ls.get('LOGIN'));
 	this.ts.load('user/login', function(err, data) {
         cb({content: data});
