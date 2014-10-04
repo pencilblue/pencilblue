@@ -183,7 +183,7 @@ DAO.prototype.unique = function(collection, where, exclusionId, cb) {
 
 /**
  * Queries the database
- * @deprecated
+ * @deprecated since 0.2.5/b2147b8
  * @method query
  * @param  {String} entityType The type of object to search for
  * @param  {Object} [where]    Key value pair object
@@ -215,7 +215,7 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
 };
 
 /**
- * Queries the database
+ * Queries the database. Added in the 0.2.5 release
  * @method q
  * @param  {String} collection The type of object to search for
  * @param  {Object} [options] The options for the query
@@ -328,7 +328,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 
 /**
  * Persists a DB Object for the first time.
- * @deprecated
+ * @deprecated since 0.2.5/b2147b8
  * @method insert
  * @param  {Object} dbObject The database object to persist
  * @return {Promise} Promise object
@@ -345,7 +345,7 @@ DAO.prototype.insert = function(dbObject) {
 
 /**
  * Replaces an existing document with the specified DB Object
- * @deprecated
+ * @deprecated since 0.2.5/b2147b8
  * @method update
  * @param  {Object} dbObj The new document object
  * @return {Promise} Promise object
@@ -523,7 +523,7 @@ DAO.prototype.deleteById = function(oid, collection, cb) {
 
 /**
  * Removes objects from persistence that match criteria
- * @deprecated
+ * @deprecated since 0.2.5/b2147b8
  * @method deleteMatching
  * @param {Object} where      Key value pair object
  * @param {String} collection The collection to search in
@@ -688,7 +688,7 @@ DAO.getIDWhere = function(oid){
  * @static
  * @method getIDInWhere
  * @param {Array} objArray The array of acceptable values
- * @param {String} The property that holds a referenced ID value
+ * @param {String} idProp The property that holds a referenced ID value
  * @return {Object} Where clause
  */
 DAO.getIDInWhere = function(objArray, idProp) {
