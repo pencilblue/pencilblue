@@ -25,7 +25,7 @@ function Login(){}
 util.inherits(Login, pb.BaseController);
 
 Login.prototype.render = function(cb) {
-    if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: ACCESS_WRITER})) {
+    if(pb.security.isAuthenticated(this.session)) {
         this.redirect('/', cb);
         return;
     }
