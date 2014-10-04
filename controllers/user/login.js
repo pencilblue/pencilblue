@@ -25,7 +25,11 @@ function Login(){}
 util.inherits(Login, pb.BaseController);
 
 Login.prototype.render = function(cb) {
-
+    if(pb.security.isAuthenticated(this.session)) {
+        this.redirect('/', cb);
+        return;
+    }
+    
 	this.setPageName(this.ls.get('LOGIN'));
 	this.ts.load('user/login', function(err, data) {
         cb({content: data});
