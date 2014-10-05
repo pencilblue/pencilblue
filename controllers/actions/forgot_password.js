@@ -17,14 +17,20 @@
 
 /**
  * Sends a password reset email
+ * @class ForgotPasswordController
  */
-
-function ForgotPassword(){}
+function ForgotPasswordController(){}
 
 //inheritance
-util.inherits(ForgotPassword, pb.FormController);
+util.inherits(ForgotPasswordController, pb.FormController);
 
-ForgotPassword.prototype.onPostParamsRetrieved = function(post, cb) {
+/**
+ * 
+ * @method onPostParamsRetrieved
+ * @param {Object} post
+ * @param {Function} cb
+ */
+ForgotPasswordController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
 	var returnURL = this.query.admin ? '/admin/login' : '/user/login';
@@ -51,36 +57,46 @@ ForgotPassword.prototype.onPostParamsRetrieved = function(post, cb) {
 	var dao = new pb.DAO();
 	dao.loadByValues(query, 'user', function(err, user) {
         if(util.isError(err) || user === null) {
-            self.formError(self.ls.get('NOT_REGISTERED'), returnURL, cb);
-            return;
+            return self.formError(self.ls.get('NOT_REGISTERED'), returnURL, cb);
         }
-
-        dao.loadByValue('user_id', user._id.toString(), 'password_reset', function(err, passwordReset) {
-        	if(util.isError(err)) {
-                self.formError(self.ls.get('NOT_REGISTERED'), returnURL, cb);
-                return;
+        
+        //verify that an email server was setup
+        pb.settings.get('email_settings', function(err, emailSettings) {
+            if (util.isError(err)) {
+                return self.formError(err.message, returnURL, cb);
+            }
+            else if (!emailSettings) {
+                return self.formError(self.ls.get('EMAIL_NOT_CONFIGURED'), returnURL, cb);
             }
 
-            if(!passwordReset) {
-                passwordReset = pb.DocumentCreator.create('password_reset', {user_id: user._id.toString()});
-            }
-
-            passwordReset.verification_code = pb.utils.uniqueId().toString();
-
-
-            dao.update(passwordReset).then(function(result) {
-                if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), returnURL, cb);
-                    return;
+            //find any existing password record for the user
+            var userIdStr = user[pb.DAO.getIdField()].toString();
+            dao.loadByValue('user_id', userIdStr, 'password_reset', function(err, passwordReset) {
+                if(util.isError(err)) {
+                    return self.formError(err.message, returnURL, cb);
                 }
 
-                self.session.success = self.ls.get('YOUR_PASSWORD_RESET');
-                self.redirect(returnURL, cb);
-                pb.users.sendPasswordResetEmail(user, passwordReset, pb.utils.cb);
+                //create the password reset record
+                if(!passwordReset) {
+                    passwordReset = pb.DocumentCreator.create('password_reset', {user_id: userIdStr});
+                }
+                passwordReset.verification_code = pb.utils.uniqueId().toString();
+
+                //persist reset entry
+                dao.update(passwordReset).then(function(result) {
+                    if(util.isError(result)) {
+                        self.formError(self.ls.get('ERROR_SAVING'), returnURL, cb);
+                        return;
+                    }
+
+                    self.session.success = self.ls.get('YOUR_PASSWORD_RESET');
+                    self.redirect(returnURL, cb);
+                    pb.users.sendPasswordResetEmail(user, passwordReset, pb.utils.cb);
+                });
             });
         });
     });
 };
 
 //exports
-module.exports = ForgotPassword;
+module.exports = ForgotPasswordController;
