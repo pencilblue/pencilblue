@@ -196,8 +196,8 @@ ClusterJobRunner.prototype.createCommandTask = function(type, command) {
             //check for success or failure
             for (var i = 0; i < results.length; i++) {
 
-                if (results[i].error) {
-                    callback(new Error('A failure occurred while performing the install on at least one of the processes.  Check the job log for more details: '+results[i].error));
+                if (results[i].err) {
+                    callback(new Error('A failure occurred while performing tasks across remote processes.  Check the job log for more details: '+results[i].err));
                     return;
                 }
             }

@@ -1748,17 +1748,22 @@ PluginService.validateSettingValue = function(value) {
 PluginService.getServices = function(pathToPlugin, cb) {
 	var servicesDir = path.join(pathToPlugin, 'services');
 
-	fs.readdir(servicesDir, function(err, files) {
+    var options = {
+        recursive: true,
+        filter: function(fullPath, stat) {
+            return fullPath.lastIndexOf('.js') === (fullPath.length - '.js'.length);
+        }
+    };
+    pb.utils.getFiles(servicesDir, options, function(err, files) {
 		if (util.isError(err)) {
-			cb(err, null);
-			return;
+			return cb(err, null);
 		}
 
 		var services = {};
 		var tasks = pb.utils.getTasks(files, function(files, index) {
 			return function(callback) {
 
-				var pathToService = path.join(servicesDir, files[index]);
+				var pathToService = files[index];
 				PluginService.loadService(pathToService, function(err, service) {
 					if (!util.isError(err)) {
 
@@ -1815,7 +1820,13 @@ PluginService.loadService = function(pathToService, cb) {
 PluginService.loadControllers = function(pathToPlugin, pluginUid, cb) {
 	var controllersDir = path.join(pathToPlugin, 'controllers');
 
-	fs.readdir(controllersDir, function(err, files) {
+    var options = {
+        recursive: true,
+        filter: function(fullPath, stat) {
+            return fullPath.lastIndexOf('.js') === (fullPath.length - '.js'.length);
+        }
+    };
+    pb.utils.getFiles(controllersDir, options, function(err, files) {
 		if (util.isError(err)) {
             pb.log.debug('PluginService[INIT]: The controllers directory [%s] does not exist or could not be read.', controllersDir);
             pb.log.silly('PluginService[INIT]: %s', err.stack);
@@ -1826,7 +1837,7 @@ PluginService.loadControllers = function(pathToPlugin, pluginUid, cb) {
 		var tasks = pb.utils.getTasks(files, function(files, index) {
 			return function(callback) {
 
-				var pathToController = path.join(controllersDir, files[index]);
+				var pathToController = files[index];
 				PluginService.loadController(pathToController, pluginUid, function(err, service) {
 					if (util.isError(err)) {
 						pb.log.warn('PluginService: Failed to load controller at [%s]: %s', pathToController, err.stack);
@@ -1857,8 +1868,8 @@ PluginService.loadController = function(pathToController, pluginUid, cb) {
 		var ControllerPrototype = require(pathToController);
 
 		//ensure we can get the routes
-		if (typeof ControllerPrototype.getRoutes !== 'function'){
-			throw new Error('Controller at ['+pathToController+'] does not implement function "getRoutes"');
+		if (!pb.utils.isFunction(ControllerPrototype.getRoutes)){
+			return cb(new Error('Controller at ['+pathToController+'] does not implement function "getRoutes"'));
 		}
 
 		//get the routes

@@ -452,6 +452,92 @@ Util.getDirectories = function(dirPath, cb) {
 };
 
 /**
+ * Retrieves file and/or directorie absolute paths under a given directory path.
+ * @static
+ * @method getFiles
+ * @param {String} dirPath The path to the directory to be examined
+ * @param {Object} [options] Options that customize the results
+ * @param {Boolean} [options.recursive=false] A flag that indicates if 
+ * directories should be recursively searched.
+ * @param {Function} [options.filter] A function that returns a boolean 
+ * indicating if the file should be included in the result set.  The function 
+ * should take two parameters.  The first is a string value representing the 
+ * absolute path of the file.  The second is the stat object for the file.
+ * @param {Function} cb A callback that takes two parameters. The first is an 
+ * Error, if occurred. The second is an array of strings representing the 
+ * absolute paths for files that met the criteria specified by the filter 
+ * function.
+ */
+Util.getFiles = function(dirPath, options, cb) {
+    if (Util.isFunction(options)) {
+        cb      = options;
+        options = {
+            recursive: false,
+            filter: function(fullPath, stat) { return true; }
+        };
+    }
+    
+    //read files from dir
+    fs.readdir(dirPath, function(err, q) {
+        if (util.isError(err)) {
+			return cb(err);
+		}
+        
+        //seed the queue
+        for (var i = 0; i < q.length; i++) {
+            q[i] = path.join(dirPath, q[i]);
+        }
+        
+        //process the q
+        var filePaths = [];
+        async.whilst(
+            function() { return q.length > 0; },
+            function(callback) {
+                
+                var fullPath = q.shift();
+				fs.stat(fullPath, function(err, stat) {
+					if (util.isError(err)) {
+						pb.log.error("Failed to get stats on file DP=[%s] FILE=[%s] AP=[%s]: %s", dirPath, item, fullPath, err.stack);
+                        return callback(err);
+					}
+					
+                    //apply filter
+                    var meetsCriteria = true;
+                    if (Util.isFunction(options.filter)) {
+                        meetsCriteria = options.filter(fullPath, stat);
+                    }
+                    
+                    //examine result and add it when criteria is met
+                    if (meetsCriteria) {
+                        filePaths.push(fullPath);
+                    }
+                    
+                    //when recursive queue up directory's for processing
+                    if (options.recursive && stat.isDirectory()) {
+                        fs.readdir(fullPath, function(err, childFiles) {
+                            if (util.isError(err)) {
+                                return callback(err);
+                            }
+                            
+                            childFiles.forEach(function(item) {
+                                q.push(path.join(fullPath, item));
+                            });
+                            callback(null);
+                        });
+                    }
+                    else {
+                        callback(null);
+                    }
+				});
+            },
+            function(err) {
+                cb(err, filePaths);
+            }
+        );
+    });
+};
+
+/**
  * Provides typical conversions for time
  * @property TIME
  * @type {Object}

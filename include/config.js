@@ -101,7 +101,7 @@ var config = {
         //load.  
         skip_index_check: false,
         
-        //The indices that will be ensured by the system.  This list is check 
+        //The indices that will be ensured by the system.  This list is checked 
         //at startup by every child process.  The override config.json file may 
         //also provide this attribute.  In that case the items in that array 
         //will be added to the those that already exist.  NOTE: duplicates can 
@@ -445,6 +445,7 @@ var config = {
     //key looks like.
 	registry: {
 		enabled: true,
+        logging_enabled: false,
         type: "redis",
 		update_interval: 10000,
 		key: 'server_registry'
@@ -494,7 +495,8 @@ var config = {
     //used by providing the absolute path to the implementation in the "broker"
     //field.
     command: {
-        broker: 'redis'
+        broker: 'redis',
+        timeout: 3000
     },
     
     //The media block specifies the options for how media is persisted.  

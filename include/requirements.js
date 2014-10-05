@@ -98,7 +98,8 @@ pb.ApiActionController = require(DOCUMENT_ROOT+'/controllers/api/api_action_cont
 pb.RequestHandler      = require(DOCUMENT_ROOT+'/include/http/request_handler.js').RequestHandler;
 
 //setup errors
-global.PBError = require(DOCUMENT_ROOT+'/include/error/pb_error.js').PBError;
+global.PBError    = require(DOCUMENT_ROOT+'/include/error/pb_error.js').PBError;
+pb.ErrorsOverTime = require(path.join(DOCUMENT_ROOT, '/include/error/errors_over_time.js'));
 
 //setup localization
 pb.Localization = require(DOCUMENT_ROOT+'/include/localization.js').Localization;
@@ -111,6 +112,7 @@ pb.ServerRegistration        = require(DOCUMENT_ROOT+'/include/system/server_reg
 
 //command service
 pb.RedisCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/redis_command_broker.js'));
+pb.MongoCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/mongo_command_broker.js'));
 pb.CommandService     = require(path.join(DOCUMENT_ROOT, '/include/system/command/command_service.js'));
 
 //Jobs

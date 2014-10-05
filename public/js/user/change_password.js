@@ -21,10 +21,6 @@ $(document).ready(function()
     {
         rules:
         {
-            current_password:
-            {
-                required: true
-            },
             new_password:
             {
                 required: true

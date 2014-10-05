@@ -183,7 +183,7 @@ DAO.prototype.unique = function(collection, where, exclusionId, cb) {
 
 /**
  * Queries the database
- * @deprecated
+ * @deprecated since 0.2.5/b2147b8
  * @method query
  * @param  {String} entityType The type of object to search for
  * @param  {Object} [where]    Key value pair object
@@ -215,7 +215,7 @@ DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset
 };
 
 /**
- * Queries the database
+ * Queries the database. Added in the 0.2.5 release
  * @method q
  * @param  {String} collection The type of object to search for
  * @param  {Object} [options] The options for the query
@@ -328,7 +328,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 
 /**
  * Persists a DB Object for the first time.
- * @deprecated
+ * @deprecated since 0.2.5/b2147b8
  * @method insert
  * @param  {Object} dbObject The database object to persist
  * @return {Promise} Promise object
@@ -345,7 +345,7 @@ DAO.prototype.insert = function(dbObject) {
 
 /**
  * Replaces an existing document with the specified DB Object
- * @deprecated
+ * @deprecated since 0.2.5/b2147b8
  * @method update
  * @param  {Object} dbObj The new document object
  * @return {Promise} Promise object
@@ -523,7 +523,7 @@ DAO.prototype.deleteById = function(oid, collection, cb) {
 
 /**
  * Removes objects from persistence that match criteria
- * @deprecated
+ * @deprecated since 0.2.5/b2147b8
  * @method deleteMatching
  * @param {Object} where      Key value pair object
  * @param {String} collection The collection to search in
@@ -632,6 +632,44 @@ DAO.prototype.ensureIndex = function(procedure, cb) {
 };
 
 /**
+ * Determines if a collection exists in the DB
+ * @method entityExists
+ * @param {String} entity The name of the collection
+ * @param {Function} cb A callback that takes two parameters. The first, an 
+ * error, if occurred. The second is a boolean where TRUE means the entity 
+ * exists, FALSE if not.
+ */
+DAO.prototype.entityExists = function(entity, cb) {
+    var options = {
+        namesOnly: true
+    };
+    pb.dbm[this.dbName].collectionNames(entity, options, function(err, results) {
+        cb(err, util.isArray(results) && results.length === 1);
+    });
+};
+
+/**
+ * Creates a collection in the DB
+ * @method createEntity
+ * @param {String} entityName
+ * @param {Object} [options] The options for the collection. See 
+ * http://mongodb.github.io/node-mongodb-native/api-generated/db.html#createcollection
+ * @param {Function} cb A callback that takes two parameters. The first, an 
+ * Error, if occurred. The second is the result of the creation command.
+ */
+DAO.prototype.createEntity = function(entityName, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {};
+    }
+    else if (!pb.utils.isObject(options)) {
+        return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
+    }
+    
+    pb.dbm[this.dbName].createCollection(entityName, options, cb);
+};
+
+/**
  * Creates a basic where clause based on the specified Id
  * @static
  * @method getIDWhere
@@ -650,7 +688,7 @@ DAO.getIDWhere = function(oid){
  * @static
  * @method getIDInWhere
  * @param {Array} objArray The array of acceptable values
- * @param {String} The property that holds a referenced ID value
+ * @param {String} idProp The property that holds a referenced ID value
  * @return {Object} Where clause
  */
 DAO.getIDInWhere = function(objArray, idProp) {
@@ -704,7 +742,13 @@ DAO.getNotIDField = function(oid) {
  * @return {Object}    ObjectID object
  */
 DAO.getObjectID = function(oid) {
-	return new ObjectID(oid + '');
+    try {
+	   return new ObjectID(oid + '');
+    }
+    catch(err) {
+        err.message += ' - VALUE=['+util.inspect(oid)+']';
+        throw err;
+    }
 };
 
 /**

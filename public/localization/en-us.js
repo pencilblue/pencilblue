@@ -150,6 +150,7 @@ var loc =
         COMMAND_MUST_BE_OBJECT: 'The command must be a valid object',
         PROCEDURE_MUST_BE_OBJECT: 'A valid procedure object is required in order to execute the indexing operation',
         OBJ_TO_PARAMS_MUST_BE: 'The obj must be an object and the to parameter must be a string',
+        EMAIL_NOT_CONFIGURED: 'Email has not been configured on this server'
         INVALID_URL: 'An invalid URL was provided',
         INVALID_MEDIA_URL: 'The media url does not contain the required information for importing',
         UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
