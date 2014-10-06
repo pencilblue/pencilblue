@@ -416,6 +416,16 @@ form .error
     margin-top: -2em;
 }
 
+.file_drop {
+    margin-top: 1em;
+    padding: 2em 1em;
+    border: 3px dashed #999999;
+}
+
+.file_drop_hover {
+    border: 3px dashed #2BAA4C;
+}
+
 /* NEWS */
 
 .news_alert h3 {

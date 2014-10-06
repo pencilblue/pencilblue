@@ -342,7 +342,7 @@ GetMediaLink.prototype.mediaOutput = function(type, location, thumb, cb) {
 };
 
 GetMediaLink.prototype.isValidURL = function(url) {
-    var regexp = /\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    var regexp = /\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 
     return regexp.test(url);
 };

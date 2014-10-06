@@ -1,7 +1,8 @@
+<script type="text/javascript" src="/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload.min.js"></script>
 <script type="text/javascript" src="/js/angular/services/media.js"></script>
 <script type="text/javascript">
-    angular.module('inlineMedia', ['media', 'ui.sortable'])
-    .controller('InlineMediaController', function($scope, $sce, $http, mediaService) {
+    angular.module('inlineMedia', ['media', 'ui.sortable', 'angularFileUpload'])
+    .controller('InlineMediaController', function($scope, $sce, $http, $upload, mediaService) {
         $scope.mediaPreview = '';
         $scope.addedMedia = {
             link: ''
@@ -9,12 +10,16 @@
 
         $scope.getMediaPreviewHTML = function() {
             return $sce.trustAsHtml($scope.mediaPreview);
-        }
+        };
+
+        $scope.getUploadPreviewHTML = function() {
+            return $sce.trustAsHtml($scope.uploadPreview);
+        };
 
         $scope.showMediaModal = function(isFile) {
             $scope.addedMedia.isFile = isFile;
             $('#media_modal').modal({backdrop: 'static', keyboard: true});
-        }
+        };
 
         $scope.loadMediaLink = function() {
             if(!$scope.addedMedia.link.length) {
@@ -44,6 +49,41 @@
                     $scope.mediaPreview = result.data;
                 })
             });
-        }
+        };
+
+        $scope.onFileSelect = function($files) {
+            for (var i = 0; i < $files.length && i < 1; i++) {
+                var file = $files[i];
+                $scope.uploading = true;
+                $scope.uploadPercent = 0;
+                $scope.upload = $upload.upload({
+                    url: '/api/admin/content/media/upload_media',
+                    file: file
+                }).progress(function(evt) {
+                    $scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
+                }).success(function(data, status, headers, config) {
+                    mediaService.loadMediaLink(data.filename, function(err, result) {
+                        if(err) {
+                            $scope.uploading = false;
+                            console.log(err);
+                            return;
+                        }
+
+                        console.log(result);
+
+                        mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+                            $scope.uploading = false;
+
+                            if(err) {
+                                console.log(err);
+                                return;
+                            }
+
+                            $scope.uploadPreview = result.data;
+                        })
+                    });
+                });
+            }
+        };
     });
 </script>

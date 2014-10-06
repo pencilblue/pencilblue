@@ -417,10 +417,10 @@ module.exports = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/media/upload_media",
+    	path: "/api/admin/content/media/upload_media",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'upload_media.js'),
+    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'upload_media.js'),
     	content_type: 'text/html'
     },
     {
