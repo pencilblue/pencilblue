@@ -29,7 +29,7 @@
  */
 
 //dependencies
-var Media = require('../../theme/media');
+var Media = require(path.join(DOCUMENT_ROOT, 'include/theme/media'));
 
 /**
  * Retrieves articles and pages
