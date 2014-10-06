@@ -96,7 +96,9 @@ LibrariesService.getCDNDefaults = function() {
         jquery_spin: '//fgnass.github.io/spin.js/jquery.spin.js',
         he: '/js/lib/he/he.js',
         to_markdown: '/js/lib/to_markdown/to-markdown.js',
-        markdown: '/js/lib/markdown/lib/markdown.js'
+        markdown: '/js/lib/markdown/lib/markdown.js',
+        angular_upload: '//cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/1.6.1/angular-file-upload.min.js',
+        angular_upload_shim: '//cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/1.6.1/angular-file-upload-shim.min.js'
     };
 };
 
@@ -128,7 +130,9 @@ LibrariesService.getBowerDefaults = function() {
         jquery_spin: '/bower_components/jquery.spinjs/dist/jquery.spin.min.js',
         he: '/bower_components/he/he.js',
         to_markdown: '/bower_components/to-markdown/src/to-markdown.js',
-        markdown: '/bower_components/markdown/lib/markdown.js'
+        markdown: '/bower_components/markdown/lib/markdown.js',
+        angular_upload: '/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload.min.js',
+        angular_upload_shim: '/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload-shim.min.js'
     };
 };
 
