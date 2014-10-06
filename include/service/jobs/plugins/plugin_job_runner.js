@@ -16,7 +16,7 @@
 */
 
 //dependencies
-var ClusterJobRunner = require('../cluster_job_runner.js');
+var ClusterJobRunner = pb.ClusterJobRunner;
 
 /**
  * The framework for a cluster wide job that affects 1 or more plugins.

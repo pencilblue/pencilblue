@@ -22,7 +22,7 @@
 function GetMediaEmbed(){}
 
 //dependencies
-var Media = require('../../../include/theme/media');
+var Media = require(path.join(DOCUMENT_ROOT, '/include/theme/media'));
 
 //inheritance
 util.inherits(GetMediaEmbed, pb.FormController);
