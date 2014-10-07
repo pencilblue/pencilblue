@@ -5,7 +5,8 @@
     .controller('InlineMediaController', function($scope, $sce, $http, $upload, mediaService) {
         $scope.mediaPreview = '';
         $scope.addedMedia = {
-            link: ''
+            link: '',
+            topics: []
         };
 
         $scope.getMediaPreviewHTML = function() {
@@ -35,7 +36,10 @@
                     return;
                 }
 
-                console.log(result);
+                $scope.addedMedia.media_type = result.data.mediaType;
+                $scope.addedMedia.location = result.data.location;
+                $scope.addedMedia.thumb = result.data.thumb;
+                $scope.addedMedia.is_file = result.data.isFile;
 
                 mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
                     $scope.loadingLink = false;
@@ -45,7 +49,6 @@
                         return;
                     }
 
-                    console.log(result);
                     $scope.mediaPreview = result.data;
                 })
             });
@@ -69,7 +72,10 @@
                             return;
                         }
 
-                        console.log(result);
+                        $scope.addedMedia.media_type = result.data.mediaType;
+                        $scope.addedMedia.location = result.data.location;
+                        $scope.addedMedia.thumb = result.data.thumb;
+                        $scope.addedMedia.is_file = result.data.isFile;
 
                         mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
                             $scope.uploading = false;
@@ -84,6 +90,28 @@
                     });
                 });
             }
+        };
+
+        $scope.isSaveMediaEnabled = function() {
+            return ($scope.uploadPreview || $scope.mediaPreview) && $scope.addedMedia.name;
+        };
+
+        $scope.saveAddedMedia = function() {
+            $scope.saving = true;
+
+            var mediaObject = JSON.parse(JSON.stringify($scope.addedMedia));
+            delete mediaObject.link;
+
+            mediaService.saveMedia(mediaObject)
+            .then(function(result) {
+                $scope.saving = false;
+                $scope.editingObject[$scope.variablePrefix + '_media'].push(result.data);
+                $('#media_modal').modal('hide');
+            },
+            function(result, status) {
+                $scope.saving = false;
+                console.log(result);
+            });
         };
     });
 </script>

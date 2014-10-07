@@ -61,6 +61,7 @@ GetMediaPreview.prototype.getPreviewById = function(id, cb) {
 };
 
 GetMediaPreview.prototype.getPreviewByType = function(type, location, cb) {
+    var self = this;
     var responsiveEmbed = '<div class="embed-responsive embed-responsive-16by9">^iframe^</div>';
     var preview;
 

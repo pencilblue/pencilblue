@@ -28,7 +28,7 @@ DeleteArticle.prototype.render = function(cb) {
 	var vars = this.pathVars;
 
     var message = this.hasRequiredParams(vars, ['id']);
-    if (message) {
+    if(message) {
 		cb({
 			code: 400,
 			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)

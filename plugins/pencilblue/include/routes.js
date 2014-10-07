@@ -377,7 +377,7 @@ module.exports = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/media/add_media",
+    	path: "/actions/admin/content/media",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'add_media.js'),

@@ -21,43 +21,47 @@
 
 function AddMedia(){}
 
+var mediaService = require(DOCUMENT_ROOT + '/include/service/entities/media_service.js');
+
 //inheritance
 util.inherits(AddMedia, pb.FormController);
 
 AddMedia.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
-	delete post.topic_search;
+	console.log(post);
 
 	var message = this.hasRequiredParams(post, this.getRequiredParams());
     if(message) {
-        this.formError(message, this.getFormErrorRedirect(), cb);
-        return;
+        cb({
+			code: 400,
+			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+		});
+		return;
     }
 
     var mediaDocument = pb.DocumentCreator.create('media', post, ['media_topics'], ['is_file']);
     var dao = new pb.DAO();
     dao.update(mediaDocument).then(function(result) {
-        if (util.isError(result)) {
-            self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(), cb);
+        if(util.isError(result)) {
+			cb({
+				code: 500,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+			});
             return;
         }
 
-        self.onSaveSuccessful(result, cb);
-    });
-};
+		result.icon = mediaService.getMediaIcon(result.media_type);
 
-AddMedia.prototype.onSaveSuccessful = function(mediaDocument, cb) {
-	this.session.success = mediaDocument.name + ' ' + this.ls.get('ADDED');
-	this.redirect('/admin/content/media/add_media', cb);
+		cb({
+			code: 200,
+			content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, result.name + ' ' + self.ls.get('ADDED'), result)
+		});
+    });
 };
 
 AddMedia.prototype.getRequiredParams = function() {
 	return ['media_type', 'location', 'name'];
-};
-
-AddMedia.prototype.getFormErrorRedirect = function(){
-	return '/admin/content/media/add_media';
 };
 
 //exports
