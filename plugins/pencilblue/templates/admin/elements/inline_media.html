@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class="panel-body" style="min-height: 50px">
-            <div  sortable="board.dragControlListeners" ng-model="media">
+            <div sortable="board.dragControlListeners" ng-model="media">
                 <span class="draggable_item" ng-repeat="mediaItem in media track by mediaItem._id" sortable-item sortable-item-handle>
                     <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
                     <span ng-bind="mediaItem.name" style="font-weight: bold"></span>

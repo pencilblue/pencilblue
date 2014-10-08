@@ -35,9 +35,9 @@
 					<div class="form-group">
 						<label>^loc_PUBLISH_DATE^</label>
 						<div class="input-group">
-							<input type="text" class="form-control" ng-model="article.publish_date"></input>
+							<input type="text" id="publish_date" class="form-control" ng-model="article.publish_date"></input>
 							<span class="input-group-btn">
-								<button class="btn btn-default" type="button" ng-click="">^loc_NOW^</button>
+								<button class="btn btn-default" type="button" ng-click="setPublishDateToNow()">^loc_NOW^</button>
 							</span>
 						</div>
 					</div>

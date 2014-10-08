@@ -1,10 +1,17 @@
 <script type="text/javascript">
 	angular.module('pencilblueApp', ['inlineMedia'])
-	.controller('PencilBlueController', function($scope, $sce, $http) {
+	.controller('PencilBlueController', function($scope, $sce, $http, $filter) {
 		^angular_objects^
 
+		$scope.article.publish_date = $filter('date')($scope.article.publish_date, 'MM-dd-yyyy HH:mm');
 		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
 		$scope.editingObject = $scope.article;
 		$scope.variablePrefix = 'article';
+
+		$scope.setPublishDateToNow = function() {
+			$scope.article.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');;
+		}
+
+		$('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
 	});
 </script>

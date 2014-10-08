@@ -1,6 +1,11 @@
 <div class="panel panel-default">
     <div class="panel-heading">^loc_ACTIVE_SECTIONS^...</div>
-    <div id="active_sections" class="panel-body" style="min-height: 100px"></div>
+    <div class="panel-body" style="min-height: 50px" sortable="board.dragControlListeners" ng-model="editingObject[variablePrefix + '_sections']">
+        <span class="draggable_item" ng-repeat="section in editingObject[variablePrefix + '_sections'] track by section._id" sortable-item sortable-item-handle>
+            <span ng-bind="section.name" style="font-weight: bold"></span>
+            <span ng-bind="'- ' + section.description" ng-if="section.description"></span>
+        </span>
+    </div>
 </div>
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -13,13 +18,11 @@
         </div>
     </div>
     <div id="inactive_sections" class="panel-body" style="min-height: 100px">
-        <div id="section_{{section._id}}" class="label label-default section_item" ng-repeat="section in sections track by section._id" ng-cloak>
-            <i class="fa fa-bars"></i>&nbsp;
-            <span class="section_name">{{section.name}}</span>
+        <div sortable="board.dragControlListeners" ng-model="sections">
+            <span class="draggable_item" ng-repeat="section in sections track by section._id" sortable-item sortable-item-handle>
+                <span ng-bind="section.name" style="font-weight: bold"></span>
+                <span ng-bind="'- ' + section.description" ng-if="section.description"></span>
+            </span>
         </div>
-        <div class="spacer"></div>
-        <ul id="sections_pagination" class="pagination"></ul>
     </div>
 </div>
-<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="/js/admin/elements/section_select.js"></script>
