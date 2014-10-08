@@ -22,10 +22,10 @@
 function Index(){}
 
 //dependencies
-var TopMenu        = require('../include/theme/top_menu');
-var Media          = require('../include/theme/media');
-var Comments       = require('../include/theme/comments');
-var ArticleService = require('../include/service/entities/article_service').ArticleService;
+var TopMenu        = require(path.join(DOCUMENT_ROOT, '/include/theme/top_menu'));
+var Media          = require(path.join(DOCUMENT_ROOT, '/include/theme/media'));
+var Comments       = require(path.join(DOCUMENT_ROOT, '/include/theme/comments'));
+var ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).ArticleService;
 
 //inheritance
 util.inherits(Index, pb.BaseController);

@@ -24,7 +24,7 @@
 function NotFoundController(){}
 
 //dependencies
-var TopMenu = require('../../include/theme/top_menu');
+var TopMenu = require(path.join(DOCUMENT_ROOT, '/include/theme/top_menu'));
 
 //inheritance
 util.inherits(NotFoundController, pb.BaseController);

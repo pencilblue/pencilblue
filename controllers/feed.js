@@ -21,8 +21,8 @@
 
 //dependencies
 var HtmlEncoder    = require('htmlencode');
-var ArticleService = require('../include/service/entities/article_service').ArticleService;
-var MediaLoader    = require('../include/service/entities/article_service').MediaLoader;
+var ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).ArticleService;
+var MediaLoader    = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).MediaLoader;
 
 function ArticleFeed(){}
 
