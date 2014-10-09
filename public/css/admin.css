@@ -286,6 +286,11 @@ form .error
     padding: 1em 0;
 }
 
+.sub_nav > a button
+{
+    margin-bottom: .5em;
+}
+
 /* TABS */
 
 .tab-content
