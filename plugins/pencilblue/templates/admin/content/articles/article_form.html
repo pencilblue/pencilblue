@@ -83,18 +83,18 @@
 				</a>&nbsp;
 				<a id="view_preview" ng-href="/preview/article/{{article._id}}" target="_blank" style="display:none">View Preview</a>
 				<div class="btn-group dropup">
-					<button type="button" class="btn btn-primary" onclick="checkForEditArticleSave(false)" ng-if="!article.draft">
-						<i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+					<button type="button" class="btn btn-primary" ng-click="saveArticle()" ng-if="!article.draft" ng-disabled="savingArticle">
+						<i class="fa" ng-class="{'fa-save': !savingArticle, 'fa-circle-o-notch fa-spin': savingArticle}"></i>&nbsp;^loc_SAVE^
 					</button>
-					<button id="save_draft_button" type="button" class="btn btn-primary" onclick="checkForEditArticleSave(true)" ng-if="article.draft">
-						<i class="fa fa-save"></i>&nbsp;^loc_SAVE_DRAFT^
+					<button id="save_draft_button" type="button" class="btn btn-primary" ng-click="saveArticle(true)" ng-if="article.draft" ng-disabled="savingArticle">
+						<i class="fa" ng-class="{'fa-save': !savingArticle, 'fa-circle-o-notch fa-spin': savingArticle}"></i>&nbsp;^loc_SAVE_DRAFT^
 					</button>
 					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
 						<i class="fa fa-sm fa-chevron-up"></i>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li ng-if="!article.draft"><a href="javascript:checkForEditArticleSave(true)">^loc_SAVE_DRAFT^</a></li>
-						<li ng-if="article.draft"><a href="javascript:checkForEditArticleSave(false)">^loc_SAVE^</a></li>
+						<li ng-if="!article.draft"><a ng-click="saveArticle(true)">^loc_SAVE_DRAFT^</a></li>
+						<li ng-if="article.draft"><a ng-click="saveArticle()">^loc_SAVE^</a></li>
 					</ul>
 				</div>
 				<div class="spacer"></div>

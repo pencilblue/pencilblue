@@ -97,19 +97,19 @@
         };
 
         $scope.saveAddedMedia = function() {
-            $scope.saving = true;
+            $scope.savingMedia = true;
 
             var mediaObject = JSON.parse(JSON.stringify($scope.addedMedia));
             delete mediaObject.link;
 
             mediaService.saveMedia(mediaObject)
             .then(function(result) {
-                $scope.saving = false;
+                $scope.savingMedia = false;
                 $scope.editingObject[$scope.variablePrefix + '_media'].push(result.data);
                 $('#media_modal').modal('hide');
             },
             function(result, status) {
-                $scope.saving = false;
+                $scope.savingMedia = false;
                 console.log(result);
             });
         };

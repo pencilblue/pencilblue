@@ -1,5 +1,6 @@
 <script type="text/javascript">
 	angular.module('pencilblueApp', ['inlineMedia'])
+	^tmp_angular=admin=elements=form_data^
 	.controller('PencilBlueController', function($scope, $sce, $http, $filter) {
 		^angular_objects^
 
@@ -10,6 +11,65 @@
 
 		$scope.setPublishDateToNow = function() {
 			$scope.article.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');;
+		}
+
+		$scope.saveArticle = function(draft) {
+			$scope.getArticleData(draft, function(articleData) {
+				$saving = true;
+				if(articleData._id) {
+					$http.post('/actions/admin/content/article/' + $scope.article._id, articleData)
+					.success(function(result) {
+						$scope.successMessage = result.message;
+						$saving = false;
+					})
+					.error(function(error, status) {
+						$scope.errorMessage = error.message;
+						$saving = false;
+					});
+				}
+				else {
+					$http.post('/actions/admin/content/article', articleData)
+					.success(function(result) {
+						$scope.successMessage = result.message;
+						$saving = false;
+					})
+					.error(function(error, status) {
+						$scope.errorMessage = error.message;
+						$saving = false;
+					});
+				}
+			});
+		}
+
+		$scope.getArticleData = function(draft, cb) {
+			var articleData = JSON.parse(JSON.stringify($scope.article));
+			articleData.publish_date = (new Date($scope.article.publish_date)).getTime();
+			articleData.draft = draft ? 1 : 0;
+
+			var media = [];
+			for(var i = 0; i < $scope.article.article_media.length; i++) {
+				media.push($scope.article.article_media[i]._id.toString());
+			}
+
+			var sections = [];
+			for(var i = 0; i < $scope.article.article_sections.length; i++) {
+				sections.push($scope.article.article_sections[i]._id.toString());
+			}
+
+			var topics = [];
+			for(var i = 0; i < $scope.article.article_topics.length; i++) {
+				topics.push($scope.article.article_topics[i]._id.toString());
+			}
+
+			var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
+			getWYSIWYGLayout(wysId, function(layout) {
+				articleData.article_media = media.join(',');
+				articleData.article_sections = sections.join(',');
+				articleData.article_topics = topics.join(',');
+				articleData.article_layout = layout;
+
+				cb(articleData);
+			});
 		}
 
 		$('#publish_date').datetimepicker({format: 'm-d-Y H:i'});

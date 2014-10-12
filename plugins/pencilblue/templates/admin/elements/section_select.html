@@ -17,8 +17,8 @@
             </span>
         </div>
     </div>
-    <div id="inactive_sections" class="panel-body" style="min-height: 100px">
-        <div sortable="board.dragControlListeners" ng-model="sections">
+    <div id="inactive_sections" class="panel-body">
+        <div style="min-height: 50px" sortable="board.dragControlListeners" ng-model="sections">
             <span class="draggable_item" ng-repeat="section in sections track by section._id" sortable-item sortable-item-handle>
                 <span ng-bind="section.name" style="font-weight: bold"></span>
                 <span ng-bind="'- ' + section.description" ng-if="section.description"></span>

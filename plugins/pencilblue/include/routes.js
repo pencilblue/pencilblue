@@ -441,7 +441,7 @@ module.exports = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/articles/new_article",
+    	path: "/admin/content/articles/new",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'new_article.js'),
@@ -464,7 +464,7 @@ module.exports = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/articles/edit_article/:id",
+    	path: "/admin/content/article/:id",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'edit_article.js'),
@@ -472,7 +472,7 @@ module.exports = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/articles/edit_article/:id",
+    	path: "/actions/admin/content/article/:id",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),

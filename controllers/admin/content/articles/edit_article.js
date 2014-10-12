@@ -78,6 +78,30 @@ EditArticle.prototype.getAngularObjects = function(tabs, data) {
 	}
 	self.article.article_media = media;
 
+	var sections = [];
+	for(var i = 0; i < self.article.article_sections.length; i++) {
+		for(var j = 0; j < data.sections.length; j++) {
+			if(data.sections[j]._id.equals(ObjectID(self.article.article_sections[i]))) {
+				sections.push(data.sections[j]);
+				data.sections.splice(j, 1);
+				break;
+			}
+		}
+	}
+	self.article.article_sections = sections;
+
+	var topics = [];
+	for(var i = 0; i < self.article.article_topics.length; i++) {
+		for(var j = 0; j < data.topics.length; j++) {
+			if(data.topics[j]._id.equals(ObjectID(self.article.article_topics[i]))) {
+				topics.push(data.topics[j]);
+				data.topics.splice(j, 1);
+				break;
+			}
+		}
+	}
+	self.article.article_topics = topics;
+
 	var objects = {
         navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
         pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), self.article),

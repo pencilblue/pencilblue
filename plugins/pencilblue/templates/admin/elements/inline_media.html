@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class="panel-body" style="min-height: 50px">
-            <div sortable="board.dragControlListeners" ng-model="media">
+            <div style="min-height: 50px" sortable="board.dragControlListeners" ng-model="media">
                 <span class="draggable_item" ng-repeat="mediaItem in media track by mediaItem._id" sortable-item sortable-item-handle>
                     <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
                     <span ng-bind="mediaItem.name" style="font-weight: bold"></span>
@@ -81,8 +81,8 @@
                         <button type="button" class="btn btn-default" data-dismiss="modal">
                             <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
                         </button>
-                        <button type="button" class="btn btn-primary" ng-click="saveAddedMedia()" ng-disabled="!isSaveMediaEnabled() || saving">
-                            <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SAVE^
+                        <button type="button" class="btn btn-primary" ng-click="saveAddedMedia()" ng-disabled="!isSaveMediaEnabled() || savingMedia">
+                            <i class="fa" ng-class="{'fa-save': !savingMedia, 'fa-circle-o-notch fa-spin': savingMedia}"></i>&nbsp;^loc_SAVE^
                         </button>
                     <fieldset>
                 </div>
