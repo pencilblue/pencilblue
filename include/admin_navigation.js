@@ -69,7 +69,7 @@ function getDefaultNavigation() {
                     id: 'articles',
                     title: 'ARTICLES',
                     icon: 'files-o',
-                    href: '/admin/content/articles/manage_articles',
+                    href: '/admin/content/articles',
                     access: ACCESS_WRITER
                 },
                 {

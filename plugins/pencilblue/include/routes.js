@@ -433,7 +433,7 @@ module.exports = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/articles/manage_articles",
+    	path: "/admin/content/articles",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'manage_articles.js'),
@@ -496,7 +496,7 @@ module.exports = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/articles/new_article",
+    	path: "/actions/admin/content/article",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'new_article.js'),

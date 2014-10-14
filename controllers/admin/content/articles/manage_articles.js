@@ -89,13 +89,13 @@ ManageArticles.getSubNavItems = function(key, ls, data) {
             name: 'manage_articles',
             title: ls.get('MANAGE_ARTICLES'),
             icon: 'refresh',
-            href: '/admin/content/articles/manage_articles'
+            href: '/admin/content/articles'
         },
         {
 		    name: 'new_article',
 		    title: '',
 		    icon: 'plus',
-		    href: '/admin/content/articles/new_article'
+		    href: '/admin/content/articles/new'
 		}
     ];
 };

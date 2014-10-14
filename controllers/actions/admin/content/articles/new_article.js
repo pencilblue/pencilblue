@@ -31,50 +31,44 @@ util.inherits(NewArticlePostController, FormController);
 NewArticlePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
-	delete post.section_search;
-    delete post.topic_search;
-    delete post.media_search;
-    delete post.media_url;
-    delete post.media_type;
-    delete post.location;
-    delete post.thumb;
-    delete post.media_topics;
-    delete post.name;
-    delete post.caption;
-    delete post.layout_link_url;
-    delete post.layout_link_text;
-    delete post.media_position;
-    delete post.media_max_height;
+	post.author       = self.session.authentication.user_id;
+	post.publish_date = new Date(parseInt(post.publish_date));
+	delete post._id;
 
-    post.author         = this.session.authentication.user_id;
-    post.publish_date   = new Date(post.publish_date);
-
-    this.setFormFieldValues(post);
-
-    var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if(message) {
-        this.formError(message, '/admin/content/articles/new_article', cb);
-        return;
-    }
+	var message = this.hasRequiredParams(post, this.getRequiredFields());
+	if (message) {
+		cb({
+			code: 400,
+			content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+		});
+		return;
+	}
 
     post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
     var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords', 'article_sections', 'article_topics', 'article_media']);
     pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {
         if(util.isError(err) || !isSafe)  {
-            self.formError(self.ls.get('EXISTING_URL'), '/admin/content/articles/new_article', cb);
+			cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+			});
             return;
         }
 
         var dao = new pb.DAO();
         dao.update(articleDocument).then(function(result) {
             if(util.isError(result))  {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/new_article', cb);
+				cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+				});
                 return;
             }
 
-            self.session.success = articleDocument.headline + ' ' + self.ls.get('CREATED');
-            delete self.session.fieldValues;
-            self.redirect('/admin/content/articles/edit_article/' + result._id, cb);
+			cb({
+				code: 200,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, articleDocument.headline + ' ' + self.ls.get('CREATED'), post)
+			});
         });
     });
 };

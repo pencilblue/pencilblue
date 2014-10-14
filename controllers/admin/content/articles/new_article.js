@@ -61,7 +61,8 @@ NewArticle.prototype.getAngularObjects = function(tabs, data) {
         templates: data.templates,
         sections: data.sections,
         topics: data.topics,
-        media: data.media
+        media: data.media,
+		article: {}
     };
 	return pb.js.getAngularObjects(objects);
 };
@@ -73,13 +74,13 @@ NewArticle.getSubNavItems = function(key, ls, data) {
 		    name: 'manage_articles',
 		    title: ls.get('NEW_ARTICLE'),
 		    icon: 'chevron-left',
-		    href: '/admin/content/articles/manage_articles'
+		    href: '/admin/content/articles'
 		},
         {
             name: 'new_article',
             title: '',
             icon: 'plus',
-            href: '/admin/content/articles/new_article'
+            href: '/admin/content/articles/new'
         }
     ];
 };

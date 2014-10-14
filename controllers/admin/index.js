@@ -42,7 +42,7 @@ AdminIndexController.prototype.render = function(cb) {
            {
         	   name: name,
         	   count: data.articleCount,
-        	   href: '/admin/content/articles/manage_articles',
+        	   href: '/admin/content/articles',
 		   },
         ];
 

@@ -33,19 +33,19 @@ EditArticle.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
     if(!vars.id)  {
-        self.redirect('/admin/content/articles/manage_articles', cb);
+        self.redirect('/admin/content/articles', cb);
         return;
     }
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'article', function(err, article) {
         if(util.isError(err) || article === null) {
-        	self.redirect('/admin/content/articles/manage_articles', cb);
+        	self.redirect('/admin/content/articles', cb);
             return;
         }
 
         if(!pb.security.isAuthorized(self.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
             if(self.session.authentication.user_id !== article.author) {
-                self.redirect('/admin/content/articles/manage_articles', cb);
+                self.redirect('/admin/content/articles', cb);
                 return;
             }
         }
@@ -129,13 +129,13 @@ EditArticle.getSubNavItems = function(key, ls, data) {
 		    name: 'manage_articles',
 		    title: data.headline,
 		    icon: 'chevron-left',
-		    href: '/admin/content/articles/manage_articles'
+		    href: '/admin/content/articles'
 		},
         {
             name: 'new_article',
             title: '',
             icon: 'plus',
-            href: '/admin/content/articles/new_article'
+            href: '/admin/content/articles/new'
         }
     ];
 };

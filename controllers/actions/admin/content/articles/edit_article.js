@@ -32,7 +32,7 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-    post.publish_date = new Date(post.publish_date);
+    post.publish_date = new Date(parseInt(post.publish_date));
 	post.id = vars.id;
 	delete post._id;
 
