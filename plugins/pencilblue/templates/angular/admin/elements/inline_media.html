@@ -3,6 +3,8 @@
 <script type="text/javascript" src="/js/angular/services/search.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
 <script type="text/javascript">
+    var getActiveMedia;
+
     angular.module('inlineMedia', ['media', 'ui.sortable', 'angularFileUpload', 'search', 'paginate'])
     .controller('InlineMediaController', function($scope, $sce, $http, $upload, mediaService, searchService, paginationService) {
         $scope.mediaPreview = '';
@@ -14,6 +16,11 @@
         $scope.searchText = '';
         $scope.paginationIndex = 0;
         $scope.paginationLimit = 15;
+
+        $scope.getActiveMedia = function() {
+            return $scope.editingObject[$scope.variablePrefix + '_media'];
+        }
+        getActiveMedia = $scope.getActiveMedia;
 
         $scope.search = function() {
             searchService.search($scope.searchText, $scope.media, ['name'], function(media) {
