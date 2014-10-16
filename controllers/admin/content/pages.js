@@ -27,7 +27,7 @@ Pages.getPillNavOptions = function(activePill) {
             name: 'new_page',
             title: '',
             icon: 'plus',
-            href: '/admin/content/pages/new_page'
+            href: '/admin/content/pages/new'
         }
     ];
 };

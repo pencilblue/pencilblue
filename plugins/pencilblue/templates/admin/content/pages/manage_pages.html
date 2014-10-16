@@ -1,53 +1,35 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^error_success^
+    ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
     <div class="input-group" style="margin-bottom: .5em">
-        <input type="text" id="page_search" name="page_search" class="form-control"></input>
+        <input type="text" ng-model="searchText" ng-change="search()" class="form-control"></input>
         <span class="input-group-btn">
-            <button id="page_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+            <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}" ng-click="clearSearch()"></i></button>
         </span>
     </div>
     <div class="table_container">
-        <table id="pages_table" class="table table-responsive table-condensed">
-            <tr id="pages_table_header">
-                <th id="page_headline_header">^loc_HEADLINE^</th>
-                <th id="page_status_header">^loc_STATUS^</th>
-                <th id="page_url_header">^loc_PAGE_URL^</th>
-                <th id="page_author_header">^loc_AUTHOR^</th>
-                <th id="page_date_header">^loc_PUBLISH_DATE^</th>
+        <table class="table table-responsive table-condensed">
+            <tr>
+                <th ng-repeat="header in tableHeaders" ng-class="{'clickable': !header.unsorted}" ng-click="sort($index)">
+                    <span ng-bind="header.name"></span>&nbsp;
+                    <i class="fa fa-sort-asc" ng-if="header.sortAsc"></i>
+                    <i class="fa fa-sort-desc" ng-if="header.sortDesc"></i>
+                </th>
                 <th></th>
             </tr>
-            <tr class="page_row" ng-repeat="page in pages track by page._id" on-finish-render ng-cloak>
-                <td><a class="page_headline" ng-href="/admin/content/pages/edit_page/{{page._id}}">{{page.headline}}</a></td>
-                <td class="page_status">{{page.status}}</td>
-                <td class="page_url">{{page.url}}</td>
-                <td class="page_author">{{page.author_name}}</td>
-                <td class="page_date">{{page.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
-                <td><a href="javascript:confirmDeletePage('{{page._id}}', '{{page.headline}}')"><i class="fa fa-times"></i></a></td>
+            <tr class="page_row" ng-repeat="page in pages track by page._id">
+                <td><a ng-href="/admin/content/pages/{{page._id}}" ng-bind="page.headline"></a></td>
+                <td ng-bind="page.status"></td>
+                <td ng-bind="page.url"></td>
+                <td ng-bind="page.author_name"></td>
+                <td ng-bind="page.publish_date | date: 'yyyy-MM-dd HH:mm'"></td>
+                <td><a href="#" ng-click="confirmDelete($index)"><i class="fa fa-times"></i></a></td>
             </tr>
         </table>
     </div>
-    <ul id="pages_pagination" class="pagination"></ul>
-    <div class="modal fade" id="confirm_delete_modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    ^loc_CONFIRM_DELETE^ <span id="delete_name" style="font-style: italic"></span>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                    </button>
-                    <button type="button" id="delete_button" class="btn btn-danger">
-                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    ^tmp_admin=elements=pagination^
+    ^tmp_admin=elements=delete_modal^
 </div>
-<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="/js/table_sort.js"></script>
-<script type="text/javascript" src="/js/admin/content/pages/manage_pages.js"></script>
+^tmp_angular=admin=content=pages=manage_pages^
 ^tmp_admin=footer^

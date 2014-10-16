@@ -1,12 +1,43 @@
 <script type="text/javascript" src="^angular_upload_src^"></script>
 <script type="text/javascript" src="/js/angular/services/media.js"></script>
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript" src="/js/angular/services/paginate.js"></script>
 <script type="text/javascript">
-    angular.module('inlineMedia', ['media', 'ui.sortable', 'angularFileUpload'])
-    .controller('InlineMediaController', function($scope, $sce, $http, $upload, mediaService) {
+    angular.module('inlineMedia', ['media', 'ui.sortable', 'angularFileUpload', 'search', 'paginate'])
+    .controller('InlineMediaController', function($scope, $sce, $http, $upload, mediaService, searchService, paginationService) {
         $scope.mediaPreview = '';
         $scope.addedMedia = {
             link: '',
             topics: []
+        };
+
+        $scope.searchText = '';
+        $scope.paginationIndex = 0;
+        $scope.paginationLimit = 15;
+
+        $scope.search = function() {
+            searchService.search($scope.searchText, $scope.media, ['name'], function(media) {
+                $scope.media = media;
+                $scope.paginate(0);
+            });
+        }
+
+        $scope.clearSearch = function() {
+            $scope.searchText = '';
+            $scope.search();
+        }
+
+        $scope.paginate = function(paginationIndex) {
+            $scope.paginationIndex = paginationIndex;
+
+            paginationService.paginate($scope.media, $scope.paginationIndex, $scope.paginationLimit, function(media, paginationPages) {
+                $scope.media = media;
+                $scope.paginationPages = paginationPages;
+            })
+        }
+
+        $scope.pageButtonVisible = function(testIndex) {
+            return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
         };
 
         $scope.getMediaPreviewHTML = function() {
@@ -113,5 +144,7 @@
                 console.log(result);
             });
         };
+
+        $scope.paginate(0);
     });
 </script>

@@ -6,8 +6,9 @@
 	.controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService) {
 		^angular_objects^
 
-		$scope.pageIndex = 0;
-		$scope.pageLimit = 25;
+		$scope.searchText = '';
+		$scope.paginationIndex = 0;
+		$scope.paginationLimit = 25;
 		$scope.deleteNameKey = 'headline';
 
 		$scope.tableHeaders = [{
@@ -44,17 +45,22 @@
 			});
 		}
 
-		$scope.paginate = function(pageIndex) {
-			$scope.pageIndex = pageIndex;
+		$scope.clearSearch = function() {
+			$scope.searchText = '';
+			$scope.search();
+		}
 
-			paginationService.paginate($scope.articles, $scope.pageIndex, $scope.pageLimit, function(articles, pages) {
+		$scope.paginate = function(paginationIndex) {
+			$scope.paginationIndex = paginationIndex;
+
+			paginationService.paginate($scope.articles, $scope.paginationIndex, $scope.paginationLimit, function(articles, paginationPages) {
 				$scope.articles = articles;
-				$scope.pages = pages;
+				$scope.paginationPages = paginationPages;
 			})
 		}
 
 		$scope.pageButtonVisible = function(testIndex) {
-			return paginationService.pageButtonVisible(testIndex, $scope.pageIndex, $scope.pageLimit);
+			return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
 		};
 
 		$scope.sort = function(headerIndex) {

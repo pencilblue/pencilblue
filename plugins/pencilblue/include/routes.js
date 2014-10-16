@@ -289,23 +289,15 @@ module.exports = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/pages/new_page",
+    	path: "/admin/content/pages/new",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'new_page.js'),
     	content_type: 'text/html'
     },
     {
-    	method: 'post',
-    	path: "/actions/admin/content/pages/new_page",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'new_page.js'),
-    	content_type: 'text/html'
-    },
-    {
     	method: 'get',
-    	path: "/admin/content/pages/manage_pages",
+    	path: "/admin/content/pages",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'manage_pages.js'),
@@ -313,7 +305,7 @@ module.exports = [
     },
     {
     	method: 'get',
-    	path: "/admin/content/pages/edit_page/:id",
+    	path: "/admin/content/pages/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'edit_page.js'),
@@ -321,7 +313,7 @@ module.exports = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/pages/edit_page/:id",
+    	path: "/actions/admin/content/page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'edit_page.js'),
@@ -337,15 +329,15 @@ module.exports = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/pages/new_page",
+    	path: "/actions/admin/content/page",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'new_page.js'),
     	content_type: 'text/html'
     },
     {
-    	method: 'get',
-    	path: "/actions/admin/content/pages/delete_page/:id",
+    	method: 'delete',
+    	path: "/actions/admin/content/page/:id",
     	access_level: ACCESS_EDITOR,
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),

@@ -5,12 +5,12 @@
     <div class="input-group" style="margin-bottom: .5em">
         <input type="text" ng-model="searchText" ng-change="search()" class="form-control"></input>
         <span class="input-group-btn">
-            <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}"></i></button>
+            <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}" ng-click="clearSearch()"></i></button>
         </span>
     </div>
     <div class="table_container">
-        <table id="articles_table" class="table table-responsive table-condensed">
-            <tr id="articles_table_header">
+        <table class="table table-responsive table-condensed">
+            <tr>
                 <th ng-repeat="header in tableHeaders" ng-class="{'clickable': !header.unsorted}" ng-click="sort($index)">
                     <span ng-bind="header.name"></span>&nbsp;
                     <i class="fa fa-sort-asc" ng-if="header.sortAsc"></i>

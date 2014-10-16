@@ -98,7 +98,7 @@
 					</ul>
 				</div>
 				<div class="spacer"></div>
-				<label id="draft_info" ng-style="{'display': (article.draft) ? 'block' : 'none'}">^loc_DRAFT_SAVED^ <span id="draft_time">{{article.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
+				<label id="draft_info" ng-if="article.draft">^loc_DRAFT_SAVED^ <span id="draft_time">{{article.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
 			</div>
 			<div class="additions" style="display: none"></div>
 		</fieldset>
