@@ -15,22 +15,27 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for adding media
- */
-
-function AddMedia(){}
-
 //dependencies
 var Media = require('../media.js');
 
+/**
+ * Interface for adding media
+ * @class AddMediaController
+ * @constructor
+ */
+function AddMediaController(){}
+
 //inheritance
-util.inherits(AddMedia, pb.BaseController);
+util.inherits(AddMediaController, pb.BaseController);
 
 //statics
 var SUB_NAV_KEY = 'add_media';
 
-AddMedia.prototype.render = function(cb) {
+/**
+ * @method render
+ * @param {Function} cb
+ */
+AddMediaController.prototype.render = function(cb) {
 	var self = this;
 
     var tabs   =
@@ -67,7 +72,7 @@ AddMedia.prototype.render = function(cb) {
     });
 };
 
-AddMedia.getSubNavItems = function(key, ls, data) {
+AddMediaController.getSubNavItems = function(key, ls, data) {
 	var pills = Media.getPillNavOptions();
     pills.unshift(
     {
@@ -80,7 +85,7 @@ AddMedia.getSubNavItems = function(key, ls, data) {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, AddMedia.getSubNavItems);
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, AddMediaController.getSubNavItems);
 
 //exports
-module.exports = AddMedia;
+module.exports = AddMediaController;

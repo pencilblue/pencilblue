@@ -56,13 +56,34 @@ function MediaService(){
     }
 };
 
+/**
+ * The collection where media descriptors are persisted
+ * @static
+ * @readonly
+ * @property COLL
+ * @type {String}
+ */
 MediaService.COLL = 'media';
 
+/**
+ * Loads a media descriptor by ID.
+ * @method loadById
+ * @param {String|ObjectID} mid Media descriptor ID
+ * @param {Function} cb A callback that provides two parameters: an Error, if 
+ * occurred and a media descriptor if found.
+ */
 MediaService.prototype.loadById = function(mid, cb) {
     var dao = new pb.DAO();
     dao.loadById(mid.toString(), MediaService.COLL, cb);
 };
 
+/**
+ * Deletes a media descriptor by ID
+ * @method deleteById
+ * @param {String|ObjectID} mid
+ * @param {Object} [options]
+ * @param {Function} cb
+ */
 MediaService.prototype.deleteById = function(mid, options, cb) {
     if (pb.utils.isFunction(options)) {
         cb     = options;
@@ -74,6 +95,75 @@ MediaService.prototype.deleteById = function(mid, options, cb) {
     dao.deleteById(mid, MediaService.COLL, cb);
 };
 
+/**
+ * Persists a media descriptor
+ * @method save
+ * @param {Object} media
+ * @param {Object} [options]
+ * @param {Function} cb
+ */
+MediaService.prototype.save = function(media, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb      = options;
+        options = {};
+    }
+    
+    var self = this;
+    this.validate(media, function(err, validationErrors) {
+        if (util.isError(err)) {
+            return cb(err);   
+        }
+        else if (validationErrors.length) {
+            return cb(null, validationErrors);
+        }
+        
+        var dao = new pb.DAO();
+        dao.save(media, cb);
+    });
+};
+
+/**
+ * Validates a media descriptor
+ * @method validate
+ * @param {Object} media
+ * @param {Function} cb A callback that provides two parameters: an Error, if 
+ * occurred.  The second is an array of validation error objects.
+ */
+MediaService.prototype.validate = function(media, cb) {
+    var errors = [];
+    
+    if (!pb.utils.isObject(media)) {
+        errors.push(pb.CustomObjectService.err('', 'The descriptor must be an object'));
+        return cb(null, errors);
+    }
+    
+    //ensure the media name is unique
+    var where = { name: media.name };
+    var dao   = new pb.DAO();
+    dao.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
+        if (util.isError(err)) {
+            return cb(err, errors);   
+        }
+        else if (!isUnique) {
+            errors.push(pb.CustomObjectService.err('name', 'The name '+media.name+' is already in use'));
+        }
+        
+        //TODO validate the other properties
+        cb(null, errors);
+    });
+};
+
+/**
+ * Queries for media descriptors
+ * @method get
+ * @param {Object} [options]
+ * @param {Object} [options.where]
+ * @param {Array} [options.order]
+ * @param {Object} [options.select]
+ * @param {Integer} [options.limit]
+ * @param {Integer} [options.offset]
+ * @param {Boolean} [options.format_media=true]
+ */
 MediaService.prototype.get = function(options, cb) {
     if (pb.utils.isFunction(options)) {
         cb      = options;
@@ -97,14 +187,33 @@ MediaService.prototype.get = function(options, cb) {
     });
 };
 
+/**
+ *
+ * @method getContentByPath
+ * @param {String} mediaPath
+ * @param {Function} cb
+ */
 MediaService.prototype.getContentByPath = function(mediaPath, cb) {
     this.provider.get(mediaPath, cb);
 };
 
+/**
+ *
+ * @method getContentStreamByPath
+ * @param {String} mediaPath
+ * @param {Function} cb
+ */
 MediaService.prototype.getContentStreamByPath = function(mediaPath, cb) {
     this.provider.getStream(mediaPath, cb);
 };
 
+/**
+ *
+ * @method setContent
+ * @param {String|Buffer} fileDataStrOrBuff
+ * @param {String} fileName
+ * @param {Function} cb
+ */
 MediaService.prototype.setContent = function(fileDataStrOrBuff, fileName, cb) {
     var mediaPath = MediaService.generateMediaPath(fileName);
     this.provider.set(fileDataStrOrBuff, mediaPath, function(err, result) {
@@ -112,6 +221,13 @@ MediaService.prototype.setContent = function(fileDataStrOrBuff, fileName, cb) {
     });
 };
 
+/**
+ *
+ * @method setContentStream
+ * @param {Stream} stream
+ * @param {String} fileName
+ * @param {Function} cb
+ */
 MediaService.prototype.setContentStream = function(stream, fileName, cb) {
     var mediaPath = MediaService.generateMediaPath(fileName);
     this.provider.setStream(stream, mediaPath, function(err, result) {
@@ -119,6 +235,12 @@ MediaService.prototype.setContentStream = function(stream, fileName, cb) {
     });
 };
 
+/**
+ *
+ * @method createContentWriteStream
+ * @param {String} fileName
+ * @param {Function} cb
+ */
 MediaService.prototype.createContentWriteStream = function(fileName, cb) {
     var mediaPath = MediaService.generateMediaPath(fileName);
     this.provider.createWriteStream(mediaPath, function(err, stream) {
@@ -130,14 +252,32 @@ MediaService.prototype.createContentWriteStream = function(fileName, cb) {
     });
 };
 
+/**
+ *
+ * @method existsByPath
+ * @param {String} mediaPath
+ * @param {Function} cb
+ */
 MediaService.prototype.existsByPath = function(mediaPath, cb) {
     this.provider.exists(mediaPath, cb);
 };
 
+/**
+ *
+ * @method deleteContentByPath
+ * @param {String} mediaPath
+ * @param {Function} cb
+ */
 MediaService.prototype.deleteContentByPath = function(mediaPath, cb) {
     this.provider.delete(mediaPath, cb);
 };
 
+/**
+ *
+ * @method statByPath
+ * @param {String} mediaPath
+ * @param {Function} cb
+ */
 MediaService.prototype.statByPath = function(mediaPath, cb) {
     this.provider.stat(mediaPath, cb);
 };
@@ -156,6 +296,13 @@ MediaService.prototype.isValidFilePath = function(mediaPath, cb) {
 	});
 };
 
+/**
+ * 
+ * @method getMediaDescriptor
+ * @param {String} mediaURL
+ * @param {Boolean} isFile
+ * @param {Function} cb
+ */
 MediaService.prototype.getMediaDescriptor = function(mediaURL, isFile, cb) {
     var self = this;
 
@@ -361,6 +508,13 @@ MediaService.prototype.getMediaDescriptor = function(mediaURL, isFile, cb) {
     );
 }
 
+/**
+ *
+ * @method getMediaThumb
+ * @param {String} type
+ * @param {String} location
+ * @param {Function} cb
+ */
 MediaService.prototype.getMediaThumb = function(type, location, cb) {
 
     switch(type) {
@@ -400,6 +554,12 @@ MediaService.prototype.getMediaThumb = function(type, location, cb) {
     }
 };
 
+/**
+ *
+ * @method getVimeoThumb
+ * @param {String} location
+ * @param {Function} cb
+ */
 MediaService.prototype.getVimeoThumb = function(location, cb) {
 
     var options = {
@@ -428,6 +588,12 @@ MediaService.prototype.getVimeoThumb = function(location, cb) {
     http.request(options, callback).end();
 };
 
+/**
+ *
+ * @method getSlideShareId
+ * @param {String} mediaURL
+ * @param {Function} cb
+ */
 MediaService.prototype.getSlideShareId = function(mediaURL, cb) {
     var options = {
         host: 'www.slideshare.net',
@@ -455,6 +621,14 @@ MediaService.prototype.getSlideShareId = function(mediaURL, cb) {
     http.request(options, callback).end();
 };
 
+/**
+ *
+ * @static
+ * @method getMediaFlag
+ * @param {String} mid
+ * @param {Object} [options]
+ * @return {String} 
+ */
 MediaService.getMediaFlag = function(mid, options) {
     if (!mid) {
         throw new Error('The media id is required but ['+mid+'] was provided');
