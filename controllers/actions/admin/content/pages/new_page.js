@@ -29,28 +29,16 @@ util.inherits(NewPagePostController, pb.FormController);
 NewPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
-    delete post.topic_search;
-    delete post.media_search;
-    delete post.media_url;
-    delete post.media_type;
-    delete post.location;
-    delete post.thumb;
-    delete post.media_topics;
-    delete post.name;
-    delete post.caption;
-    delete post.layout_link_url;
-    delete post.layout_link_text;
-    delete post.media_position;
-    delete post.media_max_height;
-
     post.author       = self.session.authentication.user_id;
-    post.publish_date = new Date(post.publish_date);
-
-    this.setFormFieldValues(post);
+    post.publish_date = new Date(parseInt(post.publish_date));
+	delete post._id;
 
     var message = this.hasRequiredParams(post, ['url', 'headline', 'page_layout']);
     if(message) {
-        this.formError(message, '/admin/content/pages/new_page', cb);
+        cb({
+			code: 400,
+			content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+		});
         return;
     }
 
@@ -59,25 +47,36 @@ NewPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
     var dao          = new pb.DAO();
     dao.count('page', {url: pageDocument.url}, function(err, count) {
         if(util.isError(err) || count > 0) {
-            self.formError(self.ls.get('EXISTING_URL'), '/admin/content/pages/new_page', cb);
+            cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+			});
             return;
         }
 
         dao.count('article', {url: pageDocument.url}, function(err, count) {
         	if(util.isError(err) || count > 0) {
-                self.formError(self.ls.get('EXISTING_URL'), '/admin/content/pages/new_page', cb);
-                return;
+                cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+				});
+				return;
             }
 
         	dao.update(pageDocument).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/new_page', cb);
-                    return;
+                    cb({
+						code: 400,
+						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+					});
+					return;
                 }
 
-                self.session.success = pageDocument.headline + ' ' + self.ls.get('CREATED');
-                delete self.session.fieldValues;
-                self.redirect('/admin/content/pages/edit_page/' + result._id, cb);
+				post.last_modified = new Date();
+				cb({
+					code: 200,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, pageDocument.headline + ' ' + self.ls.get('CREATED'), post)
+				});
             });
         });
     });

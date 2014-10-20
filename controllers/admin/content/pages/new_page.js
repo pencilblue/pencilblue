@@ -62,28 +62,30 @@ NewPage.prototype.render = function(cb) {
     var dao = new pb.DAO();
     dao.query('topic', pb.DAO.ANYEHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics) {
         //TODO handle errors
-        
+
         var mservice = new pb.MediaService();
         mservice.get(function(err, media){
             if (util.isError(err)) {
                 //TODO handle error
                 pb.log.error('NewPageController: an unhandled error occurred while attempting to load all media: %s', err.stack);
             }
-            
+
             var templates = pb.TemplateService.getAvailableContentTemplates();
-            var angularData = pb.js.getAngularController(
+            var angularObjects = pb.js.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'new_page'),
                 tabs: tabs,
                 templates: templates,
                 topics: topics,
-                media: media
-            }, [], 'initMediaPagination();initTopicsPagination()');
+                media: media,
+				page: {}
+            });
 
             self.setPageName(self.ls.get('NEW_PAGE'));
-            self.ts.registerLocal('angular_script', angularData);
-            self.ts.load('admin/content/pages/new_page', function(err, data) {
+            self.ts.registerLocal('angular_script', '');
+			self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+            self.ts.load('admin/content/pages/page_form', function(err, data) {
                 var result = '' + data;
                 self.checkForFormRefill(result, function(newResult) {
                     result = newResult;
@@ -101,7 +103,7 @@ NewPage.getSubNavItems = function(key, ls, data) {
         name: 'manage_pages',
         title: ls.get('NEW_PAGE'),
         icon: 'chevron-left',
-        href: '/admin/content/pages/manage_pages'
+        href: '/admin/content/pages'
     });
     return pills;
 };

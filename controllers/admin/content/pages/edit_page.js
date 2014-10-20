@@ -34,27 +34,22 @@ var SUB_NAV_KEY = 'edit_page';
 EditPage.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
-
     if(!vars.id) {
-        self.redirect('/admin/content/pages/manage_pages', cb);
+        self.redirect('/admin/content/pages', cb);
         return;
     }
 
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'page', function(err, page) {
         if(page === null) {
-        	self.redirect('/admin/content/pages/manage_pages', cb);
+        	self.redirect('/admin/content/pages', cb);
             return;
         }
-
-        page.page_media  = page.page_media.join(',');
-        page.page_topics = page.page_topics.join(',');
-        self.setFormFieldValues(page);
 
         //ensure that only the author can edit page
         if(!pb.security.isAuthorized(self.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
 	        if(self.session.authentication.user_id !== page.author) {
-	        	self.redirect('/admin/content/pages/manage_pages', cb);
+	        	self.redirect('/admin/content/pages', cb);
 	            return;
 	        }
 		}
@@ -94,7 +89,32 @@ EditPage.prototype.render = function(cb) {
                     pb.log.error('EditPageController: an unhandled error occurred while attempting to load all media: %s', err.stack);
                 }
 
-                var angularData = pb.js.getAngularController(
+				var j;
+				var pageMedia = [];
+				for(var i = 0; i < page.page_media.length; i++) {
+					for(j = 0; j < media.length; j++) {
+						if(media[j]._id.equals(ObjectID(page.page_media[i]))) {
+							pageMedia.push(media[j]);
+							media.splice(j, 1);
+							break;
+						}
+					}
+				}
+				page.page_media = pageMedia;
+
+				var pageTopics = [];
+				for(i = 0; i < page.page_topics.length; i++) {
+					for(j = 0; j < topics.length; j++) {
+						if(topics[j]._id.equals(ObjectID(page.page_topics[i]))) {
+							pageTopics.push(topics[j]);
+							topics.splice(j, 1);
+							break;
+						}
+					}
+				}
+				page.page_topics = pageTopics;
+
+                var angularObjects = pb.js.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                     pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'edit_page', page),
@@ -103,12 +123,13 @@ EditPage.prototype.render = function(cb) {
                     topics: topics,
                     media: media,
                     page: page
-                }, [], 'initMediaPagination();initTopicsPagination()');
+                });
 
                 self.setPageName(page.headline);
                 self.ts.registerLocal('page_id', vars.id);
-                self.ts.registerLocal('angular_script', angularData);
-                self.ts.load('admin/content/pages/edit_page', function(err, data) {
+                self.ts.registerLocal('angular_script', '');
+				self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/pages/page_form', function(err, data) {
                     var result = '' + data;
                     self.checkForFormRefill(result, function(newResult) {
                         result = newResult;
@@ -127,7 +148,7 @@ EditPage.getSubNavItems = function(key, ls, data) {
         name: 'manage_pages',
         title: data.headline,
         icon: 'chevron-left',
-        href: '/admin/content/pages/manage_pages'
+        href: '/admin/content/pages'
     });
     return pills;
 };

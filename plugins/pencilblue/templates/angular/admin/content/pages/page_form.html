@@ -1,0 +1,112 @@
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['inlineMedia', 'topicSelect'])
+    ^tmp_angular=admin=elements=form_data^
+    .controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window) {
+        ^angular_objects^
+
+        $scope.page.publish_date = $filter('date')($scope.page.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
+        $scope.layout = $sce.trustAsHtml($scope.page.page_layout);
+        $scope.editingObject = $scope.page;
+        $scope.variablePrefix = 'page';
+
+        $scope.setPublishDateToNow = function() {
+            $scope.page.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');;
+        };
+
+        $scope.savePage = function(draft) {
+            $scope.page.draft = draft;
+            $scope.getPageData(draft, function(pageData) {
+                $saving = true;
+                if(pageData._id) {
+                    $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
+                    .success(function(result) {
+                        $scope.successMessage = result.message;
+                        $scope.page.last_modified = result.data.last_modified;
+                        $saving = false;
+                    })
+                    .error(function(error, status) {
+                        $scope.errorMessage = error.message;
+                        $saving = false;
+                    });
+                }
+                else {
+                    $http.post('/actions/admin/content/pages', pageData)
+                    .success(function(result) {
+                        $scope.successMessage = result.message;
+                        $scope.page.last_modified = result.data.last_modified;
+                        $saving = false;
+                    })
+                    .error(function(error, status) {
+                        $scope.errorMessage = error.message;
+                        $saving = false;
+                    });
+                }
+            });
+        };
+
+        $scope.savePageDraft = function(cb) {
+            if(!$scope.page.draft || !$scope.page._id) {
+                return;
+            }
+
+            $scope.page.draft = true;
+            $scope.getPageData(true, function(pageData) {
+                $saving = true;
+                $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
+                .success(function(result) {
+                    $scope.page.last_modified = result.data.last_modified;
+                    $timeout($scope.savePageDraft, 30000);
+                    $saving = false;
+
+                    if(typeof cb !== 'undefined') {
+                        cb(null);
+                    }
+                })
+                .error(function(error, status) {
+                    $scope.errorMessage = error.message;
+                    $saving = false;
+
+                    if(typeof cb !== 'undefined') {
+                        cb(error.message);
+                    }
+                });
+            });
+        };
+
+        $scope.getPageData = function(draft, cb) {
+            var pageData = JSON.parse(JSON.stringify($scope.page));
+            pageData.publish_date = (new Date($scope.page.publish_date)).getTime();
+            pageData.draft = draft ? 1 : 0;
+
+            var media = [];
+            for(var i = 0; i < $scope.page.page_media.length; i++) {
+                media.push($scope.page.page_media[i]._id.toString());
+            }
+
+            var topics = [];
+            for(var i = 0; i < $scope.page.page_topics.length; i++) {
+                topics.push($scope.page.page_topics[i]._id.toString());
+            }
+
+            var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
+            getWYSIWYGLayout(wysId, function(layout) {
+                pageData.page_media = media.join(',');
+                pageData.page_topics = topics.join(',');
+                pageData.page_layout = layout;
+
+                cb(pageData);
+            });
+        };
+
+        $scope.previewPage = function() {
+            $scope.savePageDraft(function(error) {
+                if(!error) {
+                    $window.open('/preview/page/' + $scope.page._id);
+                }
+            });
+        }
+
+        $('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
+        $timeout($scope.savePageDraft, 30000);
+    });
+</script>

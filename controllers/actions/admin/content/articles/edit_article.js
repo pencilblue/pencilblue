@@ -78,6 +78,7 @@ EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
                     return;
                 }
 
+				post.last_modified = new Date();
 				cb({
 					code: 200,
 					content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('EDITED'), post)

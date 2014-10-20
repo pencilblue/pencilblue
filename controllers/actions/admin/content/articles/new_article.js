@@ -65,6 +65,7 @@ NewArticlePostController.prototype.onPostParamsRetrieved = function(post, cb) {
                 return;
             }
 
+			post.last_modified = new Date();
 			cb({
 				code: 200,
 				content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, articleDocument.headline + ' ' + self.ls.get('CREATED'), post)

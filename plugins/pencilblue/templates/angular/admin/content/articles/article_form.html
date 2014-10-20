@@ -1,25 +1,27 @@
 <script type="text/javascript">
 	angular.module('pencilblueApp', ['inlineMedia', 'sectionSelect', 'topicSelect'])
 	^tmp_angular=admin=elements=form_data^
-	.controller('PencilBlueController', function($scope, $sce, $http, $filter) {
+	.controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window) {
 		^angular_objects^
 
-		$scope.article.publish_date = $filter('date')($scope.article.publish_date, 'MM-dd-yyyy HH:mm');
+		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
 		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
 		$scope.editingObject = $scope.article;
 		$scope.variablePrefix = 'article';
 
 		$scope.setPublishDateToNow = function() {
 			$scope.article.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');;
-		}
+		};
 
 		$scope.saveArticle = function(draft) {
+			$scope.article.draft = draft;
 			$scope.getArticleData(draft, function(articleData) {
 				$saving = true;
 				if(articleData._id) {
-					$http.post('/actions/admin/content/article/' + $scope.article._id, articleData)
+					$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
 					.success(function(result) {
 						$scope.successMessage = result.message;
+						$scope.article.last_modified = result.data.last_modified;
 						$saving = false;
 					})
 					.error(function(error, status) {
@@ -28,9 +30,10 @@
 					});
 				}
 				else {
-					$http.post('/actions/admin/content/article', articleData)
+					$http.post('/actions/admin/content/articles', articleData)
 					.success(function(result) {
 						$scope.successMessage = result.message;
+						$scope.article.last_modified = result.data.last_modified;
 						$saving = false;
 					})
 					.error(function(error, status) {
@@ -39,7 +42,36 @@
 					});
 				}
 			});
-		}
+		};
+
+		$scope.saveArticleDraft = function(cb) {
+			if(!$scope.article.draft || !$scope.article._id) {
+				return;
+			}
+
+			$scope.article.draft = true;
+			$scope.getArticleData(true, function(articleData) {
+				$saving = true;
+				$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
+				.success(function(result) {
+					$scope.article.last_modified = result.data.last_modified;
+					$timeout($scope.saveArticleDraft, 30000);
+					$saving = false;
+
+					if(typeof cb !== 'undefined') {
+						cb(null);
+					}
+				})
+				.error(function(error, status) {
+					$scope.errorMessage = error.message;
+					$saving = false;
+
+					if(typeof cb !== 'undefined') {
+						cb(error.message);
+					}
+				});
+			});
+		};
 
 		$scope.getArticleData = function(draft, cb) {
 			var articleData = JSON.parse(JSON.stringify($scope.article));
@@ -70,8 +102,17 @@
 
 				cb(articleData);
 			});
+		};
+
+		$scope.previewArticle = function() {
+			$scope.saveArticleDraft(function(error) {
+				if(!error) {
+					$window.open('/preview/article/' + $scope.article._id);
+				}
+			});
 		}
 
 		$('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
+		$timeout($scope.saveArticleDraft, 30000);
 	});
 </script>

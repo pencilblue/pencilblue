@@ -30,26 +30,34 @@ DeletePage.prototype.render = function(cb) {
 
     var message = this.hasRequiredParams(vars, ['id']);
     if (message) {
-        this.formError(message, '/admin/content/pages/manage_pages', cb);
-        return;
+        cb({
+			code: 400,
+			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+		});
+		return;
     }
 
     var dao = new pb.DAO();
     dao.query('page', {_id: ObjectID(vars.id)}).then(function(pages) {
         if(pages.length === 0) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/manage_pages', cb);
-            return;
+            cb({
+				code: 500,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+			});
+			return;
         }
 
         var page = pages[0];
         dao.deleteMatching({_id: ObjectID(vars.id)}, 'page').then(function(pagesDeleted) {
             if(util.isError(pagesDeleted) || pagesDeleted <= 0) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/pages/manage_pages', cb);
-                return;
+                cb({
+					code: 500,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+				});
+				return;
             }
 
-            self.session.success = page.headline + ' ' + self.ls.get('DELETED');
-            self.redirect('/admin/content/pages/manage_pages', cb);
+			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('DELETED'))});
         });
     });
 };

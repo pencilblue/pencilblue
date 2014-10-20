@@ -78,10 +78,10 @@
 				<a class="btn btn-default" href="/admin/content/articles">
 					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
 				</a>&nbsp;
-				<a id="preview_button" class="btn btn-info" ng-href="javascript:previewArticle({{article.draft}})">
-					<i class="fa fa-eye"></i>&nbsp;^loc_PREVIEW^
-				</a>&nbsp;
-				<a id="view_preview" ng-href="/preview/article/{{article._id}}" target="_blank" style="display:none">View Preview</a>
+				<button type="button" class="btn btn-info" ng-click="previewArticle(true)" ng-if="article.draft" ng-disabled="savingArticle">
+					<i class="fa" ng-class="{'fa-eye': !savingArticle, 'fa-circle-o-notch fa-spin': savingArticle}"></i>&nbsp;^loc_PREVIEW^
+				</button>
+				<span ng-if="article.draft">&nbsp;</span>
 				<div class="btn-group dropup">
 					<button type="button" class="btn btn-primary" ng-click="saveArticle()" ng-if="!article.draft" ng-disabled="savingArticle">
 						<i class="fa" ng-class="{'fa-save': !savingArticle, 'fa-circle-o-notch fa-spin': savingArticle}"></i>&nbsp;^loc_SAVE^

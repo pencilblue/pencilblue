@@ -62,7 +62,7 @@ function getDefaultNavigation() {
                     id: 'pages',
                     title: 'PAGES',
                     icon: 'file-o',
-                    href: '/admin/content/pages/manage_pages',
+                    href: '/admin/content/pages',
                     access: ACCESS_EDITOR
                 },
                 {
