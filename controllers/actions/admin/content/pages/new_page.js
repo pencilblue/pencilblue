@@ -72,10 +72,9 @@ NewPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
 					return;
                 }
 
-				post.last_modified = new Date();
 				cb({
 					code: 200,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, pageDocument.headline + ' ' + self.ls.get('CREATED'), post)
+					content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, pageDocument.headline + ' ' + self.ls.get('CREATED'), result)
 				});
             });
         });
