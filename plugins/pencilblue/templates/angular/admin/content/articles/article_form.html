@@ -16,17 +16,17 @@
 		$scope.saveArticle = function(draft) {
 			$scope.article.draft = draft;
 			$scope.getArticleData(draft, function(articleData) {
-				$saving = true;
+				$scope.saving = true;
 				if(articleData._id) {
 					$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
 					.success(function(result) {
 						$scope.successMessage = result.message;
 						$scope.article.last_modified = result.data.last_modified;
-						$saving = false;
+						$scope.saving = false;
 					})
 					.error(function(error, status) {
 						$scope.errorMessage = error.message;
-						$saving = false;
+						$scope.saving = false;
 					});
 				}
 				else {
@@ -34,12 +34,12 @@
 					.success(function(result) {
 						$scope.successMessage = result.message;
 						$scope.article.last_modified = result.data.last_modified;
-						$saving = false;
+						$scope.saving = false;
 						$window.location = '/admin/content/articles/' + result.data._id.toString();
 					})
 					.error(function(error, status) {
 						$scope.errorMessage = error.message;
-						$saving = false;
+						$scope.saving = false;
 					});
 				}
 			});
@@ -52,12 +52,12 @@
 
 			$scope.article.draft = true;
 			$scope.getArticleData(true, function(articleData) {
-				$saving = true;
+				$scope.saving = true;
 				$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
 				.success(function(result) {
 					$scope.article.last_modified = result.data.last_modified;
 					$timeout($scope.saveArticleDraft, 30000);
-					$saving = false;
+					$scope.saving = false;
 
 					if(typeof cb !== 'undefined') {
 						cb(null);
@@ -65,7 +65,7 @@
 				})
 				.error(function(error, status) {
 					$scope.errorMessage = error.message;
-					$saving = false;
+					$scope.saving = false;
 
 					if(typeof cb !== 'undefined') {
 						cb(error.message);

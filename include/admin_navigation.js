@@ -45,10 +45,10 @@ function getDefaultNavigation() {
             access: ACCESS_WRITER,
             children: [
                 {
-                    id: 'sections',
+                    id: 'navigation',
                     title: 'NAVIGATION',
                     icon: 'th-large',
-                    href: '/admin/content/sections/section_map',
+                    href: '/admin/content/navigation',
                     access: ACCESS_EDITOR
                 },
                 {

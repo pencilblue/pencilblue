@@ -326,7 +326,7 @@ form .error
 
 /* NAVIGATION */
 
-.section h5, .subsection h5 {
+.nav-item h5, .subnav-item h5 {
     font-size: 1em;
     margin: 0;
 }

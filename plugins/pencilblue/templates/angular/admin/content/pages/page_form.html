@@ -16,18 +16,18 @@
         $scope.savePage = function(draft) {
             $scope.page.draft = draft;
             $scope.getPageData(draft, function(pageData) {
-                $saving = true;
+                $scope.saving = true;
                 if(pageData._id) {
                     $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
                     .success(function(result) {
                         $scope.successMessage = result.message;
                         $scope.page.last_modified = result.data.last_modified;
-                        $saving = false;
+                        $scope.saving = false;
                         $window.location = '/admin/content/pages/' + result.data._id.toString();
                     })
                     .error(function(error, status) {
                         $scope.errorMessage = error.message;
-                        $saving = false;
+                        $scope.saving = false;
                     });
                 }
                 else {
@@ -35,11 +35,11 @@
                     .success(function(result) {
                         $scope.successMessage = result.message;
                         $scope.page.last_modified = result.data.last_modified;
-                        $saving = false;
+                        $scope.saving = false;
                     })
                     .error(function(error, status) {
                         $scope.errorMessage = error.message;
-                        $saving = false;
+                        $scope.saving = false;
                     });
                 }
             });
@@ -52,12 +52,12 @@
 
             $scope.page.draft = true;
             $scope.getPageData(true, function(pageData) {
-                $saving = true;
+                $scope.saving = true;
                 $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
                 .success(function(result) {
                     $scope.page.last_modified = result.data.last_modified;
                     $timeout($scope.savePageDraft, 30000);
-                    $saving = false;
+                    $scope.saving = false;
 
                     if(typeof cb !== 'undefined') {
                         cb(null);
@@ -65,7 +65,7 @@
                 })
                 .error(function(error, status) {
                     $scope.errorMessage = error.message;
-                    $saving = false;
+                    $scope.saving = false;
 
                     if(typeof cb !== 'undefined') {
                         cb(error.message);

@@ -1,0 +1,64 @@
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['ui.sortable'])
+    .controller('PencilBlueController', function($scope, $http) {
+        ^angular_objects^
+
+        $scope.deleteNameKey = 'name';
+
+        $scope.saveNavMap = function() {
+            var navMap = [];
+            for(var i = 0; i < $scope.navItems.length; i++) {
+                var navMapItem = {
+                    uid: $scope.navItems[i]._id.toString(),
+                    children: []
+                };
+
+                if($scope.navItems[i].type === 'container') {
+                    for(var j = 0; j < $scope.navItems[i].children.length; j++) {
+                        navMapItem.children.push({uid: $scope.navItems[i].children[j]._id.toString()});
+                    }
+                }
+
+                navMap.push(navMapItem);
+            }
+
+            $scope.saving = true;
+            $http.post('/actions/admin/content/navigation/map', {map: navMap})
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
+        }
+
+        $scope.confirmDelete = function(item) {
+            $scope.objectToDeleteIndex = articleIndex;
+            $scope.objectToDelete = $scope.articles[articleIndex];
+            $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+        }
+
+        $scope.deleteObject = function() {
+            if(!$scope.objectToDelete) {
+                return;
+            }
+
+            $scope.deleting = true;
+            $http({method: 'DELETE', url: '/actions/admin/content/articles/' + $scope.objectToDelete._id})
+            .success(function(result) {
+                $scope.articles.splice($scope.objectToDeleteIndex, 1);
+                $scope.deleting = false;
+                $scope.successMessage = result.message;
+                $scope.paginate(0);
+                $('#confirm_delete_modal').modal('hide');
+            })
+            .error(function(error, status) {
+                $scope.deleting = false;
+                $scope.errorMessage = error.message;
+                $('#confirm_delete_modal').modal('hide');
+            });
+        }
+    });
+</script>
