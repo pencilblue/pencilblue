@@ -19,12 +19,12 @@
  * Adds new media
  */
 
-function AddMedia(){}
+function AddMediaActionController(){}
 
 //inheritance
-util.inherits(AddMedia, pb.FormController);
+util.inherits(AddMediaActionController, pb.FormController);
 
-AddMedia.prototype.onPostParamsRetrieved = function(post, cb) {
+AddMediaActionController.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
 	delete post.topic_search;
@@ -36,29 +36,31 @@ AddMedia.prototype.onPostParamsRetrieved = function(post, cb) {
     }
 
     var mediaDocument = pb.DocumentCreator.create('media', post, ['media_topics'], ['is_file']);
-    var dao = new pb.DAO();
-    dao.update(mediaDocument).then(function(result) {
-        if (util.isError(result)) {
+    var mediaService = new pb.MediaService();
+    mediaService.save(mediaDocument, function(err, result) {
+        if (util.isError(err)) {
             self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(), cb);
             return;
         }
-
+        else if (util.isArray(result)) {
+            return self.formError(pb.CustomObjectService.createErrorStr(result), self.getFormErrorRedirect(), cb);
+        }
         self.onSaveSuccessful(result, cb);
     });
 };
 
-AddMedia.prototype.onSaveSuccessful = function(mediaDocument, cb) {
+AddMediaActionController.prototype.onSaveSuccessful = function(mediaDocument, cb) {
 	this.session.success = mediaDocument.name + ' ' + this.ls.get('ADDED');
 	this.redirect('/admin/content/media/add_media', cb);
 };
 
-AddMedia.prototype.getRequiredParams = function() {
+AddMediaActionController.prototype.getRequiredParams = function() {
 	return ['media_type', 'location', 'name'];
 };
 
-AddMedia.prototype.getFormErrorRedirect = function(){
+AddMediaActionController.prototype.getFormErrorRedirect = function(){
 	return '/admin/content/media/add_media';
 };
 
 //exports
-module.exports = AddMedia;
+module.exports = AddMediaActionController;
