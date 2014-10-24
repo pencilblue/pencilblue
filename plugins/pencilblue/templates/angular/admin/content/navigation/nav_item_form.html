@@ -3,18 +3,58 @@
     angular.module('pencilblueApp', ['validation'])
     .controller('PencilBlueController', function($scope, $http, validationService) {
         ^angular_objects^
+        ^tmp_angular=admin=elements=is_field_valid^
 
         $scope.saveNavItem = function() {
             $scope.formSubmitted = true;
-            console.log(validationService.isFormValid($scope.navItemForm));
-        }
 
-        $scope.isFieldValid = function(field, validationType) {
-            if(!$scope.formSubmitted) {
-                return true;
+            if(!validationService.isFormValid($scope.navItemForm)) {
+                return;
             }
 
-            return validationService.isFieldValid(field, validationType);
+            var saveObject = $scope.getSaveObject();
+            $scope.saving = true;
+
+            $http.post('/actions/admin/content/navigation/' + ($scope.navItem._id ? $scope.navItem._id : ''), saveObject)
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
+        }
+
+        $scope.getSaveObject = function() {
+            var saveObject = {
+                type: $scope.navItem.type,
+                name: $scope.navItem.name,
+                description: $scope.navItem.description
+            }
+
+            switch($scope.navItem.type) {
+                case 'container':
+                    break;
+                case 'section':
+                    saveObject.parent = $scope.navItem.parent;
+                    saveObject.url = $scope.navItem.url;
+                    saveObject.editor = $scope.navItem.editor;
+                    break;
+                case 'article':
+                case 'page':
+                    saveObject.parent = $scope.navItem.parent;
+                    saveObject.item = $scope.navItem.item;
+                    break;
+                case 'link':
+                    saveObject.parent = $scope.navItem.parent;
+                    saveObject.link = $scope.navItem.link;
+                    break;
+                default:
+                    break;
+            }
+
+            return saveObject;
         }
     });
 </script>
