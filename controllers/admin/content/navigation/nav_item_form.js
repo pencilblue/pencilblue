@@ -79,11 +79,6 @@ NavItemForm.prototype.gatherData = function(vars, cb) {
                     return;
                 }
 
-                parents.unshift({
-                    _id: '',
-                    name: self.ls.get('NONE')
-                });
-
                 callback(null, parents);
             });
         },
