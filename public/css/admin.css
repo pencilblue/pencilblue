@@ -333,6 +333,11 @@ form .error
 
 /* INTERFACE OBJECTS */
 
+.form_error {
+    font-size: .9em;
+    color: #A94442;
+}
+
 .table_container {
     width: 100%;
     overflow: auto;

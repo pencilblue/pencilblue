@@ -21,9 +21,6 @@
 
 function ManageArticles(){}
 
-//dependencies
-Articles = require('../articles.js');
-
 //inheritance
 util.inherits(ManageArticles, pb.BaseController);
 
@@ -84,20 +81,17 @@ ManageArticles.prototype.getArticleStatuses = function(articles) {
 };
 
 ManageArticles.getSubNavItems = function(key, ls, data) {
-	return [
-		{
-            name: 'manage_articles',
-            title: ls.get('MANAGE_ARTICLES'),
-            icon: 'refresh',
-            href: '/admin/content/articles'
-        },
-        {
-		    name: 'new_article',
-		    title: '',
-		    icon: 'plus',
-		    href: '/admin/content/articles/new'
-		}
-    ];
+	return [{
+        name: 'manage_articles',
+        title: ls.get('MANAGE_ARTICLES'),
+        icon: 'refresh',
+        href: '/admin/content/articles'
+    }, {
+	    name: 'new_article',
+	    title: '',
+	    icon: 'plus',
+	    href: '/admin/content/articles/new'
+	}];
 };
 
 //register admin sub-nav

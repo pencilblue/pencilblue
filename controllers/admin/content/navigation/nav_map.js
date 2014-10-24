@@ -82,6 +82,7 @@ NavigationMap.getOrderedItems = function(sections, sectionMap) {
             if(sectionMap[i].uid == sections[j]._id) {
                 parentSection          = sections[j];
                 parentSection.children = [];
+                sections.splice(j, 1);
                 break;
             }
         }
@@ -94,12 +95,18 @@ NavigationMap.getOrderedItems = function(sections, sectionMap) {
             for(j = 0; j < sections.length; j++) {
                 if(sections[j]._id.equals(ObjectID(sectionMap[i].children[o].uid))) {
                     parentSection.children.push(sections[j]);
+                    sections.splice(j, 1);
                     break;
                 }
             }
         }
 
         orderedSections.push(parentSection);
+    }
+
+    for(i = 0; i < sections.length; i++) {
+        sections[i].children = [];
+        orderedSections.push(sections[i]);
     }
 
     return orderedSections;

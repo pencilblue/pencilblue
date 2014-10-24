@@ -35,8 +35,7 @@
         }
 
         $scope.confirmDelete = function(item) {
-            $scope.objectToDeleteIndex = articleIndex;
-            $scope.objectToDelete = $scope.articles[articleIndex];
+            $scope.objectToDelete = item;
             $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
         }
 
@@ -46,13 +45,25 @@
             }
 
             $scope.deleting = true;
-            $http({method: 'DELETE', url: '/actions/admin/content/articles/' + $scope.objectToDelete._id})
+            $http({method: 'DELETE', url: '/actions/admin/content/navigation/' + $scope.objectToDelete._id})
             .success(function(result) {
-                $scope.articles.splice($scope.objectToDeleteIndex, 1);
                 $scope.deleting = false;
                 $scope.successMessage = result.message;
-                $scope.paginate(0);
                 $('#confirm_delete_modal').modal('hide');
+
+                for(var i = 0; i < $scope.navItems.length; i++) {
+                    if($scope.navItems[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+                        $scope.navItems.splice(i, 1);
+                        return;
+                    }
+
+                    for(var j = 0; j < $scope.navItems[i].children.length; j++) {
+                        if($scope.navItems[i].children[j]._id.toString() === $scope.objectToDelete._id.toString()) {
+                            $scope.navItems[i].children.splice(j, 1);
+                            return;
+                        }
+                    }
+                }
             })
             .error(function(error, status) {
                 $scope.deleting = false;

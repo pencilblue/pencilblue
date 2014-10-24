@@ -16,25 +16,32 @@
 */
 
 /**
- * Interface for creating a new article
+ * Interface for creating and editing articles
  */
 
-function NewArticle(){}
-
-//dependencies
-var Articles = require('../articles.js');
-var Media    = require('../media.js');
+function ArticleForm(){}
 
 //inheritance
-util.inherits(NewArticle, pb.BaseController);
+util.inherits(ArticleForm, pb.BaseController);
 
-NewArticle.prototype.render = function(cb) {
+ArticleForm.prototype.render = function(cb) {
 	var self  = this;
+	var vars = this.pathVars;
+	this.vars = vars;
 
-    self.gatherData(function(err, results){
-        //TODO handle error
+    self.gatherData(vars, function(err, results){
+		if(util.isError(err)) {
+			throw err;
+		}
+		else if(!results.article) {
+			self.reqHandler.serve404();
+			return;
+		}
+
+        self.article = results.article;
         var tabs   = self.getTabs();
 
+		self.setPageName(self.article._id ? self.article.headline : self.ls.get('NEW_ARTICLE'));
 		self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
     	self.ts.load('admin/content/articles/article_form', function(err, data) {
@@ -49,11 +56,51 @@ NewArticle.prototype.render = function(cb) {
     });
 };
 
-NewArticle.prototype.onTemplateRetrieved = function(template, cb) {
+ArticleForm.prototype.onTemplateRetrieved = function(template, cb) {
 	cb(null, template);
 };
 
-NewArticle.prototype.getAngularObjects = function(tabs, data) {
+ArticleForm.prototype.getAngularObjects = function(tabs, data) {
+	if(data.article._id) {
+		var media = [];
+		var i, j;
+
+		for(i = 0; i < data.article.article_media.length; i++) {
+			for(j = 0; j < data.media.length; j++) {
+				if(data.media[j]._id.equals(ObjectID(data.article.article_media[i]))) {
+					media.push(data.media[j]);
+					data.media.splice(j, 1);
+					break;
+				}
+			}
+		}
+		data.article.article_media = media;
+
+		var sections = [];
+		for(i = 0; i < data.article.article_sections.length; i++) {
+			for(j = 0; j < data.sections.length; j++) {
+				if(data.sections[j]._id.equals(ObjectID(data.article.article_sections[i]))) {
+					sections.push(data.sections[j]);
+					data.sections.splice(j, 1);
+					break;
+				}
+			}
+		}
+		data.article.article_sections = sections;
+
+		var topics = [];
+		for(i = 0; i < data.article.article_topics.length; i++) {
+			for(j = 0; j < data.topics.length; j++) {
+				if(data.topics[j]._id.equals(ObjectID(data.article.article_topics[i]))) {
+					topics.push(data.topics[j]);
+					data.topics.splice(j, 1);
+					break;
+				}
+			}
+		}
+		data.article.article_topics = topics;
+	}
+
 	var objects = {
         navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
         pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), data),
@@ -62,38 +109,30 @@ NewArticle.prototype.getAngularObjects = function(tabs, data) {
         sections: data.sections,
         topics: data.topics,
         media: data.media,
-		article: {}
+		article: data.article
     };
 	return pb.js.getAngularObjects(objects);
 };
 
-
-NewArticle.getSubNavItems = function(key, ls, data) {
-	return [
-		{
-		    name: 'manage_articles',
-		    title: ls.get('NEW_ARTICLE'),
-		    icon: 'chevron-left',
-		    href: '/admin/content/articles'
-		},
-        {
-            name: 'new_article',
-            title: '',
-            icon: 'plus',
-            href: '/admin/content/articles/new'
-        }
-    ];
+ArticleForm.getSubNavItems = function(key, ls, data) {
+	return [{
+	    name: 'manage_articles',
+	    title: data.article._id ? ls.get('EDIT') + ' ' + data.article.headline : ls.get('NEW_ARTICLE'),
+	    icon: 'chevron-left',
+	    href: '/admin/content/articles'
+	}, {
+        name: 'new_article',
+        title: '',
+        icon: 'plus',
+        href: '/admin/content/articles/new'
+    }];
 };
 
-NewArticle.prototype.getActivePill = function() {
+ArticleForm.prototype.getActivePill = function() {
 	return 'new_article';
 };
 
-NewArticle.prototype.getPageTitle = function() {
-	return this.ls.get('NEW_ARTICLE');
-};
-
-NewArticle.prototype.gatherData = function(cb) {
+ArticleForm.prototype.gatherData = function(vars, cb) {
 	var self  = this;
 	var dao   = new pb.DAO();
     var tasks = {
@@ -119,12 +158,23 @@ NewArticle.prototype.gatherData = function(cb) {
     	media: function(callback) {
             var mservice = new pb.MediaService();
     		mservice.get(callback);
-    	}
+    	},
+
+		article: function(callback) {
+			if(!vars.id) {
+				callback(null, {});
+				return;
+			}
+
+			dao.loadById(vars.id, 'article', function(err, article) {
+				callback(err, article);
+			});
+		}
     };
     async.parallelLimit(tasks, 2, cb);
 };
 
-NewArticle.prototype.getTabs = function() {
+ArticleForm.prototype.getTabs = function() {
 	return [
         {
             active: 'active',
@@ -156,7 +206,7 @@ NewArticle.prototype.getTabs = function() {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor('new_article', NewArticle.getSubNavItems);
+pb.AdminSubnavService.registerFor('new_article', ArticleForm.getSubNavItems);
 
 //exports
-module.exports = NewArticle;
+module.exports = ArticleForm;

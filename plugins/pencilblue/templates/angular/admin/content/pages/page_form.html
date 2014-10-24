@@ -23,7 +23,6 @@
                         $scope.successMessage = result.message;
                         $scope.page.last_modified = result.data.last_modified;
                         $scope.saving = false;
-                        $window.location = '/admin/content/pages/' + result.data._id.toString();
                     })
                     .error(function(error, status) {
                         $scope.errorMessage = error.message;
@@ -36,6 +35,7 @@
                         $scope.successMessage = result.message;
                         $scope.page.last_modified = result.data.last_modified;
                         $scope.saving = false;
+                        $window.location = '/admin/content/pages/' + result.data._id.toString();
                     })
                     .error(function(error, status) {
                         $scope.errorMessage = error.message;

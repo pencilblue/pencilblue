@@ -41,8 +41,8 @@ DeletePage.prototype.render = function(cb) {
     dao.query('page', {_id: ObjectID(vars.id)}).then(function(pages) {
         if(pages.length === 0) {
             cb({
-				code: 500,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
 			});
 			return;
         }
@@ -52,7 +52,7 @@ DeletePage.prototype.render = function(cb) {
             if(util.isError(pagesDeleted) || pagesDeleted <= 0) {
                 cb({
 					code: 500,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
 				});
 				return;
             }

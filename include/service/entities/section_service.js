@@ -31,10 +31,10 @@ var VALID_TYPES = {
 SectionService.getPillNavOptions = function(activePill) {
     return [
         {
-            name: 'new_section',
+            name: 'new_nav_item',
             title: '',
             icon: 'plus',
-            href: '/admin/content/sections/new_section'
+            href: '/admin/content/navigation/new'
         }
     ];
 };
@@ -178,7 +178,7 @@ SectionService.prototype.getFormattedSections = function(localizationService, cu
         cb      = currUrl;
         currUrl = null;
     }
-    
+
 	pb.settings.get('section_map', function(err, sectionMap) {
         if (util.isError(err) || sectionMap == null) {
         	cb(err, []);
@@ -206,10 +206,10 @@ SectionService.prototype.getFormattedSections = function(localizationService, cu
 						section.children = [];
                         for(var j = 0; j < sectionMap[i].children.length; j++) {
                             var child = SectionService.getSectionData(sectionMap[i].children[j].uid, sections, currUrl);
-                            
+
                             //when the child is active so is the parent.
                             if (child.active) {
-                                section.active = true;   
+                                section.active = true;
                             }
                             section.children.push(child);
                         }
@@ -503,7 +503,7 @@ SectionService.prototype.save = function(navItem, options, cb) {
         cb      = options;
         options = {};
     }
-    
+
     //validate
     var self = this;
     self.validate(navItem, function(err, validationErrors) {
@@ -538,7 +538,7 @@ SectionService.getSectionData = function(uid, navItems, currUrl) {
     	var navItem = navItems[i];
         if(navItem[pb.DAO.getIdField()].toString() === uid) {
         	SectionService.formatUrl(navItem);
-            
+
             //check for URL comparison
             if (currUrl === navItem.url) {
                 navItem.active = true;

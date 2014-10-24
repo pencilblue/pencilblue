@@ -48,7 +48,7 @@ EditPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
         if(util.isError(err) || page === null) {
             cb({
 				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
 			});
             return;
         }

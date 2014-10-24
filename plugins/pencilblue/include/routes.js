@@ -808,7 +808,7 @@ module.exports = [
         path: "/admin/content/navigation/new",
         access_level: ACCESS_EDITOR,
         auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'navigation', 'new_nav_item.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'navigation', 'nav_item_form.js'),
         content_type: 'text/html'
     },
     {
@@ -816,7 +816,7 @@ module.exports = [
         path: "/admin/content/navigation/:id",
         access_level: ACCESS_EDITOR,
         auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'navigation', 'edit_nav_item.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'navigation', 'nav_item_form.js'),
         content_type: 'text/html'
     },
     {
@@ -858,14 +858,6 @@ module.exports = [
         path: "/admin/content/articles",
         access_level: ACCESS_WRITER,
         auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles.js'),
-        content_type: 'text/html'
-    },
-    {
-        method: 'get',
-        path: "/admin/content/articles",
-        access_level: ACCESS_WRITER,
-        auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'manage_articles.js'),
         content_type: 'text/html'
     },
@@ -874,7 +866,7 @@ module.exports = [
         path: "/admin/content/articles/new",
         access_level: ACCESS_WRITER,
         auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'new_article.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'article_form.js'),
         content_type: 'text/html'
     },
     {
@@ -882,7 +874,7 @@ module.exports = [
         path: "/admin/content/articles/:id",
         access_level: ACCESS_WRITER,
         auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'edit_article.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'article_form.js'),
         content_type: 'text/html'
     },
     {
@@ -923,7 +915,7 @@ module.exports = [
         path: "/admin/content/pages/new",
         access_level: ACCESS_EDITOR,
         auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'new_page.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'page_form.js'),
         content_type: 'text/html'
     },
     {
@@ -931,7 +923,7 @@ module.exports = [
         path: "/admin/content/pages/:id",
         access_level: ACCESS_EDITOR,
         auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'edit_page.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'page_form.js'),
         content_type: 'text/html'
     },
     {

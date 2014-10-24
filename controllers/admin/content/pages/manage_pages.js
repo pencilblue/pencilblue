@@ -21,9 +21,6 @@
 
 function ManagePages(){}
 
-//dependencies
-var Pages = require('../pages');
-
 //inheritance
 util.inherits(ManagePages, pb.BaseController);
 
@@ -78,15 +75,17 @@ ManagePages.prototype.getPageStatuses = function(pages) {
 };
 
 ManagePages.getSubNavItems = function(key, ls, data) {
-	var pills = Pages.getPillNavOptions();
-	pills.unshift(
-    {
-        name: 'manage_pages',
-        title: ls.get('MANAGE_PAGES'),
-        icon: 'refresh',
-        href: '/admin/content/pages'
-    });
-    return pills;
+	return [{
+		name: 'manage_pages',
+		title: ls.get('MANAGE_PAGES'),
+		icon: 'refresh',
+		href: '/admin/content/pages'
+	}, {
+		name: 'new_page',
+		title: '' ,
+		icon: 'plus',
+		href: '/admin/content/pages/new'
+	}];
 };
 
 //register admin sub-nav

@@ -1,0 +1,20 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['validation'])
+    .controller('PencilBlueController', function($scope, $http, validationService) {
+        ^angular_objects^
+
+        $scope.saveNavItem = function() {
+            $scope.formSubmitted = true;
+            console.log(validationService.isFormValid($scope.navItemForm));
+        }
+
+        $scope.isFieldValid = function(field, validationType) {
+            if(!$scope.formSubmitted) {
+                return true;
+            }
+
+            return validationService.isFieldValid(field, validationType);
+        }
+    });
+</script>

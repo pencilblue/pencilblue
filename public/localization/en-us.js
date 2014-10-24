@@ -30,6 +30,7 @@ var loc =
         META_DATA: 'Meta data',
         SEO: 'SEO',
         FORM_INCOMPLETE: 'The form is incomplete',
+        INVALID_UID: 'An invalid unique id was provided',
         ERROR_SAVING: 'There was an error saving',
         ERROR_DELETING: 'There was an error deleting',
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
@@ -154,7 +155,8 @@ var loc =
         INVALID_URL: 'An invalid URL was provided',
         INVALID_MEDIA_URL: 'The media url does not contain the required information for importing',
         UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
-        OBJECT_NOT_FOUND: 'The requested object was not found in the system'
+        OBJECT_NOT_FOUND: 'The requested object was not found in the system',
+        REQUIRED_FIELD: 'This field is required'
     },
     error:
     {

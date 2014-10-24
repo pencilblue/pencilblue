@@ -3,7 +3,7 @@
 	^tmp_admin=elements=error_success^
 	^tmp_admin=elements=sub_nav^
 	^tmp_admin=elements=tab_nav^
-	<form name="editArticleForm" ng-submit="save()" novalidate>
+	<form name="articleForm" novalidate>
 		<fieldset>
 			<div class="tab-content">
 				<div class="tab-pane active" id="content">
@@ -100,7 +100,6 @@
 				<div class="spacer"></div>
 				<label id="draft_info" ng-if="article.draft">^loc_DRAFT_SAVED^ <span id="draft_time">{{article.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
 			</div>
-			<div class="additions" style="display: none"></div>
 		</fieldset>
 	</form>
 </div>
