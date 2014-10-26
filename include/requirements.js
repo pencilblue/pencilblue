@@ -91,6 +91,9 @@ pb.UserService = require(DOCUMENT_ROOT+'/include/service/entities/user_service.j
 pb.users = new pb.UserService();
 
 //setup request handling
+pb.BaseBodyParser      = require(path.join(DOCUMENT_ROOT, 'include/http/parsers/base_body_parser.js'));
+pb.JsonBodyParser      = require(path.join(DOCUMENT_ROOT, 'include/http/parsers/json_body_parser.js'));
+pb.FormBodyParser      = require(path.join(DOCUMENT_ROOT, 'include/http/parsers/form_body_parser.js'));
 pb.BaseController      = require(DOCUMENT_ROOT+'/controllers/base_controller.js').BaseController;
 pb.FormController      = require(DOCUMENT_ROOT+'/controllers/form_controller.js').FormController;
 pb.DeleteController    = require(DOCUMENT_ROOT+'/controllers/delete_controller.js').DeleteController;

@@ -92,6 +92,7 @@ BaseController.prototype.init = function(props, cb) {
 	this.req                 = props.request;
 	this.res                 = props.response;
 	this.session             = props.session;
+    this.body                = props.body;
 	this.localizationService = props.localization_service;
 	this.ls                  = this.localizationService;
 	this.pathVars            = props.path_vars;

@@ -32,6 +32,21 @@ function RequestHandler(server, req, resp){
 }
 
 /**
+ * A mapping that provides the interface type to parse the body based on the 
+ * route specification
+ * @private
+ * @static
+ * @readonly
+ * @property BODY_PARSER_MAP
+ * @type {Object}
+ */
+var BODY_PARSER_MAP = {
+    'application/json': pb.JsonBodyParser,
+    'application/x-www-form-urlencoded': pb.FormBodyParser,
+    'multipart/form-data': pb.FormBodyParser
+};
+
+/**
  * The fallback theme (pencilblue)
  * @static
  * @property DEFAULT_THEME
@@ -440,7 +455,7 @@ RequestHandler.prototype.serve404 = function() {
 
 	var NotFound  = require(path.join(DOCUMENT_ROOT, '/controllers/error/404.js'));
 	var cInstance = new NotFound();
-	this.doRender({}, cInstance);
+	this.doRender({}, cInstance, {});
 
 	if (pb.log.isSilly()) {
 		pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL="+this.url.href);
@@ -646,33 +661,226 @@ RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, method, 
 	//execute controller
 	var ControllerType  = route.themes[activeTheme][method].controller;
 	var cInstance       = new ControllerType();
-	this.doRender(pathVars, cInstance);
+	this.doRender(pathVars, cInstance, route.themes[activeTheme][method]);
 };
 
 /**
- *
+ * Begins the rendering process by initializing the controller.  This is done 
+ * by gathering all initialization parameters and calling the controller's 
+ * "init" function.
  * @method doRender
  * @param {Object} pathVars The URL path's variables
  * @param {BaseController} cInstance An instance of the controller to be executed
+ * @param {Object} themeRoute
  */
-RequestHandler.prototype.doRender = function(pathVars, cInstance) {
+RequestHandler.prototype.doRender = function(pathVars, cInstance, themeRoute) {
 	var self  = this;
-	var props = {
-	    request_handler: this,
-		request: this.req,
-		response: this.resp,
-		session: this.session,
-		localization_service: this.localizationService,
-		path_vars: pathVars,
-		query: this.url.query
-	};
-	cInstance.init(props, function(){
-		self.onControllerInitialized(cInstance);
-	});
+    
+    //attempt to parse body
+    this.parseBody(themeRoute.request_body, function(err, body) {
+        if (util.isError(err)) {
+            return self.serveError(err);
+        }
+        
+        var props = {
+            request_handler: self,
+            request: self.req,
+            response: self.resp,
+            session: self.session,
+            localization_service: self.localizationService,
+            path_vars: pathVars,
+            query: self.url.query,
+            body: body
+        };
+        cInstance.init(props, function(){
+            self.onControllerInitialized(cInstance, themeRoute);
+        });
+    });
+};
+
+/**
+ * Parses the incoming request body when the body type specified matches one of 
+ * those explicitly allowed by the rotue.
+ * @method parseBody
+ * @param {Array} mimes An array of allowed MIME strings.  
+ * @param {Function} cb A callback that takes 2 parameters: An Error, if 
+ * occurred and the parsed body.  The parsed value is often an object but the 
+ * value is dependent on the parser selected by the content type.
+ */ 
+RequestHandler.prototype.parseBody = function(mimes, cb) {
+    
+    //we don't force a mime.  Controllers have the ability to handle this 
+    //themselves.
+    if (!util.isArray(mimes)) {
+        return cb(null, null);
+    }
+
+    //verify that the content type is acceptable
+    var contentType = this.req.headers['content-type'];
+    if (contentType) {
+        
+        //we split on ';' to check for multipart encoding since it specifies a 
+        //boundary
+        contentType = contentType.split(';')[0];console.log('***'+util.inspect(mimes));console.log('***'+util.inspect(contentType));
+        if (mimes.indexOf(contentType) === -1) {
+            //a type was specified but its not accepted by the controller
+            //TODO return HTTP 415
+            return cb(null, null);
+        }
+    }
+    
+    //create the parser
+    var BodyParser = BODY_PARSER_MAP[contentType];
+    if (!BodyParser) {
+        pb.log.silly('RequestHandler: no handler was found to parse the body type [%s]', contentType);
+        return cb(null, null);
+    }
+    
+    //execute the parsing
+    var self = this;
+    var d = domain.create();
+    d.on('error', cb);
+    d.run(function() {
+        process.nextTick(function() {
+            
+            //initialize the parser and parse content
+            var parser = new BodyParser();
+            parser.parse(self.req, cb);
+        });
+    });
 };
 
 /**
  *
+ * @method onControllerInitialized
+ * @param {BaseController} controller
+ */
+RequestHandler.prototype.onControllerInitialized = function(controller, themeRoute) {
+	var self = this;
+    var d = domain.create();
+    d.add(controller);
+    d.run(function() {
+        process.nextTick(function() {
+            controller[themeRoute.handler ? themeRoute.handler : 'render'](function(result){
+                self.onRenderComplete(result);
+            });
+        });
+	});
+    d.on('error', function(err) {
+        pb.log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
+        self.serveError(err);
+    });
+};
+
+/**
+ *
+ * @method onRenderComplete
+ * @param {Object} data
+ */
+RequestHandler.prototype.onRenderComplete = function(data){
+
+	//set cookie
+    var cookies = new Cookies(this.req, this.resp);
+    if (this.setSessionCookie) {
+    	try{
+    		cookies.set(pb.SessionHandler.COOKIE_NAME, this.session.uid, pb.SessionHandler.getSessionCookie(this.session));
+    	}
+    	catch(e){
+    		pb.log.error('RequestHandler: %s', e.stack);
+    	}
+    }
+
+	//do any necessary redirects
+	var doRedirect = typeof data.redirect != "undefined";
+	if(doRedirect) {
+        this.doRedirect(data.redirect);
+    }
+	else {
+		//output data here
+		this.writeResponse(data);
+	}
+
+	//calculate response time
+	if (pb.log.isDebug()) {
+		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+
+				"ms URL=["+this.req.method+']'+
+				this.req.url+(doRedirect ? ' Redirect='+data.redirect : '') +
+				(data.code == undefined ? '' : ' CODE='+data.code));
+	}
+
+	//close session after data sent
+	//public content doesn't require a session so in order to not error out we
+	//check if the session exists first.
+	if (this.session) {
+		pb.session.close(this.session, function(err, result) {
+			//TODO handle any errors
+		});
+	}
+};
+
+/**
+ *
+ * @method writeResponse
+ * @param {Object} data
+ */
+RequestHandler.prototype.writeResponse = function(data){
+
+    //infer a response code when not provided
+    if(typeof data.code === 'undefined'){
+        data.code = 200;
+    }
+
+    // If a response code other than 200 is provided, force that code into the head
+    var contentType = 'text/html';
+    if (typeof data.content_type !== 'undefined') {
+    	contentType = data.content_type;
+    }
+    else if (this.themeRoute && this.themeRoute.content_type != undefined) {
+    	contentType = this.themeRoute.content_type;
+    }
+
+    //send response
+    //the catch allows us to prevent any plugins that callback trwice from
+    //screwing us over due to the attempt to write headers twice.
+    try {
+    	//set any custom headers
+    	if (pb.utils.isObject(data.headers)) {
+    		for(var header in data.headers) {
+    			this.resp.setHeader(header, data.headers[header]);
+    		}
+    	}
+        if (pb.config.server.x_powered_by) {
+            this.resp.setHeader('x-powered-by', pb.config.server.x_powered_by);
+        }
+    	this.resp.setHeader('content-type', contentType);
+    	this.resp.writeHead(data.code);
+    	this.resp.end(data.content);
+    }
+    catch(e) {
+    	pb.log.error('RequestHandler: '+e.stack);
+    }
+};
+
+/**
+ * Creates a cookie string
+ * @method writeCookie
+ * @param {Object} descriptor The pieces of the cookie that are to be included 
+ * in the string.  These pieces are represented as key value pairs.  Each value 
+ * will be serialized via its implicity "toString" function.
+ * @param {String} [cookieStr=''] The current cookie string if it exists
+ * @return {String} The cookie represented as a string
+ */
+RequestHandler.prototype.writeCookie = function(descriptor, cookieStr){
+	cookieStr = cookieStr ? cookieStr : '';
+
+	for(var key in descriptor) {
+        cookieStr += key + '=' + descriptor[key]+'; ';
+    }
+	return cookieStr;
+};
+
+/**
+ * Verifies that the incoming request meets all necessary security critiera
  * @method checkSecurity
  * @param {String} activeTheme
  * @param {String} method
@@ -780,133 +988,6 @@ RequestHandler.prototype.checkSecurity = function(activeTheme, method, cb){
 
 		cb(null, {success: true, results: results});
 	});
-};
-
-/**
- *
- * @method onControllerInitialized
- * @param {BaseController} controller
- */
-RequestHandler.prototype.onControllerInitialized = function(controller) {
-	var self = this;
-    var d = domain.create();
-    d.add(controller);
-    d.run(function() {
-        process.nextTick(function() {
-            controller.render(function(result){
-                self.onRenderComplete(result);
-            });
-        });
-	});
-    d.on('error', function(err) {
-        pb.log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
-        self.serveError(err);
-    });
-};
-
-/**
- *
- * @method onRenderComplete
- * @param {Object} data
- */
-RequestHandler.prototype.onRenderComplete = function(data){
-
-	//set cookie
-    var cookies = new Cookies(this.req, this.resp);
-    if (this.setSessionCookie) {
-    	try{
-    		cookies.set(pb.SessionHandler.COOKIE_NAME, this.session.uid, pb.SessionHandler.getSessionCookie(this.session));
-    	}
-    	catch(e){
-    		pb.log.error('RequestHandler: %s', e.stack);
-    	}
-    }
-
-	//do any necessary redirects
-	var doRedirect = typeof data.redirect != "undefined";
-	if(doRedirect) {
-        this.doRedirect(data.redirect);
-    }
-	else {
-		//output data here
-		this.writeResponse(data);
-	}
-
-	//calculate response time
-	if (pb.log.isDebug()) {
-		pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+
-				"ms URL=["+this.req.method+']'+
-				this.req.url+(doRedirect ? ' Redirect='+data.redirect : '') +
-				(data.code == undefined ? '' : ' CODE='+data.code));
-	}
-
-	//close session after data sent
-	//public content doesn't require a session so in order to not error out we
-	//check if the session exists first.
-	if (this.session) {
-		pb.session.close(this.session, function(err, result) {
-			//TODO handle any errors
-		});
-	}
-};
-
-/**
- *
- * @method writeResponse
- * @param {Object} data
- */
-RequestHandler.prototype.writeResponse = function(data){
-
-    //infer a response code when not provided
-    if(typeof data.code === 'undefined'){
-        data.code = 200;
-    }
-
-    // If a response code other than 200 is provided, force that code into the head
-    var contentType = 'text/html';
-    if (typeof data.content_type !== 'undefined') {
-    	contentType = data.content_type;
-    }
-    else if (this.themeRoute && this.themeRoute.content_type != undefined) {
-    	contentType = this.themeRoute.content_type;
-    }
-
-    //send response
-    //the catch allows us to prevent any plugins that callback trwice from
-    //screwing us over due to the attempt to write headers twice.
-    try {
-    	//set any custom headers
-    	if (pb.utils.isObject(data.headers)) {
-    		for(var header in data.headers) {
-    			this.resp.setHeader(header, data.headers[header]);
-    		}
-    	}
-        if (pb.config.server.x_powered_by) {
-            this.resp.setHeader('x-powered-by', pb.config.server.x_powered_by);
-        }
-    	this.resp.setHeader('content-type', contentType);
-    	this.resp.writeHead(data.code);
-    	this.resp.end(data.content);
-    }
-    catch(e) {
-    	pb.log.error('RequestHandler: '+e.stack);
-    }
-};
-
-/**
- *
- * @method writeCookie
- * @param {Object} descriptor
- * @param {String} cookieStr
- * @return {String}
- */
-RequestHandler.prototype.writeCookie = function(descriptor, cookieStr){
-	cookieStr = cookieStr ? cookieStr : '';
-
-	for(var key in descriptor) {
-        cookieStr += key + '=' + descriptor[key]+'; ';
-    }
-	return cookieStr;
 };
 
 /**
@@ -1019,6 +1100,24 @@ RequestHandler.isSystemSafeURL = function(url, id, cb) {
 	RequestHandler.urlExists(url, id, function(err, exists){
 		cb(err, !exists);
 	});
+};
+
+/**
+ * Registers a body parser prototype for the specified mime
+ * @static
+ * @method registerBodyParser
+ * @param {String} mime A non empty string representing the mime type that the prototype can parse
+ * @param {Function} prototype A prototype that can have an instance created and parse the specified mime type
+ * @return {Boolean} TRUE if the body parser was registered, FALSE if not
+ */
+RequestHandler.registerBodyParser = function(mime, protoype) {
+    if (!pb.validation.isNonEmptyStr(mime) || !pb.utils.isFunction(prototype)) {
+        return false;
+    }
+    
+    //set the prototype handler
+    BODY_PARSER_MAP[mime] = protoype;
+    return true;
 };
 
 //exports
