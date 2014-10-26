@@ -16,7 +16,7 @@
                     </a>
                 </h5>
             </div>
-            <div class="panel-body" ng-hide="item.type !== 'container'" style="padding: 1em; min-height: 50px" ng-model="item.children"  sortable="board.dragControlListeners">
+            <div class="panel-body" ng-hide="item.type !== 'container'" style="padding: 1em; min-height: 50px" ng-model="item.children"  sortable="containerDragListeners">
                 <div class="panel panel-default subnav-item" ng-repeat="child in item.children track by child._id" sortable-item>
                     <div class="panel-heading">
                         <h5>

@@ -5,6 +5,19 @@
 
         $scope.deleteNameKey = 'name';
 
+        $scope.containerDragListeners = {
+            accept: function (sourceItemHandleScope, destSortableScope) {
+                if(sourceItemHandleScope.itemScope.child) {
+                    return sourceItemHandleScope.itemScope.child.type !== 'container';
+                }
+                else {
+                    return sourceItemHandleScope.itemScope.item.type !== 'container';
+                }
+            },
+            itemMoved: function (event) {},
+            orderChanged: function(event) {},
+        }
+
         $scope.saveNavMap = function() {
             var navMap = [];
             for(var i = 0; i < $scope.navItems.length; i++) {

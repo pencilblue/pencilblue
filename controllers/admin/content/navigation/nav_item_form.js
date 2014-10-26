@@ -30,7 +30,7 @@ var SectionService = pb.SectionService;
 util.inherits(NavItemForm, pb.BaseController);
 
 //statics
-var SUB_NAV_KEY = 'new_section';
+var SUB_NAV_KEY = 'article_form';
 
 NavItemForm.prototype.render = function(cb) {
     var self = this;
@@ -47,6 +47,7 @@ NavItemForm.prototype.render = function(cb) {
         }
 
         self.navItem = data.navItem;
+        data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
         var angularObjects = pb.js.getAngularObjects(data);
 
         self.setPageName(self.navItem._id ? self.navItem.name : self.ls.get('NEW_NAV_ITEMs'));
@@ -104,12 +105,6 @@ NavItemForm.prototype.gatherData = function(vars, cb) {
             callback(null, SectionService.getTypes(self.ls));
         },
 
-        //breadcrumbs
-        pills: function(callback) {
-            var pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
-            callback(null, pills);
-        },
-
         navItem: function(callback) {
             if(!vars.id) {
                 var navItem = {
@@ -133,12 +128,11 @@ NavItemForm.prototype.getSubnavKey = function() {
 };
 
 NavItemForm.getSubNavItems = function(key, ls, data) {
-    //console.log(data);
     var pills = SectionService.getPillNavOptions();
     pills.unshift(
     {
         name: 'manage_nav_items',
-        title: ls.get('NEW_NAV_ITEM'),
+        title: data._id ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_NAV_ITEM'),
         icon: 'chevron-left',
         href: '/admin/content/navigation'
     });
