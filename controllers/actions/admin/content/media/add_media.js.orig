@@ -41,20 +41,15 @@ AddMediaActionController.prototype.onPostParamsRetrieved = function(post, cb) {
     }
 
     var mediaDocument = pb.DocumentCreator.create('media', post, ['media_topics'], ['is_file']);
-    var mediaService = new pb.MediaService();
-    mediaService.save(mediaDocument, function(err, result) {
-        if(util.isError(err)) {
+<<<<<<< HEAD
+    var dao = new pb.DAO();
+    dao.update(mediaDocument).then(function(result) {
+        if(util.isError(result)) {
 			cb({
 				code: 500,
 				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
 			});
             return;
-        }
-        else if(util.isArray(result)) {
-			cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, pb.CustomObjectService.createErrorStr(result))
-			});
         }
 
 		result.icon = mediaService.getMediaIcon(result.media_type);
@@ -64,11 +59,36 @@ AddMediaActionController.prototype.onPostParamsRetrieved = function(post, cb) {
 			content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, result.name + ' ' + self.ls.get('ADDED'), result)
 		});
     });
+=======
+    var mediaService = new pb.MediaService();
+    mediaService.save(mediaDocument, function(err, result) {
+        if (util.isError(err)) {
+            self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(), cb);
+            return;
+        }
+        else if (util.isArray(result)) {
+            return self.formError(pb.CustomObjectService.createErrorStr(result), self.getFormErrorRedirect(), cb);
+        }
+        self.onSaveSuccessful(result, cb);
+    });
+};
+
+AddMediaActionController.prototype.onSaveSuccessful = function(mediaDocument, cb) {
+	this.session.success = mediaDocument.name + ' ' + this.ls.get('ADDED');
+	this.redirect('/admin/content/media/add_media', cb);
+>>>>>>> master
 };
 
 AddMediaActionController.prototype.getRequiredParams = function() {
 	return ['media_type', 'location', 'name'];
 };
 
+<<<<<<< HEAD
+=======
+AddMediaActionController.prototype.getFormErrorRedirect = function(){
+	return '/admin/content/media/add_media';
+};
+
+>>>>>>> master
 //exports
 module.exports = AddMediaActionController;
