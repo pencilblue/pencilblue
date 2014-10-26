@@ -55,7 +55,7 @@ function getDefaultNavigation() {
                     id: 'topics',
                     title: 'TOPICS',
                     icon: 'tags',
-                    href: '/admin/content/topics/manage_topics',
+                    href: '/admin/content/topics',
                     access: ACCESS_EDITOR
                 },
                 {

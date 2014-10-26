@@ -356,6 +356,11 @@ form .error
     margin: 0 .5em .5em 0;
 }
 
+.topic_button {
+    border-color: #01AAD5;
+    color: #01AAD5;
+}
+
 .media_item a
 {
     color: #5D5D5D;

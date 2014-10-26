@@ -1,0 +1,63 @@
+<script type="text/javascript" src="^angular_upload_src^"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['angularFileUpload'])
+    .controller('PencilBlueController', function($scope, $http, $upload) {
+        ^angular_objects^
+
+        /*$scope.onFileSelect = function($files) {
+            for (var i = 0; i < $files.length && i < 1; i++) {
+                var file = $files[i];
+                $scope.uploading = true;
+                $scope.uploadPercent = 0;
+                $scope.upload = $upload.upload({
+                    url: '/api/admin/content/media/upload_media',
+                    file: file
+                }).progress(function(evt) {
+                    $scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
+                }).success(function(data, status, headers, config) {
+                    mediaService.loadMediaLink(data.filename, function(err, result) {
+                        if(err) {
+                            $scope.uploading = false;
+                            console.log(err);
+                            return;
+                        }
+
+                        $scope.addedMedia.media_type = result.data.mediaType;
+                        $scope.addedMedia.location = result.data.location;
+                        $scope.addedMedia.thumb = result.data.thumb;
+                        $scope.addedMedia.is_file = result.data.isFile;
+
+                        mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+                            $scope.uploading = false;
+
+                            if(err) {
+                                console.log(err);
+                                return;
+                            }
+
+                            $scope.uploadPreview = result.data;
+                        })
+                    });
+                });
+            }
+        };
+
+        $scope.saveAddedMedia = function() {
+            $scope.savingMedia = true;
+
+            var mediaObject = JSON.parse(JSON.stringify($scope.addedMedia));
+            delete mediaObject.link;
+
+            mediaService.saveMedia(mediaObject)
+            .then(function(result) {
+                $scope.savingMedia = false;
+                $scope.editingObject[$scope.variablePrefix + '_media'].push(result.data);
+                $('#media_modal').modal('hide');
+            },
+            function(result, status) {
+                $scope.savingMedia = false;
+                console.log(result);
+            });
+        };*/
+    });
+</script>
