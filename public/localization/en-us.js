@@ -156,7 +156,8 @@ var loc =
         INVALID_MEDIA_URL: 'The media url does not contain the required information for importing',
         UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
         OBJECT_NOT_FOUND: 'The requested object was not found in the system',
-        REQUIRED_FIELD: 'This field is required'
+        REQUIRED_FIELD: 'This field is required',
+        INVALID_FILE: 'An invalid file was supplied'
     },
     error:
     {

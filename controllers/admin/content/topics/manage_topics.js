@@ -36,7 +36,7 @@ ManageTopics.prototype.render = function(cb) {
 
 		//none to manage
         if(topics.length === 0) {
-            self.redirect('/admin/content/topics/new_topic', cb);
+            self.redirect('/admin/content/topics/new', cb);
             return;
         }
 

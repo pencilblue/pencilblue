@@ -46,9 +46,14 @@
             }
 
             $scope.deleting = true;
-            /*$http({method: 'DELETE', url: '/actions/admin/content/articles/' + $scope.objectToDelete._id})
+            $http({method: 'DELETE', url: '/actions/admin/content/topics/' + $scope.objectToDelete._id})
             .success(function(result) {
-                $scope.articles.splice($scope.objectToDeleteIndex, 1);
+                for(var i = 0; i < $scope.topics.length; i ++) {
+                    if($scope.topics[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+                        $scope.topics.splice(i, 1);
+                        break;
+                    }
+                }
                 $scope.deleting = false;
                 $scope.successMessage = result.message;
                 $scope.paginate(0);
@@ -58,7 +63,9 @@
                 $scope.deleting = false;
                 $scope.errorMessage = error.message;
                 $('#confirm_delete_modal').modal('hide');
-            });*/
+            });
         }
+
+        $scope.paginate(0);
     });
 </script>

@@ -830,14 +830,6 @@ module.exports = [
         content_type: 'text/html'
     },
     {
-        method: 'delete',
-        path: "/actions/admin/content/topics/:id",
-        access_level: ACCESS_EDITOR,
-        auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'delete_topic.js'),
-        content_type: 'text/html'
-    },
-    {
         method: 'post',
         path: "/actions/admin/content/topics",
         access_level: ACCESS_EDITOR,
@@ -859,6 +851,14 @@ module.exports = [
         access_level: ACCESS_EDITOR,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'edit_topic.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/topics/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'delete_topic.js'),
         content_type: 'text/html'
     },
 

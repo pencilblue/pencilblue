@@ -42,7 +42,14 @@ ImportTopics.prototype.render = function(cb) {
                 return;
             }
 
-            var topics = data.toString().split(',');
+            var topics = data.toString().trim().split(',');
+			if(topics.length <= 1) {
+				cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_FILE'))
+				});
+			}
+
             self.saveTopics(topics, cb);
         });
     });
@@ -77,8 +84,15 @@ ImportTopics.prototype.saveTopics = function(topics, cb) {
 
     //execute in parallel
     async.parallelLimit(tasks, 3, function(err, results){
-    	content.completed = !util.isError(err);
-    	cb({content: JSON.stringify(content), content_type: 'application/json'});
+    	if(util.isError(err)) {
+			cb({
+				code: 500,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+			});
+			return;
+		}
+		
+		cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, loc.topics.TOPICS_CREATED)});
     });
 };
 
