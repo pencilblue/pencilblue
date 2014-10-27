@@ -98,7 +98,9 @@ LibrariesService.getCDNDefaults = function() {
         to_markdown: '/js/lib/to_markdown/to-markdown.js',
         markdown: '/js/lib/markdown/lib/markdown.js',
         angular_upload: '//cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/1.6.1/angular-file-upload.min.js',
-        angular_upload_shim: '//cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/1.6.1/angular-file-upload-shim.min.js'
+        angular_upload_shim: '//cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/1.6.1/angular-file-upload-shim.min.js',
+        ng_sortable_css: '/css/lib/ng-sortable/ng-sortable.min.css',
+        ng_sortable_js: '/js/lib/ng-sortable/ng-sortable.min.js'
     };
 };
 
@@ -132,7 +134,9 @@ LibrariesService.getBowerDefaults = function() {
         to_markdown: '/bower_components/to-markdown/src/to-markdown.js',
         markdown: '/bower_components/markdown/lib/markdown.js',
         angular_upload: '/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload.min.js',
-        angular_upload_shim: '/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload-shim.min.js'
+        angular_upload_shim: '/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload-shim.min.js',
+        ng_sortable_css: '/bower_components/ng-sortable/dist/ng-sortable.min.css',
+        ng_sortable_js: '/bower_components/ng-sortable/dist/ng-sortable.min.js'
     };
 };
 
