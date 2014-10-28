@@ -2,23 +2,11 @@
 <div class="col-md-9">
     ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
-    <div class="input-group" style="margin-bottom: .5em">
-        <input type="text" ng-model="searchText" ng-change="search()" class="form-control"></input>
-        <span class="input-group-btn">
-            <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}" ng-click="clearSearch()"></i></button>
-        </span>
-    </div>
+    ^tmp_admin=elements=search_input^
     <div class="table_container">
         <table class="table table-responsive table-condensed">
-            <tr>
-                <th ng-repeat="header in tableHeaders" ng-class="{'clickable': !header.unsorted}" ng-click="sort($index)">
-                    <span ng-bind="header.name"></span>&nbsp;
-                    <i class="fa fa-sort-asc" ng-if="header.sortAsc"></i>
-                    <i class="fa fa-sort-desc" ng-if="header.sortDesc"></i>
-                </th>
-                <th></th>
-            </tr>
-            <tr class="page_row" ng-repeat="page in pages track by page._id">
+            ^tmp_admin=elements=table_headers^
+            <tr ng-repeat="page in pages track by page._id">
                 <td><a ng-href="/admin/content/pages/{{page._id}}" ng-bind="page.headline"></a></td>
                 <td ng-bind="page.status"></td>
                 <td ng-bind="page.url"></td>

@@ -21,9 +21,6 @@
 
 function ImportTopics(){}
 
-//var dependencies
-var Topics = require('../topics');
-
 //inheritance
 util.inherits(ImportTopics, pb.BaseController);
 

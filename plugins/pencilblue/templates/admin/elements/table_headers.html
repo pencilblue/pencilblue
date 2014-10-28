@@ -1,0 +1,8 @@
+<tr>
+    <th ng-repeat="header in tableHeaders" ng-class="{'clickable': !header.unsorted}" ng-click="sort($index)">
+        <span ng-bind="header.name"></span>&nbsp;
+        <i class="fa fa-sort-asc" ng-if="header.sortAsc"></i>
+        <i class="fa fa-sort-desc" ng-if="header.sortDesc"></i>
+    </th>
+    <th></th>
+</tr>

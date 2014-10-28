@@ -90,7 +90,7 @@ function getDefaultNavigation() {
                     id: 'custom_objects',
                     title: 'CUSTOM_OBJECTS',
                     icon: 'sitemap',
-                    href: '/admin/content/custom_objects/manage_object_types',
+                    href: '/admin/content/objects/types',
                     access: ACCESS_EDITOR
                 }
             ]

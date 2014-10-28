@@ -241,14 +241,6 @@ module.exports = [
     },
     {
     	method: 'get',
-    	path: "/api/custom_objects/get_object_type_name_available",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_name_available.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
     	path: "/preview/:type/:id",
     	access_level: ACCESS_WRITER,
     	auth_required: true,
@@ -260,30 +252,6 @@ module.exports = [
     	path: "/actions/user/manage_account/change_password",
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'manage_account', 'change_password.js'),
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects",
-    	auth_required: true,
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/manage_object_types",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_object_types.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/new_object_type",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
-    	content_type: 'text/html'
     },
     {
     	method: 'post',
@@ -299,47 +267,16 @@ module.exports = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'resend_verification.js'),
     },
     {
-        method: 'post',
-    	path: "/actions/admin/content/custom_objects/new_object_type",
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/edit_object_type/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
-    	content_type: 'text/html'
-    },
-    {
     	method: 'post',
     	path: "/actions/user/sign_up",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'sign_up.js'),
     },
     {
-        method: 'post',
-    	path: "/actions/admin/content/custom_objects/edit_object_type/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
-    	content_type: 'text/html'
-    },
-    {
     	method: 'get',
     	path: "/actions/user/verify_email",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'verify_email.js'),
-    },
-    {
-        method: 'get',
-    	path: "/actions/admin/content/custom_objects/delete_object_type/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object_type.js'),
-    	content_type: 'text/html'
     },
     {
     	method: 'get',
@@ -453,60 +390,6 @@ module.exports = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'sign_up.js'),
     },
     {
-    	path: "/admin/content/custom_objects/manage_objects/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_objects.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	path: "/admin/content/custom_objects/sort_objects/:type_id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'sort_objects.js'),
-    	content_type: 'text/html'
-    },
-    {
-        method: 'post',
-    	path: "/actions/admin/content/custom_objects/sort_objects/:type_id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'sort_objects.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/new_object/:type_id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/custom_objects/new_object/:type_id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'new_object.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/edit_object/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/custom_objects/edit_object/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object.js'),
-    	content_type: 'text/html'
-    },
-    {
     	method: 'get',
     	path: "/api/user/get_username_available",
     	auth_required: false,
@@ -518,14 +401,6 @@ module.exports = [
     	path: "/user/login",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'login.js'),
-    },
-    {
-        method: 'get',
-    	path: "/actions/admin/content/custom_objects/delete_object/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object.js'),
-    	content_type: 'text/html'
     },
     {
     	method: 'get',
@@ -958,6 +833,127 @@ module.exports = [
         access_level: ACCESS_EDITOR,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),
+        content_type: 'text/html'
+    },
+
+    // CUSTOM OBJECT TYPES
+    {
+        method: 'get',
+        path: "/admin/content/objects/types",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'types', 'manage_types.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/objects/types/new",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'types', 'type_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/objects/types/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'type', 'type_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/api/objects/types/available",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'objects', 'types', 'get_available.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/types/new",
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'new_type.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/types/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'edit_type.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/objects/types/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'delete_type.js'),
+        content_type: 'text/html'
+    },
+
+    // CUSTOM OBJECTS
+    {
+        path: "/admin/content/objects/:type_id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'manage_objects.js'),
+        content_type: 'text/html'
+    },
+    {
+        path: "/admin/content/objects/:type_id/sort",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'sort_objects.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/objects/:type_id/new",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'object_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/objects/:type_id/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'object_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/:type_id/sort",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'sort_objects.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/:type_id/new",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'new_object.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/:type_id/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'edit_object.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/objects/:type_id/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'delete_object.js'),
         content_type: 'text/html'
     },
 ];
