@@ -1,0 +1,28 @@
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['ui.sortable'])
+    .controller('PencilBlueController', function($scope, $http) {
+        ^angular_objects^
+        ^tmp_angular=admin=elements=is_field_valid^
+
+        $scope.nameAvailable = null;
+
+        $scope.getAvailableFieldTypes = function(fieldType) {
+            switch(fieldType) {
+                case 'text':
+                case 'number':
+                    return ['text', 'number'];
+                default:
+                    return $scope.objectTypes;
+            }
+        }
+
+        $scope.setFieldType = function(value, fieldType) {
+            if(value.field_type === 'peer_object' || value.field_type === 'child_objects') {
+                value.object_type = fieldType;
+                return;
+            }
+
+            value.field_type = fieldType;
+        };
+    });
+</script>

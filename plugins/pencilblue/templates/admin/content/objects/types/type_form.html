@@ -1,0 +1,80 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form id="typeForm" ng-submit="saveObjectType()" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="object_settings">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(typeForm.name)}">
+                        <label>^loc_NAME^</label>
+                        <div class="input-group">
+                            <input type="text" name="name" class="form-control" ng-model="objectType.name" ng-change="resetAvailability()"></input>
+                            <span class="input-group-btn">
+                                <button type="button" class="btn" ng-class="{'btn-default': nameAvailable === null, 'btn-success': nameAvailable === true, 'btn-danger': nameAvailable === false}" ng-click="getAvailability()">
+                                    <span ng-if="nameAvailable === null">^loc_CHECK^</span>
+                                    <span ng-if="nameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
+                                    <span ng-if="nameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="object_fields">
+                    <div class="form-group" ng-repeat="(key, value) in objectType.fields">
+                        <label>
+                            <span ng-if="value.field_type === 'text' || value.field_type === 'number'">^loc_VALUE^</span>
+                            <span ng-if="value.field_type === 'date'">^loc_DATE^</span>
+                            <span ng-if="value.field_type === 'peer_object'">^loc_PEER_OBJECT^</span>
+                            <span ng-if="value.field_type === 'child_objects'">^loc_CHILD_OBJECTS^</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-bars"></i></span>
+                            <input type="text" name="field_{{$index}}" class="form-control" ng-model="key" placeholder="^loc_NAME^"></input>
+                            <div class="input-group-btn" ng-if="value.field_type !== 'date'">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span ng-bind="value.object_type || value.field_type"></span>&nbsp;<span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu pull-right">
+                                    <li ng-repeat="availableFieldType in getAvailableFieldTypes(value.field_type)">
+                                        <a href="#" ng-click="setFieldType(value, availableFieldType)" ng-bind="availableFieldType"></a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click="removeField(key)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!--<div id="custom_field_buttons">
+                        <label>^loc_ADD_FIELD^...</label><br/>
+                        <button type="button" class="btn btn-success" onclick="addCustomField('#value_template')" style="margin-bottom: .5em">
+                            <i class="fa fa-keyboard-o"></i>&nbsp;^loc_VALUE^
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="addCustomField('#date_template')" style="margin-bottom: .5em">
+                            <i class="fa fa-calendar"></i>&nbsp;^loc_DATE^
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="addCustomField('#peer_object_template')" style="margin-bottom: .5em">
+                            <i class="fa fa-link"></i>&nbsp;^loc_PEER_OBJECT^
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="addCustomField('#child_objects_template')" style="margin-bottom: .5em">
+                            <i class="fa fa-sitemap"></i>&nbsp;^loc_CHILD_OBJECTS^
+                        </button>
+                    </div>-->
+                </div>
+                <button type="button" class="btn btn-default" onclick="window.location = '^site_root^/admin/content/custom_objects/manage_object_types';">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </button>
+                <button type="button" class="btn btn-primary" onclick="prepareNewObjectTypeSave()">
+                    <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                </button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+^tmp_angular=admin=content=objects=types=type_form^
+^tmp_admin=footer^

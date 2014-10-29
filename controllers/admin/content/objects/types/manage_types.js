@@ -68,12 +68,12 @@ ManageObjectTypes.getSubNavItems = function(key, ls, data) {
         name: SUB_NAV_KEY,
         title: ls.get('MANAGE_OBJECT_TYPES'),
         icon: 'refresh',
-        href: '/admin/content/custom_objects/manage_object_types'
+        href: '/admin/content/objects/types'
     }, {
         name: 'new_object_type',
         title: '',
         icon: 'plus',
-        href: '/admin/content/custom_objects/new_object_type'
+        href: '/admin/content/objects/types/new'
     }];
 };
 

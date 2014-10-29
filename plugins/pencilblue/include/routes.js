@@ -858,7 +858,7 @@ module.exports = [
         path: "/admin/content/objects/types/:id",
         access_level: ACCESS_EDITOR,
         auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'type', 'type_form.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'types', 'type_form.js'),
         content_type: 'text/html'
     },
     {
