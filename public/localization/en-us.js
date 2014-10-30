@@ -351,6 +351,7 @@ var loc =
         ADD_FIELD: 'Add a field',
         VALUE: 'Value',
         TEXT: 'text',
+        BOOLEAN: 'Boolean',
         NUMBER: 'number',
         PEER_OBJECT: 'Peer object',
         CHILD_OBJECTS: 'Child objects',

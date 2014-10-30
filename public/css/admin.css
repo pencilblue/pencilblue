@@ -356,6 +356,10 @@ form .error
     margin: 0 .5em .5em 0;
 }
 
+.add_field_button {
+    margin-bottom: .5em;
+}
+
 .media_item a
 {
     color: #5D5D5D;

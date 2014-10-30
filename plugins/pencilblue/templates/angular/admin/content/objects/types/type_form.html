@@ -6,6 +6,15 @@
 
         $scope.nameAvailable = null;
 
+        // Move key/value of fields to an array, so ng-sortable will work with it
+        var fieldArray = [];
+        for(var key in $scope.objectType.fields) {
+            var field = JSON.parse(JSON.stringify($scope.objectType.fields[key]));
+            field.name = key;
+            fieldArray.push(field);
+        }
+        $scope.objectType.fields = fieldArray;
+
         $scope.getAvailableFieldTypes = function(fieldType) {
             switch(fieldType) {
                 case 'text':
@@ -16,13 +25,72 @@
             }
         }
 
-        $scope.setFieldType = function(value, fieldType) {
-            if(value.field_type === 'peer_object' || value.field_type === 'child_objects') {
-                value.object_type = fieldType;
+        $scope.setFieldType = function(field, fieldType) {
+            if(field.field_type === 'peer_object' || field.field_type === 'child_objects') {
+                field.object_type = fieldType;
                 return;
             }
 
-            value.field_type = fieldType;
+            field.field_type = fieldType;
+        };
+
+        $scope.addField = function(fieldType) {
+            switch(fieldType) {
+                case 'value':
+                    $scope.objectType.fields.push({name: '', field_type: 'text'});
+                    break;
+                case 'boolean':
+                    $scope.objectType.fields.push({name: '', field_type: 'boolean'});
+                    break;
+                case 'date':
+                    $scope.objectType.fields.push({name: '', field_type: 'date'});
+                    break;
+                case 'peer_object':
+                    $scope.objectType.fields.push({name: '', field_type: 'peer_object', object_type: 'article'});
+                    break;
+                case 'child_objects':
+                    $scope.objectType.fields.push({name: '', field_type: 'child_objects', object_type: 'article'});
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        $scope.removeField = function(index) {
+            $scope.objectType.fields.splice(index, 1);
+        };
+
+        $scope.saveObjectType = function() {
+            var saveObject = JSON.parse(JSON.stringify($scope.objectType));
+            var fields = {};
+            for(var i = 0; i < saveObject.fields.length; i++) {
+                var name = saveObject.fields[i].name.toString();
+                if(!name.length) {
+                    saveObject.fields.splice(i, 1);
+                    $scope.objectType.fields.splice(i, 1);
+                    i--;
+                    continue;
+                }
+
+                delete saveObject.fields[i].name;
+                fields[name] = saveObject.fields[i];
+            }
+            saveObject.fields = fields;
+
+            var postURL = '/actions/admin/content/objects/types'
+            if(saveObject._id) {
+                postURL += '/' + saveObject._id;
+            }
+
+            $http.post(postURL, saveObject)
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
         };
     });
 </script>
