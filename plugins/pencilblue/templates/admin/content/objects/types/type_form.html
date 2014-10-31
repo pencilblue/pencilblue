@@ -12,7 +12,7 @@
                         <div class="input-group">
                             <input type="text" name="name" class="form-control" ng-model="objectType.name" ng-change="resetAvailability()"></input>
                             <span class="input-group-btn">
-                                <button type="button" class="btn" ng-class="{'btn-default': nameAvailable === null, 'btn-success': nameAvailable === true, 'btn-danger': nameAvailable === false}" ng-click="getAvailability()">
+                                <button type="button" class="btn" ng-class="{'btn-default': nameAvailable === null, 'btn-success': nameAvailable === true, 'btn-danger': nameAvailable === false}" ng-click="getAvailability()" ng-disabled="!objectType.name.length">
                                     <span ng-if="nameAvailable === null">^loc_CHECK^</span>
                                     <span ng-if="nameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
                                     <span ng-if="nameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>

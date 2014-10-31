@@ -5,6 +5,7 @@
         ^tmp_angular=admin=elements=is_field_valid^
 
         $scope.nameAvailable = null;
+        $scope.originalName = $scope.objectType.name;
 
         // Move key/value of fields to an array, so ng-sortable will work with it
         var fieldArray = [];
@@ -14,6 +15,34 @@
             fieldArray.push(field);
         }
         $scope.objectType.fields = fieldArray;
+
+        $scope.resetAvailability = function() {
+            $scope.nameAvailable = null;
+        }
+
+        $scope.getAvailability = function() {
+            if(!$scope.objectType.name.length) {
+                return;
+            }
+
+            if($scope.originalName.toLowerCase() === $scope.objectType.name.toLowerCase()) {
+                $scope.nameAvailable = true;
+                return;
+            }
+
+            $http.get('/api/objects/types/available?name=' + $scope.objectType.name)
+            .success(function(result) {
+                $scope.nameAvailable = result.data;
+            })
+            .error(function(error, status) {
+                if(error.message) {
+                    $scope.errorMessage = error.message;
+                    return;
+                }
+
+                $scope.errorMessae = error.toString();
+            })
+        }
 
         $scope.getAvailableFieldTypes = function(fieldType) {
             switch(fieldType) {

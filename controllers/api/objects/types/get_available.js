@@ -19,12 +19,12 @@
  * Checks to see if the proposed name for a custom object type is available
  */
 
-function GetObjectTypeNameAvailable(){}
+function GetObjectTypeAvailable(){}
 
 //inheritance
-util.inherits(GetObjectTypeNameAvailable, pb.FormController);
+util.inherits(GetObjectTypeAvailable, pb.FormController);
 
-GetObjectTypeNameAvailable.prototype.render = function(cb) {
+GetObjectTypeAvailable.prototype.render = function(cb) {
 	var self = this;
 	var get = this.query;
 
@@ -62,4 +62,4 @@ GetObjectTypeNameAvailable.prototype.render = function(cb) {
 };
 
 //exports
-module.exports = GetObjectTypeNameAvailable;
+module.exports = GetObjectTypeAvailable;
