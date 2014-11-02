@@ -1,11 +1,11 @@
 <script type="text/javascript">
     angular.module('pencilblueApp', ['ui.sortable'])
-    .controller('PencilBlueController', function($scope, $http) {
+    .controller('PencilBlueController', function($scope, $http, $window) {
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
 
         $scope.nameAvailable = null;
-        $scope.originalName = $scope.objectType.name;
+        $scope.originalName = $scope.objectType.name ? $scope.objectType.name.toString() : '';
 
         // Move key/value of fields to an array, so ng-sortable will work with it
         var fieldArray = [];
@@ -16,33 +16,24 @@
         }
         $scope.objectType.fields = fieldArray;
 
-        $scope.resetAvailability = function() {
-            $scope.nameAvailable = null;
-        }
-
         $scope.getAvailability = function() {
-            if(!$scope.objectType.name.length) {
-                return;
-            }
-
-            if($scope.originalName.toLowerCase() === $scope.objectType.name.toLowerCase()) {
+            if($scope.objectType.name.toLowerCase() === $scope.originalName.toLowerCase()) {
                 $scope.nameAvailable = true;
                 return;
             }
 
-            $http.get('/api/objects/types/available?name=' + $scope.objectType.name)
+            $http.get('/api/admin/content/objects/types/available?name=' + $scope.objectType.name)
             .success(function(result) {
                 $scope.nameAvailable = result.data;
             })
             .error(function(error, status) {
-                if(error.message) {
-                    $scope.errorMessage = error.message;
-                    return;
-                }
+                $scope.errorMessage = error.message;
+            });
+        };
 
-                $scope.errorMessae = error.toString();
-            })
-        }
+        $scope.resetAvailability = function() {
+            $scope.nameAvailable = null;
+        };
 
         $scope.getAvailableFieldTypes = function(fieldType) {
             switch(fieldType) {
@@ -52,7 +43,7 @@
                 default:
                     return $scope.objectTypes;
             }
-        }
+        };
 
         $scope.setFieldType = function(field, fieldType) {
             if(field.field_type === 'peer_object' || field.field_type === 'child_objects') {
@@ -115,6 +106,10 @@
             .success(function(result) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
+
+                if(result.data) {
+                    $window.location = '/admin/content/objects/types/' + result.data._id.toString();
+                }
             })
             .error(function(error, status) {
                 $scope.errorMessage = error.message;

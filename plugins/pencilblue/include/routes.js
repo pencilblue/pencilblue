@@ -863,15 +863,15 @@ module.exports = [
     },
     {
         method: 'get',
-        path: "/api/objects/types/available",
+        path: "/api/admin/content/objects/types/available",
         access_level: ACCESS_EDITOR,
         auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'objects', 'types', 'get_available.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'objects', 'types', 'available.js'),
         content_type: 'text/html'
     },
     {
         method: 'post',
-        path: "/actions/admin/content/objects/types/new",
+        path: "/actions/admin/content/objects/types",
         access_level: ACCESS_EDITOR,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'new_type.js'),
         content_type: 'text/html'

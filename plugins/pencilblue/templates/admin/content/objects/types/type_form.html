@@ -3,14 +3,14 @@
     ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
     ^tmp_admin=elements=tab_nav^
-    <form id="typeForm" ng-submit="saveObjectType()" novalidate>
+    <form name="typeForm" ng-submit="saveObjectType()" novalidate>
         <fieldset>
             <div class="tab-content">
                 <div class="tab-pane active" id="object_settings">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(typeForm.name)}">
                         <label>^loc_NAME^</label>
                         <div class="input-group">
-                            <input type="text" name="name" class="form-control" ng-model="objectType.name" ng-change="resetAvailability()"></input>
+                            <input type="text" name="name" class="form-control" ng-model="objectType.name" ng-change="resetAvailability()" required></input>
                             <span class="input-group-btn">
                                 <button type="button" class="btn" ng-class="{'btn-default': nameAvailable === null, 'btn-success': nameAvailable === true, 'btn-danger': nameAvailable === false}" ng-click="getAvailability()" ng-disabled="!objectType.name.length">
                                     <span ng-if="nameAvailable === null">^loc_CHECK^</span>
@@ -19,6 +19,7 @@
                                 </button>
                             </span>
                         </div>
+                        <div class="form_error" ng-if="!isFieldValid(typeForm.name)">^loc_REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <div class="tab-pane" id="object_fields" ng-model="objectType.fields" sortable="board.dragControlListeners">
@@ -73,7 +74,7 @@
                 <a class="btn btn-default" href="/admin/content/objects/types">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
                 </a>
-                <button type="button" class="btn btn-primary" ng-click="saveObjectType">
+                <button type="submit" class="btn btn-primary">
                     <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
                 </button>
             </div>

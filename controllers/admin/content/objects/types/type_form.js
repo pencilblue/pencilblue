@@ -96,6 +96,7 @@ TypeForm.prototype.gatherData = function(vars, cb) {
             }
 
             cos.loadTypeById(vars.id, function(err, objectType) {
+                delete objectType.fields.name;
                 callback(err, objectType);
             });
         }
