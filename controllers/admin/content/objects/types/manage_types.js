@@ -37,7 +37,7 @@ ManageObjectTypes.prototype.render = function(cb) {
 
         //none to manage
         if(custObjTypes.length === 0) {
-            self.redirect('/admin/content/custom_objects/new_object_type', cb);
+            self.redirect('/admin/content/objects/types/new', cb);
             return;
         }
 
