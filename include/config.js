@@ -508,9 +508,12 @@ var config = {
 };
 
 var CONFIG_FILE_NAME    = 'config.json';
+var CONFIG_MODULE_NAME  = 'config.js';
 var OVERRIDE_FILE_PATHS = [
     path.join(DOCUMENT_ROOT, CONFIG_FILE_NAME),
     path.join(EXTERNAL_ROOT, CONFIG_FILE_NAME),
+    path.join(DOCUMENT_ROOT, CONFIG_MODULE_NAME),
+    path.join(EXTERNAL_ROOT, CONFIG_MODULE_NAME),
 ];
 
 /**
@@ -522,15 +525,15 @@ var OVERRIDE_FILE_PATHS = [
 var loadConfiguration = function() {
 
     // If no log file exists, we should create one
-	// TODO decide if this is still needed or if the file logger creates the file for us
     if (!fs.existsSync(LOG_FILE)) {
         if (!fs.existsSync(LOG_DIR)) {
             fs.mkdirSync(LOG_DIR);
         }
-        console.log("SystemStartup: Creating log file ["+LOG_FILE+']');
+        console.log('SystemStartup: Creating log file [%s]', LOG_FILE);
         fs.writeFileSync(LOG_FILE, '');
     }
 
+    //find the override file, if exists
     var override       = {};
     var overrideFile   = null;
     var overridesFound = false;
@@ -539,40 +542,36 @@ var loadConfiguration = function() {
     	overrideFile = OVERRIDE_FILE_PATHS[i];
     	if (fs.existsSync(overrideFile)) {
 
-    		var result = fs.readFileSync(overrideFile, {encoding: "UTF-8"});
-    	    if (typeof result === 'Error') {
-    	        console.log('SystemStartup: Failed to read external configuration file ['+overrideFile+'].');
-    	    }
-    	    else{
-    		    try{
-    		      override       = JSON.parse(result);
-    		      overridesFound = true;
-    		      break;
-    		    }
-    		    catch(e){
-    		      console.log('SystemStartup: Failed to parse configuration file ['+overrideFile+']: '+e.message);
-    		    }
-    	    }
+            try{
+              override       = require(overrideFile);
+              overridesFound = true;
+              break;
+            }
+            catch(e){
+              console.log('SystemStartup: Failed to parse configuration file [%s]: %s', overrideFile, e.stack);
+            }
     	}
     	else {
-    		console.log('SystemStartup: No configuration file ['+overrideFile+'] found.');
+    		console.log('SystemStartup: No configuration file [%s] found.', overrideFile);
     	}
     }
 
     //log result
     var message = overridesFound ? 'Override file ['+overrideFile+'] will be applied.' : 'No overrides are available, skipping to defaults';
-    console.log('SystemStartup: '+message);
+    console.log('SystemStartup: %s', message);
 
     //perform any overrides
     config = utils.deepMerge(override, config);
 
     //setup logging
-    config.logging = {
-		transports: [
-             new (winston.transports.Console)({ level: config.log_level, timestamp: true, label: cluster.worker ? cluster.worker.id : 'M'}),
-             new (winston.transports.File)({ filename: LOG_FILE, level: config.log_level, timestamp: true })
-       ]
-	};
+    if (!config.logging) {
+        config.logging = {
+            transports: [
+                 new (winston.transports.Console)({ level: config.log_level, timestamp: true, label: cluster.worker ? cluster.worker.id : 'M'}),
+                 new (winston.transports.File)({ filename: LOG_FILE, level: config.log_level, timestamp: true })
+           ]
+        };
+    }
 
     //special check to ensure that there is no ending slash on the site root
     if (config.siteRoot.lastIndexOf('/') === (config.siteRoot.length - 1)) {
