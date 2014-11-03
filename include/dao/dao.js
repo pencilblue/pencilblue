@@ -162,7 +162,10 @@ DAO.prototype.exists = function(collection, where, cb) {
  * @param  {Function} cb            Callback function
  */
 DAO.prototype.unique = function(collection, where, exclusionId, cb) {
-	cb = cb || exclusionId;
+	if (pb.utils.isFunction(exclusionId)) {
+        cb          = exclusionId;
+        exclusionId = null;
+    }
 
 	//validate parameters
 	if (!pb.utils.isObject(where) || !pb.utils.isString(collection)) {
@@ -319,7 +322,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 			query += " ORDER BY "+JSON.stringify(orderBy);
 		}
 		if (typeof limit !== 'undefined') {
-			query += " LIMITY "+JSON.stringify(limit)+", OFFSET "+offset;
+			query += " LIMIT "+JSON.stringify(limit)+", OFFSET "+offset;
 		}
 		pb.log.info(query);
 	}
