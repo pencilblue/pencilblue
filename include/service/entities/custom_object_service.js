@@ -27,7 +27,7 @@ var HtmlEncoder = require('htmlencode');
 function CustomObjectService() {
     this.typesCache = {};
     this.typesNametoId = {};
-};
+}
 
 //statics
 /**
@@ -156,7 +156,7 @@ CustomObjectService.prototype.saveSortOrdering = function(sortOrder, cb) {
 CustomObjectService.prototype.validateSortOrdering = function(sortOrder, cb) {
     if (!pb.utils.isObject(sortOrder)) {
         throw new Error('The sortOrder parameter must be a valid object');
-    };
+    }
 
     //validat sorted IDs
     var errors = [];
@@ -1013,33 +1013,6 @@ CustomObjectService.formatRawForType = function(post, custObjType) {
         }
     }
     post.type = custObjType[pb.DAO.getIdField()].toString();
-};
-
-/**
- * Formats the raw post data for a sort ordering
- * @static
- * @method formatRawSortOrdering
- * @param {Object} post
- * @param {Object} sortOrder the existing sort order object that the post data
- * will be merged with
- * @return {Object} The formatted sort ordering object
- */
-CustomObjectService.formatRawSortOrdering = function(post, sortOrder) {
-    delete post.last_modified;
-    delete post.created;
-    delete post[pb.DAO.getIdField()];
-
-    var sortOrderDoc = pb.DocumentCreator.create('custom_object_sort', post, ['sorted_objects']);
-    if (!sortOrderDoc) {
-        return sortOrderDoc;
-    }
-
-    //merge the old and new
-    if (pb.utils.isObject(sortOrder)) {
-        pb.utils.merge(sortOrderDoc, sortOrder);
-        return sortOrder;
-    }
-    return sortOrderDoc;
 };
 
 /**

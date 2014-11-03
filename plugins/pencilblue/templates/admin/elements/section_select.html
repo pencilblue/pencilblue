@@ -2,10 +2,13 @@
     <div class="panel panel-default">
         <div class="panel-heading">^loc_ACTIVE_SECTIONS^...</div>
         <div class="panel-body" style="min-height: 50px" sortable="board.dragControlListeners" ng-model="editingObject[variablePrefix + '_sections']">
-            <span class="draggable_item" ng-repeat="section in editingObject[variablePrefix + '_sections'] track by section._id" sortable-item sortable-item-handle>
-                <span ng-bind="section.name" style="font-weight: bold"></span>
-                <span ng-bind="'- ' + section.description" ng-if="section.description"></span>
-            </span>
+            <div class="panel panel-default draggable_item" ng-repeat="section in editingObject[variablePrefix + '_sections'] track by section._id" sortable-item>
+                <div class="panel-heading">
+                    <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                    <span ng-bind="section.name"></span>
+                    <span ng-bind="'- ' + section.description" ng-if="section.description"></span>
+                </div>
+            </div>
         </div>
     </div>
     <div class="panel panel-default">
@@ -20,10 +23,13 @@
         </div>
         <div id="inactive_sections" class="panel-body">
             <div style="min-height: 50px" sortable="board.dragControlListeners" ng-model="sections">
-                <span class="draggable_item" ng-repeat="section in sections track by section._id" ng-if="!section.hidden && !section.paginated" sortable-item sortable-item-handle>
-                    <span ng-bind="section.name" style="font-weight: bold"></span>
-                    <span ng-bind="'- ' + section.description" ng-if="section.description"></span>
-                </span>
+                <div class="panel panel-default draggable_item" ng-repeat="section in sections track by section._id" ng-if="!section.hidden && !section.paginated" sortable-item>
+                    <div class="panel-heading">
+                        <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                        <span ng-bind="section.name"></span>
+                        <span ng-bind="'- ' + section.description" ng-if="section.description"></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

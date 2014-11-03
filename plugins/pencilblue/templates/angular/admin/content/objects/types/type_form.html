@@ -102,6 +102,8 @@
                 postURL += '/' + saveObject._id;
             }
 
+            $scope.saving = true;
+
             $http.post(postURL, saveObject)
             .success(function(result) {
                 $scope.successMessage = result.message;

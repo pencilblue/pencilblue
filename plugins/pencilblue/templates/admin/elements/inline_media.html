@@ -2,30 +2,31 @@
     <div class="panel panel-default">
         <div class="panel-heading">^loc_RELATED_MEDIA^...</div>
         <div class="panel-body" style="min-height: 50px" sortable="board.dragControlListeners" ng-model="editingObject[variablePrefix + '_media']">
-            <span class="draggable_item" ng-repeat="mediaItem in editingObject[variablePrefix + '_media'] track by mediaItem._id" sortable-item sortable-item-handle>
-                <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
-                <span ng-bind="mediaItem.name" style="font-weight: bold"></span>
-                <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
-            </span>
+            <div class="panel panel-default draggable_item" ng-repeat="mediaItem in editingObject[variablePrefix + '_media'] track by mediaItem._id" sortable-item>
+                <div class="panel-heading">
+                    <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                    <span style="float: left; margin-right: .5em"><i class="fa fa-{{mediaItem.icon}} fa-fw"></i></span>
+                    <span ng-bind="mediaItem.name"></span>
+                    <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
+                </div>
+            </div>
         </div>
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
             <div style="padding-bottom: .5em">^loc_UNRELATED_MEDIA^...</div>
-            <div class="input-group">
-                <input type="text" ng-model="searchText" ng-change="search()" class="form-control" placeholder="^loc_NARROW_RESULTS^..."></input>
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}" ng-click="clearSearch()"></i></button>
-                </span>
-            </div>
+            ^tmp_admin=elements=search_input^
         </div>
         <div class="panel-body" style="min-height: 50px">
             <div style="min-height: 50px" sortable="board.dragControlListeners" ng-model="media">
-                <span class="draggable_item" ng-repeat="mediaItem in media track by mediaItem._id" ng-if="!mediaItem.hidden && !mediaItem.paginated" sortable-item sortable-item-handle>
-                    <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
-                    <span ng-bind="mediaItem.name" style="font-weight: bold"></span>
-                    <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
-                </span>
+                <div class="panel panel-default draggable_item" ng-repeat="mediaItem in media track by mediaItem._id" ng-if="!mediaItem.hidden && !mediaItem.paginated" sortable-item>
+                    <div class="panel-heading">
+                        <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                        <span style="float: left; margin-right: .5em"><i class="fa fa-{{mediaItem.icon}} fa-fw"></i></span>
+                        <span ng-bind="mediaItem.name"></span>
+                        <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
+                    </div>
+                </div>
             </div>
             ^tmp_admin=elements=pagination^
         </div>
