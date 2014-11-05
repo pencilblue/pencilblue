@@ -1201,8 +1201,7 @@ CustomObjectService.applyOrder = function(custObjects, sortOrder) {
             }
         }
 
-        sortedObjects.concat(custObjects);
-        custObjects = sortedObjects;
+        custObjects = sortedObjects.concat(custObjects);
     }
     return custObjects;
 };
