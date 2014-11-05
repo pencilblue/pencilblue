@@ -1,0 +1,38 @@
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['ui.sortable'])
+    .controller('PencilBlueController', function($scope, $http, $window) {
+        ^angular_objects^
+        ^tmp_angular=admin=elements=is_field_valid^
+
+        $scope.getSortListeners = function(active, inactive) {
+            if(!active) {
+                active = [];
+            }
+
+            return {
+                accept: function (sourceItemHandleScope, destSortableScope) {
+                    var itemToTest = sourceItemHandleScope.itemScope.object;
+
+                    for(var i = 0; i < active.length; i++) {
+                        if(itemToTest._id.toString() === active[i]._id.toString()) {
+                            return true;
+                        }
+                    }
+                    for(var i = 0; i < inactive.length; i++) {
+                        if(itemToTest._id.toString() === inactive[i]._id.toString()) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                },
+                itemMoved: function (event) {},
+                orderChanged: function(event) {},
+            }
+        };
+
+        $scope.setBoolean = function(objectBoolean, setting) {
+            objectBoolean = setting;
+        };
+    });
+</script>

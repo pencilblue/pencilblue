@@ -950,7 +950,7 @@ module.exports = [
     },
     {
         method: 'delete',
-        path: "/actions/admin/content/objects/:type_id/:id",
+        path: "/actions/admin/content/objects/:id",
         access_level: ACCESS_EDITOR,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'delete_object.js'),
