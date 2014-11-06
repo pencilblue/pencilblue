@@ -3,35 +3,32 @@
     ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
     ^tmp_admin=elements=tab_nav^
-    <form name="objectForm" ng-submit="saveObject()">
+    <form name="objectForm" ng-submit="saveObject()" novalidate>
         <fieldset>
             <div class="tab-content">
                 <div class="tab-pane active" id="object_fields">
                     <span ng-repeat="field in objectType.fields">
                         <div class="form-group" ng-if="field.field_type == 'text'" ng-class="{'has-error': field.name === 'name' && !isFieldValid(objectForm.name)}">
                             <label ng-bind="field.name"></label>
-                            <input type="text" name="field.name" class="form-control" ng-model="customObject[field.name]" ng-reguired="field.name === 'name'"></input>
+                            <input type="text" class="form-control" ng-model="customObject[field.name]" ng-if="field.name !== 'name'"></input>
+                            <input type="text" name="name" class="form-control" ng-model="customObject.name" ng-if="field.name === 'name'" required></input>
                             <div class="form_error" ng-if="field.name === 'name' && !isFieldValid(objectForm.name)">^loc_REQUIRED_FIELD^</div>
                         </div>
                         <div class="form-group" ng-if="field.field_type == 'number'">
                             <label ng-bind="field.name"></label>
-                            <input type="number" name="field.name" class="form-control" ng-model="customObject[field.name]"></input>
+                            <input type="number" class="form-control" ng-model="customObject[field.name]"></input>
                         </div>
                         <div class="form-group" ng-if="field.field_type == 'boolean'">
                             <label ng-bind="field.name"></label><br/>
                             <div class="btn-group" data-toggle="buttons">
-                                <label class="btn btn-default active">
-                                    <input type="radio" ng-click="setBoolean(customObject[field.name], true)" ng-checked="customObject[field.name]"> ^loc_YES^
-                                </label>
-                                <label class="btn btn-default">
-                                    <input type="radio" ng-click="setBoolean(customObject[field.name], false)" ng-checked="!customObject[field.name]"> ^loc_NO^
-                                </label>
+                                <button type="button" class="btn btn-default" ng-class="{'active': customObject[field.name]}" ng-click="setBoolean(field.name, true)">^loc_YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !customObject[field.name]}" ng-click="setBoolean(field.name, false)">^loc_NO^</button>
                             </div>
                         </div>
                         <div class="form-group date_input" ng-if="field.field_type == 'date'">
                             <label ng-bind="field.name"></label>
                             <div class="input-group">
-                                <input type="text" name="field.name" class="form-control" ng-model="customObject[field.name]"></input>
+                                <input type="text" class="form-control" ng-model="customObject[field.name]"></input>
                                 <span class="input-group-btn">
                                     <button class="btn btn-default" type="button" ng-click="setDateToNow(customObject[field.name])">^loc_NOW^</button>
                                 </span>
@@ -79,9 +76,7 @@
                 <a class="btn btn-default" ng-href="/admin/content/objects/{{objectType._id}}">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
                 </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
-                </button>
+                ^tmp_admin=elements=save_button^
             </div>
         </fieldset>
     </form>

@@ -1,8 +1,15 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['ui.sortable'])
-    .controller('PencilBlueController', function($scope, $http, $window) {
+    angular.module('pencilblueApp', ['ui.sortable', 'validation'])
+    .controller('PencilBlueController', function($scope, $http, $window, validationService) {
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
+
+        for(var i = 0; i < $scope.objectType.fields.length; i++) {
+            if($scope.objectType.fields[i].field_type === 'boolean' && !$scope.customObject[$scope.objectType.fields[i].name]) {
+                $scope.customObject[$scope.objectType.fields[i].name] = true;
+            }
+        }
 
         $scope.getSortListeners = function(active, inactive) {
             if(!active) {
@@ -31,8 +38,54 @@
             }
         };
 
-        $scope.setBoolean = function(objectBoolean, setting) {
-            objectBoolean = setting;
+        $scope.setBoolean = function(fieldName, setting) {
+            $scope.customObject[fieldName] = setting;
+        };
+
+        $scope.saveObject = function() {
+            $scope.formSubmitted = true;
+
+            if(!validationService.isFormValid($scope.objectForm)) {
+                return;
+            }
+
+            var saveObject = {type: $scope.objectType._id.toString()};
+            for(var i = 0; i < $scope.objectType.fields.length; i++) {
+                if($scope.objectType.fields[i].field_type === 'date') {
+                    saveObject[$scope.objectType.fields[i].name] = (new Date($scope.customObject[$scope.objectType.fields[i].name])).getTime();
+                }
+                else if($scope.objectType.fields[i].field_type === 'child_objects') {
+                    var children = [];
+                    for(var j = 0; j < $scope.customObject[$scope.objectType.fields[i].name].length; j++) {
+                        children.push($scope.customObject[$scope.objectType.fields[i].name]._id.toString());
+                    }
+                    saveObject[$scope.objectType.fields[i].name] = children;
+                }
+                else {
+                    saveObject[$scope.objectType.fields[i].name] = $scope.customObject[$scope.objectType.fields[i].name];
+                }
+            }
+
+            var postURL = '/actions/admin/content/objects/' + $scope.objectType._id
+            if($scope.customObject._id) {
+                postURL += '/' + $scope.customObject._id;
+            }
+
+            $scope.saving = true;
+
+            $http.post(postURL, saveObject)
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+
+                if(result.data) {
+                    $window.location = '/admin/content/objects/' + $scope.objectType._id + '/' + result.data._id.toString();
+                }
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
         };
     });
 </script>

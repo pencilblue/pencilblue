@@ -5,6 +5,10 @@ angular.module('validation', [])
     };
 
     this.isFieldValid = function(field, validationType) {
+        if(!field) {
+            return true;
+        }
+
         if(typeof validationType === 'undefined') {
             validationType = 'required';
         }
