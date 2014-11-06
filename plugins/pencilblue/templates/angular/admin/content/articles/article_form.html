@@ -10,7 +10,7 @@
 		$scope.variablePrefix = 'article';
 
 		$scope.setPublishDateToNow = function() {
-			$scope.article.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');;
+			$scope.article.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');
 		};
 
 		$scope.saveArticle = function(draft) {

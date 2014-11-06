@@ -45,6 +45,22 @@ ObjectForm.prototype.render = function(cb) {
             return;
         }
 
+        // Remove active child objects from available objects list
+        if(data.customObject._id) {
+            for(var i = 0; i < data.objectType.fields.length; i++) {
+                if(data.objectType.fields[i].field_type === 'child_objects') {
+                    for(var j = 0; j < data.customObject[data.objectType.fields[i].name].length; j++) {
+                        for(var s = 0; s < data.objectType.fields[i].available_objects.length; s++) {
+                            if(data.customObject[data.objectType.fields[i].name][j]._id.equals(data.objectType.fields[i].available_objects[s]._id)) {
+                                data.objectType.fields[i].available_objects.splice(s, 1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         self.objectType = data.objectType;
         self.customObject = data.customObject;
         data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject});
@@ -100,7 +116,7 @@ ObjectForm.prototype.gatherData = function(vars, cb) {
                 return;
             }
 
-            cos.loadById(vars.id, function(err, customObject) {
+            cos.loadById(vars.id, {fetch_depth: 1}, function(err, customObject) {
                 callback(err, customObject);
             });
         }

@@ -7,7 +7,7 @@
         <fieldset>
             <div class="tab-content">
                 <div class="tab-pane active" id="object_fields">
-                    <span ng-repeat="field in objectType.fields">
+                    <span ng-repeat="field in objectType.fields" fields-built>
                         <div class="form-group" ng-if="field.field_type == 'text'" ng-class="{'has-error': field.name === 'name' && !isFieldValid(objectForm.name)}">
                             <label ng-bind="field.name"></label>
                             <input type="text" class="form-control" ng-model="customObject[field.name]" ng-if="field.name !== 'name'"></input>
@@ -28,9 +28,9 @@
                         <div class="form-group date_input" ng-if="field.field_type == 'date'">
                             <label ng-bind="field.name"></label>
                             <div class="input-group">
-                                <input type="text" class="form-control" ng-model="customObject[field.name]"></input>
+                                <input type="text" class="form-control date_field" ng-model="customObject[field.name]"></input>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" ng-click="setDateToNow(customObject[field.name])">^loc_NOW^</button>
+                                    <button class="btn btn-default" type="button" ng-click="setDateToNow(field.name)">^loc_NOW^</button>
                                 </span>
                             </div>
                         </div>

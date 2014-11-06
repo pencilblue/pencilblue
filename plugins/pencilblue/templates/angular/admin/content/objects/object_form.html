@@ -1,13 +1,16 @@
 <script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
     angular.module('pencilblueApp', ['ui.sortable', 'validation'])
-    .controller('PencilBlueController', function($scope, $http, $window, validationService) {
+    .controller('PencilBlueController', function($scope, $http, $window, $filter, validationService) {
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
 
         for(var i = 0; i < $scope.objectType.fields.length; i++) {
             if($scope.objectType.fields[i].field_type === 'boolean' && !$scope.customObject[$scope.objectType.fields[i].name]) {
                 $scope.customObject[$scope.objectType.fields[i].name] = true;
+            }
+            else if($scope.objectType.fields[i].field_type === 'date') {
+                $scope.customObject[$scope.objectType.fields[i].name] = $filter('date')($scope.customObject[$scope.objectType.fields[i].name], 'MM-dd-yyyy HH:mm');
             }
         }
 
@@ -42,6 +45,10 @@
             $scope.customObject[fieldName] = setting;
         };
 
+        $scope.setDateToNow = function(fieldName) {
+            $scope.customObject[fieldName] = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');
+        }
+
         $scope.saveObject = function() {
             $scope.formSubmitted = true;
 
@@ -57,7 +64,7 @@
                 else if($scope.objectType.fields[i].field_type === 'child_objects') {
                     var children = [];
                     for(var j = 0; j < $scope.customObject[$scope.objectType.fields[i].name].length; j++) {
-                        children.push($scope.customObject[$scope.objectType.fields[i].name]._id.toString());
+                        children.push($scope.customObject[$scope.objectType.fields[i].name][j]._id.toString());
                     }
                     saveObject[$scope.objectType.fields[i].name] = children;
                 }
@@ -87,5 +94,27 @@
                 $scope.saving = false;
             });
         };
-    });
+    })
+    .directive('fieldsBuilt', function() {
+        return function(scope, element, attrs) {
+            var self = this;
+
+            this.testForDateFields = function() {
+                if(!$('.date_field').length) {
+                    setTimeout(self.testForDateFields, 100);
+                    return;
+                }
+
+                $('.date_field').datetimepicker({format: 'm-d-Y H:i'});
+            }
+
+            if(scope.$last){
+                for(var i = 0; i < scope.objectType.fields.length; i++) {
+                    if(scope.objectType.fields[i].field_type === 'date') {
+                        this.testForDateFields();
+                    }
+                }
+            }
+        };
+    })
 </script>

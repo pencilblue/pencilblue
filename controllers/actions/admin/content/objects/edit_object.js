@@ -60,6 +60,10 @@ EditObject.prototype.render = function(cb) {
             self.getJSONPostParams(function(err, post) {
                 //format post fields
                 for(var key in post) {
+                    if(custObjType.fields[key] && custObjType.fields[key].field_type === 'date') {
+                        custObj[key] = new Date(post[key]);
+                        continue;
+                    }
                     custObj[key] = post[key];
                 }
 

@@ -934,7 +934,7 @@ module.exports = [
     },
     {
         method: 'post',
-        path: "/actions/admin/content/objects/:type_id/new",
+        path: "/actions/admin/content/objects/:type_id",
         access_level: ACCESS_EDITOR,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'new_object.js'),
