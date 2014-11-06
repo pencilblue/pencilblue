@@ -12,6 +12,9 @@
             else if($scope.objectType.fields[i].field_type === 'date') {
                 $scope.customObject[$scope.objectType.fields[i].name] = $filter('date')($scope.customObject[$scope.objectType.fields[i].name], 'MM-dd-yyyy HH:mm');
             }
+            else if($scope.objectType.fields[i].field_type === 'peer_object') {
+                $scope.customObject[$scope.objectType.fields[i].name] = $scope.customObject[$scope.objectType.fields[i].name]._id.toString();
+            }
         }
 
         $scope.getSortListeners = function(active, inactive) {

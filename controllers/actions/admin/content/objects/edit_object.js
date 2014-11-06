@@ -67,8 +67,6 @@ EditObject.prototype.render = function(cb) {
                     custObj[key] = post[key];
                 }
 
-                console.log(custObj);
-
                 //validate and persist
                 service.save(custObj, custObjType, function(err, result) {
                     if(util.isError(err)) {
