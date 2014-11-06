@@ -57,7 +57,7 @@ NewNavItem.prototype.render = function(cb){
             }
 
             self.checkForNavMapUpdate(navItem, function() {
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, navItem.name + ' ' + self.ls.get('CREATED'))});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, navItem.name + ' ' + self.ls.get('CREATED'), true)});
             });
         });
     });
