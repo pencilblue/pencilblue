@@ -1020,30 +1020,67 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 	var details = null;
 	var tasks   = [
 
-         //load the details file
-         function(callback) {
-        	 pb.log.debug("PluginService:[INIT] Attempting to load details.json file for %s", plugin.name);
+        //load the details file
+        function(callback) {
+            pb.log.debug("PluginService:[INIT] Attempting to load details.json file for %s", plugin.name);
 
-			PluginService.loadDetailsFile(PluginService.getDetailsPath(plugin.dirName), function(err, loadedDetails) {
-				details = loadedDetails;
-				callback(err, null);
-			});
-         },
+            PluginService.loadDetailsFile(PluginService.getDetailsPath(plugin.dirName), function(err, loadedDetails) {
+                details = loadedDetails;
+                callback(err, null);
+            });
+        },
 
-         //validate the details
-         function(callback) {
-        	 pb.log.debug("PluginService:[INIT] Validating details of %s", plugin.name);
+        //validate the details
+        function(callback) {
+             pb.log.debug("PluginService:[INIT] Validating details of %s", plugin.name);
 
-        	 PluginService.validateDetails(details, plugin.dirName, callback);
-         },
+             PluginService.validateDetails(details, plugin.dirName, callback);
+        },
 
-         //check for discrepencies
-         function(callback) {
-        	 if (plugin.uid != details.uid) {
-        		 pb.log.warn('PluginService:[INIT] The UID [%s] for plugin %s does not match what was found in the details.json file [%s].  The details file takes precendence.', plugin.uid, plugin.name, details.uid);
-        	 }
-        	 process.nextTick(function() {callback(null, true);});
-         },
+        //check for discrepencies
+        function(callback) {
+             if (plugin.uid != details.uid) {
+                 pb.log.warn('PluginService:[INIT] The UID [%s] for plugin %s does not match what was found in the details.json file [%s].  The details file takes precendence.', plugin.uid, plugin.name, details.uid);
+             }
+             process.nextTick(function() {callback(null, true);});
+        },
+        
+        //verify that dependencies are available
+        function(callback) {
+
+            if (!pb.utils.isObject(details.dependencies) || details.dependencies === {}) {
+                //no dependencies were declared so we're good
+                return cb(null, true);
+            }
+            
+            //iterate over dependencies to ensure that they exist
+            var shouldRetrieveDependencies = false;
+            var tasks = pb.utils.getTasks(Object.keys(details.dependencies), function(keys, i) {
+                return function(callback) {
+                    var modulePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'node_modules', keys[i]);
+                    fs.exists(modulePath, function(exists) {
+                        if (!exists) {
+                            
+                            shouldRetrieveDependencies = true;
+                            pb.log.warn('PluginService: Plugin %s is missing dependency %s', plugin.name, keys[i]);
+                        }
+                        callback();
+                    });
+                };
+            });
+            async.parallel(tasks, function(err, results) {
+                if (!shouldRetrieveDependencies) {
+                    
+                    pb.log.silly('PluginService: Dependency check passed for plugin %s', plugin.name);
+                    return cb(null, true);
+                }
+                
+                //dependencies are missing, go install them
+                pb.plugins.installPluginDependencies(plugin.uid, details.dependencies, function(err, results) {
+                    cb(err, !util.isError(err));
+                });
+            });
+        },
 
          //register plugin & load main module
          function(callback) {
