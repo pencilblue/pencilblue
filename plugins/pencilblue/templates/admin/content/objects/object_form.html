@@ -42,10 +42,10 @@
                             <label ng-bind="field.name"></label>
                             <div class="panel panel-default">
                                 <div class="panel-heading">^loc_ACTIVE_OBJECTS^...</div>
-                                <div class="panel-body" style="min-height: 50px" sortable="getSortListeners(customObject[field.name], field.available_objects)" ng-model="customObject[field.name]">
-                                    <div class="panel panel-default draggable_item" ng-repeat="object in customObject[field.name]" sortable-item>
+                                <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(customObject[field.name], field.available_objects)" is-enabled="true" ng-model="customObject[field.name]">
+                                    <div class="panel panel-default draggable_item" ng-repeat="object in customObject[field.name]" data-as-sortable-item>
                                         <div class="panel-heading">
-                                            <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                                            <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
                                             <span ng-bind="object.name || object.headline"></span>
                                         </div>
                                     </div>
@@ -61,10 +61,10 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="panel-body" style="min-height: 50px" sortable="getSortListeners(customObject[field.name], field.available_objects)" ng-model="field.available_objects">
-                                    <div class="panel panel-default draggable_item" ng-repeat="object in field.available_objects" sortable-item>
+                                <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(customObject[field.name], field.available_objects)" is-enabled="true" ng-model="field.available_objects">
+                                    <div class="panel panel-default draggable_item" ng-repeat="object in field.available_objects" data-as-sortable-item>
                                         <div class="panel-heading">
-                                            <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                                            <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
                                             <span ng-bind="object.name || object.headline"></span>
                                         </div>
                                     </div>

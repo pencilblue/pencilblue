@@ -1,10 +1,10 @@
 <div ng-controller="TopicSelectController">
     <div class="panel panel-default">
         <div class="panel-heading">^loc_ACTIVE_TOPICS^...</div>
-        <div class="panel-body" style="min-height: 50px" sortable="board.dragControlListeners" ng-model="editingObject[variablePrefix + '_topics']">
-            <div class="panel panel-default draggable_item" ng-repeat="topic in editingObject[variablePrefix + '_topics'] track by topic._id" sortable-item>
+        <div class="panel-body" style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="editingObject[variablePrefix + '_topics']">
+            <div class="panel panel-default draggable_item" ng-repeat="topic in editingObject[variablePrefix + '_topics'] track by topic._id" data-as-sortable-item>
                 <div class="panel-heading">
-                    <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                    <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
                     <span ng-bind="topic.name"></span>
                 </div>
             </div>
@@ -16,10 +16,10 @@
             ^tmp_admin=elements=search_input^
         </div>
         <div id="inactive_topics" class="panel-body">
-            <div style="min-height: 50px" sortable="board.dragControlListeners" ng-model="topics">
-                <div class="panel panel-default draggable_item" ng-repeat="topic in topics track by topic._id" ng-if="!topic.hidden && !topic.paginated" sortable-item>
+            <div style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="topics">
+                <div class="panel panel-default draggable_item" ng-repeat="topic in topics track by topic._id" ng-if="!topic.hidden && !topic.paginated" data-as-sortable-item>
                     <div class="panel-heading">
-                        <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                        <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
                         <span ng-bind="topic.name"></span>
                     </div>
                 </div>

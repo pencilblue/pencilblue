@@ -22,8 +22,8 @@
                         <div class="form_error" ng-if="!isFieldValid(typeForm.name)">^loc_REQUIRED_FIELD^</div>
                     </div>
                 </div>
-                <div class="tab-pane" id="object_fields" ng-model="objectType.fields" sortable="board.dragControlListeners">
-                    <div class="form-group" ng-repeat="field in objectType.fields" style="border: none" sortable-item>
+                <div class="tab-pane" id="object_fields" ng-model="objectType.fields" data-as-sortable="board.dragControlListeners" is-enabled="true">
+                    <div class="form-group" ng-repeat="field in objectType.fields" style="border: none" data-as-sortable-item>
                         <label>
                             <span ng-if="field.field_type === 'text' || field.field_type === 'number'">^loc_VALUE^</span>
                             <span ng-if="field.field_type === 'boolean'">^loc_BOOLEAN^</span>
@@ -32,7 +32,7 @@
                             <span ng-if="field.field_type === 'child_objects'">^loc_CHILD_OBJECTS^</span>
                         </label>
                         <div class="input-group">
-                            <span class="input-group-addon" sortable-item-handle><i class="fa fa-bars"></i></span>
+                            <span class="input-group-addon" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
                             <input type="text" name="field_{{$index}}" class="form-control" ng-model="field.name" placeholder="^loc_NAME^"></input>
                             <div class="input-group-btn" ng-if="field.field_type !== 'date' && field.field_type !== 'boolean'">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">

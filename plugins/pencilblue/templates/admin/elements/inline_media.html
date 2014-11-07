@@ -1,10 +1,10 @@
 <div ng-controller="InlineMediaController">
     <div class="panel panel-default">
         <div class="panel-heading">^loc_RELATED_MEDIA^...</div>
-        <div class="panel-body" style="min-height: 50px" sortable="board.dragControlListeners" ng-model="editingObject[variablePrefix + '_media']">
-            <div class="panel panel-default draggable_item" ng-repeat="mediaItem in editingObject[variablePrefix + '_media'] track by mediaItem._id" sortable-item>
+        <div class="panel-body" style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="editingObject[variablePrefix + '_media']">
+            <div class="panel panel-default draggable_item" ng-repeat="mediaItem in editingObject[variablePrefix + '_media'] track by mediaItem._id" data-as-sortable-item>
                 <div class="panel-heading">
-                    <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                    <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
                     <span style="float: left; margin-right: .5em"><i class="fa fa-{{mediaItem.icon}} fa-fw"></i></span>
                     <span ng-bind="mediaItem.name"></span>
                     <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
@@ -18,10 +18,10 @@
             ^tmp_admin=elements=search_input^
         </div>
         <div class="panel-body" style="min-height: 50px">
-            <div style="min-height: 50px" sortable="board.dragControlListeners" ng-model="media">
-                <div class="panel panel-default draggable_item" ng-repeat="mediaItem in media track by mediaItem._id" ng-if="!mediaItem.hidden && !mediaItem.paginated" sortable-item>
+            <div style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="media">
+                <div class="panel panel-default draggable_item" ng-repeat="mediaItem in media track by mediaItem._id" ng-if="!mediaItem.hidden && !mediaItem.paginated" data-as-sortable-item>
                     <div class="panel-heading">
-                        <span style="float: left; margin: 0 1em 0 .25em" sortable-item-handle><i class="fa fa-bars"></i></span>
+                        <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
                         <span style="float: left; margin-right: .5em"><i class="fa fa-{{mediaItem.icon}} fa-fw"></i></span>
                         <span ng-bind="mediaItem.name"></span>
                         <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
