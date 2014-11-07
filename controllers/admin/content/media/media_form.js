@@ -49,6 +49,7 @@ MediaForm.prototype.render = function(cb) {
 		}
 
 		self.media = data.media;
+		data.media.media_topics = self.getMediaTopics(data);
 		data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.media);
 		var angularObjects = pb.js.getAngularObjects(data);
 
@@ -64,6 +65,8 @@ MediaForm.prototype.render = function(cb) {
 
 MediaForm.prototype.gatherData = function(vars, cb) {
 	var self = this;
+	var dao = new pb.DAO();
+
 	var tasks = {
 		tabs: function(callback) {
 			var tabs   =
@@ -85,9 +88,15 @@ MediaForm.prototype.gatherData = function(vars, cb) {
 			callback(null, pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls));
 		},
 
+		topics: function(callback) {
+			dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics){
+				callback(util.isError(topics) ? topics : null, topics);
+			});
+		},
+
 		media: function(callback) {
 			if(!vars.id) {
-				callback(null, {});
+				callback(null, {media_topics: []});
 				return;
 			}
 
@@ -98,6 +107,21 @@ MediaForm.prototype.gatherData = function(vars, cb) {
 		}
 	};
 	async.series(tasks, cb);
+};
+
+MediaForm.prototype.getMediaTopics = function(data) {
+	var topics = [];
+	for(i = 0; i < data.media.media_topics.length; i++) {
+		for(j = 0; j < data.topics.length; j++) {
+			if(data.topics[j]._id.equals(ObjectID(data.media.media_topics[i]))) {
+				topics.push(data.topics[j]);
+				data.topics.splice(j, 1);
+				break;
+			}
+		}
+	}
+
+	return topics;
 };
 
 MediaForm.getSubNavItems = function(key, ls, data) {
