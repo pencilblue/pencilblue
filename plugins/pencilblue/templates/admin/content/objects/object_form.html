@@ -38,11 +38,11 @@
                             <label ng-bind="field.name"></label>
                             <select class="form-control" ng-model="customObject[field.name]" ng-options="availableObject._id as availableObject.name for availableObject in field.available_objects"></select>
                         </div>
-                        <div class="form-group" ng-if="field.field_type == 'child_objects'">
+                        <div id="{{field.name}}" class="form-group" ng-if="field.field_type == 'child_objects'">
                             <label ng-bind="field.name"></label>
                             <div class="panel panel-default">
                                 <div class="panel-heading">^loc_ACTIVE_OBJECTS^...</div>
-                                <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(customObject[field.name], field.available_objects)" is-enabled="true" ng-model="customObject[field.name]">
+                                <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(field)" is-enabled="true" ng-model="customObject[field.name]">
                                     <div class="panel panel-default draggable_item" ng-repeat="object in customObject[field.name]" data-as-sortable-item>
                                         <div class="panel-heading">
                                             <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
@@ -61,7 +61,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(customObject[field.name], field.available_objects)" is-enabled="true" ng-model="field.available_objects">
+                                <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(field)" is-enabled="true" ng-model="field.available_objects">
                                     <div class="panel panel-default draggable_item" ng-repeat="object in field.available_objects" data-as-sortable-item>
                                         <div class="panel-heading">
                                             <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>

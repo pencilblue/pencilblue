@@ -7,6 +7,13 @@
         $scope.nameAvailable = null;
         $scope.originalName = $scope.objectType.name ? $scope.objectType.name.toString() : '';
 
+        $scope.objectFieldSortListeners = {
+            accept: function (sourceItemHandleScope, destSortableScope) {return true},
+            itemMoved: function (event) {},
+            orderChanged: function(event) {},
+            containment: '#object_fields'
+        }
+
         // Move key/value of fields to an array, so ng-sortable will work with it
         var fieldArray = [];
         for(var key in $scope.objectType.fields) {

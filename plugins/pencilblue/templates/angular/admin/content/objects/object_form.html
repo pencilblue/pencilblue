@@ -17,7 +17,10 @@
             }
         }
 
-        $scope.getSortListeners = function(active, inactive) {
+        $scope.getSortListeners = function(field) {
+            var active = $scope.customObject[field.name];
+            var inactive = field.available_objects;
+
             if(!active) {
                 active = [];
             }
@@ -41,6 +44,7 @@
                 },
                 itemMoved: function (event) {},
                 orderChanged: function(event) {},
+                containment: '#' + field.name
             }
         };
 
