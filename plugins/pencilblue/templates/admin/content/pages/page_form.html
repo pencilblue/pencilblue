@@ -3,19 +3,20 @@
     ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
     ^tmp_admin=elements=tab_nav^
-    <form name="editPageForm" ng-submit="save()" novalidate>
+    <form name="pageForm" novalidate>
         <fieldset>
             <div class="tab-content">
                 <div class="tab-pane active" id="content">
-                    <div class="form-group">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.url)}">
                         <label>^loc_ARTICLE_URL^</label>
                         <div class="input-group">
                             <span class="input-group-addon">/page/</span>
-                            <input type="text" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" required></input>
+                            <input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" required></input>
                             <span class="input-group-btn">
                                 <button type="button" class="btn btn-default" ng-click="validateURL()">^loc_CHECK^</button>
                             </span>
                         </div>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.url)">^loc_REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
                         <label>^loc_STANDALONE_TEMPLATE^</label>
@@ -24,22 +25,24 @@
                             <option ng-value="template.theme_uid || template.file" ng-repeat="template in templates" ng-bind="template.theme_name + ': ' + template.name"></option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.headline)}">
                         <label>^loc_HEADLINE^</label>
-                        <input type="text" class="form-control" ng-model="page.headline"></input>
+                        <input type="text" name="headline" class="form-control" ng-model="page.headline" required></input>
+                        <div class="form_error" ng-if="!isFieldValid(articleForm.headline)">^loc_REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
                         <label>^loc_SUBHEADING^</label>
                         <input type="text" class="form-control" ng-model="page.subheading"></input>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.publish_date)}">
                         <label>^loc_PUBLISH_DATE^</label>
                         <div class="input-group">
-                            <input type="text" id="publish_date" class="form-control" ng-model="page.publish_date"></input>
+                            <input type="text" name="publish_date" id="publish_date" class="form-control" ng-model="page.publish_date" required></input>
                             <span class="input-group-btn">
                                 <button class="btn btn-default" type="button" ng-click="setPublishDateToNow()">^loc_NOW^</button>
                             </span>
                         </div>
+                        <div class="form_error" ng-if="!isFieldValid(articleForm.publish_date)">^loc_REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
                         <label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>

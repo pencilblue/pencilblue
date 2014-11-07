@@ -1,8 +1,10 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['inlineMedia', 'topicSelect'])
+    angular.module('pencilblueApp', ['inlineMedia', 'topicSelect', 'validation'])
     ^tmp_angular=admin=elements=form_data^
-    .controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window) {
+    .controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window, validationService) {
         ^angular_objects^
+        ^tmp_angular=admin=elements=is_field_valid^
 
         $scope.page.publish_date = $filter('date')($scope.page.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
         $scope.layout = $sce.trustAsHtml($scope.page.page_layout);
@@ -14,6 +16,12 @@
         };
 
         $scope.savePage = function(draft) {
+            $scope.formSubmitted = true;
+
+            if(!validationService.isFormValid($scope.pageForm)) {
+                return;
+            }
+
             $scope.page.draft = draft;
             $scope.getPageData(draft, function(pageData) {
                 $scope.saving = true;
