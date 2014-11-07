@@ -167,78 +167,7 @@ module.exports = [
 		controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'libraries.js'),
 		content_type: 'text/html'
 	},
-    {
-    	method: 'get',
-    	path: "/admin/content/media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/media/manage_media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'manage_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/media/add_media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'add_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'add_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/media/edit_media/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'edit_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/media/edit_media/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'edit_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/actions/admin/content/media/delete_media/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'delete_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/media/inline_add_media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'inline_add_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/api/admin/content/media/upload_media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'upload_media.js'),
-    	content_type: 'text/html'
-    },
+
     {
     	method: 'get',
     	path: "/preview/:type/:id",
@@ -594,22 +523,6 @@ module.exports = [
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'site_settings', 'email', 'send_test.js'),
         content_type: 'application/json'
     },
-    {
-        method: 'get',
-        path: "/api/admin/content/media/get_link",
-        access_level: ACCESS_WRITER,
-        auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_link.js'),
-        content_type: 'text/html'
-    },
-    {
-        method: 'get',
-        path: "/api/admin/content/media/get_preview",
-        access_level: ACCESS_WRITER,
-        auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_preview.js'),
-        content_type: 'text/html'
-    },
 
 
 
@@ -833,6 +746,80 @@ module.exports = [
         access_level: ACCESS_EDITOR,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),
+        content_type: 'text/html'
+    },
+
+    // MEDIA
+    {
+        method: 'get',
+        path: "/admin/content/media",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'manage_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/media/new",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'media_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/media/:id",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'media_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/media",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'new_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/media/:id",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'edit_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/media/:id",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'delete_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/api/admin/content/media/upload_media",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'upload_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/api/admin/content/media/get_link",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_link.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/api/admin/content/media/get_preview",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_preview.js'),
         content_type: 'text/html'
     },
 

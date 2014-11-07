@@ -1,13 +1,13 @@
 <script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
 	angular.module('pencilblueApp', ['inlineMedia', 'sectionSelect', 'topicSelect', 'validation'])
-	^tmp_angular=admin=elements=form_data^
 	.controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window, validationService) {
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
 
 		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
 		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
+		$scope.article.meta_keywords = $scope.article.meta_keywords ? $scope.article.meta_keywords.join(',') : '';
 		$scope.editingObject = $scope.article;
 		$scope.variablePrefix = 'article';
 
@@ -104,9 +104,9 @@
 
 			var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
 			getWYSIWYGLayout(wysId, function(layout) {
-				articleData.article_media = media.join(',');
-				articleData.article_sections = sections.join(',');
-				articleData.article_topics = topics.join(',');
+				articleData.article_media = media;
+				articleData.article_sections = sections;
+				articleData.article_topics = topics;
 				articleData.article_layout = layout;
 
 				cb(articleData);

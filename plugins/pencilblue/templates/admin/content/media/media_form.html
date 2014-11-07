@@ -1,0 +1,86 @@
+^tmp_admin=head^
+<div class="col-md-9">
+	^tmp_admin=elements=error_success^
+	^tmp_admin=elements=sub_nav^
+	^tmp_admin=elements=tab_nav^
+	<form name="mediaForm" ng-sumbit="saveMedia()" novalidate>
+		<fieldset>
+			<div class="tab-content">
+				<div class="tab-pane active" id="media_upload">
+					<div id="media_display" class="form-group"></div>
+					<div class="form-group">
+						<button type="button" class="btn btn-info" ng-click="showMediaModal(false)">
+							<i class="fa fa-link"></i>&nbsp;^loc_LINK_TO_MEDIA^...
+						</button>
+						<button type="button" class="btn btn-info" ng-click="showMediaModal(true)">
+							<i class="fa fa-upload"></i>&nbsp;^loc_UPLOAD_MEDIA^...
+						</button>
+					</div>
+					<div class="form-group">
+						<label>^loc_MEDIA_NAME^</label>
+						<input type="text" name="name" class="form-control" ng-model="media.name" required></input>
+					</div>
+					<div class="form-group">
+						<label>^loc_CAPTION^</label>
+						<input type="text" class="form-control" ng-model="media.caption"></input>
+					</div>
+				</div>
+				<div class="tab-pane" id="topics_dnd">
+					^tmp_admin=elements=topic_select^
+				</div>
+				<button type="button" class="btn btn-default" onclick="window.location = '/admin/content/media';">
+					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+				</button>
+				<button id="save_button" type="button" class="btn btn-primary" onclick="checkForAddMediaSave()" disabled>
+					<i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+				</button>
+			</div>
+		</fieldset>
+	</form>
+	<div class="modal fade" id="media_modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div id="upload_media_header" class="modal-header">
+					^loc_UPLOAD_MEDIA^
+				</div>
+				<div id="link_to_media_header" class="modal-header">
+					^loc_LINK_TO_MEDIA^
+				</div>
+				<div class="modal-body">
+					<span id="link_to_media">
+						<div class="form-group">
+							<label>^loc_MEDIA_URL^</label>
+							<input type="url" id="media_url" name="media_url" class="form-control" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
+						</div>
+						<div id="link_loading" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div>
+						<button type="button" class="btn btn-default" data-dismiss="modal">
+							<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+						</button>
+						<button type="button" id="link_button" class="btn btn-primary" onclick="validateMediaURL($('#media_url').val(), false)">
+							<i class="fa fa-link"></i>&nbsp;^loc_LOAD_LINK^
+						</button>
+					</span>
+					<span id="upload_media">
+						<div id="upload_progress" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div>
+						<button type="button" class="btn btn-default" data-dismiss="modal">
+							<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+						</button>
+						<span class="btn btn-success fileinput-button">
+							<i class="fa fa-plus"></i>
+							<span>^loc_SELECT_FILE^...</span>
+							<input id="media_file" type="file" name="media_file" accept=".jpg,.jpeg,.png,.gif,.svg,.webp,.mp4,.webm,.ogv">
+						</span>
+					</span>
+				</div
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="^jquery_iframe_transport_src^"></script>
+<script type="text/javascript" src="^jquery_file_upload_js_src^"></script>
+<script type="text/javascript" src="/js/admin/content/media/add_media.js"></script>
+<script type="text/javascript" src="/js/admin/content/media/media_setup.js"></script>
+<script type="text/javascript">
+	setupUpload('^site_root^');
+</script>
+^tmp_admin=footer^

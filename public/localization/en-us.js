@@ -251,7 +251,7 @@ var loc =
     media:
     {
         MANAGE_MEDIA: 'Manage media',
-        ADD_MEDIA: 'Add media',
+        NEW_MEDIA: 'New media',
         LINK_OR_UPLOAD: 'Link or upload',
         LINK_TO_MEDIA: 'Link to media',
         UPLOAD_MEDIA: 'Upload media',

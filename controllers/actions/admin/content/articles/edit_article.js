@@ -19,73 +19,68 @@
  * Edits an article
  */
 
-//dependencies
-var BaseController = pb.BaseController;
-var FormController = pb.FormController;
-
 function EditArticle(){}
 
 //inheritance
-util.inherits(EditArticle, FormController);
+util.inherits(EditArticle, pb.BaseController);
 
-EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
+EditArticle.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-    post.publish_date = new Date(parseInt(post.publish_date));
-	post.id = vars.id;
-	delete post._id;
+	this.getJSONPostParams(function(err, post) {
+	    post.publish_date = new Date(parseInt(post.publish_date));
+		post.id = vars.id;
+		delete post._id;
 
-    var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if (message) {
-		cb({
-			code: 400,
-			content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-		});
-        return;
-    }
-
-    var dao = new pb.DAO();
-    dao.loadById(post.id, 'article', function(err, article) {
-        if(util.isError(err) || article === null) {
+	    var message = self.hasRequiredParams(post, self.getRequiredFields());
+	    if (message) {
 			cb({
 				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
 			});
-            return;
-        }
+	        return;
+	    }
 
-        //TODO should we keep track of contributors (users who edit)?
-        post.author = article.author;
-        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
-        pb.DocumentCreator.update(post, article, ['meta_keywords', 'article_sections', 'article_topics', 'article_media']);
-
-        pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
-            if(error !== null || exists || article.url.indexOf('/admin') === 0) {
+	    var dao = new pb.DAO();
+	    dao.loadById(post.id, 'article', function(err, article) {
+	        if(util.isError(err) || article === null) {
 				cb({
 					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
 				});
-                return;
-            }
+	            return;
+	        }
 
-            dao.update(article).then(function(result) {
-                if(util.isError(result)) {
-                    cb({
+	        //TODO should we keep track of contributors (users who edit)?
+	        post.author = article.author;
+	        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
+	        pb.DocumentCreator.update(post, article, ['meta_keywords']);
+
+	        pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
+	            if(error !== null || exists || article.url.indexOf('/admin') === 0) {
+					cb({
 						code: 400,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
 					});
-                    return;
-                }
+	                return;
+	            }
 
-				post.last_modified = new Date();
-				cb({
-					code: 200,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('EDITED'), post)
-				});
-            });
-        });
-    });
+	            dao.update(article).then(function(result) {
+	                if(util.isError(result)) {
+	                    cb({
+							code: 400,
+							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+						});
+	                    return;
+	                }
+
+					post.last_modified = new Date();
+					cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('EDITED'), post)});
+	            });
+	        });
+	    });
+	});
 };
 
 EditArticle.prototype.getRequiredFields = function() {
@@ -95,7 +90,7 @@ EditArticle.prototype.getRequiredFields = function() {
 
 EditArticle.prototype.getSanitizationRules = function() {
     return {
-        article_layout: BaseController.getContentSanitizationRules()
+        article_layout: pb.BaseController.getContentSanitizationRules()
     };
 };
 

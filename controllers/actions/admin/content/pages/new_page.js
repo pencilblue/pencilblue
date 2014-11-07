@@ -24,61 +24,60 @@
 function NewPagePostController(){}
 
 //inheritance
-util.inherits(NewPagePostController, pb.FormController);
+util.inherits(NewPagePostController, pb.BaseController);
 
-NewPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
+NewPagePostController.prototype.render = function(cb) {
 	var self = this;
 
-    post.author       = self.session.authentication.user_id;
-    post.publish_date = new Date(parseInt(post.publish_date));
-	delete post._id;
+	this.getJSONPostParams(function(err, post) {
+	    post.author       = self.session.authentication.user_id;
+	    post.publish_date = new Date(parseInt(post.publish_date));
+		delete post._id;
 
-    var message = this.hasRequiredParams(post, ['url', 'headline', 'page_layout']);
-    if(message) {
-        cb({
-			code: 400,
-			content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-		});
-        return;
-    }
-
-    post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
-    var pageDocument = pb.DocumentCreator.create('page', post, ['meta_keywords', 'page_topics', 'page_media']);
-    var dao          = new pb.DAO();
-    dao.count('page', {url: pageDocument.url}, function(err, count) {
-        if(util.isError(err) || count > 0) {
-            cb({
+	    var message = self.hasRequiredParams(post, ['url', 'headline', 'page_layout']);
+	    if(message) {
+	        cb({
 				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
 			});
-            return;
-        }
+	        return;
+	    }
 
-        dao.count('article', {url: pageDocument.url}, function(err, count) {
-        	if(util.isError(err) || count > 0) {
-                cb({
+	    post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
+	    var pageDocument = pb.DocumentCreator.create('page', post, ['meta_keywords']);
+	    var dao          = new pb.DAO();
+	    dao.count('page', {url: pageDocument.url}, function(err, count) {
+	        if(util.isError(err) || count > 0) {
+	            cb({
 					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
 				});
-				return;
-            }
+	            return;
+	        }
 
-        	dao.update(pageDocument).then(function(result) {
-                if(util.isError(result)) {
-                    cb({
+	        dao.count('article', {url: pageDocument.url}, function(err, count) {
+	        	if(util.isError(err) || count > 0) {
+	                cb({
 						code: 400,
 						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
 					});
 					return;
-                }
+	            }
 
-				cb({
-					code: 200,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, pageDocument.headline + ' ' + self.ls.get('CREATED'), result)
-				});
-            });
-        });
-    });
+	        	dao.update(pageDocument).then(function(result) {
+	                if(util.isError(result)) {
+	                    cb({
+							code: 400,
+							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+						});
+						return;
+	                }
+
+					cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, pageDocument.headline + ' ' + self.ls.get('CREATED'), result)});
+	            });
+	        });
+	    });
+	});
 };
 
 NewPagePostController.prototype.getSanitizationRules = function() {

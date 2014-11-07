@@ -76,7 +76,7 @@ function getDefaultNavigation() {
                     id: 'media',
                     title: 'MEDIA',
                     icon: 'camera',
-                    href: '/admin/content/media/manage_media',
+                    href: '/admin/content/media',
                     access: ACCESS_WRITER
                 },
                 {

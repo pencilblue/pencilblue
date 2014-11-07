@@ -21,9 +21,6 @@
 
 function ManageMedia(){}
 
-//dependencies
-var Media = require('../media.js');
-
 //inheritance
 util.inherits(ManageMedia, pb.BaseController);
 
@@ -37,7 +34,7 @@ ManageMedia.prototype.render = function(cb) {
         select: {
             name: 1,
             caption: 1,
-            created: 1,
+            last_modified: 1,
             media_type: 1,
 			location: 1
         },
@@ -47,37 +44,39 @@ ManageMedia.prototype.render = function(cb) {
     var mservice = new pb.MediaService();
     mservice.get(options, function(err, mediaData) {
         if(util.isError(mediaData) || mediaData.length === 0) {
-            self.redirect('/admin/content/media/add_media', cb);
+            self.redirect('/admin/content/media/new', cb);
             return;
         }
 
-        var angularData = pb.js.getAngularController(
+        var angularObjects = pb.js.getAngularObjects(
         {
             navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_media'),
             media: pb.MediaService.formatMedia(mediaData)
-        }, [], 'initMediaPagination()');
+        });
 
         var title = self.ls.get('MANAGE_MEDIA');
         self.setPageName(title);
-        self.ts.registerLocal('angular_script', angularData);
-        self.ts.load('admin/content/media/manage_media', function(err, data) {
-           var result = '' + data;
+        self.ts.registerLocal('angular_script', '');
+		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/content/media/manage_media', function(err, result) {
            cb({content: result});
         });
     });
 };
 
 ManageMedia.getSubNavItems = function(key, ls, data) {
-	var pills = Media.getPillNavOptions();
-	pills.unshift(
-    {
-        name: 'manage_media',
-        title: ls.get('MANAGE_MEDIA'),
-        icon: 'refresh',
-        href: '/admin/content/media/manage_media'
-    });
-    return pills;
+	return [{
+		name: 'manage_media',
+		title: ls.get('MANAGE_MEDIA'),
+		icon: 'refresh',
+		href: '/admin/content/media'
+	}, {
+		name: 'new_media',
+		title: '',
+		icon: 'plus',
+		href: '/admin/content/media/new'
+	}];
 };
 
 //register admin sub-nav

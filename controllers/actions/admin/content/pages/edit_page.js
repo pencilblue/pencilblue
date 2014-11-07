@@ -24,67 +24,66 @@
 function EditPagePostController(){}
 
 //inheritance
-util.inherits(EditPagePostController, pb.FormController);
+util.inherits(EditPagePostController, pb.BaseController);
 
-EditPagePostController.prototype.onPostParamsRetrieved = function(post, cb) {
+EditPagePostController.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-    post.publish_date = new Date(parseInt(post.publish_date));
-	post.id = vars.id;
-	delete post._id;
+	this.getJSONPostParams(function(err, post) {
+	    post.publish_date = new Date(parseInt(post.publish_date));
+		post.id = vars.id;
+		delete post._id;
 
-	var message = this.hasRequiredParams(post, this.getRequiredParams());
-    if(message) {
-        cb({
-			code: 400,
-			content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-		});
-        return;
-    }
-
-    var dao = new pb.DAO();
-    dao.loadById(post.id, 'page', function(err, page) {
-        if(util.isError(err) || page === null) {
-            cb({
+		var message = self.hasRequiredParams(post, self.getRequiredParams());
+	    if(message) {
+	        cb({
 				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
 			});
-            return;
-        }
+	        return;
+	    }
 
-        post.author = page.author;
-        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
-        pb.DocumentCreator.update(post, page, ['meta_keywords', 'page_sections', 'page_topics', 'page_media']);
-
-        self.setFormFieldValues(post);
-
-        pb.RequestHandler.urlExists(page.url, post.id, function(err, exists) {
-            if(util.isError(err) || exists) {
-                cb({
+	    var dao = new pb.DAO();
+	    dao.loadById(post.id, 'page', function(err, page) {
+	        if(util.isError(err) || page === null) {
+	            cb({
 					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
 				});
-                return;
-            }
+	            return;
+	        }
 
-            dao.update(page).then(function(result) {
-                if(util.isError(result)) {
-                    cb({
+	        post.author = page.author;
+	        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
+	        pb.DocumentCreator.update(post, page, ['meta_keywords']);
+
+	        self.setFormFieldValues(post);
+
+	        pb.RequestHandler.urlExists(page.url, post.id, function(err, exists) {
+	            if(util.isError(err) || exists) {
+	                cb({
 						code: 400,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
 					});
-                    return;
-                }
+	                return;
+	            }
 
-				post.last_modified = new Date();
-				cb({
-					code: 200,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('EDITED'), post)
-				});
-            });
-        });
-    });
+	            dao.update(page).then(function(result) {
+	                if(util.isError(result)) {
+	                    cb({
+							code: 400,
+							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+						});
+	                    return;
+	                }
+
+					post.last_modified = new Date();
+					cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('EDITED'), post)});
+	            });
+	        });
+	    });
+	});
 };
 
 EditPagePostController.prototype.getRequiredParams = function() {
