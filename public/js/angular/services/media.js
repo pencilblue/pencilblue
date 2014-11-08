@@ -24,9 +24,8 @@ angular.module('media', [])
 
     this.saveMedia = function(mediaObject) {
         var deferred = $q.defer();
-        var formData = $.param(mediaObject);
-
-        $http.post('/actions/admin/content/media', formData, {
+        
+        $http.post('/actions/admin/content/media' + (mediaObject._id ? '/' + mediaObject._id : ''), mediaObject, {
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         })
         .success(function(result) {

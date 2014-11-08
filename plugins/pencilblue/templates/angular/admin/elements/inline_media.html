@@ -140,6 +140,8 @@
             var mediaObject = JSON.parse(JSON.stringify($scope.addedMedia));
             delete mediaObject.link;
 
+            mediaObject.media_topics = [];
+
             mediaService.saveMedia(mediaObject)
             .then(function(result) {
                 $scope.savingMedia = false;
@@ -148,7 +150,6 @@
             },
             function(result, status) {
                 $scope.savingMedia = false;
-                console.log(result);
             });
         };
 

@@ -3,11 +3,11 @@
 	^tmp_admin=elements=error_success^
 	^tmp_admin=elements=sub_nav^
 	^tmp_admin=elements=tab_nav^
-	<form name="mediaForm" ng-sumbit="saveMedia()" novalidate>
+	<form name="mediaForm" ng-submit="saveMedia()" novalidate>
 		<fieldset>
 			<div class="tab-content">
 				<div class="tab-pane active" id="media_upload">
-					<div id="media_display" class="form-group"></div>
+					<div style="margin: 1em 0" ng-bind-html="getMediaPreviewHTML()" ng-if="mediaPreview.length" style="width: 100%"></div>
 					<div class="form-group">
 						<button type="button" class="btn btn-info" ng-click="showMediaModal(false)">
 							<i class="fa fa-link"></i>&nbsp;^loc_LINK_TO_MEDIA^...
@@ -28,11 +28,11 @@
 				<div class="tab-pane" id="topics_dnd">
 					^tmp_admin=elements=topic_select^
 				</div>
-				<button type="button" class="btn btn-default" onclick="window.location = '/admin/content/media';">
+				<a class="btn btn-default" href="/admin/content/media">
 					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-				</button>
-				<button id="save_button" type="button" class="btn btn-primary" onclick="checkForAddMediaSave()" disabled>
-					<i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+				</a>
+				<button type="submit" class="btn btn-primary" ng-disabled="!mediaPreview.length || !media.name.length">
+					<i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SAVE^
 				</button>
 			</div>
 		</fieldset>
@@ -40,38 +40,40 @@
 	<div class="modal fade" id="media_modal">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<div id="upload_media_header" class="modal-header">
+				<div class="modal-header" ng-if="media.isFile">
 					^loc_UPLOAD_MEDIA^
 				</div>
-				<div id="link_to_media_header" class="modal-header">
+				<div class="modal-header" ng-if="!media.isFile">
 					^loc_LINK_TO_MEDIA^
 				</div>
 				<div class="modal-body">
-					<span id="link_to_media">
+					<span ng-if="media.isFile">
+						<div class="progress progress-striped active" ng-if="uploading">
+							<div class="progress-bar" role="progressbar" aria-valuenow="{{uploadPercent}}" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+						</div>
+						<span class="btn btn-success fileinput-button" ng-disabled="uploading">
+							<i class="fa" ng-class="{'fa-plus': !uploading, 'fa-circle-o-notch fa-spin': uploading}"></i>
+							<span>^loc_SELECT_FILE^...</span>
+							<input type="file" ng-file-select="onFileSelect($files)" accept=".jpg,.jpeg,.png,.gif,.svg,.webp,.mp4,.webm,.ogv"></input>
+						</span>
+						<div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="dropSupported=true" ng-file-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">Drop image and video files here</div>
+						<button type="button" class="btn btn-default" style="margin-top: 1em" data-dismiss="modal">
+							<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+						</button>
+					</span>
+					<span ng-if="!media.isFile">
 						<div class="form-group">
 							<label>^loc_MEDIA_URL^</label>
-							<input type="url" id="media_url" name="media_url" class="form-control" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
+							<input type="text" class="form-control" ng-model="media.link" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
 						</div>
-						<div id="link_loading" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div>
 						<button type="button" class="btn btn-default" data-dismiss="modal">
 							<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
 						</button>
-						<button type="button" id="link_button" class="btn btn-primary" onclick="validateMediaURL($('#media_url').val(), false)">
-							<i class="fa fa-link"></i>&nbsp;^loc_LOAD_LINK^
+						<button type="button" class="btn btn-primary" ng-click="loadMediaLink()" ng-disabled="!media.link.length || loadingLink">
+							<i class="fa" ng-class="{'fa-link': !loadingLink, 'fa-circle-o-notch fa-spin': loadingLink}"></i>&nbsp;^loc_LOAD_LINK^
 						</button>
 					</span>
-					<span id="upload_media">
-						<div id="upload_progress" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div>
-						<button type="button" class="btn btn-default" data-dismiss="modal">
-							<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-						</button>
-						<span class="btn btn-success fileinput-button">
-							<i class="fa fa-plus"></i>
-							<span>^loc_SELECT_FILE^...</span>
-							<input id="media_file" type="file" name="media_file" accept=".jpg,.jpeg,.png,.gif,.svg,.webp,.mp4,.webm,.ogv">
-						</span>
-					</span>
-				</div
+				</div>
 			</div>
 		</div>
 	</div>

@@ -24,46 +24,36 @@ function AddMediaActionController(){}
 var mediaService = require(DOCUMENT_ROOT + '/include/service/entities/media_service.js');
 
 //inheritance
-util.inherits(AddMediaActionController, pb.FormController);
+util.inherits(AddMediaActionController, pb.BaseController);
 
-AddMediaActionController.prototype.onPostParamsRetrieved = function(post, cb) {
+AddMediaActionController.prototype.render = function(cb) {
 	var self = this;
 
-	console.log(post);
-
-	var message = this.hasRequiredParams(post, this.getRequiredParams());
-    if(message) {
-        cb({
-			code: 400,
-			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-		});
-		return;
-    }
-
-    var mediaDocument = pb.DocumentCreator.create('media', post, ['media_topics'], ['is_file']);
-    var mediaService = new pb.MediaService();
-    mediaService.save(mediaDocument, function(err, result) {
-        if(util.isError(err)) {
-			cb({
-				code: 500,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-			});
-            return;
-        }
-        else if(util.isArray(result)) {
-			cb({
+	this.getJSONPostParams(function(err, post) {
+		var message = self.hasRequiredParams(post, self.getRequiredParams());
+	    if(message) {
+	        cb({
 				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, pb.CustomObjectService.createErrorStr(result))
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
 			});
-        }
+			return;
+	    }
 
-		result.icon = mediaService.getMediaIcon(result.media_type);
+	    var mediaDocument = pb.DocumentCreator.create('media', post);
+	    var mediaService = new pb.MediaService();
+	    mediaService.save(mediaDocument, function(err, result) {
+	        if(util.isError(err) || util.isArray(result)) {
+				cb({
+					code: 500,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+				});
+				return;
+	        }
 
-		cb({
-			code: 200,
-			content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, result.name + ' ' + self.ls.get('ADDED'), result)
-		});
-    });
+			result.icon = pb.MediaService.getMediaIcon(result.media_type);
+			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, result.name + ' ' + self.ls.get('ADDED'), result)});
+	    });
+	});
 };
 
 AddMediaActionController.prototype.getRequiredParams = function() {

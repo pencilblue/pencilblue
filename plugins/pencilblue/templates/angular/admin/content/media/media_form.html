@@ -1,16 +1,15 @@
 <script type="text/javascript" src="^angular_upload_src^"></script>
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript" src="/js/angular/services/media.js"></script>
 <script type="text/javascript">
-	angular.module('pencilblueApp', ['media', 'ui.sortable', 'angularFileUpload', 'topicSelect'])
-	.controller('PencilBlueController', function($scope, $sce, $http, $upload, mediaService) {
+	angular.module('pencilblueApp', ['media', 'ui.sortable', 'angularFileUpload', 'topicSelect', 'validation'])
+	.controller('PencilBlueController', function($scope, $sce, $http, $upload, $window, mediaService, validationService) {
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
 
 		$scope.mediaPreview = '';
-		$scope.addedMedia = {
-			link: '',
-			topics: []
-		};
+		$scope.editingObject = $scope.media;
+		$scope.variablePrefix = 'media';
 
 		$scope.getMediaPreviewHTML = function() {
 			return $sce.trustAsHtml($scope.mediaPreview);
@@ -21,28 +20,28 @@
 		};
 
 		$scope.showMediaModal = function(isFile) {
-			$scope.addedMedia.isFile = isFile;
+			$scope.media.isFile = isFile;
 			$('#media_modal').modal({backdrop: 'static', keyboard: true});
 		};
 
 		$scope.loadMediaLink = function() {
-			if(!$scope.addedMedia.link.length) {
+			if(!$scope.media.link.length) {
 				return;
 			}
 
 			$scope.loadingLink = true;
 
-			mediaService.loadMediaLink($scope.addedMedia.link, function(err, result) {
+			mediaService.loadMediaLink($scope.media.link, function(err, result) {
 				if(err) {
 					$scope.loadingLink = false;
 					console.log(err);
 					return;
 				}
 
-				$scope.addedMedia.media_type = result.data.mediaType;
-				$scope.addedMedia.location = result.data.location;
-				$scope.addedMedia.thumb = result.data.thumb;
-				$scope.addedMedia.is_file = result.data.isFile;
+				$scope.media.media_type = result.data.mediaType;
+				$scope.media.location = result.data.location;
+				$scope.media.thumb = result.data.thumb;
+				$scope.media.is_file = result.data.isFile;
 
 				mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
 					$scope.loadingLink = false;
@@ -53,6 +52,7 @@
 					}
 
 					$scope.mediaPreview = result.data;
+					$('#media_modal').modal('hide');
 				})
 			});
 		};
@@ -75,10 +75,10 @@
 							return;
 						}
 
-						$scope.addedMedia.media_type = result.data.mediaType;
-						$scope.addedMedia.location = result.data.location;
-						$scope.addedMedia.thumb = result.data.thumb;
-						$scope.addedMedia.is_file = result.data.isFile;
+						$scope.media.media_type = result.data.mediaType;
+						$scope.media.location = result.data.location;
+						$scope.media.thumb = result.data.thumb;
+						$scope.media.is_file = result.data.isFile;
 
 						mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
 							$scope.uploading = false;
@@ -88,33 +88,62 @@
 								return;
 							}
 
-							$scope.uploadPreview = result.data;
+							$scope.mediaPreview = result.data;
+							$('#media_modal').modal('hide');
 						})
 					});
 				});
 			}
 		};
 
-		$scope.isSaveMediaEnabled = function() {
-			return ($scope.uploadPreview || $scope.mediaPreview) && $scope.addedMedia.name;
+		$scope.getMediaPreview = function() {
+			$scope.mediaPreview = '<i class="fa fa-circle-o-notch fa-spin"></i>';
+
+			$http.get('/api/admin/content/media/get_preview?id=' + $scope.media._id)
+			.success(function(result) {
+				$scope.mediaPreview = result.data;
+			})
+			.error(function(error, status) {
+				$scope.mediaPreview = '';
+				$scope.errorMessage = error.message;
+			})
 		};
 
-		$scope.saveAddedMedia = function() {
-			$scope.savingMedia = true;
+		$scope.saveMedia = function() {
+			$scope.formSubmitted = true;
 
-			var mediaObject = JSON.parse(JSON.stringify($scope.addedMedia));
+			if(!validationService.isFormValid($scope.mediaForm)) {
+				return;
+			}
+
+			$scope.saving = true;
+
+			var mediaObject = JSON.parse(JSON.stringify($scope.media));
 			delete mediaObject.link;
+
+			var topics = [];
+			for(var i = 0; i < $scope.media.media_topics.length; i++) {
+				topics.push($scope.media.media_topics[i]._id.toString());
+			}
+			mediaObject.media_topics = topics;
 
 			mediaService.saveMedia(mediaObject)
 			.then(function(result) {
-				$scope.savingMedia = false;
-				$scope.editingObject[$scope.variablePrefix + '_media'].push(result.data);
-				$('#media_modal').modal('hide');
+				$scope.saving = false;
+				$scope.successMessage = result.message;
+
+				if(result.data._id) {
+					$window.location = '/admin/content/media/' + result.data._id;
+				}
 			},
 			function(result, status) {
-				$scope.savingMedia = false;
-				console.log(result);
+				$scope.saving = false;
+				$scope.errorMessage = result.message;
 			});
 		};
+
+		if($scope.media._id) {
+			$scope.getMediaPreview();
+		}
 	});
 </script>

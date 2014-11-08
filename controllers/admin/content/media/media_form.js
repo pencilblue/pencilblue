@@ -111,6 +111,10 @@ MediaForm.prototype.gatherData = function(vars, cb) {
 
 MediaForm.prototype.getMediaTopics = function(data) {
 	var topics = [];
+	if(!data.media.media_topics) {
+		return topics;
+	}
+
 	for(i = 0; i < data.media.media_topics.length; i++) {
 		for(j = 0; j < data.topics.length; j++) {
 			if(data.topics[j]._id.equals(ObjectID(data.media.media_topics[i]))) {
