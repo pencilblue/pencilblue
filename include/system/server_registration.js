@@ -258,7 +258,17 @@ ServerRegistration.doRegistration = function(cb) {
  * @return {String} The unique identifier
  */
 ServerRegistration.generateKey = function() {
-	 return  ServerRegistration.getIp() + ':' + pb.config.sitePort + ':' + (cluster.worker ? cluster.worker.id : 'M') + ':' + os.hostname();
+    return ServerRegistration.getIp() + ':' + pb.config.sitePort + ':' + (cluster.worker ? cluster.worker.id : 'M') + ':' + os.hostname();
+};
+
+/**
+ * Retrieves a unique key for the server but not for the process
+ * @static
+ * @method generateServerKey
+ * @return {String} server key
+ */
+ServerRegistration.generateServerKey = function() {
+    return ServerRegistration.getIp() + ':' + pb.config.sitePort + ':' + os.hostname();
 };
 
 /**

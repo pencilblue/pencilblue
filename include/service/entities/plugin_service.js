@@ -1050,34 +1050,22 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 
             if (!pb.utils.isObject(details.dependencies) || details.dependencies === {}) {
                 //no dependencies were declared so we're good
-                return cb(null, true);
+                return callback(null, true);
             }
             
             //iterate over dependencies to ensure that they exist
-            var shouldRetrieveDependencies = false;
-            var tasks = pb.utils.getTasks(Object.keys(details.dependencies), function(keys, i) {
-                return function(callback) {
-                    var modulePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'node_modules', keys[i]);
-                    fs.exists(modulePath, function(exists) {
-                        if (!exists) {
-                            
-                            shouldRetrieveDependencies = true;
-                            pb.log.warn('PluginService: Plugin %s is missing dependency %s', plugin.name, keys[i]);
-                        }
-                        callback();
-                    });
-                };
-            });
-            async.parallel(tasks, function(err, results) {
-                if (!shouldRetrieveDependencies) {
-                    
-                    pb.log.silly('PluginService: Dependency check passed for plugin %s', plugin.name);
-                    return cb(null, true);
+            self.hasDependencies(plugin, function(err, hasDependencies) {
+                if (util.isError(err) || hasDependencies) {
+                    if (hasDependencies) {
+                        pb.log.silly('PluginService: Dependency check passed for plugin %s', plugin.name);
+                    }
+                    return callback(err, true);
                 }
                 
                 //dependencies are missing, go install them
-                pb.plugins.installPluginDependencies(plugin.uid, details.dependencies, function(err, results) {
-                    cb(err, !util.isError(err));
+                pb.log.silly('PluginService: Dependency check failed for plugin %s', plugin.name);
+                pb.plugins.installPluginDependencies(plugin.dirName, details.dependencies, plugin, function(err, results) {
+                    callback(err, !util.isError(err));
                 });
             });
         },
@@ -1218,18 +1206,131 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 };
 
 /**
+ * Verifies that a plugin has all of the required dependencies installed from NPM
+ * @method hasDependencies
+ * @param {Object} plugin
+ * @param {Function} cb
+ */
+PluginService.prototype.hasDependencies = function(plugin, cb) {
+    if (!pb.utils.isObject(plugin.dependencies) || plugin.dependencies === {}) {
+        //no dependencies were declared so we're good
+        return cb(null, true);
+    }
+
+    //iterate over dependencies to ensure that they exist
+    var hasDependencies = true;
+    var tasks = pb.utils.getTasks(Object.keys(plugin.dependencies), function(keys, i) {
+        return function(callback) {
+            var modulePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'node_modules', keys[i]);
+            fs.exists(modulePath, function(exists) {
+                if (!exists) {
+
+                    hasDependencies = false;
+                    pb.log.warn('PluginService: Plugin %s is missing dependency %s', plugin.name, keys[i]);
+                }
+                callback();
+            });
+        };
+    });
+    async.parallel(tasks, function(err, results) {
+        cb(err, hasDependencies);
+    });
+};
+
+/**
  * Installs the dependencies for a plugin via NPM.
  * @method installPluginDependencies
  * @param {String} pluginDirName
  * @param {Object} dependencies
  * @param {Function} cb
  */
-PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, cb) {
+PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
+    if (pb.utils.isFunction(plugin)) {
+        cb = plugin;
+        plugin = null;
+    }
+        
+    //verify parameters
     if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !pb.utils.isObject(dependencies)) {
         cb(new Error('The plugin directory name and the dependencies are required'));
         return;
     }
+        
+    //verify that another process isn't trying to install dependencies on the server
+    var self     = this;
+    var didLock  = false;
+    var depFound = false;
+    var key = pb.ServerRegistration.generateServerKey() + ':' + pluginDirName + ':dependency:install';
+    async.until(
+        function() {
+            return didLock || depFound;
+        },
+        function(callback) {
+            
+            //try and acquire the lock
+            pb.cache.setnx(key, 'locked', function(err, reply) {
+                if (util.isError(err)) {
+                    return callback(err);   
+                }
+                else if (reply) {
+                    pb.cache.expire(key, 120 /*sec*/, function(err, result) {
+                        didLock = true;
+                        callback(err);
+                    });
+                    return;
+                }
+                
+                //wait a second to see if anything changes
+                pb.log.silly('PluginService: Failed to acquire dependency installation lock. Waiting for 1000ms.');
+                setTimeout(function() {
 
+                    //now check to see if another process installed the 
+                    //dependencies.  If there is no plugin object then skip.  
+                    //When present then do a test to see if another process has 
+                    //already installed the dependencies on this server
+                    if (plugin === null) {
+                        return callback();
+                    }
+                    self.hasDependencies(plugin, function(err, hasDependencies) {
+                        if (hasDependencies) {
+                            depFound = true;
+                        }
+                        callback(err);
+                    });
+                }, 1000);
+            });
+        },
+        function(err) {
+            
+            //a callback function that allows for deleting the lock key
+            var onDone = function(err, result) {
+                if (didLock) {
+                    pb.cache.del(key, pb.utils.cb);
+                }
+                cb(err, result);
+            };
+            
+            //verify results
+            if (util.isError(err)) {
+                return onDone(err);
+            }
+            else if (depFound) {
+                
+                //when the dependencies have already been set we can move on and just return
+                var result = pb.utils.initArray(Object.keys(dependencies).length, true);
+                return onDone(null, result);
+            }
+            
+            //proceed to 
+            self._installPluginDependencies(pluginDirName, dependencies, function(err, result){
+                onDone(err, result);
+            });
+        }
+    );
+};
+    
+PluginService.prototype._installPluginDependencies = function(pluginDirName, dependencies, cb) {
+    
     var statements = [];
     var logit = function(message) {
         statements.push(message);
@@ -1269,11 +1370,6 @@ PluginService.prototype.installPluginDependencies = function(pluginDirName, depe
             };
         });
         async.series(tasks, function(err, results) {
-            var result = {
-                log: statements,
-                results: results,
-                err: err? err.stack : null
-            }
             onDone(err, results);
         });
     });
