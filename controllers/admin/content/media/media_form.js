@@ -15,9 +15,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//dependencies
-var Media = require('../media.js');
-
 /**
 * Interface for adding and editing media
 * @class MediaForm

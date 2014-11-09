@@ -492,22 +492,6 @@ module.exports = [
         content_type: 'application/json'
     },
     {
-        method: 'get',
-        path: "/admin/content/comments/manage_comments",
-        auth_required: true,
-        access_level: ACCESS_EDITOR,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'comments', 'manage_comments.js'),
-        content_type: 'text/html'
-    },
-    {
-        method: 'get',
-        path: "/actions/admin/content/comments/delete_comment/:id",
-        access_level: ACCESS_EDITOR,
-        auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'comments', 'delete_comment.js'),
-        content_type: 'text/html'
-    },
-    {
     	method: 'post',
     	path: "/api/jobs/:action/:id",
     	auth_required: true,
@@ -820,6 +804,24 @@ module.exports = [
         access_level: ACCESS_WRITER,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_preview.js'),
+        content_type: 'text/html'
+    },
+
+    // COMMENTS
+    {
+        method: 'get',
+        path: "/admin/content/comments",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'comments', 'manage_comments.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/comments/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'comments', 'delete_comment.js'),
         content_type: 'text/html'
     },
 
