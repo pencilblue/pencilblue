@@ -5,6 +5,8 @@
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
 
+		$scope.urlAvailable = null;
+
 		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
 		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
 		$scope.article.meta_keywords = $scope.article.meta_keywords ? $scope.article.meta_keywords.join(',') : '';
@@ -13,6 +15,20 @@
 
 		$scope.setPublishDateToNow = function() {
 			$scope.article.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');
+		};
+
+		$scope.getUrlAvailability = function() {
+			$http.get('/api/url/exists_for?url=/article/' + $scope.article.url + '&type=article')
+			.success(function(result) {
+				$scope.urlAvailable = !result.data;
+			})
+			.error(function(error, status) {
+				$scope.errorMessage = error.message;
+			});
+		};
+
+		$scope.resetUrlAvailability = function() {
+			$scope.urlAvailable = null;
 		};
 
 		$scope.saveArticle = function(draft) {
