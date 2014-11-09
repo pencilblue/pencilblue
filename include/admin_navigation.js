@@ -83,7 +83,7 @@ function getDefaultNavigation() {
                     id: 'comments',
                     title: 'COMMENTS',
                     icon: 'comments',
-                    href: '/admin/content/comments/manage_comments',
+                    href: '/admin/content/comments',
                     access: ACCESS_EDITOR
                 },
                 {
@@ -128,7 +128,7 @@ function getDefaultNavigation() {
                     id: 'manage',
                     title: 'MANAGE',
                     icon: 'users',
-                    href: '/admin/users/manage_users',
+                    href: '/admin/users',
                     access: ACCESS_EDITOR
                 },
                 {
