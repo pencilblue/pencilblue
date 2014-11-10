@@ -1,0 +1,44 @@
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript">
+	angular.module('pencilblueApp', ['search', 'paginate'])
+	.controller('PencilBlueController', function($scope, $http, searchService, paginationService) {
+		^angular_objects^
+
+		$scope.searchText = '';
+		$scope.paginationIndex = 0;
+		$scope.paginationLimit = 25;
+
+		$scope.search = function() {
+			searchService.search($scope.searchText, $scope.permissions, ['name'], function(permissions) {
+				$scope.permissions = permissions;
+				$scope.paginate(0);
+			});
+		}
+
+		$scope.clearSearch = function() {
+			$scope.searchText = '';
+			$scope.search();
+		}
+
+		$scope.paginate = function(paginationIndex) {
+			$scope.paginationIndex = paginationIndex;
+
+			paginationService.paginate($scope.permissions, $scope.paginationIndex, $scope.paginationLimit, function(permissions, paginationPages) {
+				$scope.permissions = permissions;
+				$scope.paginationPages = paginationPages;
+			})
+		}
+
+		$scope.pageButtonVisible = function(testIndex) {
+			return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
+		};
+
+		$scope.confirmDelete = function(user) {
+			$scope.objectToDelete = user
+			$('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+		}
+
+		$scope.paginate(0);
+	});
+</script>

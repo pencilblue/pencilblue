@@ -61,35 +61,30 @@ PermissionsMapController.prototype.render = function(cb) {
 		permissions.push({name: permArray[i], vals: values});
 	}
 
-	var pills = [
-		{
-			name: 'permissions',
-			title: self.ls.get('PERMISSIONS'),
-			icon: 'refresh',
-			href: '/admin/users/permissions'
-		},
-		{
-			name: 'manage_plugins',
-			title: self.ls.get('MANAGE_PLUGINS'),
-			icon: 'puzzle-piece',
-			href: '/admin/plugins'
-		}
-	];
+	var pills = [{
+		name: 'permissions',
+		title: self.ls.get('PERMISSIONS'),
+		icon: 'refresh',
+		href: '/admin/users/permissions'
+	}, {
+		name: 'manage_plugins',
+		title: self.ls.get('MANAGE_PLUGINS'),
+		icon: 'puzzle-piece',
+		href: '/admin/plugins'
+	}];
 
-	var angularData = pb.js.getAngularController(
-        {
-            navigation: pb.AdminNavigation.get(this.session, ['users', 'permissions'], this.ls),
-			pills: pills,
-            roles: roleDNs,
-            permissions: permissions,
-        }, [], 'initPermissionsPagination()'
-    );
+	var angularObjects = pb.js.getAngularObjects({
+        navigation: pb.AdminNavigation.get(this.session, ['users', 'permissions'], this.ls),
+		pills: pills,
+        roles: roleDNs,
+        permissions: permissions,
+    });
 
 	//render page
 	this.setPageName(this.ls.get('PERMISSIONS'));
-	this.ts.registerLocal('angular_script', angularData);
-	this.ts.load('/admin/users/permissions', function(err, data) {
-		var result = '' + data;
+	this.ts.registerLocal('angular_script', '');
+	self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+	this.ts.load('/admin/users/permissions', function(err, result) {
 		cb({content: result});
 	});
 };
