@@ -1,0 +1,68 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['validation'])
+    .controller('PencilBlueController', function($scope, $http, validationService) {
+        ^angular_objects^
+        ^tmp_angular=admin=elements=is_field_valid^
+
+        if($scope.user.username) {
+            $scope.originalUsername = $scope.user.username.toString();
+        }
+        $scope.usernameAvailable = null;
+
+        $scope.canCheckUsername = function() {
+            if(!$scope.user.username || !$scope.user.username.length) {
+                return false;
+            }
+
+            if($scope.originalUsername && $scope.originalUsername.toLowerCase() === $scope.user.username.toLowerCase()) {
+                return false;
+            }
+
+            return true;
+        }
+
+        $scope.getUsernameAvailability = function() {
+            $http.get('/api/user/get_username_available?username=' + $scope.user.username)
+            .success(function(result) {
+                $scope.usernameAvailable = result.data;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+            });
+        };
+
+        $scope.resetUsernameAvailability = function() {
+            $scope.usernameAvailable = null;
+        };
+
+        $scope.saveUser = function() {
+            $scope.formSubmitted = true;
+
+            if(!validationService.isFormValid($scope.userForm)) {
+                return;
+            }
+
+            $scope.saving = true;
+
+            var postURL = '/actions/admin/users';
+            if($scope.user._id) {
+                postURL += '/' + $scope.user._id;
+            }
+
+            $http.post(postURL, {name: $scope.user.name})
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                if(!$scope.user._id) {
+                    $scope.user = {};
+                    $scope.formSubmitted = false;
+                }
+                $scope.saving = false;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
+        };
+    });
+</script>

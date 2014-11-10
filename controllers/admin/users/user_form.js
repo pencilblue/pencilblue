@@ -42,16 +42,21 @@ UserForm.prototype.render = function(cb) {
 
 		self.user = data.user;
 		data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: self.user});
+
+		data.adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR}];
+		if(!data.user._id || self.session.authentication.user_id !== data.user._id.toString()) {
+			data.adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
+		}
+
 		var angularObjects = pb.js.getAngularObjects(data);
 
-		delete user.password;
 		self.setPageName(data.user._id ? data.user.username : self.ls.get('NEW_USER'));
-		self.ts.registerLocal('user_id', user._id);
+		self.ts.registerLocal('user_id', data.user._id);
 		self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
-		self.ts.registerLocal('uploaded_image', (user.photo ? user.photo : ''));
+		self.ts.registerLocal('uploaded_image', (data.user.photo ? data.user.photo : ''));
 		self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-		self.ts.load('admin/users/edit_user', function(err, result) {
+		self.ts.load('admin/users/user_form', function(err, result) {
 			cb({content: result});
 		});
 	});
@@ -78,15 +83,6 @@ UserForm.prototype.gatherData = function(vars, cb) {
 			callback(null, pb.AdminNavigation.get(self.session, ['users'], self.ls));
 		},
 
-		adminOptions: function(callback) {
-			var options = [{name: self.ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR}];
-			if(self.session.authentication.user_id != user._id.toString()) {
-				options = pb.users.getAdminOptions(self.session, self.localizationService);
-			}
-
-			callback(null, options);
-		},
-
 		user: function(callback) {
 			if(!vars.id) {
 				callback(null, {});
@@ -95,6 +91,7 @@ UserForm.prototype.gatherData = function(vars, cb) {
 
 			var dao = new pb.DAO();
 			dao.loadById(vars.id, 'user', function(err, user) {
+				delete user.password;
 				callback(err, user);
 			});
 		}
@@ -110,22 +107,23 @@ UserForm.getSubNavItems = function(key, ls, data) {
 		href: '/admin/users'
 	}];
 
-	var pills = Users.getPillNavOptions();
-	if(data.session.authentication.user_id == data.user._id.toString()) {
-		pills.push({
-			name: 'change_password',
-			title: ls.get('CHANGE_PASSWORD'),
-			icon: 'key',
-			href: '/admin/users/password/' + data.user._id.toString()
-		});
-	}
-	else if(data.session.authentication.admin_level >= ACCESS_MANAGING_EDITOR) {
-		pills.push({
-			name: 'reset_password',
-			title: ls.get('RESET_PASSWORD'),
-			icon: 'key',
-			href: '/actions/admin/users/send_password_reset/' + data.user._id.toString()
-		});
+	if(data.user._id) {
+		if(data.session.authentication.user_id === data.user._id.toString()) {
+			pills.push({
+				name: 'change_password',
+				title: ls.get('CHANGE_PASSWORD'),
+				icon: 'key',
+				href: '/admin/users/password/' + data.user._id.toString()
+			});
+		}
+		else if(data.session.authentication.admin_level >= ACCESS_MANAGING_EDITOR) {
+			pills.push({
+				name: 'reset_password',
+				title: ls.get('RESET_PASSWORD'),
+				icon: 'key',
+				href: '/actions/admin/users/send_password_reset/' + data.user._id.toString()
+			});
+		}
 	}
 
 	pills.push({
