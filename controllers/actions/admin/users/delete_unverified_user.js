@@ -30,7 +30,10 @@ DeleteUnverifiedUser.prototype.render = function(cb) {
 
     var message = this.hasRequiredParams(vars, ['id']);
     if (message) {
-        this.formError(message, '/admin/users/unverified_users', cb);
+        cb({
+            code: 400,
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+        });
         return;
     }
 
@@ -38,19 +41,24 @@ DeleteUnverifiedUser.prototype.render = function(cb) {
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'unverified_user', function(err, user) {
         if(user === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/unverified_users', cb);
+            cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+            });
             return;
         }
 
         //delete the user
         dao.deleteById(vars.id, 'unverified_user').then(function(result) {
             if(result < 1) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/unverified_users', cb);
+                cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                });
                 return;
             }
 
-            self.session.success = user.username + ' ' + self.ls.get('DELETED');
-            self.redirect('/admin/users/unverified_users', cb);
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, user.username + ' ' + self.ls.get('DELETED'))});
         });
     });
 };

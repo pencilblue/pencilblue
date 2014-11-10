@@ -928,7 +928,7 @@ module.exports = [
     },
     {
         method: 'get',
-        path: "/actions/admin/users/verify_user/:id",
+        path: "/actions/admin/users/verify/:id",
         auth_required: true,
         access_level: ACCESS_EDITOR,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'verify_user.js'),
