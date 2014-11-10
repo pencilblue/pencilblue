@@ -21,9 +21,6 @@
 
 function ChangePasswordController(){}
 
-//dependencies
-var Users = require('../users');
-
 //inheritance
 util.inherits(ChangePasswordController, pb.BaseController);
 
@@ -34,34 +31,32 @@ ChangePasswordController.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
     if(!vars.id) {
-        this.redirect('/admin/users/manage_users', cb);
+        this.redirect('/admin/users', cb);
         return;
     }
     if(self.session.authentication.user_id != vars.id) {
-        this.redirect('/admin/users/manage_users', cb);
+        this.redirect('/admin/users', cb);
         return;
     }
 
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'user', function(err, user) {
         if(util.isError(err) || user === null) {
-            self.redirect('/admin/users/manage_users', cb);
+            self.redirect('/admin/users', cb);
             return;
         }
 
-        var tabs = [
-            {
-                active: 'active',
-                href: '#password',
-                icon: 'key',
-                title: self.ls.get('PASSWORD')
-            }
-        ];
+        var tabs = [{
+            active: 'active',
+            href: '#password',
+            icon: 'key',
+            title: self.ls.get('PASSWORD')
+        }];
 
-        var angularData = pb.js.getAngularController(
+        var angularObjects = pb.js.getAngularObjects(
         {
             navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
-            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
+            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, user),
             tabs: tabs,
             adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
             user: user
@@ -69,10 +64,9 @@ ChangePasswordController.prototype.render = function(cb) {
 
         delete user.password;
         self.setPageName(self.ls.get('CHANGE_PASSWORD'));
-        self.ts.registerLocal('user_id', user._id);
-        self.ts.registerLocal('angular_script', angularData);
-        self.ts.load('admin/users/change_password', function(err, data) {
-            var result = '' + data;
+        self.ts.registerLocal('angular_script', '');
+		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/users/change_password', function(err, result) {
             cb({content: result});
         });
     });
@@ -81,10 +75,10 @@ ChangePasswordController.prototype.render = function(cb) {
 ChangePasswordController.getSubNavItems = function(key, ls, data) {
 	return [
         {
-            name: 'manage_users',
+            name: SUB_NAV_KEY,
             title: ls.get('CHANGE_PASSWORD'),
             icon: 'chevron-left',
-            href: '/admin/users/manage_users'
+            href: '/admin/users/' + data._id
         }
    ];
 };

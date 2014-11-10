@@ -69,7 +69,6 @@ EditUser.prototype.render = function(cb) {
 	            }
 
 	            dao.update(user).then(function(result) {
-					console.log(result);
 	                if(util.isError(result)) {
 	                    cb({
 							code: 500,

@@ -948,4 +948,11 @@ module.exports = [
         access_level: ACCESS_MANAGING_EDITOR,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
     },
+    {
+        method: 'post',
+        path: "/actions/admin/users/send_password_reset/:id",
+        auth_required: true,
+        access_level: ACCESS_MANAGING_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
+    },
 ];

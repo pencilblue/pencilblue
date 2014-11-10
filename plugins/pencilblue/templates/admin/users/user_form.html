@@ -45,7 +45,7 @@
 						<div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.confirm_password)}">
 							<label>^loc_CONFIRM_PASSWORD^</label>
 							<div class="input-group">
-								<input type="password" name="confirm_password" class="form-control" autocomplete="off" ng-model="user.confirm_password" ng-change="checkPasswordMatch()" required></input>
+								<input type="{{getPasswordInputType()}}" name="confirm_password" class="form-control" autocomplete="off" ng-model="user.confirm_password" ng-change="checkPasswordMatch()" ng-keyup="resetPasswordGenerated()" required></input>
 								<span class="input-group-addon">
 									<i class="fa fa-thumbs-down" ng-class="{'fa-thumbs-down': !passwordMatch, 'fa-thumbs-up': passwordMatch}" ng-style="{'color': passwordMatch ? '#00AA00' : '#AA0000'}"></i>
 								</span>

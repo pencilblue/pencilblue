@@ -43,9 +43,18 @@
         }
 
         $scope.generatePassword = function() {
+            $scope.passwordGenerated = true;
             $scope.user.password = passwordService.generatePassword();
             $scope.user.confirm_password = $scope.user.password.toString();
             $scope.checkPasswordMatch();
+        }
+
+        $scope.resetPasswordGenerated = function() {
+            $scope.passwordGenerated = false;
+        }
+
+        $scope.getPasswordInputType = function() {
+            return $scope.passwordGenerated ? 'text' : 'password';
         }
 
         $scope.saveUser = function() {
