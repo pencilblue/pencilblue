@@ -92,6 +92,28 @@ Util.ane = function(obj){
 };
 
 /**
+ * Initializes an array with the specified number of values.  The value at each 
+ * index can be static or a function may be provided.  In the event that a 
+ * function is provided the function will be called for each item to be placed 
+ * into the array.  The return value of the function will be placed into the 
+ * array.
+ * @static
+ * @method initArray
+ * @param {Integer} cnt The length of the array to create
+ * @param {Function|String|Number} val The value to initialize each index of 
+ * the array
+ * @return {Array} The initialized array
+ */
+Util.initArray = function(cnt, val) {
+    var v = [];
+    var isFunc = Util.isFunction(val);
+    for(var i = 0; i < cnt; i++) {
+        v.push(isFunc ? val(i) : val);
+    }
+    return v;
+};
+
+/**
  * Escapes a regular expression.
  * @static
  * @method escapeRegExp
