@@ -77,7 +77,7 @@
 			}
 
 			$scope.deleting = true;
-			$http({method: 'DELETE', url: '/actions/admin/content/users/' + $scope.objectToDelete._id})
+			$http({method: 'DELETE', url: '/actions/admin/users/' + $scope.objectToDelete._id})
 			.success(function(result) {
 				for(var i = 0; i < $scope.users.length; i ++) {
 					if($scope.users[i]._id.toString() === $scope.objectToDelete._id.toString()) {

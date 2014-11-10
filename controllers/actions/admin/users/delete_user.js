@@ -119,7 +119,6 @@ DeleteUser.prototype.reassignContent = function(deletedUserId, newUserId, dao, c
                     });
                 };
 
-                console.log(articles);
                 articles = articles || [];
                 pages = pages || [];
                 sections = sections || [];

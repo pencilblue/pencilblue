@@ -31,6 +31,28 @@
 						<select name="admin" class="form-control" ng-model="user.admin" ng-options="adminOption.value as adminOption.name for adminOption in adminOptions" required></select>
 						<div class="form_error" ng-if="!isFieldValid(userForm.admin)">^loc_REQUIRED_FIELD^</div>
 					</div>
+					<div ng-if="!user._id">
+						<div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.password)}">
+							<label>^loc_PASSWORD^</label>
+							<div class="input-group">
+								<input type="password" name="password" class="form-control" autocomplete="off" ng-model="user.password" ng-change="checkPasswordMatch()" required></input>
+								<span class="input-group-btn">
+									<button class="btn btn-default" type="button" ng-click="generatePassword()">^loc_GENERATE^...</button>
+								</span>
+							</div>
+							<div class="form_error" ng-if="!isFieldValid(userForm.password)">^loc_REQUIRED_FIELD^</div>
+						</div>
+						<div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.confirm_password)}">
+							<label>^loc_CONFIRM_PASSWORD^</label>
+							<div class="input-group">
+								<input type="password" name="confirm_password" class="form-control" autocomplete="off" ng-model="user.confirm_password" ng-change="checkPasswordMatch()" required></input>
+								<span class="input-group-addon">
+									<i class="fa fa-thumbs-down" ng-class="{'fa-thumbs-down': !passwordMatch, 'fa-thumbs-up': passwordMatch}" ng-style="{'color': passwordMatch ? '#00AA00' : '#AA0000'}"></i>
+								</span>
+							</div>
+							<div class="form_error" ng-if="!isFieldValid(userForm.confirm_password)">^loc_REQUIRED_FIELD^</div>
+						</div>
+					</div>
 				</div>
 				<div class="tab-pane" id="personal_info">
 					<div class="form-group">

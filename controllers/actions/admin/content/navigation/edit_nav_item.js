@@ -72,7 +72,7 @@ EditNavItem.prototype.render = function(cb){
                 }
                 else if(util.isArray(result) && result.length > 0) {
                     cb({
-                        code: 400,
+                        code: 500,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, EditNavItem.getHtmlErrorMsg(result))
                     });
                     return;

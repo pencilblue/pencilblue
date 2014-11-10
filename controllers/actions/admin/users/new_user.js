@@ -22,44 +22,53 @@
 function NewUser(){}
 
 //inheritance
-util.inherits(NewUser, pb.FormController);
+util.inherits(NewUser, pb.BaseController);
 
-NewUser.prototype.onPostParamsRetrieved = function(post, cb) {
+NewUser.prototype.render = function(cb) {
 	var self = this;
 
-	post.photo = post.uploaded_image;
-    delete post.uploaded_image;
-    delete post.image_url;
+	this.getJSONPostParams(function(err, post) {
+	    var message = self.hasRequiredParams(post, self.getRequiredFields());
+	    if(message) {
+	        cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+			});
+	        return;
+	    }
 
-    var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if(message) {
-        this.formError(message, '/admin/users/new_user', cb);
-        return;
-    }
+	    if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
+	        cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+			});
+	        return;
+	    }
 
-    if(!pb.security.isAuthorized(this.session, {admin_level: post.admin})) {
-        this.formError(self.ls.get('INSUFFICIENT_CREDENTIALS'), '/admin/users/new_user', cb);
-        return;
-    }
+	    var user = pb.DocumentCreator.create('user', post);
+	    pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
+	        if(util.isError(err) || isTaken) {
+	            cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
+				});
+	            return;
+	        }
 
-    var user = pb.DocumentCreator.create('user', post);
-    pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
-        if(util.isError(err) || isTaken) {
-            self.formError(self.ls.get('EXISTING_USERNAME'), '/admin/users/new_user', cb);
-            return;
-        }
+	        var dao = new pb.DAO();
+	        dao.update(user).then(function(result) {
+	            if(util.isError(result)) {
+	                cb({
+						code: 500,
+						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+					});
+	                return;
+	            }
 
-        var dao = new pb.DAO();
-        dao.update(user).then(function(result) {
-            if(util.isError(result)) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/new_user', cb);
-                return;
-            }
-
-            self.session.success = self.ls.get('USER_CREATED');
-            self.redirect('/admin/users/manage_users', cb);
-        });
-    });
+				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_CREATED'), result)});
+	        });
+	    });
+	});
 };
 
 NewUser.prototype.getRequiredFields = function() {
