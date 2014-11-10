@@ -179,6 +179,7 @@ MongoCommandBroker.prototype.subscribe = function(channel, onCommandReceived, cb
     pb.log.debug('MongoCommandBroker: Subcribing to channel [%s]', channel);
     
     
+    //get a reference to the collection
     var self = this;
     var db = pb.dbm[pb.config.db.name];
     db.collection(COMMAND_Q_COLL, function(err, collection) {
@@ -186,13 +187,19 @@ MongoCommandBroker.prototype.subscribe = function(channel, onCommandReceived, cb
             return cb(err);
         }
  
+        //execute a seed query
         var latest = collection.find({}).sort({ $natural: -1 }).limit(1);
  
+        //pull off the 1st object as a no-op
         latest.nextObject(function(err, doc) {
             if (util.isError(err)) {
                 pb.log.error('MongoCommandBroker: Error while waiting for the next command: %s', err.stack);
             }
 
+            //build afunction that is capable of being called multiple times.  
+            //It executes the actual query with a trailing cursor.  As each new 
+            //document is generated it is pull off and handed off to a delegate 
+            //for processing
             var loop = function() {
                 var query = { created: { $gt: new Date() }};
 
@@ -214,7 +221,7 @@ MongoCommandBroker.prototype.subscribe = function(channel, onCommandReceived, cb
             };
             
             //wrap it all up in a container so we can mitigate the crises that 
-            //will invitably ensue from dropped or timed out cursor connections.  
+            //will inevitably ensue from dropped or timed out cursor connections.  
             //In addition, we put failure tolerances in place so that we can 
             //attempt to reconnect.
             var eot = new pb.ErrorsOverTime(5, 3000, 'MongoCommandBroker: ');
