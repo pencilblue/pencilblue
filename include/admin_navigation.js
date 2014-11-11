@@ -151,7 +151,7 @@ function getDefaultNavigation() {
                     id: 'site_settings',
                     title: 'SITE_SETTINGS',
                     icon: 'cog',
-                    href: '/admin/site_settings/configuration',
+                    href: '/admin/site_settings',
                     access: ACCESS_MANAGING_EDITOR
                 },
                 {

@@ -22,21 +22,33 @@
 function ConfigurationSettingsPostController(){}
 
 //inheritance
-util.inherits(ConfigurationSettingsPostController, pb.FormController);
+util.inherits(ConfigurationSettingsPostController, pb.BaseController);
 
-ConfigurationSettingsPostController.prototype.onPostParamsRetrieved = function(post, cb) {
+ConfigurationSettingsPostController.prototype.render = function(cb) {
 	var self = this;
 
-    var callHome = post.call_home == 1;
-    pb.settings.set('call_home', callHome, function(data) {
-        if(util.isError(data)) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/site_settings/configuration', cb);
-            return;
-        }
+	this.getJSONPostParams(function(err, post) {
+		var message = self.hasRequiredParams(post, ['call_home']);
+		if (message) {
+			cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+			});
+			return;
+		}
 
-        self.session.success = self.ls.get('CONFIGURATION_SETTINGS') + ' ' +  self.ls.get('EDITED');
-        self.redirect('/admin/site_settings/configuration', cb);
-    });
+	    pb.settings.set('call_home', post.call_home, function(data) {
+	        if(util.isError(data)) {
+	            cb({
+					code: 500,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+				});
+	            return;
+	        }
+
+			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CONFIGURATION_SETTINGS') + ' ' +  self.ls.get('EDITED'))});
+	    });
+	});
 };
 
 //exports

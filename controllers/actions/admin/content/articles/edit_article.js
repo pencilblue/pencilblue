@@ -69,7 +69,7 @@ EditArticle.prototype.render = function(cb) {
 	            dao.update(article).then(function(result) {
 	                if(util.isError(result)) {
 	                    cb({
-							code: 400,
+							code: 500,
 							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
 						});
 	                    return;

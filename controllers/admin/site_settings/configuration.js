@@ -21,9 +21,6 @@
 
 function Configuration(){}
 
-//dependencies
-var SiteSettings = require('../site_settings');
-
 //inheritance
 util.inherits(Configuration, pb.BaseController);
 
@@ -34,50 +31,59 @@ Configuration.prototype.render = function(cb) {
     var self = this;
 
     pb.settings.get('call_home', function(err, callHome) {
-        if (util.isError(err)) {
+        if(util.isError(err)) {
             self.reqHandler.serveError(err);
             return;
         }
 
-        var angularData = pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration'),
-                callHome: callHome
-            }
-        );
+        var config = {
+            documentRoot: pb.config.docRoot,
+            siteIP: pb.config.siteIP,
+            sitePort: pb.config.sitePort,
+            dbType: pb.config.db.type,
+            dbName: pb.config.db.name,
+            dbServers: pb.config.db.servers,
+            callHome: callHome || true,
+            configSet: fs.existsSync(DOCUMENT_ROOT + '/config.json')
+        };
+
+        var angularObjects = pb.js.getAngularObjects({
+            navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration'),
+            config: config
+        });
 
         self.setPageName(self.ls.get('CONFIGURATION'));
-        self.ts.registerLocal('document_root', pb.config.docRoot);
-        self.ts.registerLocal('site_ip', pb.config.siteIP);
-        self.ts.registerLocal('site_port', pb.config.sitePort);
-        self.ts.registerLocal('db_type', pb.config.db.type);
-        self.ts.registerLocal('db_name', pb.config.db.name);
-        self.ts.registerLocal('db_servers', pb.config.db.servers.join('<br/>'));
-        self.ts.registerLocal('edit_instructions', function(flag, cb) {
-            var content ='';
-            if(!fs.existsSync(DOCUMENT_ROOT + '/config.json')) {
-                content = '<div class="alert alert-info">'+self.ls.get('EDIT_CONFIGURATION')+'</div>';
-            }
-            cb(null, new pb.TemplateValue(content, false));
-        });
-        self.ts.registerLocal('angular_script', angularData);
-        self.ts.load('admin/site_settings/configuration', function(err, data) {
-            cb({content: data});
+        self.ts.registerLocal('angular_script', '');
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/site_settings/configuration', function(err, result) {
+            cb({content: result});
         });
     });
 };
 
 Configuration.getSubNavItems = function(key, ls, data) {
-	var pills = SiteSettings.getPillNavOptions(ls);
-    pills.unshift(
-    {
+    return [{
         name: 'configuration',
         title: ls.get('CONFIGURATION'),
         icon: 'refresh',
-        href: '/admin/site_settings/configuration'
-    });
-    return pills;
+        href: '/admin/site_settings'
+    }, {
+        name: 'content',
+        title: ls.get('CONTENT'),
+        icon: 'quote-right',
+        href: '/admin/site_settings/content'
+    }, {
+        name: 'email',
+        title: ls.get('EMAIL'),
+        icon: 'envelope',
+        href: '/admin/site_settings/email'
+    }, {
+        name: 'libraries',
+        title: ls.get('LIBRARIES'),
+        icon: 'book',
+        href: '/admin/site_settings/libraries'
+    }];
 };
 
 //register admin sub-nav
