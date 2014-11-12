@@ -1,23 +1,23 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^error_success^
+    ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
     ^tmp_admin=elements=tab_nav^
-    <form id="email_form" method="post" action="^site_root^/actions/admin/site_settings/email">
+    <form name="emailForm" ng-submit="saveEmailSettings()" novalidate>
         <fieldset>
             <div class="tab-content">
                 <div class="tab-pane active" id="preferences">
                     <div class="form-group">
                         <label>^loc_FROM_NAME^</label>
-                        <input type="text" id="from_name" name="from_name" class="form-control"></input>
+                        <input type="text" class="form-control" ng-model="emailSettings.from_name"></input>
                     </div>
                     <div class="form-group">
                         <label>^loc_FROM_ADDRESS^</label>
-                        <input type="text" id="from_address" name="from_address" class="form-control"></input>
+                        <input type="text" class="form-control" ng-model="emailSettings.from_address"></input>
                     </div>
                     <div class="form-group">
                         <label>^loc_VERIFICATION_SUBJECT^</label>
-                        <input type="text" id="verification_subject" name="verification_subject" class="form-control"></input>
+                        <input type="text" class="form-control" ng-model="emailSettings.verification_subject"></input>
                     </div>
                     <div class="form-group">
                         <label>^loc_VERIFICATION_CONTENT^</label>&nbsp;
@@ -30,7 +30,7 @@
                 <div class="tab-pane" id="smtp">
                     <div class="form-group">
                         <label>^loc_SERVICE^</label>
-                        <select id="service" name="service" class="form-control" onchange="checkForCustomService()">
+                        <select ng-model="emailSettings.service">
                             <option value="custom">^loc_CUSTOM^</option>
                             <option value="Gmail">Gmail</option>
                             <option value="Yahoo">Yahoo</option>
@@ -48,61 +48,56 @@
                             <option value="Zoho">Zoho</option>
                         </select>
                     </div>
-                    <div id="custom_smtp_options">
+                    <div ng-if="emailSettings.service === 'custom'">
                         <div class="form-group">
                             <label>^loc_HOST^</label>
-                            <input type="text" id="host" name="host" class="form-control"></input>
+                            <input type="text" class="form-control" ng-model="emailSettings.host"></input>
                         </div>
                         <div class="form-group">
                             <label>^loc_SECURE_CONNECTION^</label><br/>
-                            <div class="btn-group" data-toggle="buttons">
-                                <label class="btn btn-default">
-                                    <input type="radio" name="secure_connection" id="secure_connection_1" value="1"> ^loc_YES^
-                                </label>
-                                <label class="btn btn-default">
-                                    <input type="radio" name="secure_connection" id="secure_connection_0" value="0"> ^loc_NO^
-                                </label>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default" ng-class="{'active': emailSettings.secure_connection}" ng-click="setEmailValue('secure_connection', true)">^loc_YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !emailSettings.secure_connection}" ng-click="setEmailValue('secure_connection', false)">^loc_NO^</button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>^loc_PORT^</label>
-                            <input type="number" id="port" name="port" class="form-control" step="1" min="0"></input>
+                            <input type="number" class="form-control" ng-model="emailSettings.port" step="1" min="0"></input>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>^loc_USERNAME^</label>
-                        <input type="text" id="username" name="username" class="form-control" autocomplete="off"></input>
+                        <input type="text" class="form-control" autocomplete="off" ng-model="emailSettings.username"></input>
                     </div>
                     <div class="form-group">
                         <label>^loc_PASSWORD^</label>
-                        <input type="password" id="password" name="password" class="form-control" autocomplete="off"></input>
+                        <input type="password" class="form-control" autocomplete="off" ng-model="emailSettings.password"></input>
                     </div>
                 </div>
                 <div class="tab-pane" id="test">
                     <div class="form-group">
                         <label>^loc_SEND_TEST_EMAIL^</label>
                         <div class="input-group">
-                            <input type="email" id="test_email" class="form-control" placeholder="^loc_EMAIL^"></input>
+                            <input type="email" class="form-control" placeholder="^loc_EMAIL^" ng-model="testEmailAddress"></input>
                             <span class="input-group-btn">
-                                <button type="button" id="send_test_button" class="btn btn-default" onclick="sendTestEmail()">
-                                    <i id="send_test_icon" class="fa fa-send"></i>&nbsp;^loc_SEND^
+                                <button type="button" class="btn btn-default" ng-click="sendTestEmail()">
+                                    <i class="fa fa-send" ng-class="{'fa-send': !sendingEmail, 'fa-circle-o-notch fa-spin': sendingEmail}"></i>&nbsp;^loc_SEND^
                                 </button>
                             </span>
                         </div>
                     </div>
-                    <div id="test_result" class="alert alert-success" style="display: none">
-                        <span id="test_result_text"></span>
+                    <div class="alert" ng-class="{'alert-success': emailTestSuccess, 'alert-danger': emailTestFailure}" ng-if="emailTestSuccess || emailTestFailure">
+                        <span ng-if="emailTestSuccess">^loc_TEST_EMAIL_SUCCESS^</span>
+                        <span ng-if="emailTestFailure" ng-bind="emailTestFailure"></span>
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/site_settings">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
                 </a>
-                <button type="button" class="btn btn-primary" onclick="prepareEmailSettingsSave()">
-                    <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
-                </button>
+                ^tmp_admin=elements=save_button^
             </div>
         </fieldset>
     </form>
 </div>
-<script type="text/javascript" src="/js/admin/site_settings/email.js"></script>
+^tmp_angular=admin=site_settings=email^
 ^tmp_admin=footer^

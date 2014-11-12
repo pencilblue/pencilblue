@@ -21,9 +21,6 @@
 
 function Content(){}
 
-//dependencies
-var SiteSettings = require('../site_settings');
-
 //inheritance
 util.inherits(Content, pb.BaseController);
 
@@ -76,7 +73,7 @@ Content.prototype.render = function(cb) {
 };
 
 Content.getSubNavItems = function(key, ls, data) {
-    return[{
+    return [{
         name: 'configuration',
         title: ls.get('CONTENT'),
         icon: 'chevron-left',
