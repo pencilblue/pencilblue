@@ -1,9 +1,7 @@
-<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['validation'])
-    .controller('PencilBlueController', function($scope, $http, $sce, validationService) {
+    angular.module('pencilblueApp', [])
+    .controller('PencilBlueController', function($scope, $http, $sce) {
         ^angular_objects^
-        ^tmp_angular=admin=elements=is_field_valid^
 
         $scope.layout = $sce.trustAsHtml($scope.emailSettings.verification_content);
 

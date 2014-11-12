@@ -22,30 +22,36 @@
 function Libraries(){}
 
 //inheritance
-util.inherits(Libraries, pb.FormController);
+util.inherits(Libraries, pb.BaseController);
 
-Libraries.prototype.onPostParamsRetrieved = function(post, cb) {
+Libraries.prototype.render = function(cb) {
     var self = this;
-    self.setFormFieldValues(post);
 
-    var message = this.hasRequiredParams(post, ['jquery']);
-    if(message) {
-        this.formError(message, '/admin/site_settings/libraries', cb);
-        return;
-    }
-
-    pb.settings.set('libraries_settings', post, function(data) {
-        if(util.isError(data)) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/site_settings/libraries', cb);
+    this.getJSONPostParams(function(err, post) {
+        var message = self.hasRequiredParams(post, ['jquery', 'angular']);
+        if(message) {
+            cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+            });
             return;
         }
 
-        for(var key in post) {
-            pb.TemplateService.registerGlobal(key + '_src', post[key]);
-        }
+        pb.settings.set('libraries_settings', post, function(data) {
+            if(util.isError(data)) {
+                cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                });
+                return;
+            }
 
-        self.session.success = self.ls.get('LIBRARY_SETTINGS') + ' ' + self.ls.get('EDITED') + '<br/>' + self.ls.get('LIBRARY_CLUSTER');
-        self.redirect('/admin/site_settings/libraries', cb);
+            for(var key in post) {
+                pb.TemplateService.registerGlobal(key + '_src', post[key]);
+            }
+
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('LIBRARY_SETTINGS') + ' ' +  self.ls.get('EDITED') + '. ' + self.ls.get('LIBRARY_CLUSTER'))});
+        });
     });
 };
 
