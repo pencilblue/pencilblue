@@ -133,7 +133,7 @@ PencilBlue.initServer = function(cb){
             var options = {
                 key: fs.readFileSync(pb.config.server.ssl.key),
                 cert: fs.readFileSync(pb.config.server.ssl.cert),
-                ca: fs.readFileSync(pb.config.server.ssl.chain),
+                ca: fs.readFileSync(pb.config.server.ssl.chain)
             };
             pb.server = https.createServer(options, PencilBlue.onHttpConnect);
 
