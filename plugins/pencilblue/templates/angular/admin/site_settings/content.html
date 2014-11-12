@@ -1,0 +1,32 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['validation'])
+    .controller('PencilBlueController', function($scope, $http, validationService) {
+        ^angular_objects^
+        ^tmp_angular=admin=elements=is_field_valid^
+
+        $scope.setContentValue = function(key, value) {
+            $scope.contentSettings[key] = value;
+        };
+
+        $scope.saveContentSettings = function() {
+            $scope.formSubmitted = true;
+
+            if(!validationService.isFormValid($scope.contentForm)) {
+                return;
+            }
+
+            $scope.saving = true;
+
+            $http.post('/actions/admin/site_settings/content', $scope.contentSettings)
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
+        };
+    });
+</script>

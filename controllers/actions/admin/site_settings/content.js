@@ -22,29 +22,33 @@
 function Content(){}
 
 //inheritance
-util.inherits(Content, pb.FormController);
+util.inherits(Content, pb.BaseController);
 
-Content.prototype.onPostParamsRetrieved = function(post, cb) {
+Content.prototype.render = function(cb) {
 	var self = this;
 
-	post = pb.DocumentCreator.formatIntegerItems(post, ['articles_per_page', 'auto_break_articles', 'display_timestamp', 'two_digit_date', 'display_hours_minutes', 'two_digit_time', 'display_bylines', 'display_author_photo', 'display_author_position', 'allow_comments', 'default_comments', 'require_account', 'require_verification']);
-	self.setFormFieldValues(post);
+	this.getJSONPostParams(function(err, post) {
+		var message = self.hasRequiredParams(post, ['articles_per_page']);
+		if(message) {
+	        cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+			});
+	        return;
+	    }
 
-	var message = this.hasRequiredParams(post, ['articles_per_page']);
-	if(message) {
-        this.formError(message, '/admin/site_settings/content', cb);
-        return;
-    }
+	    pb.settings.set('content_settings', post, function(data) {
+	        if(util.isError(data)) {
+	            cb({
+					code: 500,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+				});
+	            return;
+	        }
 
-    pb.settings.set('content_settings', post, function(data) {
-        if(util.isError(data)) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/site_settings/content', cb);
-            return;
-        }
-
-        self.session.success = self.ls.get('CONTENT_SETTINGS') + ' ' + self.ls.get('EDITED');
-        self.redirect('/admin/site_settings/content', cb);
-    });
+			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CONTENT_SETTINGS') + ' ' +  self.ls.get('EDITED'))});
+	    });
+	});
 };
 
 //exports
