@@ -1,0 +1,97 @@
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript" src="/js/angular/services/sort.js"></script>
+<script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['search', 'sort', 'paginate'])
+    .controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService) {
+        ^angular_objects^
+
+        $scope.searchText = '';
+        $scope.paginationIndex = 0;
+        $scope.paginationLimit = 25;
+        $scope.deleteNameKey = 'name';
+
+        $scope.tableHeaders = [{
+            name: loc.generic.NAME,
+            field: 'name',
+            sortAsc: false,
+            sortDesc: false
+        }, {
+            name: loc.generic.DESCRIPTION,
+            field: 'description',
+            sortAsc: false,
+            sortDesc: false
+        }, {
+            name: loc.generic.LAST_MODIFIED,
+            field: 'last_modified',
+            sortAsc: true,
+            sortDesc: false
+        }];
+
+        $scope.search = function() {
+            searchService.search($scope.searchText, $scope.customObjects, ['name'], function(customObjects) {
+                $scope.customObjects = customObjects;
+                $scope.paginate(0);
+            });
+        }
+
+        $scope.clearSearch = function() {
+            $scope.searchText = '';
+            $scope.search();
+        }
+
+        $scope.paginate = function(paginationIndex) {
+            $scope.paginationIndex = paginationIndex;
+
+            paginationService.paginate($scope.customObjects, $scope.paginationIndex, $scope.paginationLimit, function(customObjects, paginationPages) {
+                $scope.customObjects = customObjects;
+                $scope.paginationPages = paginationPages;
+            })
+        }
+
+        $scope.pageButtonVisible = function(testIndex) {
+            return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
+        };
+
+        $scope.sort = function(headerIndex) {
+            sortService.sortByHeader($scope.customObjects, $scope.tableHeaders, headerIndex, function(customObjects, headers) {
+                $scope.customObjects = customObjects;
+                $scope.headers = headers;
+                $scope.paginate(0);
+            });
+        }
+
+        $scope.confirmDelete = function(customObject) {
+            $scope.objectToDelete = customObject;
+            $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+        }
+
+        $scope.deleteObject = function() {
+            if(!$scope.objectToDelete) {
+                return;
+            }
+
+            $scope.deleting = true;
+            $http({method: 'DELETE', url: '/actions/admin/content/objects/' + $scope.objectToDelete._id})
+            .success(function(result) {
+                for(var i = 0; i < $scope.customObjects.length; i++) {
+                    if($scope.customObjects[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+                        $scope.customObjects.splice(i, 1);
+                        break;
+                    }
+                }
+                $scope.deleting = false;
+                $scope.successMessage = result.message;
+                $scope.paginate(0);
+                $('#confirm_delete_modal').modal('hide');
+            })
+            .error(function(error, status) {
+                $scope.deleting = false;
+                $scope.errorMessage = error.message;
+                $('#confirm_delete_modal').modal('hide');
+            });
+        }
+
+        $scope.sort(2);
+    });
+</script>

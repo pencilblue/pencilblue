@@ -1,0 +1,143 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+	angular.module('pencilblueApp', ['inlineMedia', 'sectionSelect', 'topicSelect', 'validation'])
+	.controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window, validationService) {
+		^angular_objects^
+		^tmp_angular=admin=elements=is_field_valid^
+
+		$scope.urlAvailable = null;
+
+		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
+		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
+		$scope.article.meta_keywords = $scope.article.meta_keywords ? $scope.article.meta_keywords.join(',') : '';
+		$scope.editingObject = $scope.article;
+		$scope.variablePrefix = 'article';
+
+		$scope.setPublishDateToNow = function() {
+			$scope.article.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');
+		};
+
+		$scope.getUrlAvailability = function() {
+			$http.get('/api/url/exists_for?url=/article/' + $scope.article.url + '&type=article')
+			.success(function(result) {
+				$scope.urlAvailable = !result.data;
+			})
+			.error(function(error, status) {
+				$scope.errorMessage = error.message;
+			});
+		};
+
+		$scope.resetUrlAvailability = function() {
+			$scope.urlAvailable = null;
+		};
+
+		$scope.saveArticle = function(draft) {
+			$scope.formSubmitted = true;
+
+			if(!validationService.isFormValid($scope.articleForm)) {
+				return;
+			}
+
+			$scope.article.draft = draft;
+			$scope.getArticleData(draft, function(articleData) {
+				$scope.saving = true;
+				if(articleData._id) {
+					$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
+					.success(function(result) {
+						$scope.successMessage = result.message;
+						$scope.article.last_modified = result.data.last_modified;
+						$scope.saving = false;
+					})
+					.error(function(error, status) {
+						$scope.errorMessage = error.message;
+						$scope.saving = false;
+					});
+				}
+				else {
+					$http.post('/actions/admin/content/articles', articleData)
+					.success(function(result) {
+						$scope.successMessage = result.message;
+						$scope.article.last_modified = result.data.last_modified;
+						$scope.saving = false;
+						$window.location = '/admin/content/articles/' + result.data._id.toString();
+					})
+					.error(function(error, status) {
+						$scope.errorMessage = error.message;
+						$scope.saving = false;
+					});
+				}
+			});
+		};
+
+		$scope.saveArticleDraft = function(cb) {
+			if(!$scope.article.draft || !$scope.article._id) {
+				return;
+			}
+
+			$scope.article.draft = true;
+			$scope.getArticleData(true, function(articleData) {
+				$scope.saving = true;
+				$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
+				.success(function(result) {
+					$scope.article.last_modified = result.data.last_modified;
+					$timeout($scope.saveArticleDraft, 30000);
+					$scope.saving = false;
+
+					if(typeof cb !== 'undefined') {
+						cb(null);
+					}
+				})
+				.error(function(error, status) {
+					$scope.errorMessage = error.message;
+					$scope.saving = false;
+
+					if(typeof cb !== 'undefined') {
+						cb(error.message);
+					}
+				});
+			});
+		};
+
+		$scope.getArticleData = function(draft, cb) {
+			var articleData = JSON.parse(JSON.stringify($scope.article));
+			articleData.publish_date = (new Date($scope.article.publish_date)).getTime();
+			articleData.draft = draft ? 1 : 0;
+
+			var media = [];
+			for(var i = 0; i < $scope.article.article_media.length; i++) {
+				media.push($scope.article.article_media[i]._id.toString());
+			}
+
+			var sections = [];
+			for(var i = 0; i < $scope.article.article_sections.length; i++) {
+				sections.push($scope.article.article_sections[i]._id.toString());
+			}
+
+			var topics = [];
+			for(var i = 0; i < $scope.article.article_topics.length; i++) {
+				topics.push($scope.article.article_topics[i]._id.toString());
+			}
+
+			var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
+			getWYSIWYGLayout(wysId, function(layout) {
+				articleData.article_media = media;
+				articleData.article_sections = sections;
+				articleData.article_topics = topics;
+				articleData.article_layout = layout;
+
+				cb(articleData);
+			});
+		};
+
+		$scope.previewArticle = function() {
+			$scope.saveArticleDraft(function(error) {
+				if(!error) {
+					$window.open('/preview/article/' + $scope.article._id);
+				}
+			});
+		}
+
+		$('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
+		$timeout($scope.saveArticleDraft, 30000);
+	});
+</script>

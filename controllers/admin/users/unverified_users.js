@@ -16,13 +16,10 @@
 */
 
 /**
- * Interface for managing users
+ * Interface for managing unverified users
  */
 
 function UnverifiedUsers(){}
-
-//dependencies
-var Users = require('../users');
 
 //inheritance
 util.inherits(UnverifiedUsers, pb.BaseController);
@@ -39,32 +36,34 @@ UnverifiedUsers.prototype.render = function(cb) {
             return;
         }
 
-        var angularData = pb.js.getAngularController(
+        var angularObjects = pb.js.getAngularObjects(
         {
             navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
             users: users
-        }, [], 'initUsersPagination()');
+        });
 
-        self.setPageName(self.ls.get('MANAGE_USERS'));
-        self.ts.registerLocal('angular_script', angularData);
-        self.ts.load('admin/users/unverified_users', function(err, data){
-            var result = '' + data;
+        self.setPageName(self.ls.get('UNVERIFIED_USERS'));
+        self.ts.registerLocal('angular_script', '');
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/users/unverified_users', function(err, result){
             cb({content: result});
         });
     });
 };
 
 UnverifiedUsers.getSubNavItems = function(key, ls, data) {
-    var pills = Users.getPillNavOptions();
-    pills.unshift(
-    {
-        name: 'unverified_users',
+    return [{
+        name: SUB_NAV_KEY,
         title: ls.get('UNVERIFIED_USERS'),
         icon: 'chevron-left',
-        href: '/admin/users/manage_users'
-    });
-    return pills;
+        href: '/admin/users'
+    }, {
+        name: 'new_user',
+        title: '',
+        icon: 'plus',
+        href: '/admin/users/new'
+    }];
 };
 
 //register admin sub-nav

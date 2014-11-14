@@ -40,12 +40,21 @@ ClientJS.getAngularController = function(objects, modules, directiveJS) {
 
     var angularController;
     if(typeof directiveJS === 'undefined') {
-        angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ');';
+        angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ')';
     }
     else {
-        angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ').directive("onFinishRender", function($timeout){return {restrict: "A",link: function(scope, element, attr){if (scope.$last === true){$timeout(function(){' + directiveJS + '})}}}});';
+        angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ').directive("onFinishRender", function($timeout){return {restrict: "A",link: function(scope, element, attr){if (scope.$last === true){$timeout(function(){' + directiveJS + '})}}}})';
     }
 
+    var scopeString = pb.js.getAngularObjects(objects);
+
+    angularController = angularController.concat('.controller("PencilBlueController", function($scope, $sce) {' + scopeString + "});\n");
+    angularController = angularController.concat('pencilblueApp.config(["$compileProvider",function(e){e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/)}]);');
+
+    return pb.js.getJSTag(angularController);
+};
+
+ClientJS.getAngularObjects = function(objects) {
     var scopeString = '';
     for(var key in objects) {
         if(typeof objects[key] === 'string') {
@@ -57,11 +66,8 @@ ClientJS.getAngularController = function(objects, modules, directiveJS) {
         scopeString = scopeString.concat('$scope.' + key + ' = ' + JSON.stringify(objects[key], null, pb.log.isSilly() ? ' ' : undefined) + ";\n");
     }
 
-    angularController = angularController.concat('function PencilBlueController($scope, $sce) {' + scopeString + "};\n");
-    angularController = angularController.concat('pencilblueApp.config(["$compileProvider",function(e){e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/)}]);');
-
-    return pb.js.getJSTag(angularController);
-};
+    return scopeString;
+}
 
 /**
  * Creates a JS tag that loads the specified url

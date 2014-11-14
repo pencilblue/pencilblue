@@ -1,61 +1,62 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^error_success^
+    ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
-    ^edit_instructions^
-    <form class="form" method="post" action="/actions/admin/site_settings/configuration">
-    <div class="table_container">
-        <table class="table table-responsive table-condensed table-bordered">
-            <tr>
-                <td><b>^loc_SITE_NAME^</b></td>
-                <td>^site_name^</td>
-            </tr>
-            <tr>
-                <td><b>^loc_SITE_ROOT^</b></td>
-                <td>^site_root^</td>
-            </tr>
-            <tr>
-                <td><b>^loc_DOCUMENT_ROOT^</b></td>
-                <td>^document_root^</td>
-            </tr>
-            <tr>
-                <td><b>^loc_IP_ADDRESS^</b></td>
-                <td>^site_ip^</td>
-            </tr>
-            <tr>
-                <td><b>^loc_PORT^</b></td>
-                <td>^site_port^</td>
-            </tr>
-            <tr>
-                <td><b>^loc_DB_TYPE^</b></td>
-                <td>^db_type^</td>
-            </tr>
-            <tr>
-                <td><b>^loc_DB_NAME^</b></td>
-                <td>^db_name^</td>
-            </tr>
-            <tr>
-                <td><b>^loc_DB_SERVERS^</b></td>
-                <td>^db_servers^</td>
-            </tr>
-            <tr>
-                <td><b>^loc_MAKE_PB_BETTER^</b></td>
-                <td>
-                    <div class="btn-group" data-toggle="buttons" style="margin-bottom: .5em">
-                        <label ng-class="{btn: true, 'btn-default': true, active: callHome}">
-                            <input type="radio" name="call_home" value="1" ng-checked="callHome">^loc_YES^
-                        </label>
-                        <label ng-class="{btn: true, 'btn-default': true, active: !callHome}">
-                            <input type="radio" name="call_home" value="0" ng-checked="!callHome">^loc_NO^
-                        </label>
-                    </div><br/>
-                    <a href="#privacy_policy_modal" data-toggle="modal" style="font-size:.9em">^loc_PRIVACY_POLICY^</a>
-                </td>
-            </tr>
-        </table>
-    </div>
-        <input class="btn btn-sm btn-primary" type="submit" value="^loc_APPLY_SETTINGS^"/>
+    <div class="alert alert-info" ng-if="!config.configSet">^loc_EDIT_CONFIGURATION^</div>
+    <form class="form" ng-submit="saveConfiguration()" novalidate>
+        <div class="table_container">
+            <table class="table table-responsive table-condensed table-bordered">
+                <tr>
+                    <td><b>^loc_SITE_NAME^</b></td>
+                    <td>^site_name^</td>
+                </tr>
+                <tr>
+                    <td><b>^loc_SITE_ROOT^</b></td>
+                    <td>^site_root^</td>
+                </tr>
+                <tr>
+                    <td><b>^loc_DOCUMENT_ROOT^</b></td>
+                    <td ng-bind="config.documentRoot"></td>
+                </tr>
+                <tr>
+                    <td><b>^loc_IP_ADDRESS^</b></td>
+                    <td ng-bind="config.siteIP"></td>
+                </tr>
+                <tr>
+                    <td><b>^loc_PORT^</b></td>
+                    <td ng-bind="config.sitePort"></td>
+                </tr>
+                <tr>
+                    <td><b>^loc_DB_TYPE^</b></td>
+                    <td ng-bind="config.dbType"></td>
+                </tr>
+                <tr>
+                    <td><b>^loc_DB_NAME^</b></td>
+                    <td ng-bind="config.dbName"></td>
+                </tr>
+                <tr>
+                    <td><b>^loc_DB_SERVERS^</b></td>
+                    <td>
+                        <div ng-repeat="server in config.dbServers" ng-bind="server"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><b>^loc_MAKE_PB_BETTER^</b></td>
+                    <td>
+                        <div class="btn-group" style="margin-bottom: .5em">
+                            <button type="button" class="btn btn-default" ng-class="{'active': config.callHome}" ng-click="setCallHome(true)" ng-checked="config.callHome">^loc_YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !config.callHome}" ng-click="setCallHome(false)" ng-checked="!config.callHome">^loc_NO^</button>
+                        </div><br/>
+                        <a href="#privacy_policy_modal" data-toggle="modal" style="font-size:.9em">^loc_PRIVACY_POLICY^</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-primary" ng-disabled="saving">
+            <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_APPLY_SETTINGS^
+        </button>
     </form>
     ^tmp_elements=privacy_policy^
 </div>
+^tmp_angular=admin=site_settings=configuration^
 ^tmp_admin=footer^

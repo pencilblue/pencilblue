@@ -22,47 +22,45 @@
 function NewTopic(){}
 
 //inheritance
-util.inherits(NewTopic, pb.FormController);
+util.inherits(NewTopic, pb.BaseController);
 
-NewTopic.prototype.onPostParamsRetrieved = function(post, cb) {
-	var self    = this;
-    var get     = this.query;
-	var message = this.hasRequiredParams(post, ['name']);
-	if(message) {
-        this.formError(message, '/admin/content/topics/new_topic', cb);
-        return;
-    }
+NewTopic.prototype.render = function(cb) {
+	var self = this;
 
-    var dao = new pb.DAO();
-    dao.count('topic', {name: post.name}, function(err, count) {
-        if(count > 0) {
-            if(get.manage) {
-                self.formError(self.ls.get('EXISTING_TOPIC'), '/admin/content/topics/manage_topics', cb);
-                return;
-            }
-            self.formError(self.ls.get('EXISTING_TOPIC'), '/admin/content/topics/new_topic', cb);
-            return;
-        }
+	this.getJSONPostParams(function(err, post) {
+		var message = self.hasRequiredParams(post, ['name']);
+		if(message) {
+			cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+			});
+	        return;
+	    }
 
-        var topicDocument = pb.DocumentCreator.create('topic', post);
-        dao.update(topicDocument).then(function(result) {
-            if(util.isError(result)) {
-                if(get.manage) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/topics/manage_topics', cb);
-                    return;
-                }
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/topics/new_topic', cb);
-                return;
-            }
+	    var dao = new pb.DAO();
+	    dao.count('topic', {name: post.name}, function(err, count) {
+	        if(count > 0) {
+				cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_TOPIC'))
+				});
+	            return;
+	        }
 
-            self.session.success = topicDocument.name + ' ' + self.ls.get('CREATED');
-            if(get.manage) {
-                self.redirect('/admin/content/topics/manage_topics', cb);
-                return;
-            }
-            self.redirect('/admin/content/topics/new_topic', cb);
-        });
-    });
+	        var topicDocument = pb.DocumentCreator.create('topic', post);
+	        dao.update(topicDocument).then(function(result) {
+	            if(util.isError(result)) {
+	                cb({
+						code: 500,
+						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+					});
+	                return;
+	            }
+
+				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topicDocument.name + ' ' + self.ls.get('CREATED'))});
+	        });
+	    });
+	});
 };
 
 //exports

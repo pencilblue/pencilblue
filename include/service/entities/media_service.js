@@ -69,7 +69,7 @@ MediaService.COLL = 'media';
  * Loads a media descriptor by ID.
  * @method loadById
  * @param {String|ObjectID} mid Media descriptor ID
- * @param {Function} cb A callback that provides two parameters: an Error, if 
+ * @param {Function} cb A callback that provides two parameters: an Error, if
  * occurred and a media descriptor if found.
  */
 MediaService.prototype.loadById = function(mid, cb) {
@@ -107,16 +107,16 @@ MediaService.prototype.save = function(media, options, cb) {
         cb      = options;
         options = {};
     }
-    
+
     var self = this;
     this.validate(media, function(err, validationErrors) {
         if (util.isError(err)) {
-            return cb(err);   
+            return cb(err);
         }
         else if (validationErrors.length) {
             return cb(null, validationErrors);
         }
-        
+
         var dao = new pb.DAO();
         dao.save(media, cb);
     });
@@ -126,28 +126,33 @@ MediaService.prototype.save = function(media, options, cb) {
  * Validates a media descriptor
  * @method validate
  * @param {Object} media
- * @param {Function} cb A callback that provides two parameters: an Error, if 
+ * @param {Function} cb A callback that provides two parameters: an Error, if
  * occurred.  The second is an array of validation error objects.
  */
 MediaService.prototype.validate = function(media, cb) {
     var errors = [];
-    
+
     if (!pb.utils.isObject(media)) {
         errors.push(pb.CustomObjectService.err('', 'The descriptor must be an object'));
         return cb(null, errors);
     }
-    
+
     //ensure the media name is unique
     var where = { name: media.name };
     var dao   = new pb.DAO();
-    dao.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
-        if (util.isError(err)) {
-            return cb(err, errors);   
+    dao.loadByValue('name', media.name, 'media', function(err, mediaObject) {
+        if(util.isError(err)) {
+            return cb(err, errors);
         }
-        else if (!isUnique) {
-            errors.push(pb.CustomObjectService.err('name', 'The name '+media.name+' is already in use'));
+        else if(mediaObject) {
+            if(!media._id) {
+                errors.push(pb.CustomObjectService.err('name', 'The name '+media.name+' is already in use'));
+            }
+            else if(!ObjectID(media._id).equals(mediaObject._id)) {
+                errors.push(pb.CustomObjectService.err('name', 'The name '+media.name+' is already in use'));
+            }
         }
-        
+
         //TODO validate the other properties
         cb(null, errors);
     });
@@ -297,7 +302,7 @@ MediaService.prototype.isValidFilePath = function(mediaPath, cb) {
 };
 
 /**
- * 
+ *
  * @method getMediaDescriptor
  * @param {String} mediaURL
  * @param {Boolean} isFile
@@ -627,7 +632,7 @@ MediaService.prototype.getSlideShareId = function(mediaURL, cb) {
  * @method getMediaFlag
  * @param {String} mid
  * @param {Object} [options]
- * @return {String} 
+ * @return {String}
  */
 MediaService.getMediaFlag = function(mid, options) {
     if (!mid) {

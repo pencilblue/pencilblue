@@ -1,0 +1,88 @@
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['ui.sortable'])
+    .controller('PencilBlueController', function($scope, $http) {
+        ^angular_objects^
+
+        $scope.deleteNameKey = 'name';
+
+        $scope.containerDragListeners = {
+            accept: function (sourceItemHandleScope, destSortableScope) {
+                if(sourceItemHandleScope.itemScope.child) {
+                    return sourceItemHandleScope.itemScope.child.type !== 'container';
+                }
+                else {
+                    return sourceItemHandleScope.itemScope.item.type !== 'container';
+                }
+            },
+            itemMoved: function (event) {},
+            orderChanged: function(event) {},
+        }
+
+        $scope.saveNavMap = function() {
+            var navMap = [];
+            for(var i = 0; i < $scope.navItems.length; i++) {
+                var navMapItem = {
+                    uid: $scope.navItems[i]._id.toString(),
+                    children: []
+                };
+
+                if($scope.navItems[i].type === 'container') {
+                    for(var j = 0; j < $scope.navItems[i].children.length; j++) {
+                        navMapItem.children.push({uid: $scope.navItems[i].children[j]._id.toString()});
+                    }
+                }
+
+                navMap.push(navMapItem);
+            }
+
+            $scope.saving = true;
+            $http.post('/actions/admin/content/navigation/map', {map: navMap})
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
+        }
+
+        $scope.confirmDelete = function(item) {
+            $scope.objectToDelete = item;
+            $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+        }
+
+        $scope.deleteObject = function() {
+            if(!$scope.objectToDelete) {
+                return;
+            }
+
+            $scope.deleting = true;
+            $http({method: 'DELETE', url: '/actions/admin/content/navigation/' + $scope.objectToDelete._id})
+            .success(function(result) {
+                $scope.deleting = false;
+                $scope.successMessage = result.message;
+                $('#confirm_delete_modal').modal('hide');
+
+                for(var i = 0; i < $scope.navItems.length; i++) {
+                    if($scope.navItems[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+                        $scope.navItems.splice(i, 1);
+                        return;
+                    }
+
+                    for(var j = 0; j < $scope.navItems[i].children.length; j++) {
+                        if($scope.navItems[i].children[j]._id.toString() === $scope.objectToDelete._id.toString()) {
+                            $scope.navItems[i].children.splice(j, 1);
+                            return;
+                        }
+                    }
+                }
+            })
+            .error(function(error, status) {
+                $scope.deleting = false;
+                $scope.errorMessage = error.message;
+                $('#confirm_delete_modal').modal('hide');
+            });
+        }
+    });
+</script>

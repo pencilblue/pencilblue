@@ -30,20 +30,20 @@ SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
 
 	var message = this.hasRequiredParams(vars, ['id']);
 	if(message) {
-        self.formError(message, '/admin/users/manage_users', cb);
+        self.formError(message, '/admin/users', cb);
         return;
     }
 
 	var dao = new pb.DAO();
 	dao.loadById(vars.id, 'user', function(err, user) {
         if(util.isError(err) || user === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/manage_users', cb);
+            self.formError(self.ls.get('ERROR_SAVING'), '/admin/users', cb);
             return;
         }
 
         dao.loadByValue('user_id', vars.id, 'password_reset', function(err, passwordReset) {
         	if(util.isError(err)) {
-                self.formError(self.ls.get('NOT_REGISTERED'), '/admin/users/edit_user/' + vars.id, cb);
+                self.formError(self.ls.get('NOT_REGISTERED'), '/admin/users/' + vars.id, cb);
                 return;
             }
 
@@ -55,18 +55,18 @@ SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
 
             dao.update(passwordReset).then(function(result) {
                 if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/edit_user/' + vars.id, cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/' + vars.id, cb);
                     return;
                 }
 
                 //send the user an email
                 pb.users.sendPasswordResetEmail(user, passwordReset, function(err, response) {
                     if (util.isError(err)) {
-                        return self.formError(self.ls.get(err.message), '/admin/users/edit_user/' + vars.id, cb);
+                        return self.formError(self.ls.get(err.message), '/admin/users/' + vars.id, cb);
                     }
-                    
+
                     self.session.success = self.ls.get('VERIFICATION_SENT') + ' ' + user.email;
-                    self.redirect('/admin/users/edit_user/' + vars.id, cb);
+                    self.redirect('/admin/users/' + vars.id, cb);
                 });
             });
         });

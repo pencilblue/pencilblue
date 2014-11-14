@@ -1,57 +1,26 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^error_success^
+    ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
-    <div class="input-group" style="margin-bottom: .5em">
-        <input type="text" id="media_search" name="media_search" class="form-control"></input>
-        <span class="input-group-btn">
-            <button id="media_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-        </span>
-    </div>
+    ^tmp_admin=elements=search_input^
     <div class="table_container">
-        <table id="media_table" class="table table-responsive table-condensed">
-            <tr id="media_table_header">
-                <th></th>
-                <th id="media_name_header">^loc_MEDIA^</th>
-                <th id="media_caption_header">^loc_CAPTION^</th>
-                <th id="media_date_header">^loc_DATE_ADDED^</th>
-                <th></th>
-            </tr>
-            <tr class="media_row" ng-repeat="mediaItem in media track by mediaItem._id" on-finish-render ng-cloak>
-                <td>
+        <table class="table table-responsive table-condensed">
+            ^tmp_admin=elements=table_headers^
+            <tr ng-repeat="mediaItem in media track by mediaItem._id" ng-if="!mediaItem.hidden && !mediaItem.paginated">
+                <td style="width: 2em">
                     <a href="{{mediaItem.link}}" target="_blank">
                         <i class="fa fa-{{mediaItem.icon}} fa-lg" style="float: right; margin-right: .5em;"></i>
                     </a>
                 </td>
-                <td>
-                    <a class="media_name" ng-href="/admin/content/media/edit_media/{{mediaItem._id}}">{{mediaItem.name}}</a>
-                </td>
-                <td class="media_caption">{{mediaItem.caption}}</td>
-                <td class="media_date">{{mediaItem.created | date: 'yyyy-MM-dd HH:mm'}}</td>
-                <td><a href="javascript:confirmDeleteMedia('{{mediaItem._id}}', '{{mediaItem.name}}')"><i class="fa fa-times"></i></a></td>
+                <td><a class="media_name" ng-href="/admin/content/media/{{mediaItem._id}}" ng-bind="mediaItem.name"></a></td>
+                <td ng-bind="mediaItem.caption"></td>
+                <td ng-bind="mediaItem.last_modified | date: 'yyyy-MM-dd HH:mm'"></td>
+                <td><a href="#" ng-click="confirmDelete(mediaItem)"><i class="fa fa-trash"></i></a></td>
             </tr>
         </table>
     </div>
-    <ul id="media_pagination" class="pagination"></ul>
-    <div class="modal fade" id="confirm_delete_modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    ^loc_CONFIRM_DELETE^ <span id="delete_name"></span>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                    </button>
-                    <button type="button" id="delete_button" class="btn btn-danger">
-                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    ^tmp_admin=elements=pagination^
+    ^tmp_admin=elements=delete_modal^
 </div>
-<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="/js/table_sort.js"></script>
-<script type="text/javascript" src="/js/admin/content/media/manage_media.js"></script>
+^tmp_angular=admin=content=media=manage_media^
 ^tmp_admin=footer^

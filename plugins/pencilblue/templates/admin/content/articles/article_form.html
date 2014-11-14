@@ -1,0 +1,114 @@
+^tmp_admin=head^
+<div class="col-md-9">
+	^tmp_admin=elements=error_success^
+	^tmp_admin=elements=sub_nav^
+	^tmp_admin=elements=tab_nav^
+	<form name="articleForm" novalidate>
+		<fieldset>
+			<div class="tab-content">
+				<div class="tab-pane active" id="content">
+					<div class="form-group" ng-class="{'has-error': !isFieldValid(articleForm.url)}">
+						<label>^loc_ARTICLE_URL^</label>
+						<div class="input-group">
+							<span class="input-group-addon">/article/</span>
+							<input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="article.url" ng-change="resetUrlAvailability()" required></input>
+							<span class="input-group-btn">
+								<button type="button" class="btn" ng-class="{'btn-default': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!article.url.length">
+									<span ng-if="urlAvailable === null">^loc_CHECK^</span>
+									<span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
+									<span ng-if="urlAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+								</button>
+							</span>
+						</div>
+						<div class="form_error" ng-if="!isFieldValid(articleForm.url)">^loc_REQUIRED_FIELD^</div>
+					</div>
+					<div class="form-group">
+						<label>^loc_STANDALONE_TEMPLATE^</label>
+						<select class="form-control" ng-model="article.template">
+							<option value="">^loc_THEME_DEFAULT^</option>
+							<option ng-value="template.theme_uid || template.file" ng-repeat="template in templates" ng-bind="template.theme_name + ': ' + template.name"></option>
+						</select>
+					</div>
+					<div class="form-group" ng-class="{'has-error': !isFieldValid(articleForm.headline)}">
+						<label>^loc_HEADLINE^</label>
+						<input type="text" name="headline" class="form-control" ng-model="article.headline" required></input>
+						<div class="form_error" ng-if="!isFieldValid(articleForm.headline)">^loc_REQUIRED_FIELD^</div>
+					</div>
+					<div class="form-group">
+						<label>^loc_SUBHEADING^</label>
+						<input type="text" class="form-control" ng-model="article.subheading"></input>
+					</div>
+					<div class="form-group" ng-class="{'has-error': !isFieldValid(articleForm.publish_date)}">
+						<label>^loc_PUBLISH_DATE^</label>
+						<div class="input-group">
+							<input type="text" name="publish_date" id="publish_date" class="form-control" ng-model="article.publish_date" required></input>
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="button" ng-click="setPublishDateToNow()">^loc_NOW^</button>
+							</span>
+						</div>
+						<div class="form_error" ng-if="!isFieldValid(articleForm.publish_date)">^loc_REQUIRED_FIELD^</div>
+					</div>
+					<div class="form-group">
+						<label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
+						<div id="article_wysiwyg">
+							^wysiwyg^
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane" id="media">
+					^tmp_admin=elements=inline_media^
+				</div>
+				<div class="tab-pane" id="sections_dnd">
+					^tmp_admin=elements=section_select^
+				</div>
+				<div class="tab-pane" id="topics_dnd">
+					^tmp_admin=elements=topic_select^
+				</div>
+				<div class="tab-pane" id="seo">
+					<div class="form-group">
+						<label>^loc_FOCUS_KEYWORD^</label>
+						<input type="text" class="form-control" ng-model="article.focus_keyword" placeholder="^loc_FOCUS_KEYWORD_PLACEHOLDER^"></input>
+					</div>
+					<div class="form-group">
+						<label>^loc_SEO_TITLE^</label>
+						<input type="text" class="form-control" ng-model="article.seo_title" placeholder="^loc_SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
+					</div>
+					<div class="form-group">
+						<label>^loc_META_DESC^</label>
+						<textarea class="form-control" ng-model="article.meta_desc" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
+					</div>
+					<div class="form-group">
+						<label>^loc_META_KEYWORDS^</label>
+						<input type="text" class="form-control" ng-model="article.meta_keywords" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
+					</div>
+				</div>
+				<a class="btn btn-default" href="/admin/content/articles">
+					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+				</a>&nbsp;
+				<button type="button" class="btn btn-info" ng-click="previewArticle(true)" ng-if="article.draft" ng-disabled="savingArticle">
+					<i class="fa" ng-class="{'fa-eye': !savingArticle, 'fa-circle-o-notch fa-spin': savingArticle}"></i>&nbsp;^loc_PREVIEW^
+				</button>
+				<span ng-if="article.draft">&nbsp;</span>
+				<div class="btn-group dropup">
+					<button type="button" class="btn btn-primary" ng-click="saveArticle()" ng-if="!article.draft" ng-disabled="savingArticle">
+						<i class="fa" ng-class="{'fa-save': !savingArticle, 'fa-circle-o-notch fa-spin': savingArticle}"></i>&nbsp;^loc_SAVE^
+					</button>
+					<button id="save_draft_button" type="button" class="btn btn-primary" ng-click="saveArticle(true)" ng-if="article.draft" ng-disabled="savingArticle">
+						<i class="fa" ng-class="{'fa-save': !savingArticle, 'fa-circle-o-notch fa-spin': savingArticle}"></i>&nbsp;^loc_SAVE_DRAFT^
+					</button>
+					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+						<i class="fa fa-sm fa-chevron-up"></i>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+						<li ng-if="!article.draft"><a ng-click="saveArticle(true)">^loc_SAVE_DRAFT^</a></li>
+						<li ng-if="article.draft"><a ng-click="saveArticle()">^loc_SAVE^</a></li>
+					</ul>
+				</div>
+				<div class="spacer"></div>
+				<label id="draft_info" ng-if="article.draft">^loc_DRAFT_SAVED^ <span id="draft_time">{{article.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
+			</div>
+		</fieldset>
+	</form>
+</div>
+^tmp_angular=admin=content=articles=article_form^
+^tmp_admin=footer^

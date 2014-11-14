@@ -42,12 +42,12 @@ AdminIndexController.prototype.render = function(cb) {
            {
         	   name: name,
         	   count: data.articleCount,
-        	   href: '/admin/content/articles/manage_articles',
+        	   href: '/admin/content/articles',
 		   },
         ];
 
     	name = self.localizationService.get('PAGES');
-    	contentInfo.push({name: name, count: data.pageCount, href: '/admin/content/pages/manage_pages'});
+    	contentInfo.push({name: name, count: data.pageCount, href: '/admin/content/pages'});
 
     	var angularData = pb.js.getAngularController(
             {

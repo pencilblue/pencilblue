@@ -21,9 +21,6 @@
 
 function ManageUsers(){}
 
-//dependencies
-var Users = require('../users');
-
 //inheritance
 util.inherits(ManageUsers, pb.BaseController);
 
@@ -39,40 +36,39 @@ ManageUsers.prototype.render = function(cb) {
             return;
         }
 
-        var angularData = pb.js.getAngularController(
-        {
+        var angularObjects = pb.js.getAngularObjects({
             navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
             users: users,
             currentUserId: self.session.authentication.user_id
-        }, [], 'initUsersPagination()');
+        });
 
         self.setPageName(self.ls.get('MANAGE_USERS'));
-        self.ts.registerLocal('angular_script', angularData);
-        self.ts.load('admin/users/manage_users', function(err, data){
-            var result = '' + data;
+        self.ts.registerLocal('angular_script', '');
+		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/users/manage_users', function(err, result){
             cb({content: result});
         });
     });
 };
 
 ManageUsers.getSubNavItems = function(key, ls, data) {
-	var pills = Users.getPillNavOptions();
-    pills.unshift(
-    {
-        name: 'unverified_users',
-        title: ls.get('UNVERIFIED_USERS'),
-        icon: 'user',
-        href: '/admin/users/unverified_users'
-    });
-    pills.unshift(
-    {
-        name: 'manage_users',
-        title: ls.get('MANAGE_USERS'),
-        icon: 'refresh',
-        href: '/admin/users/manage_users'
-    });
-    return pills;
+	return [{
+		name: 'manage_users',
+		title: ls.get('MANAGE_USERS'),
+		icon: 'refresh',
+		href: '/admin/users'
+	}, {
+		name: 'unverified_users',
+		title: ls.get('UNVERIFIED_USERS'),
+		icon: 'user',
+		href: '/admin/users/unverified'
+	}, {
+		name: 'new_user',
+		title: '',
+		icon: 'plus',
+		href: '/admin/users/new'
+	}];
 };
 
 //register admin sub-nav

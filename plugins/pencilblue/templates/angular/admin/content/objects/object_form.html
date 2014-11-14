@@ -1,0 +1,127 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['ui.sortable', 'validation'])
+    .controller('PencilBlueController', function($scope, $http, $window, $filter, validationService) {
+        ^angular_objects^
+        ^tmp_angular=admin=elements=is_field_valid^
+
+        for(var i = 0; i < $scope.objectType.fields.length; i++) {
+            if($scope.objectType.fields[i].field_type === 'boolean' && !$scope.customObject[$scope.objectType.fields[i].name]) {
+                $scope.customObject[$scope.objectType.fields[i].name] = true;
+            }
+            else if($scope.objectType.fields[i].field_type === 'date') {
+                $scope.customObject[$scope.objectType.fields[i].name] = $filter('date')($scope.customObject[$scope.objectType.fields[i].name], 'MM-dd-yyyy HH:mm');
+            }
+            else if($scope.objectType.fields[i].field_type === 'peer_object') {
+                $scope.customObject[$scope.objectType.fields[i].name] = $scope.customObject[$scope.objectType.fields[i].name] ? $scope.customObject[$scope.objectType.fields[i].name]._id.toString() : '';
+            }
+        }
+
+        $scope.getSortListeners = function(field) {
+            var active = $scope.customObject[field.name];
+            var inactive = field.available_objects;
+
+            if(!active) {
+                active = [];
+            }
+
+            return {
+                accept: function (sourceItemHandleScope, destSortableScope) {
+                    var itemToTest = sourceItemHandleScope.itemScope.object;
+
+                    for(var i = 0; i < active.length; i++) {
+                        if(itemToTest._id.toString() === active[i]._id.toString()) {
+                            return true;
+                        }
+                    }
+                    for(var i = 0; i < inactive.length; i++) {
+                        if(itemToTest._id.toString() === inactive[i]._id.toString()) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                },
+                itemMoved: function (event) {},
+                orderChanged: function(event) {},
+                containment: '#' + field.name
+            }
+        };
+
+        $scope.setBoolean = function(fieldName, setting) {
+            $scope.customObject[fieldName] = setting;
+        };
+
+        $scope.setDateToNow = function(fieldName) {
+            $scope.customObject[fieldName] = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');
+        }
+
+        $scope.saveObject = function() {
+            $scope.formSubmitted = true;
+
+            if(!validationService.isFormValid($scope.objectForm)) {
+                return;
+            }
+
+            var saveObject = {type: $scope.objectType._id.toString()};
+            for(var i = 0; i < $scope.objectType.fields.length; i++) {
+                if($scope.objectType.fields[i].field_type === 'date') {
+                    saveObject[$scope.objectType.fields[i].name] = (new Date($scope.customObject[$scope.objectType.fields[i].name])).getTime();
+                }
+                else if($scope.objectType.fields[i].field_type === 'child_objects') {
+                    var children = [];
+                    for(var j = 0; j < $scope.customObject[$scope.objectType.fields[i].name].length; j++) {
+                        children.push($scope.customObject[$scope.objectType.fields[i].name][j]._id.toString());
+                    }
+                    saveObject[$scope.objectType.fields[i].name] = children;
+                }
+                else {
+                    saveObject[$scope.objectType.fields[i].name] = $scope.customObject[$scope.objectType.fields[i].name];
+                }
+            }
+
+            var postURL = '/actions/admin/content/objects/' + $scope.objectType._id
+            if($scope.customObject._id) {
+                postURL += '/' + $scope.customObject._id;
+            }
+
+            $scope.saving = true;
+
+            $http.post(postURL, saveObject)
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+
+                if(result.data) {
+                    $window.location = '/admin/content/objects/' + $scope.objectType._id + '/' + result.data._id.toString();
+                }
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
+        };
+    })
+    .directive('fieldsBuilt', function() {
+        return function(scope, element, attrs) {
+            var self = this;
+
+            this.testForDateFields = function() {
+                if(!$('.date_field').length) {
+                    setTimeout(self.testForDateFields, 100);
+                    return;
+                }
+
+                $('.date_field').datetimepicker({format: 'm-d-Y H:i'});
+            }
+
+            if(scope.$last){
+                for(var i = 0; i < scope.objectType.fields.length; i++) {
+                    if(scope.objectType.fields[i].field_type === 'date') {
+                        this.testForDateFields();
+                    }
+                }
+            }
+        };
+    })
+</script>

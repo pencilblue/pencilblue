@@ -1,0 +1,149 @@
+<script type="text/javascript" src="^angular_upload_src^"></script>
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript" src="/js/angular/services/media.js"></script>
+<script type="text/javascript">
+	angular.module('pencilblueApp', ['media', 'ui.sortable', 'angularFileUpload', 'topicSelect', 'validation'])
+	.controller('PencilBlueController', function($scope, $sce, $http, $upload, $window, mediaService, validationService) {
+		^angular_objects^
+		^tmp_angular=admin=elements=is_field_valid^
+
+		$scope.mediaPreview = '';
+		$scope.editingObject = $scope.media;
+		$scope.variablePrefix = 'media';
+
+		$scope.getMediaPreviewHTML = function() {
+			return $sce.trustAsHtml($scope.mediaPreview);
+		};
+
+		$scope.getUploadPreviewHTML = function() {
+			return $sce.trustAsHtml($scope.uploadPreview);
+		};
+
+		$scope.showMediaModal = function(isFile) {
+			$scope.media.isFile = isFile;
+			$('#media_modal').modal({backdrop: 'static', keyboard: true});
+		};
+
+		$scope.loadMediaLink = function() {
+			if(!$scope.media.link.length) {
+				return;
+			}
+
+			$scope.loadingLink = true;
+
+			mediaService.loadMediaLink($scope.media.link, function(err, result) {
+				if(err) {
+					$scope.loadingLink = false;
+					console.log(err);
+					return;
+				}
+
+				$scope.media.media_type = result.data.mediaType;
+				$scope.media.location = result.data.location;
+				$scope.media.thumb = result.data.thumb;
+				$scope.media.is_file = result.data.isFile;
+
+				mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+					$scope.loadingLink = false;
+
+					if(err) {
+						console.log(err);
+						return;
+					}
+
+					$scope.mediaPreview = result.data;
+					$('#media_modal').modal('hide');
+				})
+			});
+		};
+
+		$scope.onFileSelect = function($files) {
+			for (var i = 0; i < $files.length && i < 1; i++) {
+				var file = $files[i];
+				$scope.uploading = true;
+				$scope.uploadPercent = 0;
+				$scope.upload = $upload.upload({
+					url: '/api/admin/content/media/upload_media',
+					file: file
+				}).progress(function(evt) {
+					$scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
+				}).success(function(data, status, headers, config) {
+					mediaService.loadMediaLink(data.filename, function(err, result) {
+						if(err) {
+							$scope.uploading = false;
+							console.log(err);
+							return;
+						}
+
+						$scope.media.media_type = result.data.mediaType;
+						$scope.media.location = result.data.location;
+						$scope.media.thumb = result.data.thumb;
+						$scope.media.is_file = result.data.isFile;
+
+						mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+							$scope.uploading = false;
+
+							if(err) {
+								console.log(err);
+								return;
+							}
+
+							$scope.mediaPreview = result.data;
+							$('#media_modal').modal('hide');
+						})
+					});
+				});
+			}
+		};
+
+		$scope.getMediaPreview = function() {
+			$scope.mediaPreview = '<i class="fa fa-circle-o-notch fa-spin"></i>';
+
+			$http.get('/api/admin/content/media/get_preview?id=' + $scope.media._id)
+			.success(function(result) {
+				$scope.mediaPreview = result.data;
+			})
+			.error(function(error, status) {
+				$scope.mediaPreview = '';
+				$scope.errorMessage = error.message;
+			})
+		};
+
+		$scope.saveMedia = function() {
+			$scope.formSubmitted = true;
+
+			if(!validationService.isFormValid($scope.mediaForm)) {
+				return;
+			}
+
+			$scope.saving = true;
+
+			var mediaObject = JSON.parse(JSON.stringify($scope.media));
+			delete mediaObject.link;
+
+			var topics = [];
+			for(var i = 0; i < $scope.media.media_topics.length; i++) {
+				topics.push($scope.media.media_topics[i]._id.toString());
+			}
+			mediaObject.media_topics = topics;
+
+			mediaService.saveMedia(mediaObject)
+			.then(function(result) {
+				$scope.saving = false;
+				$scope.successMessage = result.message;
+
+				if(result.data._id) {
+					$window.location = '/admin/content/media/' + result.data._id;
+				}
+			},
+			function(result, status) {
+				$scope.saving = false;
+				$scope.errorMessage = result.message;
+			});
+		};
+
+		if($scope.media._id) {
+			$scope.getMediaPreview();
+		}
+	});
+</script>

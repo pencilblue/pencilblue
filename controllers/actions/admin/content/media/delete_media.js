@@ -40,26 +40,34 @@ DeleteMediaController.prototype.onPostParamsRetrieved = function(post, cb) {
 
     var message = this.hasRequiredParams(vars, ['id']);
     if(message) {
-        this.formError(message, MANAGE_MEDIA_PATH, cb);
+        cb({
+            code: 400,
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+        });
         return;
     }
 
     var mservice = new pb.MediaService();
     mservice.loadById(vars.id, function(err, mediaData) {
         if(util.isError(err) || !mediaData) {
-            self.formError(self.ls.get('ERROR_DELETING'), MANAGE_MEDIA_PATH, cb);
+            cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+            });
             return;
         }
 
         mservice.deleteById(vars.id, function(err, recordsDeleted) {
             if(util.isError(err) || recordsDeleted <= 0) {
-                self.formError(self.ls.get('ERROR_DELETING'), MANAGE_MEDIA_PATH, cb);
+                cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                });
                 return;
             }
 
             self.removeLocal(mediaData, mservice, function(err) {
-            	self.session.success = mediaData.name + ' ' + self.ls.get('DELETED');
-            	self.redirect('/admin/content/media/manage_media', cb);
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, mediaData.name + ' ' + self.ls.get('DELETED'))});
             });
         });
     });

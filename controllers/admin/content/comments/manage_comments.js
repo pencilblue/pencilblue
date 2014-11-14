@@ -15,9 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//dependencies
-var Comments = require('../comments');
-
 /**
  * Interface for managing comments
  * @class ManageComments
@@ -55,29 +52,21 @@ ManageComments.prototype.render = function(cb) {
 
         //retrieve the content settings or defaults if they have not yet been configured
         pb.content.getSettings(function(err, contentSettings) {
-
             //retrieve any details
             self.getCommentDetails(comments, dao, function(commentsWithDetails) {
-
-                //create the angular controller
-                var pills   = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
-                var angularData = pb.js.getAngularController(
-                    {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
-                        pills: pills,
-                        comments: commentsWithDetails,
-                        allowComments: contentSettings.allow_comments
-                    }, [], 'initCommentsPagination()');
+                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
+                var angularObjects = pb.js.getAngularObjects({
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
+                    pills: pills,
+                    comments: commentsWithDetails,
+                    allowComments: contentSettings.allow_comments
+                });
 
                 //load the template
                 self.setPageName(self.ls.get('MANAGE_COMMENTS'));
-                self.ts.registerLocal('angular_script', angularData);
-                self.ts.load('admin/content/comments/manage_comments', function(err, data) {
-                    if (util.isError(err)) {
-                        self.reqHandler.serveError(err);
-                        return;
-                    }
-                    var result = '' + data;
+                self.ts.registerLocal('angular_script', '');
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/comments/manage_comments', function(err, result) {
                     cb({content: result});
                 });
             });
@@ -135,15 +124,12 @@ ManageComments.prototype.getCommentDetails = function(comments, dao, cb) {
  * @param {*} data
  */
 ManageComments.getSubNavItems = function(key, ls, data) {
-    var pills = Comments.getPillNavOptions();
-    pills.unshift(
-    {
+    return [{
         name: SUB_NAV_KEY,
         title: ls.get('MANAGE_COMMENTS'),
         icon: 'refresh',
         href: '/admin/content/comments/manage_comments'
-    });
-    return pills;
+    }];
 };
 
 //register admin sub-nav

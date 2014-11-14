@@ -1,0 +1,71 @@
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['search', 'paginate'])
+    .controller('PencilBlueController', function($scope, $http, searchService, paginationService) {
+        ^angular_objects^
+
+        $scope.searchText = '';
+        $scope.paginationIndex = 0;
+        $scope.paginationLimit = 50;
+        $scope.deleteNameKey = 'name';
+
+        $scope.search = function() {
+            searchService.search($scope.searchText, $scope.topics, ['name'], function(topics) {
+                $scope.topics = topics;
+                $scope.paginate(0);
+            });
+        }
+
+        $scope.clearSearch = function() {
+            $scope.searchText = '';
+            $scope.search();
+        }
+
+        $scope.paginate = function(paginationIndex) {
+            $scope.paginationIndex = paginationIndex;
+
+            paginationService.paginate($scope.topics, $scope.paginationIndex, $scope.paginationLimit, function(topics, paginationPages) {
+                $scope.topics = topics;
+                $scope.paginationPages = paginationPages;
+            })
+        }
+
+        $scope.pageButtonVisible = function(testIndex) {
+            return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
+        };
+
+        $scope.confirmDelete = function(topic) {
+            $scope.objectToDelete = topic;
+            $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+        }
+
+        $scope.deleteObject = function() {
+            if(!$scope.objectToDelete) {
+                return;
+            }
+
+            $scope.deleting = true;
+            $http({method: 'DELETE', url: '/actions/admin/content/topics/' + $scope.objectToDelete._id})
+            .success(function(result) {
+                for(var i = 0; i < $scope.topics.length; i ++) {
+                    if($scope.topics[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+                        $scope.topics.splice(i, 1);
+                        break;
+                    }
+                }
+                $scope.deleting = false;
+                $scope.successMessage = result.message;
+                $scope.paginate(0);
+                $('#confirm_delete_modal').modal('hide');
+            })
+            .error(function(error, status) {
+                $scope.deleting = false;
+                $scope.errorMessage = error.message;
+                $('#confirm_delete_modal').modal('hide');
+            });
+        }
+
+        $scope.paginate(0);
+    });
+</script>

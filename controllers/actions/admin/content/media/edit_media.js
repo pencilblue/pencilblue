@@ -23,64 +23,61 @@
  */
 function EditMediaActionController(){}
 
+var mediaService = require(DOCUMENT_ROOT + '/include/service/entities/media_service.js');
+
 //inheritance
-util.inherits(EditMediaActionController, pb.FormController);
+util.inherits(EditMediaActionController, pb.BaseController);
 
 /**
  *
  * @method onPostParamsRetrieved
  */
-EditMediaActionController.prototype.onPostParamsRetrieved = function(post, cb) {
+EditMediaActionController.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-	delete post.topic_search;
+	this.getJSONPostParams(function(err, post) {
+		delete post._id;
 
-	pb.utils.merge(vars, post);
+		var message = self.hasRequiredParams(post, self.getRequiredParams());
+	    if(message) {
+	        cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+			});
+			return;
+	    }
 
-	var message = this.hasRequiredParams(post, this.getRequiredParams());
-    if(message) {
-        this.formError(message, this.getFormErrorRedirect(post.id), cb);
-        return;
-    }
+	    var mediaService = new pb.MediaService();
+	    mediaService.loadById(vars.id, function(err, media) {
+	    	if(util.isError(err) || media === null) {
+	            cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+				});
+				return;
+	        }
 
-    var mservice = new pb.MediaService();
-    mservice.loadById(post.id, function(err, media) {
-    	if (util.isError(err)) {
-            self.reqHandler.serveError(err);
-        }
-        else if(media === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(post.id), cb);
-            return;
-        }
+	        //update existing document
+	        pb.DocumentCreator.update(post, media);
+	        mediaService.save(media, function(err, result) {
+	            if(util.isError(err) || util.isArray(result)) {
+	                cb({
+						code: 500,
+						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+					});
+					return;
+	            }
 
-        //update existing document
-        pb.DocumentCreator.update(post, media, ['media_topics'], ['is_file']);
-        mservice.save(media, function(err, result) {
-            if (util.isError(err)) {
-                self.formError(self.ls.get('ERROR_SAVING'), self.getFormErrorRedirect(), cb);
-                return;
-            }
-            else if (util.isArray(result)) {
-                return self.formError(pb.CustomObjectService.createErrorStr(result), self.getFormErrorRedirect(), cb);
-            }
-
-            self.onSaveSuccessful(media);
-			self.redirect('/admin/content/media/manage_media', cb);
-        });
-    });
-};
-
-EditMediaActionController.prototype.onSaveSuccessful = function(mediaDocument) {
-	this.session.success = mediaDocument.name + ' ' + this.ls.get('EDITED');
+				result.icon = pb.MediaService.getMediaIcon(media.media_type);
+				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, media.name + ' ' + self.ls.get('EDITED'), result)});
+	        });
+	    });
+	});
 };
 
 EditMediaActionController.prototype.getRequiredParams = function() {
 	return ['media_type', 'location', 'name'];
-};
-
-EditMediaActionController.prototype.getFormErrorRedirect = function(id){
-	return '/admin/content/media/edit_media/' + id;
 };
 
 //exports

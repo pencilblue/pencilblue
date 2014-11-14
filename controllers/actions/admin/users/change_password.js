@@ -22,62 +22,79 @@
 function ChangePassword(){}
 
 //inheritance
-util.inherits(ChangePassword, pb.FormController);
+util.inherits(ChangePassword, pb.BaseController);
 
-ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
+ChangePassword.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-	pb.utils.merge(vars, post);
+	this.getJSONPostParams(function(err, post) {
+	    var message = self.hasRequiredParams(post, self.getRequiredFields());
+	    if(message) {
+	        cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+			});
+	        return;
+	    }
 
-    var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if(message) {
-        this.formError(message, '/admin/users/change_password/' + post.id, cb);
-        return;
-    }
+	    if(self.session.authentication.user_id != vars.id) {
+	        cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+			});
+	        return;
+	    }
 
-    if(self.session.authentication.user_id != vars.id) {
-        this.formError(request, session, self.ls.get('INSUFFICIENT_CREDENTIALS'), '/admin/users/manage_users', cb);
-        return;
-    }
+	    if(post.new_password != post.confirm_password) {
+			cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('PASSWORD_MISMATCH'))
+			});
+	        return;
+	    }
 
-    if(post.new_password != post.confirm_password) {
-        this.formError(self.ls.get('PASSWORD_MISMATCH'), '/admin/users/change_password/' + post.id, cb);
-        return;
-    }
+	    var dao = new pb.DAO();
+	    dao.loadById(vars.id, 'user', function(err, user) {
+	        if(util.isError(err) || user === null) {
+	            cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+				});
+	            return;
+	        }
 
-    var dao = new pb.DAO();
-    dao.loadById(post.id, 'user', function(err, user) {
-        if(util.isError(err) || user === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/manage_users', cb);
-            return;
-        }
+	        pb.DocumentCreator.update(post, user);
 
-        pb.DocumentCreator.update(post, user);
+	        if(user.password != user.current_password) {
+				cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_PASSWORD'))
+				});
+	            return;
+	        }
 
-        if(user.password != user.current_password) {
-            self.formError(self.ls.get('INVALID_PASSWORD'), '/admin/users/change_password/' + post.id, cb);
-            return;
-        }
+	        user.password = user.new_password;
+	        delete user.new_password;
+	        delete user.current_password;
 
-        user.password = user.new_password;
-        delete user.new_password;
-        delete user.current_password;
+	        dao.update(user).then(function(result) {
+	            if(util.isError(result)) {
+	                cb({
+						code: 500,
+						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+					});
+	                return;
+	            }
 
-        dao.update(user).then(function(result) {
-            if(util.isError(result)) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/edit_user/' + vars.id, cb);
-                return;
-            }
-
-            self.session.success = self.ls.get('PASSWORD_CHANGED');
-            self.redirect('/admin/users/edit_user/' + user.id, cb);
-        });
-    });
+				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('PASSWORD_CHANGED'))});
+	        });
+	    });
+	});
 };
 
 ChangePassword.prototype.getRequiredFields = function() {
-	return ['id', 'current_password', 'new_password', 'confirm_password'];
+	return ['current_password', 'new_password', 'confirm_password'];
 };
 
 //exports

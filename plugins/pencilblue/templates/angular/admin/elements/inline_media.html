@@ -1,0 +1,158 @@
+<script type="text/javascript" src="^angular_upload_src^"></script>
+<script type="text/javascript" src="/js/angular/services/media.js"></script>
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript">
+    var getActiveMedia;
+
+    angular.module('inlineMedia', ['media', 'ui.sortable', 'angularFileUpload', 'search', 'paginate'])
+    .controller('InlineMediaController', function($scope, $sce, $http, $upload, mediaService, searchService, paginationService) {
+        $scope.mediaPreview = '';
+        $scope.addedMedia = {
+            link: '',
+            topics: []
+        };
+
+        $scope.searchText = '';
+        $scope.paginationIndex = 0;
+        $scope.paginationLimit = 15;
+
+        $scope.getActiveMedia = function() {
+            return $scope.editingObject[$scope.variablePrefix + '_media'];
+        }
+        getActiveMedia = $scope.getActiveMedia;
+
+        $scope.search = function() {
+            searchService.search($scope.searchText, $scope.media, ['name'], function(media) {
+                $scope.media = media;
+                $scope.paginate(0);
+            });
+        }
+
+        $scope.clearSearch = function() {
+            $scope.searchText = '';
+            $scope.search();
+        }
+
+        $scope.paginate = function(paginationIndex) {
+            $scope.paginationIndex = paginationIndex;
+
+            paginationService.paginate($scope.media, $scope.paginationIndex, $scope.paginationLimit, function(media, paginationPages) {
+                $scope.media = media;
+                $scope.paginationPages = paginationPages;
+            })
+        }
+
+        $scope.pageButtonVisible = function(testIndex) {
+            return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
+        };
+
+        $scope.getMediaPreviewHTML = function() {
+            return $sce.trustAsHtml($scope.mediaPreview);
+        };
+
+        $scope.getUploadPreviewHTML = function() {
+            return $sce.trustAsHtml($scope.uploadPreview);
+        };
+
+        $scope.showMediaModal = function(isFile) {
+            $scope.addedMedia.isFile = isFile;
+            $('#media_modal').modal({backdrop: 'static', keyboard: true});
+        };
+
+        $scope.loadMediaLink = function() {
+            if(!$scope.addedMedia.link.length) {
+                return;
+            }
+
+            $scope.loadingLink = true;
+
+            mediaService.loadMediaLink($scope.addedMedia.link, function(err, result) {
+                if(err) {
+                    $scope.loadingLink = false;
+                    console.log(err);
+                    return;
+                }
+
+                $scope.addedMedia.media_type = result.data.mediaType;
+                $scope.addedMedia.location = result.data.location;
+                $scope.addedMedia.thumb = result.data.thumb;
+                $scope.addedMedia.is_file = result.data.isFile;
+
+                mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+                    $scope.loadingLink = false;
+
+                    if(err) {
+                        console.log(err);
+                        return;
+                    }
+
+                    $scope.mediaPreview = result.data;
+                })
+            });
+        };
+
+        $scope.onFileSelect = function($files) {
+            for (var i = 0; i < $files.length && i < 1; i++) {
+                var file = $files[i];
+                $scope.uploading = true;
+                $scope.uploadPercent = 0;
+                $scope.upload = $upload.upload({
+                    url: '/api/admin/content/media/upload_media',
+                    file: file
+                }).progress(function(evt) {
+                    $scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
+                }).success(function(data, status, headers, config) {
+                    mediaService.loadMediaLink(data.filename, function(err, result) {
+                        if(err) {
+                            $scope.uploading = false;
+                            console.log(err);
+                            return;
+                        }
+
+                        $scope.addedMedia.media_type = result.data.mediaType;
+                        $scope.addedMedia.location = result.data.location;
+                        $scope.addedMedia.thumb = result.data.thumb;
+                        $scope.addedMedia.is_file = result.data.isFile;
+
+                        mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+                            $scope.uploading = false;
+
+                            if(err) {
+                                console.log(err);
+                                return;
+                            }
+
+                            $scope.uploadPreview = result.data;
+                        })
+                    });
+                });
+            }
+        };
+
+        $scope.isSaveMediaEnabled = function() {
+            return ($scope.uploadPreview || $scope.mediaPreview) && $scope.addedMedia.name;
+        };
+
+        $scope.saveAddedMedia = function() {
+            $scope.savingMedia = true;
+
+            var mediaObject = JSON.parse(JSON.stringify($scope.addedMedia));
+            delete mediaObject.link;
+
+            mediaObject.media_topics = [];
+
+            mediaService.saveMedia(mediaObject)
+            .then(function(result) {
+                $scope.savingMedia = false;
+                $scope.editingObject[$scope.variablePrefix + '_media'].push(result.data);
+                $('#media_modal').modal('hide');
+            },
+            function(result, status) {
+                $scope.savingMedia = false;
+            });
+        };
+
+        $scope.paginate(0);
+    });
+</script>

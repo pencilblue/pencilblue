@@ -21,9 +21,6 @@
 
 function Libraries(){}
 
-//dependencies
-var SiteSettings = require('../site_settings');
-
 //inheritance
 util.inherits(Libraries, pb.BaseController);
 
@@ -49,41 +46,42 @@ Libraries.prototype.render = function(cb) {
 	];
 
 	pb.libraries.getSettings(function(err, librarySettings) {
-		var angularData = pb.js.getAngularController(
-			{
-				navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-				pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'libraries'),
-				tabs: tabs,
-				librarySettings: librarySettings
-			}
-		);
+		var angularObjects = pb.js.getAngularObjects({
+			navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+			pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'libraries'),
+			tabs: tabs,
+			librarySettings: librarySettings,
+			cdnDefaults: pb.libraries.getCDNDefaults(),
+			bowerDefaults: pb.libraries.getBowerDefaults()
+		});
 
 		self.setPageName(self.ls.get('LIBRARIES'));
-		self.ts.registerLocal('angular_script', angularData);
-		self.ts.registerLocal('cdn_defaults', pb.js.getJSTag('var cdnDefaults = ' + JSON.stringify(pb.libraries.getCDNDefaults()) + ';'));
-		self.ts.registerLocal('bower_defaults', pb.js.getJSTag('var bowerDefaults = ' + JSON.stringify(pb.libraries.getBowerDefaults()) + ';'));
-		self.ts.load('admin/site_settings/libraries', function(err, data) {
-			var result = '' + data;
-			self.checkForFormRefill(result, function(newResult) {
-				result = newResult;
-				cb({content: result});
-			});
+		self.ts.registerLocal('angular_script', '');
+		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+		self.ts.load('admin/site_settings/libraries', function(err, result) {
+			cb({content: result});
 		});
 	});
 };
 
 
 Libraries.getSubNavItems = function(key, ls, data) {
-	var pills = SiteSettings.getPillNavOptions(ls);
-	pills.splice(0, 1);
-	pills.unshift(
-	{
+	return [{
 		name: 'configuration',
 		title: ls.get('LIBRARIES'),
 		icon: 'chevron-left',
-		href: '/admin/site_settings/configuration'
-	});
-	return pills;
+		href: '/admin/site_settings'
+	}, {
+		name: 'content',
+		title: ls.get('CONTENT'),
+		icon: 'quote-right',
+		href: '/admin/site_settings/content'
+	}, {
+		name: 'email',
+		title: ls.get('EMAIL'),
+		icon: 'envelope',
+		href: '/admin/site_settings/email'
+	}];
 };
 
 //register admin sub-nav

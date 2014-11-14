@@ -1,0 +1,25 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form name="topicForm" ng-submit="saveTopic()" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="topic_settings">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(topicForm.name)}">
+                        <label>^loc_TOPIC_NAME^</label>
+                        <input type="text" name="name" class="form-control" ng-model="topic.name" required></input>
+                        <div class="form_error" ng-if="!isFieldValid(topicForm.name)">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                </div>
+                <a class="btn btn-default" href="/admin/content/topics">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </a>
+                ^tmp_admin=elements=save_button^
+            </div>
+        </fieldset>
+    </form>
+</div>
+^tmp_angular=admin=content=topics=topic_form^
+^tmp_admin=footer^

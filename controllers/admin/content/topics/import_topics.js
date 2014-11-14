@@ -21,9 +21,6 @@
 
 function ImportTopics(){}
 
-//var dependencies
-var Topics = require('../topics');
-
 //inheritance
 util.inherits(ImportTopics, pb.BaseController);
 
@@ -43,7 +40,7 @@ ImportTopics.prototype.render = function(cb) {
         }
     ];
 
-    var angularData = pb.js.getAngularController(
+    var angularObjects = pb.js.getAngularObjects(
     {
         navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
         pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics'),
@@ -51,23 +48,30 @@ ImportTopics.prototype.render = function(cb) {
     });
 
 	this.setPageName(this.ls.get('IMPORT_TOPICS'));
-    self.ts.registerLocal('angular_script', angularData);
-	this.ts.load('admin/content/topics/import_topics', function(err, data) {
-        var result = '' + data;
+    self.ts.registerLocal('angular_script', '');
+	self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+	this.ts.load('admin/content/topics/import_topics', function(err, result) {
         cb({content: result});
     });
 };
 
 ImportTopics.getSubNavItems = function(key, ls, data) {
-	var pills = Topics.getPillNavOptions();
-    pills.unshift(
-    {
-        name: 'manage_topics',
-        title: ls.get('IMPORT_TOPICS'),
-        icon: 'chevron-left',
-        href: '/admin/content/topics/manage_topics'
-    });
-    return pills;
+	return [{
+		name: 'manage_topics',
+		title: ls.get('IMPORT_TOPICS'),
+		icon: 'chevron-left',
+		href: '/admin/content/topics'
+	}, {
+		name: 'import_topics',
+		title: '',
+		icon: 'upload',
+		href: '/admin/content/topics/import'
+	}, {
+		name: 'new_topic',
+		title: '',
+		icon: 'plus',
+		href: '/admin/content/topics/new'
+	}];
 };
 
 //register admin sub-nav

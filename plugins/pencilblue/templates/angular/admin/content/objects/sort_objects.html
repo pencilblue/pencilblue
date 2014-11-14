@@ -1,0 +1,25 @@
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['ui.sortable'])
+    .controller('PencilBlueController', function($scope, $http) {
+        ^angular_objects^
+
+        $scope.saveSorting = function() {
+            var sorting = [];
+            for(var i = 0; i < $scope.customObjects.length; i++) {
+                sorting.push($scope.customObjects[i]._id.toString());
+            }
+
+            $scope.saving = true;
+
+            $http.post('/actions/admin/content/objects/' + $scope.objectType._id + '/sort', {sorted_objects: sorting})
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
+        }
+    });
+</script>

@@ -35,6 +35,7 @@ $(document).ready(function() {
 			saveSelection();
 		}
 	});
+    initWYSIWYG();
 });
 
 function initWYSIWYG() {
@@ -243,21 +244,21 @@ function addLayoutLink(wysId)
 
 function getLayoutMediaOptions(wysId)
 {
-    var activeMedia = $('#active_media .media_item');
+    var activeMedia = getActiveMedia();//$('#active_media .media_item');
     if(activeMedia.length === 0)
     {
         return '<button type="button" class="btn btn-sm btn-default" onclick="associateMedia(\'' + wysId + '\')">' + loc.wysiwyg.ASSOCIATE_MEDIA + '</button><br/>&nbsp;';
     }
 
     var mediaHTML = '';
-    activeMedia.each(function()
-    {
-        var mediaCheckbox = '<div class="checkbox"><label><input type="checkbox" id="layout_media_^media_id^">^media_name^</label></div>';
-        mediaCheckbox = mediaCheckbox.split('^media_id^').join($(this).attr('id').substr(6));
-        mediaCheckbox = mediaCheckbox.split('^media_name^').join($(this).find('.media_name').html());
+    for(var i = 0; i < activeMedia.length; i++) {
 
-        mediaHTML = mediaHTML.concat(mediaCheckbox);
-    });
+            var mediaCheckbox = '<div class="checkbox"><label><input type="checkbox" id="layout_media_^media_id^">^media_name^</label></div>';
+            mediaCheckbox = mediaCheckbox.split('^media_id^').join(activeMedia[i]._id.toString());
+            mediaCheckbox = mediaCheckbox.split('^media_name^').join(activeMedia[i].name);
+
+            mediaHTML = mediaHTML.concat(mediaCheckbox);
+    }
 
     $('#layout_media_format').show();
     return mediaHTML;

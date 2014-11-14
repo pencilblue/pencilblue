@@ -1,0 +1,7 @@
+<ul class="pagination pagination-sm" ng-if="paginationPages.length > 1">
+	<li class="clickable" ng-class="{'disabled': paginationIndex === 0}"><a ng-click="paginate(0)"><i class="fa fa-angle-double-left"></i></a></li>
+	<li class="clickable" ng-class="{'disabled': paginationIndex === 0}"><a ng-click="paginate(paginationIndex - 1)"><i class="fa fa-angle-left"></i></a></li>
+	<li class="clickable" ng-class="{'active': paginationIndex === $index}" ng-repeat="page in paginationPages" ng-if="pageButtonVisible($index)"><a ng-click="paginate($index)" ng-bind="$index + 1"></a></li>
+	<li class="clickable" ng-class="{'disabled': paginationIndex === paginationPages.length - 1}"><a ng-click="paginate(paginationIndex + 1)"><i class="fa fa-angle-right"></i></a></li>
+	<li class="clickable" ng-class="{'disabled': paginationIndex === paginationPages.length - 1}"><a ng-click="paginate(paginationPages.length - 1)"><i class="fa fa-angle-double-right"></i></a></li>
+</ul>

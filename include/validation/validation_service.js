@@ -103,7 +103,7 @@ ValidationService.isId = function(val, required) {
     if (!required && (val === null || val === undefined)) {
         return true;
     }
-    
+
     try {
         new pb.DAO.getObjectID(val);
         return true;
@@ -376,6 +376,17 @@ ValidationService.isNum = function(val, required) {
     }
 
     return !isNaN(val);
+};
+
+/**
+ * Validates that the value is a boolean.
+ * @static
+ * @method isBool
+ * @param {Boolean} val The value under test
+ * @return {Boolean} TRUE if the value is valid, FALSE if not
+ */
+ValidationService.isBool = function(val) {
+    return typeof val === 'boolean';
 };
 
 /**

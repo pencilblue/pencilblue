@@ -103,389 +103,7 @@ module.exports = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'index.js'),
     	content_type: 'text/html'
     },
-    {
-    	method: 'get',
-    	path: "/admin/content/sections",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/sections/section_map",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections', 'section_map.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/sections/new_section",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections', 'new_section.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/sections/new_section",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'new_section.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/sections/section_map",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'section_map.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/sections/edit_section/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'sections', 'edit_section.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/actions/admin/content/sections/delete_section/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'delete_section.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/sections/edit_section/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'sections', 'edit_section.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/topics/manage_topics",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'manage_topics.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/actions/admin/content/topics/delete_topic/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'delete_topic.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/site_settings/configuration",
-    	access_level: ACCESS_ADMINISTRATOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'configuration.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/site_settings/configuration",
-    	access_level: ACCESS_ADMINISTRATOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'configuration.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/site_settings/content",
-    	access_level: ACCESS_ADMINISTRATOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'content.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/site_settings/content",
-    	access_level: ACCESS_ADMINISTRATOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'content.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/site_settings/email",
-    	access_level: ACCESS_ADMINISTRATOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'email.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/site_settings/email",
-    	access_level: ACCESS_ADMINISTRATOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'email.js'),
-    	content_type: 'text/html'
-    },
-	{
-		method: 'get',
-		path: "/admin/site_settings/libraries",
-		access_level: ACCESS_ADMINISTRATOR,
-		auth_required: true,
-		controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'libraries.js'),
-		content_type: 'text/html'
-	},
-	{
-		method: 'post',
-		path: "/actions/admin/site_settings/libraries",
-		access_level: ACCESS_ADMINISTRATOR,
-		auth_required: true,
-		controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'libraries.js'),
-		content_type: 'text/html'
-	},
-    {
-    	method: 'get',
-    	path: "/admin/content/topics/new_topic",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'new_topic.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/topics/new_topic",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'new_topic.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/topics/import_topics",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'import_topics.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/topics/import_topics",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'import_topics.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/topics/",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/pages/new_page",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'new_page.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/pages/new_page",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'new_page.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/pages/manage_pages",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'manage_pages.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/pages/edit_page/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'edit_page.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/pages/edit_page/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'edit_page.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/api/admin/content/pages/save_draft/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'pages', 'save_draft.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/pages/new_page",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'new_page.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/actions/admin/content/pages/delete_page/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/media/manage_media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'manage_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/media/add_media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'add_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/media/add_media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'add_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/media/edit_media/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'edit_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/media/edit_media/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'edit_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/actions/admin/content/media/delete_media/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'delete_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/media/inline_add_media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'inline_add_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/media/upload_media",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'upload_media.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/articles",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/articles/manage_articles",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'manage_articles.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/articles/new_article",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'new_article.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/actions/admin/content/articles/delete_article/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
-    },
-    {
-    	method: 'get',
-    	path: "/api/custom_objects/get_object_type_name_available",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'custom_objects', 'get_object_type_name_available.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/articles/edit_article/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'edit_article.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/articles/edit_article/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/api/admin/content/articles/save_draft/:id",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'articles', 'save_draft.js'),
-    	content_type: 'text/html'
-    },
+
     {
     	method: 'get',
     	path: "/preview/:type/:id",
@@ -496,41 +114,9 @@ module.exports = [
     },
     {
     	method: 'post',
-    	path: "/actions/admin/content/articles/new_article",
-    	access_level: ACCESS_WRITER,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'new_article.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
     	path: "/actions/user/manage_account/change_password",
     	auth_required: true,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'manage_account', 'change_password.js'),
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects",
-    	auth_required: true,
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/manage_object_types",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_object_types.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/new_object_type",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
-    	content_type: 'text/html'
     },
     {
     	method: 'post',
@@ -546,47 +132,16 @@ module.exports = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'resend_verification.js'),
     },
     {
-        method: 'post',
-    	path: "/actions/admin/content/custom_objects/new_object_type",
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'new_object_type.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/edit_object_type/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
-    	content_type: 'text/html'
-    },
-    {
     	method: 'post',
     	path: "/actions/user/sign_up",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'sign_up.js'),
     },
     {
-        method: 'post',
-    	path: "/actions/admin/content/custom_objects/edit_object_type/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object_type.js'),
-    	content_type: 'text/html'
-    },
-    {
     	method: 'get',
     	path: "/actions/user/verify_email",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'user', 'verify_email.js'),
-    },
-    {
-        method: 'get',
-    	path: "/actions/admin/content/custom_objects/delete_object_type/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object_type.js'),
-    	content_type: 'text/html'
     },
     {
     	method: 'get',
@@ -604,90 +159,6 @@ module.exports = [
     },
     {
     	method: 'get',
-    	path: "/admin/users/new_user",
-    	auth_required: true,
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'new_user.js'),
-    },
-    {
-    	method: 'get',
-    	path: "/admin/users/manage_users",
-    	auth_required: true,
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'manage_users.js'),
-    },
-    {
-        method: 'get',
-        path: "/admin/users/unverified_users",
-        auth_required: true,
-        access_level: ACCESS_EDITOR,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'unverified_users.js'),
-    },
-    {
-    	method: 'get',
-    	path: "/admin/users/edit_user/:id",
-    	auth_required: true,
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'edit_user.js'),
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/users/edit_user/:id",
-    	auth_required: true,
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
-    },
-    {
-        method: 'get',
-        path: "/actions/admin/users/delete_user/:id",
-        auth_required: true,
-        access_level: ACCESS_EDITOR,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_user.js'),
-    },
-    {
-        method: 'get',
-        path: "/actions/admin/users/delete_unverified_user/:id",
-        auth_required: true,
-        access_level: ACCESS_EDITOR,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_unverified_user.js'),
-    },
-    {
-        method: 'get',
-        path: "/actions/admin/users/verify_user/:id",
-        auth_required: true,
-        access_level: ACCESS_EDITOR,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'verify_user.js'),
-    },
-    {
-    	method: 'get',
-    	path: "/admin/users/change_password/:id",
-    	auth_required: true,
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'change_password.js'),
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/users/change_password/:id",
-    	auth_required: true,
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'change_password.js'),
-    },
-    {
-    	method: 'get',
-    	path: "/actions/admin/users/send_password_reset/:id",
-    	auth_required: true,
-    	access_level: ACCESS_MANAGING_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/users/new_user",
-    	auth_required: true,
-    	access_level: ACCESS_EDITOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'new_user.js'),
-    },
-    {
-    	method: 'get',
     	path: "/sitemap",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'sitemap.js'),
@@ -698,60 +169,6 @@ module.exports = [
     	path: "/user/sign_up",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'sign_up.js'),
-    },
-    {
-    	path: "/admin/content/custom_objects/manage_objects/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'manage_objects.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	path: "/admin/content/custom_objects/sort_objects/:type_id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'sort_objects.js'),
-    	content_type: 'text/html'
-    },
-    {
-        method: 'post',
-    	path: "/actions/admin/content/custom_objects/sort_objects/:type_id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'sort_objects.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/new_object/:type_id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'new_object.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/custom_objects/new_object/:type_id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'new_object.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/content/custom_objects/edit_object/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'custom_objects', 'edit_object.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/content/custom_objects/edit_object/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'edit_object.js'),
-    	content_type: 'text/html'
     },
     {
     	method: 'get',
@@ -765,14 +182,6 @@ module.exports = [
     	path: "/user/login",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'login.js'),
-    },
-    {
-        method: 'get',
-    	path: "/actions/admin/content/custom_objects/delete_object/:id",
-    	access_level: ACCESS_EDITOR,
-    	auth_required: true,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'custom_objects', 'delete_object.js'),
-    	content_type: 'text/html'
     },
     {
     	method: 'get',
@@ -935,22 +344,6 @@ module.exports = [
         content_type: 'application/json'
     },
     {
-        method: 'get',
-        path: "/admin/content/comments/manage_comments",
-        auth_required: true,
-        access_level: ACCESS_EDITOR,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'comments', 'manage_comments.js'),
-        content_type: 'text/html'
-    },
-    {
-        method: 'get',
-        path: "/actions/admin/content/comments/delete_comment/:id",
-        access_level: ACCESS_EDITOR,
-        auth_required: true,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'comments', 'delete_comment.js'),
-        content_type: 'text/html'
-    },
-    {
     	method: 'post',
     	path: "/api/jobs/:action/:id",
     	auth_required: true,
@@ -965,5 +358,603 @@ module.exports = [
         access_level: ACCESS_ADMINISTRATOR,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'site_settings', 'email', 'send_test.js'),
         content_type: 'application/json'
-    }
+    },
+
+
+
+    // NAVIGATION
+    {
+        method: 'get',
+        path: "/admin/content/navigation",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'navigation', 'nav_map.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/navigation/new",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'navigation', 'nav_item_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/navigation/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'navigation', 'nav_item_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/navigation/map",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'navigation', 'nav_map.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/navigation",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'navigation', 'new_nav_item.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/navigation/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'navigation', 'edit_nav_item.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/navigation/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'navigation', 'delete_nav_item.js'),
+        content_type: 'text/html'
+    },
+
+    // TOPICS
+    {
+        method: 'get',
+        path: "/admin/content/topics",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'manage_topics.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/topics/new",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'topic_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/topics/import",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'import_topics.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/topics/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'topics', 'topic_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/topics",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'new_topic.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/topics/import",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'import_topics.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/topics/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'edit_topic.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/topics/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'topics', 'delete_topic.js'),
+        content_type: 'text/html'
+    },
+
+    // ARTICLES
+    {
+        method: 'get',
+        path: "/admin/content/articles",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'manage_articles.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/articles/new",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'article_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/articles/:id",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'articles', 'article_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/articles",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'new_article.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/articles/:id",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/articles/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
+    },
+
+    // PAGES
+    {
+        method: 'get',
+        path: "/admin/content/pages",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'manage_pages.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/pages/new",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'page_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/pages/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'pages', 'page_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/pages",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'new_page.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/pages/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'edit_page.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/pages/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),
+        content_type: 'text/html'
+    },
+
+    // MEDIA
+    {
+        method: 'get',
+        path: "/admin/content/media",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'manage_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/media/new",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'media_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/media/:id",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'media', 'media_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/media",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'new_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/media/:id",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'edit_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/media/:id",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'media', 'delete_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/api/admin/content/media/upload_media",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'upload_media.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/api/admin/content/media/get_link",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_link.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/api/admin/content/media/get_preview",
+        access_level: ACCESS_WRITER,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'media', 'get_preview.js'),
+        content_type: 'text/html'
+    },
+
+    // COMMENTS
+    {
+        method: 'get',
+        path: "/admin/content/comments",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'comments', 'manage_comments.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/comments/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'comments', 'delete_comment.js'),
+        content_type: 'text/html'
+    },
+
+    // CUSTOM OBJECT TYPES
+    {
+        method: 'get',
+        path: "/admin/content/objects/types",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'types', 'manage_types.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/objects/types/new",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'types', 'type_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/objects/types/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'types', 'type_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/api/admin/content/objects/types/available",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'admin', 'content', 'objects', 'types', 'available.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/types",
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'new_type.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/types/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'edit_type.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/objects/types/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'delete_type.js'),
+        content_type: 'text/html'
+    },
+
+    // CUSTOM OBJECTS
+    {
+        path: "/admin/content/objects/:type_id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'manage_objects.js'),
+        content_type: 'text/html'
+    },
+    {
+        path: "/admin/content/objects/:type_id/sort",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'sort_objects.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/objects/:type_id/new",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'object_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/content/objects/:type_id/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'content', 'objects', 'object_form.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/:type_id/sort",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'sort_objects.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/:type_id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'new_object.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/content/objects/:type_id/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'edit_object.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/content/objects/:id",
+        access_level: ACCESS_EDITOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'delete_object.js'),
+        content_type: 'text/html'
+    },
+
+    // USERS
+    {
+        method: 'get',
+        path: "/admin/users",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'manage_users.js'),
+    },
+    {
+        method: 'get',
+        path: "/admin/users/unverified",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'unverified_users.js'),
+    },
+    {
+        method: 'get',
+        path: "/admin/users/new",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'user_form.js'),
+    },
+    {
+        method: 'get',
+        path: "/admin/users/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'user_form.js'),
+    },
+    {
+        method: 'get',
+        path: "/admin/users/password/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'change_password.js'),
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/users",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'new_user.js'),
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/users/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/users/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_user.js'),
+    },
+    {
+        method: 'delete',
+        path: "/actions/admin/users/unverified/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'delete_unverified_user.js'),
+    },
+    {
+        method: 'get',
+        path: "/actions/admin/users/verify/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'verify_user.js'),
+    },
+
+    {
+        method: 'post',
+        path: "/actions/admin/users/change_password/:id",
+        auth_required: true,
+        access_level: ACCESS_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'change_password.js'),
+    },
+    {
+        method: 'get',
+        path: "/actions/admin/users/send_password_reset/:id",
+        auth_required: true,
+        access_level: ACCESS_MANAGING_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/users/send_password_reset/:id",
+        auth_required: true,
+        access_level: ACCESS_MANAGING_EDITOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
+    },
+
+    // SITE SETTINGS
+    {
+        method: 'get',
+        path: "/admin/site_settings",
+        access_level: ACCESS_ADMINISTRATOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'configuration.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/site_settings",
+        access_level: ACCESS_ADMINISTRATOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'configuration.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/site_settings/content",
+        access_level: ACCESS_ADMINISTRATOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'content.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/site_settings/content",
+        access_level: ACCESS_ADMINISTRATOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'content.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/site_settings/email",
+        access_level: ACCESS_ADMINISTRATOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'email.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/site_settings/email",
+        access_level: ACCESS_ADMINISTRATOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'email.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/site_settings/libraries",
+        access_level: ACCESS_ADMINISTRATOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings', 'libraries.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/site_settings/libraries",
+        access_level: ACCESS_ADMINISTRATOR,
+        auth_required: true,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'site_settings', 'libraries.js'),
+        content_type: 'text/html'
+    },
 ];

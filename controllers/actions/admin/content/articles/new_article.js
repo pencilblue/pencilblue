@@ -19,64 +19,53 @@
  * Creates a new article
  */
 
-//dependencies
-var BaseController = pb.BaseController;
-var FormController = pb.FormController;
-
 function NewArticlePostController(){}
 
 //inheritance
-util.inherits(NewArticlePostController, FormController);
+util.inherits(NewArticlePostController, pb.BaseController);
 
-NewArticlePostController.prototype.onPostParamsRetrieved = function(post, cb) {
+NewArticlePostController.prototype.render = function(cb) {
 	var self = this;
 
-	delete post.section_search;
-    delete post.topic_search;
-    delete post.media_search;
-    delete post.media_url;
-    delete post.media_type;
-    delete post.location;
-    delete post.thumb;
-    delete post.media_topics;
-    delete post.name;
-    delete post.caption;
-    delete post.layout_link_url;
-    delete post.layout_link_text;
-    delete post.media_position;
-    delete post.media_max_height;
+	this.getJSONPostParams(function(err, post) {
+		post.author       = self.session.authentication.user_id;
+		post.publish_date = new Date(parseInt(post.publish_date));
+		delete post._id;
 
-    post.author         = this.session.authentication.user_id;
-    post.publish_date   = new Date(post.publish_date);
+		var message = self.hasRequiredParams(post, self.getRequiredFields());
+		if (message) {
+			cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+			});
+			return;
+		}
 
-    this.setFormFieldValues(post);
+	    post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
+	    var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords']);
+	    pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {
+	        if(util.isError(err) || !isSafe)  {
+				cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+				});
+	            return;
+	        }
 
-    var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if(message) {
-        this.formError(message, '/admin/content/articles/new_article', cb);
-        return;
-    }
+	        var dao = new pb.DAO();
+	        dao.update(articleDocument).then(function(result) {
+	            if(util.isError(result))  {
+					cb({
+						code: 400,
+						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+					});
+	                return;
+	            }
 
-    post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
-    var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords', 'article_sections', 'article_topics', 'article_media']);
-    pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {
-        if(util.isError(err) || !isSafe)  {
-            self.formError(self.ls.get('EXISTING_URL'), '/admin/content/articles/new_article', cb);
-            return;
-        }
-
-        var dao = new pb.DAO();
-        dao.update(articleDocument).then(function(result) {
-            if(util.isError(result))  {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/new_article', cb);
-                return;
-            }
-
-            self.session.success = articleDocument.headline + ' ' + self.ls.get('CREATED');
-            delete self.session.fieldValues;
-            self.redirect('/admin/content/articles/edit_article/' + result._id, cb);
-        });
-    });
+				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, articleDocument.headline + ' ' + self.ls.get('CREATED'), result)});
+	        });
+	    });
+	});
 };
 
 NewArticlePostController.prototype.getRequiredFields = function() {
@@ -85,7 +74,7 @@ NewArticlePostController.prototype.getRequiredFields = function() {
 
 NewArticlePostController.prototype.getSanitizationRules = function() {
     return {
-        article_layout: BaseController.getContentSanitizationRules()
+        article_layout: pb.BaseController.getContentSanitizationRules()
     };
 };
 

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html ng-app="pencilblueApp">
+    <head>
+        <title>I Know It Was MEAN, But I Cut the Cord to LAMP Anyway</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+        <link rel="shortcut icon" href="^site_icon^">
+    </head>
+    <body ng-controller="PencilBlueController">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-sm-6" ng-repeat="slide in slides" ng-click="showModal(slide)">
+                    <div class="mean-button {{slide.color}}">
+                        <div class="mean-letter" ng-bind="slide.letter"></div>
+                        <div class="mean-category" ng-bind="slide.category"></div>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-sm-offset-4">
+                    <div class="powered-by">
+                        <h4 style="text-align: center; color: #AAAAAA">Powered by</h4>
+                        <div style="text-align: center">
+                            <a href="https://pencilblue.org">
+                                <img src="^site_logo^"></img>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="slideModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" ng-bind="selectedSlide.category + ' ' + selectedSlide.letter + ' - ' + selectedSlide.title"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="embed-responsive embed-responsive-4by3">
+                            <iframe id="slideIframe" src="" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="width: 100%; min-height: 320px" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <link rel="stylesheet" type="text/css" href="^bootstrap_css_src^">
+        <link rel="stylesheet" type="text/css" href="^font_awesome_src^">
+        <link rel="stylesheet" type="text/css" href="/public/all-things-open/css/all-things-open.css">
+
+        <script type="text/javascript" src="^jquery_src^"></script>
+        <script type="text/javascript" src="^bootstrap_js_src^"></script>
+        <script type="text/javascript" src="^angular_src^"></script>
+        <script type="text/javascript">
+            angular.module('pencilblueApp', [])
+            .controller('PencilBlueController', function($scope) {
+                $scope.slides = ^slides^;
+                $scope.selectedSlide = $scope.slides[0];
+
+                $scope.showModal = function(slide) {
+                    $scope.selectedSlide = slide;
+                    $('#slideIframe').attr('src', $scope.selectedSlide.url);
+                    $('#slideModal').modal('show');
+                };
+            })
+        </script>
+    </body>
+</html>

@@ -21,9 +21,6 @@
 
 function Email(){}
 
-//dependencies
-var SiteSettings = require('../site_settings');
-
 //inheritance
 util.inherits(Email, pb.BaseController);
 
@@ -54,39 +51,39 @@ Email.prototype.render = function(cb) {
     ];
 
     pb.email.getSettings(function(err, emailSettings) {
-        self.setFormFieldValues(emailSettings);
-
-        var angularData = pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email'),
-                tabs: tabs
-            }
-        );
+        var angularObjects = pb.js.getAngularObjects({
+            navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email'),
+            tabs: tabs,
+            emailSettings: emailSettings
+        });
 
         self.setPageName(self.ls.get('EMAIL'));
-        self.ts.registerLocal('angular_script', angularData);
-        self.ts.load('admin/site_settings/email', function(err, data) {
-            var result = data;
-            self.checkForFormRefill(result, function(newResult) {
-                result = newResult;
-                cb({content: result});
-            });
+        self.ts.registerLocal('angular_script', '');
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/site_settings/email', function(err, result) {
+            cb({content: result});
         });
     });
 };
 
 Email.getSubNavItems = function(key, ls, data) {
-	var pills = SiteSettings.getPillNavOptions(ls);
-    pills.splice(1, 1);
-    pills.unshift(
-    {
+    return [{
         name: 'configuration',
         title: ls.get('EMAIL'),
         icon: 'chevron-left',
-        href: '/admin/site_settings/configuration'
-    });
-    return pills;
+        href: '/admin/site_settings'
+    }, {
+        name: 'content',
+        title: ls.get('CONTENT'),
+        icon: 'quote-right',
+        href: '/admin/site_settings/content'
+    }, {
+        name: 'libraries',
+        title: ls.get('LIBRARIES'),
+        icon: 'book',
+        href: '/admin/site_settings/libraries'
+    }];
 };
 
 //register admin sub-nav

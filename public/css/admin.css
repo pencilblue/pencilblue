@@ -31,6 +31,10 @@ a:hover
     clear: both;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 form .error
 {
     font-size: .85em;
@@ -322,12 +326,23 @@ form .error
 
 /* NAVIGATION */
 
-.section h5, .subsection h5 {
+.nav-item h5, .subnav-item h5 {
     font-size: 1em;
     margin: 0;
 }
 
 /* INTERFACE OBJECTS */
+
+.draggable_item .panel-heading {
+    font-size: 1em;
+    padding: .5em;
+    margin: 0;
+}
+
+.form_error {
+    font-size: .9em;
+    color: #A94442;
+}
 
 .table_container {
     width: 100%;
@@ -341,6 +356,10 @@ form .error
     padding: .5em;
     float: left;
     margin: 0 .5em .5em 0;
+}
+
+.add_field_button {
+    margin-bottom: .5em;
 }
 
 .media_item a
@@ -411,6 +430,16 @@ form .error
 
 .remove_media_button {
     margin-top: -2em;
+}
+
+.file_drop {
+    margin-top: 1em;
+    padding: 2em 1em;
+    border: 3px dashed #999999;
+}
+
+.file_drop_hover {
+    border: 3px dashed #2BAA4C;
 }
 
 /* NEWS */

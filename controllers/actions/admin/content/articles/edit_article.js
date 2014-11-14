@@ -19,77 +19,68 @@
  * Edits an article
  */
 
-//dependencies
-var BaseController = pb.BaseController;
-var FormController = pb.FormController;
-
 function EditArticle(){}
 
 //inheritance
-util.inherits(EditArticle, FormController);
+util.inherits(EditArticle, pb.BaseController);
 
-EditArticle.prototype.onPostParamsRetrieved = function(post, cb) {
+EditArticle.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-    delete post.section_search;
-    delete post.topic_search;
-    delete post.media_search;
-    delete post.media_url;
-    delete post.media_type;
-    delete post.location;
-    delete post.thumb;
-    delete post.media_topics;
-    delete post.name;
-    delete post.caption;
-    delete post.layout_link_url;
-    delete post.layout_link_text;
-    delete post.media_position;
-    delete post.media_max_height;
+	this.getJSONPostParams(function(err, post) {
+	    post.publish_date = new Date(parseInt(post.publish_date));
+		post.id = vars.id;
+		delete post._id;
 
-    postauthor         = this.session.authentication.user_id;
-    post.publish_date   = new Date(post.publish_date);
+	    var message = self.hasRequiredParams(post, self.getRequiredFields());
+	    if (message) {
+			cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+			});
+	        return;
+	    }
 
-    //add vars to post
-    pb.utils.merge(vars, post);
+	    var dao = new pb.DAO();
+	    dao.loadById(post.id, 'article', function(err, article) {
+	        if(util.isError(err) || article === null) {
+				cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
+				});
+	            return;
+	        }
 
-    var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if (message) {
-        this.formError(message, '/admin/content/articles/manage_articles', cb);
-        return;
-    }
+	        //TODO should we keep track of contributors (users who edit)?
+	        post.author = article.author;
+	        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
+	        pb.DocumentCreator.update(post, article, ['meta_keywords']);
 
-    var dao = new pb.DAO();
-    dao.loadById(post.id, 'article', function(err, article) {
-        if(util.isError(err) || article === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/manage_articles', cb);
-            return;
-        }
+	        pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
+	            if(error !== null || exists || article.url.indexOf('/admin') === 0) {
+					cb({
+						code: 400,
+						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+					});
+	                return;
+	            }
 
-        //TODO should we keep track of contributors (users who edit)?
-        post.author = article.author;
-        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
-        pb.DocumentCreator.update(post, article, ['meta_keywords', 'article_sections', 'article_topics', 'article_media']);
-        self.setFormFieldValues(post);
+	            dao.update(article).then(function(result) {
+	                if(util.isError(result)) {
+	                    cb({
+							code: 500,
+							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+						});
+	                    return;
+	                }
 
-        pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
-            if(error !== null || exists || article.url.indexOf('/admin') === 0) {
-                self.formError(self.ls.get('EXISTING_URL'), '/admin/content/articles/edit_article/' + post.id, cb);
-                return;
-            }
-
-            dao.update(article).then(function(result) {
-                if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/articles/edit_article/' + post.id, cb);
-                    return;
-                }
-
-                self.session.success = article.headline + ' ' + self.ls.get('EDITED');
-                delete self.session.fieldValues;
-                self.redirect('/admin/content/articles/edit_article/' + post.id, cb);
-            });
-        });
-    });
+					post.last_modified = new Date();
+					cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('EDITED'), post)});
+	            });
+	        });
+	    });
+	});
 };
 
 EditArticle.prototype.getRequiredFields = function() {
@@ -99,7 +90,7 @@ EditArticle.prototype.getRequiredFields = function() {
 
 EditArticle.prototype.getSanitizationRules = function() {
     return {
-        article_layout: BaseController.getContentSanitizationRules()
+        article_layout: pb.BaseController.getContentSanitizationRules()
     };
 };
 

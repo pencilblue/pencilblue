@@ -21,9 +21,6 @@
 
 function ManagePages(){}
 
-//dependencies
-var Pages = require('../pages');
-
 //inheritance
 util.inherits(ManagePages, pb.BaseController);
 
@@ -36,21 +33,22 @@ ManagePages.prototype.render = function(cb) {
 
     dao.query('page', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {headline: pb.DAO.ASC}).then(function(pages) {
         if(pages.length === 0) {
-            self.redirect('/admin/content/pages/new_page', cb);
+            self.redirect('/admin/content/pages/new', cb);
             return;
         }
 
         pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-            var angularData = pb.js.getAngularController(
+            var angularObjects = pb.js.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_pages'),
                 pages: self.getPageStatuses(pagesWithAuthor)
-            }, [], 'initPagesPagination()');
+            });
 
             var title = self.ls.get('MANAGE_PAGES');
             self.setPageName(title);
-            self.ts.registerLocal('angular_script', angularData);
+            self.ts.registerLocal('angular_script', '');
+			self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/content/pages/manage_pages', function(err, data) {
                 var result = '' + data;
                 cb({content: result});
@@ -77,15 +75,17 @@ ManagePages.prototype.getPageStatuses = function(pages) {
 };
 
 ManagePages.getSubNavItems = function(key, ls, data) {
-	var pills = Pages.getPillNavOptions();
-	pills.unshift(
-    {
-        name: 'manage_pages',
-        title: ls.get('MANAGE_PAGES'),
-        icon: 'refresh',
-        href: '/admin/content/pages/manage_pages'
-    });
-    return pills;
+	return [{
+		name: 'manage_pages',
+		title: ls.get('MANAGE_PAGES'),
+		icon: 'refresh',
+		href: '/admin/content/pages'
+	}, {
+		name: 'new_page',
+		title: '' ,
+		icon: 'plus',
+		href: '/admin/content/pages/new'
+	}];
 };
 
 //register admin sub-nav

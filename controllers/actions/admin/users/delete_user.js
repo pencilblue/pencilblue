@@ -30,12 +30,18 @@ DeleteUser.prototype.render = function(cb) {
 
     var message = this.hasRequiredParams(vars, ['id']);
     if (message) {
-        this.formError(message, '/admin/users/manage_users', cb);
+        cb({
+            code: 400,
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+        });
         return;
     }
 
     if(vars.id === self.session.authentication.user_id) {
-        self.formError(self.ls.get('USER_DELETE_SELF'), '/admin/users/manage_users', cb);
+        cb({
+            code: 400,
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('USER_DELETE_SELF'))
+        });
         return;
     }
 
@@ -43,7 +49,10 @@ DeleteUser.prototype.render = function(cb) {
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'user', function(err, user) {
         if(user === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/manage_users', cb);
+            cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+            });
             return;
         }
 
@@ -54,12 +63,14 @@ DeleteUser.prototype.render = function(cb) {
                 //delete the user
                 dao.deleteMatching({_id: ObjectID(vars.id)}, 'user').then(function(result) {
                     if(result < 1) {
-                        self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/manage_users', cb);
+                        cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                        });
                         return;
                     }
 
-                    self.session.success = user.username + ' ' + self.ls.get('DELETED');
-                    self.redirect('/admin/users/manage_users', cb);
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, user.username + ' ' + self.ls.get('DELETED'))});
                 });
             });
         });
@@ -108,7 +119,6 @@ DeleteUser.prototype.reassignContent = function(deletedUserId, newUserId, dao, c
                     });
                 };
 
-                console.log(articles);
                 articles = articles || [];
                 pages = pages || [];
                 sections = sections || [];

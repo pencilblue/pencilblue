@@ -45,52 +45,52 @@ function getDefaultNavigation() {
             access: ACCESS_WRITER,
             children: [
                 {
-                    id: 'sections',
+                    id: 'navigation',
                     title: 'NAVIGATION',
                     icon: 'th-large',
-                    href: '/admin/content/sections/section_map',
+                    href: '/admin/content/navigation',
                     access: ACCESS_EDITOR
                 },
                 {
                     id: 'topics',
                     title: 'TOPICS',
                     icon: 'tags',
-                    href: '/admin/content/topics/manage_topics',
+                    href: '/admin/content/topics',
                     access: ACCESS_EDITOR
                 },
                 {
                     id: 'pages',
                     title: 'PAGES',
                     icon: 'file-o',
-                    href: '/admin/content/pages/manage_pages',
+                    href: '/admin/content/pages',
                     access: ACCESS_EDITOR
                 },
                 {
                     id: 'articles',
                     title: 'ARTICLES',
                     icon: 'files-o',
-                    href: '/admin/content/articles/manage_articles',
+                    href: '/admin/content/articles',
                     access: ACCESS_WRITER
                 },
                 {
                     id: 'media',
                     title: 'MEDIA',
                     icon: 'camera',
-                    href: '/admin/content/media/manage_media',
+                    href: '/admin/content/media',
                     access: ACCESS_WRITER
                 },
                 {
                     id: 'comments',
                     title: 'COMMENTS',
                     icon: 'comments',
-                    href: '/admin/content/comments/manage_comments',
+                    href: '/admin/content/comments',
                     access: ACCESS_EDITOR
                 },
                 {
                     id: 'custom_objects',
                     title: 'CUSTOM_OBJECTS',
                     icon: 'sitemap',
-                    href: '/admin/content/custom_objects/manage_object_types',
+                    href: '/admin/content/objects/types',
                     access: ACCESS_EDITOR
                 }
             ]
@@ -128,7 +128,7 @@ function getDefaultNavigation() {
                     id: 'manage',
                     title: 'MANAGE',
                     icon: 'users',
-                    href: '/admin/users/manage_users',
+                    href: '/admin/users',
                     access: ACCESS_EDITOR
                 },
                 {
@@ -151,7 +151,7 @@ function getDefaultNavigation() {
                     id: 'site_settings',
                     title: 'SITE_SETTINGS',
                     icon: 'cog',
-                    href: '/admin/site_settings/configuration',
+                    href: '/admin/site_settings',
                     access: ACCESS_MANAGING_EDITOR
                 },
                 {

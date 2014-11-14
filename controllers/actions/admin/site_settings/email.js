@@ -19,37 +19,32 @@
  * Saves the site's email settings
  */
 
-//dependencies
-var BaseController = pb.BaseController;
-
 function Email(){}
 
 //inheritance
-util.inherits(Email, pb.FormController);
+util.inherits(Email, pb.BaseController);
 
-Email.prototype.onPostParamsRetrieved = function(post, cb) {
+Email.prototype.render = function(cb) {
 	var self = this;
 
-	delete post.layout_link_url;
-    delete post.media_max_height;
+    this.getJSONPostParams(function(err, post) {
+	    pb.settings.set('email_settings', post, function(data) {
+	        if(util.isError(data)) {
+	            cb({
+					code: 500,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+				});
+	            return;
+	        }
 
-    post = pb.DocumentCreator.formatIntegerItems(post, ['secure_connection', 'port']);
-    self.setFormFieldValues(post);
-
-    pb.settings.set('email_settings', post, function(data) {
-        if(util.isError(data)) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/site_settings/content', cb);
-            return;
-        }
-
-        self.session.success = self.ls.get('EMAIL_SETTINGS') + ' ' +  self.ls.get('EDITED');
-        self.redirect('/admin/site_settings/email', cb);
-    });
+			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('EMAIL_SETTINGS') + ' ' +  self.ls.get('EDITED'))});
+	    });
+	});
 };
 
 Email.prototype.getSanitizationRules = function() {
 	return {
-		verification_content: BaseController.getContentSanitizationRules()
+		verification_content: pb.BaseController.getContentSanitizationRules()
 	};
 };
 

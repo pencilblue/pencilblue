@@ -22,60 +22,70 @@
 function EditUser(){}
 
 //inheritance
-util.inherits(EditUser, pb.FormController);
+util.inherits(EditUser, pb.BaseController);
 
-EditUser.prototype.onPostParamsRetrieved = function(post, cb) {
+EditUser.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-	pb.utils.merge(vars, post);
+	this.getJSONPostParams(function(err, post) {
+	    var message = self.hasRequiredParams(post, self.getRequiredFields());
+	    if(message) {
+	        cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+			});
+	        return;
+	    }
 
-    post.photo = post.uploaded_image;
-    delete post.uploaded_image;
-    delete post.image_url;
+	    if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
+			cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+			});
+			return;
+	    }
 
-    var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if(message) {
-        this.formError(message, '/admin/users/manage_users', cb);
-        return;
-    }
+	    var dao = new pb.DAO();
+	    dao.loadById(vars.id, 'user', function(err, user) {
+	        if(util.isError(err) || user === null) {
+	            cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+				});
+	            return;
+	        }
 
+			delete post._id;
+	        pb.DocumentCreator.update(post, user);
 
-    if(!pb.security.isAuthorized(this.session, {admin_level: post.admin})) {
-        this.formError(request, session, self.ls.get('INSUFFICIENT_CREDENTIALS'), '/admin/users/manage_users', cb);
-        return;
-    }
+	        pb.users.isUserNameOrEmailTaken(user.username, user.email, vars.id, function(err, isTaken) {
+	            if(util.isError(err) || isTaken) {
+					cb({
+						code: 400,
+						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
+					});
+	                return;
+	            }
 
-    var dao = new pb.DAO();
-    dao.loadById(post.id, 'user', function(err, user) {
-        if(util.isError(err) || user === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/manage_users', cb);
-            return;
-        }
+	            dao.update(user).then(function(result) {
+	                if(util.isError(result)) {
+	                    cb({
+							code: 500,
+							content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+						});
+	                    return;
+	                }
 
-        pb.DocumentCreator.update(post, user);
-
-        pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
-            if(util.isError(err) || isTaken) {
-                self.formError(self.ls.get('EXISTING_USERNAME'), '/admin/users/edit_user/' + vars.id, cb);
-                return;
-            }
-
-            dao.update(user).then(function(result) {
-                if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/edit_user/' + vars.id, cb);
-                    return;
-                }
-
-                self.session.success = self.ls.get('USER_EDITED');
-                self.redirect('/admin/users/manage_users', cb);
-            });
-        });
-    });
+					cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_EDITED'))});
+	            });
+	        });
+	    });
+	});
 };
 
 EditUser.prototype.getRequiredFields = function() {
-	return ['username', 'email', 'admin', 'id'];
+	return ['username', 'email', 'admin'];
 };
 
 //exports

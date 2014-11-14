@@ -30,7 +30,10 @@ DeleteTopic.prototype.render = function(cb) {
 
 	var message = this.hasRequiredParams(vars, ['id']);
 	if (message) {
-        this.formError(message, '/admin/content/topics/manage_topics', cb);
+        cb({
+			code: 400,
+			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+		});
         return;
     }
 
@@ -38,7 +41,10 @@ DeleteTopic.prototype.render = function(cb) {
 	var dao = new pb.DAO();
 	dao.loadById(vars.id, 'topic', function(err, topic) {
         if(topic === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/topics/manage_topics', cb);
+            cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+			});
             return;
         }
 
@@ -46,12 +52,14 @@ DeleteTopic.prototype.render = function(cb) {
         var where = {$or: [{_id: ObjectID(vars.id)}, {parent: vars.id}]};
         dao.deleteMatching({_id: ObjectID(vars.id)}, 'topic').then(function(result) {
         	if(result < 1) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/topics/manage_topics', cb);
+                cb({
+					code: 500,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+				});
                 return;
             }
 
-            self.session.success = topic.name + ' ' + self.ls.get('DELETED');
-            self.redirect('/admin/content/topics/manage_topics', cb);
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topic.name + ' ' + self.ls.get('DELETED'))});
         });
     });
 };

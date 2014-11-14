@@ -1,0 +1,81 @@
+^tmp_admin=head^
+<div class="col-md-9">
+	^tmp_admin=elements=error_success^
+	^tmp_admin=elements=sub_nav^
+	^tmp_admin=elements=tab_nav^
+	<form name="userForm" ng-submit="saveUser()" novalidate>
+		<fieldset>
+			<div class="tab-content">
+				<div class="tab-pane active" id="account_info">
+					<div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.username)}">
+						<label>^loc_USERNAME^</label>
+						<div class="input-group">
+							<input name="username" class="form-control" ng-model="user.username" ng-change="resetUsernameAvailability()" required></input>
+							<span class="input-group-btn">
+								<button type="button" class="btn" ng-class="{'btn-default': usernameAvailable === null, 'btn-success': usernameAvailable === true, 'btn-danger': usernameAvailable === false}" ng-click="getUsernameAvailability()" ng-disabled="!canCheckUsername()">
+									<span ng-if="usernameAvailable === null">^loc_CHECK^</span>
+									<span ng-if="usernameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
+									<span ng-if="usernameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+								</button>
+							</span>
+						</div>
+						<div class="form_error" ng-if="!isFieldValid(userForm.username)">^loc_REQUIRED_FIELD^</div>
+					</div>
+					<div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.email)}">
+						<label>^loc_EMAIL^</label>
+						<input type="email" name="email" class="form-control" ng-model="user.email" required></input>
+						<div class="form_error" ng-if="!isFieldValid(userForm.email)">^loc_REQUIRED_FIELD^</div>
+					</div>
+					<div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.admin)}">
+						<label>^loc_USER_TYPE^</label>
+						<select name="admin" class="form-control" ng-model="user.admin" ng-options="adminOption.value as adminOption.name for adminOption in adminOptions" required></select>
+						<div class="form_error" ng-if="!isFieldValid(userForm.admin)">^loc_REQUIRED_FIELD^</div>
+					</div>
+					<div ng-if="!user._id">
+						<div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.password)}">
+							<label>^loc_PASSWORD^</label>
+							<div class="input-group">
+								<input type="password" name="password" class="form-control" autocomplete="off" ng-model="user.password" ng-change="checkPasswordMatch()" required></input>
+								<span class="input-group-btn">
+									<button class="btn btn-default" type="button" ng-click="generatePassword()">^loc_GENERATE^...</button>
+								</span>
+							</div>
+							<div class="form_error" ng-if="!isFieldValid(userForm.password)">^loc_REQUIRED_FIELD^</div>
+						</div>
+						<div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.confirm_password)}">
+							<label>^loc_CONFIRM_PASSWORD^</label>
+							<div class="input-group">
+								<input type="{{getPasswordInputType()}}" name="confirm_password" class="form-control" autocomplete="off" ng-model="user.confirm_password" ng-change="checkPasswordMatch()" ng-keyup="resetPasswordGenerated()" required></input>
+								<span class="input-group-addon">
+									<i class="fa fa-thumbs-down" ng-class="{'fa-thumbs-down': !passwordMatch, 'fa-thumbs-up': passwordMatch}" ng-style="{'color': passwordMatch ? '#00AA00' : '#AA0000'}"></i>
+								</span>
+							</div>
+							<div class="form_error" ng-if="!isFieldValid(userForm.confirm_password)">^loc_REQUIRED_FIELD^</div>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane" id="personal_info">
+					<div class="form-group">
+						<label>^loc_FIRST_NAME^</label>
+						<input type="text" class="form-control" ng-model="user.first_name"></input>
+					</div>
+					<div class="form-group">
+						<label>^loc_LAST_NAME^</label>
+						<input type="text" class="form-control" ng-model="user.last_name"></input>
+					</div>
+					<div class="form-group">
+						<label>^loc_POSITION^</label>
+						<input type="text" class="form-control" ng-model="user.position"></input>
+					</div>
+					^tmp_admin=elements=upload_and_link_photo^
+				</div>
+				<a class="btn btn-default" href="/admin/users">
+					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+				</a>
+				^tmp_admin=elements=save_button^
+			</div>
+		</fieldset>
+	</form>
+</div>
+^tmp_angular=admin=users=user_form^
+^tmp_admin=footer^

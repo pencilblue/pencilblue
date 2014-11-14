@@ -1,0 +1,22 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    <div style="min-height: 50px; margin-bottom: 1em" ng-model="customObjects" data-as-sortable="board.dragControlListeners" is-enabled="true">
+        <div class="panel panel-default draggable_item" ng-repeat="customObject in customObjects track by customObject._id" data-as-sortable-item>
+            <div class="panel-heading">
+                <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
+                <span ng-bind="customObject.name"></span>
+                <span ng-bind="'- ' + customObject.description" ng-if="customObject.description"></span>
+            </div>
+        </div>
+    </div>
+    <a class="btn btn-default" ng-href="/admin/content/objects/{{objectType._id}}">
+        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+    </a>
+    <button type="button" class="btn btn-primary" ng-click="saveSorting()">
+        <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+    </button>
+</div>
+^tmp_angular=admin=content=objects=sort_objects^
+^tmp_admin=footer^

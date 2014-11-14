@@ -21,9 +21,6 @@
 
 function ManageTopics() {}
 
-//dependencies
-var Topics = require('../topics');
-
 //inheritance
 util.inherits(ManageTopics, pb.BaseController);
 
@@ -39,7 +36,7 @@ ManageTopics.prototype.render = function(cb) {
 
 		//none to manage
         if(topics.length === 0) {
-            self.redirect('/admin/content/topics/new_topic', cb);
+            self.redirect('/admin/content/topics/new', cb);
             return;
         }
 
@@ -52,15 +49,16 @@ ManageTopics.prototype.render = function(cb) {
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
 
-        var angularData = pb.js.getAngularController(
+        var angularObjects = pb.js.getAngularObjects(
         {
             navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
             topics: topics
-        }, [], 'initTopicsPagination()');
+        });
 
         self.setPageName(self.ls.get('MANAGE_TOPICS'));
-        self.ts.registerLocal('angular_script', angularData);
+        self.ts.registerLocal('angular_script', '');
+		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/topics/manage_topics', function(err, data) {
             var result = '' + data;
             cb({content: result});
@@ -69,15 +67,22 @@ ManageTopics.prototype.render = function(cb) {
 };
 
 ManageTopics.getSubNavItems = function(key, ls, data) {
-	var pills = Topics.getPillNavOptions();
-	pills.unshift(
-    {
-        name: SUB_NAV_KEY,
-        title: ls.get('MANAGE_TOPICS'),
-        icon: 'refresh',
-        href: '/admin/content/topics/manage_topics'
-    });
-    return pills;
+	return [{
+		name: SUB_NAV_KEY,
+		title: ls.get('MANAGE_TOPICS'),
+		icon: 'refresh',
+		href: '/admin/content/topics'
+	}, {
+		name: 'import_topics',
+		title: '',
+		icon: 'upload',
+		href: '/admin/content/topics/import'
+	}, {
+		name: 'new_topic',
+		title: '',
+		icon: 'plus',
+		href: '/admin/content/topics/new'
+	}];
 };
 
 //register admin sub-nav
