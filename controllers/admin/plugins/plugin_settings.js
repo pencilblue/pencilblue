@@ -19,18 +19,18 @@
 * Interface for changing a plugin's settings
 */
 
-function PluginSettingsController(){}
+function PluginSettings(){}
 
 //dependencies
 var BaseController = pb.BaseController;
 
 //inheritance
-util.inherits(PluginSettingsController, BaseController);
+util.inherits(PluginSettings, BaseController);
 
 //statics
 var SUB_NAV_KEY = 'plugin_settings';
 
-PluginSettingsController.prototype.render = function(cb) {
+PluginSettings.prototype.render = function(cb) {
 	if (this.req.method !== 'GET' && this.req.method !== 'POST') {
 		var data = {
 			code: 405,
@@ -49,7 +49,7 @@ PluginSettingsController.prototype.render = function(cb) {
 		this.renderGet(cb);
 		break;
 	case 'POST':
-		this.getPostParams(function(err, post) {
+		this.getJSONPostParams(function(err, post) {
 			self.renderPost(post, cb);
 		});
 		break;
@@ -58,7 +58,7 @@ PluginSettingsController.prototype.render = function(cb) {
 	}
 };
 
-PluginSettingsController.prototype.renderGet = function(cb) {
+PluginSettings.prototype.renderGet = function(cb) {
 	var self = this;
 
 	var uid = this.pathVars.id;
@@ -110,59 +110,47 @@ PluginSettingsController.prototype.renderGet = function(cb) {
 			];
 
 			//setup angular
-			var angularData = pb.js.getAngularController(
-	            {
-	            	pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, plugin),
-					tabs: tabs,
-	                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-	                settings: clone
-	            },
-	            []
-	        );
+			var angularObjects = pb.js.getAngularObjects({
+            	pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, plugin),
+				tabs: tabs,
+                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                settings: clone,
+				pluginUID: uid
+            });
 
 			//render page
-			self.ts.registerLocal('form_refill', function(flag, cb) {
-				self.checkForFormRefill(' ', function(refill) {
-					cb(null, refill);
-				});
-			});
-			self.ts.registerLocal('form_action', self.getFormAction(uid));
-			self.ts.registerLocal('angular_script', angularData);
-			self.ts.load('/admin/plugins/settings', function(err, data) {
-				var result = '' + data;
+			self.ts.registerLocal('angular_script', '');
+			self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+			self.ts.load('/admin/plugins/plugin_settings', function(err, result) {
 				cb({content: result});
 			});
 		});
 	});
 };
 
-PluginSettingsController.prototype.getFormAction = function(uid) {
-	return this.req.url;
-};
-
-PluginSettingsController.prototype.getPageName = function() {
+PluginSettings.prototype.getPageName = function() {
 	return this.plugin.name + ' - ' + this.ls.get('SETTINGS');
 };
 
-PluginSettingsController.prototype.getSettings = function(uid, cb) {
+PluginSettings.prototype.getSettings = function(uid, cb) {
 	pb.plugins.getSettings(uid, cb);
 };
 
-PluginSettingsController.prototype.setSettings = function(settings, uid, cb) {
+PluginSettings.prototype.setSettings = function(settings, uid, cb) {
 	pb.plugins.setSettings(settings, uid, cb);
 };
 
-PluginSettingsController.prototype.renderPost = function(post, cb) {
+PluginSettings.prototype.renderPost = function(post, cb) {
 	var self = this;
 
 	//retrieve settings
 	var uid = this.pathVars.id;
 	this.getSettings(uid, function(err, settings) {
-		if (util.isError(err)) {
-			throw err;
-		}
-		else if (settings === null) {
-			self.reqHandler.serve404();
+		if(util.isError(err) || settings === null) {
+			cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+			});
 			return;
 		}
 
@@ -171,7 +159,7 @@ PluginSettingsController.prototype.renderPost = function(post, cb) {
 
 			var currItem = settings[i];
 			var newVal   = post[currItem.name];
-			var type     = PluginSettingsController.getValueType(currItem.value);console.log(util.format('N=[%s] OV=[%s] NV=[%s] T=[%s]', currItem.name, currItem.value, newVal, type));
+			var type     = PluginSettings.getValueType(currItem.value);console.log(util.format('N=[%s] OV=[%s] NV=[%s] T=[%s]', currItem.name, currItem.value, newVal, type));
 			if (newVal === undefined || null) {
 				if (type === 'boolean') {
 					newVal = false;
@@ -183,46 +171,44 @@ PluginSettingsController.prototype.renderPost = function(post, cb) {
 			}
 
 			//validate the value
-			if (!PluginSettingsController.validateValue(newVal, type)) {
+			if (!PluginSettings.validateValue(newVal, type)) {
 				errors.push(util.format("The value [%s] for setting %s is not a valid %s", newVal, currItem.name, type));
 				continue;
 			}
 
 			//set the new value
-			currItem.value = PluginSettingsController.formatValue(newVal, type);
+			currItem.value = PluginSettings.formatValue(newVal, type);
 		}
 
 		//handle errors
-		if (errors.length > 0) {
-			self.session.error = errors.join("\n");
-			self.setFormFieldValues(post);
-			self.redirect(self.req.url, cb);
+		if(errors.length > 0) {
+			cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, errors.join("\n"))
+			});
 			return;
 		}
 
 		//persist new settings
 		self.setSettings(settings, uid, function(err, result) {
-			if (util.isError(err)) {
-				throw err;
+			if(util.isError(err) || !result) {
+				cb({
+					code: 500,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SAVE_PUGIN_SETTINGS_FAILURE'))
+				});
+				return;
 			}
 
-			//set for success and redirect
-			if (result) {
-				self.session.success = self.ls.get('SAVE_PLUGIN_SETTINGS_SUCCESS');
-			}
-			else {
-				self.session.error = self.ls.get('SAVE_PUGIN_SETTINGS_FAILURE');
-			}
-			self.redirect(self.req.url, cb);
+			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVE_PLUGIN_SETTINGS_SUCCESS'))});
 		});
 	});
 };
 
-PluginSettingsController.prototype.getBackUrl = function() {
+PluginSettings.prototype.getBackUrl = function() {
 	return '/admin/plugins/';
 };
 
-PluginSettingsController.geSubNavItems = function(key, ls, data) {
+PluginSettings.geSubNavItems = function(key, ls, data) {
 	return [
         {
             name: 'manage_plugins',
@@ -233,7 +219,7 @@ PluginSettingsController.geSubNavItems = function(key, ls, data) {
 	];
 };
 
-PluginSettingsController.getValueInputType = function(value) {
+PluginSettings.getValueInputType = function(value) {
 	var type = '';
 	if (value === true || value === false) {
 		type = 'checkbox';
@@ -247,7 +233,7 @@ PluginSettingsController.getValueInputType = function(value) {
 	return type;
 };
 
-PluginSettingsController.getValueType = function(value) {
+PluginSettings.getValueType = function(value) {
 	var type = '';
 	if (value === true || value === false) {
 		type = 'boolean';
@@ -261,7 +247,7 @@ PluginSettingsController.getValueType = function(value) {
 	return type;
 };
 
-PluginSettingsController.validateValue = function(value, type) {
+PluginSettings.validateValue = function(value, type) {
 	if (type === 'boolean') {
 		return value !== null && value !== undefined && (value === true || value === false || value === 1 || value === 0 || value == '1' || value === '0' || value.toLowerCase() === 'true' || value.toLowerCase() === 'false');
 	}
@@ -274,7 +260,7 @@ PluginSettingsController.validateValue = function(value, type) {
 	return false;
 };
 
-PluginSettingsController.formatValue = function(value, type) {
+PluginSettings.formatValue = function(value, type) {
 	if (value === null || value === undefined || type === null || type === undefined) {
 		throw new Error("Value and type must be provided");
 	}
@@ -309,7 +295,7 @@ PluginSettingsController.formatValue = function(value, type) {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsController.geSubNavItems);
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettings.geSubNavItems);
 
 //exports
-module.exports = PluginSettingsController;
+module.exports = PluginSettings;

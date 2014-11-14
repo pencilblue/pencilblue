@@ -775,7 +775,7 @@ module.exports = [
         path: "/admin/plugins/:id/settings",
         auth_required: true,
         access_level: ACCESS_ADMINISTRATOR,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'settings.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'plugin_settings.js'),
         content_type: 'text/html'
     },
     {
