@@ -145,20 +145,6 @@ module.exports = [
     },
     {
     	method: 'get',
-    	path: "/admin/users",
-    	auth_required: true,
-    	access_level: ACCESS_ADMINISTRATOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users.js'),
-    },
-    {
-    	method: 'get',
-    	path: "/admin/site_settings",
-    	auth_required: true,
-    	access_level: ACCESS_ADMINISTRATOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'site_settings.js'),
-    },
-    {
-    	method: 'get',
     	path: "/sitemap",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'sitemap.js'),
@@ -782,7 +768,7 @@ module.exports = [
         path: "/admin/plugins/:id",
         auth_required: true,
         access_level: ACCESS_ADMINISTRATOR,
-        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'details.js'),
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'plugin_details.js'),
         content_type: 'text/html'
     },
     {

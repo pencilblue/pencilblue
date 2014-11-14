@@ -19,7 +19,7 @@
 * Interface for viewing plugin details
 */
 
-function PluginDetailsController(){}
+function PluginDetails(){}
 
 //dependencies
 var BaseController = pb.BaseController;
@@ -27,12 +27,12 @@ var PluginService  = pb.PluginService;
 var LocalizationService = pb.LocalizationService;
 
 //inheritance
-util.inherits(PluginDetailsController, BaseController);
+util.inherits(PluginDetails, BaseController);
 
 //statics
 var SUB_NAV_KEY = 'plugin_details';
 
-PluginDetailsController.prototype.render = function(cb) {
+PluginDetails.prototype.render = function(cb) {
 	var self = this;
 
 	this.getDetails(this.pathVars.id, function(err, obj) {
@@ -46,29 +46,26 @@ PluginDetailsController.prototype.render = function(cb) {
 		}
 
 		//angular data
-		var angularData = pb.js.getAngularController(
-	        {
-	        	pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj),
-	            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-	            d: obj.details,
-	            status: obj.status,
-	            is_active: PluginService.isActivePlugin(obj.details.uid)
-	        },
-	        []
-	    );
+		var angularObjects = pb.js.getAngularObjects({
+        	pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj),
+            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+            d: obj.details,
+            status: obj.status,
+            is_active: PluginService.isActivePlugin(obj.details.uid)
+        });
 
 		//render page
 		self.setPageName(obj.details.name);
-		self.ts.registerLocal('plugin_icon', PluginService.genPublicPath(obj.details.uid, obj.details.icon));
-		self.ts.registerLocal('angular_script', angularData);
-		self.ts.load('/admin/plugins/details', function(err, data) {
-			var result = '' + data;
+		//self.ts.registerLocal('plugin_icon', PluginService.genPublicPath(obj.details.uid, obj.details.icon));
+		self.ts.registerLocal('angular_script', '');
+		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+		self.ts.load('/admin/plugins/plugin_details', function(err, result) {
 			cb({content: result});
 		});
 	});
 };
 
-PluginDetailsController.prototype.getDetails = function(puid, cb) {
+PluginDetails.prototype.getDetails = function(puid, cb) {
 	var self = this;
 
 	pb.plugins.getPlugin(puid, function(err, plugin) {
@@ -118,7 +115,7 @@ PluginDetailsController.prototype.getDetails = function(puid, cb) {
 	});
 };
 
-PluginDetailsController.getSubNavItems = function(key, ls, data) {
+PluginDetails.getSubNavItems = function(key, ls, data) {
 	return [
         {
             name: 'manage',
@@ -130,7 +127,7 @@ PluginDetailsController.getSubNavItems = function(key, ls, data) {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginDetailsController.getSubNavItems);
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginDetails.getSubNavItems);
 
 //exports
-module.exports = PluginDetailsController;
+module.exports = PluginDetails;
