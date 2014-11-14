@@ -136,6 +136,7 @@ var loc =
 		SECONDS_ABBR: 'Secs',
 		NO_AVAILABLE_PLUGINS: 'No available plugins',
         READ_MORE: 'Read more',
+        READ_FULL: 'Read the full story',
         THEME_DEFAULT: 'Theme Default',
         USER: 'User',
         SUBSCRIBE: 'Subscribe',

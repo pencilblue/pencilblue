@@ -49,16 +49,15 @@ AdminIndexController.prototype.render = function(cb) {
     	name = self.localizationService.get('PAGES');
     	contentInfo.push({name: name, count: data.pageCount, href: '/admin/content/pages'});
 
-    	var angularData = pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService),
-                contentInfo: contentInfo,
-                cluster: data.clusterStatus,
-                access: self.session.authentication.admin_level
-            }
-        );
+    	var angularObjects = pb.js.getAngularObjects({
+            navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService),
+            contentInfo: contentInfo,
+            cluster: data.clusterStatus,
+            access: self.session.authentication.admin_level
+        });
     	self.setPageName(self.localizationService.get('DASHBOARD'));
-        self.ts.registerLocal('angular_script', angularData);
+        self.ts.registerLocal('angular_script', '');
+		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/index', function(error, result) {
             cb({content: result});
         });
