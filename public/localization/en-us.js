@@ -158,7 +158,8 @@ var loc =
         UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
         OBJECT_NOT_FOUND: 'The requested object was not found in the system',
         REQUIRED_FIELD: 'This field is required',
-        INVALID_FILE: 'An invalid file was supplied'
+        INVALID_FILE: 'An invalid file was supplied',
+        COMPLETE: 'Complete'
     },
     error:
     {
@@ -419,7 +420,13 @@ var loc =
         MANAGE_PLUGINS: 'Manage plugins',
         NO_ACTIVE_PLUGINS: 'No active plugins',
         NO_INACTIVE_PLUGINS: 'No inactive plugins',
-        ABOUT: 'About'
+        ABOUT: 'About',
+        INSTALLING: 'Installing',
+        UNINSTALLING: 'Uninstalling',
+        RESETTING: 'Resetting',
+        INITIALIZING: 'Initializing',
+        ACTIVATING: 'Activating',
+        ACTION_ERROR: 'An error occurred while attempting to complete the action'
     },
     themes:
     {

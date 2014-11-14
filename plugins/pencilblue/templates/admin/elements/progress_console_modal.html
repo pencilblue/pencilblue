@@ -2,17 +2,27 @@
   <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-          <button type="button" onclick="javascript:window.location.reload();" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title" id="modal_label">^loc_PLEASE_WAIT^...</h4>
+          <h4 class="modal-title">
+              <span ng-if="!actionIsComplete">
+                  <span ng-if="actionType === 'install'">^loc_INSTALLING^</span>
+                  <span ng-if="actionType === 'uninstall'">^loc_UNINSTALLING^</span>
+                  <span ng-if="actionType === 'reset'">^loc_RESETTING^</span>
+                  <span ng-if="actionType === 'initialize'">^loc_INITIALIZING^</span>
+                  <span ng-if="actionType === 'set_theme'">^loc_ACTIVATING^</span>
+                  &nbsp;<span ng-bind="actionPlugin.name"></span>...
+              </span>
+              <span ng-if="actionIsComplete">^loc_COMPLETE^</span>
+          </h4>
         </div>
         <div class="modal-body loading-modal-content">
-            <div id="progress_bar" class="progress progress-striped active">
-              <div id="bar" class="progress-bar progress-bar-info" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width: 0"></div>
+            <div class="progress">
+                <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="{{actionProgress}}" aria-valuemin="0" aria-valuemax="100" ng-style="{'width': actionProgress + '%'}"></div>
             </div>
-            <textarea id="progress_console" rows="5" wrap="off"></textarea>
+            <textarea class="progress_console" rows="5" wrap="off" ng-bind="consoleOutput" ng-if="consoleOutput.length"></textarea>
+            <div class="alert alert-danger" ng-if="actionError">^loc_ACTION_ERROR^: <span ng-bind="actionError"></span></div>
         </div>
-        <div id="progress_footer" class="modal-footer">
-            <button class="btn btn-default" onclick="javascript:window.location.reload();" data-dismiss="modal"><i class="fa fa-check"></i>&nbsp;^loc_OK^</div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="refreshPage()" ng-disabled="!actionIsComplete"><i class="fa fa-check"></i>&nbsp;^loc_OK^</div>
         </div>
     </div>
   </div>

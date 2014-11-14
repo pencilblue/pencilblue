@@ -19,18 +19,18 @@
 * Interface for managing plugins
 */
 
-function PluginsIndex(){}
+function ManagePlugins(){}
 
 //dependencies
 var BaseController = pb.BaseController;
 
 //inheritance
-util.inherits(PluginsIndex, BaseController);
+util.inherits(ManagePlugins, BaseController);
 
 //statics
-var SUB_NAV_KEY = 'plugins_index';
+var SUB_NAV_KEY = 'manage_plugins';
 
-PluginsIndex.prototype.render = function(cb) {
+ManagePlugins.prototype.render = function(cb) {
 	var self = this;
 
 	//get the data
@@ -41,27 +41,24 @@ PluginsIndex.prototype.render = function(cb) {
 		}
 
 		//setup angular
-		var angularData = pb.js.getAngularController(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-				pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
-                installedPlugins: map.active,
-                inactivePlugins: map.inactive,
-                availablePlugins: map.available
-            },
-            []
-        );
+		var angularObjects = pb.js.getAngularObjects({
+            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+			pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
+            installedPlugins: map.active,
+            inactivePlugins: map.inactive,
+            availablePlugins: map.available
+        });
 
 		//load the template
-		self.ts.registerLocal('angular_script', angularData);
-		self.ts.load('/admin/plugins/index', function(err, data) {
-			var result = '' + data;
+		self.ts.registerLocal('angular_script', '');
+		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+		self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
 			cb({content: result});
 		});
 	});
 };
 
-PluginsIndex.getSubNavItems = function(key, ls, data) {
+ManagePlugins.getSubNavItems = function(key, ls, data) {
 	return [
         {
 			name: 'manage_plugins',
@@ -73,7 +70,7 @@ PluginsIndex.getSubNavItems = function(key, ls, data) {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginsIndex.getSubNavItems);
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManagePlugins.getSubNavItems);
 
 //exports
-module.exports = PluginsIndex;
+module.exports = ManagePlugins;

@@ -246,43 +246,13 @@ module.exports = [
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'user', 'verification_sent.js'),
     	content_type: 'text/html'
     },
-    {
-    	method: 'get',
-    	path: "/admin/plugins",
-    	auth_required: true,
-    	access_level: ACCESS_ADMINISTRATOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'index.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/api/plugins/:action/:id",
-    	auth_required: true,
-    	access_level: ACCESS_ADMINISTRATOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'plugins', 'plugin_api.js'),
-    	content_type: 'application/json'
-    },
+
     {
     	method: 'get',
     	path: "/admin/users/permissions",
     	auth_required: true,
     	access_level: ACCESS_ADMINISTRATOR,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'users', 'permissions.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/plugins/view/:id",
-    	auth_required: true,
-    	access_level: ACCESS_ADMINISTRATOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'details.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	path: "/admin/plugins/settings/:id",
-    	auth_required: true,
-    	access_level: ACCESS_ADMINISTRATOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'settings.js'),
     	content_type: 'text/html'
     },
     {
@@ -796,6 +766,39 @@ module.exports = [
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'content', 'objects', 'delete_object.js'),
         content_type: 'text/html'
+    },
+
+    // PLUGINS
+    {
+        method: 'get',
+        path: "/admin/plugins",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'manage_plugins.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'get',
+        path: "/admin/plugins/:id",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'details.js'),
+        content_type: 'text/html'
+    },
+    {
+        path: "/admin/plugins/:id/settings",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'plugins', 'settings.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/api/plugins/:action/:id",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'plugins', 'plugin_api.js'),
+        content_type: 'application/json'
     },
 
     // USERS
