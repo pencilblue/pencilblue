@@ -1,0 +1,68 @@
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['uploadPhoto'])
+    .controller('PencilBlueController', function($scope, $rootScope, $http, $window) {
+        ^angular_objects^
+
+        $rootScope.photoValue = $scope.siteLogo;
+
+        $scope.pluginAction = function(actionType, pluginUID) {
+            for(var i = 0; i < $scope.options.length; i++) {
+                if($scope.options[i].uid === pluginUID) {
+                    $scope.actionPlugin = $scope.options[i];
+                    break;
+                }
+            }
+            if(!$scope.actionPlugin) {
+                return;
+            }
+
+            $scope.actionType = actionType;
+            $scope.actionProgress = '0';
+            $scope.consoleOutput = '';
+            $('#progress_modal').modal({});
+
+            $http.post("/api/plugins/" + actionType + "/" + encodeURIComponent($scope.actionPlugin.uid))
+            .success(function(result) {
+                $scope.onActionSuccess(result);
+            })
+            .error(function(error, status) {
+                $scope.onActionFailure(error);
+            });
+        };
+
+        $scope.jobAction = function(actionType, identifier, data, cb) {
+            $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
+            .success(function(result) {
+                cb(result);
+            })
+            .error(function(error, status) {
+                $scope.onActionFailure(error);
+            });
+        };
+
+        $scope.onActionSuccess = function() {
+            $scope.actionIsComplete = true;
+        }
+
+        $scope.onActionFailure = function(error) {
+            $scope.actionIsComplete = true;
+            $scope.actionError = error.message;
+        }
+
+        $scope.refreshPage = function() {
+            $window.location.reload();
+        }
+
+        $scope.saveSiteLogo = function() {
+            $http.post('/actions/admin/themes/site_logo', {site_logo: $scope.photoValue})
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
+            });
+        }
+    });
+</script>

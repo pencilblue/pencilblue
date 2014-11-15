@@ -242,28 +242,6 @@ module.exports = [
     	content_type: 'text/html'
     },
     {
-    	path: "/admin/themes/settings/:id",
-    	auth_required: true,
-    	access_level: ACCESS_ADMINISTRATOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'themes', 'settings.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'get',
-    	path: "/admin/themes",
-    	auth_required: true,
-    	access_level: ACCESS_ADMINISTRATOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'themes', 'index.js'),
-    	content_type: 'text/html'
-    },
-    {
-    	method: 'post',
-    	path: "/actions/admin/themes",
-    	auth_required: true,
-    	access_level: ACCESS_ADMINISTRATOR,
-    	controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'themes', 'index.js'),
-    },
-    {
     	path: "/api/content/get_articles",
     	auth_required: false,
     	controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'content', 'get_articles.js'),
@@ -785,6 +763,30 @@ module.exports = [
         access_level: ACCESS_ADMINISTRATOR,
         controller: path.join(DOCUMENT_ROOT, 'controllers', 'api', 'plugins', 'plugin_api.js'),
         content_type: 'application/json'
+    },
+
+    // THEMES
+    {
+        method: 'get',
+        path: "/admin/themes",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'themes', 'manage_themes.js'),
+        content_type: 'text/html'
+    },
+    {
+        path: "/admin/themes/:id/settings",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'admin', 'themes', 'settings.js'),
+        content_type: 'text/html'
+    },
+    {
+        method: 'post',
+        path: "/actions/admin/themes/site_logo",
+        auth_required: true,
+        access_level: ACCESS_ADMINISTRATOR,
+        controller: path.join(DOCUMENT_ROOT, 'controllers', 'actions', 'admin', 'themes', 'site_logo.js'),
     },
 
     // USERS
