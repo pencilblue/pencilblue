@@ -57,7 +57,6 @@
 					$http.post('/actions/admin/content/articles', articleData)
 					.success(function(result) {
 						$scope.successMessage = result.message;
-						$scope.article.last_modified = result.data.last_modified;
 						$scope.saving = false;
 						$window.location = '/admin/content/articles/' + result.data._id.toString();
 					})

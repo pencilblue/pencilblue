@@ -9,7 +9,7 @@
                 <div class="tab-pane active" id="section_settings">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(navItemForm.type)}">
                         <label for="type">^loc_TYPE^</label>
-                        <select name="type" class="form-control" ng-model="navItem.type" ng-options="type.value as type.label for type in types" required></select>
+                        <select id="content_type" name="type" class="form-control" ng-model="navItem.type" ng-options="type.value as type.label for type in types" required></select>
                         <div class="form_error" ng-if="!isFieldValid(navItemForm.type)">^loc_REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(navItemForm.name)}">

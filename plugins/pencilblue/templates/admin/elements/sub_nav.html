@@ -1,7 +1,7 @@
 <div class="sub_nav">
-    <a href="{{pill.href}}" ng-repeat="pill in pills track by pill.name" ng-cloak>
+    <a ng-href="{{pill.href}}" ng-repeat="pill in pills track by pill.name" ng-cloak>
         <button type="button" class="btn btn-primary">
-            <i class="fa fa-{{pill.icon}}"></i><span ng-if="pill.title.length > 0">&nbsp;</span>{{pill.title}}
+            <i class="fa fa-{{pill.icon}}"></i><span ng-if="pill.title.length > 0">&nbsp;</span><span ng-bind="pill.title"></span>
         </button>
     </a>
 </div>

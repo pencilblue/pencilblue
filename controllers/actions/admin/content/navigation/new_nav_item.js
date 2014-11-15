@@ -28,6 +28,8 @@ NewNavItem.prototype.render = function(cb){
     var self = this;
 
     this.getJSONPostParams(function(err, post) {
+        console.log(post);
+
         var navItem = pb.DocumentCreator.create('section', post, ['keywords'], ['parent']);
 
         //ensure a URL was provided

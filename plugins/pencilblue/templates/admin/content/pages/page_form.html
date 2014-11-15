@@ -32,7 +32,7 @@
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.headline)}">
                         <label>^loc_HEADLINE^</label>
                         <input type="text" name="headline" class="form-control" ng-model="page.headline" required></input>
-                        <div class="form_error" ng-if="!isFieldValid(articleForm.headline)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.headline)">^loc_REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
                         <label>^loc_SUBHEADING^</label>
@@ -46,7 +46,7 @@
                                 <button class="btn btn-default" type="button" ng-click="setPublishDateToNow()">^loc_NOW^</button>
                             </span>
                         </div>
-                        <div class="form_error" ng-if="!isFieldValid(articleForm.publish_date)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.publish_date)">^loc_REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
                         <label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
