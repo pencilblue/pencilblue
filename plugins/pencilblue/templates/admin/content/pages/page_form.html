@@ -11,7 +11,7 @@
                         <label>^loc_ARTICLE_URL^</label>
                         <div class="input-group">
                             <span class="input-group-addon">/page/</span>
-                            <input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" required></input>
+                            <input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" url-safe required></input>
                             <span class="input-group-btn">
                                 <button type="button" class="btn" ng-class="{'btn-default': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!page.url.length">
                                     <span ng-if="urlAvailable === null">^loc_CHECK^</span>

@@ -17,7 +17,7 @@
         };
 
         $scope.getUrlAvailability = function() {
-            $http.get('/api/url/exists_for?url=/article/' + $scope.page.url + '&type=page')
+            $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page')
             .success(function(result) {
                 $scope.urlAvailable = !result.data;
             })
@@ -131,5 +131,6 @@
 
         $('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
         $timeout($scope.savePageDraft, 30000);
-    });
+    })
+    ^tmp_angular=admin=elements=url_safe^
 </script>

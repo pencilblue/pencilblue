@@ -80,6 +80,7 @@ NavItemForm.prototype.gatherData = function(vars, cb) {
                     return;
                 }
 
+                parents.unshift({_id: '', name: ''});
                 callback(null, parents);
             });
         },
