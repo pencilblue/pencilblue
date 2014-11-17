@@ -13,6 +13,10 @@
         };
         setItem = $scope.setItem;
 
+        $scope.setNavItemValue = function(key, value) {
+            $scope.navItem[key] = value;
+        }
+
         $scope.saveNavItem = function() {
             $scope.formSubmitted = true;
 
@@ -62,6 +66,7 @@
                 case 'link':
                     saveObject.parent = $scope.navItem.parent;
                     saveObject.link = $scope.navItem.link;
+                    saveObject.new_tab = $scope.navItem.new_tab === true;
                     break;
                 default:
                     break;

@@ -56,6 +56,13 @@
                             <input type="text" name="link" class="form-control" ng-model="navItem.link" required></input>
                             <div class="form_error" ng-if="!isFieldValid(navItemForm.link)">^loc_REQUIRED_FIELD^</div>
                         </div>
+                        <div class="form-group">
+                            <label>^loc_LINK_IN_TAB^</label><br/>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default" ng-class="{'active': navItem.new_tab}" ng-click="setNavItemValue('new_tab', true)">^loc_YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !navItem.new_tab}" ng-click="setNavItemValue('new_tab', false)">^loc_NO^</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/content/navigation">
