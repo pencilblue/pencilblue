@@ -553,6 +553,9 @@ MediaService.prototype.getMediaThumb = function(type, location, cb) {
         case 'storify':
             cb(null, '');
             break;
+        case 'kickstarter':
+            cb(null, '');
+            break;
         default:
             cb(null, '');
             break;
@@ -720,6 +723,8 @@ MediaService.getMediaIcon = function(mediaType) {
             return 'key fa-flip-horizontal';
         case 'storify':
             return 'arrow-circle-right';
+        case 'kickstarter':
+            return 'dollar';
         default:
             return 'question';
     }
@@ -755,6 +760,8 @@ MediaService.getMediaLink = function(mediaType, mediaLocation, isFile) {
             return 'https://trinket.io/embed/' + mediaLocation;
         case 'storify':
             return 'http://storify.com/' + mediaLocation;
+        case 'kickstarter':
+            return 'http://kickstarter.com/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':

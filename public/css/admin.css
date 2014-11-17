@@ -372,6 +372,10 @@ form .error
     color: #B3B3B3;
 }
 
+.embed-responsive iframe {
+    border: none;
+}
+
 .topic a
 {
     color: #FFFFFF;

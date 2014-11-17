@@ -58,12 +58,11 @@ MediaService.getMediaEmbed = function(mediaObject, options) {
         case 'slideshare':
             return '<iframe src="http://www.slideshare.net/slideshow/embed_code/' + mediaObject.location + '" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" allowfullscreen></iframe>';
         case 'trinket':
-            if(mediaObject.location.indexOf('/') === -1) {
-                return '<iframe src="https://trinket.io/embed/python/' + mediaObject.location + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>';
-            }
             return '<iframe src="https://trinket.io/embed/' + mediaObject.location + '" width="600" height="400" frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>';
         case 'storify':
             return '<iframe src="//storify.com/' + mediaObject.location + '/embed?header=false&border=false" width="100%" height="750" frameborder="0" allowtransparency="true"></iframe>';
+        case 'kickstarter':
+            return '<iframe src="https://www.kickstarter.com/' + mediaObject.location + '/widget/video.html" width="500" height="281" frameborder="0" scrolling="no"></iframe>';
     }
 };
 
@@ -95,7 +94,7 @@ MediaService.getMediaStyle = function(template, styleString, mediaType) {
                 break;
         }
     }
-    
+
     if(mediaType === 'storify') {
         embedCSS.push('width: 100%');
     }

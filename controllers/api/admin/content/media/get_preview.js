@@ -98,6 +98,9 @@ GetMediaPreview.prototype.getPreviewByType = function(type, location, cb) {
         case 'storify':
             preview = responsiveEmbed.split('^iframe^').join('<iframe class="embed-responsive-item" src="//storify.com/' + location + '/embed?header=false&border=false"></iframe>');
             break;
+        case 'kickstarter':
+            preview = responsiveEmbed.split('^iframe^').join('<iframe class="embed-responsive-item" src="https://www.kickstarter.com/' + location + '/widget/video.html" scrolling="no"></iframe>');
+            break;
         default:
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('UNSUPPORTED_MEDIA'))});
             return;

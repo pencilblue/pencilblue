@@ -77,9 +77,6 @@ GetMediaLink.prototype.render = function(cb) {
     else if(get.url.indexOf('storify.com') !== -1) {
         self.getStorify(get.url, cb);
     }
-    else if(get.url.indexOf('gist.github.com') !== -1) {
-        self.getGist(get.url, cb);
-    }
     else if(get.url.indexOf('kickstarter.com') !== -1) {
         self.getKickstarter(get.url, cb);
     }
@@ -279,23 +276,6 @@ GetMediaLink.prototype.getStorify = function(url, cb) {
 
     var mediaId = url.substr(url.indexOf('storify.com') + 12);
     this.mediaOutput('storify', mediaId, '', cb);
-};
-
-GetMediaLink.prototype.getGist = function(url, cb) {
-    if(url.indexOf('/') === -1) {
-        cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_MEDIA_URL'))
-        });
-        return;
-    }
-
-    var mediaId = url.substr(url.indexOf('gist.github.com') + 15);
-    if(mediaId.indexOf('?') != -1)
-    {
-        mediaId = mediasId.substr(0, videoId.indexOf('?'));
-    }
-    this.mediaOutput('gist', mediaId, '', cb);
 };
 
 GetMediaLink.prototype.getKickstarter = function(url, cb) {
