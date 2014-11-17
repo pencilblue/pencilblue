@@ -79,9 +79,9 @@ UrlService.prototype.existsForType = function(params, cb) {
 	if (url.charAt(url.length - 1) === '/') {
 		url = url.substring(0, url.length - 1);
 	}
-	var pattern = "^\\/{0,1}" + pb.utils.escapeRegExp(url) + "\\/{0,1}$";
+	//var pattern = "^\\/{0,1}" + pb.utils.escapeRegExp(url) + "\\/{0,1}$";
 
-	var where = {url: new RegExp(pattern)};
+	var where = {url: url};
 	if (id) {
 		try {
 			where._id = {$ne: new ObjectID(id+'')};
