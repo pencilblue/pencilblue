@@ -1015,7 +1015,7 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 		return;
 	}
 
-	pb.log.info("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
+	pb.log.debug("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
 
 	var details = null;
 	var tasks   = [
@@ -1111,10 +1111,10 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 
          //call plugin's onStartup function
          function(callback) {
-             pb.log.info('PluginService:[INIT] Attempting to call onStartup function for %s.', details.uid);
+             pb.log.debug('PluginService:[INIT] Attempting to call onStartup function for %s.', details.uid);
 
         	var mainModule = ACTIVE_PLUGINS[details.uid].main_module;
-        	if (typeof mainModule.onStartup === 'function') {
+        	if (pb.utils.isFunction(mainModule.onStartup)) {
 
                 var timeoutProtect = setTimeout(function() {
 
@@ -1201,7 +1201,9 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
 		}
 
 		//callback with final result
-		cb(err, !util.isError(err));
+        var success = !util.isError(err);
+        pb.log.info('PluginService: Initialized plugin %s (%s). RESULT=[%s]', plugin.name, plugin.uid, success);
+		cb(err, success);
 	});
 };
 

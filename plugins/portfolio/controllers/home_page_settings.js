@@ -9,7 +9,6 @@ function HomePageSettings() {}
 
 //dependencies
 var PluginService = pb.PluginService;
-var Media = require(DOCUMENT_ROOT + '/controllers/admin/content/media.js');
 
 //inheritance
 util.inherits(HomePageSettings, pb.BaseController);
@@ -67,7 +66,8 @@ HomePageSettings.prototype.render = function(cb) {
             self.checkForFormRefill(result, function(newResult) {
                 result = newResult;
 
-                Media.getAll(function(media) {
+                var service = new pb.MediaService();
+                service.get(function(media) {
                     var objects = {
                         navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                         pills: pills,
