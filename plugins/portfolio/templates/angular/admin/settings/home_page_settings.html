@@ -1,0 +1,39 @@
+<script type="text/javascript">
+	angular.module('pencilblueApp', ['uploadPhoto', 'inlineMedia'])
+	.controller('PencilBlueController', function($scope, $rootScope, $sce, $http) {
+		^angular_objects^
+
+		$scope.layout = $sce.trustAsHtml($scope.homePageSettings.page_layout);
+		$scope.editingObject = $scope.homePageSettings;
+		$scope.variablePrefix = 'page';
+		$rootScope.photoValue = $scope.homePageSettings.home_page_hero || null;
+
+		$scope.saveHomePage = function() {
+
+			$scope.homePageSettings.home_page_hero = $rootScope.photoValue;
+
+			var media = [];
+			for(var i = 0; i < $scope.homePageSettings.page_media.length; i++) {
+				media.push($scope.homePageSettings.page_media[i]._id.toString());
+			}
+			$scope.homePageSettings.page_media = media;
+
+			var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
+			getWYSIWYGLayout(wysId, function(layout) {
+				$scope.homePageSettings.page_layout = layout;
+
+				$scope.saving = true;
+
+				$http.post('/actions/admin/plugins/settings/portfolio/home_page', $scope.homePageSettings)
+				.success(function(result) {
+					$scope.successMessage = result.message;
+					$scope.saving = false;
+				})
+				.error(function(error, status) {
+					$scope.errorMessage = error.message;
+					$scope.saving = false;
+				});
+			});
+		};
+	});
+</script>
