@@ -155,7 +155,7 @@ pb.MediaService    = require(path.join(DOCUMENT_ROOT, '/include/service/entities
 //content services
 pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
 pb.TopMenuService = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
-pb.ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service.js'));
+pb.ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service.js')).ArticleService;
 
 //Export system object
 module.exports = pb;
