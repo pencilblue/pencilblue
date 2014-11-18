@@ -128,7 +128,7 @@ ManageComments.getSubNavItems = function(key, ls, data) {
         name: SUB_NAV_KEY,
         title: ls.get('MANAGE_COMMENTS'),
         icon: 'refresh',
-        href: '/admin/content/comments/manage_comments'
+        href: '/admin/content/comments'
     }];
 };
 
