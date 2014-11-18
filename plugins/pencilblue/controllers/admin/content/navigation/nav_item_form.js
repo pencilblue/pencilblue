@@ -47,6 +47,9 @@ NavItemForm.prototype.render = function(cb) {
         }
 
         self.navItem = data.navItem;
+        var contentSearchValue = self.navItem.contentSearchValue ? self.navItem.contentSearchValue.toString() : '';
+        delete self.navItem.contentSearchValue;
+        
         data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
         var angularObjects = pb.js.getAngularObjects(data);
 
@@ -55,7 +58,7 @@ NavItemForm.prototype.render = function(cb) {
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.registerLocal('content_type', '{{section.type}}');
         self.ts.registerLocal('selection_id_field', 'item');
-        self.ts.registerLocal('content_search_value', '');
+        self.ts.registerLocal('content_search_value', contentSearchValue ? contentSearchValue : '');
         self.ts.load('admin/content/navigation/nav_item_form', function(err, result) {
             cb({content: result});
         });
@@ -117,7 +120,18 @@ NavItemForm.prototype.gatherData = function(vars, cb) {
 
             var dao = new pb.DAO();
             dao.loadById(vars.id, 'section', function(err, navItem) {
-                callback(err, navItem);
+                if(!navItem.item) {
+                    callback(err, navItem);
+                    return;
+                }
+
+                dao.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
+                    if(articleOrPage) {
+                        navItem.contentSearchValue = articleOrPage.headline;
+                    }
+
+                    callback(err, navItem);
+                });
             });
         }
     };

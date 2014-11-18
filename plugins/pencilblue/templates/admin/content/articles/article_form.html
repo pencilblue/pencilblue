@@ -90,18 +90,18 @@
 				</button>
 				<span ng-if="article.draft">&nbsp;</span>
 				<div class="btn-group dropup">
-					<button type="button" class="btn btn-primary" ng-click="saveArticle()" ng-if="!article.draft" ng-disabled="savingArticle">
+					<button type="button" class="btn btn-primary" ng-click="saveArticle()" ng-if="!article.draft && article._id" ng-disabled="savingArticle">
 						<i class="fa" ng-class="{'fa-save': !savingArticle, 'fa-circle-o-notch fa-spin': savingArticle}"></i>&nbsp;^loc_SAVE^
 					</button>
-					<button id="save_draft_button" type="button" class="btn btn-primary" ng-click="saveArticle(true)" ng-if="article.draft" ng-disabled="savingArticle">
+					<button id="save_draft_button" type="button" class="btn btn-primary" ng-click="saveArticle(true)" ng-if="article.draft || !article._id" ng-disabled="savingArticle">
 						<i class="fa" ng-class="{'fa-save': !savingArticle, 'fa-circle-o-notch fa-spin': savingArticle}"></i>&nbsp;^loc_SAVE_DRAFT^
 					</button>
 					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
 						<i class="fa fa-sm fa-chevron-up"></i>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li ng-if="!article.draft"><a ng-click="saveArticle(true)">^loc_SAVE_DRAFT^</a></li>
-						<li ng-if="article.draft"><a ng-click="saveArticle()">^loc_SAVE^</a></li>
+						<li ng-if="!article.draft && article._id"><a ng-click="saveArticle(true)">^loc_SAVE_DRAFT^</a></li>
+						<li ng-if="article.draft || !article._id"><a ng-click="saveArticle()">^loc_SAVE^</a></li>
 					</ul>
 				</div>
 				<div class="spacer"></div>

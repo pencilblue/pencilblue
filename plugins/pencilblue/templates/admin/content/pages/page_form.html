@@ -87,18 +87,18 @@
                 </button>
                 <span ng-if="page.draft">&nbsp;</span>
                 <div class="btn-group dropup">
-                    <button type="button" class="btn btn-primary" ng-click="savePage()" ng-if="!page.draft" ng-disabled="savingPage">
+                    <button type="button" class="btn btn-primary" ng-click="savePage()" ng-if="!page.draft && page._id" ng-disabled="savingPage">
                         <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_SAVE^
                     </button>
-                    <button id="save_draft_button" type="button" class="btn btn-primary" ng-click="savePage(true)" ng-if="page.draft" ng-disabled="savingPage">
+                    <button id="save_draft_button" type="button" class="btn btn-primary" ng-click="savePage(true)" ng-if="page.draft || !page._id" ng-disabled="savingPage">
                         <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_SAVE_DRAFT^
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-sm fa-chevron-up"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li ng-if="!page.draft"><a ng-click="savePage(true)">^loc_SAVE_DRAFT^</a></li>
-                        <li ng-if="page.draft"><a ng-click="savePage()">^loc_SAVE^</a></li>
+                        <li ng-if="!page.draft && page._id"><a ng-click="savePage(true)">^loc_SAVE_DRAFT^</a></li>
+                        <li ng-if="page.draft || !page._id"><a ng-click="savePage()">^loc_SAVE^</a></li>
                     </ul>
                 </div>
                 <div class="spacer"></div>
