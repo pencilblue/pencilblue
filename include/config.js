@@ -460,7 +460,17 @@ var config = {
     cluster: {
         fatal_error_timeout: 2000,
         fatal_error_count: 5,
-        workers: 1
+        workers: 1,
+        
+        //The self managed flag indicates whether or not PencilBlue should 
+        //start a master process who's sole responsibility is to watch over the 
+        //child workers that it spawns.  The default, TRUE, allows for 
+        //PencilBlue to watch for failures and decide on its own whether or not 
+        //to attempt to continue.  When FALSE, PB starts as a stand alone 
+        //process.  Set to FALSE when you want to debug a single process or 
+        //when operating in a cloud environment that manages the instances on 
+        //each server.
+        self_managed: true
     },
 
     //PB supports two methods of handling SSL.  Standard point to a cert as
