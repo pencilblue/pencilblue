@@ -149,8 +149,9 @@ pb.PluginService = require(DOCUMENT_ROOT+'/include/service/entities/plugin_servi
 pb.plugins       = new pb.PluginService();
 
 //media
-pb.FsMediaProvider = require(path.join(DOCUMENT_ROOT, '/include/service/media/fs_media_provider.js'));
-pb.MediaService    = require(path.join(DOCUMENT_ROOT, '/include/service/entities/media_service.js'));
+pb.FsMediaProvider    = require(path.join(DOCUMENT_ROOT, '/include/service/media/fs_media_provider.js'));
+pb.MongoMediaProvider = require(path.join(DOCUMENT_ROOT, '/include/service/media/mongo_media_provider.js'));
+pb.MediaService       = require(path.join(DOCUMENT_ROOT, '/include/service/entities/media_service.js'));
 
 //content services
 pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
