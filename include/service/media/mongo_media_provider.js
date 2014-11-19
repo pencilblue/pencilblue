@@ -97,7 +97,7 @@ MongoMediaProvider.prototype.setStream = function(stream, mediaPath, cb) {
     });
     stream.on('end', function() {
         
-        var buffer = Buffer.concat(buffers);console.log('buff: %s', Buffer.isBuffer(buffer));
+        var buffer = Buffer.concat(buffers);
         self.set(buffer, mediaPath, cb);
     });
     stream.on('error', function(err) {
@@ -127,16 +127,7 @@ MongoMediaProvider.prototype.set = function(fileDataStrOrBuff, mediaPath, cb) {
     var db  = pb.dbm[pb.config.db.name];
     var gs  = new GridStore(db, mediaPath, 'w', opt);
     gs.open(function(err, gs) {
-        
-        gs.write(fileDataStrOrBuff, true, function(err, result) {console.log('here');
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            console.log('here2');
-            //gs.close(function(err) {console.log('here3');
-                cb(err, result);
-            //});
-        });
+        gs.write(fileDataStrOrBuff, true, cb);
     });
 };
 
