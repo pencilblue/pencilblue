@@ -460,7 +460,17 @@ var config = {
     cluster: {
         fatal_error_timeout: 2000,
         fatal_error_count: 5,
-        workers: 1
+        workers: 1,
+        
+        //The self managed flag indicates whether or not PencilBlue should 
+        //start a master process who's sole responsibility is to watch over the 
+        //child workers that it spawns.  The default, TRUE, allows for 
+        //PencilBlue to watch for failures and decide on its own whether or not 
+        //to attempt to continue.  When FALSE, PB starts as a stand alone 
+        //process.  Set to FALSE when you want to debug a single process or 
+        //when operating in a cloud environment that manages the instances on 
+        //each server.
+        self_managed: true
     },
 
     //PB supports two methods of handling SSL.  Standard point to a cert as
@@ -499,7 +509,15 @@ var config = {
         timeout: 3000
     },
 
-    //The media block specifies the options for how media is persisted.
+    //The media block specifies the options for how media is persisted.  
+    //PencilBlue provides two storage engines out of the box.  The first is 
+    //'fs' which is the regular file system.  This is the default option.  
+    //However, as soon as PB is clustered on two or more nodes this **MUST** be 
+    //changed to a different provider.  The second provider, 'mongo', is a media 
+    //storage mechanism powered by MongoDB's GridFS.  The 'mongo' provider does 
+    //support the distributed PencilBlue configuration although it is not 
+    //recommended for large scale use.  Systems that have larger or more 
+    //performant data needs should look at other plugins to support that need.
     media: {
 
         provider: 'fs',

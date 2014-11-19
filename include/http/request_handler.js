@@ -721,7 +721,7 @@ RequestHandler.prototype.parseBody = function(mimes, cb) {
         
         //we split on ';' to check for multipart encoding since it specifies a 
         //boundary
-        contentType = contentType.split(';')[0];console.log('***'+util.inspect(mimes));console.log('***'+util.inspect(contentType));
+        contentType = contentType.split(';')[0];
         if (mimes.indexOf(contentType) === -1) {
             //a type was specified but its not accepted by the controller
             //TODO return HTTP 415

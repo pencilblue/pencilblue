@@ -36,6 +36,9 @@ function MediaService(){
     if (pb.config.media.provider === 'fs') {
         this.provider = new pb.FsMediaProvider(pb.config.media.parent_dir);
     }
+    else if (pb.config.media.provider === 'mongo') {
+        this.provider = new pb.MongoMediaProvider();   
+    }
     else {
 
         var paths = [path.join(DOCUMENT_ROOT, pb.config.media.provider), pb.config.media.provider];
