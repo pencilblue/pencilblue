@@ -500,6 +500,14 @@ var config = {
     },
     
     //The media block specifies the options for how media is persisted.  
+    //PencilBlue provides two storage engines out of the box.  The first is 
+    //'fs' which is the regular file system.  This is the default option.  
+    //However, as soon as PB is clustered on two or more nodes this **MUST** be 
+    //changed to a different provider.  The second provider, 'mongo', is a media 
+    //storage mechanism powered by MongoDB's GridFS.  The 'mongo' provider does 
+    //support the distributed PencilBlue configuration although it is not 
+    //recommended for large scale use.  Systems that have larger or more 
+    //performant data needs should look at other plugins to support that need.
     media: {
         
         provider: 'fs',
