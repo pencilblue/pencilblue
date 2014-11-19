@@ -30,10 +30,13 @@ var DISCONNECTS_CNT   = 0;
 var DISCONNECTS       = [];
 
 System.onStart = function(onChildRunning) {
-    if (cluster.isMaster) {
+    if (pb.config.cluster.self_managed && cluster.isMaster) {
         System.onMasterRunning();
     }
     else {
+        if (!pb.config.cluster.self_managed) {
+            pb.log.debug('System: Running in managed mode');
+        }
         onChildRunning();
     }
 };
