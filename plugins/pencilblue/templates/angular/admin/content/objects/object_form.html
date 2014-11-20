@@ -1,23 +1,38 @@
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript" src="/js/angular/services/paginate.js"></script>
 <script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['ui.sortable', 'validation'])
-    .controller('PencilBlueController', function($scope, $sce, $http, $window, $timeout, $filter, validationService) {
+    angular.module('pencilblueApp', ['ui.sortable', 'search', 'paginate', 'validation'])
+    .controller('PencilBlueController', function($scope, $sce, $http, $window, $timeout, $filter, searchService, paginationService, validationService) {
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
 
         $scope.hideMediaButton = true;
 
-        for(var i = 0; i < $scope.objectType.fields.length; i++) {
-            if($scope.objectType.fields[i].field_type === 'boolean' && typeof $scope.customObject[$scope.objectType.fields[i].name] === 'undefined') {
-                $scope.customObject[$scope.objectType.fields[i].name] = true;
-            }
-            else if($scope.objectType.fields[i].field_type === 'date') {
-                $scope.customObject[$scope.objectType.fields[i].name] = $filter('date')($scope.customObject[$scope.objectType.fields[i].name], 'MM-dd-yyyy HH:mm');
-            }
-            else if($scope.objectType.fields[i].field_type === 'peer_object') {
-                $scope.customObject[$scope.objectType.fields[i].name] = $scope.customObject[$scope.objectType.fields[i].name] ? $scope.customObject[$scope.objectType.fields[i].name]._id.toString() : '';
-            }
+        $scope.search = function(field) {
+            searchService.search(field.searchText, field.available_objects, ['name'], function(availableObjects) {
+                field.available_objects = availableObjects;
+                $scope.paginate(field, 0);
+            });
         }
+
+        $scope.clearSearch = function(field) {
+            field.searchText = '';
+            $scope.search(field);
+        }
+
+        $scope.paginate = function(field, paginationIndex) {
+            field.paginationIndex = paginationIndex;
+
+            paginationService.paginate(field.available_objects, field.paginationIndex, field.paginationLimit, function(availableObjects, paginationPages) {
+                field.available_objects = availableObjects;
+                field.paginationPages = paginationPages;
+            })
+        }
+
+        $scope.pageButtonVisible = function(field, testIndex) {
+            return paginationService.pageButtonVisible(testIndex, field.paginationIndex, field.paginationPages);
+        };
 
         $scope.getSortListeners = function(field) {
             var active = $scope.customObject[field.name];
@@ -175,6 +190,24 @@
 
             if($scope.wysiwygFields.length) {
                 $timeout($scope.setupWysiwygFields, 100);
+            }
+        };
+
+        for(var i = 0; i < $scope.objectType.fields.length; i++) {
+            if($scope.objectType.fields[i].field_type === 'boolean' && typeof $scope.customObject[$scope.objectType.fields[i].name] === 'undefined') {
+                $scope.customObject[$scope.objectType.fields[i].name] = true;
+            }
+            else if($scope.objectType.fields[i].field_type === 'date') {
+                $scope.customObject[$scope.objectType.fields[i].name] = $filter('date')($scope.customObject[$scope.objectType.fields[i].name], 'MM-dd-yyyy HH:mm');
+            }
+            else if($scope.objectType.fields[i].field_type === 'peer_object') {
+                $scope.customObject[$scope.objectType.fields[i].name] = $scope.customObject[$scope.objectType.fields[i].name] ? $scope.customObject[$scope.objectType.fields[i].name]._id.toString() : '';
+            }
+            else if($scope.objectType.fields[i].field_type === 'child_objects') {
+                $scope.objectType.fields[i].searchText = '';
+                $scope.objectType.fields[i].paginationIndex = 0;
+                $scope.objectType.fields[i].paginationLimit = 12;
+                $scope.paginate($scope.objectType.fields[i], 0);
             }
         }
     })

@@ -69,12 +69,20 @@
                                     </div>
                                 </div>
                                 <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(field)" is-enabled="true" ng-model="field.available_objects">
-                                    <div class="panel panel-default draggable_item" ng-repeat="object in field.available_objects" data-as-sortable-item>
+                                    <div class="panel panel-default draggable_item" ng-repeat="object in field.available_objects" ng-if="!object.hidden && !object.paginated" data-as-sortable-item>
                                         <div class="panel-heading">
                                             <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
                                             <span ng-bind="object.name || object.headline"></span>
                                         </div>
                                     </div>
+
+                                    <ul class="pagination pagination-sm" ng-if="field.paginationPages.length > 1">
+                                        <li class="clickable" ng-class="{'disabled': field.paginationIndex === 0}"><a ng-click="paginate(field, 0)"><i class="fa fa-angle-double-left"></i></a></li>
+                                        <li class="clickable" ng-class="{'disabled': field.paginationIndex === 0}"><a ng-click="paginate(field, field.paginationIndex - 1)"><i class="fa fa-angle-left"></i></a></li>
+                                        <li class="clickable" ng-class="{'active': field.paginationIndex === $index}" ng-repeat="page in field.paginationPages" ng-if="pageButtonVisible(field, $index)"><a ng-click="paginate(field, $index)" ng-bind="$index + 1"></a></li>
+                                        <li class="clickable" ng-class="{'disabled': field.paginationIndex === field.paginationPages.length - 1}"><a ng-click="paginate(field, field.paginationIndex + 1)"><i class="fa fa-angle-right"></i></a></li>
+                                        <li class="clickable" ng-class="{'disabled': field.paginationIndex === field.paginationPages.length - 1}"><a ng-click="paginate(field, field.paginationPages.length - 1)"><i class="fa fa-angle-double-right"></i></a></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
