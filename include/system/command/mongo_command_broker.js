@@ -75,6 +75,9 @@ MongoCommandBroker.prototype.init = function(cb) {
 };
 
 MongoCommandBroker.prototype._verifyEntity = function(cb) {
+    var self = this;
+    
+    //check if the collection already exists
     var dao = new pb.DAO();
     dao.entityExists(COMMAND_Q_COLL, function(err, exists) {
         if (util.isError(err)) {
@@ -82,7 +85,7 @@ MongoCommandBroker.prototype._verifyEntity = function(cb) {
         }
         
         //when it exists we're done.  We'll assume that it was capped 
-        //appropriately
+        //appropriately & that it was seeded
         if (exists) {
             return cb(null, true);
         }
@@ -93,7 +96,19 @@ MongoCommandBroker.prototype._verifyEntity = function(cb) {
             size: pb.config.command.size || DEFAULT_MAX_SIZE
         };
         dao.createEntity(COMMAND_Q_COLL, options, function(err, result) {
-            cb(err, result ? true : false);
+            if (util.isError(err) || !result) {
+                return cb(err, false);
+            }
+            
+            //Unfortunately, it turns out that MongoDB won’t keep a tailable 
+            //cursor open if the collection is empty, so let’s also create a 
+            //blank document to “prime” the collection.
+            var primerCommand = {
+                type: "primer"
+            };
+            self.publish('primer', primerCommand, function(err, result) {
+                cb(err, result ? true : false);
+            });
         });
     });
 };
@@ -215,7 +230,8 @@ MongoCommandBroker.prototype.subscribe = function(channel, onCommandReceived, cb
                         if (command) {
                             self.onCommandReceived(command.channel, command);
                         }
-                        next();
+                        
+                        process.nextTick(next);
                     });
                 })();
             };
@@ -227,9 +243,9 @@ MongoCommandBroker.prototype.subscribe = function(channel, onCommandReceived, cb
             var eot = new pb.ErrorsOverTime(5, 3000, 'MongoCommandBroker: ');
             var d   = domain.create();
             d.on('error', function(err) {
-                pb.log.error('MongoCommandBroker: An error occurred while waiting for commands: %s', err.stack);
+                pb.log.error('MongoCommandBroker: An error occurred while waiting for commands: %s', err.stack || err.message);
                 pb.log.debug('MongoCommandBroker: Reconnecting to %s collection', COMMAND_Q_COLL);
-                
+
                 //ensure we are still in bounds
                 eot.throwIfOutOfBounds(err);
                 
