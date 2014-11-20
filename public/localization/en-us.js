@@ -159,7 +159,8 @@ var loc =
         OBJECT_NOT_FOUND: 'The requested object was not found in the system',
         REQUIRED_FIELD: 'This field is required',
         INVALID_FILE: 'An invalid file was supplied',
-        COMPLETE: 'Complete'
+        COMPLETE: 'Complete',
+        WYSIWYG: 'WYSIWYG'
     },
     error:
     {
@@ -362,6 +363,7 @@ var loc =
         ACTIVE_OBJECTS: 'Drag associated objects here',
         INACTIVE_OBJECTS: 'Drag unassociated objects here',
         OBJECTS: 'objects',
+        OBJECT: 'object',
         DESCRIPTION: 'Description',
         INVALID_FIELD: 'Invalid field was submitted. Make sure there are no duplicate field names or unselected field types'
     },

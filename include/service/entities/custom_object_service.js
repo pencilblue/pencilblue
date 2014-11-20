@@ -98,6 +98,7 @@ var CUST_OBJ_TYPE_PREFIX = 'custom:';
 var AVAILABLE_FIELD_TYPES = {
     'text': pb.validation.isStr,
     'number': pb.validation.isNum,
+    'wysiwyg': pb.validation.isStr,
     'boolean': pb.validation.isBool,
     'date': pb.validation.isDate,
     'peer_object': pb.validation.isIdStr,
@@ -1031,6 +1032,7 @@ CustomObjectService.setFieldTypesUsed = function(custObjTypes, ls) {
     var map                 = {};
     map.text                = ls.get('TEXT');
     map.number              = ls.get('NUMBER');
+    map.wysiwyg             = ls.get('WYSIWYG');
     map.boolean             = ls.get('BOOLEAN').toLowerCase();
     map.date                = ls.get('DATE');
     map[PEER_OBJECT_TYPE]   = ls.get('PEER_OBJECT');
@@ -1066,7 +1068,7 @@ CustomObjectService.applyOrder = function(custObjects, sortOrder) {
     }
 
     //sort by name (case-insensitive)
-    if(!pb.utils.isObject(sortOrder)) {
+    if(!pb.utils.isObject(sortOrder) || !sortOrder.sorted_objects) {
         //currently, mongo cannot do case-insensitive sorts.  We do it manually
         //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
         custObjects.sort(function(a, b) {

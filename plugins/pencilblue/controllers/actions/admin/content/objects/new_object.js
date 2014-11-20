@@ -48,6 +48,8 @@ NewObject.prototype.render = function(cb) {
 			return;
 		}
 
+		self.customObjectType = customObjectType;
+
 		self.getJSONPostParams(function(err, post) {
 			//format post object
 			for(var key in post) {
@@ -77,6 +79,17 @@ NewObject.prototype.render = function(cb) {
 			});
 		});
 	});
+};
+
+NewObject.prototype.getSanitizationRules = function() {
+	var sanitizationRules = {};
+	for(var key in self.customObjectType.fields) {
+		if(customObjectType.fields[key].field_type === 'wysiwyg') {
+			sanitizationRules[key] = pb.BaseController.getContentSanitizationRules();
+		}
+	}
+
+	return sanitizationRules;
 };
 
 //exports

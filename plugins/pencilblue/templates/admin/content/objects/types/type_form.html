@@ -26,6 +26,7 @@
                     <div class="form-group" ng-repeat="field in objectType.fields" style="border: none" data-as-sortable-item>
                         <label>
                             <span ng-if="field.field_type === 'text' || field.field_type === 'number'">^loc_VALUE^</span>
+                            <span ng-if="field.field_type === 'wysiwyg'">^loc_WYSIWYG^</span>
                             <span ng-if="field.field_type === 'boolean'">^loc_BOOLEAN^</span>
                             <span ng-if="field.field_type === 'date'">^loc_DATE^</span>
                             <span ng-if="field.field_type === 'peer_object'">^loc_PEER_OBJECT^</span>
@@ -34,7 +35,7 @@
                         <div class="input-group">
                             <span class="input-group-addon" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
                             <input type="text" name="field_{{$index}}" class="form-control" ng-model="field.name" placeholder="^loc_NAME^"></input>
-                            <div class="input-group-btn" ng-if="field.field_type !== 'date' && field.field_type !== 'boolean'">
+                            <div class="input-group-btn" ng-if="field.field_type !== 'date' && field.field_type !== 'boolean' && field.field_type !== 'wysiwyg'">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                     <span ng-bind="field.object_type || field.field_type"></span>&nbsp;<span class="caret"></span>
                                 </button>
@@ -51,24 +52,27 @@
                             </span>
                         </div>
                     </div>
-                </div>
-                <div style="margin-top: .5em">
-                    <label>^loc_ADD_FIELD^...</label><br/>
-                    <button type="button" class="btn btn-success add_field_button" ng-click="addField('value')">
-                        <i class="fa fa-keyboard-o"></i>&nbsp;^loc_VALUE^
-                    </button>
-                    <button type="button" class="btn btn-success add_field_button" ng-click="addField('boolean')">
-                        <i class="fa fa-check-square-o"></i>&nbsp;^loc_BOOLEAN^
-                    </button>
-                    <button type="button" class="btn btn-success add_field_button" ng-click="addField('date')">
-                        <i class="fa fa-calendar"></i>&nbsp;^loc_DATE^
-                    </button>
-                    <button type="button" class="btn btn-success add_field_button" ng-click="addField('peer_object')">
-                        <i class="fa fa-link"></i>&nbsp;^loc_PEER_OBJECT^
-                    </button>
-                    <button type="button" class="btn btn-success add_field_button" ng-click="addField('child_objects')">
-                        <i class="fa fa-sitemap"></i>&nbsp;^loc_CHILD_OBJECTS^
-                    </button>
+                    <div style="margin-top: .5em">
+                        <label>^loc_ADD_FIELD^...</label><br/>
+                        <button type="button" class="btn btn-success add_field_button" ng-click="addField('value')">
+                            <i class="fa fa-keyboard-o"></i>&nbsp;^loc_VALUE^
+                        </button>
+                        <button type="button" class="btn btn-success add_field_button" ng-click="addField('wysiwyg')">
+                            <i class="fa fa-edit"></i>&nbsp;^loc_WYSIWYG^
+                        </button>
+                        <button type="button" class="btn btn-success add_field_button" ng-click="addField('boolean')">
+                            <i class="fa fa-check-square-o"></i>&nbsp;^loc_BOOLEAN^
+                        </button>
+                        <button type="button" class="btn btn-success add_field_button" ng-click="addField('date')">
+                            <i class="fa fa-calendar"></i>&nbsp;^loc_DATE^
+                        </button>
+                        <button type="button" class="btn btn-success add_field_button" ng-click="addField('peer_object')">
+                            <i class="fa fa-link"></i>&nbsp;^loc_PEER_OBJECT^
+                        </button>
+                        <button type="button" class="btn btn-success add_field_button" ng-click="addField('child_objects')">
+                            <i class="fa fa-sitemap"></i>&nbsp;^loc_CHILD_OBJECTS^
+                        </button>
+                    </div>
                 </div>
                 <a class="btn btn-default" href="/admin/content/objects/types">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^

@@ -55,7 +55,10 @@ EditObject.prototype.render = function(cb) {
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                 });
+                return
             }
+
+            self.customObjectType = custObjType;
 
             self.getJSONPostParams(function(err, post) {
                 //format post fields
@@ -90,6 +93,17 @@ EditObject.prototype.render = function(cb) {
             });
         });
     });
+};
+
+EditObject.prototype.getSanitizationRules = function() {
+    var sanitizationRules = {};
+    for(var key in self.customObjectType.fields) {
+        if(customObjectType.fields[key].field_type === 'wysiwyg') {
+            sanitizationRules[key] = pb.BaseController.getContentSanitizationRules();
+        }
+    }
+
+    return sanitizationRules;
 };
 
 //exports
