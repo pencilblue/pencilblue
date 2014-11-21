@@ -535,6 +535,28 @@ var OVERRIDE_FILE_PATHS = [
 ];
 
 /**
+ * Replaces ENV entries from config objects
+ */
+var replaceEnvVariables = function(config) {
+    for (var entry in config) {
+        if (config[entry].ENV){
+            config[entry] = process.env[config[entry].ENV];
+        } else if (Array.isArray(config[entry]) && config[entry].length) {
+            // Process Array entries.
+            config[entry] = config[entry].map(function(arrEntry) {
+                if (arrEntry.ENV) {
+                    return process.env[arrEntry.ENV];
+                }
+                return arrEntry;
+            });
+        } else if (typeof config[entry] === 'object' && Object.keys(config[entry]).length) {
+            // Process object entries recursively.
+            replaceEnvVariables(config[entry]);
+        }
+    }
+};
+
+/**
  * Loads an external configuration.
  * NOTE: This should only be called once by the core code at startup.  Calling
  * this function after the server starts may cause unintended behavior across
@@ -562,6 +584,7 @@ var loadConfiguration = function() {
 
             try{
               override       = require(overrideFile);
+              replaceEnvVariables(override);
               overridesFound = true;
               break;
             }
