@@ -462,19 +462,21 @@ ArticleService.getMetaInfo = function(article, cb)
                 description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
             }
 
-            cb(keywords.join(','), description, (article.seo_title && article.seo_title.length > 0) ? article.seo_title : article.headline);
+            cb(keywords.join(','), description, (article.seo_title) ? article.seo_title : article.headline);
             return;
         }
 
         var dao  = new pb.DAO();
-        dao.query('topic', {_id: ObjectID(topics[index])}).then(function(topics) {
-            if(util.isError(topics) || topics.length == 0) {
+        dao.loadById(topics[index], 'topic', function(err, topic) {
+            if(util.isError(err) || !topic) {
+                pb.log.error('ArticleService: Failed to load topic. %s', err.stack);
+                
                 index++;
                 instance.loadTopic(index);
                 return;
             }
 
-            var topicName = topics[0].name;
+            var topicName = topic.name;
             var keywordMatch = false;
 
             for(var i = 0; i < keywords.length; i++) {
@@ -560,7 +562,7 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
         else {
             var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data));
             mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
-			mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption && data.caption.length ? '' : 'display: none');
+			mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption ? '' : 'display: none');
             mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString, data.media_type);
 
             layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);

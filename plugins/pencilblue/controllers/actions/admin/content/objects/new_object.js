@@ -50,46 +50,31 @@ NewObject.prototype.render = function(cb) {
 
 		self.customObjectType = customObjectType;
 
-		self.getJSONPostParams(function(err, post) {
-			//format post object
-			for(var key in post) {
-				if(customObjectType.fields[key] && customObjectType.fields[key].field_type === 'date') {
-					post[key] = new Date(post[key]);
-				}
-			}
-			var customObjectDocument = pb.DocumentCreator.create('custom_object', post);
+        //format the incoming object
+		var post = self.body;
+        pb.CustomObjectService.formatRawForType(post, customObjectType);
+        var customObjectDocument = pb.DocumentCreator.create('custom_object', post);
 
-			service.save(customObjectDocument, customObjectType, function(err, result) {
-				if(util.isError(err)) {
-					cb({
-						code: 500,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-					});
-					return;
-				}
-				else if(util.isArray(result) && result.length > 0) {
-					cb({
-						code: 500,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-					});
-					return;
-				}
+        //validate and persist the object
+        service.save(customObjectDocument, customObjectType, function(err, result) {
+            if(util.isError(err)) {
+                cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                });
+                return;
+            }
+            else if(util.isArray(result) && result.length > 0) {
+                cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                });
+                return;
+            }
 
-				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObjectDocument.name + ' ' + self.ls.get('CREATED'), result)});
-			});
-		});
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObjectDocument.name + ' ' + self.ls.get('CREATED'), result)});
+        });
 	});
-};
-
-NewObject.prototype.getSanitizationRules = function() {
-	var sanitizationRules = {};
-	for(var key in self.customObjectType.fields) {
-		if(customObjectType.fields[key].field_type === 'wysiwyg') {
-			sanitizationRules[key] = pb.BaseController.getContentSanitizationRules();
-		}
-	}
-
-	return sanitizationRules;
 };
 
 //exports

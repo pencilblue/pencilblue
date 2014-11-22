@@ -95,7 +95,7 @@ var CUST_OBJ_TYPE_PREFIX = 'custom:';
  * @property AVAILABLE_FIELD_TYPES
  * @type {Object}
  */
-var AVAILABLE_FIELD_TYPES = {
+var AVAILABLE_FIELD_TYPES = Object.freeze({
     'text': pb.validation.isStr,
     'number': pb.validation.isNum,
     'wysiwyg': pb.validation.isStr,
@@ -103,7 +103,7 @@ var AVAILABLE_FIELD_TYPES = {
     'date': pb.validation.isDate,
     'peer_object': pb.validation.isIdStr,
     'child_objects': pb.validation.isArray
-};
+});
 
 /**
  *
@@ -984,33 +984,42 @@ CustomObjectService.formatRawForType = function(post, custObjType) {
     for(var key in custObjType.fields) {
 
         if(custObjType.fields[key].field_type == 'number') {
-            if(post[key]) {
+            if(pb.utils.isString(post[key])) {
                 post[key] = parseFloat(post[key]);
-            }
-            if (isNaN(post[key]) || !post[key]) {
-                post[key] = null;
             }
         }
         else if(custObjType.fields[key].field_type == 'date') {
-            if(post[key]) {
+            if(pb.utils.isString(post[key])) {
+                post[key] = Date.parse(post[key]);
+            }
+            else if (!isNaN(post[key])) {
                 post[key] = new Date(post[key]);
             }
-            else {
-                post[key] = null;
+        }
+        else if (custObjType.fields[key].field_type == 'boolean') {
+            if (!pb.utils.isBoolean(post[key])) {
+             
+                if (pb.utils.isString(post[key])) {
+                    post[key] = "true" === post[key].toLowerCase();   
+                }
+                else if (!isNaN(post[key])) {
+                    post[key] = post[key] ? true : false;
+                }
             }
         }
+        else if (custObjType.fields[key].field_type == 'wysiwyg') {
+            
+            //ensure not funky script tags or iframes
+            post[key] = pb.BaseController.sanitize(post[key], pb.BaseController.getContentSanitizationRules());
+        }
         else if(custObjType.fields[key].field_type == CHILD_OBJECTS_TYPE) {
-            if(post[key]) {
+            if(pb.utils.isString(post[key])) {
                 post[key] = post[key].split(',');
-            }
-            else {
-                post[key] = [];
             }
         }
         else if (custObjType.fields[key].field_type == PEER_OBJECT_TYPE) {
-            if (!post[key]) {
-                post[key] = null;
-            }
+            //do nothing because it can only been a string ID.  Validation 
+            //should verify this before persistence. 
         }
     }
     post.type = custObjType[pb.DAO.getIdField()].toString();

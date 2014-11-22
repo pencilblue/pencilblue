@@ -30,7 +30,7 @@ EditObject.prototype.render = function(cb) {
     var self = this;
     var vars = this.pathVars;
 
-    if(!vars.type_id || !vars.id) {
+    if(!pb.validation.isIdStr(vars.type_id, true) || !pb.validation.isIdStr(vars.id, true)) {
         cb({
             code: 400,
             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
@@ -60,51 +60,45 @@ EditObject.prototype.render = function(cb) {
 
             self.customObjectType = custObjType;
 
-            self.getJSONPostParams(function(err, post) {
-                //format post fields
-                for(var key in post) {
-                    if(custObjType.fields[key] && custObjType.fields[key].field_type === 'date') {
-                        custObj[key] = new Date(post[key]);
-                        continue;
-                    }
-                    custObj[key] = post[key];
+            //format post fields
+            var post = self.body;
+            pb.CustomObjectService.formatRawForType(post, custObjType);
+            pb.utils.deepMerge(post, custObj);
+
+            //validate and persist
+            service.save(custObj, custObjType, function(err, result) {
+                if(util.isError(err)) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    });
+                    return;
+                }
+                else if(util.isArray(result) && result.length > 0) {
+                    console.log(result);
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    });
+                    return;
                 }
 
-                //validate and persist
-                service.save(custObj, custObjType, function(err, result) {
-                    if(util.isError(err)) {
-                        cb({
-                            code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                        });
-                        return;
-                    }
-                    else if(util.isArray(result) && result.length > 0) {
-                        console.log(result);
-                        cb({
-                            code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                        });
-                        return;
-                    }
-
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObj.name + ' ' + self.ls.get('EDITED'))});
-                });
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObj.name + ' ' + self.ls.get('EDITED'))});
             });
         });
     });
 };
 
-EditObject.prototype.getSanitizationRules = function() {
-    var sanitizationRules = {};
-    for(var key in self.customObjectType.fields) {
-        if(customObjectType.fields[key].field_type === 'wysiwyg') {
-            sanitizationRules[key] = pb.BaseController.getContentSanitizationRules();
-        }
-    }
-
-    return sanitizationRules;
-};
+//EditObject.prototype.getSanitizationRules = function() {
+//    var sanitizationRules = {};
+//    for(var key in self.customObjectType.fields) {
+//        if(customObjectType.fields[key].field_type === 'wysiwyg') {
+//            sanitizationRules[key] = pb.BaseController.getContentSanitizationRules();
+//        }
+//    }
+//
+//    return sanitizationRules;
+//};
 
 //exports
 module.exports = EditObject;

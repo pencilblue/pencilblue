@@ -17,43 +17,41 @@
 
 /**
  * Deletes an article
+ * @class DeleteArticleActionController
+ * @constructor
  */
-function DeleteArticle(){}
+function DeleteArticleActionController(){}
 
 //inheritance
-util.inherits(DeleteArticle, pb.BaseController);
+util.inherits(DeleteArticleActionController, pb.BaseController);
 
-DeleteArticle.prototype.render = function(cb) {
+DeleteArticleActionController.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
 
-    var message = this.hasRequiredParams(vars, ['id']);
-    if(message) {
-		cb({
+    if (!pb.validation.isIdStr(vars.id, true)) {
+		return cb({
 			code: 400,
-			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
 		});
-        return;
     }
 
     var dao = new pb.DAO();
-    dao.query('article', {_id: ObjectID(vars.id)}).then(function(articles) {
-        if(articles.length === 0) {
-			cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+    dao.loadById(vars.id, 'article', function(err, article) {
+        var isError(util.isError(err));
+        if(isError || !article) {
+			return cb({
+				code: isError ? 500 : 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, isError ? err.stack : self.ls.get('INVALID_UID'))
 			});
-            return;
         }
 
-        var article = articles[0];
-        dao.deleteMatching({_id: ObjectID(vars.id)}, 'article').then(function(articlesDeleted) {
-            if(util.isError(articlesDeleted) || articlesDeleted <= 0) {
-                cb({
+        dao.deleteById(vars.id, 'article', function(err, articlesDeleted) {
+            if(util.isError(err) || articlesDeleted <= 0) {
+                return cb({
 					code: 500,
 					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
 				});
-                return;
             }
 
 			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('DELETED'))});
@@ -62,4 +60,4 @@ DeleteArticle.prototype.render = function(cb) {
 };
 
 //exports
-module.exports = DeleteArticle;
+module.exports = DeleteArticleActionController;

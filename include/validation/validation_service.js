@@ -386,7 +386,7 @@ ValidationService.isNum = function(val, required) {
  * @return {Boolean} TRUE if the value is valid, FALSE if not
  */
 ValidationService.isBool = function(val) {
-    return typeof val === 'boolean';
+    return pb.utils.isBoolean(val);
 };
 
 /**

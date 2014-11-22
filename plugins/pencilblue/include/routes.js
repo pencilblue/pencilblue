@@ -713,7 +713,8 @@ module.exports = [
         access_level: ACCESS_EDITOR,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'new_object.js'),
-        content_type: 'text/html'
+        content_type: 'text/html',
+        request_body: ['application/json']
     },
     {
         method: 'post',
@@ -721,7 +722,8 @@ module.exports = [
         access_level: ACCESS_EDITOR,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'edit_object.js'),
-        content_type: 'text/html'
+        content_type: 'text/html',
+        request_body: ['application/json']
     },
     {
         method: 'delete',
