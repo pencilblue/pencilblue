@@ -38,7 +38,7 @@ DeleteArticleActionController.prototype.render = function(cb) {
 
     var dao = new pb.DAO();
     dao.loadById(vars.id, 'article', function(err, article) {
-        var isError(util.isError(err));
+        var isError = util.isError(err);
         if(isError || !article) {
 			return cb({
 				code: isError ? 500 : 400,
