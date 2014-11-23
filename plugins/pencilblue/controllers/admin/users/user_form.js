@@ -52,7 +52,6 @@ UserForm.prototype.render = function(cb) {
 
 		self.setPageName(data.user._id ? data.user.username : self.ls.get('NEW_USER'));
 		self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
-		self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 		self.ts.load('admin/users/user_form', function(err, result) {
 			cb({content: result});

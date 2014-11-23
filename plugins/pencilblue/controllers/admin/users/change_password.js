@@ -64,7 +64,6 @@ ChangePasswordController.prototype.render = function(cb) {
 
         delete user.password;
         self.setPageName(self.ls.get('CHANGE_PASSWORD'));
-        self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/users/change_password', function(err, result) {
             cb({content: result});

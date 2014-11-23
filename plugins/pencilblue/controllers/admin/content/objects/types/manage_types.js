@@ -53,7 +53,6 @@ ManageObjectTypes.prototype.render = function(cb) {
         });
 
         self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
-        self.ts.registerLocal('angular_script', '');
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/objects/types/manage_types', function(err, data) {
             var result = '' + data;

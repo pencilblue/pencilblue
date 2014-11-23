@@ -56,7 +56,6 @@ AdminIndexController.prototype.render = function(cb) {
             access: self.session.authentication.admin_level
         });
     	self.setPageName(self.localizationService.get('DASHBOARD'));
-        self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/index', function(error, result) {
             cb({content: result});

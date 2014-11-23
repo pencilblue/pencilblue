@@ -42,7 +42,6 @@ PageForm.prototype.render = function(cb) {
 		var tabs = self.getTabs();
 
 		self.setPageName(self.page._id ? self.page.headline : self.ls.get('NEW_PAGE'));
-		self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
 		self.ts.load('admin/content/pages/page_form', function(err, data) {
 			self.onTemplateRetrieved('' + data, function(err, data) {

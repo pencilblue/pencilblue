@@ -64,7 +64,6 @@ ManageComments.prototype.render = function(cb) {
 
                 //load the template
                 self.setPageName(self.ls.get('MANAGE_COMMENTS'));
-                self.ts.registerLocal('angular_script', '');
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('admin/content/comments/manage_comments', function(err, result) {
                     cb({content: result});

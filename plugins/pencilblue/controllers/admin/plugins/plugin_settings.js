@@ -119,7 +119,6 @@ PluginSettings.prototype.renderGet = function(cb) {
             });
 
 			//render page
-			self.ts.registerLocal('angular_script', '');
 			self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 			self.ts.load('/admin/plugins/plugin_settings', function(err, result) {
 				cb({content: result});

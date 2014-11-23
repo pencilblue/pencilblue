@@ -54,7 +54,6 @@ Configuration.prototype.render = function(cb) {
         });
 
         self.setPageName(self.ls.get('CONFIGURATION'));
-        self.ts.registerLocal('angular_script', '');
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/site_settings/configuration', function(err, result) {
             cb({content: result});

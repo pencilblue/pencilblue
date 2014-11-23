@@ -42,7 +42,6 @@ ArticleForm.prototype.render = function(cb) {
         var tabs   = self.getTabs();
 
 		self.setPageName(self.article._id ? self.article.headline : self.ls.get('NEW_ARTICLE'));
-		self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
     	self.ts.load('admin/content/articles/article_form', function(err, data) {
     		self.onTemplateRetrieved('' + data, function(err, data) {

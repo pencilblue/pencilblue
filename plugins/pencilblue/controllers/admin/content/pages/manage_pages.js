@@ -47,7 +47,6 @@ ManagePages.prototype.render = function(cb) {
 
             var title = self.ls.get('MANAGE_PAGES');
             self.setPageName(title);
-            self.ts.registerLocal('angular_script', '');
 			self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/content/pages/manage_pages', function(err, data) {
                 var result = '' + data;

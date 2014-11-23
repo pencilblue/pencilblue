@@ -67,7 +67,6 @@ ObjectForm.prototype.render = function(cb) {
         var angularObjects = pb.js.getAngularObjects(data);
 
         self.setPageName(self.customObject._id ? self.customObject.name : self.ls.get('NEW') + ' ' + self.objectType.name + ' ' + self.ls.get('OBJECT'));
-        self.ts.registerLocal('angular_script', '');
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/objects/object_form',  function(err, result) {
             cb({content: result});

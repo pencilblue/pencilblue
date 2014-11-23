@@ -56,8 +56,6 @@ PluginDetails.prototype.render = function(cb) {
 
 		//render page
 		self.setPageName(obj.details.name);
-		//self.ts.registerLocal('plugin_icon', PluginService.genPublicPath(obj.details.uid, obj.details.icon));
-		self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 		self.ts.load('/admin/plugins/plugin_details', function(err, result) {
 			cb({content: result});

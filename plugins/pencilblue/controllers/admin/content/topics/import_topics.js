@@ -48,7 +48,6 @@ ImportTopics.prototype.render = function(cb) {
     });
 
 	this.setPageName(this.ls.get('IMPORT_TOPICS'));
-    self.ts.registerLocal('angular_script', '');
 	self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 	this.ts.load('admin/content/topics/import_topics', function(err, result) {
         cb({content: result});

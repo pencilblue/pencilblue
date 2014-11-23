@@ -63,7 +63,6 @@ NavigationMap.prototype.render = function(cb) {
             );
 
             self.setPageName(self.ls.get('NAV_MAP'));
-            self.ts.registerLocal('angular_script', '');
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/content/navigation/nav_map', function(err, data) {
                 var result = '' + data;

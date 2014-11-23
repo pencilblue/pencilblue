@@ -50,7 +50,6 @@ ManagePlugins.prototype.render = function(cb) {
         });
 
 		//load the template
-		self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 		self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
 			cb({content: result});

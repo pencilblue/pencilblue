@@ -82,7 +82,6 @@ ManageThemes.prototype.render = function(cb) {
 				});
 
 				self.ts.registerLocal('image_title', '');
-				self.ts.registerLocal('angular_script', '');
 				self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 				self.ts.load('/admin/themes/manage_themes', function(err, data) {
 					var result = '' + data;

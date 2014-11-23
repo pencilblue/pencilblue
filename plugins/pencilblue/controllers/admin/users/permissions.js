@@ -82,7 +82,6 @@ PermissionsMapController.prototype.render = function(cb) {
 
 	//render page
 	this.setPageName(this.ls.get('PERMISSIONS'));
-	this.ts.registerLocal('angular_script', '');
 	self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 	this.ts.load('/admin/users/permissions', function(err, result) {
 		cb({content: result});
