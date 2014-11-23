@@ -1,0 +1,5 @@
+^error_success^
+<div class="alert error_success" ng-class="{'alert-success': successMessage, 'alert-danger': errorMessage}" ng-if="errorMessage || successMessage">
+	<span ng-bind="errorMessage || successMessage"></span>
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+</div>

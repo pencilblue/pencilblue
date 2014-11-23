@@ -1,0 +1,35 @@
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript">
+    angular.module('sectionSelect', ['ui.sortable', 'search', 'paginate'])
+    .controller('SectionSelectController', function($scope, searchService, paginationService) {
+        $scope.searchText = '';
+        $scope.paginationIndex = 0;
+        $scope.paginationLimit = 15;
+
+        $scope.search = function() {
+            searchService.search($scope.searchText, $scope.sections, ['name'], function(sections) {
+                $scope.sections = sections;
+                $scope.paginate(0);
+            });
+        }
+
+        $scope.clearSearch = function() {
+            $scope.searchText = '';
+            $scope.search();
+        }
+
+        $scope.paginate = function(paginationIndex) {
+            $scope.paginationIndex = paginationIndex;
+
+            paginationService.paginate($scope.sections, $scope.paginationIndex, $scope.paginationLimit, function(sections, paginationPages) {
+                $scope.sections = sections;
+                $scope.paginationPages = paginationPages;
+            })
+        }
+
+        $scope.pageButtonVisible = function(testIndex) {
+            return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
+        };
+    });
+</script>

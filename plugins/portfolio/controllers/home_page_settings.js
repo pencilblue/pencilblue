@@ -9,7 +9,6 @@ function HomePageSettings() {}
 
 //dependencies
 var PluginService = pb.PluginService;
-var Media = require(DOCUMENT_ROOT + '/controllers/admin/content/media.js');
 
 //inheritance
 util.inherits(HomePageSettings, pb.BaseController);
@@ -22,65 +21,70 @@ HomePageSettings.prototype.render = function(cb) {
         code: 200
     };
 
-    self.ts.load('admin/settings/home_page_settings', function(err, result) {
-        var tabs = [
-            {
-                active: 'active',
-                href: '#home_layout',
-                icon: 'home',
-                title: self.ls.get('HOME_LAYOUT')
-            },
-            {
-                href: '#media',
-                icon: 'picture-o',
-                title: self.ls.get('HOME_MEDIA')
-            },
-            {
-                href: '#callouts',
-                icon: 'th',
-                title: self.ls.get('CALLOUTS')
-            }
-        ];
-
-        var pills = [
+    var tabs = [
         {
-            name: 'content_settings',
-            title: self.ls.get('HOME_PAGE_SETTINGS'),
-            icon: 'chevron-left',
-            href: '/admin/plugins/settings/portfolio'
-        }];
+            active: 'active',
+            href: '#home_layout',
+            icon: 'home',
+            title: self.ls.get('HOME_LAYOUT')
+        },
+        {
+            href: '#media',
+            icon: 'picture-o',
+            title: self.ls.get('HOME_MEDIA')
+        },
+        {
+            href: '#callouts',
+            icon: 'th',
+            title: self.ls.get('CALLOUTS')
+        }
+    ];
 
-        var dao  = new pb.DAO();
-        dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(homePageSettings) {
-            if(homePageSettings.length > 0) {
-                homePageSettings = homePageSettings[0];
-                homePageSettings.page_media = homePageSettings.page_media.join(',');
+    var pills = [
+    {
+        name: 'content_settings',
+        title: self.ls.get('HOME_PAGE_SETTINGS'),
+        icon: 'chevron-left',
+        href: '/admin/plugins/settings/portfolio'
+    }];
 
-                if(!self.session.fieldValues) {
-                    self.setFormFieldValues(homePageSettings);
+    var dao  = new pb.DAO();
+    dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(homePageSettings) {
+        if(homePageSettings.length > 0) {
+            homePageSettings = homePageSettings[0];
+        }
+        else {
+            homePageSettings = {callouts: []};
+        }
+
+        var mservice = new pb.MediaService();
+        mservice.get(function(err, media) {
+            if(homePageSettings.page_media) {
+                var pageMedia = [];
+                for(i = 0; i < homePageSettings.page_media.length; i++) {
+                    for(j = 0; j < media.length; j++) {
+                        if(media[j]._id.equals(ObjectID(homePageSettings.page_media[i]))) {
+                            pageMedia.push(media[j]);
+                            media.splice(j, 1);
+                            break;
+                        }
+                    }
                 }
-            }
-            else {
-                homePageSettings = {};
+                homePageSettings.page_media = pageMedia;
             }
 
-            self.checkForFormRefill(result, function(newResult) {
-                result = newResult;
+            var objects = {
+                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                pills: pills,
+                tabs: tabs,
+                media: media,
+                homePageSettings: homePageSettings
+            };
 
-                Media.getAll(function(media) {
-                    var objects = {
-                        navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                        pills: pills,
-                        tabs: tabs,
-                        media: media,
-                        homePageSettings: homePageSettings
-                    };
-                    var angularData = pb.js.getAngularController(objects);
-                    result  = result.split('^angular_script^').join(angularData);
-
-                    content.content = result;
-                    cb(content);
-                });
+            self.ts.registerLocal('angular_script', '');
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(pb.js.getAngularObjects(objects), false));
+            self.ts.load('admin/settings/home_page_settings', function(err, result) {
+                cb({content: result});
             });
         });
     });

@@ -1,0 +1,138 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['inlineMedia', 'topicSelect', 'validation', 'uploadPhoto'])
+    .controller('PencilBlueController', function($scope, $rootScope, $sce, $http, $filter, $timeout, $window, validationService) {
+        ^angular_objects^
+        ^tmp_angular=admin=elements=is_field_valid^
+
+        $scope.urlAvailable = null;
+        $scope.page.publish_date = $filter('date')($scope.page.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
+        $scope.layout = $sce.trustAsHtml($scope.page.page_layout);
+        $scope.page.meta_keywords = $scope.page.meta_keywords ? $scope.page.meta_keywords.join(',') : '';
+        $scope.editingObject = $scope.page;
+        $scope.variablePrefix = 'page';
+        $rootScope.photoValue = $scope.page.hero_image || null;
+
+        $scope.setPublishDateToNow = function() {
+            $scope.page.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');;
+        };
+
+        $scope.getUrlAvailability = function() {
+            $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page')
+            .success(function(result) {
+                $scope.urlAvailable = !result.data;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+            });
+        };
+
+        $scope.resetUrlAvailability = function() {
+            $scope.urlAvailable = null;
+        };
+
+        $scope.savePage = function(draft) {
+            $scope.formSubmitted = true;
+
+            if(!validationService.isFormValid($scope.pageForm)) {
+                return;
+            }
+
+            $scope.page.draft = draft;
+            $scope.getPageData(draft, function(pageData) {
+                $scope.saving = true;
+                if(pageData._id) {
+                    $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
+                    .success(function(result) {
+                        $scope.successMessage = result.message;
+                        $scope.page.last_modified = result.data.last_modified;
+                        $scope.saving = false;
+                    })
+                    .error(function(error, status) {
+                        $scope.errorMessage = error.message;
+                        $scope.saving = false;
+                    });
+                }
+                else {
+                    $http.post('/actions/admin/content/pages', pageData)
+                    .success(function(result) {
+                        $scope.successMessage = result.message;
+                        $scope.saving = false;
+                        $window.location = '/admin/content/pages/' + result.data._id.toString();
+                    })
+                    .error(function(error, status) {
+                        $scope.errorMessage = error.message;
+                        $scope.saving = false;
+                    });
+                }
+            });
+        };
+
+        $scope.savePageDraft = function(cb) {
+            if(!$scope.page.draft || !$scope.page._id) {
+                return;
+            }
+
+            $scope.page.draft = true;
+            $scope.getPageData(true, function(pageData) {
+                $scope.saving = true;
+                $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
+                .success(function(result) {
+                    $scope.page.last_modified = result.data.last_modified;
+                    $timeout($scope.savePageDraft, 30000);
+                    $scope.saving = false;
+
+                    if(typeof cb !== 'undefined') {
+                        cb(null);
+                    }
+                })
+                .error(function(error, status) {
+                    $scope.errorMessage = error.message;
+                    $scope.saving = false;
+
+                    if(typeof cb !== 'undefined') {
+                        cb(error.message);
+                    }
+                });
+            });
+        };
+
+        $scope.getPageData = function(draft, cb) {
+            var pageData = JSON.parse(JSON.stringify($scope.page));
+            pageData.publish_date = (new Date($scope.page.publish_date)).getTime();
+            pageData.draft = draft ? 1 : 0;
+            pageData.hero_image = $rootScope.photoValue;
+
+            var media = [];
+            for(var i = 0; i < $scope.page.page_media.length; i++) {
+                media.push($scope.page.page_media[i]._id.toString());
+            }
+
+            var topics = [];
+            for(var i = 0; i < $scope.page.page_topics.length; i++) {
+                topics.push($scope.page.page_topics[i]._id.toString());
+            }
+
+            var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
+            getWYSIWYGLayout(wysId, function(layout) {
+                pageData.page_media = media;
+                pageData.page_topics = topics;
+                pageData.page_layout = layout;
+
+                cb(pageData);
+            });
+        };
+
+        $scope.previewPage = function() {
+            $scope.savePageDraft(function(error) {
+                if(!error) {
+                    $window.open('/preview/page/' + $scope.page._id);
+                }
+            });
+        }
+
+        $('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
+        $timeout($scope.savePageDraft, 30000);
+    })
+    ^tmp_angular=admin=elements=url_safe^
+</script>

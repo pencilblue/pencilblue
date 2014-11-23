@@ -1,53 +1,23 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^error_success^
+    ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
-    <div class="input-group" style="margin-bottom: .5em">
-        <input type="text" id="article_search" name="article_search" class="form-control"></input>
-        <span class="input-group-btn">
-            <button id="article_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-        </span>
-    </div>
+    ^tmp_admin=elements=search_input^
     <div class="table_container">
-        <table id="articles_table" class="table table-responsive table-condensed">
-            <tr id="articles_table_header">
-                <th id="article_headline_header">^loc_HEADLINE^</th>
-                <th id="article_status_header">^loc_STATUS^</th>
-                <th id="article_url_header">^loc_ARTICLE_URL^</th>
-                <th id="article_author_header">^loc_AUTHOR^</th>
-                <th id="article_date_header">^loc_PUBLISH_DATE^</th>
-                <th></th>
-            </tr>
-            <tr class="article_row" ng-repeat="article in articles track by article._id" on-finish-render ng-cloak>
-                <td><a class="article_headline" ng-href="/admin/content/articles/edit_article/{{article._id}}">{{article.headline}}</a></td>
-                <td class="article_status">{{article.status}}</td>
-                <td class="article_url">{{article.url}}</td>
-                <td class="article_author">{{article.author_name}}</td>
-                <td class="article_date">{{article.publish_date | date: 'yyyy-MM-dd HH:mm'}}</td>
-                <td><a href="javascript:confirmDeleteArticle('{{article._id}}', '{{article.headline}}')"><i class="fa fa-times"></i></a></td>
+        <table class="table table-responsive table-condensed">
+            ^tmp_admin=elements=table_headers^
+            <tr ng-repeat="article in articles track by article._id" ng-if="!article.hidden && !article.paginated">
+                <td><a class="article_headline" ng-href="/admin/content/articles/{{article._id}}" ng-bind="article.headline"></a></td>
+                <td class="article_status" ng-bind="article.status"></td>
+                <td class="article_url" ng-bind="article.url"></td>
+                <td class="article_author" ng-bind="article.author_name"></td>
+                <td class="article_date" ng-bind="article.publish_date | date: 'yyyy-MM-dd HH:mm'"></td>
+                <td><a href="#" ng-click="confirmDelete($index)"><i class="fa fa-trash"></i></a></td>
             </tr>
         </table>
     </div>
-    <ul id="articles_pagination" class="pagination"></ul>
-    <div class="modal fade" id="confirm_delete_modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    ^loc_CONFIRM_DELETE^ <span id="delete_name" style="font-style: italic"></span>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                    </button>
-                    <button type="button" id="delete_button" class="btn btn-danger">
-                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    ^tmp_admin=elements=pagination^
+    ^tmp_admin=elements=delete_modal^
 </div>
-<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="/js/table_sort.js"></script>
-<script type="text/javascript" src="/js/admin/content/articles/manage_articles.js"></script>
+^tmp_angular=admin=content=articles=manage_articles^
 ^tmp_admin=footer^

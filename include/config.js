@@ -91,20 +91,20 @@ var config = {
                 //authSource: "db name here", //Defaults to value of authdb
             }
         },
-        
-        //This option instructs the child to skip the checks to ensure that the 
-        //indices are built.  It makes the assumption that the user doesn't care 
-        //or that they are already in place.  This would typically be used in a 
-        //large production system where load can burst.  In that particular case 
-        //you wouldn't want to let your instances annoy the DB to check for 
-        //indices because it would cause greater strain on the DB under heavy 
-        //load.  
+
+        //This option instructs the child to skip the checks to ensure that the
+        //indices are built.  It makes the assumption that the user doesn't care
+        //or that they are already in place.  This would typically be used in a
+        //large production system where load can burst.  In that particular case
+        //you wouldn't want to let your instances annoy the DB to check for
+        //indices because it would cause greater strain on the DB under heavy
+        //load.
         skip_index_check: false,
-        
-        //The indices that will be ensured by the system.  This list is checked 
-        //at startup by every child process.  The override config.json file may 
-        //also provide this attribute.  In that case the items in that array 
-        //will be added to the those that already exist.  NOTE: duplicates can 
+
+        //The indices that will be ensured by the system.  This list is checked
+        //at startup by every child process.  The override config.json file may
+        //also provide this attribute.  In that case the items in that array
+        //will be added to the those that already exist.  NOTE: duplicates can
         //exist.
         indices: [
 
@@ -134,7 +134,7 @@ var config = {
                 spec: {admin: DESC},
                 options: {}
             },
-            
+
             //theme settings
             {
                 collection: 'theme_settings',
@@ -146,7 +146,7 @@ var config = {
                 spec: {plugin_id: ASC},
                 options: {}
             },
-            
+
             //plugin settings
             {
                 collection: 'plugin_settings',
@@ -158,14 +158,14 @@ var config = {
                 spec: {plugin_id: ASC},
                 options: {}
             },
-            
+
             //settings
             {
                 collection: 'settings',
                 spec: {key: ASC},
                 options: {unique: true}
             },
-            
+
             //section
             {
                 collection: 'section',
@@ -177,7 +177,7 @@ var config = {
                 spec: {created: ASC},
                 options: {}
             },
-            
+
             //plugin
             {
                 collection: 'plugin',
@@ -189,14 +189,14 @@ var config = {
                 spec: {created: ASC},
                 options: {}
             },
-            
+
             //password reset
             {
                 collection: 'password_reset',
                 spec: {verification_code: ASC},
                 options: {unique: true}
             },
-            
+
             //media
             {
                 collection: 'media',
@@ -218,10 +218,10 @@ var config = {
                 spec: {created: ASC},
                 options: {}
             },
-            
+
             //job run
             //NOTHING YET
-            
+
             //job log
             {
                 collection: 'job_log',
@@ -238,7 +238,7 @@ var config = {
                 spec: {created: ASC},
                 options: {}
             },
-            
+
             //custom object type
             {
                 collection: 'custom_object_type',
@@ -250,7 +250,7 @@ var config = {
                 spec: {created: ASC},
                 options: {}
             },
-            
+
             //custom objects
             {
                 collection: 'custom_object',
@@ -262,7 +262,7 @@ var config = {
                 spec: {created: ASC},
                 options: {}
             },
-            
+
             //article
             {
                 collection: 'article',
@@ -314,7 +314,7 @@ var config = {
                 spec: {created: ASC},
                 options: {}
             },
-            
+
             //topic
             {
                 collection: 'topic',
@@ -326,7 +326,7 @@ var config = {
                 spec: {created: ASC},
                 options: {}
             },
-            
+
             //page
             {
                 collection: 'page',
@@ -390,7 +390,7 @@ var config = {
     //timeout value is in ms.
 	session: {
 		storage: "redis",
-		timeout: 600000
+		timeout: 2000000
 	},
 
     //The global log level: silly, debug, info, warn, error
@@ -508,7 +508,7 @@ var config = {
         broker: 'redis',
         timeout: 3000
     },
-    
+
     //The media block specifies the options for how media is persisted.  
     //PencilBlue provides two storage engines out of the box.  The first is 
     //'fs' which is the regular file system.  This is the default option.  
@@ -519,7 +519,7 @@ var config = {
     //recommended for large scale use.  Systems that have larger or more 
     //performant data needs should look at other plugins to support that need.
     media: {
-        
+
         provider: 'fs',
         parent_dir: 'public',
     }

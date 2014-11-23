@@ -1,0 +1,24 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=search_input^
+    <div class="table_container">
+        <table class="table table-responsive table-condensed">
+            ^tmp_admin=elements=table_headers^
+            <tr ng-repeat="type in objectTypes track by type._id" ng-if="!type.hidden && !type.paginated">
+                <td><a ng-href="/admin/content/objects/{{type._id}}" ng-bind="type.name"></a></td>
+                <td>
+                    <span ng-bind="type.fieldTypesUsed"></span>&nbsp;
+                    <a ng-href="/admin/content/objects/types/{{type._id}}"><i class="fa fa-edit"></i></a>
+                </td>
+                <td ng-bind="type.last_modified | date: 'yyyy-MM-dd HH:mm'"></td>
+                <td><a href="#" ng-click="confirmDelete(type)"><i class="fa fa-trash"></i></a></td>
+            </tr>
+        </table>
+    </div>
+    ^tmp_admin=elements=pagination^
+    ^tmp_admin=elements=delete_modal^
+</div>
+^tmp_angular=admin=content=objects=types=manage_types^
+^tmp_admin=footer^

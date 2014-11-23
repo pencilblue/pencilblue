@@ -1,0 +1,25 @@
+<script type="text/javascript">
+	angular.module('pencilblueApp', [])
+	.controller('PencilBlueController', function($scope, $http) {
+		^angular_objects^
+
+		$scope.savePluginSettings = function() {
+			$scope.saving = true;
+
+			var settingsObject = {};
+			for(var i = 0; i < $scope.settings.length; i++) {
+				settingsObject[$scope.settings[i].name] = $scope.settings[i].value;
+			}
+
+			$http.post('/admin/plugins/' + $scope.pluginUID + '/settings', settingsObject)
+			.success(function(result) {
+				$scope.successMessage = result.message;
+				$scope.saving = false;
+			})
+			.error(function(error, status) {
+				$scope.errorMessage = error.message;
+				$scope.saving = false;
+			});
+		}
+	});
+</script>

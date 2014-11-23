@@ -453,7 +453,7 @@ RequestHandler.isPublicRoute = function(path){
  */
 RequestHandler.prototype.serve404 = function() {
 
-	var NotFound  = require(path.join(DOCUMENT_ROOT, '/controllers/error/404.js'));
+	var NotFound  = require(path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', '/controllers/error/404.js'));
 	var cInstance = new NotFound();
 	this.doRender({}, cInstance, {});
 

@@ -1,0 +1,101 @@
+<script type="text/javascript" src="/js/angular/services/search.js"></script>
+<script type="text/javascript" src="/js/angular/services/sort.js"></script>
+<script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript">
+	angular.module('pencilblueApp', ['search', 'sort', 'paginate'])
+	.controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService) {
+		^angular_objects^
+
+		$scope.searchText = '';
+		$scope.paginationIndex = 0;
+		$scope.paginationLimit = 25;
+		$scope.deleteNameKey = 'name';
+
+		$scope.tableHeaders = [{
+			name: '',
+			field: 'type',
+			unsorted: true
+		}, {
+			name: loc.generic.NAME,
+			field: 'name',
+			sortAsc: false,
+			sortDesc: false
+		}, {
+			name: loc.media.CAPTION,
+			field: 'caption',
+			sortAsc: false,
+			sortDesc: false
+		}, {
+			name: loc.generic.LAST_MODIFIED,
+			field: 'last_modified',
+			sortAsc: true,
+			sortDesc: false
+		}];
+
+		$scope.search = function() {
+			searchService.search($scope.searchText, $scope.media, ['name'], function(media) {
+				$scope.media = media;
+				$scope.paginate(0);
+			});
+		}
+
+		$scope.clearSearch = function() {
+			$scope.searchText = '';
+			$scope.search();
+		}
+
+		$scope.paginate = function(paginationIndex) {
+			$scope.paginationIndex = paginationIndex;
+
+			paginationService.paginate($scope.media, $scope.paginationIndex, $scope.paginationLimit, function(media, paginationPages) {
+				$scope.media = media;
+				$scope.paginationPages = paginationPages;
+			})
+		}
+
+		$scope.pageButtonVisible = function(testIndex) {
+			return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
+		};
+
+		$scope.sort = function(headerIndex) {
+			sortService.sortByHeader($scope.media, $scope.tableHeaders, headerIndex, function(media, headers) {
+				$scope.media = media;
+				$scope.headers = headers;
+				$scope.paginate(0);
+			});
+		}
+
+		$scope.confirmDelete = function(mediaItem) {
+			$scope.objectToDelete = mediaItem;
+			$('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+		}
+
+		$scope.deleteObject = function() {
+			if(!$scope.objectToDelete) {
+				return;
+			}
+
+			$scope.deleting = true;
+			$http({method: 'DELETE', url: '/actions/admin/content/media/' + $scope.objectToDelete._id})
+			.success(function(result) {
+				for(var i = 0; i < $scope.media.length; i ++) {
+					if($scope.media[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+						$scope.media.splice(i, 1);
+						break;
+					}
+				}
+				$scope.deleting = false;
+				$scope.successMessage = result.message;
+				$scope.paginate(0);
+				$('#confirm_delete_modal').modal('hide');
+			})
+			.error(function(error, status) {
+				$scope.deleting = false;
+				$scope.errorMessage = error.message;
+				$('#confirm_delete_modal').modal('hide');
+			});
+		}
+
+		$scope.sort(3);
+	});
+</script>

@@ -100,17 +100,17 @@ ArticleService.prototype.findByTopic = function(topicId, cb) {
  *
  * @method find
  * @param {Object} where Defines the where clause for the article search
- * @param {Object} options The options object that can provide query control 
+ * @param {Object} options The options object that can provide query control
  * parameters
- * @param {Array} [options.order] The order that the results will be returned 
+ * @param {Array} [options.order] The order that the results will be returned
  * in.  The default is publish date descending and created descending
- * @param {Object} [options.select] The fields that will be returned for each 
+ * @param {Object} [options.select] The fields that will be returned for each
  * article that matches the criteria
  * @param {Integer} [options.limit] The number of results to return
- * @param {Integer} [options.offset] The number of articles to skip before 
+ * @param {Integer} [options.offset] The number of articles to skip before
  * returning results
- * @param {Function} cb Callback function that takes two parameters: the first 
- * is an error, if occurred.  The second is an array of articles or possibly 
+ * @param {Function} cb Callback function that takes two parameters: the first
+ * is an error, if occurred.  The second is an array of articles or possibly
  * null if an error occurs.
  */
 ArticleService.prototype.find = function(where, options, cb) {
@@ -119,14 +119,14 @@ ArticleService.prototype.find = function(where, options, cb) {
         options = {};
     }
     else if (!options) {
-        options = {};   
+        options = {};
     }
-    
+
     //verify the where is valid
     if (!pb.utils.isObject(where)) {
         return cb(new Error('The where clause must be an object'));
     }
-    
+
     //build out query
     if(!where.publish_date) {
 		where.publish_date = {$lt: new Date()};
@@ -134,7 +134,7 @@ ArticleService.prototype.find = function(where, options, cb) {
 	if(!where.draft) {
 	    where.draft = {$ne: 1};
     }
-    
+
     //build out the ordering
     var order;
     if (util.isArray(options.order)) {
@@ -143,7 +143,7 @@ ArticleService.prototype.find = function(where, options, cb) {
     else {
         order = [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]];
     }
-    
+
     //build out select
     var select;
     if (pb.utils.isObject(options.select)) {
@@ -152,19 +152,19 @@ ArticleService.prototype.find = function(where, options, cb) {
     else {
         select = pb.DAO.SELECT_ALL;
     }
-    
+
     //build out the limit (must be a valid integer)
     var limit = undefined;
     if (pb.validation.isInt(options.limit, true, true)) {
         limit = options.limit;
     }
-    
+
     //build out the limit (must be a valid integer)
     var offset = 0;
     if (pb.validation.isInt(options.offset, true, true)) {
-        offset = options.offset;   
+        offset = options.offset;
     }
-    
+
 	var self = this;
 	var dao  = new pb.DAO();
 	dao.query(this.getContentType(), where, select, order, limit, offset).then(function(articles) {
@@ -462,19 +462,21 @@ ArticleService.getMetaInfo = function(article, cb)
                 description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
             }
 
-            cb(keywords.join(','), description, (article.seo_title.length > 0) ? article.seo_title : article.headline);
+            cb(keywords.join(','), description, (article.seo_title) ? article.seo_title : article.headline);
             return;
         }
 
         var dao  = new pb.DAO();
-        dao.query('topic', {_id: ObjectID(topics[index])}).then(function(topics) {
-            if(util.isError(topics) || topics.length == 0) {
+        dao.loadById(topics[index], 'topic', function(err, topic) {
+            if(util.isError(err) || !topic) {
+                pb.log.error('ArticleService: Failed to load topic. %s', err.stack);
+                
                 index++;
                 instance.loadTopic(index);
                 return;
             }
 
-            var topicName = topics[0].name;
+            var topicName = topic.name;
             var keywordMatch = false;
 
             for(var i = 0; i < keywords.length; i++) {
@@ -560,7 +562,7 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
         else {
             var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data));
             mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
-			mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption.length ? '' : 'display: none');
+			mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption ? '' : 'display: none');
             mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString, data.media_type);
 
             layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);

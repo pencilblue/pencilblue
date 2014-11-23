@@ -1,25 +1,37 @@
-<div class="panel panel-default">
-    <div class="panel-heading">^loc_ACTIVE_SECTIONS^...</div>
-    <div id="active_sections" class="panel-body" style="min-height: 100px"></div>
-</div>
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <div style="padding-bottom: .5em">^loc_INACTIVE_SECTIONS^...</div>
-        <div class="input-group">
-            <input type="text" id="section_search" name="section_search" class="form-control" placeholder="^loc_NARROW_RESULTS^..."></input>
-            <span class="input-group-btn">
-                <button id="section_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-            </span>
+<div ng-controller="SectionSelectController">
+    <div class="panel panel-default">
+        <div class="panel-heading">^loc_ACTIVE_SECTIONS^...</div>
+        <div class="panel-body" style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="editingObject[variablePrefix + '_sections']">
+            <div class="panel panel-default draggable_item" ng-repeat="section in editingObject[variablePrefix + '_sections'] track by section._id" data-as-sortable-item>
+                <div class="panel-heading">
+                    <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
+                    <span ng-bind="section.name"></span>
+                    <span ng-bind="'- ' + section.description" ng-if="section.description"></span>
+                </div>
+            </div>
         </div>
     </div>
-    <div id="inactive_sections" class="panel-body" style="min-height: 100px">
-        <div id="section_{{section._id}}" class="label label-default section_item" ng-repeat="section in sections track by section._id" ng-cloak>
-            <i class="fa fa-bars"></i>&nbsp;
-            <span class="section_name">{{section.name}}</span>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div style="padding-bottom: .5em">^loc_INACTIVE_SECTIONS^...</div>
+            <div class="input-group">
+                <input type="text" ng-model="searchText" ng-change="search()" class="form-control" placeholder="^loc_NARROW_RESULTS^..."></input>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}" ng-click="clearSearch()"></i></button>
+                </span>
+            </div>
         </div>
-        <div class="spacer"></div>
-        <ul id="sections_pagination" class="pagination"></ul>
+        <div id="inactive_sections" class="panel-body">
+            <div style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="sections">
+                <div class="panel panel-default draggable_item" ng-repeat="section in sections track by section._id" ng-if="!section.hidden && !section.paginated" data-as-sortable-item>
+                    <div class="panel-heading">
+                        <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
+                        <span ng-bind="section.name"></span>
+                        <span ng-bind="'- ' + section.description" ng-if="section.description"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="/js/admin/elements/section_select.js"></script>
+^tmp_angular=admin=elements=section_select^

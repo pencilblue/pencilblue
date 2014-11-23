@@ -30,6 +30,7 @@ var loc =
         META_DATA: 'Meta data',
         SEO: 'SEO',
         FORM_INCOMPLETE: 'The form is incomplete',
+        INVALID_UID: 'An invalid unique id was provided',
         ERROR_SAVING: 'There was an error saving',
         ERROR_DELETING: 'There was an error deleting',
         INSUFFICIENT_CREDENTIALS: 'You are not authorized to perform that action',
@@ -135,6 +136,7 @@ var loc =
 		SECONDS_ABBR: 'Secs',
 		NO_AVAILABLE_PLUGINS: 'No available plugins',
         READ_MORE: 'Read more',
+        READ_FULL: 'Read the full story',
         THEME_DEFAULT: 'Theme Default',
         USER: 'User',
         SUBSCRIBE: 'Subscribe',
@@ -150,7 +152,15 @@ var loc =
         COMMAND_MUST_BE_OBJECT: 'The command must be a valid object',
         PROCEDURE_MUST_BE_OBJECT: 'A valid procedure object is required in order to execute the indexing operation',
         OBJ_TO_PARAMS_MUST_BE: 'The obj must be an object and the to parameter must be a string',
-        EMAIL_NOT_CONFIGURED: 'Email has not been configured on this server'
+        EMAIL_NOT_CONFIGURED: 'Email has not been configured on this server',
+        INVALID_URL: 'An invalid URL was provided',
+        INVALID_MEDIA_URL: 'The media url does not contain the required information for importing',
+        UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
+        OBJECT_NOT_FOUND: 'The requested object was not found in the system',
+        REQUIRED_FIELD: 'This field is required',
+        INVALID_FILE: 'An invalid file was supplied',
+        COMPLETE: 'Complete',
+        WYSIWYG: 'WYSIWYG'
     },
     error:
     {
@@ -244,7 +254,7 @@ var loc =
     media:
     {
         MANAGE_MEDIA: 'Manage media',
-        ADD_MEDIA: 'Add media',
+        NEW_MEDIA: 'New media',
         LINK_OR_UPLOAD: 'Link or upload',
         LINK_TO_MEDIA: 'Link to media',
         UPLOAD_MEDIA: 'Upload media',
@@ -344,6 +354,7 @@ var loc =
         ADD_FIELD: 'Add a field',
         VALUE: 'Value',
         TEXT: 'text',
+        BOOLEAN: 'Boolean',
         NUMBER: 'number',
         PEER_OBJECT: 'Peer object',
         CHILD_OBJECTS: 'Child objects',
@@ -352,6 +363,7 @@ var loc =
         ACTIVE_OBJECTS: 'Drag associated objects here',
         INACTIVE_OBJECTS: 'Drag unassociated objects here',
         OBJECTS: 'objects',
+        OBJECT: 'object',
         DESCRIPTION: 'Description',
         INVALID_FIELD: 'Invalid field was submitted. Make sure there are no duplicate field names or unselected field types'
     },
@@ -410,7 +422,13 @@ var loc =
         MANAGE_PLUGINS: 'Manage plugins',
         NO_ACTIVE_PLUGINS: 'No active plugins',
         NO_INACTIVE_PLUGINS: 'No inactive plugins',
-        ABOUT: 'About'
+        ABOUT: 'About',
+        INSTALLING: 'Installing',
+        UNINSTALLING: 'Uninstalling',
+        RESETTING: 'Resetting',
+        INITIALIZING: 'Initializing',
+        ACTIVATING: 'Activating',
+        ACTION_ERROR: 'An error occurred while attempting to complete the action'
     },
     themes:
     {

@@ -1,0 +1,100 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form name="objectForm" ng-submit="saveObject()" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="object_fields">
+                    <span ng-repeat="field in objectType.fields" fields-built>
+                        <div class="form-group" ng-if="field.field_type == 'text'" ng-class="{'has-error': field.name === 'name' && !isFieldValid(objectForm.name)}">
+                            <label ng-bind="field.name"></label>
+                            <input type="text" class="form-control" ng-model="customObject[field.name]" ng-if="field.name !== 'name'"></input>
+                            <input type="text" name="name" class="form-control" ng-model="customObject.name" ng-if="field.name === 'name'" required></input>
+                            <div class="form_error" ng-if="field.name === 'name' && !isFieldValid(objectForm.name)">^loc_REQUIRED_FIELD^</div>
+                        </div>
+                        <div class="form-group" ng-if="field.field_type == 'number'">
+                            <label ng-bind="field.name"></label>
+                            <input type="number" class="form-control" ng-model="customObject[field.name]"></input>
+                        </div>
+                        <div class="form-group" ng-if="field.field_type == 'wysiwyg'">
+                            <label ng-bind="field.name"></label>
+                            <div id="{{getFieldUID(field)}}_wysiwyg"></div>
+                        </div>
+                        <div id="temp_wysiwyg" style="display:none">
+                            ^wysiwyg^
+                        </div>
+                        <div class="form-group" ng-if="field.field_type == 'boolean'">
+                            <label ng-bind="field.name"></label><br/>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default" ng-class="{'active': customObject[field.name]}" ng-click="setBoolean(field.name, true)">^loc_YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !customObject[field.name]}" ng-click="setBoolean(field.name, false)">^loc_NO^</button>
+                            </div>
+                        </div>
+                        <div class="form-group date_input" ng-if="field.field_type == 'date'">
+                            <label ng-bind="field.name"></label>
+                            <div class="input-group">
+                                <input type="text" class="form-control date_field" ng-model="customObject[field.name]"></input>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" ng-click="setDateToNow(field.name)">^loc_NOW^</button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-if="field.field_type == 'peer_object'">
+                            <label ng-bind="field.name"></label>
+                            <select class="form-control" ng-model="customObject[field.name]" ng-options="availableObject._id as availableObject.name for availableObject in field.available_objects"></select>
+                        </div>
+                        <div id="{{field.name}}" class="form-group" ng-if="field.field_type == 'child_objects'">
+                            <label ng-bind="field.name"></label>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">^loc_ACTIVE_OBJECTS^...</div>
+                                <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(field)" is-enabled="true" ng-model="customObject[field.name]">
+                                    <div class="panel panel-default draggable_item" ng-repeat="object in customObject[field.name]" data-as-sortable-item>
+                                        <div class="panel-heading">
+                                            <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
+                                            <span ng-bind="object.name || object.headline"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <div style="padding-bottom: .5em">^loc_INACTIVE_OBJECTS^...</div>
+                                    <div class="input-group" style="margin-bottom: .5em">
+                                        <input type="text" ng-model="field.searchText" ng-change="search(field)" class="form-control"></input>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !field.searchText.length, 'fa-times': field.searchText.length}" ng-click="clearSearch(field)"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(field)" is-enabled="true" ng-model="field.available_objects">
+                                    <div class="panel panel-default draggable_item" ng-repeat="object in field.available_objects" ng-if="!object.hidden && !object.paginated" data-as-sortable-item>
+                                        <div class="panel-heading">
+                                            <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
+                                            <span ng-bind="object.name || object.headline"></span>
+                                        </div>
+                                    </div>
+
+                                    <ul class="pagination pagination-sm" ng-if="field.paginationPages.length > 1">
+                                        <li class="clickable" ng-class="{'disabled': field.paginationIndex === 0}"><a ng-click="paginate(field, 0)"><i class="fa fa-angle-double-left"></i></a></li>
+                                        <li class="clickable" ng-class="{'disabled': field.paginationIndex === 0}"><a ng-click="paginate(field, field.paginationIndex - 1)"><i class="fa fa-angle-left"></i></a></li>
+                                        <li class="clickable" ng-class="{'active': field.paginationIndex === $index}" ng-repeat="page in field.paginationPages" ng-if="pageButtonVisible(field, $index)"><a ng-click="paginate(field, $index)" ng-bind="$index + 1"></a></li>
+                                        <li class="clickable" ng-class="{'disabled': field.paginationIndex === field.paginationPages.length - 1}"><a ng-click="paginate(field, field.paginationIndex + 1)"><i class="fa fa-angle-right"></i></a></li>
+                                        <li class="clickable" ng-class="{'disabled': field.paginationIndex === field.paginationPages.length - 1}"><a ng-click="paginate(field, field.paginationPages.length - 1)"><i class="fa fa-angle-double-right"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+                <a class="btn btn-default" ng-href="/admin/content/objects/{{objectType._id}}">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </a>
+                ^tmp_admin=elements=save_button^
+            </div>
+        </fieldset>
+    </form>
+</div>
+^tmp_angular=admin=content=objects=object_form^
+^tmp_admin=footer^

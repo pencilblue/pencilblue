@@ -1,46 +1,18 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^error_success^
+    ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
-    <div id="topics" class="row">
-        <form id="new_topic_form" method="post">
-            <div class="col-md-12" style="margin-bottom: .5em">
-                <div class="input-group">
-                    <input type="text" id="name" name="name" class="form-control" autofocus="autofocus"></input>
-                    <span class="input-group-btn">
-                        <button id="topic_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </form>
-        <div class="col-md-12">
-            <div id="topic_{{topic._id}}" class="label label-info topic" ng-repeat="topic in topics track by topic._id" on-finish-render ng-cloak>
-                <a href="javascript:confirmDeleteTopic('{{topic._id}}', '{{topic.name}}')">
-                    <span class="topic_name">{{topic.name}}</span>&nbsp;<i class="fa fa-times"></i>
-                </a>
-            </div>
-            <div class="spacer"></div>
-            <ul id="topics_pagination" class="pagination"></ul>
+    ^tmp_admin=elements=search_input^
+    <div>
+        <div class="btn-group" ng-repeat="topic in topics track by topic._id" style="margin: 0 .5em .5em 0" ng-if="!topic.hidden && !topic.paginated">
+            <a class="btn btn-primary" ng-href="/admin/content/topics/{{topic._id}}" ng-bind="topic.name"></a>
+            <button class="btn btn-primary" type="button" ng-click="confirmDelete(topic)">
+                <i class="fa fa-trash"></i>
+            </button>
         </div>
     </div>
-    <div class="modal fade" id="confirm_delete_modal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    ^loc_CONFIRM_DELETE^ <span id="delete_name"></span>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                    </button>
-                    <button type="button" id="delete_button" class="btn btn-danger">
-                        <i class="fa fa-times-circle"></i>&nbsp;^loc_DELETE^
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    ^tmp_admin=elements=pagination^
+    ^tmp_admin=elements=delete_modal^
 </div>
-<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="/js/admin/content/topics/manage_topics.js"></script>
+^tmp_angular=admin=content=topics=manage_topics^
 ^tmp_admin=footer^

@@ -10,6 +10,7 @@ function Index() {}
 //dependencies
 var PluginService = pb.PluginService;
 var TopMenu       = require(DOCUMENT_ROOT + '/include/theme/top_menu');
+var MediaLoader = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).MediaLoader;
 
 //inheritance
 util.inherits(Index, pb.BaseController);
@@ -75,7 +76,7 @@ Index.prototype.render = function(cb) {
                             settings = settings[0];
                         }
 
-                        var callouts = self.getCallouts(settings);
+                        var callouts = settings.callouts;
 
                         for(var i = 0; i < callouts.length; i++) {
                             if(!callouts[i].copy.length) {
@@ -116,45 +117,29 @@ Index.prototype.render = function(cb) {
                                 calloutsHTML += calloutTemplate;
                             }
 
-                            content.content = content.content.split('^layout^').join(decodeURIComponent(settings.page_layout ? settings.page_layout : ''));
-                            content.content = content.content.split('^hero_image^').join(settings.home_page_hero ? settings.home_page_hero : '');
-                            content.content = content.content.split('^callouts^').join(calloutsHTML);
 
-                            content.content = self.ls.localize([], content.content);
+                            if(!settings.page_layout) {
+                                settings.page_layout = '';
+                            }
+                            var mediaLoader = new MediaLoader();
+                            mediaLoader.start(settings.page_layout, function(err, layout) {
+                                content.content = content.content.split('^layout^').join(layout);
+                                content.content = content.content.split('^hero_image^').join(settings.home_page_hero ? settings.home_page_hero : '');
+                                content.content = content.content.split('^callouts^').join(calloutsHTML);
 
-                            var angularData = pb.js.getAngularController({}, ['ngSanitize']);
-                            content.content = content.content.concat(angularData);
+                                content.content = self.ls.localize([], content.content);
 
-                            cb(content);
+                                var angularData = pb.js.getAngularController({}, ['ngSanitize']);
+                                content.content = content.content.concat(angularData);
+
+                                cb(content);
+                            });
                         });
                     });
                 });
             });
         });
     });
-};
-
-Index.prototype.getCallouts = function(settings) {
-    if(!settings.callout_headline_1) {
-        return [];
-    }
-    return [
-        {
-            headline: settings.callout_headline_1,
-            link: settings.callout_link_1,
-            copy: settings.callout_copy_1
-        },
-        {
-            headline: settings.callout_headline_2,
-            link: settings.callout_link_2,
-            copy: settings.callout_copy_2
-        },
-        {
-            headline: settings.callout_headline_3,
-            link: settings.callout_link_3,
-            copy: settings.callout_copy_3
-        }
-    ];
 };
 
 /**

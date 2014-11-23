@@ -1,0 +1,100 @@
+<script type="text/javascript" src="^angular_upload_src^"></script>
+<script type="text/javascript" src="/js/angular/services/media.js"></script>
+<script type="text/javascript">
+	angular.module('uploadPhoto', ['media', 'ui.sortable', 'angularFileUpload'])
+	.controller('UploadPhotoController', function($scope, $rootScope, $sce, $http, $upload, mediaService) {
+		$scope.photoPreview = '';
+		$scope.photo = {
+			link: '',
+			isFile: false
+		};
+
+		$scope.getPhotoPreviewHTML = function() {
+			return $sce.trustAsHtml($scope.photoPreview);
+		};
+
+		$scope.showMediaModal = function(isFile) {
+			$scope.photo.isFile = isFile;
+			$('#photo_modal').modal({backdrop: 'static', keyboard: true});
+		};
+
+		$scope.loadMediaLink = function() {
+			if(!$scope.photo.link.length) {
+				return;
+			}
+
+			$scope.loadingLink = true;
+
+			mediaService.loadMediaLink($scope.photo.link, function(err, result) {
+				if(err) {
+					$scope.loadingLink = false;
+					$('#photo_modal').modal('hide');
+					return;
+				}
+
+				$scope.photo.media_type = result.data.mediaType;
+				$scope.photo.location = result.data.location;
+				$scope.photo.thumb = result.data.thumb;
+				$scope.photo.is_file = result.data.isFile;
+
+				$rootScope.photoValue = $scope.photo.location;
+
+				mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+					$scope.loadingLink = false;
+
+					$('#photo_modal').modal('hide');
+					if(err) {
+						return;
+					}
+
+					$scope.photoPreview = result.data;
+				});
+			});
+		};
+
+		$scope.onFileSelect = function($files) {
+			for (var i = 0; i < $files.length && i < 1; i++) {
+				var file = $files[i];
+				$scope.uploading = true;
+				$scope.uploadPercent = 0;
+				$scope.upload = $upload.upload({
+					url: '/api/admin/content/media/upload_media',
+					file: file
+				}).progress(function(evt) {
+					$scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
+				}).success(function(data, status, headers, config) {
+					mediaService.loadMediaLink(data.filename, function(err, result) {
+						if(err) {
+							$scope.uploading = false;
+							return;
+						}
+
+						$scope.photo.media_type = result.data.mediaType;
+						$scope.photo.location = result.data.location;
+						$scope.photo.thumb = result.data.thumb;
+						$scope.photo.is_file = result.data.isFile;
+
+						$rootScope.photoValue = $scope.photo.location;
+
+						mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+							$scope.uploading = false;
+
+							$('#photo_modal').modal('hide');
+							if(err) {
+								return;
+							}
+
+							$scope.photoPreview = result.data;
+						});
+					});
+				});
+			}
+		};
+
+		if($rootScope.photoValue) {
+			mediaService.getMediaPreview('image', $rootScope.photoValue, function(err, result) {
+				$scope.photoPreview = result.data;
+			});
+		}
+	});
+</script>

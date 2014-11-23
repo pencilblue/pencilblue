@@ -23,7 +23,7 @@ $(document).ready(function() {
                 url: "/api/content/search/",
                 dataType: "json",
                 data: {
-                   type: $('#content_type').val(),
+                   type: $('#content_type option:selected').text().toLowerCase(),
                    q: $('#content_search').val(),
                 },
                 success: function( data ) {
@@ -38,9 +38,9 @@ $(document).ready(function() {
         },
         minLength: 3,
         select: function( event, ui ) {
-
-        	var idFieldName = $('#selection_id_field').val();
-        	$('#'+idFieldName).val(ui.item.value);
+            setItem(ui.item.value);
+        	//var idFieldName = $('#selection_id_field').val();
+        	//$('#'+idFieldName).val(ui.item.value);
             $(this).val(ui.item.label);
             return false;
         },

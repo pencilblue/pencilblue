@@ -1,0 +1,79 @@
+/*
+    Copyright (C) 2014  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ * Creates a new user
+ */
+
+function NewUser(){}
+
+//inheritance
+util.inherits(NewUser, pb.BaseController);
+
+NewUser.prototype.render = function(cb) {
+	var self = this;
+
+	this.getJSONPostParams(function(err, post) {
+	    var message = self.hasRequiredParams(post, self.getRequiredFields());
+	    if(message) {
+	        cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+			});
+	        return;
+	    }
+
+	    if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
+	        cb({
+				code: 400,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+			});
+	        return;
+	    }
+
+	    var user = pb.DocumentCreator.create('user', post);
+	    pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
+	        if(util.isError(err) || isTaken) {
+	            cb({
+					code: 400,
+					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
+				});
+	            return;
+	        }
+
+	        var dao = new pb.DAO();
+	        dao.update(user).then(function(result) {
+	            if(util.isError(result)) {
+	                cb({
+						code: 500,
+						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+					});
+	                return;
+	            }
+
+				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_CREATED'), result)});
+	        });
+	    });
+	});
+};
+
+NewUser.prototype.getRequiredFields = function() {
+	return ['username', 'email', 'password', 'confirm_password', 'admin'];
+};
+
+//exports
+module.exports = NewUser;

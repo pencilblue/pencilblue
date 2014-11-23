@@ -1,0 +1,48 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    <div ng-model="navItems" data-as-sortable="board.dragControlListeners" is-enabled="true">
+        <div class="panel panel-info nav-item" ng-repeat="item in navItems track by item._id" data-as-sortable-item>
+            <div class="panel-heading">
+                <h5>
+                    <i class="fa fa-bars" style="float: left; margin: 0 1em 0 -.25em" data-as-sortable-item-handle></i>
+                    <a ng-href="/admin/content/navigation/{{item._id}}">
+                        <i class="fa fa-fw fa-{{icons[item.type]}}" style="float: left; margin-right: .25em"></i>
+                        <span ng-bind="item.name"></span>
+                    </a>
+                    <a href="#" ng-click="confirmDelete(item)">
+                        <i class="fa fa-trash" style="float: right;"></i>&nbsp;&nbsp;
+                    </a>
+                </h5>
+            </div>
+            <div class="panel-body" ng-hide="item.type !== 'container'" style="padding: 1em; min-height: 50px" ng-model="item.children"  data-as-sortable="containerDragListeners" is-enabled="true">
+                <div class="panel panel-default subnav-item" ng-repeat="child in item.children track by child._id" data-as-sortable-item>
+                    <div class="panel-heading">
+                        <h5>
+                            <i class="fa fa-bars" style="float: left; margin: 0 1em 0 -.25em" data-as-sortable-item-handle></i>
+                            <a ng-href="/admin/content/navigation/{{child._id}}">
+                                <i class="fa fa-fw fa-{{icons[child.type]}}" style="float: left; margin-right: .25em"></i>
+                                <span ng-bind="child.name"></span>
+                            </a>
+                            <a ng-click="confirmDelete(child)">
+                                <i class="fa fa-trash" style="float: right;"></i>&nbsp;&nbsp;
+                            </a>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 1em">
+        <a class="btn btn-default" href="/admin/content/navigation">
+            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+        </a>
+        <button type="button" class="btn btn-primary" ng-click="saveNavMap()">
+            <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+        </button>
+    </div>
+    ^tmp_admin=elements=delete_modal^
+    ^tmp_angular=admin=content=navigation=nav_map^
+</div>
+^tmp_admin=footer^

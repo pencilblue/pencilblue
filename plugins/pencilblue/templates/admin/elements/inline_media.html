@@ -1,107 +1,95 @@
-<div class="panel panel-default">
-    <div class="panel-heading">^loc_RELATED_MEDIA^...</div>
-    <div id="active_media" class="panel-body" style="min-height: 100px"></div>
-</div>
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <div style="padding-bottom: .5em">^loc_UNRELATED_MEDIA^...</div>
-        <div class="input-group">
-            <input type="text" id="media_search" name="media_search" class="form-control" placeholder="^loc_NARROW_RESULTS^..."></input>
-            <span class="input-group-btn">
-                <button id="media_search_button" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-            </span>
+<div ng-controller="InlineMediaController">
+    <div class="panel panel-default">
+        <div class="panel-heading">^loc_RELATED_MEDIA^...</div>
+        <div class="panel-body" style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="editingObject[variablePrefix + '_media']">
+            <div class="panel panel-default draggable_item" ng-repeat="mediaItem in editingObject[variablePrefix + '_media'] track by mediaItem._id" data-as-sortable-item>
+                <div class="panel-heading">
+                    <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
+                    <span style="float: left; margin-right: .5em"><i class="fa fa-{{mediaItem.icon}} fa-fw"></i></span>
+                    <span ng-bind="mediaItem.name"></span>
+                    <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
+                </div>
+            </div>
         </div>
     </div>
-    <div id="inactive_media" class="panel-body" style="min-height: 100px">
-        <div id="media_{{mediaItem._id}}" class="label label-default media_item" ng-repeat="mediaItem in media track by mediaItem._id" ng-cloak>
-            <i class="fa fa-bars"></i>&nbsp;
-            <span class="media_name">{{mediaItem.name}}</span>
-            <a href="{{mediaItem.link}}" target="_blank">
-                <i class="fa fa-{{mediaItem.icon}}"></i>&nbsp;
-            </a>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div style="padding-bottom: .5em">^loc_UNRELATED_MEDIA^...</div>
+            ^tmp_admin=elements=search_input^
         </div>
-        <div class="spacer"></div>
-        <ul id="media_pagination" class="pagination"></ul>
-    </div>
-</div>
-<div class="form-group">
-    <button type="button" class="btn btn-info" onclick="showMediaModal('#link_to_media')">
-        <i class="fa fa-link"></i>&nbsp;^loc_LINK_TO_MEDIA^...
-    </button>
-    <button type="button" class="btn btn-info" onclick="showMediaModal('#upload_media')">
-        <i class="fa fa-upload"></i>&nbsp;^loc_UPLOAD_MEDIA^...
-    </button>
-</div>
-<div class="modal fade" id="media_modal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div id="upload_media_header" class="modal-header">
-                ^loc_UPLOAD_MEDIA^
-            </div>
-            <div id="link_to_media_header" class="modal-header">
-                ^loc_LINK_TO_MEDIA^
-            </div>
-            <div class="modal-body">
-                <span id="link_to_media">
-                    <div class="form-group">
-                        <label>^loc_MEDIA_URL^</label>
-                        <input type="url" id="media_url" name="media_url" class="form-control" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
+        <div class="panel-body" style="min-height: 50px">
+            <div style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="media">
+                <div class="panel panel-default draggable_item" ng-repeat="mediaItem in media track by mediaItem._id" ng-if="!mediaItem.hidden && !mediaItem.paginated" data-as-sortable-item>
+                    <div class="panel-heading">
+                        <span style="float: left; margin: 0 1em 0 .25em" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
+                        <span style="float: left; margin-right: .5em"><i class="fa fa-{{mediaItem.icon}} fa-fw"></i></span>
+                        <span ng-bind="mediaItem.name"></span>
+                        <span ng-bind="'- ' + mediaItem.caption" ng-if="mediaItem.caption"></span>
                     </div>
-                    <div id="link_loading" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div>
-                    <button type="button" id="link_button" class="btn btn-primary" onclick="validateMediaURL($('#media_url').val(), false)">
-                        <i class="fa fa-link"></i>&nbsp;^loc_LOAD_LINK^
-                    </button>
-                </span>
-                <span id="upload_media">
-                    <div id="upload_progress" class="progress progress-striped active" style="display: none"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div></div>
-                    <span class="btn btn-success fileinput-button">
-                        <i class="fa fa-plus"></i>
-                        <span>^loc_SELECT_FILE^...</span>
-                        <input id="media_file" type="file" name="media_file" accept=".jpg,.jpeg,.png,.gif,.svg,.webp,.mp4,.webm,.ogv">
+                </div>
+            </div>
+            ^tmp_admin=elements=pagination^
+        </div>
+    </div>
+    <div class="form-group">
+        <button type="button" class="btn btn-info" ng-click="showMediaModal(false)">
+            <i class="fa fa-link"></i>&nbsp;^loc_LINK_TO_MEDIA^...
+        </button>
+        <button type="button" class="btn btn-info" ng-click="showMediaModal(true)">
+            <i class="fa fa-upload"></i>&nbsp;^loc_UPLOAD_MEDIA^...
+        </button>
+    </div>
+    <div class="modal fade" id="media_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" ng-if="addedMedia.isFile">
+                    ^loc_UPLOAD_MEDIA^
+                </div>
+                <div class="modal-header" ng-if="!addedMedia.isFile">
+                    ^loc_LINK_TO_MEDIA^
+                </div>
+                <div class="modal-body">
+                    <span ng-if="addedMedia.isFile">
+                        <div class="progress progress-striped active" ng-if="uploading">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="{{uploadPercent}}" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                        </div>
+                        <span class="btn btn-success fileinput-button" ng-disabled="uploading">
+                            <i class="fa" ng-class="{'fa-plus': !uploading, 'fa-circle-o-notch fa-spin': uploading}"></i>
+                            <span>^loc_SELECT_FILE^...</span>
+                            <input type="file" ng-file-select="onFileSelect($files)" accept=".jpg,.jpeg,.png,.gif,.svg,.webp,.mp4,.webm,.ogv"></input>
+                        </span>
+                        <div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="dropSupported=true" ng-file-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">Drop image and video files here</div>
+                        <div style="margin: 1em 0" ng-bind-html="getUploadPreviewHTML()" ng-if="uploadPreview.length" style="width: 100%"></div>
                     </span>
-                </span>
-                <fieldset>
-                    <div class="form-group">
-                        <input type="checkbox" id="is_file" name="is_file" style="display:none"></input>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="media_type" name="media_type" class="form-control" style="display:none"></input>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="location" name="location" class="form-control" style="display:none"></input>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="thumb" name="thumb" class="form-control" style="display:none"></input>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="media_topics" name="media_topics" class="form-control" style="display:none"></input>
-                    </div>
-                    <div id="media_display" class="form-group"></div>
-                    <div class="form-group">
-                        <label>^loc_MEDIA_NAME^</label>
-                        <input type="text" id="name" name="name" class="form-control"></input>
-                    </div>
-                    <div class="form-group">
-                        <label>^loc_CAPTION^</label>
-                        <input type="text" id="caption" name="caption" class="form-control"></input>
-                    </div>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                    </button>
-                    <button id="save_button" type="button" class="btn btn-primary" onclick="checkForAddMediaSave()" disabled>
-                        <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
-                    </button>
-                <fieldset>
+                    <span ng-if="!addedMedia.isFile">
+                        <div class="form-group">
+                            <label>^loc_MEDIA_URL^</label>
+                            <input type="text" class="form-control" ng-model="addedMedia.link" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
+                        </div>
+                        <button type="button" class="btn btn-primary" ng-click="loadMediaLink()" ng-disabled="!addedMedia.link.length || loadingLink">
+                            <i class="fa" ng-class="{'fa-link': !loadingLink, 'fa-circle-o-notch fa-spin': loadingLink}"></i>&nbsp;^loc_LOAD_LINK^
+                        </button>
+                        <div style="margin: 1em 0" ng-bind-html="getMediaPreviewHTML()" ng-if="mediaPreview.length" style="width: 100%"></div>
+                    </span>
+                    <fieldset>
+                        <div class="form-group">
+                            <label>^loc_MEDIA_NAME^</label>
+                            <input type="text" ng-model="addedMedia.name" class="form-control"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_CAPTION^</label>
+                            <input type="text" ng-model="addedMedia.caption" class="form-control"></input>
+                        </div>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                        </button>
+                        <button type="button" class="btn btn-primary" ng-click="saveAddedMedia()" ng-disabled="!isSaveMediaEnabled() || savingMedia">
+                            <i class="fa" ng-class="{'fa-save': !savingMedia, 'fa-circle-o-notch fa-spin': savingMedia}"></i>&nbsp;^loc_SAVE^
+                        </button>
+                    <fieldset>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<script type="text/javascript" src="/js/admin/elements/pagination.js"></script>
-<script type="text/javascript" src="^jquery_iframe_transport_src^"></script>
-<script type="text/javascript" src="^jquery_file_upload_js_src^"></script>
-<script type="text/javascript" src="/js/admin/elements/inline_media.js"></script>
-<script type="text/javascript" src="/js/admin/content/media/media_setup.js"></script>
-
-<script type="text/javascript">
-    setupUpload('^site_root^');
-</script>
+^tmp_angular=admin=elements=inline_media^

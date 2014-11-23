@@ -36,7 +36,7 @@ UserService.prototype.getFullName = function(userId, cb) {
     if (!pb.validation.isId(userId, true)) {
         return cb(new Error('The userId parameter must be a valid ID value'));
     }
-    
+
 	var self = this;
 	var dao  = new pb.DAO();
 	dao.loadById(userId, 'user', function(err, author){
@@ -111,9 +111,9 @@ UserService.prototype.getAdminOptions = function(session, ls) {
 /**
  * Retrieves a select list (id/name) of available system editors
  * @method getEditorSelectList
- * @param {String} currId The Id to be excluded from the list.  
- * @param {Function} cb A callback that takes two parameters.  The first is an 
- * error, if exists, the second is an array of objects that represent the 
+ * @param {String} currId The Id to be excluded from the list.
+ * @param {Function} cb A callback that takes two parameters.  The first is an
+ * error, if exists, the second is an array of objects that represent the
  * editor select list.
  */
 UserService.prototype.getEditorSelectList = function(currId, cb) {
@@ -253,13 +253,14 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 	var dao   = new pb.DAO();
 	var tasks = {
 		verified_username: function(callback) {
-			dao.count('user', getWhere({username: username.toLowerCase()}), callback);
+            var expStr = pb.utils.escapeRegExp(username) + '$';
+			dao.count('user', getWhere({username: new RegExp(expStr, 'i')}), callback);
 		},
 		verified_email: function(callback) {
 			dao.count('user', getWhere({email: email.toLowerCase()}), callback);
 		},
 		unverified_username: function(callback) {
-			dao.count('unverified_user', getWhere({username: username.toLowerCase()}), callback);
+			dao.count('unverified_user', getWhere({username: new RegExp(username + '$', 'i')}), callback);
 		},
 		unverified_email: function(callback) {
 			dao.count('unverified_user', getWhere({email: email.toLowerCase()}), callback);
@@ -276,9 +277,9 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
  * @param {Object} [options.select={}] The fields to return
  * @param {Array} [options.orderBy] The order to return the results in
  * @param {Integer} [options.limit] The maximum number of results to return
- * @param {offset} [options.offset=0] The number of results to skip before 
+ * @param {offset} [options.offset=0] The number of results to skip before
  * returning results.
- * @param {Function} cb A callback that takes two parameters: an error, if 
+ * @param {Function} cb A callback that takes two parameters: an error, if
  * occurred, and the second is an array of User objects.
  */
 UserService.prototype.findByAccessLevel = function(level, options, cb) {
