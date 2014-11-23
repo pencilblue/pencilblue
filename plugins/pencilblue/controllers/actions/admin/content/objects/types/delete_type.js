@@ -28,18 +28,16 @@ DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
     var self = this;
     var vars = this.pathVars;
 
-    var message = this.hasRequiredParams(vars, ['id']);
-    if(message) {
-        cb({
+    if(!pb.validation.isIdStr(vars.id, true)) {
+        return cb({
             code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
         });
-        return;
     }
 
     //ensure existence
-    var dao = new pb.DAO();
-    dao.loadById(vars.id, 'custom_object_type', function(err, objectType) {
+    var service = new pb.CustomObjectService();
+    service.loadTypeById(vars.id, function(err, objectType) {
         if(objectType === null) {
             cb({
                 code: 400,
@@ -48,18 +46,15 @@ DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
             return;
         }
 
-        dao.deleteById(vars.id, 'custom_object_type').then(function(recordsDeleted) {
-            if(recordsDeleted <= 0) {
+        service.deleteTypeById(vars.id, function(err, recordsDeleted) {
+            if(util.isError(err)) {
                 cb({
                     code: 500,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
                 });
                 return;
             }
-
-            dao.deleteMatching({type: vars.id}, 'custom_object').then(function(recordsDeleted) {
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, objectType.name + ' ' + self.ls.get('DELETED'))});
-            });
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, objectType.name + ' ' + self.ls.get('DELETED'))});
         });
     });
 };

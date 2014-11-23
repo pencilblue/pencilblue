@@ -919,6 +919,58 @@ CustomObjectService.prototype.saveType = function(custObjType, cb) {
 };
 
 /**
+ * Deletes a custom object type by id
+ * @method deleteTypeById
+ * @param {String|ObjectID} id
+ * @param {Object} [options={}]
+ * @param {Function} cb
+ */
+CustomObjectService.prototype.deleteTypeById = function(id, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+    
+    if (!pb.validation.isIdStr(id, true)) {
+        return cb(new Error('INVALID_UID'));
+    }
+    
+    var self  = this;
+    var tasks = [
+        
+        //remove object type
+        function(callback) {
+            var dao = new pb.DAO();
+            dao.deleteById(id, CustomObjectService.CUST_OBJ_TYPE_COLL, callback);
+        },
+        
+        //remove those objects associated with the type
+        function(callback) {
+            self.deleteForType(id, callback);
+        }
+    ];
+    async.series(tasks, cb);
+};
+
+/**
+ * Deletes all custom objects of a specified type
+ * @method deleteForType
+ * @param {String|Object} custObjType A string ID of the custom object type or 
+ * the custom object type itself.
+ * @param {Object} [options={}]
+ * @param 
+ */
+CustomObjectService.prototype.deleteForType = function(custObjType, cb) {
+    
+    var typeId = custObjType;
+    if (!pb.utils.isString(custObjType)) {
+        typeId = custObjType.toString();
+    }
+    var dao = new pb.DAO();
+    dao.delete({type: custObjType}, CustomObjectService.CUST_OBJ_COLL, cb);
+};
+
+/**
  * Retrieves the objects types that can be referenced by custom objects
  * @static
  * @method getStaticReferenceTypes
@@ -1023,6 +1075,33 @@ CustomObjectService.formatRawForType = function(post, custObjType) {
         }
     }
     post.type = custObjType[pb.DAO.getIdField()].toString();
+};
+
+/**
+ * Formats the raw post data for a sort ordering
+ * @static 
+ * @method formatRawSortOrdering
+ * @param {Object} post
+ * @param {Object} sortOrder the existing sort order object that the post data 
+ * will be merged with
+ * @return {Object} The formatted sort ordering object
+ */
+CustomObjectService.formatRawSortOrdering = function(post, sortOrder) {
+    delete post.last_modified;
+    delete post.created;
+    delete post[pb.DAO.getIdField()];
+
+    var sortOrderDoc = pb.DocumentCreator.create('custom_object_sort', post, []);
+    if (!sortOrderDoc) {
+        return sortOrderDoc;
+    }
+
+    //merge the old and new
+    if (pb.utils.isObject(sortOrder)) {
+        pb.utils.merge(sortOrderDoc, sortOrder);
+        return sortOrder;
+    }
+    return sortOrderDoc;
 };
 
 /**

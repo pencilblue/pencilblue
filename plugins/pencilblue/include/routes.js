@@ -705,7 +705,8 @@ module.exports = [
         access_level: ACCESS_EDITOR,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'sort_objects.js'),
-        content_type: 'text/html'
+        content_type: 'text/html',
+        request_body: ['application/json']
     },
     {
         method: 'post',

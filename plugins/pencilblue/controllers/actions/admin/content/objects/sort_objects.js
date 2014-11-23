@@ -17,72 +17,68 @@
 
 /**
  * Sets the sorting of objects
- * @class SortObjectsPostController
+ * @class SortObjectsActionController
+ * @constructor
  */
-function SortObjectsPostController(){}
+function SortObjectsActionController(){}
 
 //inheritance
-util.inherits(SortObjectsPostController, pb.FormController);
+util.inherits(SortObjectsActionController, pb.FormController);
 
-SortObjectsPostController.prototype.render = function(cb) {
+SortObjectsActionController.prototype.render = function(cb) {
     var self = this;
     var vars = this.pathVars;
 
-    if(!vars.type_id) {
-        cb({
+    if(!pb.validation.isIdStr(vars.type_id, true)) {
+        return cb({
             code: 400,
             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
         });
-        return this.reqHandler.serve404();
     }
 
     var service = new pb.CustomObjectService();
     service.loadTypeById(vars.type_id, function(err, customObjectType) {
         if(util.isError(err) || !pb.utils.isObject(customObjectType)) {
-            cb({
+            return cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
             });
-            return;
         }
 
+        //load the existing ordering if available
         service.loadSortOrdering(customObjectType, function(err, sortOrder) {
             if(util.isError(err)) {
-                cb({
+                return cb({
                     code: 500,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
                 });
-                return;
             }
 
-            self.getJSONPostParams(function(err, post) {
-                post.custom_object_type = vars.type_id;
-                var sortOrderDoc = pb.DocumentCreator.create('custom_object_sort', post);
-                sortOrder = sortOrder || {};
-                pb.utils.merge(sortOrderDoc, sortOrder);
+            //format raw post
+            var post = self.body;
+            post.custom_object_type = vars.type_id;
+            var sortOrderDoc = pb.CustomObjectService.formatRawSortOrdering(post, sortOrder);
 
-                service.saveSortOrdering(sortOrder, function(err, result) {
-                    if(util.isError(err)) {
-                        cb({
-                            code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                        });
-                        return;
-                    }
-                    else if (util.isArray(result) && result.length > 0) {
-                        cb({
-                            code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                        });
-                        return;
-                    }
+            //persist ordering
+            service.saveSortOrdering(sortOrder, function(err, result) {
+                if(util.isError(err)) {
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    });
+                }
+                else if (util.isArray(result) && result.length > 0) {
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    });
+                }
 
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObjectType.name + ' ' + self.ls.get('SORT_SAVED'))});
-                });
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObjectType.name + ' ' + self.ls.get('SORT_SAVED'))});
             });
         });
     });
 };
 
 //exports
-module.exports = SortObjectsPostController;
+module.exports = SortObjectsActionController;

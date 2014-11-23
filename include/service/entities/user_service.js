@@ -253,7 +253,8 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 	var dao   = new pb.DAO();
 	var tasks = {
 		verified_username: function(callback) {
-			dao.count('user', getWhere({username: new RegExp(username + '$', 'i')}), callback);
+            var expStr = pb.utils.escapeRegExp(username) + '$';
+			dao.count('user', getWhere({username: new RegExp(expStr, 'i')}), callback);
 		},
 		verified_email: function(callback) {
 			dao.count('user', getWhere({email: email.toLowerCase()}), callback);
