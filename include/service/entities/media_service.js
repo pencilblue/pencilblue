@@ -37,7 +37,7 @@ function MediaService(){
         this.provider = new pb.FsMediaProvider(pb.config.media.parent_dir);
     }
     else if (pb.config.media.provider === 'mongo') {
-        this.provider = new pb.MongoMediaProvider();   
+        this.provider = new pb.MongoMediaProvider();
     }
     else {
 
@@ -143,17 +143,12 @@ MediaService.prototype.validate = function(media, cb) {
     //ensure the media name is unique
     var where = { name: media.name };
     var dao   = new pb.DAO();
-    dao.loadByValue('name', media.name, 'media', function(err, mediaObject) {
+    dao.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
         if(util.isError(err)) {
             return cb(err, errors);
         }
-        else if(mediaObject) {
-            if(!media._id) {
-                errors.push(pb.CustomObjectService.err('name', 'The name '+media.name+' is already in use'));
-            }
-            else if(!ObjectID(media._id).equals(mediaObject._id)) {
-                errors.push(pb.CustomObjectService.err('name', 'The name '+media.name+' is already in use'));
-            }
+        else if(!isUnique) {
+            errors.push(pb.CustomObjectService.err('name', 'The name ' + media.name + ' is already in use'));
         }
 
         //TODO validate the other properties
