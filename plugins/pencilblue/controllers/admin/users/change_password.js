@@ -17,22 +17,24 @@
 
 /**
  * Interface for changing the logged in user's password
+ * @class AdminChangePasswordController
+ * @constructor
+ * @extends BaseController
  */
-
-function ChangePasswordController(){}
+function AdminChangePasswordController(){}
 
 //inheritance
-util.inherits(ChangePasswordController, pb.BaseController);
+util.inherits(AdminChangePasswordController, pb.BaseController);
 
 //statics
 var SUB_NAV_KEY = 'change_password';
 
-ChangePasswordController.prototype.render = function(cb) {
+AdminChangePasswordController.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
-    if(!vars.id) {
-        this.redirect('/admin/users', cb);
-        return;
+    
+    if(!pb.validation.isIdStr(vars.id, true)) {
+        return self.reqHandler.serve404();
     }
     if(self.session.authentication.user_id != vars.id) {
         this.redirect('/admin/users', cb);
@@ -71,19 +73,19 @@ ChangePasswordController.prototype.render = function(cb) {
     });
 };
 
-ChangePasswordController.getSubNavItems = function(key, ls, data) {
+AdminChangePasswordController.getSubNavItems = function(key, ls, data) {
 	return [
         {
             name: SUB_NAV_KEY,
             title: ls.get('CHANGE_PASSWORD'),
             icon: 'chevron-left',
-            href: '/admin/users/' + data._id
+            href: pb.UrlService.urlJoin('/admin/users/', + encodeURIComponent(data[pb.DAO.getIdField()]))
         }
    ];
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ChangePasswordController.getSubNavItems);
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, AdminChangePasswordController.getSubNavItems);
 
 //exports
-module.exports = ChangePasswordController;
+module.exports = AdminChangePasswordController;

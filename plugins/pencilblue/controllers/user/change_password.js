@@ -17,16 +17,24 @@
 
 /**
  * Interface for logged in user to change password
+ * @class ChangePasswordFormController
+ * @constructor
+ * @extends FormController
  */
-
-function ChangePasswordController(){}
+function ChangePasswordFormController(){}
 
 //inheritance
-util.inherits(ChangePasswordController, pb.FormController);
+util.inherits(ChangePasswordFormController, pb.FormController);
 
-ChangePasswordController.prototype.render = function(cb) {
+/**
+ *
+ * @method render
+ *
+ */
+ChangePasswordFormController.prototype.render = function(cb) {
     var self = this;
 
+    //retrieve user
     var dao = new pb.DAO();
     dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
         if(util.isError(err) || user === null) {
@@ -45,7 +53,12 @@ ChangePasswordController.prototype.render = function(cb) {
     });
 };
 
-ChangePasswordController.prototype.gatherData = function() {
+/**
+ *
+ * @method gatherData
+ *
+ */
+ChangePasswordFormController.prototype.gatherData = function() {
     return {
         navigation: [
             {
@@ -95,4 +108,4 @@ ChangePasswordController.prototype.gatherData = function() {
 };
 
 //exports
-module.exports = ChangePasswordController;
+module.exports = ChangePasswordFormController;

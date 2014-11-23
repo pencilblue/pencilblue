@@ -15,22 +15,29 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-* Interface for changing a plugin's settings
-*/
-
-function PluginSettings(){}
-
 //dependencies
 var BaseController = pb.BaseController;
 
+/**
+* Interface for changing a plugin's settings
+* @class PluginSettingsFormController
+* @constructor
+* @extends BaseController
+*/
+function PluginSettingsFormController(){}
+
 //inheritance
-util.inherits(PluginSettings, BaseController);
+util.inherits(PluginSettingsFormController, BaseController);
 
 //statics
 var SUB_NAV_KEY = 'plugin_settings';
 
-PluginSettings.prototype.render = function(cb) {
+/**
+ *
+ * @method render
+ *
+ */
+PluginSettingsFormController.prototype.render = function(cb) {
 	if (this.req.method !== 'GET' && this.req.method !== 'POST') {
 		var data = {
 			code: 405,
@@ -58,7 +65,12 @@ PluginSettings.prototype.render = function(cb) {
 	}
 };
 
-PluginSettings.prototype.renderGet = function(cb) {
+/**
+ *
+ * @method renderGet
+ *
+ */
+PluginSettingsFormController.prototype.renderGet = function(cb) {
 	var self = this;
 
 	var uid = this.pathVars.id;
@@ -127,19 +139,39 @@ PluginSettings.prototype.renderGet = function(cb) {
 	});
 };
 
-PluginSettings.prototype.getPageName = function() {
+/**
+ *
+ * @method getPageName
+ *
+ */
+PluginSettingsFormController.prototype.getPageName = function() {
 	return this.plugin.name + ' - ' + this.ls.get('SETTINGS');
 };
 
-PluginSettings.prototype.getSettings = function(uid, cb) {
+/**
+ *
+ * @method getSettings
+ *
+ */
+PluginSettingsFormController.prototype.getSettings = function(uid, cb) {
 	pb.plugins.getSettings(uid, cb);
 };
 
-PluginSettings.prototype.setSettings = function(settings, uid, cb) {
+/**
+ *
+ * @method setSettings
+ *
+ */
+PluginSettingsFormController.prototype.setSettings = function(settings, uid, cb) {
 	pb.plugins.setSettings(settings, uid, cb);
 };
 
-PluginSettings.prototype.renderPost = function(post, cb) {
+/**
+ *
+ * @method renderPost
+ *
+ */
+PluginSettingsFormController.prototype.renderPost = function(post, cb) {
 	var self = this;
 
 	//retrieve settings
@@ -158,8 +190,8 @@ PluginSettings.prototype.renderPost = function(post, cb) {
 
 			var currItem = settings[i];
 			var newVal   = post[currItem.name];
-			var type     = PluginSettings.getValueType(currItem.value);console.log(util.format('N=[%s] OV=[%s] NV=[%s] T=[%s]', currItem.name, currItem.value, newVal, type));
-			if (newVal === undefined || null) {
+			var type     = PluginSettingsFormController.getValueType(currItem.value);
+			if (newVal === undefined || newVal === null) {
 				if (type === 'boolean') {
 					newVal = false;
 				}
@@ -170,13 +202,13 @@ PluginSettings.prototype.renderPost = function(post, cb) {
 			}
 
 			//validate the value
-			if (!PluginSettings.validateValue(newVal, type)) {
+			if (!PluginSettingsFormController.validateValue(newVal, type)) {
 				errors.push(util.format("The value [%s] for setting %s is not a valid %s", newVal, currItem.name, type));
 				continue;
 			}
 
 			//set the new value
-			currItem.value = PluginSettings.formatValue(newVal, type);
+			currItem.value = PluginSettingsFormController.formatValue(newVal, type);
 		}
 
 		//handle errors
@@ -203,11 +235,21 @@ PluginSettings.prototype.renderPost = function(post, cb) {
 	});
 };
 
-PluginSettings.prototype.getBackUrl = function() {
+/**
+ *
+ * @method getBackUrl
+ *
+ */
+PluginSettingsFormController.prototype.getBackUrl = function() {
 	return '/admin/plugins/';
 };
 
-PluginSettings.geSubNavItems = function(key, ls, data) {
+/**
+ * @static
+ * @method render
+ *
+ */
+PluginSettingsFormController.geSubNavItems = function(key, ls, data) {
 	return [
         {
             name: 'manage_plugins',
@@ -218,7 +260,12 @@ PluginSettings.geSubNavItems = function(key, ls, data) {
 	];
 };
 
-PluginSettings.getValueInputType = function(value) {
+/**
+ * @static
+ * @method getValueInputType
+ *
+ */
+PluginSettingsFormController.getValueInputType = function(value) {
 	var type = '';
 	if (value === true || value === false) {
 		type = 'checkbox';
@@ -232,7 +279,12 @@ PluginSettings.getValueInputType = function(value) {
 	return type;
 };
 
-PluginSettings.getValueType = function(value) {
+/**
+ * @static
+ * @method getValueType
+ *
+ */
+PluginSettingsFormController.getValueType = function(value) {
 	var type = '';
 	if (value === true || value === false) {
 		type = 'boolean';
@@ -246,7 +298,12 @@ PluginSettings.getValueType = function(value) {
 	return type;
 };
 
-PluginSettings.validateValue = function(value, type) {
+/**
+ * @static
+ * @method validateValue
+ *
+ */
+PluginSettingsFormController.validateValue = function(value, type) {
 	if (type === 'boolean') {
 		return value !== null && value !== undefined && (value === true || value === false || value === 1 || value === 0 || value == '1' || value === '0' || value.toLowerCase() === 'true' || value.toLowerCase() === 'false');
 	}
@@ -259,7 +316,12 @@ PluginSettings.validateValue = function(value, type) {
 	return false;
 };
 
-PluginSettings.formatValue = function(value, type) {
+/**
+ * @static
+ * @method formatValue
+ *
+ */
+PluginSettingsFormController.formatValue = function(value, type) {
 	if (value === null || value === undefined || type === null || type === undefined) {
 		throw new Error("Value and type must be provided");
 	}
@@ -294,7 +356,7 @@ PluginSettings.formatValue = function(value, type) {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettings.geSubNavItems);
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsFormController.geSubNavItems);
 
 //exports
-module.exports = PluginSettings;
+module.exports = PluginSettingsFormController;

@@ -17,16 +17,16 @@
 
 /**
 * Creates an object
-* @class NewObject
+* @class NewObjectActionController
 * @constructor
-* @extends FormController
+* @extends BaseController
 */
-function NewObject(){}
+function NewObjectActionController(){}
 
 //inheritance
-util.inherits(NewObject, pb.BaseController);
+util.inherits(NewObjectActionController, pb.BaseController);
 
-NewObject.prototype.render = function(cb) {
+NewObjectActionController.prototype.render = function(cb) {
 	var self = this;
 	var vars = this.pathVars;
 
@@ -78,4 +78,4 @@ NewObject.prototype.render = function(cb) {
 };
 
 //exports
-module.exports = NewObject;
+module.exports = NewObjectActionController;

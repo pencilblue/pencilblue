@@ -15,24 +15,31 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-* Interface for viewing plugin details
-*/
-
-function PluginDetails(){}
-
 //dependencies
 var BaseController = pb.BaseController;
 var PluginService  = pb.PluginService;
 var LocalizationService = pb.LocalizationService;
 
+/**
+* Interface for viewing plugin details
+* @class PluginDetailsViewController
+* @constructor
+* @extends BaseController
+*/
+function PluginDetailsViewController(){}
+
 //inheritance
-util.inherits(PluginDetails, BaseController);
+util.inherits(PluginDetailsViewController, BaseController);
 
 //statics
 var SUB_NAV_KEY = 'plugin_details';
 
-PluginDetails.prototype.render = function(cb) {
+/**
+ *
+ * @method render
+ *
+ */
+PluginDetailsViewController.prototype.render = function(cb) {
 	var self = this;
 
 	this.getDetails(this.pathVars.id, function(err, obj) {
@@ -63,7 +70,12 @@ PluginDetails.prototype.render = function(cb) {
 	});
 };
 
-PluginDetails.prototype.getDetails = function(puid, cb) {
+/**
+ *
+ * @method getDetails
+ *
+ */
+PluginDetailsViewController.prototype.getDetails = function(puid, cb) {
 	var self = this;
 
 	pb.plugins.getPlugin(puid, function(err, plugin) {
@@ -113,7 +125,12 @@ PluginDetails.prototype.getDetails = function(puid, cb) {
 	});
 };
 
-PluginDetails.getSubNavItems = function(key, ls, data) {
+/**
+ * @static
+ * @method getSubNavItems
+ *
+ */
+PluginDetailsViewController.getSubNavItems = function(key, ls, data) {
 	return [
         {
             name: 'manage',
@@ -125,7 +142,7 @@ PluginDetails.getSubNavItems = function(key, ls, data) {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginDetails.getSubNavItems);
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginDetailsViewController.getSubNavItems);
 
 //exports
-module.exports = PluginDetails;
+module.exports = PluginDetailsViewController;

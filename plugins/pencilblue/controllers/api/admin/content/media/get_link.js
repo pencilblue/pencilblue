@@ -27,17 +27,8 @@ GetMediaLink.prototype.render = function(cb) {
     var self = this;
     var get  = this.query;
 
-    var message = this.hasRequiredParams(get, ['url']);
-    if (message) {
-        cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-        });
-        return;
-    }
-
-    if(!self.isValidURL(get.url)) {
-        cb({
+    if (!pb.validation.isUrl(get.url, true)) {
+        return cb({
             code: 400,
             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_URL'))
         });
@@ -92,8 +83,7 @@ GetMediaLink.prototype.checkForMediaFile = function(url, cb) {
     var self = this;
     var fileType = url.substr(url.lastIndexOf('.') + 1).toLowerCase();
 
-    switch(fileType)
-    {
+    switch(fileType) {
         case 'jpg':
         case 'jpeg':
         case 'png':
@@ -111,9 +101,8 @@ GetMediaLink.prototype.checkForMediaFile = function(url, cb) {
         case 'ogv':
             self.mediaOutput('video/ogg', url, '', cb);
             return true;
-        default:
-            break;
     }
+    return false;
 };
 
 GetMediaLink.prototype.getYouTube = function(url, cb, shortURL) {
@@ -319,12 +308,6 @@ GetMediaLink.prototype.mediaOutput = function(type, location, thumb, cb) {
     };
 
     cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', mediaData)});
-};
-
-GetMediaLink.prototype.isValidURL = function(url) {
-    var regexp = /\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-
-    return regexp.test(url);
 };
 
 //exports

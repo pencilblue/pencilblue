@@ -28,39 +28,20 @@ GetObjectTypeNameAvailable.prototype.render = function(cb) {
     var self = this;
     var get = this.query;
 
-    if(!get.name || get.name.length === 0)
-    {
-        cb({
+    if(!pb.validation.isNonEmptyStr(get.name, true)) {
+        return cb({
             code: 400,
             content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'name was not passed')
         });
-        return;
     }
 
-    var dao = new pb.DAO();
-    dao.query('custom_object_type', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(customObjectTypes) {
-        if (util.isError(customObjectTypes)) {
-            //TODO handle this
+    var service = new pb.CustomObjectService();
+    service.typeExists(get.name, function(err, exists) {
+        if (util.isError(err)) {
+            return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, err.stack, false)});
         }
 
-        //none to manage
-        if(customObjectTypes.length === 0) {
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.name + ' is available', true)});
-            return;
-        }
-
-        // Case insensitive test for duplicate name
-        for(var i =0; i < customObjectTypes.length; i++)
-        {
-            if(get.name.toLowerCase() == customObjectTypes[i].name.toLowerCase())
-            {
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.name + ' is not available', false)});
-                return;
-            }
-        }
-
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.name + ' is available', true)});
-        return;
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.name + ' is ' + (exists ? 'not ' : '') + 'available', !exists)});
     });
 };
 

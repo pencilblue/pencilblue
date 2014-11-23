@@ -19,12 +19,12 @@
 * Interface for creating and editing pages
 */
 
-function PageForm(){}
+function PageFormController(){}
 
 //inheritance
-util.inherits(PageForm, pb.BaseController);
+util.inherits(PageFormController, pb.BaseController);
 
-PageForm.prototype.render = function(cb) {
+PageFormController.prototype.render = function(cb) {
 	var self  = this;
 	var vars = this.pathVars;
 	this.vars = vars;
@@ -44,22 +44,21 @@ PageForm.prototype.render = function(cb) {
 		self.setPageName(self.page._id ? self.page.headline : self.ls.get('NEW_PAGE'));
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
 		self.ts.load('admin/content/pages/page_form', function(err, data) {
-			self.onTemplateRetrieved('' + data, function(err, data) {
-				var result = '' + data;
-				self.checkForFormRefill(result, function(newResult) {
-					result = newResult;
-					cb({content: result});
-				});
-			});
+            var result = data;
+            self.checkForFormRefill(result, function(newResult) {
+                result = newResult;
+                cb({content: result});
+            });
 		});
 	});
 };
 
-PageForm.prototype.onTemplateRetrieved = function(template, cb) {
-	cb(null, template);
-};
-
-PageForm.prototype.getAngularObjects = function(tabs, data) {
+/**
+ *
+ * @method getAngularObjects
+ *
+ */
+PageFormController.prototype.getAngularObjects = function(tabs, data) {
 	if(data.page._id) {
 		var media = [];
 		var i, j;
@@ -101,7 +100,12 @@ PageForm.prototype.getAngularObjects = function(tabs, data) {
 	return pb.js.getAngularObjects(objects);
 };
 
-PageForm.getSubNavItems = function(key, ls, data) {
+/**
+ * @static
+ * @method getAngularObjects
+ *
+ */
+PageFormController.getSubNavItems = function(key, ls, data) {
 	return [{
 		name: 'manage_pages',
 		title: data.page._id ? ls.get('EDIT') + ' ' + data.page.headline : ls.get('NEW_PAGE'),
@@ -115,11 +119,21 @@ PageForm.getSubNavItems = function(key, ls, data) {
 	}];
 };
 
-PageForm.prototype.getActivePill = function() {
+/**
+ *
+ * @method getActivePill
+ *
+ */
+PageFormController.prototype.getActivePill = function() {
 	return 'new_page';
 };
 
-PageForm.prototype.gatherData = function(vars, cb) {
+/**
+ *
+ * @method gatherData
+ *
+ */
+PageFormController.prototype.gatherData = function(vars, cb) {
 	var self  = this;
 	var dao   = new pb.DAO();
 	var tasks = {
@@ -161,7 +175,12 @@ PageForm.prototype.gatherData = function(vars, cb) {
 	async.parallelLimit(tasks, 2, cb);
 };
 
-PageForm.prototype.getTabs = function() {
+/**
+ *
+ * @method getTabs
+ *
+ */
+PageFormController.prototype.getTabs = function() {
 	return [
 		{
 			active: 'active',
@@ -188,7 +207,7 @@ PageForm.prototype.getTabs = function() {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor('new_page', PageForm.getSubNavItems);
+pb.AdminSubnavService.registerFor('new_page', PageFormController.getSubNavItems);
 
 //exports
-module.exports = PageForm;
+module.exports = PageFormController;

@@ -31,7 +31,7 @@ ObjectFormController.prototype.render = function(cb) {
     var self = this;
     var vars = this.pathVars;
 
-    if(!pb.validation.isIdStr(vars.id, true)) {
+    if(!pb.validation.isIdStr(vars.type_id, true)) {
         return self.redirect('/admin/content/objects/types', cb);
     }
 
@@ -43,13 +43,26 @@ ObjectFormController.prototype.render = function(cb) {
             return self.reqHandler.serve404();
         }
 
+        //TODO: exclude the IDs from the load options query when type is child objects
         // Remove active child objects from available objects list
         if(data.customObject[pb.DAO.getIdField()]) {
+            
+            //iterate over fields
             for(var i = 0; i < data.objectType.fields.length; i++) {
+                
+                //perform operation only when field type is child objects
                 if(data.objectType.fields[i].field_type === 'child_objects') {
+                    
+                    //iterate over objects selected for the child objects field
                     for(var j = 0; j < data.customObject[data.objectType.fields[i].name].length; j++) {
+                        
+                        //iterate over the entire list of possible objects that could be linked back as a child object
                         for(var s = 0; s < data.objectType.fields[i].available_objects.length; s++) {
+                            
+                            //when an associated child object is found in the overall list of items
                             if(data.customObject[data.objectType.fields[i].name][j]._id.equals(data.objectType.fields[i].available_objects[s]._id)) {
+                                
+                                //remove it from the list of possible objects to choose from
                                 data.objectType.fields[i].available_objects.splice(s, 1);
                                 break;
                             }
@@ -101,9 +114,7 @@ ObjectFormController.prototype.gatherData = function(vars, cb) {
                     return;
                 }
 
-                self.loadFieldOptions(cos, objectType, function(objectType) {
-                    callback(err, objectType);
-                });
+                self.loadFieldOptions(cos, objectType, callback);
             });
         },
 
@@ -113,19 +124,18 @@ ObjectFormController.prototype.gatherData = function(vars, cb) {
                 return;
             }
 
-            cos.loadById(vars.id, {fetch_depth: 1}, function(err, customObject) {
-                callback(err, customObject);
-            });
+            cos.loadById(vars.id, {fetch_depth: 1}, callback);
         }
     };
     async.series(tasks, cb);
 };
 
 ObjectFormController.prototype.loadFieldOptions = function(service, objectType, cb) {
-    var self = this;
-    var keys = Object.keys(objectType.fields);
+    var self         = this;
+    var keys         = Object.keys(objectType.fields);
     var custObjTypes = {};
-    var dao = new pb.DAO();
+    var dao          = new pb.DAO();
+    var userService  = new pb.UserService();
 
     //wrapper function to load cust object type
     var loadType = function(name, callback) {
@@ -139,72 +149,72 @@ ObjectFormController.prototype.loadFieldOptions = function(service, objectType, 
         });
     };
 
-    this.loadObjectOptions = function(index) {
-        if(index >= keys.length) {
-            self.convertFieldsToArray();
-            return;
-        }
+    var tasks = pb.utils.getTasks(keys, function(keys, i) {
+        return function(callback) {
+            
+            //only proceed for peer or child object types
+            var key = keys[i];
+            if(!pb.CustomObjectService.isReferenceFieldType(objectType.fields[key].field_type)) {
+                return callback();
+            }
+            
+            //field represents a reference to a custom field
+            if(pb.CustomObjectService.isCustomObjectType(objectType.fields[key].object_type)) {
 
-        var key = keys[index];
-        if(!pb.CustomObjectService.isReferenceFieldType(objectType.fields[key].field_type)) {
-            index++;
-            self.loadObjectOptions(index);
-            return;
-        }
-
-        //field represents a reference to a custom field
-        if(pb.CustomObjectService.isCustomObjectType(objectType.fields[key].object_type)) {
-
-            loadType(objectType.fields[key].object_type, function(err, customObjectType) {
-                if (util.isError(err)) {
-                    //TODO handle this
-                    pb.log.error(err.stack);
-                }
-
-                //TODO: This is REALLY bad for large systems.  This needs to move to an API call (searchable and pagable)
-                //TODO: decide if we should exclude the iD of the item we are working on
-                var options = { select: { name: 1 } };
-                service.findByType(customObjectType, options, function(err, customObjectsInfo) {
+                loadType(objectType.fields[key].object_type, function(err, customObjectType) {
                     if (util.isError(err)) {
-                        //TODO handle this
-                        pb.log.error(err.stack);
+                        return callback(err);
                     }
 
-                    objectType.fields[key].available_objects = customObjectsInfo;
-                    index++;
-                    self.loadObjectOptions(index);
+                    //TODO: This is REALLY bad for large systems.  This needs to move to an API call (searchable and pagable)
+                    //TODO: decide if we should exclude the iD of the item we are working on
+                    var options = { select: { name: 1 } };
+                    service.findByType(customObjectType, options, function(err, customObjectsInfo) {
+                        if (util.isError(err)) {
+                            return callback(err);
+                        }
+
+                        objectType.fields[key].available_objects = customObjectsInfo;
+                        callback();
+                    });
                 });
+                return;
+            }
+            
+            //TODO: This is REALLY bad for large systems.  This needs to move 
+            //to an API call (searchable and pagable)
+            var query = {
+                where: pb.DAO.ANYWHERE,
+                select: {
+                    name: 1,
+                    headline: 1,
+                    first_name: 1,
+                    last_name: 1
+                }
+            };
+            dao.q(objectType.fields[key].object_type, query, function(err, availableObjects) {
+                if (util.isError(err)) {
+                    return callback(err);
+                }
+
+                var objectsInfo = [];
+                for(var i = 0; i < availableObjects.length; i++) {
+                    
+                    var descriptor = {
+                        name: availableObjects[i].name || availableObjects[i].headline || userService.getFormattedName(availableObjects[i])
+                    };
+                    descriptor[pb.DAO.getIdField()] = availableObjects[i][pb.DAO.getIdField()]
+                    objectsInfo.push(descriptor);
+                }
+
+                objectType.fields[key].available_objects = objectsInfo;
+                callback();
             });
-
-            return;
-        }
-
-        //TODO: This is REALLY bad for large systems.  This needs to move to an API call (searchable and pagable)
-        var select = {
-            name: 1,
-            headline: 1,
-            first_name: 1,
-            last_name: 1
         };
-        dao.query(objectType.fields[key].object_type, pb.DAO.ANYWHERE, select).then(function(availableObjects) {
-            if (util.isError(availableObjects)) {
-                //TODO handle this
-                pb.log.error(err.stack);
-            }
-
-            var objectsInfo = [];
-            for(var i = 0; i < availableObjects.length; i++)
-            {
-                objectsInfo.push({_id: availableObjects[i]._id, name: availableObjects[i].name || availableObjects[i].headline || (availableObjects[i].first_name + ' ' + availableObjects[i].last_name)});
-            }
-
-            objectType.fields[key].available_objects = objectsInfo;
-            index++;
-            self.loadObjectOptions(index);
-        });
-    };
-
-    this.convertFieldsToArray = function() {
+    });
+    async.parallel(tasks, function(err, results) {
+        
+        //TODO find out why we do this
         delete objectType.fields.name;
 
         var fieldsArray = [{name: 'name', field_type: 'text'}];
@@ -215,10 +225,8 @@ ObjectFormController.prototype.loadFieldOptions = function(service, objectType, 
         }
 
         objectType.fields = fieldsArray;
-        cb(objectType);
-    };
-
-    this.loadObjectOptions(0);
+        cb(err, objectType);
+    });
 };
 
 ObjectFormController.getSubNavItems = function(key, ls, data) {

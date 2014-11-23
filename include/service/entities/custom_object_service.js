@@ -970,6 +970,15 @@ CustomObjectService.prototype.deleteForType = function(custObjType, cb) {
     dao.delete({type: custObjType}, CustomObjectService.CUST_OBJ_COLL, cb);
 };
 
+CustomObjectService.prototype.typeExists = function(typeName, cb) {
+    
+    var where = {
+        name: new RegExp('^'+pb.utils.escapeRegExp(typeName)+'$', 'ig')
+    };
+    var dao = new pb.DAO();
+    dao.exists(CustomObjectService.CUST_OBJ_TYPE_COLL, where, cb);
+};
+
 /**
  * Retrieves the objects types that can be referenced by custom objects
  * @static
