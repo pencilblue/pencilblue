@@ -17,9 +17,9 @@
 
 /**
  * Interface for creating and editing navigation items
+ * @class NavItemFormController
  */
-
-function NavItemForm(){
+function NavItemFormController(){
     this.navItem = null;
 }
 
@@ -27,12 +27,12 @@ function NavItemForm(){
 var SectionService = pb.SectionService;
 
 //inheritance
-util.inherits(NavItemForm, pb.BaseController);
+util.inherits(NavItemFormController, pb.BaseController);
 
 //statics
 var SUB_NAV_KEY = 'article_form';
 
-NavItemForm.prototype.render = function(cb) {
+NavItemFormController.prototype.render = function(cb) {
     var self = this;
     var vars = this.pathVars;
 
@@ -65,7 +65,7 @@ NavItemForm.prototype.render = function(cb) {
     });
 };
 
-NavItemForm.prototype.gatherData = function(vars, cb) {
+NavItemFormController.prototype.gatherData = function(vars, cb) {
     var self = this;
     var tasks = {
 
@@ -125,6 +125,7 @@ NavItemForm.prototype.gatherData = function(vars, cb) {
                     return;
                 }
 
+                //TODO modify such that only the needed field of "headline" is returned.
                 dao.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
                     if(articleOrPage) {
                         navItem.contentSearchValue = articleOrPage.headline;
@@ -138,11 +139,11 @@ NavItemForm.prototype.gatherData = function(vars, cb) {
     async.series(tasks, cb);
 };
 
-NavItemForm.prototype.getSubnavKey = function() {
+NavItemFormController.prototype.getSubnavKey = function() {
     return SUB_NAV_KEY;
 };
 
-NavItemForm.getSubNavItems = function(key, ls, data) {
+NavItemFormController.getSubNavItems = function(key, ls, data) {
     var pills = SectionService.getPillNavOptions();
     pills.unshift(
     {
@@ -155,7 +156,7 @@ NavItemForm.getSubNavItems = function(key, ls, data) {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, NavItemForm.getSubNavItems);
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, NavItemFormController.getSubNavItems);
 
 //exports
-module.exports = NavItemForm;
+module.exports = NavItemFormController;

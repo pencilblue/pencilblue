@@ -33,7 +33,7 @@ ManageObjects.prototype.render = function(cb) {
     var self = this;
     var vars = this.pathVars;
 
-    if(!vars.type_id) {
+    if(!pb.validation.isIdStr(vars.type_id, true)) {
         return this.reqHandler.serve404();
     }
 
@@ -53,7 +53,7 @@ ManageObjects.prototype.render = function(cb) {
 
             //none to manage
             if(customObjects.length === 0) {
-                return self.redirect('/admin/content/objects/' + vars.type_id + '/new', cb);
+                return self.redirect(pb.UrlService.urlJoin('/admin/content/objects/', encodeURIComponent(vars.type_id), '/new'), cb);
             }
 
 

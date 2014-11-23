@@ -17,36 +17,34 @@
 
 /**
  * Interface for editing an object
+ * @class ObjectFormController
+ * @constructor
  */
-
-function ObjectForm() {}
+function ObjectFormController() {}
 
 //inheritance
-util.inherits(ObjectForm, pb.BaseController);
+util.inherits(ObjectFormController, pb.BaseController);
 
 var SUB_NAV_KEY = 'object_form';
 
-ObjectForm.prototype.render = function(cb) {
+ObjectFormController.prototype.render = function(cb) {
     var self = this;
     var vars = this.pathVars;
 
-    var message = this.hasRequiredParams(vars, ['type_id']);
-    if(message) {
-        self.redirect('/admin/content/objects/types', cb);
-        return;
+    if(!pb.validation.isIdStr(vars.id, true)) {
+        return self.redirect('/admin/content/objects/types', cb);
     }
 
     this.gatherData(vars, function(err, data) {
         if (util.isError(err)) {
-            throw err;
+            return self.reqHandler.serveError(err);
         }
         else if(!data.customObject) {
-            self.reqHandler.serve404();
-            return;
+            return self.reqHandler.serve404();
         }
 
         // Remove active child objects from available objects list
-        if(data.customObject._id) {
+        if(data.customObject[pb.DAO.getIdField()]) {
             for(var i = 0; i < data.objectType.fields.length; i++) {
                 if(data.objectType.fields[i].field_type === 'child_objects') {
                     for(var j = 0; j < data.customObject[data.objectType.fields[i].name].length; j++) {
@@ -75,7 +73,7 @@ ObjectForm.prototype.render = function(cb) {
     });
 };
 
-ObjectForm.prototype.gatherData = function(vars, cb) {
+ObjectFormController.prototype.gatherData = function(vars, cb) {
     var self = this;
     var cos = new pb.CustomObjectService();
 
@@ -124,7 +122,7 @@ ObjectForm.prototype.gatherData = function(vars, cb) {
     async.series(tasks, cb);
 };
 
-ObjectForm.prototype.loadFieldOptions = function(service, objectType, cb) {
+ObjectFormController.prototype.loadFieldOptions = function(service, objectType, cb) {
     var self = this;
     var keys = Object.keys(objectType.fields);
     var custObjTypes = {};
@@ -224,7 +222,7 @@ ObjectForm.prototype.loadFieldOptions = function(service, objectType, cb) {
     this.loadObjectOptions(0);
 };
 
-ObjectForm.getSubNavItems = function(key, ls, data) {
+ObjectFormController.getSubNavItems = function(key, ls, data) {
     return [
         {
             name: 'manage_objects',
@@ -242,7 +240,7 @@ ObjectForm.getSubNavItems = function(key, ls, data) {
 };
 
 //register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ObjectForm.getSubNavItems);
+pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ObjectFormController.getSubNavItems);
 
 //exports
-module.exports = ObjectForm;
+module.exports = ObjectFormController;
