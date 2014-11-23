@@ -45,7 +45,6 @@ TypeForm.prototype.render = function(cb) {
         var angularObjects = pb.js.getAngularObjects(data);
 
         self.setPageName(self.objectType._id ? self.objectType.name : self.ls.get('NEW_OBJECT'));
-        self.ts.registerLocal('angular_script', '');
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/objects/types/type_form', function(err, result) {
             cb({content: result});

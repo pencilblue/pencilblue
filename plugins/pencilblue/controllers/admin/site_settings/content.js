@@ -64,7 +64,6 @@ Content.prototype.render = function(cb) {
         });
 
         self.setPageName(self.ls.get('CONTENT'));
-        self.ts.registerLocal('angular_script', '');
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/site_settings/content', function(err,result) {
             cb({content: result});

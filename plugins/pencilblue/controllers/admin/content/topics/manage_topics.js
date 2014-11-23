@@ -57,7 +57,6 @@ ManageTopics.prototype.render = function(cb) {
         });
 
         self.setPageName(self.ls.get('MANAGE_TOPICS'));
-        self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/topics/manage_topics', function(err, data) {
             var result = '' + data;

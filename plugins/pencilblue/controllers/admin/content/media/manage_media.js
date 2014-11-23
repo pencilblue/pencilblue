@@ -57,7 +57,6 @@ ManageMedia.prototype.render = function(cb) {
 
         var title = self.ls.get('MANAGE_MEDIA');
         self.setPageName(title);
-        self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/media/manage_media', function(err, result) {
            cb({content: result});

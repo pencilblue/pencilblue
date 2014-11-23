@@ -53,7 +53,6 @@ ManageArticles.prototype.render = function(cb) {
 
             var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
             self.setPageName(manageArticlesStr);
-			self.ts.registerLocal('angular_script', '');
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/content/articles/manage_articles',  function(err, data) {
                 var result = '' + data;

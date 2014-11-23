@@ -44,7 +44,6 @@ UnverifiedUsers.prototype.render = function(cb) {
         });
 
         self.setPageName(self.ls.get('UNVERIFIED_USERS'));
-        self.ts.registerLocal('angular_script', '');
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/users/unverified_users', function(err, result){
             cb({content: result});

@@ -51,7 +51,6 @@ MediaForm.prototype.render = function(cb) {
 		var angularObjects = pb.js.getAngularObjects(data);
 
 		self.setPageName(self.media._id ? self.media.name : self.ls.get('NEW_MEDIA'));
-		self.ts.registerLocal('angular_script','');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 		self.ts.load('admin/content/media/media_form', function(err, result) {
 			cb({content: result});

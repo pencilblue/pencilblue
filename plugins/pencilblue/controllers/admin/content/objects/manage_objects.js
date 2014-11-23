@@ -75,7 +75,6 @@ ManageObjects.prototype.render = function(cb) {
 
             var title = self.ls.get('MANAGE') + ' ' + custObjType.name;
             self.setPageName(title);
-            self.ts.registerLocal('angular_script', '');
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/content/objects/manage_objects', function(err, result) {
                 cb({content: result});

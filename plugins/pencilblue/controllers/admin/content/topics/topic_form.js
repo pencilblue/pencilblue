@@ -46,7 +46,6 @@ TopicForm.prototype.render = function(cb) {
         var angularObjects = pb.js.getAngularObjects(data);
 
         self.setPageName(self.topic._id ? self.topic.name : self.ls.get('NEW_TOPIC'));
-        self.ts.registerLocal('angular_script','');
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/topics/topic_form', function(err, result) {
             cb({content: result});

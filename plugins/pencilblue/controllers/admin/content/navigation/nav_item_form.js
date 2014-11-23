@@ -49,12 +49,11 @@ NavItemFormController.prototype.render = function(cb) {
         self.navItem = data.navItem;
         var contentSearchValue = self.navItem.contentSearchValue ? self.navItem.contentSearchValue.toString() : '';
         delete self.navItem.contentSearchValue;
-        
+
         data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
         var angularObjects = pb.js.getAngularObjects(data);
 
         self.setPageName(self.navItem._id ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
-        self.ts.registerLocal('angular_script', '');
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.registerLocal('content_type', '{{section.type}}');
         self.ts.registerLocal('selection_id_field', 'item');
