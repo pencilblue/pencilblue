@@ -27,7 +27,7 @@ GetMediaPreview.prototype.render = function(cb) {
     var self = this;
     var get  = this.query;
 
-    if(get.id) {
+    if(pb.validation.isIdStr(get.id, true)) {
         this.getPreviewById(get.id, cb);
     }
     else {
