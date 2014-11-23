@@ -148,7 +148,7 @@ PluginSettings.prototype.renderPost = function(post, cb) {
 		if(util.isError(err) || settings === null) {
 			cb({
 				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
 			});
 			return;
 		}
