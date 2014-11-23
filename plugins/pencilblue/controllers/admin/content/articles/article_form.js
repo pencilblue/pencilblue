@@ -41,7 +41,8 @@ ArticleForm.prototype.render = function(cb) {
         self.article = results.article;
         var tabs   = self.getTabs();
 
-		self.setPageName(self.article._id ? self.article.headline : self.ls.get('NEW_ARTICLE'));
+		self.setPageName(self.article[pb.DAO.getIdField()] ? self.article.headline : self.ls.get('NEW_ARTICLE'));
+		self.ts.registerLocal('angular_script', '');
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
     	self.ts.load('admin/content/articles/article_form', function(err, data) {
     		self.onTemplateRetrieved('' + data, function(err, data) {
@@ -60,7 +61,7 @@ ArticleForm.prototype.onTemplateRetrieved = function(template, cb) {
 };
 
 ArticleForm.prototype.getAngularObjects = function(tabs, data) {
-	if(data.article._id) {
+	if(data.article[pb.DAO.getIdField()]) {
 		var media = [];
 		var i, j;
 
@@ -160,14 +161,11 @@ ArticleForm.prototype.gatherData = function(vars, cb) {
     	},
 
 		article: function(callback) {
-			if(!vars.id) {
+			if(!pb.validation.isIdStr(vars.id, true)) {
 				callback(null, {});
 				return;
 			}
-
-			dao.loadById(vars.id, 'article', function(err, article) {
-				callback(err, article);
-			});
+			dao.loadById(vars.id, 'article', callback);
 		}
     };
     async.parallelLimit(tasks, 2, cb);

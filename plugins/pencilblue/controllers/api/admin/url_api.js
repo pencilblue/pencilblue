@@ -18,8 +18,9 @@
 /**
  * Controller to properly route and handle remote calls to interact with
  * the UrlService
+ * @class UrlApiController
+ * @constructor
  */
-
 function UrlApiController() {};
 
 //dependencies
@@ -80,6 +81,8 @@ UrlApiController.prototype.validateQueryParameters = function(action, cb) {
  * The "exists" action handler.  Calls the UrlService function <i>exists</i> to
  * see whether or not the provided URL path could trigger a controller to be
  * executed.
+ * @method exists
+ * @param {Function} cb
  */
 UrlApiController.prototype.exists = function(cb) {
 	var themes  = UrlService.exists(this.query.url);
@@ -93,6 +96,8 @@ UrlApiController.prototype.exists = function(cb) {
  * The "exists_for" action handler.  Calls the UrlService function
  * <i>existsForType</i> to see whether or not the provided URL path the URL key
  * of that particular object type.
+ * @method exists_for
+ * @param {Function} cb
  */
 UrlApiController.prototype.exists_for = function(cb) {
 

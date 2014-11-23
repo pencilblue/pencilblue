@@ -79,23 +79,15 @@ UrlService.prototype.existsForType = function(params, cb) {
 	if (url.charAt(url.length - 1) === '/') {
 		url = url.substring(0, url.length - 1);
 	}
-	//var pattern = "^\\/{0,1}" + pb.utils.escapeRegExp(url) + "\\/{0,1}$";
-
-	var where = {url: url.trim()};
-	if (id) {
-		try {
-			where._id = {$ne: new ObjectID(id+'')};
-		}
-		catch(e) {
-			pb.log.error("UrlService: An invalid object ID was passed [%s]", util.inspect(id));
-			cb(e, false);
-			return;
-		}
-	}
-
+	var pattern = "^\\/{0,1}" + pb.utils.escapeRegExp(url) + "\\/{0,1}$";
+	
+    //execute search
+    var where = {
+        url: new RegExp(pattern, 'g')
+    };
 	var dao = new pb.DAO();
-	dao.count(type, where, function(err, count) {
-        cb(err, count > 0);
+	dao.unique(type, where, id, function(err, isUnique) {
+        cb(err, !isUnique);
 	});
 };
 

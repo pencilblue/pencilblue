@@ -48,29 +48,31 @@ EditObjectType.prototype.render = function(cb) {
             return;
         }
 
-        self.getJSONPostParams(function(err, post) {
-            custObjType.name = post.name;
-            custObjType.fields = post.fields;
-            custObjType.fields.name = {field_type: 'text'};
+        //TODO modify this approach to check for protected properties and allow 
+        //others.  Right now this will not allow additional fields if template 
+        //is overriden.
+        var post = self.body;
+        custObjType.name = post.name;
+        custObjType.fields = post.fields;
+        custObjType.fields.name = {field_type: 'text'};
 
-            service.saveType(custObjType, function(err, result) {
-                if(util.isError(err)) {
-                    cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                    });
-                    return;
-                }
-                else if(util.isArray(result) && result.length > 0) {
-                    cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                    });
-                    return;
-                }
+        service.saveType(custObjType, function(err, result) {
+            if(util.isError(err)) {
+                cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                });
+                return;
+            }
+            else if(util.isArray(result) && result.length > 0) {
+                cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                });
+                return;
+            }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObjType.name + ' ' + self.ls.get('EDITED'))});
-            });
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObjType.name + ' ' + self.ls.get('EDITED'))});
         });
     });
 };

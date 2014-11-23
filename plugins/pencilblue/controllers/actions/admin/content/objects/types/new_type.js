@@ -17,42 +17,41 @@
 
 /**
  * Creates an object type
- * @class NewObjectType
+ * @class NewObjectTypeActionController
  * @constructor
  * @extends FormController
  */
-function NewObjectType(){}
+function NewObjectTypeActionController(){}
 
 //inheritance
-util.inherits(NewObjectType, pb.BaseController);
+util.inherits(NewObjectTypeActionController, pb.BaseController);
 
-NewObjectType.prototype.render = function(cb) {
-    var self    = this;
+NewObjectTypeActionController.prototype.render = function(cb) {
+    var self = this;
 
-    self.getJSONPostParams(function(err, post) {
-        post.fields.name = {field_type: 'text'};
+    var post = self.body;
+    post.fields.name = {field_type: 'text'};
 
-        var service = new pb.CustomObjectService();
-        service.saveType(post, function(err, result) {
-            if(util.isError(err)) {
-                cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                });
-                return;
-            }
-            else if(util.isArray(result) && result.length > 0) {
-                cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                });
-                return;
-            }
+    var service = new pb.CustomObjectService();
+    service.saveType(post, function(err, result) {
+        if(util.isError(err)) {
+            cb({
+                code: 500,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+            });
+            return;
+        }
+        else if(util.isArray(result) && result.length > 0) {
+            cb({
+                code: 500,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+            });
+            return;
+        }
 
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, post.name + ' ' + self.ls.get('CREATED'), result)});
-        });
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, post.name + ' ' + self.ls.get('CREATED'), result)});
     });
 };
 
 //exports
-module.exports = NewObjectType;
+module.exports = NewObjectTypeActionController;
