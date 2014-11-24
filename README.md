@@ -1,7 +1,7 @@
 [PencilBlue](http://pencilblue.org)
 =====
 
-#### [v0.3.0 Release Candidate Available](https://github.com/pencilblue/pencilblue/tree/v0.3.0RC)
+#### [v0.3.0 Now Available](https://pencilblue.org/article/pencilblue-0-3-0-available-141124)
 
 First and foremost:  If at any point you have questions, comments or concerns you can find us hanging out on twitter [@getpencilblue](https://twitter.com/GetPencilBlue) and on our [Sub-Reddit](http://www.reddit.com/domain/pencilblue.org/).  We're always happy to help and pull requests (plugin or core) are always welcome.  
 
