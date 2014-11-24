@@ -136,6 +136,7 @@ var loc =
 		SECONDS_ABBR: 'Secs',
 		NO_AVAILABLE_PLUGINS: 'No available plugins',
         READ_MORE: 'Read more',
+        READ_FULL: 'Read the full story',
         THEME_DEFAULT: 'Theme Default',
         USER: 'User',
         SUBSCRIBE: 'Subscribe',
@@ -157,7 +158,9 @@ var loc =
         UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
         OBJECT_NOT_FOUND: 'The requested object was not found in the system',
         REQUIRED_FIELD: 'This field is required',
-        INVALID_FILE: 'An invalid file was supplied'
+        INVALID_FILE: 'An invalid file was supplied',
+        COMPLETE: 'Complete',
+        WYSIWYG: 'WYSIWYG'
     },
     error:
     {
@@ -360,6 +363,7 @@ var loc =
         ACTIVE_OBJECTS: 'Drag associated objects here',
         INACTIVE_OBJECTS: 'Drag unassociated objects here',
         OBJECTS: 'objects',
+        OBJECT: 'object',
         DESCRIPTION: 'Description',
         INVALID_FIELD: 'Invalid field was submitted. Make sure there are no duplicate field names or unselected field types'
     },
@@ -418,7 +422,13 @@ var loc =
         MANAGE_PLUGINS: 'Manage plugins',
         NO_ACTIVE_PLUGINS: 'No active plugins',
         NO_INACTIVE_PLUGINS: 'No inactive plugins',
-        ABOUT: 'About'
+        ABOUT: 'About',
+        INSTALLING: 'Installing',
+        UNINSTALLING: 'Uninstalling',
+        RESETTING: 'Resetting',
+        INITIALIZING: 'Initializing',
+        ACTIVATING: 'Activating',
+        ACTION_ERROR: 'An error occurred while attempting to complete the action'
     },
     themes:
     {

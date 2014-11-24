@@ -4,6 +4,7 @@
         ^angular_objects^
 
         $scope.layout = $sce.trustAsHtml($scope.emailSettings.verification_content);
+        $scope.hideMediaButton = true;
 
         $scope.setEmailValue = function(key, value) {
             $scope.emailSettings[key] = value;
@@ -48,7 +49,6 @@
             });
         };
 
-        $('#media_button').hide();
         $('[data-toggle="tooltip"]').tooltip({'placement': 'bottom'}).css({'cursor': 'pointer'});
     });
 </script>

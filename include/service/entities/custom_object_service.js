@@ -95,14 +95,15 @@ var CUST_OBJ_TYPE_PREFIX = 'custom:';
  * @property AVAILABLE_FIELD_TYPES
  * @type {Object}
  */
-var AVAILABLE_FIELD_TYPES = {
+var AVAILABLE_FIELD_TYPES = Object.freeze({
     'text': pb.validation.isStr,
     'number': pb.validation.isNum,
+    'wysiwyg': pb.validation.isStr,
     'boolean': pb.validation.isBool,
     'date': pb.validation.isDate,
     'peer_object': pb.validation.isIdStr,
     'child_objects': pb.validation.isArray
-};
+});
 
 /**
  *
@@ -918,6 +919,67 @@ CustomObjectService.prototype.saveType = function(custObjType, cb) {
 };
 
 /**
+ * Deletes a custom object type by id
+ * @method deleteTypeById
+ * @param {String|ObjectID} id
+ * @param {Object} [options={}]
+ * @param {Function} cb
+ */
+CustomObjectService.prototype.deleteTypeById = function(id, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
+    }
+    
+    if (!pb.validation.isIdStr(id, true)) {
+        return cb(new Error('INVALID_UID'));
+    }
+    
+    var self  = this;
+    var tasks = [
+        
+        //remove object type
+        function(callback) {
+            var dao = new pb.DAO();
+            dao.deleteById(id, CustomObjectService.CUST_OBJ_TYPE_COLL, callback);
+        },
+        
+        //remove those objects associated with the type
+        function(callback) {
+            self.deleteForType(id, callback);
+        }
+    ];
+    async.series(tasks, cb);
+};
+
+/**
+ * Deletes all custom objects of a specified type
+ * @method deleteForType
+ * @param {String|Object} custObjType A string ID of the custom object type or 
+ * the custom object type itself.
+ * @param {Object} [options={}]
+ * @param 
+ */
+CustomObjectService.prototype.deleteForType = function(custObjType, cb) {
+    
+    var typeId = custObjType;
+    if (!pb.utils.isString(custObjType)) {
+        typeId = custObjType.toString();
+    }
+    var dao = new pb.DAO();
+    dao.delete({type: custObjType}, CustomObjectService.CUST_OBJ_COLL, cb);
+};
+
+CustomObjectService.prototype.typeExists = function(typeName, cb) {
+    
+    var where = {
+        name: new RegExp('^'+pb.utils.escapeRegExp(typeName)+'$', 'ig')
+    };
+    var dao = new pb.DAO();
+    dao.exists(CustomObjectService.CUST_OBJ_TYPE_COLL, where, cb);
+};
+
+/**
  * Retrieves the objects types that can be referenced by custom objects
  * @static
  * @method getStaticReferenceTypes
@@ -983,36 +1045,72 @@ CustomObjectService.formatRawForType = function(post, custObjType) {
     for(var key in custObjType.fields) {
 
         if(custObjType.fields[key].field_type == 'number') {
-            if(post[key]) {
+            if(pb.utils.isString(post[key])) {
                 post[key] = parseFloat(post[key]);
-            }
-            if (isNaN(post[key]) || !post[key]) {
-                post[key] = null;
             }
         }
         else if(custObjType.fields[key].field_type == 'date') {
-            if(post[key]) {
+            if(pb.utils.isString(post[key])) {
+                post[key] = Date.parse(post[key]);
+            }
+            else if (!isNaN(post[key])) {
                 post[key] = new Date(post[key]);
             }
-            else {
-                post[key] = null;
+        }
+        else if (custObjType.fields[key].field_type == 'boolean') {
+            if (!pb.utils.isBoolean(post[key])) {
+             
+                if (pb.utils.isString(post[key])) {
+                    post[key] = "true" === post[key].toLowerCase();   
+                }
+                else if (!isNaN(post[key])) {
+                    post[key] = post[key] ? true : false;
+                }
             }
         }
+        else if (custObjType.fields[key].field_type == 'wysiwyg') {
+            
+            //ensure not funky script tags or iframes
+            post[key] = pb.BaseController.sanitize(post[key], pb.BaseController.getContentSanitizationRules());
+        }
         else if(custObjType.fields[key].field_type == CHILD_OBJECTS_TYPE) {
-            if(post[key]) {
+            if(pb.utils.isString(post[key])) {
                 post[key] = post[key].split(',');
-            }
-            else {
-                post[key] = [];
             }
         }
         else if (custObjType.fields[key].field_type == PEER_OBJECT_TYPE) {
-            if (!post[key]) {
-                post[key] = null;
-            }
+            //do nothing because it can only been a string ID.  Validation 
+            //should verify this before persistence. 
         }
     }
     post.type = custObjType[pb.DAO.getIdField()].toString();
+};
+
+/**
+ * Formats the raw post data for a sort ordering
+ * @static 
+ * @method formatRawSortOrdering
+ * @param {Object} post
+ * @param {Object} sortOrder the existing sort order object that the post data 
+ * will be merged with
+ * @return {Object} The formatted sort ordering object
+ */
+CustomObjectService.formatRawSortOrdering = function(post, sortOrder) {
+    delete post.last_modified;
+    delete post.created;
+    delete post[pb.DAO.getIdField()];
+
+    var sortOrderDoc = pb.DocumentCreator.create('custom_object_sort', post, []);
+    if (!sortOrderDoc) {
+        return sortOrderDoc;
+    }
+
+    //merge the old and new
+    if (pb.utils.isObject(sortOrder)) {
+        pb.utils.merge(sortOrderDoc, sortOrder);
+        return sortOrder;
+    }
+    return sortOrderDoc;
 };
 
 /**
@@ -1031,6 +1129,7 @@ CustomObjectService.setFieldTypesUsed = function(custObjTypes, ls) {
     var map                 = {};
     map.text                = ls.get('TEXT');
     map.number              = ls.get('NUMBER');
+    map.wysiwyg             = ls.get('WYSIWYG');
     map.boolean             = ls.get('BOOLEAN').toLowerCase();
     map.date                = ls.get('DATE');
     map[PEER_OBJECT_TYPE]   = ls.get('PEER_OBJECT');
@@ -1066,7 +1165,7 @@ CustomObjectService.applyOrder = function(custObjects, sortOrder) {
     }
 
     //sort by name (case-insensitive)
-    if(!pb.utils.isObject(sortOrder)) {
+    if(!pb.utils.isObject(sortOrder) || !sortOrder.sorted_objects) {
         //currently, mongo cannot do case-insensitive sorts.  We do it manually
         //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
         custObjects.sort(function(a, b) {

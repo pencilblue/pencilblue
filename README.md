@@ -1,9 +1,12 @@
 [PencilBlue](http://pencilblue.org)
 =====
 
-First and foremost:  If at any point you have questions, comments or concerns you can find us hanging out on twitter [@getpencilblue](https://twitter.com/GetPencilBlue) and on our [Sub-Reddit](http://www.reddit.com/domain/pencilblue.org/).  We're always happy to help and pull requests (plugin or core) are always welcome.  
+### Full featured online publishing and CMS for Node.js
 
-##### Full featured online publishing and CMS for Node.js
+#### [v0.3.0 Now Available](https://pencilblue.org/article/pencilblue-0-3-0-available-141124)
+
+First and foremost:  If at any point you have questions, comments or concerns you can find us hanging out on twitter [@getpencilblue](https://twitter.com/GetPencilBlue) and on our [subreddit](http://www.reddit.com/domain/pencilblue.org/).  We're always happy to help and pull requests (plugin or core) are always welcome.  
+
 ###### To learn how to build websites with PencilBlue, read our [tutorials](https://pencilblue.org/section/tutorials).
 
 The first open source content management system to meet all the needs of a modern website:

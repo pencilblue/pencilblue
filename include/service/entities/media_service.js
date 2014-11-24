@@ -36,6 +36,9 @@ function MediaService(){
     if (pb.config.media.provider === 'fs') {
         this.provider = new pb.FsMediaProvider(pb.config.media.parent_dir);
     }
+    else if (pb.config.media.provider === 'mongo') {
+        this.provider = new pb.MongoMediaProvider();
+    }
     else {
 
         var paths = [path.join(DOCUMENT_ROOT, pb.config.media.provider), pb.config.media.provider];
@@ -140,17 +143,12 @@ MediaService.prototype.validate = function(media, cb) {
     //ensure the media name is unique
     var where = { name: media.name };
     var dao   = new pb.DAO();
-    dao.loadByValue('name', media.name, 'media', function(err, mediaObject) {
+    dao.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
         if(util.isError(err)) {
             return cb(err, errors);
         }
-        else if(mediaObject) {
-            if(!media._id) {
-                errors.push(pb.CustomObjectService.err('name', 'The name '+media.name+' is already in use'));
-            }
-            else if(!ObjectID(media._id).equals(mediaObject._id)) {
-                errors.push(pb.CustomObjectService.err('name', 'The name '+media.name+' is already in use'));
-            }
+        else if(!isUnique) {
+            errors.push(pb.CustomObjectService.err('name', 'The name ' + media.name + ' is already in use'));
         }
 
         //TODO validate the other properties
@@ -553,6 +551,9 @@ MediaService.prototype.getMediaThumb = function(type, location, cb) {
         case 'storify':
             cb(null, '');
             break;
+        case 'kickstarter':
+            cb(null, '');
+            break;
         default:
             cb(null, '');
             break;
@@ -720,6 +721,8 @@ MediaService.getMediaIcon = function(mediaType) {
             return 'key fa-flip-horizontal';
         case 'storify':
             return 'arrow-circle-right';
+        case 'kickstarter':
+            return 'dollar';
         default:
             return 'question';
     }
@@ -755,6 +758,8 @@ MediaService.getMediaLink = function(mediaType, mediaLocation, isFile) {
             return 'https://trinket.io/embed/' + mediaLocation;
         case 'storify':
             return 'http://storify.com/' + mediaLocation;
+        case 'kickstarter':
+            return 'http://kickstarter.com/' + mediaLocation;
         case 'image':
         case 'video/mp4':
         case 'video/webm':

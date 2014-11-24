@@ -17,7 +17,7 @@
         };
 
         $scope.getUrlAvailability = function() {
-            $http.get('/api/url/exists_for?url=/article/' + $scope.page.url + '&type=page')
+            $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page')
             .success(function(result) {
                 $scope.urlAvailable = !result.data;
             })
@@ -56,7 +56,6 @@
                     $http.post('/actions/admin/content/pages', pageData)
                     .success(function(result) {
                         $scope.successMessage = result.message;
-                        $scope.page.last_modified = result.data.last_modified;
                         $scope.saving = false;
                         $window.location = '/admin/content/pages/' + result.data._id.toString();
                     })
@@ -132,5 +131,6 @@
 
         $('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
         $timeout($scope.savePageDraft, 30000);
-    });
+    })
+    ^tmp_angular=admin=elements=url_safe^
 </script>

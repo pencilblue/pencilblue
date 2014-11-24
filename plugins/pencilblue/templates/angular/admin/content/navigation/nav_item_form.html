@@ -1,9 +1,21 @@
 <script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
+    var setItem;
+
     angular.module('pencilblueApp', ['validation'])
     .controller('PencilBlueController', function($scope, $http, validationService) {
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
+
+        $scope.setItem = function(item) {
+            $scope.navItem.item = item;
+            $scope.$apply();
+        };
+        setItem = $scope.setItem;
+
+        $scope.setNavItemValue = function(key, value) {
+            $scope.navItem[key] = value;
+        }
 
         $scope.saveNavItem = function() {
             $scope.formSubmitted = true;
@@ -54,6 +66,7 @@
                 case 'link':
                     saveObject.parent = $scope.navItem.parent;
                     saveObject.link = $scope.navItem.link;
+                    saveObject.new_tab = $scope.navItem.new_tab === true;
                     break;
                 default:
                     break;

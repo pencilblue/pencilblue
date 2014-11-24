@@ -453,7 +453,7 @@ RequestHandler.isPublicRoute = function(path){
  */
 RequestHandler.prototype.serve404 = function() {
 
-	var NotFound  = require(path.join(DOCUMENT_ROOT, '/controllers/error/404.js'));
+	var NotFound  = require(path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', '/controllers/error/404.js'));
 	var cInstance = new NotFound();
 	this.doRender({}, cInstance, {});
 
@@ -721,7 +721,7 @@ RequestHandler.prototype.parseBody = function(mimes, cb) {
         
         //we split on ';' to check for multipart encoding since it specifies a 
         //boundary
-        contentType = contentType.split(';')[0];console.log('***'+util.inspect(mimes));console.log('***'+util.inspect(contentType));
+        contentType = contentType.split(';')[0];
         if (mimes.indexOf(contentType) === -1) {
             //a type was specified but its not accepted by the controller
             //TODO return HTTP 415

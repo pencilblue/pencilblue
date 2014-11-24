@@ -30,17 +30,17 @@ function TopMenuService(){}
 var SectionService = pb.SectionService;
 
 /**
- * Retrieves the theme settings, navigation data structure, and account buttons.  
+ * Retrieves the theme settings, navigation data structure, and account buttons.
  *
  * @method getTopMenu
  * @param {Object} session The current user's session
- * @param {Localization} localizationService An instance of Localization to 
+ * @param {Localization} localizationService An instance of Localization to
  * translate default items
- * @param {Object} [options] An optional argument to provide more flexibility 
+ * @param {Object} [options] An optional argument to provide more flexibility
  * to the menu construction.
  * @param {String} [options.currUrl] The current request URL.
- * @param {Function} cb Callback function that takes three parameters. The 
- * first are the theme's settings, the second is the navigation structure, and 
+ * @param {Function} cb Callback function that takes three parameters. The
+ * first are the theme's settings, the second is the navigation structure, and
  * the third is the account button structure.
  */
 TopMenuService.getTopMenu = function(session, localizationService, options, cb) {
@@ -175,6 +175,7 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                             var childItem = linkTemplate;
                             childItem = childItem.split('^active^').join((navigation[i].children[j].active) ? 'active' : '');
                             childItem = childItem.split('^url^').join(navigation[i].children[j].url);
+                            childItem = childItem.split('^new_tab^').join(navigation[i].children[j].new_tab ? '_blank' : '');
                             childItem = childItem.split('^name^').join(navigation[i].children[j].name);
 
                             subNav = subNav.concat(childItem);
@@ -192,6 +193,7 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                         var linkItem = linkTemplate;
                         linkItem = linkItem.split('^active^').join((navigation[i].active) ? 'active' : '');
                         linkItem = linkItem.split('^url^').join(navigation[i].url);
+                        linkItem = linkItem.split('^new_tab^').join(navigation[i].new_tab ? '_blank' : '');
                         linkItem = linkItem.split('^name^').join(navigation[i].name);
 
                         bootstrapNav = bootstrapNav.concat(linkItem);

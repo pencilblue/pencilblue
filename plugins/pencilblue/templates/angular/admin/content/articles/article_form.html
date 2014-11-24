@@ -18,7 +18,7 @@
 		};
 
 		$scope.getUrlAvailability = function() {
-			$http.get('/api/url/exists_for?url=/article/' + $scope.article.url + '&type=article')
+			$http.get('/api/url/exists_for?url=' + $scope.article.url + '&type=article')
 			.success(function(result) {
 				$scope.urlAvailable = !result.data;
 			})
@@ -57,7 +57,6 @@
 					$http.post('/actions/admin/content/articles', articleData)
 					.success(function(result) {
 						$scope.successMessage = result.message;
-						$scope.article.last_modified = result.data.last_modified;
 						$scope.saving = false;
 						$window.location = '/admin/content/articles/' + result.data._id.toString();
 					})
@@ -139,5 +138,6 @@
 
 		$('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
 		$timeout($scope.saveArticleDraft, 30000);
-	});
+	})
+	^tmp_angular=admin=elements=url_safe^
 </script>

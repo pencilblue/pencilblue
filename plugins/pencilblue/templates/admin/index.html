@@ -2,35 +2,36 @@
 <div class="col-md-9" style="margin-top: 1em">
     <div class="alert alert-info news_alert">
         <h3 style="margin-top: 0">PencilBlue News:</h3>
-        <p id="news_loader">
+        <p id="news_loader" ng-if="!newsCopy.length">
             <i class="fa fa-2x fa-spinner fa-spin"></i>
         </p>
-        <span id="news_container">
-            <a class="news_link" href="" target="_blank">
-                <h4 id="news_title"></h4>
+        <span>
+            <a ng-href="{{newsLink}}">
+                <h4 ng-bind="newsTitle"></h4>
             </a>
-            <p><span id="news_copy"></span>&nbsp;<a class="news_link" href="" target="_blank">^loc_READ_MORE^...</a></p>
+            <p><span ng-bind-html="getNewsCopyHtml()"></span>&nbsp;<a ng-href="{{newsLink}}" target="_blank">^loc_READ_FULL^...</a></p>
         </span>
     </div>
     <div class="row">
         <div class="col-md-3">
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="contentInfoItem in contentInfo" ng-cloak>
-                    <span class="badge">{{contentInfoItem.count}}</span>
-                    <a href="{{contentInfoItem.href}}">{{contentInfoItem.name}}</a>
+                <li class="list-group-item" ng-repeat="contentInfoItem in contentInfo">
+                    <span class="badge" ng-bind="contentInfoItem.count"></span>
+                    <a href="{{contentInfoItem.href}}" ng-bind="contentInfoItem.name"></a>
                 </li>
             </ul>
         </div>
         <div class="col-md-9">
             <div class="table_container">
-                <table id="cluster_info_table" class="table table-striped">
-                    <th>^loc_SERVER^</th><th>^loc_PROCESS_TYPE^</th><th>^loc_UPTIME^</th><th>^loc_MEMORY_USED^</th><th>^loc_ACTIVE_PLUGINS^</th><th><a ng-if="access === 4" class="btn" onclick="refreshServers();"><i class="fa fa-refresh"></i></a></th>
-                    <tr ng-repeat="val in cluster" ng-cloak>
-                        <td>{{val.ip}}::{{val.port}}</td>
-                        <td title="{{val.worker_id}}">{{val.process_type}}</td>
-                        <td>{{(val.uptime) | number:0}} ^loc_SECONDS_ABBR^</td>
-                        <td>{{(val.mem_usage.heapUsed / 1024 / 1024) | number:2}} MB</td>
-                        <td colspan="2">{{val.active_plugins.join(', ')}}</td>
+                <i class="fa fa-circle-o-notch fa-spin fa-lg" ng-if="refreshingServers"></i>
+                <table id="cluster_info_table" class="table table-striped" ng-if="!refreshingServers">
+                    <th>^loc_SERVER^</th><th>^loc_PROCESS_TYPE^</th><th>^loc_UPTIME^</th><th>^loc_MEMORY_USED^</th><th>^loc_ACTIVE_PLUGINS^</th><th><a ng-if="access === 4" class="btn" ng-click="refreshServers();"><i class="fa fa-refresh"></i></a></th>
+                    <tr ng-repeat="val in cluster">
+                        <td ng-bind="val.ip + '::' + val.port"></td>
+                        <td title="{{val.worker_id}}" ng-bind="val.process_type"></td>
+                        <td><span ng-bind="val.uptime | number:0"></span> ^loc_SECONDS_ABBR^</td>
+                        <td><span ng-bind="(val.mem_usage.heapUsed / 1024 / 1024) | number:2"></span> MB</td>
+                        <td colspan="2" ng-bind="val.active_plugins.join(', ')"></td>
                     </tr>
                 </table>
             </div>
@@ -38,7 +39,5 @@
     </div>
 </div>
 
-<script type="text/javascript" src="^spin_src^"></script>
-<script type="text/javascript" src="^jquery_spin_src^"></script>
-<script type="text/javascript" src="/js/admin/index.js"></script>
+^tmp_angular=admin=index^
 ^tmp_admin=footer^

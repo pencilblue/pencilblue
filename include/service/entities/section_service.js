@@ -257,15 +257,18 @@ SectionService.trimForType = function(navItem) {
 		navItem.editor = null;
 		navItem.item   = null;
 		navItem.link   = null;
+		navItem.new_tab = null;
 	}
 	else if (navItem.type === 'section') {
 		navItem.item = null;
 		navItem.link = null;
+		navItem.new_tab = null;
 	}
 	else if (navItem.type === 'article' || navItem.type === 'page') {
 		navItem.link   = null;
 		navItem.url    = null;
 		navItem.editor = null;
+		navItem.new_tab = null;
 	}
 	else if (navItem.type === 'link') {
 		navItem.editor = null;

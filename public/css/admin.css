@@ -372,6 +372,10 @@ form .error
     color: #B3B3B3;
 }
 
+.embed-responsive iframe {
+    border: none;
+}
+
 .topic a
 {
     color: #FFFFFF;
@@ -562,15 +566,11 @@ form .error
 
 /* PLUGINS */
 
-#progress_console {
+.progress_console {
     font-family: monospace;
     font-size: .85em;
     padding: .5em;
     width: 100%;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
-}
-
-#progress_footer {
-    display: none;
 }

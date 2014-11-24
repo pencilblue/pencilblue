@@ -8,41 +8,36 @@
 function SaveHomePageSettings() {}
 
 //inheritance
-util.inherits(SaveHomePageSettings, pb.FormController);
+util.inherits(SaveHomePageSettings, pb.BaseController);
 
-SaveHomePageSettings.prototype.onPostParamsRetrieved = function(post, cb) {
+SaveHomePageSettings.prototype.render = function(cb) {
     var self = this;
 
-    delete post.layout_link_url;
-    delete post.media_position;
-    delete post.media_max_height;
-    delete post.media_search;
-    delete post.media_url;
+    this.getJSONPostParams(function(err, post) {
+        delete post._id;
 
-    post.page_layout = decodeURIComponent(post.page_layout);
-
-    var dao = new pb.DAO();
-    dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(homePageSettings) {
-        if(homePageSettings.length > 0) {
-            homePageSettings = homePageSettings[0];
-            pb.DocumentCreator.update(post, homePageSettings, ['page_media']);
-        }
-        else {
-            homePageSettings = pb.DocumentCreator.create('portfolio_theme_settings', post, ['page_media']);
-            homePageSettings.settings_type = 'home_page';
-        }
-
-        self.setFormFieldValues(post);
-
-        dao.update(homePageSettings).then(function(result) {
-            if(util.isError(result))  {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/plugins/settings/portfolio/home_page', cb);
-                return;
+        var dao = new pb.DAO();
+        dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(homePageSettings) {
+            if(homePageSettings.length > 0) {
+                homePageSettings = homePageSettings[0];
+                pb.DocumentCreator.update(post, homePageSettings);
+            }
+            else {
+                homePageSettings = pb.DocumentCreator.create('portfolio_theme_settings', post);
+                homePageSettings.settings_type = 'home_page';
             }
 
-            self.session.success = self.ls.get('HOME_PAGE_SETTINGS') + ' ' + self.ls.get('SAVED');
-            delete self.session.fieldValues;
-            cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + '/admin/plugins/settings/portfolio/home_page'));
+            dao.update(homePageSettings).then(function(result) {
+                if(util.isError(result))  {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                    });
+                    return;
+                }
+
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('HOME_PAGE_SETTINGS') + ' ' + self.ls.get('SAVED'))});
+            });
         });
     });
 };

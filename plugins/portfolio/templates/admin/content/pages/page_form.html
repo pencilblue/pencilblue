@@ -1,0 +1,113 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form name="pageForm" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="content">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.url)}">
+                        <label>^loc_ARTICLE_URL^</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">/page/</span>
+                            <input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" url-safe required></input>
+                            <span class="input-group-btn">
+                                <button type="button" class="btn" ng-class="{'btn-default': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!page.url.length">
+                                    <span ng-if="urlAvailable === null">^loc_CHECK^</span>
+                                    <span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
+                                    <span ng-if="urlAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.url)">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_STANDALONE_TEMPLATE^</label>
+                        <select class="form-control" ng-model="page.template">
+                            <option value="">^loc_THEME_DEFAULT^</option>
+                            <option ng-value="template.theme_uid || template.file" ng-repeat="template in templates" ng-bind="template.theme_name + ': ' + template.name"></option>
+                        </select>
+                    </div>
+                    ^tmp_admin=elements=hero_upload^
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.headline)}">
+                        <label>^loc_HEADLINE^</label>
+                        <input type="text" name="headline" class="form-control" ng-model="page.headline" required></input>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.headline)">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_SUBHEADING^</label>
+                        <input type="text" class="form-control" ng-model="page.subheading"></input>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.publish_date)}">
+                        <label>^loc_PUBLISH_DATE^</label>
+                        <div class="input-group">
+                            <input type="text" name="publish_date" id="publish_date" class="form-control" ng-model="page.publish_date" required></input>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click="setPublishDateToNow()">^loc_NOW^</button>
+                            </span>
+                        </div>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.publish_date)">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
+                        <div id="page_wysiwyg">
+                            ^wysiwyg^
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="media">
+                    ^tmp_admin=elements=inline_media^
+                </div>
+                <div class="tab-pane" id="topics_dnd">
+                    ^tmp_admin=elements=topic_select^
+                </div>
+                <div class="tab-pane" id="seo">
+                    <div class="form-group">
+                        <label>^loc_FOCUS_KEYWORD^</label>
+                        <input type="text" class="form-control" ng-model="page.focus_keyword" placeholder="^loc_FOCUS_KEYWORD_PLACEHOLDER^"></input>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_SEO_TITLE^</label>
+                        <input type="text" class="form-control" ng-model="page.seo_title" placeholder="^loc_SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_META_DESC^</label>
+                        <textarea class="form-control" ng-model="page.meta_desc" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_META_KEYWORDS^</label>
+                        <input type="text" class="form-control" ng-model="page.meta_keywords" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
+                    </div>
+                </div>
+                <a class="btn btn-default" href="/admin/content/pages">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </a>&nbsp;
+                <button type="button" class="btn btn-info" ng-click="previewPage(true)" ng-if="page.draft" ng-disabled="savingPage">
+                    <i class="fa" ng-class="{'fa-eye': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_PREVIEW^
+                </button>
+                <span ng-if="page.draft">&nbsp;</span>
+                <div class="btn-group dropup">
+                    <button type="button" class="btn btn-primary" ng-click="savePage()" ng-if="!page.draft && page._id" ng-disabled="savingPage">
+                        <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_SAVE^
+                    </button>
+                    <button id="save_draft_button" type="button" class="btn btn-primary" ng-click="savePage(true)" ng-if="page.draft || !page._id" ng-disabled="savingPage">
+                        <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_SAVE_DRAFT^
+                    </button>
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-sm fa-chevron-up"></i>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li ng-if="!page.draft && page._id"><a ng-click="savePage(true)">^loc_SAVE_DRAFT^</a></li>
+                        <li ng-if="page.draft || !page._id"><a ng-click="savePage()">^loc_SAVE^</a></li>
+                    </ul>
+                </div>
+                <div class="spacer"></div>
+                <label id="draft_info" ng-if="page.draft">^loc_DRAFT_SAVED^ <span id="draft_time">{{page.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
+            </div>
+            <div class="additions" style="display: none"></div>
+        </fieldset>
+    </form>
+</div>
+^tmp_angular=admin=content=pages=page_form^
+^tmp_admin=footer^
