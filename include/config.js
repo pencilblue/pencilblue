@@ -52,7 +52,7 @@ var config = {
 
     //The hostname or IP address represented by the entire site.  Should match
     //your domain name if in production use.
-	siteIP:   'localhost',
+	siteIP:   '0.0.0.0',
 
     //The primary port to listen for traffic on.  Some environment such as
     //heroku force you to use whatever port they have available.  In such cases
