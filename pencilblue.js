@@ -146,7 +146,7 @@ PencilBlue.initServer = function(cb){
         else {
             pb.server = http.createServer(PencilBlue.onHttpConnect);
         }
-		pb.server.listen(pb.config.sitePort, function() {
+		pb.server.listen(pb.config.sitePort, pb.config.siteIP, function() {
 			log.info('PencilBlue: %s running at site root [%s] on port [%d]', pb.config.siteName, pb.config.siteRoot, pb.config.sitePort);
 			cb(null, true);
 		});
