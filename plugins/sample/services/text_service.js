@@ -1,12 +1,22 @@
 /**
- * TextCreaterService - An example of a service that generates random text.
+ * TextService - An example of a service that generates random text.
  * 
  * @author Brian Hyder <brian@pencilblue.org>
  * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
+ * @class TextService
+ * @constructor
  */
-function TextCreaterService() {}
+function TextService() {}
 
 //constants
+/**
+ * A listing of the possible characters that can be a part of the random string 
+ * generation
+ * @static
+ * @readonly
+ * @property POSSIBLE
+ * @type {String}
+ */
 var POSSIBLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 /**
@@ -16,12 +26,28 @@ var POSSIBLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
  * initialization is complete.  Relying on other plugin services in the 
  * initialization could result in failure.
  * 
+ * @static
+ * @method init
  * @param cb A callback that should provide one argument: cb(error) or cb(null) 
  * if initialization proceeded successfully.
  */
-TextCreaterService.init = function(cb) {
-	pb.log.debug("TextCreaterService: Initialized");
+TextService.init = function(cb) {
+	pb.log.debug("TextService: Initialized");
 	cb(null, true);
+};
+
+/**
+ * A service interface function designed to allow developers to name the handle 
+ * to the service object what ever they desire. The function must return a 
+ * valid string and must not conflict with the names of other services for the 
+ * plugin that the service is associated with.
+ *
+ * @static
+ * @method getName
+ * @return {String} The service name
+ */
+TextService.getName = function() {
+    return "textService";
 };
 
 /**
@@ -30,15 +56,18 @@ TextCreaterService.init = function(cb) {
  * provide functionality.  The only requirement is that an instance be provided 
  * as the exported object with the understanding that services should be 
  * stateless.  
+ * 
+ * @method getText
+ * @return {String}
  */
-TextCreaterService.getText = function(cb) {
+TextService.prototype.getText = function() {
 	
 	var text = "";
     for (var i = 0; i < 5; i++) {
         text += POSSIBLE.charAt(Math.floor(Math.random() * POSSIBLE.length));
     }
-    cb(null, text);
+    return text;
 };
 
 //exports
-module.exports = TextCreaterService;
+module.exports = TextService;

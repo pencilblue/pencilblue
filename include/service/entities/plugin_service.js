@@ -2052,7 +2052,7 @@ PluginService.loadController = function(pathToController, pluginUid, cb) {
  */
 PluginService.getServiceName = function(pathToService, service) {
 	var name = 'UNKNOWN';
-	if (service && typeof service.getName === 'function') {
+	if (service && pb.utils.isFunction(service.getName)) {
 		name = service.getName();
 	}
 	else {
