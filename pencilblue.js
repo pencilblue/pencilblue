@@ -146,8 +146,16 @@ PencilBlue.initServer = function(cb){
         else {
             pb.server = http.createServer(PencilBlue.onHttpConnect);
         }
-		pb.server.listen(pb.config.sitePort, function() {
+        
+        //start the server
+        var onServerStartError = function(err) {
+            err.message = util.format("Failed to start HTTP server on PORT=[%s] binding to SITE_IP=[%s]: %s", pb.config.sitePort, pb.config.siteIP, err.message);
+            cb(err, false);
+        };
+        pb.server.once('error', onServerStartError);
+		pb.server.listen(pb.config.sitePort, pb.config.siteIP, function() {
 			log.info('PencilBlue: %s running at site root [%s] on port [%d]', pb.config.siteName, pb.config.siteRoot, pb.config.sitePort);
+            pb.server.removeListener('error', onServerStartError);
 			cb(null, true);
 		});
 	}

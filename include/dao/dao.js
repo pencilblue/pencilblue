@@ -44,7 +44,7 @@ function DAO(dbName){
  * @property PROJECT_ALL
  * @type {Object}
  */
-DAO.PROJECT_ALL   = {};
+DAO.PROJECT_ALL   = Object.freeze({});
 
 /**
  * Static variable to indicate that documents should be retrieve from anywhere
@@ -52,7 +52,7 @@ DAO.PROJECT_ALL   = {};
  * @property ANYWHERE
  * @type {Object}
  */
-DAO.ANYWHERE      = {};
+DAO.ANYWHERE      = Object.freeze({});
 
 /**
  * Static variable to indicate that documents should be returned in their
@@ -61,7 +61,7 @@ DAO.ANYWHERE      = {};
  * @property NATURAL_ORDER
  * @type {Array}
  */
-DAO.NATURAL_ORDER = [];
+DAO.NATURAL_ORDER = Object.freeze([]);
 
 /**
  * Static varible to sort ascending
