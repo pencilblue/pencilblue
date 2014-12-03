@@ -953,4 +953,12 @@ module.exports = [
         controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'libraries.js'),
         content_type: 'text/html'
     },
+    {
+        method: 'get',
+        path: "/api/localization/script",
+        handler: "getAsScript",
+        auth_required: false,
+        controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'api', 'localization_controller.js'),
+        content_type: 'text/javascript'
+    },
 ];
