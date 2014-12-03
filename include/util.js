@@ -561,16 +561,18 @@ Util.getFiles = function(dirPath, options, cb) {
 
 /**
  * Provides typical conversions for time
+ * @static
+ * @readonly
  * @property TIME
  * @type {Object}
  */
-Util.TIME = {
+Util.TIME = Object.freeze({
 
 	MILLIS_PER_SEC: 1000,
 	MILLIS_PER_MIN: 60000,
 	MILLIS_PER_HOUR: 3600000,
 	MILLIS_PER_DAY: 86400000
-};
+});
 
 //exports
 module.exports = Util;

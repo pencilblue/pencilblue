@@ -164,7 +164,7 @@ DBManager.prototype.processIndices = function(procedures, cb) {
                     pb.log.error('DBManager: Failed to create INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(procedures[i]), util.inspect(result), err.stack);
                 }
                 else if (pb.log.isDebug()) {
-                    pb.log.debug('DBManager: Attempted to create INDEX=[%s] RESULT=[%s]', JSON.stringify(procedures[i]), util.inspect(result));
+                    pb.log.silly('DBManager: Attempted to create INDEX=[%s] RESULT=[%s]', JSON.stringify(procedures[i]), util.inspect(result));
                 }
                 callback(null, result);
             });
