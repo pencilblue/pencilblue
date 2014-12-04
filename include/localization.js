@@ -142,21 +142,45 @@ Localization.best = function(request){
 Localization.init = function() {
 	var supportedLocales = [];
 	Localization.storage = {};
-	for (var i = 0; i < pb.config.locales.supported.length; i++) {
-
-		var obj              = {generic: {}};
-		var localeDescriptor = pb.config.locales.supported[i];
-		try {
-			obj = require(localeDescriptor.file);
+    
+    //create path to localization directory
+    var localizationDir = path.join(DOCUMENT_ROOT, 'public', 'localization');
+    var files = fs.readdirSync(localizationDir);
+    files.forEach(function(file) {
+        if (file === '.' || file === '..') {
+            return;   
+        }
+        
+        //check extension
+        var ext   = '';
+        var index = file.lastIndexOf('.');
+        if (index >= 0) {
+            ext = file.substring(index);
+        }
+        if (ext != '.js') {
+            return;
+        }
+        
+        //parse the file
+        var obj          = {generic: {}};
+        var absolutePath = path.join(localizationDir, file);
+        try {
+			obj = require(absolutePath);
 		}
 		catch(e) {
-			pb.log.warn('Localization: Failed to load core localization file [%s]. Localization may be provided by a plugin', localeDescriptor.file);
+			pb.log.warn('Localization: Failed to load core localization file [%s]. %s', absolutePath, e.stack);
 		}
-		Localization.storage[localeDescriptor.locale.toLowerCase()] = obj;
-		supportedLocales.push(localeDescriptor.locale);
-	}
-
-	pb.log.debug("Localization: Supporting - " + JSON.stringify(supportedLocales));
+        
+        //convert file name to locale
+        var locale = file.toLowerCase().substring(0, file.indexOf('.')).replace(/-/g, '_');
+        
+        //Register as a supported language
+        Localization.storage[locale] = obj;
+		supportedLocales.push(locale);
+    });
+    
+    //set the supported locales
+    pb.log.debug("Localization: Supporting - " + JSON.stringify(supportedLocales));
 	Localization.supported = new locale.Locales(supportedLocales);
 };
 
