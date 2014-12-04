@@ -396,17 +396,6 @@ var config = {
     //The global log level: silly, debug, info, warn, error
 	log_level: LOG_LEVEL,
 
-    //The list of supported locales along with the location of the localization
-    //keys.
-	locales: {
-		supported: [
-            {
-            	locale: 'en_us',
-            	file: path.join(DOCUMENT_ROOT, 'public', 'localization', 'en-us.js')
-        	}
-        ]
-	},
-
     //System settings always have the persistent storage layer on.  Optionally,
     //the cache and/or memory can be used.  It is not recommended to use memory
     //unless you are developing locally with a single worker.  Memory is not
