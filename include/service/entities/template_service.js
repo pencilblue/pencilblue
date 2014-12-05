@@ -17,6 +17,7 @@
 
 //dependencies
 var HtmlEncoder = require('htmlencode');
+HtmlEncoder.EncodeType = 'numerical';
 
 /**
  * A templating engine that provides the ability to read in file snippets and
