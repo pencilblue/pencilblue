@@ -1,8 +1,7 @@
 {
     "CAN_BE_REMOVED": "For all of the available properties that can be modified look at the include/config.js file.  It also documents all of the different options.",
 	"siteName": "My PencilBlue Site",
-	"siteRoot": "http://localhost:8080",
-	"siteIP":   "localhost",
+	"siteRoot": "http://127.0.0.1:8080",
 	"sitePort": 8080,
 	"log_level": "info",
 	"db": {
@@ -19,7 +18,7 @@
 		"port": 6379
 	},
 	"settings": {
-		"use_memory": true,
+		"use_memory": false,
 		"use_cache": false
 	},
 	"templates": {
@@ -28,8 +27,11 @@
 	},
 	"plugins": {
 		"caching": {
-			"use_memory": true,
+			"use_memory": false,
 			"use_cache": false
 		}
+	},
+	"registry": {
+		"type": "mongo"
 	}
 }
