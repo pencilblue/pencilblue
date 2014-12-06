@@ -76,24 +76,20 @@ Index.prototype.render = function(cb) {
                             settings = settings[0];
                         }
 
-                        var callouts = settings.callouts;
-
-                        for(var i = 0; i < callouts.length; i++) {
+                        //remove any callouts that are blank. If the home page 
+                        //settings for the plugin have not been set it is 
+                        //possible for the setting to be empty.  Therefore we 
+                        //must put in a fall back plan of an empty array.
+                        var callouts = settings.callouts || []; 
+                        for(var i = callouts.length - 1; i >= 0; i--) {
                             if(!callouts[i].copy.length) {
                                 callouts.splice(i, 1);
-                                i--;
-                                continue;
                             }
                         }
+                        content.content = content.content.split('^display_callouts^').join(callouts.length ? '' : 'display: none');
 
-                        if(!callouts.length) {
-                            content.content = content.content.split('^display_callouts^').join('display: none');
-                        }
-                        else {
-                            content.content = content.content.split('^display_callouts^').join('');
-                        }
-
-                        self.ts.registerLocal('col_width', (12 / callouts.length).toString());
+                        var colWidth = Math.floor(12 / callouts.length) + '';
+                        self.ts.registerLocal('col_width', colWidth);
                         self.ts.load('elements/callout', function(err, template) {
                             if(util.isError(err)) {
                                 template = '';
