@@ -52,8 +52,9 @@ VideoMediaProvider.getIcon = function(type) {
 };
 
 VideoMediaProvider.renderByUrl = function(urlStr, props) {
+    var mime    = SUPPORTED[pb.utils.getExtension(urlStr)];
     var mediaId = VideoMediaProvider.getMediaId(urlStr);
-    return VideoMediaProvider.render({location: mediaId});
+    return VideoMediaProvider.render({location: mediaId, mime: mime});
 };
 
 VideoMediaProvider.render = function(media, props) {

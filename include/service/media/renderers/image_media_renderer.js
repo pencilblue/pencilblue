@@ -59,7 +59,7 @@ ImageMediaProvider.getIcon = function(type) {
 
 ImageMediaProvider.renderByUrl = function(urlStr, props) {
     var mediaId = ImageMediaProvider.getMediaId(urlStr);
-    return ImageMediaProvider.render({location: mediaId});
+    return ImageMediaProvider.render({location: mediaId}, props);
 };
 
 ImageMediaProvider.render = function(media, props) {

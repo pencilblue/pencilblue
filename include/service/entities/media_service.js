@@ -509,7 +509,65 @@ MediaService.prototype.getMediaDescriptor = function(mediaURL, isFile, cb) {
             });
         }
     );
-}
+};
+
+var REGISTERED_MEDIA_RENDERERS = [
+    
+];
+
+MediaService.registerRenderer = function(interfaceImplementation) {
+    if (!interfaceImplementation) {
+        return false;
+    }
+    
+    REGISTERED_MEDIA_RENDERERS.push(interfaceImplementation);
+    return true;
+};
+
+MediaService.isRegistered = function(interfaceImplementation) {
+    return REGISTERED_MEDIA_RENDERERS.indexOf(interfaceImplementation) >= 0;
+};
+
+MediaService.prototype.getMediaDescriptor = function(mediaUrl, isFile, cb) {
+    
+    //get the type
+    var type = null;
+    var renderer = null;
+    for (var i = 0; i < REGISTERED_MEDIA_RENDERERS.length; i++) {
+        
+        var t = REGISTERED_MEDIA_RENDERERS[i].getType(mediaUrl, isFile);
+        if (t !== null) {
+            
+            type = t;
+            renderer = REGISTERED_MEDIA_RENDERERS[i];
+            break;
+        }
+    }
+    
+    //verify that a type was found.
+    if (type === null) {
+        return cb(null, null);
+    }
+    
+    renderer.getMeta(mediaUrl, isFile, function(err, meta) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        else if (!pb.utils.isObject(meta)) {
+            meta = {};
+        }
+        
+        //retrieve the thumbnail URL if available
+        renderer.getThumbnail(mediaUrl, function(err, thumbnail) {
+            var descriptor = {
+                isFile: isFile,
+                is_file: isFile,
+                url: mediaUrl,
+                icon: renderer.get
+            };
+        });
+    });
+};
 
 /**
  *
