@@ -42,14 +42,14 @@ ImportWP.prototype.render = function(cb) {
         files.push(file);
     });
     form.on('error', function(err) {
-        self.session.error = '^loc_NO_FILE^';
+        self.session.error = 'loc_NO_FILE';
         cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'No file provided')});
     });
     form.parse(this.req, function() {
 
         fs.readFile(files[0].path, function(err, data) {
             if(util.isError(err)) {
-                self.session.error = '^loc_NO_FILE^';
+                self.session.error = 'NO_FILE';
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'No file provided')});
                 return;
             }
@@ -61,7 +61,7 @@ ImportWP.prototype.render = function(cb) {
                     return;
                 }
 
-                self.session.success = '^loc_WP_IMPORT_SUCCESS^';
+                self.session.success = 'WP_IMPORT_SUCCESS';
                 self.session.importedUsers = users;
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Successfully imported WordPress content')});
             });
