@@ -70,26 +70,30 @@ Localization.prototype.localize = function(sets, text){
 };
 
 /**
- * Translates a single key.  The key should not be enclosed by the special '^'
- * character.
+ * Translates a single key.  The function accepts a variable number of 
+ * parameters.  The first must be the key to be localized.  The rest are 
+ * considered to be injectable values.  The function will call "util.format" in 
+ * situations where the key is found and the nuber of arguments passed to the 
+ * function is greater than 1.  See 
+ * http://nodejs.org/api/util.html#util_util_format_format for details on 
+ * suppored formatting.
  *
  * @method get
- * @param {string} key
- * @param {string} defaultVal The default value to return if the value can't be found
- * @returns {string}
+ * @param {String} key
+ * @param {String|Integer|Float|Object} [args] The variable number of 
+ * parameters to be injected into the localization value
+ * @returns {string} The formatted and localized string
  */
-Localization.prototype.get = function(key, defaultVal) {
+Localization.prototype.get = function() {
+    var key = arguments[0];
 	if (pb.log.isSilly()) {
 		pb.log.silly('Localization: Localizing key ['+key+'] - Locale ['+this.language+']');
 	}
 
 	//error checking
-	if (typeof key !== 'string') {
+	if (!pb.validation.isNonEmptyStr(key, true)) {
 		return null;
 	}
-
-	//check for old style key
-	key = key.replace('^loc_', '').replace('^', '');
 
 	//get i18n from storage
 	var tmp;
@@ -104,8 +108,12 @@ Localization.prototype.get = function(key, defaultVal) {
 	}
 
 	if (val === null) {
-		val = defaultVal ? defaultVal : key;
+		val = key;
 	}
+    else if (arguments.length > 1){
+        arguments[0] = val;
+        val = util.format.apply(util, arguments);
+    }
 	return val;
 };
 
