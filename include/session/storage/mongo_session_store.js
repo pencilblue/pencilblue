@@ -124,8 +124,8 @@ MongoSessionStore.clearExpired = function(cb){
 			"$lte": new Date().getTime()
 		}
 	};
-	dao.deleteMatching(query, SESSION_COLLECTION_NAME).then(function(result){
-		pb.log.debug("MongoSessionStore: Expired "+result+" sessions in "+(new Date().getTime() - start)+"ms");
+	dao.delete(query, SESSION_COLLECTION_NAME, function(err, result){
+		pb.log.debug("MongoSessionStore: Expired %d"+result+" sessions in %dms", result, (new Date().getTime() - start));
 		if (cb){
 			cb(null, result);
 		}

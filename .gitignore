@@ -15,3 +15,4 @@ plugins/
 !plugins/portfolio/
 !plugins/sample/
 !plugins/wp_import/
+config.js
