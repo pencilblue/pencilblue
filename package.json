@@ -37,7 +37,7 @@
 	    "process": "0.5.1",
 	    "redis": "0.10.0",
         "sanitize-html": "1.1.7",
-	    "winston": "0.7.2"
+	    "winston": "0.8.3"
     },
     "devDependencies": {
     	"nodeunit": "0.8.2"

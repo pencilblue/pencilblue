@@ -34,7 +34,7 @@ function DAO(dbName){
      * @property dbName
      * @type {String}
      */
-	this.dbName  = typeof dbName  !== 'undefined' ? dbName : pb.config.db.name;
+	this.dbName = typeof dbName  !== 'undefined' ? dbName : pb.config.db.name;
 }
 
 /**
@@ -44,7 +44,7 @@ function DAO(dbName){
  * @property PROJECT_ALL
  * @type {Object}
  */
-DAO.PROJECT_ALL   = Object.freeze({});
+DAO.PROJECT_ALL = Object.freeze({});
 
 /**
  * Static variable to indicate that documents should be retrieve from anywhere
@@ -52,7 +52,7 @@ DAO.PROJECT_ALL   = Object.freeze({});
  * @property ANYWHERE
  * @type {Object}
  */
-DAO.ANYWHERE      = Object.freeze({});
+DAO.ANYWHERE = Object.freeze({});
 
 /**
  * Static variable to indicate that documents should be returned in their
@@ -69,7 +69,7 @@ DAO.NATURAL_ORDER = Object.freeze([]);
  * @property ASC
  * @type {Number}
  */
-DAO.ASC  = 1;
+DAO.ASC = 1;
 
 /**
  * Static variable to sort descending
@@ -317,14 +317,18 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 	}
 
 	if(pb.config.db.query_logging){
-		var query = "DAO: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
+		var query = "DAO: SELECT %j FROM %s.%s WHERE %j";
+        var args = [select, this.dbName, entityType, where];
 		if (typeof orderBy !== 'undefined') {
-			query += " ORDER BY "+JSON.stringify(orderBy);
+			query += " ORDER BY %j";
+            args.push(orderBy);
 		}
 		if (typeof limit !== 'undefined') {
-			query += " LIMIT "+JSON.stringify(limit)+", OFFSET "+offset;
+			query += " LIMIT %d, OFFSET %d";
+            args.push(limit, offset);
 		}
-		pb.log.info(query);
+        args.unshift(query);
+		pb.log.info(util.format.apply(util, args));
 	}
 	return cursor;
 };
@@ -482,7 +486,7 @@ DAO.prototype.updateFields = function(collection, query, updates, options, cb) {
     }
 
     if (pb.config.db.query_logging) {
-        pb.log.info('UPDATE %s %s WHERE %s WITH OPTIONS %s', collection, JSON.stringify(updates), JSON.stringify(query), JSON.stringify(options));
+        pb.log.info('UPDATE %s.%s %s WHERE %s WITH OPTIONS %s', this.dbName, collection, JSON.stringify(updates), JSON.stringify(query), JSON.stringify(options));
     }
     pb.dbm[this.dbName].collection(collection).update(query, updates, options, cb);
 };
@@ -539,7 +543,7 @@ DAO.prototype.deleteMatching = function(where, collection){
 
 	//output delete command
 	if(pb.config.db.query_logging){
-		pb.log.info("DAO: DELETE FROM "+collection+" WHERE "+JSON.stringify(where));
+		pb.log.info("DAO: DELETE FROM %s.%s WHERE %s", this.dbName, collection, JSON.stringify(where));
 	}
 
 	var promise = new Promise();
@@ -583,11 +587,16 @@ DAO.prototype.delete = function(where, collection, options, cb) {
     
     //log interaction
 	if(pb.config.db.query_logging){
-		pb.log.info('DAO: DELETE FROM %s WHERE %s', collection, JSON.stringify(where));
+		pb.log.info('DAO: DELETE FROM %s.%s WHERE %s', this.dbName, collection, JSON.stringify(where));
 	}
-    
+
     //execute delete command
-    pb.dbm[this.dbName].collection(collection).remove(where, options, cb);
+    pb.dbm.getDB(this.dbName, function(err, db) {
+        if (util.isError(err)) { 
+            return cb(err); 
+        }
+        db.collection(collection).remove(where, options, cb);
+    });
 };
 
 /**
