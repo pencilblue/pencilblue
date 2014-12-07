@@ -45,6 +45,6 @@ module.exports = {
         "type": "mongo"
     },
     "session": {
-        "storage": "mongo"
+        "storage": "redis"
     }
 };
