@@ -161,7 +161,7 @@ var config = {
 
             //settings
             {
-                collection: 'settings',
+                collection: 'setting',
                 spec: {key: ASC},
                 options: {unique: true}
             },
