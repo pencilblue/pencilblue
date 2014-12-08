@@ -11,7 +11,7 @@ node_modules
 out
 plugins/
 !plugins/ga/
-!plugins/pencilblue/
+!plugins/pencilblue
 !plugins/portfolio/
 !plugins/sample/
 !plugins/wp_import/

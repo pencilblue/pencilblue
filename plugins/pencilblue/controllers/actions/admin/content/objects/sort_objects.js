@@ -60,7 +60,7 @@ SortObjectsActionController.prototype.render = function(cb) {
             var sortOrderDoc = pb.CustomObjectService.formatRawSortOrdering(post, sortOrder);
 
             //persist ordering
-            service.saveSortOrdering(sortOrder, function(err, result) {
+            service.saveSortOrdering(sortOrderDoc, function(err, result) {
                 if(util.isError(err)) {
                     return cb({
                         code: 500,
