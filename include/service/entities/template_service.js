@@ -261,13 +261,15 @@ TemplateService.prototype.getTemplateContentsByPriority = function(relativePath,
  * @param {function} cb               Callback function
  */
 TemplateService.prototype.load = function(templateLocation, cb) {
-
 	var self = this;
 	this.getTemplateContentsByPriority(templateLocation, function(err, templateContents) {
 		if (util.isError(err)) {
-			cb(err, null);
+			return cb(err, null);
 			return;
 		}
+        else if (!templateContents) {
+            return cb(new Error('Failed to find a matching template for location: '+templateLocation), null);
+        }
 
 		self.process(templateContents, cb);
 	});
@@ -283,7 +285,7 @@ TemplateService.prototype.load = function(templateLocation, cb) {
  */
 TemplateService.prototype.process = function(content, cb) {
 	if (!pb.utils.isObject(content)) {
-		cb(new Error("TemplateService: A valid content string is required in order for the template engine to process the value"), content);
+		cb(new Error("TemplateService: A valid content string is required in order for the template engine to process the value. Content="+util.inspect(content)), content);
 		return;
 	}
 
