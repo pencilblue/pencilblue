@@ -40,18 +40,7 @@ var SESSION_COLLECTION_NAME = 'session';
  */
 MongoSessionStore.prototype.get = function(sessionId, cb){
 	var dao = new pb.DAO();
-
-	var query = {
-		uid: sessionId
-	};
-	dao.query(SESSION_COLLECTION_NAME, query, pb.DAO.PROJECT_ALL, pb.DAO.NATURAL_ORDER, 1, 0).then(function(result){
-		var isError =  typeof result  == 'Error';
-		if (isError){
-			cb(result, null);
-			return;
-		}
-		cb(null, result.length > 0 ? result[0] : null);
-	});
+    dao.loadByValue('uid', sessionId, SESSION_COLLECTION_NAME, cb);
 };
 
 /**
@@ -74,10 +63,7 @@ MongoSessionStore.prototype.set = function(session, cb){
 	session.object_type = SESSION_COLLECTION_NAME;
 
 	//persist the session
-	dao.update(session).then(function(result){
-		var isError =  typeof result  == 'Error';
-		cb(isError ? result : null, result);
-	});
+	dao.save(session, cb);
 };
 
 /**

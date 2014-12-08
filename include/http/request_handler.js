@@ -356,7 +356,7 @@ RequestHandler.prototype.handleRequest = function(){
     	var se = !sc && cookies.session_id != session.uid;
     	self.setSessionCookie =  sc || se;
     	if (pb.log.isSilly()) {
-    		pb.log.silly("RequestHandler: Session ID ["+session.uid+"] Cookie SID ["+cookies.session_id+"] Created ["+sc+"] Expired ["+se+"]");
+    		pb.log.silly("RequestHandler: Session ID [%s] Cookie SID [%s] Created [%s] Expired [%s]", session.uid, cookies.session_id, sc, se);
     	}
 
     	//continue processing

@@ -228,7 +228,7 @@ SessionHandler.prototype.create = function(request){
 		ip: request.connection.remoteAddress,
 		client_id: SessionHandler.getClientId(request)
 	};
-	session[SessionHandler.SID_KEY] = pb.utils.uniqueId();
+	session[SessionHandler.SID_KEY] = pb.utils.uniqueId().toString();
 
 	this.setLocal(session);
 	return session;
