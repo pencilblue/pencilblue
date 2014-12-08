@@ -48,9 +48,7 @@ JobService.prototype.getLogs = function(jid, startingDate, cb) {
     ];
 
     var dao = new pb.DAO();
-    dao.query('job_log', where, pb.DAO.SELECT_ALL, orderBy).then(function(result) {
-        cb(util.isError(result) ? result : null, result);
-    });
+    dao.q('job_log', {where: where, select: pb.DAO.SELECT_ALL, order: orderBy}, cb);
 };
 
 /**

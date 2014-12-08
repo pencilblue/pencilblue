@@ -140,9 +140,7 @@ CustomObjectService.prototype.saveSortOrdering = function(sortOrder, cb) {
         }
 
         var dao = new pb.DAO();
-        dao.update(sortOrder).then(function(result) {
-            cb(util.isError(result) ? result : null, result);
-        });
+        dao.save(sortOrder, cb);
     });
 };
 
@@ -885,9 +883,7 @@ CustomObjectService.prototype.save = function(custObj, custObjType, cb) {
         }
 
         var dao = new pb.DAO();
-        dao.update(custObj).then(function(result) {
-            cb(util.isError(result) ? result : null, result);
-        });
+        dao.save(custObj, cb);
     });
 };
 
@@ -912,9 +908,7 @@ CustomObjectService.prototype.saveType = function(custObjType, cb) {
         }
 
         var dao = new pb.DAO();
-        dao.update(custObjType).then(function(result) {
-            cb(util.isError(result) ? result : null, result);
-        });
+        dao.save(custObjType, cb);
     });
 };
 
