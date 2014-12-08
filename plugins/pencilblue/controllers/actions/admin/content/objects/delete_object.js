@@ -22,11 +22,14 @@
 function DeleteObject(){}
 
 //inheritance
-util.inherits(DeleteObject, pb.FormController);
+util.inherits(DeleteObject, pb.BaseController);
 
-DeleteObject.prototype.onPostParamsRetrieved = function(post, cb) {
+DeleteObject.prototype.render = function(cb) {
     var self = this;
     var vars = this.pathVars;
+    if(!vars.id && vars.type_id) {
+        vars.id = vars.type_id;
+    }
 
     var message = this.hasRequiredParams(vars, ['id']);
     if(message) {
