@@ -76,13 +76,13 @@ Index.prototype.render = function(cb) {
                             settings = settings[0];
                         }
 
-                        //remove any callouts that are blank. If the home page 
-                        //settings for the plugin have not been set it is 
-                        //possible for the setting to be empty.  Therefore we 
+                        //remove any callouts that are blank. If the home page
+                        //settings for the plugin have not been set it is
+                        //possible for the setting to be empty.  Therefore we
                         //must put in a fall back plan of an empty array.
-                        var callouts = settings.callouts || []; 
+                        var callouts = settings.callouts || [];
                         for(var i = callouts.length - 1; i >= 0; i--) {
-                            if(!callouts[i].copy.length) {
+                            if(typeof callouts[i].copy === 'undefined' || !callouts[i].copy.length) {
                                 callouts.splice(i, 1);
                             }
                         }
