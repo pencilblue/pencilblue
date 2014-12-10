@@ -81,6 +81,16 @@ var PUBLIC_DIR_NAME   = 'public';
 var ACTIVE_PLUGINS = {};
 
 /**
+ * The name of the collection where plugin descriptors are stored
+ * @private
+ * @static
+ * @readonly
+ * @property PLUGIN_COLL
+ * @type {String}
+ */
+var PLUGIN_COLL = 'plugin';
+
+/**
  * Retrieves the path to the active fav icon.
  * @method getActiveIcon
  * @param {Function} cb A callback that provides two parameters: cb(Error, URL_PATH_TO_ICON)
@@ -464,18 +474,17 @@ PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
 		where.uid = pluginIdentifier;
 	}
 	var dao = new pb.DAO();
-	dao.loadByValues(where, 'plugin', cb);
+	dao.loadByValues(where, PLUGIN_COLL, cb);
 };
 
+/**
+ * Retrieves the plugins that have themes associated with them
+ * @method getPluginsWithThemes
+ * @param {Function} cb Provides two parameters: Error, Array
+ */
 PluginService.prototype.getPluginsWithThemes = function(cb) {
 	var dao = new pb.DAO();
-	dao.query('plugin', {theme: {$exists: true}}).then(function(themes) {
-		if (util.isError(themes)) {
-			cb(themes, null);
-			return;
-		}
-		cb(null, themes);
-	});
+	dao.q(PLUGIN_COLL, {where: {theme: {$exists: true}}}, cb);
 };
 
 /**
@@ -549,13 +558,8 @@ PluginService.prototype.resetSettings = function(details, cb) {
 
 			//save it
 			var dao      = new pb.DAO();
-			dao.update(settings).then(function(result) {
-				if (util.isError(result)) {
-					cb(result, false);
-				}
-				else {
-					cb(null, true);
-				}
+			dao.save(settings, function(err, result) {
+                cb(err, !util.isError(err));
 			});
 		});
 	});
@@ -607,13 +611,8 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 
 			//save it
 			var dao      = new pb.DAO();
-			dao.update(settings).then(function(result) {
-				if (util.isError(result)) {
-					cb(result, false);
-				}
-				else {
-					cb(null, true);
-				}
+			dao.save(settings, function(err, result) {
+				cb(err, !util.isError(err));
 			});
 		});
 	});
@@ -695,17 +694,13 @@ PluginService.genPublicPath = function(plugin, relativePathToMedia) {
  */
 PluginService.prototype.getActivePlugins = function(cb) {
 
-	var where = {uid: {'$in': this.getActivePluginNames()}};
-	var order = {created: pb.DAO.ASC};
+    var opts = {
+        select: pb.DAO.SELECT_ALL,
+        where: {uid: {'$in': this.getActivePluginNames()}},
+        order: {created: pb.DAO.ASC}
+    };
 	var dao   = new pb.DAO();
-	dao.query('plugin', where, pb.DAO.SELECT_ALL, order).then(function(results) {
-		if (util.isError(results)) {
-			cb(results, null);
-		}
-		else {
-			cb(null, results);
-		}
-	});
+	dao.q(PLUGIN_COLL, opts, cb);
 };
 
 /**
@@ -738,17 +733,13 @@ PluginService.getActiveContentTemplates = function() {
  * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
  */
 PluginService.prototype.getInactivePlugins = function(cb) {
-	var where = {uid: {'$nin': this.getActivePluginNames()}};
-	var order = {created: pb.DAO.ASC};
-	var dao   = new pb.DAO();
-	dao.query('plugin', where, pb.DAO.SELECT_ALL, order).then(function(results) {
-		if (util.isError(results)) {
-			cb(results, null);
-		}
-		else {
-			cb(null, results);
-		}
-	});
+    var opts = {
+        select: pb.DAO.SELECT_ALL,
+        where: {uid: {'$nin': this.getActivePluginNames()}},
+        order: {created: pb.DAO.ASC}
+    };
+    var dao = new pb.DAO();
+	dao.q(PLUGIN_COLL, opts, cb);
 };
 
 /**
@@ -947,23 +938,20 @@ PluginService.prototype.initPlugins = function(cb) {
 
 	var self = this;
 	var dao  = new pb.DAO();
-	dao.query('plugin').then(function(plugins) {
-		if (util.isError(plugins)) {
-			cb(plugins, null);
-			return;
+	dao.q(PLUGIN_COLL, function(err, plugins) {
+		if (util.isError(err)) {
+			return cb(err);
 		}
 		else if (!util.isArray(plugins)) {
 			var err = new Error('An array of plugins was expected but found ['+(typeof plugins)+']['+util.inspect(plugins)+'] instead.');
 			pb.log.error('PluginService %s', err.stack);
-			cb(err, plugins);
-			return;
+			return cb(err, plugins);
 		}
 
 		//make sure there are plugins to initialize
 		if (plugins.length === 0) {
 			pb.log.debug('PluginService: No plugins are installed');
-			cb(null, true);
-			return;
+			return cb(null, true);
 		}
 		var tasks  = pb.utils.getTasks(plugins, function(plugins, i) {
 			return function(callback) {
@@ -989,7 +977,7 @@ PluginService.prototype.initPlugins = function(cb) {
 					pb.log.debug('PluginService: Plugin [%s] was successfully initialized', result.plugin.name);
 				}
 				else {
-					pb.log.warn('PluginService: Plugin [%s] failed to initialize.'+result.initialized, result.plugin.name);
+					pb.log.warn('PluginService: Plugin [%s] failed to initialize. INITIALIZED=%s', result.plugin.name, result.initialized);
 				}
 				if (result.error) {
 					pb.log.error('PluginService: The following error was produced while initializing the %s plugin: %s', result.plugin.name, result.error.stack);
