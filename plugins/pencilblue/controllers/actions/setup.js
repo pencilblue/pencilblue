@@ -84,14 +84,7 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 				var userDocument = pb.DocumentCreator.create('user', post);
 
 				var dao = new pb.DAO();
-				dao.update(userDocument).then(function(data) {
-					if (util.isError(data)) {
-						callback(new PBError("Failed to persist user object", 500), null);
-						return;
-					}
-
-					callback(null, data);
-				});
+				dao.save(userDocument, callback);
 			},
 			function(callback) {
 				pb.settings.set('active_theme',
@@ -99,7 +92,11 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 			},
 			function(callback) {
 				pb.content.getSettings(function(contentSettings) {
-					pb.settings.set('content_settings', contentSettings, callback);
+					//Do nothing here because it calls set under the covers.  
+                    //We assume it does what it is supposed to.  Attempting to 
+                    //set the settings again will only cause a failure due to a 
+                    //duplicate key
+                    callback();
 				});
 			},
 			function(callback) {
@@ -117,8 +114,8 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 		],
         function(err, results){
     		if (util.isError(err)) {
-    			self.formError(self.ls.get('ERROR_SAVING'), '/setup', cb);
-                return;
+                pb.log.error('An error occurred while attempting to perform setup: %s', err.stack || err.message);
+    			return self.formError(self.ls.get('ERROR_SAVING'), '/setup', cb);
     		}
 
     		self.session.success = self.ls.get('READY_TO_USE');
