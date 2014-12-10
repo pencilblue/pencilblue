@@ -26,14 +26,12 @@ util.inherits(WPManageUsers, pb.BaseController);
 WPManageUsers.prototype.render = function(cb) {
     var self = this;
 
-
-
     if(!self.session.importedUsers) {
-        this.redirect('/admin/plugins/settings/wp_import/import', cb);
+        this.redirect('/admin/plugins/wp_import/settings/import', cb);
         return;
     }
     else if(!self.session.importedUsers.length) {
-        this.redirect('/admin/plugins/settings/wp_import/import', cb);
+        this.redirect('/admin/plugins/wp_import/settings/import', cb);
         return;
     }
 
@@ -45,7 +43,7 @@ WPManageUsers.prototype.render = function(cb) {
         }
     }
     if(!newUsers) {
-        this.redirect('/admin/plugins/settings/wp_import/import', cb);
+        this.redirect('/admin/plugins/wp_import/settings/import', cb);
         return;
     }
 
@@ -64,7 +62,7 @@ WPManageUsers.prototype.render = function(cb) {
         name: 'content_settings',
         title: self.ls.get('MANAGE_NEW_USERS'),
         icon: 'chevron-left',
-        href: '/admin/plugins/settings/wp_import'
+        href: '/admin/plugins/wp_import/settings'
     }];
 
     var objects = {
@@ -74,8 +72,10 @@ WPManageUsers.prototype.render = function(cb) {
         users: self.session.importedUsers,
         adminOptions: pb.users.getAdminOptions(self.session, self.localizationService)
     };
-    var angularData = pb.js.getAngularController(objects);
-    self.ts.registerLocal('angular_script', angularData);
+
+    this.setPageName(this.ls.get('IMPORT_WORDPRESS'));
+    var angularObjects = pb.js.getAngularObjects(objects);
+    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
     self.ts.load('/admin/plugins/settings/wp_import/manage_new_users', function(err, result) {
 
         var content = {
@@ -91,7 +91,7 @@ WPManageUsers.getRoutes = function(cb) {
     var routes = [
         {
             method: 'get',
-            path: '/admin/plugins/settings/wp_import/manage_new_users',
+            path: '/admin/plugins/wp_import/settings/manage_new_users',
             auth_required: true,
             access_level: ACCESS_MANAGING_EDITOR,
             content_type: 'text/html'

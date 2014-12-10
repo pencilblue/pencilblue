@@ -40,7 +40,7 @@ WPImportForm.prototype.render = function(cb) {
         name: 'content_settings',
         title: self.ls.get('IMPORT_WORDPRESS'),
         icon: 'chevron-left',
-        href: '/admin/plugins/settings/wp_import'
+        href: '/admin/plugins/wp_import/settings'
     }];
 
     var objects = {
@@ -48,10 +48,11 @@ WPImportForm.prototype.render = function(cb) {
         pills: pills,
         tabs: tabs
     };
-    var angularData = pb.js.getAngularController(objects);
-    this.ts.registerLocal('angular_script', angularData);
-    self.ts.load('/admin/plugins/settings/wp_import/import', function(err, result) {
 
+    this.setPageName(this.ls.get('IMPORT_WORDPRESS'));
+    var angularObjects = pb.js.getAngularObjects(objects);
+    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+    self.ts.load('/admin/plugins/settings/wp_import/import', function(err, result) {
         var content = {
             content: result,
             content_type: "text/html",
@@ -65,7 +66,7 @@ WPImportForm.getRoutes = function(cb) {
     var routes = [
         {
             method: 'get',
-            path: '/admin/plugins/settings/wp_import/import',
+            path: '/admin/plugins/wp_import/settings/import',
             auth_required: true,
             access_level: ACCESS_MANAGING_EDITOR,
             content_type: 'text/html'

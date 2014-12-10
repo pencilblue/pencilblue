@@ -57,7 +57,7 @@ WPImport.onPluginSettingsSubNav = function(navKey, localization, plugin) {
                 name: 'import_xml',
                 title: 'Import WordPress XML',
                 icon: 'upload',
-                href: '/admin/plugins/settings/wp_import/import'
+                href: '/admin/plugins/wp_import/settings/import'
             }
         ];
     }
