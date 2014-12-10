@@ -18,65 +18,65 @@
 function ManageNewWPUsers() {}
 
 //inheritance
-util.inherits(ManageNewWPUsers, pb.FormController);
+util.inherits(ManageNewWPUsers, pb.BaseController);
 
-ManageNewWPUsers.prototype.onPostParamsRetrieved = function(post, cb) {
+ManageNewWPUsers.prototype.render = function(cb) {
     var self = this;
     var dao = new pb.DAO();
 
-    if(!self.session.importedUsers || !post) {
-        self.session.error = self.ls.get('ERROR_SAVING');
-        this.redirect('/admin/plugins/settings/wp_import/manage_new_users', cb);
-        return;
-    }
-
-    var users = self.session.importedUsers;
-
-    this.updateNewUser = function(index) {
-        if(index >= users.length) {
-            self.session.success = self.ls.get('USERS') + ' ' + self.ls.get('SAVED');
-            delete self.session.importedUsers;
-            self.redirect('/admin/plugins/settings/wp_import', cb);
+    this.getJSONPostParams(function(err, post) {
+        if(!self.session.importedUsers || !post) {
+            cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+            });
             return;
         }
 
-        if(!users[index]) {
-            index++;
-            self.updateNewUser(index);
-            return;
-        }
+        var users = self.session.importedUsers;
 
-        dao.loadByValue('username', users[index].username, 'user', function(err, user) {
-            if(!user) {
+        self.updateNewUser = function(index) {
+
+            if(index >= post.users.length) {
+                delete self.session.importedUsers;
+                cb({
+                    code: 200,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USERS') + ' ' + self.ls.get('SAVED'))
+                });
+                return;
+            }
+
+            if(!post.users[index]) {
                 index++;
                 self.updateNewUser(index);
                 return;
             }
 
-            var userUpdates = {
-                first_name: post['first_name_' + user.username],
-                last_name: post['last_name_' + user.username],
-                position: post['position_' + user.username],
-                admin: post['admin_' + user.username],
-                password: post['password_' + user.username]
-            };
+            dao.loadByValue('username', post.users[index].username, 'user', function(err, user) {
+                if(!user) {
+                    index++;
+                    self.updateNewUser(index);
+                    return;
+                }
 
-            pb.DocumentCreator.update(userUpdates, user);
-            dao.update(user).then(function(result) {
-                index++;
-                self.updateNewUser(index);
+                delete post.users[index]._id;
+                pb.DocumentCreator.update(post.users[index], user);
+                dao.update(user).then(function(result) {
+                    index++;
+                    self.updateNewUser(index);
+                });
             });
-        });
-    };
+        };
 
-    self.updateNewUser(0);
+        self.updateNewUser(0);
+    });
 };
 
 ManageNewWPUsers.getRoutes = function(cb) {
     var routes = [
         {
             method: 'post',
-            path: '/actions/admin/plugins/settings/wp_import/manage_new_users',
+            path: '/actions/admin/plugins/wp_import/settings/manage_new_users',
             auth_required: true,
             access_level: ACCESS_MANAGING_EDITOR,
             content_type: 'text/html'
