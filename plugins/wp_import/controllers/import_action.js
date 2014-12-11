@@ -43,27 +43,26 @@ ImportWP.prototype.render = function(cb) {
     });
     form.on('error', function(err) {
         self.session.error = 'loc_NO_FILE';
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'No file provided')});
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_FILE'))});
     });
     form.parse(this.req, function() {
 
         fs.readFile(files[0].path, function(err, data) {
             if(util.isError(err)) {
                 self.session.error = 'NO_FILE';
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'No file provided')});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_FILE'))});
                 return;
             }
 
             wpXMLParse.parse(data.toString(), self.session.authentication.user_id, function(err, users) {
                 if(err) {
                     self.session.error = err;
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'Error saving')});
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))});
                     return;
                 }
 
-                self.session.success = 'WP_IMPORT_SUCCESS';
                 self.session.importedUsers = users;
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Successfully imported WordPress content')});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('WP_IMPORT_SUCCESS'))});
             });
         });
     });
@@ -73,7 +72,7 @@ ImportWP.getRoutes = function(cb) {
     var routes = [
         {
             method: 'post',
-            path: '/actions/admin/plugins/settings/wp_import/import',
+            path: '/actions/admin/plugins/wp_import/settings/import',
             auth_required: true,
             access_level: ACCESS_MANAGING_EDITOR,
             content_type: 'text/html'
