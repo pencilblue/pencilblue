@@ -1,0 +1,28 @@
+<script type="text/javascript" src="^angular_upload_src^"></script>
+<script type="text/javascript">
+	angular.module('pencilblueApp', ['angularFileUpload'])
+	.controller('PencilBlueController', function($scope, $http, $upload, $window) {
+		^angular_objects^
+
+		$scope.onFileSelect = function($files) {
+			for (var i = 0; i < $files.length && i < 1; i++) {
+				var file = $files[i];
+				$scope.uploading = true;
+				$scope.uploadPercent = 0;
+				$scope.upload = $upload.upload({
+					url: '/actions/admin/plugins/wp_import/settings/import',
+					file: file
+				}).progress(function(evt) {
+					$scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
+				}).success(function(data, status, headers, config) {
+					$scope.successMessage = data.message;
+					$scope.uploading = false;
+					$window.location = '/admin/plugins/wp_import/settings/manage_new_users';
+				}).error(function(data, status) {
+					$scope.errorMessage = data.message;
+					$scope.uploading = false;
+				});
+			}
+		};
+	});
+</script>
