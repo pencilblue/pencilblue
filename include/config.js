@@ -584,10 +584,15 @@ var loadConfiguration = function() {
     if (config.siteRoot.lastIndexOf('/') === (config.siteRoot.length - 1)) {
         config.siteRoot = config.siteRoot.substring(0, config.siteRoot.length - 1);
     }
+
+    //ensure that the version is provided
+    var packageInfo = require(path.join(DOCUMENT_ROOT, 'package.json'));
+    config.version = packageInfo.version;
+    
 	return config;
 };
 
 //export configuration
-config                   = loadConfiguration();
+var config               = loadConfiguration();
 config.loadConfiguration = loadConfiguration;
-module.exports           = config;
+module.exports           = Object.freeze(config);

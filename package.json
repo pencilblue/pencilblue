@@ -1,64 +1,66 @@
 {
-    "author": {
-        "name": "PencilBlue, LLC",
-        "email": "info@pencilblue.com"
+  "author": {
+    "name": "PencilBlue, LLC",
+    "email": "info@pencilblue.com"
+  },
+  "contributors": [
+    {
+      "name": "Blake Callens"
     },
-    "contributors": [
-        {
-            "name": "Blake Callens"
-        },
-        {
-            "name": "Brian Hyder"
-        }
-    ],
-    "name": "pencilblue",
-    "description": "Full stack online publishing and CMS for Node.js",
-    "keywords": [
-        "cms", "website", "platform"
-    ],
-   "version": "0.3.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/pencilblue/pencilblue.git"
-    },
-    "dependencies": {
-    	"async": "0.2.9",
-    	"cookies": "0.4.0",
-    	"fakeredis": "0.2.0",
-	    "formidable": "1.0.14",
-        "htmlencode": "0.0.4",
-	    "locale": "0.0.14",
-	    "mongodb": "1.4.12",
-	    "minify": "0.2.3",
-        "node.extend": "1.0.10",
-	    "node-promise": "0.5.9",
-	    "nodemailer": "0.5.3",
-        "npm": "1.4.20",
-	    "process": "0.5.1",
-	    "redis": "0.10.0",
-        "sanitize-html": "1.1.7",
-	    "winston": "0.8.3"
-    },
-    "devDependencies": {
-    	"nodeunit": "0.8.2"
-    },
-    "main": "./pencilblue.js",
-    "engines": {
-        "node": ">= 0.10.0"
-    },
-    "scripts": {
-    	"start": "node pencilblue.js"
-    },
-    "licenses": [
-        {
-            "type": "Apache License, Version 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0"
-        }
-    ],
-    "readme": "See README file",
-    "readmeFilename": "README.md",
-    "bugs": {
-        "url": "https://github.com/pencilblue/pencilblue/issues"
-    },
-    "_id": "pencileblue@0.0.1"
+    {
+      "name": "Brian Hyder"
+    }
+  ],
+  "name": "pencilblue",
+  "description": "Full stack online publishing and CMS for Node.js",
+  "keywords": [
+    "cms",
+    "website",
+    "platform"
+  ],
+  "version": "0.3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pencilblue/pencilblue.git"
+  },
+  "dependencies": {
+    "async": "0.2.9",
+    "cookies": "0.4.0",
+    "fakeredis": "0.2.0",
+    "formidable": "1.0.14",
+    "htmlencode": "0.0.4",
+    "locale": "0.0.14",
+    "minify": "0.2.3",
+    "mongodb": "1.4.12",
+    "node-promise": "0.5.9",
+    "node.extend": "1.0.10",
+    "nodemailer": "0.5.3",
+    "npm": "1.4.20",
+    "process": "0.5.1",
+    "redis": "0.10.0",
+    "sanitize-html": "1.1.7",
+    "winston": "0.8.3"
+  },
+  "devDependencies": {
+    "nodeunit": "0.8.2"
+  },
+  "main": "./pencilblue.js",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "scripts": {
+    "start": "node pencilblue.js"
+  },
+  "licenses": [
+    {
+      "type": "Apache License, Version 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "readme": "See README file",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/pencilblue/pencilblue/issues"
+  },
+  "_id": "pencilblue@0.3.0"
 }
