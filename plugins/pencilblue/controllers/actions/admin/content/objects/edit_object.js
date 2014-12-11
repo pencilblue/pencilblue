@@ -75,7 +75,7 @@ EditObject.prototype.render = function(cb) {
                     return;
                 }
                 else if(util.isArray(result) && result.length > 0) {
-                    console.log(result);
+
                     cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
