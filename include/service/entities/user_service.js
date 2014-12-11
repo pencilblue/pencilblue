@@ -117,28 +117,35 @@ UserService.prototype.getAdminOptions = function(session, ls) {
  * editor select list.
  */
 UserService.prototype.getEditorSelectList = function(currId, cb) {
-	var where = {
-		admin: {
-			$gt: ACCESS_WRITER
-		}
-	};
-	var select = {
-		_id: 1,
-		first_name: 1,
-		last_name: 1
-	};
+    var self = this;
+    
+    var opts = {
+        select: {
+            _id: 1,
+            first_name: 1,
+            last_name: 1
+        },
+        where: {
+            admin: {
+                $gt: ACCESS_WRITER
+            }
+        }
+    };
     var dao     = new pb.DAO();
-	dao.query('user', where, select).then(function(data){
-        if (util.isError(data)) {
-        	cb(data, null);
-        	return;
+	dao.q('user', opts, function(err, data){
+        if (util.isError(err)) {
+        	return cb(err, null);
         }
 
 		var editors = [];
 		for(var i = 0; i < data.length; i++) {
 
-			var editor = {_id: data[i]._id, name: data[i].first_name + ' ' + data[i].last_name};
-            if(currId == data[i]._id.toString()) {
+			var editor = {
+                name: self.getFormattedName(data[i])
+            };
+            editor[pb.DAO.getIdField()] = data[i][pb.DAO.getIdField()];
+            
+            if(currId == data[i][pb.DAO.getIdField()].toString()) {
                 editor.selected = 'selected';
             }
             editors.push(editor);
@@ -291,13 +298,17 @@ UserService.prototype.findByAccessLevel = function(level, options, cb) {
         throw new Error('The options parameter must be an object');
     }
 
-    var where = {
-        admin: level
+    var opts = {
+        select: options.select,
+        where: {
+            admin: level
+        },
+        order: options.orderBy,
+        limit: options.limit,
+        offset: options.offset
     };
     var dao = new pb.DAO();
-    dao.query('user', where, options.select, options.orderBy, options.limit, options.offset).then(function(result) {
-        cb(util.isError(result) ? result : null, result);
-    });
+    dao.q('user', opts, cb);
 };
 
 /**

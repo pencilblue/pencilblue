@@ -36,15 +36,21 @@ ArticleFeed.prototype.render = function(cb) {
     this.ts.registerLocal('last_build', self.getBuildDate());
 	this.ts.registerLocal('items', function(flag, cb){
 
+        var opts = {
+            select: pb.DAO.PROJECT_ALL,
+            where: {publish_date: {$lte: new Date()}},
+            order: {publish_date: pb.DAO.DESC}
+        };
         var dao   = new pb.DAO();
-        var where = {publish_date: {$lte: new Date()}};
-        var sort  = {publish_date: pb.DAO.DESC};
-        dao.query('article', where, pb.DAO.PROJECT_ALL, sort).then(function(articles) {
+        dao.q('article', opts, function(err, articles) {
+            if (util.isError(err)) {
+                return cb(err);   
+            }
 
 			pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
 	            articles = articlesWithAuthorNames;
 
-	            self.getSectionNames(articles, function(articlesWithSectionNames) {
+	            self.getSectionNames(articles, function(err, articlesWithSectionNames) {
 	                articles = articlesWithSectionNames;
 
 	                self.getMedia(articles, function(articlesWithMedia) {
@@ -111,9 +117,16 @@ ArticleFeed.prototype.getBuildDate = function() {
 
 ArticleFeed.prototype.getSectionNames = function(articles, cb) {
 
+    var opts = {
+        select: {name: 1},
+        where: pb.DAO.ANYWHERE,
+        order: {parent: 1}
+    };
 	var dao = new pb.DAO();
-	dao.query('section', pb.DAO.ANYWHERE, {name: 1}, {parent: 1}).then(function(sections) {
-        //TODO handle error
+	dao.q('section', opts, function(err, sections) {
+        if (util.isError(err)) {
+            return cb(err, sections);   
+        }
 
 		for(var i = 0; i < articles.length; i++) {
 
