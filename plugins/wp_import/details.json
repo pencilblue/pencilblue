@@ -38,6 +38,6 @@
 		"path": "wp_import.js"
 	},
     "dependencies": {
-        "xml2js": "0.4.4"
+        "xml2js": "~0.4.4"
     }
 }
