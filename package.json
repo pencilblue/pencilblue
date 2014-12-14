@@ -49,7 +49,8 @@
     "node": ">= 0.10.0"
   },
   "scripts": {
-    "start": "node pencilblue.js"
+    "start": "node pencilblue.js",
+    "test": "echo Not hooked up yet"
   },
   "licenses": [
     {

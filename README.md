@@ -1,3 +1,5 @@
+[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue)
+
 [PencilBlue](http://pencilblue.org)
 =====
 

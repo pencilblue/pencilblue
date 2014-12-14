@@ -41,8 +41,7 @@ UserService.prototype.getFullName = function(userId, cb) {
 	var dao  = new pb.DAO();
 	dao.loadById(userId, 'user', function(err, author){
 		if (util.isError(err)) {
-			callback(err, null);
-			return;
+			return callback(err, null);
 		}
 
 		cb(null, self.getFormattedName(author));
@@ -73,15 +72,39 @@ UserService.prototype.getFormattedName = function(user) {
  */
 UserService.prototype.getAuthors = function(objArry, cb){
 	var self  = this;
-	var tasks = pb.utils.getTasks(objArry, function(objArry, index){
-    	return function(callback) {
-    		self.getFullName(objArry[index].author, function(err, fullName){
-    			objArry[index].author_name = fullName;
-    			callback(err, objArry[index]);
-    		});
-    	};
+    
+    //retrieve unique author list
+    var authorIds = {};
+    for (var i = 0; i < objArry.length; i++) {
+        authorIds[objArry[i].author] = true;
+    }
+    
+    //retrieve authors
+    var opts = {
+        select: {
+            username: 1,
+            first_name: 1,
+            last_name: 1
+        },
+        where: pb.DAO.getIDInWhere(Object.keys(authorIds))
+    };
+    var dao = new pb.DAO();
+    dao.q('user', opts, function(err, authors) {
+        if (util.isError(err)) {
+            return cb(err);   
+        }
+        
+        //convert results into searchable hash
+        var authLookup = pb.utils.arrayToObj(authors, function(authors, i) { return authors[i][pb.DAO.getIdField()].toString(); });
+        
+        //set the full name of the author
+        for (var i = 0; i < objArry.length; i++) {
+            objArry[i].author_name = self.getFormattedName(authLookup[objArry[i].author]);
+        }
+        
+        //callback with objects (not necessary but we do it anyway)
+        cb(null, objArry);
     });
-    async.parallelLimit(tasks, 3, cb);
 };
 
 /**
