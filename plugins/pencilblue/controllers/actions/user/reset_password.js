@@ -52,7 +52,7 @@ ResetPassword.prototype.render = function(cb) {
             }
 
             // delete the password reset token
-            dao.deleteById(passwordReset._id, 'password_reset').then(function(result)  {
+            dao.deleteById(passwordReset._id, 'password_reset', function(err, result)  {
         	    //log the user in
                 self.session.authentication.user        = user;
                 self.session.authentication.user_id     = user._id.toString();

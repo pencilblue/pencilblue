@@ -28,32 +28,34 @@ DeleteComment.prototype.render = function(cb) {
     var self = this;
     var vars = this.pathVars;
 
-    var message = this.hasRequiredParams(vars, ['id']);
-    if(message) {
-        cb({
+    //verify that the ID is a valid format
+    if (!pb.validation.isIdStr(vars.id, true)) {
+        return cb({
             code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
         });
-        return;
     }
 
+    //verify that the comment exists
     var dao = new pb.DAO();
-    dao.query('comment', {_id: ObjectID(vars.id)}).then(function(commentData) {
-        if(util.isError(commentData) || commentData.length === 0) {
-            cb({
-                code: 400,
+    dao.loadById(vars.id, 'comment', function(err, comment) {
+        if(util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if (!comment) {
+            return cb({
+                code: 404,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
             });
-            return;
         }
 
-        dao.deleteById(vars.id, 'comment').then(function(recordsDeleted) {
-            if(recordsDeleted <= 0) {
-                cb({
+        //delete it
+        dao.deleteById(vars.id, 'comment', function(err, recordsDeleted) {
+            if(util.isError(err)) {
+                return cb({
                     code: 500,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
                 });
-                return;
             }
 
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('COMMENT') + ' ' + self.ls.get('DELETED'))});

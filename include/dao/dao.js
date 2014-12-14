@@ -472,7 +472,7 @@ DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
  * Updates a specific set of fields. This is handy for performing upserts.
  * @method updateFields
  * @param {String} collection The collection to update object(s) in
- * @param {Object} query The query to execute to find the existing object
+ * @param {Object} query The where clause to execute to find the existing object
  * @param {Object} updates The updates to perform
  * @param {Object} options Any options to go along with the update
  * @param {Boolean} [options.upsert=false] Inserts the object is not found

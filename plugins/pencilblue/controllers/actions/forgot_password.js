@@ -83,10 +83,10 @@ ForgotPasswordController.prototype.onPostParamsRetrieved = function(post, cb) {
                 passwordReset.verification_code = pb.utils.uniqueId().toString();
 
                 //persist reset entry
-                dao.update(passwordReset).then(function(result) {
-                    if(util.isError(result)) {
-                        self.formError(self.ls.get('ERROR_SAVING'), returnURL, cb);
-                        return;
+                dao.save(passwordReset, function(err, result) {
+                    if(util.isError(err)) {
+                        pb.log.error(err.stack);
+                        return self.formError(self.ls.get('ERROR_SAVING'), returnURL, cb);
                     }
 
                     self.session.success = self.ls.get('YOUR_PASSWORD_RESET');

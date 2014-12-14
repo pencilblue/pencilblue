@@ -911,6 +911,16 @@ CustomObjectService.prototype.saveType = function(custObjType, cb) {
         dao.save(custObjType, cb);
     });
 };
+ 
+/**
+ * Deletes a custom object by ID
+ * @method deleteById
+ * @param {String} 
+ */
+CustomObjectService.prototype.deleteById = function(id, cb) {
+    var dao = new pb.DAO();
+    dao.deleteById(id, CustomObjectService.CUST_OBJ_COLL, cb);
+};
 
 /**
  * Deletes a custom object type by id

@@ -48,13 +48,12 @@ NewTopic.prototype.render = function(cb) {
 	        }
 
 	        var topicDocument = pb.DocumentCreator.create('topic', post);
-	        dao.update(topicDocument).then(function(result) {
-	            if(util.isError(result)) {
-	                cb({
+	        dao.save(topicDocument, function(err, result) {
+	            if(util.isError(err)) {
+	                return cb({
 						code: 500,
 						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
 					});
-	                return;
 	            }
 
 				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topicDocument.name + ' ' + self.ls.get('CREATED'))});

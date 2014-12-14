@@ -57,12 +57,12 @@ DeleteUser.prototype.render = function(cb) {
         }
 
         // delete the user's comments
-        dao.deleteMatching({commenter: vars.id}, 'comment').then(function(result) {
+        dao.delete({commenter: vars.id}, 'comment', function(err, result) {
             //reassign the user's content to the current user
-            self.reassignContent(vars.id, self.session.authentication.user_id, dao, function(articles, pages, sections) {
+            self.reassignContent(vars.id, self.session.authentication.user_id, dao, function(err, results) {
                 //delete the user
-                dao.deleteMatching({_id: ObjectID(vars.id)}, 'user').then(function(result) {
-                    if(result < 1) {
+                dao.deleteById(vars.id, 'user', function(err, result) {
+                    if(util.isError(err) || result < 1) {
                         cb({
                             code: 500,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
@@ -78,65 +78,38 @@ DeleteUser.prototype.render = function(cb) {
 };
 
 DeleteUser.prototype.reassignContent = function(deletedUserId, newUserId, dao, cb) {
-    dao.query('article', {author: deletedUserId}).then(function(articles) {
-        dao.query('page', {author: deletedUserId}).then(function(pages) {
-            dao.query('section', {editor: deletedUserId}).then(function(sections) {
-                var self = this;
-
-                this.updateArticlesUser = function(index) {
-                    if(index >= articles.length) {
-                        self.updatePagesUser(0);
-                        return;
-                    }
-
-                    dao.update(articles[index]).then(function(result) {
-                        index++;
-                        self.updateArticlesUser(index);
-                    });
-                };
-
-                this.updatePagesUser = function(index) {
-                    if(index >= pages.length) {
-                        self.updateSectionsUser(0);
-                        return;
-                    }
-
-                    dao.update(pages[index]).then(function(result) {
-                        index++;
-                        self.updatePagesUser(index);
-                    });
-                };
-
-                this.updateSectionsUser = function(index) {
-                    if(index >= sections.length) {
-                        cb(articles, pages, sections);
-                        return;
-                    }
-
-                    dao.update(sections[index]).then(function(result) {
-                        index++;
-                        self.updateSectionsUser(index);
-                    });
-                };
-
-                articles = articles || [];
-                pages = pages || [];
-                sections = sections || [];
-
-                for(var i = 0; i < articles.length; i++) {
-                    articles[i].author = newUserId;
-                }
-                for(i = 0; i < pages.length; i++) {
-                    pages[i].author = newUserId;
-                }
-                for(i = 0; i < sections.length; i++) {
-                    sections[i].editor = newUserId;
-                }
-
-                this.updateArticlesUser(0);
-            });
-        });
-    });
+    
+    var authorWhere = {
+        author: deletedUserId
+    };
+    var authorUpdate = {
+        $set: {
+            author: newUserId
+        }
+    };
+    var updateOptions = {
+        multi: true
+    };
+    var tasks = [
+        
+        //update articles
+        function(callback) {
+            dao.updateFields('article', authorWhere, authorUpdate, updateOptions, callback);
+        },
+                             
+         //update pages
+        function(callback) {
+            dao.updateFields('page', authorWhere, authorUpdate, updateOptions, callback);
+        },
+                             
+        //update sections
+        function(callback) {
+            var editorWhere = {editor: deletedUserId};
+            var editorUpdate = {$set: {editor: newUserId}};
+            dao.updateFields('section', editorWhere, editorUpdate, updateOptions, callback);
+        }
+    ];
+    async.parallel(tasks, cb);
 };
 
 //exports

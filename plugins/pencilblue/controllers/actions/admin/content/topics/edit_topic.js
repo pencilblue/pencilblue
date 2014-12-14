@@ -68,13 +68,12 @@ NewTopic.prototype.render = function(cb) {
                     return;
                 }
 
-                dao.update(topic).then(function(result) {
-                    if(util.isError(result)) {
-                        cb({
+                dao.save(topic, function(err, result) {
+                    if(util.isError(err)) {
+                        return cb({
                             code: 500,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
                         });
-                        return;
                     }
 
                     cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topic.name + ' ' + self.ls.get('EDITED'))});

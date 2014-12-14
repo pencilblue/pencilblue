@@ -49,8 +49,8 @@ DeleteUnverifiedUser.prototype.render = function(cb) {
         }
 
         //delete the user
-        dao.deleteById(vars.id, 'unverified_user').then(function(result) {
-            if(result < 1) {
+        dao.deleteById(vars.id, 'unverified_user', function(err, result) {
+            if(util.isError(err) || result < 1) {
                 cb({
                     code: 500,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
