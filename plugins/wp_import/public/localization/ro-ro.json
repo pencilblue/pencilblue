@@ -1,0 +1,8 @@
+{
+  "IMPORT_WORDPRESS": "Importa WordPress XML",
+  "UPLOAD_XML": "Incarca XML",
+  "NO_FILE": "Nu a fost ales niciun fisier",
+  "INVALID_XML": "Fisierul XML ales este incompatibil",
+  "WP_IMPORT_SUCCESS": "Continutul WordPress s-a importat cu succes",
+  "MANAGE_NEW_USERS": "Administreaza utilizatorii noi"
+}
