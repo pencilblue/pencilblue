@@ -134,7 +134,7 @@ EmailService.prototype.getSettings = function(cb) {
 	var self = this;
 	pb.settings.get('email_settings', function(err, settings) {
 		var defaultSettings = self.getDefaultSettings();
-        cb(err, util.isError(err) || !settings ? defaultSettings : pb.utils.merge(settings, defaultSettings));
+        cb(err, util.isError(err) || !settings ? defaultSettings : settings);
     });
 };
 
