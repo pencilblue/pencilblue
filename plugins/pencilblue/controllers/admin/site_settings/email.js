@@ -51,7 +51,6 @@ Email.prototype.render = function(cb) {
     ];
 
     pb.email.getSettings(function(err, emailSettings) {
-        console.log(emailSettings);
         var angularObjects = pb.js.getAngularObjects({
             navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email'),
