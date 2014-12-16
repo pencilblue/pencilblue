@@ -86,7 +86,7 @@ EmailService.prototype.send = function(from, to, subject, body, cb) {
         }
         else if (!emailSettings) {
             var err = new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
-            pb.log.error(err.stack); 
+            pb.log.error(err.stack);
             return cb(err);
         }
 
@@ -133,7 +133,8 @@ EmailService.prototype.send = function(from, to, subject, body, cb) {
 EmailService.prototype.getSettings = function(cb) {
 	var self = this;
 	pb.settings.get('email_settings', function(err, settings) {
-        cb(err, util.isError(err) ? self.getDefaultSettings() : settings);
+		var defaultSettings = self.getDefaultSettings();
+        cb(err, util.isError(err) || !settings ? defaultSettings : pb.utils.merge(settings, defaultSettings));
     });
 };
 
@@ -143,11 +144,12 @@ EmailService.prototype.getSettings = function(cb) {
  * @method getDefaultSettings
  * @return {Object} Email settings
  */
-EmailService.prototype.getDeafultSettings = function() {
+EmailService.prototype.getDefaultSettings = function() {
 	return {
         from_name: 'pencilblue',
         from_address: 'no-reply@pencilblue.org',
         verification_subject: 'pencilblue Account Confirmation',
+		verification_content: '',
 		template: 'admin/elements/default_verification_email',
         service: 'Gmail',
         host: '',
