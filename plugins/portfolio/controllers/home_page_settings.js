@@ -48,8 +48,11 @@ HomePageSettings.prototype.render = function(cb) {
         href: '/admin/plugins/portfolio/settings'
     }];
 
+    var opts = {
+        where: {settings_type: 'home_page'}
+    };
     var dao  = new pb.DAO();
-    dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(homePageSettings) {
+    dao.q('portfolio_theme_settings', opts, function(err, homePageSettings) {
         if(homePageSettings.length > 0) {
             homePageSettings = homePageSettings[0];
         }

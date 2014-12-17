@@ -29,11 +29,20 @@ var SUB_NAV_KEY = 'manage_users';
 
 ManageUsers.prototype.render = function(cb) {
 	var self = this;
+    
+    //TODO: see if there is a user service function with this
+    var opts = {
+        where: {
+            admin: {$lte: self.session.authentication.user.admin}
+        }
+    };
 	var dao  = new pb.DAO();
-	dao.query('user', {admin: {$lte: self.session.authentication.user.admin}}).then(function(users) {
-        if(util.isError(users) || users.length === 0) {
-            self.redirect('/admin', cb);
-            return;
+	dao.q('user', opts, function(err, users) {
+        if(util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if (users.length === 0) {
+            return self.redirect('/admin', cb);
         }
 
         var angularObjects = pb.js.getAngularObjects({

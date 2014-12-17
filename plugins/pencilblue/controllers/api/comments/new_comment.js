@@ -52,10 +52,9 @@ NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
             var commentDocument       = pb.DocumentCreator.create('comment', post);
             commentDocument.commenter = self.session.authentication.user_id;
 
-            dao.update(commentDocument).then(function(data) {
-                if (util.isError(data)) {
-                	cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'error saving'), code: 500});
-                    return;
+            dao.save(commentDocument, function(err, data) {
+                if (util.isError(err)) {
+                	return cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'error saving'), code: 500});
                 }
 
                 var timestamp  = pb.content.getTimestampTextFromSettings(commentDocument.created, contentSettings);

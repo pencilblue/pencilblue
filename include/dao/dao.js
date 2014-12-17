@@ -721,6 +721,32 @@ DAO.getIDInWhere = function(objArray, idProp) {
     };
 };
 
+/**
+ * Creates a where clause that equates to select where [idProp] is not in the
+ * specified array of values.
+ * @static
+ * @method getIDInWhere
+ * @param {Array} objArray The array of acceptable values
+ * @param {String} idProp The property that holds a referenced ID value
+ * @return {Object} Where clause
+ */
+DAO.getIdNotInWhere = function(objArray, idProp) {
+	var idArray = [];
+    for(var i = 0; i < objArray.length; i++) {
+
+    	var rawId;
+    	if (idProp) {
+    		rawId = objArray[i][idProp];
+    	}
+    	else{
+    		rawId = objArray[i];
+    	}
+    	idArray.push(DAO.getObjectID(rawId));
+    }
+    return {
+    	_id: {$nin: idArray}
+    };
+};
 
 /**
  * Creates a basic where clause based on not equalling the specified Id

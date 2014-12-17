@@ -151,7 +151,7 @@ ArticleForm.prototype.gatherData = function(vars, cb) {
     		var where = {
     			type: {$in: ['container', 'section']}
     		};
-    		dao.q('section', opts, callbak);
+    		dao.q('section', opts, callback);
     	},
 
     	topics: function(callback) {
