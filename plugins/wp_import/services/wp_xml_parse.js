@@ -21,7 +21,8 @@ var BaseController = pb.BaseController;
 
 /**
  *
- *
+ * @class WPXMLParseService
+ * @constructor
  */
 function WPXMLParseService() {}
 
@@ -54,88 +55,117 @@ WPXMLParseService.parse = function(xmlString, defaultUserId, cb) {
     
     xml2js.parseString(xmlString, function(err, wpData) {
         if(err) {
-            cb('^loc_INVALID_XML^');
-            return;
+            return cb('^loc_INVALID_XML^');
         }
 
         var channel = wpData.rss.channel[0];
 
-        self.saveNewUsers(channel, function(users){
-            self.saveNewTopics(channel, function(topics) {
-                self.saveNewArticlesAndPages(defaultUserId, channel, users, topics, function(articles, pages, media) {
-                    cb(null, users);
+        var settings = null;
+        var users = null;
+        var topics = null;
+        var articles = null;
+        var pages = null;
+        var media = null;
+        var tasks = [
+            
+            //load settings
+            function(callback) {
+                pb.plugins.getSettings('wp_import', function(err, settingsResult) {
+                    settings = settingsResult;
+                    callback(err);
                 });
-            });
+            },
+            
+            function(callback) {
+                self.saveNewUsers(channel, settings, function(err, usersResult){
+                    users = usersResult;
+                    callback(err);
+                });
+            },
+            
+            function(callback) {
+                self.saveNewTopics(channel, function(topicsResult) {
+                    topics = topicsResult;
+                    callback();
+                });
+            },
+            
+            function(callback) {
+                self.saveNewArticlesAndPages(defaultUserId, channel, users, topics, function(articlesResult, pagesResult, mediaResult) {
+                    articles = articlesResult;
+                    pages = pagesResult;
+                    media = mediaResult;
+                });
+            }
+        ];
+        async.series(tasks, function(err, results) {
+            callback(err, users);
         });
     });
 };
 
-WPXMLParseService.saveNewUsers = function(channel, cb) {
+WPXMLParseService.saveNewUsers = function(channel, settings, cb) {
+    pb.log.debug('WPXMLParseService: Parsing Users...');
+
     var self = this;
     var users = [];
-    var dao = new pb.DAO();
+    var createNewUsers = settings.create_new_users;
+    if(createNewUsers && util.isArray(channel.item)) {
+        for(var i = 0; i < channel.item.length; i++) {
+            for(var j = 0; j < channel.item[i]['dc:creator'].length; j++) {
 
-    pb.log.debug('WPXMLParseService: Parsing Users...');
-    
-    this.checkForExistingUser = function(index) {
-        if(index >= users.length) {
-            cb(users);
-            return;
-        }
-
-        dao.loadByValue('username', users[index].username, 'user', function(err, existingUser) {
-            if(existingUser) {
-                pb.log.debug('WPXMLParseService: User [%s] already exists', users[index].username);
-                
-                users[index] = existingUser;
-                delete users[index].password;
-
-                index++;
-                self.checkForExistingUser(index);
-                return;
-            }
-
-            var generatedPassword = self.generatePassword();
-
-            users[index].email = 'user_' + pb.utils.uniqueId() + '@placeholder.com';
-            users[index].admin = ACCESS_WRITER;
-            users[index].password = generatedPassword;
-
-            var newUser = pb.DocumentCreator.create('user', users[index]);
-            dao.update(newUser).then(function(result) {
-                
-                pb.log.debug('WPXMLParseService: Created user [%s]', users[index].username);
-                delete users[index].password;
-                users[index].generatedPassword = generatedPassword;
-                users[index]._id = result._id;
-
-                index++;
-                self.checkForExistingUser(index);
-            });
-        });
-    };
-
-    pb.plugins.getSetting('create_new_users', 'wp_import', function(err, createNewUsers) {
-        if(createNewUsers && util.isArray(channel.item)) {
-            for(var i = 0; i < channel.item.length; i++) {
-                for(var j = 0; j < channel.item[i]['dc:creator'].length; j++) {
-                    
-                    var userMatch = false;
-                    for(var s = 0; s < users.length; s++) {
-                        if(users[s].username === channel.item[i]['dc:creator'][j]) {
-                            userMatch = true;
-                            break;
-                        }
+                var userMatch = false;
+                for(var s = 0; s < users.length; s++) {
+                    if(users[s].username === channel.item[i]['dc:creator'][j]) {
+                        userMatch = true;
+                        break;
                     }
-                    if(!userMatch) {
-                        users.push({username: channel.item[i]['dc:creator'][j]});
-                    }
+                }
+                if(!userMatch) {
+                    users.push({username: channel.item[i]['dc:creator'][j]});
                 }
             }
         }
+    }
+    
+    var tasks = pb.utils.getTasks(users, function(users, index) {
+        return function(callback) {
+            
+            var dao = new pb.DAO();
+            dao.loadByValue('username', users[index].username, 'user', function(err, existingUser) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+                else if(existingUser) {
+                    pb.log.debug('WPXMLParseService: User [%s] already exists', users[index].username);
 
-        self.checkForExistingUser(0);
+                    users[index] = existingUser;
+                    delete users[index].password;
+                    return callback();
+                }
+
+                var generatedPassword = pb.security.generatePassword(8);
+
+                users[index].email = 'user_' + pb.utils.uniqueId() + '@placeholder.com';
+                users[index].admin = ACCESS_WRITER;
+                users[index].password = generatedPassword;
+
+                var newUser = pb.DocumentCreator.create('user', users[index]);
+                dao.save(newUser, function(err, result) {
+                    if (util.isError(err)) {
+                        return callback(err);
+                    }
+                    
+                    pb.log.debug('WPXMLParseService: Created user [%s]', users[index].username);
+                    delete users[index].password;
+                    users[index].generatedPassword = generatedPassword;
+                    users[index][pb.DAO.gtIdField()] = result[pb.DAO.gtIdField()];
+                    callback();
+                });
+            });
+        };
     });
+    async.parallel(tasks, cb);
 };
 
 WPXMLParseService.saveNewTopics = function(channel, cb) {
@@ -433,6 +463,7 @@ WPXMLParseService.retrieveMediaObjects = function(content, cb) {
                     ht = https;
                 }
 
+                pb.log.debug('WPXMLParseService: Retrieving %s', srcString);
                 ht.get(srcString, function(res) {
                     var imageData = '';
                     res.setEncoding('binary');
@@ -499,24 +530,12 @@ WPXMLParseService.retrieveMediaObjects = function(content, cb) {
         };
 
         self.saveDownloadedImage = function(originalFilename, imageData, cb) {
-            var self  = this;
-
-            var date = new Date();
-            var monthDir = MEDIA_DIRECTORY + date.getFullYear() + '/';
-            if(!fs.existsSync(monthDir)) {
-                fs.mkdirSync(monthDir);
-            }
-
-            var uploadDirectory = monthDir + (date.getMonth() + 1) + '/';
-            if(!fs.existsSync(uploadDirectory)) {
-                fs.mkdirSync(uploadDirectory);
-            }
-
-            filename = self.generateFilename(originalFilename);
-            filePath = uploadDirectory + filename;
-
-            fs.writeFile(filePath, imageData, 'binary', function(err) {
-                cb('/media/' + date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + filename);
+            var mediaService = new pb.MediaService();
+            mediaService.setContent(imageData, originalFilename, function(err, result) {
+                if (util.isError(err)) {
+                    pb.log.error(err.stack);
+                }
+                cb(result.mediaPath);
             });
         };
 
@@ -550,26 +569,8 @@ WPXMLParseService.retrieveMediaObjects = function(content, cb) {
             });
         };
 
-        self.generateFilename = function(originalFilename){
-            var now = new Date();
-
-            //calculate extension
-            var ext = '';
-            var extIndex = originalFilename.lastIndexOf('.');
-            if (extIndex >= 0){
-                ext = originalFilename.substr(extIndex);
-            }
-
-            //build file name
-            return pb.utils.uniqueId() + '-' + now.getTime() + ext;
-        };
-
         self.replaceMediaObject();
     });
-};
-
-WPXMLParseService.generatePassword = function() {
-    return pb.security.generatePassword(8);
 };
 
 //exports
