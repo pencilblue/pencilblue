@@ -87,6 +87,16 @@ UploadMediaController.prototype.render = function(cb) {
     });
 };
 
+/**
+ * Handles the cleanup after the incoming form data has been processed.  It 
+ * attempts to remove uploaded files or file partials after a failure or 
+ * completion.
+ * @method onDone
+ * @param {Error} err
+ * @param {Object} content
+ * @param {Object} [files={}]
+ * @param {Function} cb
+ */
 UploadMediaController.prototype.onDone = function(err, content, files, cb) {
     if (pb.utils.isFunction(files)) {
         cb = files;
