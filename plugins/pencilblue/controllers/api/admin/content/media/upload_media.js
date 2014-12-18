@@ -17,15 +17,22 @@
 
 /**
  * Uploads a media file to the system
+ * @class UploadMediaController
+ * @constructor
  */
-
-function UploadMedia(){
+function UploadMediaController(){
     
+    /**
+     * Tracks the number of times the progress event fires and the number of 
+     * bytes received exceeds the maximum size allowed.
+     * @property errored
+     * @type {Integer}
+     */
     this.errored = 0;
 }
 
 //inheritance
-util.inherits(UploadMedia, pb.BaseController);
+util.inherits(UploadMediaController, pb.BaseController);
 
 //setup
 var MEDIA_DIRECTORY = DOCUMENT_ROOT + '/public/media/';
@@ -35,7 +42,7 @@ if(!fs.existsSync(MEDIA_DIRECTORY)){
 
 var FILE_TOO_BIG_ERR = 'File is too big';
 
-UploadMedia.prototype.render = function(cb) {
+UploadMediaController.prototype.render = function(cb) {
 	var self  = this;
 
     //set the limits on the file size
@@ -80,7 +87,7 @@ UploadMedia.prototype.render = function(cb) {
     });
 };
 
-UploadMedia.prototype.onDone = function(err, content, files, cb) {
+UploadMediaController.prototype.onDone = function(err, content, files, cb) {
     if (pb.utils.isFunction(files)) {
         cb = files;
         files = null;
@@ -126,4 +133,4 @@ UploadMedia.prototype.onDone = function(err, content, files, cb) {
 };
 
 //exports
-module.exports = UploadMedia;
+module.exports = UploadMediaController;
