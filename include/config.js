@@ -511,6 +511,10 @@ var config = {
 
         provider: 'fs',
         parent_dir: 'public',
+        
+        //The maximum size of media files that can be uploaded to the server in 
+        //bytes
+        max_upload_size: 2 * 1024 * 1024
     }
 };
 
