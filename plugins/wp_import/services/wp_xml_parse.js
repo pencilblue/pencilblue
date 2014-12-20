@@ -26,16 +26,6 @@ var BaseController = pb.BaseController;
  */
 function WPXMLParseService() {}
 
-//constants
-/**
- * The absolute file path to the directory that stores media
- * @private
- * @static
- * @property MEDIA_DIRECTORY
- * @type {String}
- */
-var MEDIA_DIRECTORY = path.join(DOCUMENT_ROOT, '/public/media/');
-
 /**
  * @static
  * @method init
@@ -63,7 +53,7 @@ WPXMLParseService.parse = function(xmlString, defaultUserId, cb) {
             
             //load settings
             function(callback) {
-                pb.plugins.getSettings('wp_import', function(err, settingsResult) {
+                pb.plugins.getSettingsKV('wp_import', function(err, settingsResult) {
                     settings = settingsResult;
                     callback(err);
                 });
@@ -130,7 +120,7 @@ WPXMLParseService.saveNewUsers = function(channel, settings, cb) {
 
                     users[index] = existingUser;
                     delete users[index].password;
-                    return callback();
+                    return callback(null, existingUser);
                 }
 
                 var generatedPassword = pb.security.generatePassword(8);
@@ -148,13 +138,13 @@ WPXMLParseService.saveNewUsers = function(channel, settings, cb) {
                     pb.log.debug('WPXMLParseService: Created user [%s]', users[index].username);
                     delete users[index].password;
                     users[index].generatedPassword = generatedPassword;
-                    users[index][pb.DAO.gtIdField()] = result[pb.DAO.gtIdField()];
-                    callback();
+                    users[index][pb.DAO.getIdField()] = result[pb.DAO.getIdField()];
+                    callback(null, newUser);
                 });
             });
         };
     });
-    async.parallel(tasks, cb);
+    async.series(tasks, cb);
 };
 
 WPXMLParseService.saveNewTopics = function(channel, cb) {
@@ -188,7 +178,7 @@ WPXMLParseService.saveNewTopics = function(channel, cb) {
                     
                     //get the topic name
                     var rawName = categories[i][descriptor.name][j];
-                    var topicName = pb.BaseController.sanitize(rawName);
+                    var topicName = pb.BaseController.sanitize(rawName.trim());
                     
                     //when it doesn't exist
                     var lower = topicName.toLowerCase();
@@ -211,13 +201,16 @@ WPXMLParseService.saveNewTopics = function(channel, cb) {
             var topic = pb.DocumentCreator.create('topic', topics[topicKeys[i]]);
             
             //ensure it doesn't already exist
-            var where = {
-                name: new RegExp('^'+pb.utils.escapeRegExp(topic.name)+'$', 'ig')
-            };
+            var key = 'name';
+            var val = new RegExp('^'+pb.utils.escapeRegExp(topic.name)+'$', 'ig');
             var dao = new pb.DAO();
-            dao.exists('topic', where, function(err, result) {
+            dao.loadByValue(key, val, 'topic', function(err, existingTopic) {
                 if (util.isError(err)) {
                     return callback(err);   
+                }
+                else if(existingTopic) {
+                    pb.log.debug("WPXMLParseService: Topic %s already exists. Skipping", topic.name);
+                    return callback(null, existingTopic);
                 }
                 
                 //we're all good.  we can persist now
@@ -238,6 +231,25 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
     
 
     pb.log.debug('WPXMLParseService: Parsing Articles and Pages...');
+    
+    //parse out the articles and pages
+    var items = channel.item;
+    for(var i = 0; i < items.length; i++) {
+        
+        var postType = items[i]['wp:post_type']
+        if (postType) {
+            
+            if(postType[0] === 'page') {
+                rawPages.push(items[i]);
+            }
+            else if(postType[0] === 'post') {
+                rawArticles.push(items[i]);
+            }
+            else {
+                pb.log.debug('WPXMLParseService: Unrecognized post type [%s] found with title "%s"', postType[0], items[i].title ? items[i].title[0] : undefined);
+            }
+        }
+    }
     
     
     //page tasks
@@ -394,30 +406,15 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
                     };
                     var newArticle = pb.DocumentCreator.create('article', articleDoc);
                     var dao = new pb.DAO();
-                    dao.save(newArticle, cb);
+                    dao.save(newArticle, callback);
                 });
             });
         };
     });
-
-    //parse out the articles and pages
-    var items = channel.item;
-    for(var i = 0; i < items.length; i++) {
-        
-        var postType = items[i]['wp:post_type']
-        if (postType) {
-            
-            if(postType[0] === 'page') {
-                rawPages.push(items[i]);
-            }
-            else if(postType[0] === 'post') {
-                rawArticles.push(items[i]);
-            }
-        }
-    }
     
     //create a super set of tasks and execute them 1 at a time
     var tasks = pageTasks.concat(articleTasks);
+    pb.log.debug("WPXMLParseService: Now processing %d pages and %d articles.", pageTasks.length, articleTasks.length);
     async.series(tasks, cb);
 };
 
@@ -427,7 +424,7 @@ WPXMLParseService.retrieveMediaObjects = function(content, settings, cb) {
         {
             name: 'image',
             hasContent: function() {
-                return content.indexOf('<img');
+                return content.indexOf('<img') > -1;
             },
             getContentDetails: function() {
                 var startIndex = content.indexOf('<img');
@@ -530,7 +527,7 @@ WPXMLParseService.retrieveMediaObjects = function(content, settings, cb) {
         //reset the handler and search for the next piece of content by asking 
         //which handler can find conent.
         handler = null;
-        for (var i = 0; i < handers.length; i++) {
+        for (var i = 0; i < handlers.length; i++) {
             if (handlers[i].hasContent()) {
 
                 handler = handlers[i];
@@ -543,6 +540,7 @@ WPXMLParseService.retrieveMediaObjects = function(content, settings, cb) {
         
         //extract the source string and string in content to be replaced
         var details = handler.getContentDetails();
+        pb.log.debug("WPXMLParseService: Discovered media type [%s] with source [%s] and replacement [%s]", handler.name, details.source, details.replacement);
         
         //retrieve media object
         handler.getMediaObject(details, function(err, mediaObj) {
@@ -566,7 +564,7 @@ WPXMLParseService.retrieveMediaObjects = function(content, settings, cb) {
                 
                 //do the final replacement with the correctly formatted template engine flag
                 mediaObjects.push(mediaObj);
-                content = content.replace(details.replacement, util.format('^media_display_%s/position:center^', mediaObject[pb.DAO.getIdField()]));
+                content = content.replace(details.replacement, util.format('^media_display_%s/position:center^', mediaObj[pb.DAO.getIdField()]));
                 callback();
             });
         });
@@ -589,7 +587,7 @@ WPXMLParseService.createMediaObject = function(mediaType, location, cb) {
         if (util.isError(err)) {
             return cb(err);   
         }
-        else if(mediaArray.length >= 0) {
+        else if(mediaArray.length > 0) {
             return cb(null, mediaArray[0]);
         }
 
@@ -620,12 +618,12 @@ WPXMLParseService.downloadMediaContent = function(srcString, cb) {
     var run = function() {
         ht.get(srcString, function(res) {
             
-            var content = null;
+            var content = '';
             res.on('data', function(data) {
                 content += data;
             });
-            rest.on('end', function() {
-                cb(null, data);
+            res.on('end', function() {
+                cb(null, content);
             });
         });
     };
