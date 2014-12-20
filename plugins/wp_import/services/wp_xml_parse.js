@@ -460,21 +460,14 @@ WPXMLParseService.retrieveMediaObjects = function(content, settings, cb) {
                     return WPXMLParseService.createMediaObject('image', details.source, cb);
                 }
                 
-                //download it
-                WPXMLParseService.downloadMediaContent(details.source, function(err, imageData) {
+                //download it & store it with the media service
+                WPXMLParseService.downloadMediaContent(details.source, function(err, location) {
                     if (util.isError(err)) {
                         return cb(err);   
                     }
-                    
-                    //persist the image content
-                    WPXMLParseService.saveMediaContent(details.source, imageData, function(err, location) {
-                        if (util.isError(err)) {
-                            return cb(err);   
-                        }
                         
-                        //create the media object
-                        WPXMLParseService.createMediaObject('image', location, cb);
-                    });
+                    //create the media object
+                    WPXMLParseService.createMediaObject('image', location, cb);
                 });
             }
         },
@@ -617,14 +610,7 @@ WPXMLParseService.downloadMediaContent = function(srcString, cb) {
     //create a functiont to download the content
     var run = function() {
         ht.get(srcString, function(res) {
-            
-            var content = '';
-            res.on('data', function(data) {
-                content += data;
-            });
-            res.on('end', function() {
-                cb(null, content);
-            });
+            WPXMLParseService.saveMediaContent(srcString, res, cb);
         });
     };
     
@@ -640,9 +626,9 @@ WPXMLParseService.downloadMediaContent = function(srcString, cb) {
     });
 };
 
-WPXMLParseService.saveMediaContent = function(originalFilename, data, cb) {
+WPXMLParseService.saveMediaContent = function(originalFilename, stream, cb) {
     var mediaService = new pb.MediaService();
-    mediaService.setContent(data, originalFilename, function(err, result) {
+    mediaService.setContentStream(stream, originalFilename, function(err, result) {
         cb(err, result ? result.mediaPath : null);
     });
 };
