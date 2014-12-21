@@ -271,7 +271,8 @@ var loc =
         LINK_TO_IMAGE: 'Link catre imagine',
         UPLOAD_IMAGE: 'Incarca imagine',
         IMAGE_URL: 'URL imagine',
-        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, sau .svg'
+        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, sau .svg',
+        FILE_TOO_BIG: 'Fișierul este mai mare decât limita admisă'
     },
     pages:
     {
