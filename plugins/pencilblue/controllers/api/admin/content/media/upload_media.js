@@ -21,9 +21,9 @@
  * @constructor
  */
 function UploadMediaController(){
-    
+
     /**
-     * Tracks the number of times the progress event fires and the number of 
+     * Tracks the number of times the progress event fires and the number of
      * bytes received exceeds the maximum size allowed.
      * @property errored
      * @type {Integer}
@@ -40,8 +40,6 @@ if(!fs.existsSync(MEDIA_DIRECTORY)){
     fs.mkdirSync(MEDIA_DIRECTORY);
 }
 
-var FILE_TOO_BIG_ERR = 'File is too big';
-
 UploadMediaController.prototype.render = function(cb) {
 	var self  = this;
 
@@ -51,11 +49,11 @@ UploadMediaController.prototype.render = function(cb) {
     form.on('progress', function(bytesReceived, bytesExpected) {
         if (bytesReceived > pb.config.media.max_upload_size || bytesExpected > pb.config.max_upload_size) {
             if (!self.errored++) {
-                this.emit('error', new Error(FILE_TOO_BIG_ERR));
+                this.emit('error', new Error(self.ls.get('FILE_TOO_BIG')));
             }
         }
     });
-    
+
     //parse the form out and let us know when its done
     form.parse(this.req, function(err, fields, files) {
         if (util.isError(err)) {
@@ -67,12 +65,12 @@ UploadMediaController.prototype.render = function(cb) {
             return self.onDone(new Error('No file inputs were submitted'), null, files, cb);
         }
         var fileDescriptor = files[keys[0]];
-        
+
         var stream = fs.createReadStream(fileDescriptor.path);
         var mservice = new pb.MediaService();
         mservice.setContentStream(stream, fileDescriptor.name, function(err, sresult) {
             if (util.isError(err)) {
-                return self.onDone(err, null, files, cb);  
+                return self.onDone(err, null, files, cb);
             }
 
             //write the response
@@ -88,8 +86,8 @@ UploadMediaController.prototype.render = function(cb) {
 };
 
 /**
- * Handles the cleanup after the incoming form data has been processed.  It 
- * attempts to remove uploaded files or file partials after a failure or 
+ * Handles the cleanup after the incoming form data has been processed.  It
+ * attempts to remove uploaded files or file partials after a failure or
  * completion.
  * @method onDone
  * @param {Error} err
@@ -105,18 +103,18 @@ UploadMediaController.prototype.onDone = function(err, content, files, cb) {
     if (!pb.utils.isObject(files)) {
         files = {};
     }
-    
+
     //ensure all files are removed
     var self = this;
     var tasks = pb.utils.getTasks(Object.keys(files), function(fileFields, i) {
         return function(callback) {
             var fileDescriptor = files[fileFields[i]];
-            
+
             //ensure file has a path to delete
             if (!fileDescriptor.path) {
                 return callback();
             }
-            
+
             //remove the file
             fs.unlink(fileDescriptor.path, function(err) {
                 pb.log.info('Removed temporary file: %s', fileDescriptor.path);
@@ -125,17 +123,17 @@ UploadMediaController.prototype.onDone = function(err, content, files, cb) {
         };
     });
     async.parallel(tasks, function(error, results) {
-        
-        //weird case where formidable continues to process content even after 
-        //we cancel the stream with a 413.  This is a check to make sure we 
+
+        //weird case where formidable continues to process content even after
+        //we cancel the stream with a 413.  This is a check to make sure we
         //don't call back again
         if (self.errored > 1) {
             return;
         }
-        
+
         //we only care about the passed in error
         if (util.isError(err)) {
-            var code = err.message === FILE_TOO_BIG_ERR ? 413 : 500;
+            var code = err.message === self.ls.get('FILE_TOO_BIG') ? 413 : 500;
             return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, err.message), code: code});
         }
         cb(content);

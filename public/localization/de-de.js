@@ -9,7 +9,7 @@
  *              03/12/2014 Changed file's global.localizationLanguage to 'de-de'.
  *                         Haven't yet inquired on how this is handled in the
  *                         localisation module.
- *              04/12/2014 Fixed untranslated navigation items and stray characters 
+ *              04/12/2014 Fixed untranslated navigation items and stray characters
  *                         at end of file as well as some translations that I, at second view
  *                         disliked;-).
  */
@@ -284,7 +284,8 @@ var loc = {
         LINK_TO_IMAGE: 'Link zum Bild',
         UPLOAD_IMAGE: 'Bild hochladen',
         IMAGE_URL: 'URL des Bildes',
-        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg'
+        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
+        FILE_TOO_BIG: 'Die Datei größer ist als die zulässige Grenze ist'
     },
     pages:
     {
@@ -352,8 +353,8 @@ var loc = {
     comments:
     {
         MANAGE_COMMENTS: 'Kommentare verwalten',
-        
-        /* 
+
+        /*
         Since the syntax of a sentence in German differs from English
         the following cannot just be concatenated as in English,
         but rather must be interpolated to include the commentator
@@ -417,7 +418,7 @@ var loc = {
         CREATE_ACCOUNT: 'Benutzerkonto anlegen',
         LOGIN_EXISTING: 'Anmelden mit bestehendem Benutzer',
 
-        /* 
+        /*
         Since the syntax of a sentence in German differs from English
         the following cannot just be concatenated as in English,
         but rather must be interpolated to include the e-mail
