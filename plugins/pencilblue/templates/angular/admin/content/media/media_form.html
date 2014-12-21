@@ -92,6 +92,11 @@
 							$('#media_modal').modal('hide');
 						})
 					});
+				}).
+				error(function(data, status, headers, config) {
+					$scope.errorMessage = data.message;
+					$scope.uploading = false;
+					$('#media_modal').modal('hide');
 				});
 			}
 		};
