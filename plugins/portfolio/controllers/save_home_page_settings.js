@@ -16,8 +16,14 @@ SaveHomePageSettings.prototype.render = function(cb) {
     this.getJSONPostParams(function(err, post) {
         delete post._id;
 
+        var opts = {
+            where: {settings_type: 'home_page'}
+        };
         var dao = new pb.DAO();
-        dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(homePageSettings) {
+        dao.q('portfolio_theme_settings', opts, function(err, homePageSettings) {
+            if (util.isError(err)) {
+                return self.reqHandler.serveError(err);
+            }
             if(homePageSettings.length > 0) {
                 homePageSettings = homePageSettings[0];
                 pb.DocumentCreator.update(post, homePageSettings);
@@ -27,8 +33,8 @@ SaveHomePageSettings.prototype.render = function(cb) {
                 homePageSettings.settings_type = 'home_page';
             }
 
-            dao.update(homePageSettings).then(function(result) {
-                if(util.isError(result))  {
+            dao.save(homePageSettings, function(err, result) {
+                if(util.isError(err))  {
                     cb({
                         code: 500,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
