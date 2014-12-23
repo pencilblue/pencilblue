@@ -56,9 +56,8 @@ ImportWP.prototype.render = function(cb) {
 
             wpXMLParse.parse(data.toString(), self.session.authentication.user_id, function(err, users) {
                 if(err) {
-                    self.session.error = err;
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))});
-                    return;
+                    self.session.error = err.stack;
+                    return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))});
                 }
 
                 self.session.importedUsers = users;
