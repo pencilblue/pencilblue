@@ -449,6 +449,12 @@ var config = {
     cluster: {
         fatal_error_timeout: 2000,
         fatal_error_count: 5,
+        
+        //This value descibes the number of child processes to spawn when the 
+        //master process is started in self managed mode.  The value can also 
+        //be set to "auto".  This will instruct the master process to inspect 
+        //the number of cores on the server and spawn a child process for each 
+        //core.
         workers: 1,
         
         //The self managed flag indicates whether or not PencilBlue should 

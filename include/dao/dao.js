@@ -197,7 +197,8 @@ DAO.prototype.unique = function(collection, where, exclusionId, cb) {
  * @return {Promise}            A promise object
  */
 DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset){
-
+    pb.log.warn('DAO: "query" is deprecated and will be removed 0.4.0. Please update your code to call "q".');
+    
 	var cursor  = this._doQuery(entityType, where, select, orderBy, limit, offset);
 	var promise = new Promise();
 	cursor.toArray(function(err, docs){
@@ -341,6 +342,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
  * @return {Promise} Promise object
  */
 DAO.prototype.insert = function(dbObject) {
+    pb.log.warn('DAO: "insert" is deprecated and will be removed 0.4.0. Please update your code to call "save".');
 	var promise = new Promise();
 
 	DAO.updateChangeHistory(dbObject);
@@ -358,7 +360,8 @@ DAO.prototype.insert = function(dbObject) {
  * @return {Promise} Promise object
  */
 DAO.prototype.update = function(dbObj) {
-
+    pb.log.warn('DAO: "update" is deprecated and will be removed 0.4.0. Please update your code to call "save".');
+    
     //log interaction
     if (pb.config.db.query_logging) {
         var msg;
@@ -524,7 +527,8 @@ DAO.prototype.deleteById = function(oid, collection, cb) {
     }
     else {
         //used for backward compatibility with old way of using promises.
-	   return this.deleteMatching(where, collection);
+        pb.log.warn('DAO: Calling "DAO.deleteById" and expecting a promise is deprecated.  Please update your code to pass a callback as the third parameter');
+        return this.deleteMatching(where, collection);
     }
 };
 
@@ -540,7 +544,8 @@ DAO.prototype.deleteMatching = function(where, collection){
 	if (typeof where === 'undefined') {
 		throw new Error('A where object must be specified in order to delete');
 	}
-
+    pb.log.warn('DAO: "deleteMatching" is deprecated and will be removed 0.4.0. Please update your code to call "delete".');
+    
 	//output delete command
 	if(pb.config.db.query_logging){
 		pb.log.info("DAO: DELETE FROM %s.%s WHERE %s", this.dbName, collection, JSON.stringify(where));

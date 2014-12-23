@@ -181,7 +181,7 @@ JobRunner.prototype.log = function() {
             message: message,
             metadata: meta
         };
-        this.dao.update(statement);
+        this.dao.save(statement, pb.utils.cb);
         pb.log.debug.apply(pb.log, args);
     }
 };

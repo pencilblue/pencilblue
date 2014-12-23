@@ -543,7 +543,7 @@ CustomObjectService.prototype.loadById = function(id, options, cb) {
  * Loads a custom object by name
  * @method loadById
  * @param {String} type The ID string of the custom object type
- * @param {ObjectID|String} name The unique name of the custom object
+ * @param {String} name The unique name of the custom object
  * @param {Object} [options]
  * @param {Function} cb
  */

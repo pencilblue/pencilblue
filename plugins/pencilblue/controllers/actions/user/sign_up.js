@@ -81,7 +81,7 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
                 return;
             }
 
-            dao.update(user, function(err, data) {
+            dao.save(user, function(err, data) {
                 if(util.isError(err)) {
                     return self.formError(request, session, self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
                 }
