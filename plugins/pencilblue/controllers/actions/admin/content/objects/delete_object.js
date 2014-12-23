@@ -31,6 +31,7 @@ DeleteObject.prototype.render = function(cb) {
         vars.id = vars.type_id;
     }
 
+    var message = this.hasRequiredParams(vars, ['id']);
     if(message) {
         cb({
             code: 400,
