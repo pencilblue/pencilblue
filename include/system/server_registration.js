@@ -134,10 +134,10 @@ ServerRegistration.flush = function(cb) {
  */
 ServerRegistration.init = function(cb) {
     if (!pb.config.registry.enabled) {
-		 cb(null, false);
+		 return cb(null, false);
 	 }
 	 else if (TIMER_HANDLE !== null) {
-		 cb(null, true);
+		 return cb(null, true);
 	 }
 
      //identify the provider

@@ -67,7 +67,7 @@ var config = {
 	db: {
         type:'mongo',
 		servers: [
-          'mongodb://127.0.0.1:27017/'
+          '127.0.0.1:27017'
         ],
 
         //the name of the default DB for the system

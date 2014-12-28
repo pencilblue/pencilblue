@@ -17,7 +17,7 @@ module.exports = {
     "db": {
         "type":"mongo",
         "servers": [
-          "mongodb://127.0.0.1:27017/"
+          "127.0.0.1:27017"
         ],
         "name": "pencilblue",
         "writeConcern": 1
