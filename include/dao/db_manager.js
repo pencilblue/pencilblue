@@ -61,7 +61,7 @@ DBManager.prototype.getDB = function(name, cb) {
     }
 
     
-    var dbURL   = pb.config.db.servers[0] + name;
+    var dbURL   = DBManager.buildConnectionStr(pb.config);
     var options = {
         w: pb.config.db.writeConcern
     };
@@ -95,11 +95,27 @@ DBManager.prototype.getDB = function(name, cb) {
 DBManager.prototype.authenticate = function(auth, db, cb) {
     if (!pb.utils.isObject(auth) || !pb.utils.isString(auth.un) || !pb.utils.isString(auth.pw)) {
         pb.log.debug('DBManager: An empty auth object was passed for DB [%s]. Skipping authentication.', db.databaseName);
-        cb(null, null);
-        return;
+        return cb(null, null);
     }
 
     db.authenticate(auth.un, auth.pw, auth.options ? auth.options : {}, cb);
+};
+
+DBManager.buildConnectionStr = function(config) {
+    var str = 'mongodb://';
+    for (var i = 0; i < config.db.servers.length; i++) {
+        
+        //check for prefix for backward compatibility
+        var hostAndPort = config.db.servers[i];
+        if (hostAndPort.indexOf('mongodb://') === 0) {
+            hostAndPort = hostAndPort.substring('mongodb://'.length);
+        }
+        if (i > 0) {
+            str += ',';
+        }
+        str += hostAndPort;
+    };
+    return pb.UrlService.urlJoin(str, config.db.name);
 };
 
 /**
