@@ -112,7 +112,10 @@ var TIMER_HANDLE = null;
  * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
  */
 ServerRegistration.prototype.getClusterStatus = function(cb) {
-	 PROVIDER.get(cb);
+    if (!PROVIDER) {
+        return cb(null, false);
+    }
+    PROVIDER.get(cb);
 };
 
 /**
@@ -122,6 +125,9 @@ ServerRegistration.prototype.getClusterStatus = function(cb) {
  * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
  */
 ServerRegistration.flush = function(cb) {
+    if (!PROVIDER) {
+        return cb(null, false);
+    }
     PROVIDER.flush(cb);
 };
 
@@ -216,7 +222,14 @@ ServerRegistration.addItem = function(name, itemValueFunction) {
  * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
  */
 ServerRegistration.doRegistration = function(cb) {
-	 cb = cb || pb.utils.cb;
+    cb = cb || pb.utils.cb;
+    
+    //ensure a provider was instantiated.  
+    //Server registration could be turned off.
+    if (!PROVIDER) {
+        return cb(null, false);
+    }
+	 
 
 	 var onItemsGathered = function(err, update) {
 		 if (util.isError(err)) {
