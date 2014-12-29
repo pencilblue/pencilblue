@@ -29,12 +29,19 @@ var SUB_NAV_KEY = 'manage_pages';
 
 ManagePages.prototype.render = function(cb) {
 	var self = this;
+    
+    var opts = {
+        select: pb.DAO.PROJECT_ALL,
+        where: pb.DAO.ANYWHERE,
+        order: {headline: pb.DAO.ASC}
+    };
 	var dao  = new pb.DAO();
-
-    dao.query('page', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {headline: pb.DAO.ASC}).then(function(pages) {
-        if(pages.length === 0) {
-            self.redirect('/admin/content/pages/new', cb);
-            return;
+    dao.q('page', opts, function(err, pages) {
+        if (util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if(pages.length === 0) {
+            return self.redirect('/admin/content/pages/new', cb);
         }
 
         pb.users.getAuthors(pages, function(err, pagesWithAuthor) {

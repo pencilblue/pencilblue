@@ -61,7 +61,7 @@ ManageNewWPUsers.prototype.render = function(cb) {
 
                 delete post.users[index]._id;
                 pb.DocumentCreator.update(post.users[index], user);
-                dao.update(user).then(function(result) {
+                dao.save(user, function(err, result) {
                     index++;
                     self.updateNewUser(index);
                 });

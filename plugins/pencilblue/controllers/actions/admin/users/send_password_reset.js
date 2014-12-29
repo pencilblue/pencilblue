@@ -53,10 +53,9 @@ SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
 
             passwordReset.verification_code = pb.utils.uniqueId().toString();
 
-            dao.update(passwordReset).then(function(result) {
-                if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/' + vars.id, cb);
-                    return;
+            dao.save(passwordReset, function(err, result) {
+                if(util.isError(err)) {
+                    return self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/' + vars.id, cb);
                 }
 
                 //send the user an email

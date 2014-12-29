@@ -49,14 +49,12 @@ DeleteTopic.prototype.render = function(cb) {
         }
 
         //delete the topic
-        var where = {$or: [{_id: ObjectID(vars.id)}, {parent: vars.id}]};
-        dao.deleteMatching({_id: ObjectID(vars.id)}, 'topic').then(function(result) {
-        	if(result < 1) {
-                cb({
+        dao.deleteById(vars.id, 'topic', function(err, result) {
+        	if(util.isError(err) || result < 1) {
+                return cb({
 					code: 500,
 					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
 				});
-                return;
             }
 
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topic.name + ' ' + self.ls.get('DELETED'))});

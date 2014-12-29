@@ -141,18 +141,26 @@ ArticleForm.prototype.gatherData = function(vars, cb) {
     	},
 
     	sections: function(callback) {
+            var opts = {
+                select: pb.DAO.PROJECT_ALL,
+                where: {
+                    type: {$in: ['container', 'section']}
+                },
+                order: {name: pb.DAO.ASC}
+            };
     		var where = {
     			type: {$in: ['container', 'section']}
     		};
-    		dao.query('section', where, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(sections){
-    			callback(util.isError(sections) ? sections : null, sections);
-    		});
+    		dao.q('section', opts, callback);
     	},
 
     	topics: function(callback) {
-    		dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics){
-    			callback(util.isError(topics) ? topics : null, topics);
-    		});
+            var opts = {
+                select: pb.DAO.PROJECT_ALL,
+                where: pb.DAO.ANYWHERE,
+                order: {name: pb.DAO.ASC}
+            };
+    		dao.q('topic', opts, callback);
     	},
 
     	media: function(callback) {
@@ -165,6 +173,8 @@ ArticleForm.prototype.gatherData = function(vars, cb) {
 				callback(null, {});
 				return;
 			}
+            
+            //TODO call article service
 			dao.loadById(vars.id, 'article', callback);
 		}
     };

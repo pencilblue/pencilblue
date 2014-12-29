@@ -40,42 +40,25 @@ DeleteObject.prototype.render = function(cb) {
         return;
     }
 
-    var dao = new pb.DAO();
-    dao.query('custom_object', {_id: ObjectID(vars.id)}).then(function(customObjects) {
-        if (util.isError(customObjects)) {
-            //TODO handle this
+    var cos = new pb.CustomObjectService();
+    cos.loadById(vars.id, function(err, customObject) {
+        if (util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if(!customObject) {
+            return self.redirect('/admin/content/custom_objects/manage_object_types', cb);
         }
 
-        if(customObjects.length === 0)
-        {
-            self.redirect('/admin/content/custom_objects/manage_object_types', cb);
-            return;
-        }
-
-        var customObject = customObjects[0];
-
-        dao.query('custom_object_type', {_id: ObjectID(customObject.type)}).then(function(customObjectTypes) {
-            if(util.isError(customObjectTypes) || customObjectTypes.length === 0) {
-                cb({
-                    code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+        //remove the object from persistence
+        cos.deleteById(vars.id, function(err, recordsDeleted) {
+            if(util.isError(err) || recordsDeleted <= 0) {
+                return cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
                 });
-                return;
             }
 
-            customObjectType = customObjectTypes[0];
-
-            dao.deleteById(vars.id, 'custom_object').then(function(recordsDeleted) {
-                if(recordsDeleted <= 0) {
-                    cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
-                    });
-                    return;
-                }
-
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObject.name + ' ' + self.ls.get('DELETED'))});
-            });
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObject.name + ' ' + self.ls.get('DELETED'))});
         });
     });
 };

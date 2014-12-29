@@ -43,15 +43,22 @@ ManageComments.prototype.render = function(cb) {
     var self = this;
 
     //query for comments (limited to 500)
+    var opts = {
+        select: pb.DAO.PROJECT_ALL,
+        where: pb.DAO.ANYWHERE,
+        order: {created: -1},
+        limit: 500
+    };
     var dao  = new pb.DAO();
-    dao.query('comment', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {created: -1}, 500).then(function(comments) {
-        if (util.isError(comments)) {
-            self.reqHandler.serveError(comments);
-            return;
+    dao.q('comment', opts, function(err, comments) {
+        if (util.isError(err)) {
+            return self.reqHandler.serveError(err);
         }
 
         //retrieve the content settings or defaults if they have not yet been configured
         pb.content.getSettings(function(err, contentSettings) {
+            //TODO handle error
+            
             //retrieve any details
             self.getCommentDetails(comments, dao, function(commentsWithDetails) {
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);

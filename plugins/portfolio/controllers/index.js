@@ -70,8 +70,14 @@ Index.prototype.render = function(cb) {
                         content.content = template;
                     }
 
+                    var opts = {
+                        where: {settings_type: 'home_page'}
+                    };
                     var dao = new pb.DAO();
-                    dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(settings) {
+                    dao.q('portfolio_theme_settings', opts, function(err, settings) {
+                        if (util.isError(err)) {
+                            self.reqHandler.serveError(err);
+                        }
                         if(settings.length > 0) {
                             settings = settings[0];
                         }

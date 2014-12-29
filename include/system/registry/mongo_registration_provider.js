@@ -38,14 +38,7 @@ function MongoRegistrationProvider(){}
 MongoRegistrationProvider.prototype.get = function(cb) {
 
     var dao = new pb.DAO();
-    dao.query(pb.config.registry.key, pb.DAO.ANYWHERE).then(function(statuses) {
-        if (util.isError(statuses)) {
-            cb(statuses);
-            return;
-        }
-
-        cb(null, statuses);
-    });
+    dao.q(pb.config.registry.key, {where: pb.DAO.ANYWHERE}, cb);
 };
 
 /**
@@ -61,16 +54,10 @@ MongoRegistrationProvider.prototype.set = function(id, status, cb) {
         return;
     }
 
-    status._id         = id;
+    status[pb.DAO.getIdField()] = id;
     status.object_type = pb.config.registry.key;
     var dao = new pb.DAO();
-    dao.update(status).then(function(result) {
-        if (util.isError(result)) {
-            cb(result);
-            return;
-        }
-        cb(null, result);
-    });
+    dao.save(status, cb);
 };
 
 /**
@@ -80,13 +67,7 @@ MongoRegistrationProvider.prototype.set = function(id, status, cb) {
  */
 MongoRegistrationProvider.prototype.flush = function(cb) {
     var dao = new pb.DAO();
-    dao.deleteMatching(pb.DAO.ANYWHERE, pb.config.registry.key).then(function(result) {
-        if (util.isError(result)) {
-            cb(result);
-            return;
-        }
-        cb(null, result);
-    });
+    dao.delete(pb.DAO.ANYWHERE, pb.config.registry.key, cb);
 };
 
 /**
@@ -149,18 +130,11 @@ MongoRegistrationProvider.shutdown = function(id, cb) {
         cb(null, false);
     }
 
-    var where = {
-        _id: id
-    };
+    //ID is always a string so we don't use pb.DAO.getIDWhere(id)
+    var where = {};
+    where[pb.DAO.getIdField()] = id;
     var dao = new pb.DAO();
-    dao.deleteMatching(where, pb.config.registry.key).then(function(result) {
-        if (util.isError(result)) {
-            cb(result);
-            return;
-        }
-
-        cb(null, result);
-    });
+    dao.delete(where, pb.config.registry.key, cb);
 };
 
 //exports

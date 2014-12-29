@@ -48,7 +48,7 @@ ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
 
            user.verification_code = pb.utils.uniqueId();
 
-           dao.update(user).then(function(result) {
+           dao.save(user, function(err, result) {
                 if(util.isError(result)) {
                     self.formError(self.ls.get('ERROR_SAVING'), '/user/resend_verification', cb);
                     return;

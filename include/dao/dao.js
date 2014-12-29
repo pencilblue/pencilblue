@@ -197,7 +197,8 @@ DAO.prototype.unique = function(collection, where, exclusionId, cb) {
  * @return {Promise}            A promise object
  */
 DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset){
-
+    pb.log.warn('DAO: "query" is deprecated and will be removed 0.4.0. Please update your code to call "q".');
+    
 	var cursor  = this._doQuery(entityType, where, select, orderBy, limit, offset);
 	var promise = new Promise();
 	cursor.toArray(function(err, docs){
@@ -341,6 +342,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
  * @return {Promise} Promise object
  */
 DAO.prototype.insert = function(dbObject) {
+    pb.log.warn('DAO: "insert" is deprecated and will be removed 0.4.0. Please update your code to call "save".');
 	var promise = new Promise();
 
 	DAO.updateChangeHistory(dbObject);
@@ -358,7 +360,8 @@ DAO.prototype.insert = function(dbObject) {
  * @return {Promise} Promise object
  */
 DAO.prototype.update = function(dbObj) {
-
+    pb.log.warn('DAO: "update" is deprecated and will be removed 0.4.0. Please update your code to call "save".');
+    
     //log interaction
     if (pb.config.db.query_logging) {
         var msg;
@@ -472,7 +475,7 @@ DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
  * Updates a specific set of fields. This is handy for performing upserts.
  * @method updateFields
  * @param {String} collection The collection to update object(s) in
- * @param {Object} query The query to execute to find the existing object
+ * @param {Object} query The where clause to execute to find the existing object
  * @param {Object} updates The updates to perform
  * @param {Object} options Any options to go along with the update
  * @param {Boolean} [options.upsert=false] Inserts the object is not found
@@ -524,7 +527,8 @@ DAO.prototype.deleteById = function(oid, collection, cb) {
     }
     else {
         //used for backward compatibility with old way of using promises.
-	   return this.deleteMatching(where, collection);
+        pb.log.warn('DAO: Calling "DAO.deleteById" and expecting a promise is deprecated.  Please update your code to pass a callback as the third parameter');
+        return this.deleteMatching(where, collection);
     }
 };
 
@@ -540,7 +544,8 @@ DAO.prototype.deleteMatching = function(where, collection){
 	if (typeof where === 'undefined') {
 		throw new Error('A where object must be specified in order to delete');
 	}
-
+    pb.log.warn('DAO: "deleteMatching" is deprecated and will be removed 0.4.0. Please update your code to call "delete".');
+    
 	//output delete command
 	if(pb.config.db.query_logging){
 		pb.log.info("DAO: DELETE FROM %s.%s WHERE %s", this.dbName, collection, JSON.stringify(where));
@@ -721,6 +726,32 @@ DAO.getIDInWhere = function(objArray, idProp) {
     };
 };
 
+/**
+ * Creates a where clause that equates to select where [idProp] is not in the
+ * specified array of values.
+ * @static
+ * @method getIDInWhere
+ * @param {Array} objArray The array of acceptable values
+ * @param {String} idProp The property that holds a referenced ID value
+ * @return {Object} Where clause
+ */
+DAO.getIdNotInWhere = function(objArray, idProp) {
+	var idArray = [];
+    for(var i = 0; i < objArray.length; i++) {
+
+    	var rawId;
+    	if (idProp) {
+    		rawId = objArray[i][idProp];
+    	}
+    	else{
+    		rawId = objArray[i];
+    	}
+    	idArray.push(DAO.getObjectID(rawId));
+    }
+    return {
+    	_id: {$nin: idArray}
+    };
+};
 
 /**
  * Creates a basic where clause based on not equalling the specified Id

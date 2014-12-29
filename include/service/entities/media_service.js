@@ -177,9 +177,9 @@ MediaService.prototype.get = function(options, cb) {
     }
 
     var dao  = new pb.DAO();
-    dao.query('media', options.where, options.select, options.order, options.limit, options.offset).then(function(media) {
-    	if (util.isError(media)) {
-    		return cb(media, []);
+    dao.q('media', options, function(err, media) {
+    	if (util.isError(err)) {
+    		return cb(err, []);
     	}
 
         //set the link and icon if specified

@@ -75,10 +75,7 @@ MongoSessionStore.prototype.set = function(session, cb){
  */
 MongoSessionStore.prototype.clear = function(sessionId, cb){
 	var dao = new pb.DAO();
-	dao.deleteMatching(MongoSessionStore.getSessionQuery(sessionId), SESSION_COLLECTION_NAME).then(function(result){
-		var isError =  util.isError(result);
-		cb(isError ? result : null, result);
-	});
+	dao.delete(MongoSessionStore.getSessionQuery(sessionId), SESSION_COLLECTION_NAME, cb);
 };
 
 /**

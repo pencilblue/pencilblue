@@ -49,25 +49,27 @@ ContentSearchController.prototype.render = function(cb) {
 		return;
 	}
 
-	//build query
-	var pattern = new RegExp(".*"+search+".*", "i");
-	var where   = {
-		$or: [
-		    {headline: pattern},
-		    {subheading: pattern},
-        ]
-	};
-	var select = {
-		headline: 1,
-	};
-
-	//do query and get results
+	//build query & get results
+    var patternStr = ".*" + pb.utils.escapeRegExp(search) + ".*";
+	var pattern = new RegExp(patternStr, "i");
+    var opts = {
+        select: {
+            headline: 1,
+        },
+        where: {
+            $or: [
+                {headline: pattern},
+                {subheading: pattern},
+            ]
+        },
+        order: pb.DAO.NATURAL_ORDER,
+        limit: MAX_RESULTS
+    };
 	var dao = new pb.DAO();
-	dao.query(type, where, select, pb.DAO.NATURAL_ORDER, MAX_RESULTS).then(function(items) {
-		if (util.isError(items)) {
+	dao.q(type, opts, function(err, items) {
+		if (util.isError(err)) {
 			var content = BaseController.apiResponse(BaseController.API_FAILURE, '', '');
-			cb({content: content, code: 500});
-			return;
+			return cb({content: content, code: 500});
 		}
 
 		//change to display

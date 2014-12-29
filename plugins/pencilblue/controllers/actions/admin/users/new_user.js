@@ -56,8 +56,8 @@ NewUser.prototype.render = function(cb) {
 	        }
 
 	        var dao = new pb.DAO();
-	        dao.update(user).then(function(result) {
-	            if(util.isError(result)) {
+	        dao.save(user, function(err, result) {
+	            if(util.isError(err)) {
 	                cb({
 						code: 500,
 						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))

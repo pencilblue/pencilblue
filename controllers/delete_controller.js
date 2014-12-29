@@ -58,14 +58,7 @@ DeleteController.prototype.onPostParamsRetrieved = function(post, cb) {
          },
          function(callback){
         	 var dao = new pb.DAO();
-    	     dao.deleteMatching(self.getDeleteQuery(), self.getDeleteCollection()).then(function(result) {
-    	        if(util.isError(result) || result <= 0) {
-    	            callback(result, result);
-    	        }
-    	        else{
-    	        	callback(null, result);
-    	        }
-    	    });
+    	     dao.delete(self.getDeleteQuery(), self.getDeleteCollection(), callback);
          },
          function(callback){
         	 self.onAfterDelete(callback);

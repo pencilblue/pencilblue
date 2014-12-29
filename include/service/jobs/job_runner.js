@@ -181,7 +181,7 @@ JobRunner.prototype.log = function() {
             message: message,
             metadata: meta
         };
-        this.dao.update(statement);
+        this.dao.save(statement, pb.utils.cb);
         pb.log.debug.apply(pb.log, args);
     }
 };
@@ -199,9 +199,9 @@ JobRunner.prototype.onStart = function(status) {
     job.name        = this.name;
     job.status      = status || DEFAULT_START_STATUS;
     job.progress    = 0;
-    this.dao.update(job).then(function(result) {
-        if (util.isError(result)) {
-            pb.log.error('JobRunner: Failed to mark job as started', result.stack);
+    this.dao.save(job, function(err, result) {
+        if (util.isError(err)) {
+            pb.log.error('JobRunner: Failed to mark job as started %s', err.stack);
         }
     });
 };
@@ -271,7 +271,7 @@ JobRunner.prototype.onCompleted = function(status, err) {
     };
     this.dao.updateFields(JOB_STORE_NAME, query, sets, function(err, result) {
         if (util.isError(err)) {
-            pb.log.error('JobRunner: Failed to update job as completed - ', err.stack);
+            pb.log.error('JobRunner: Failed to update job as completed - %s', err.stack);
         }
     });
 };

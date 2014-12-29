@@ -32,13 +32,19 @@ var SUB_NAV_KEY = 'navigation_map';
 
 NavigationMap.prototype.render = function(cb) {
     var self = this;
+    
+    var opts = {
+        where: pb.DAO.ANYWHERE
+    };
     var dao  = new pb.DAO();
-    dao.query('section', pb.DAO.ANYWHERE).then(function(sections) {
-
-        //when no sections exist redirect to create page
-        if(sections.length === 0) {
-            self.redirect('/admin/content/navigation/new', cb);
-            return;
+    dao.q('section', opts, function(err, sections) {
+        if (util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if(sections.length === 0) {
+            
+            //when no sections exist redirect to create page
+            return self.redirect('/admin/content/navigation/new', cb);
         }
 
         pb.settings.get('section_map', function(err, sectionMap) {

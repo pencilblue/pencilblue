@@ -168,10 +168,8 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
                 uid: pluginUid
             };
             var dao = new pb.DAO();
-            dao.deleteMatching(where, 'plugin').then(function(result) {
-
-                var error = util.isError(result) ? result : null;
-                callback(error, error == null);
+            dao.delete(where, 'plugin', function(err, result) {
+                callback(error, !util.isError(err));
             });
         },
 

@@ -51,7 +51,7 @@ VerifyEmail.prototype.render = function(cb) {
                 return;
             }
 
-            dao.deleteById(unverifiedUser._id, 'unverified_user').then(function(result)  {
+            dao.deleteById(unverifiedUser[pb.DAO.getIdField()], 'unverified_user', function(err, result)  {
                 //TODO handle error
 
             	//convert to user
@@ -59,10 +59,9 @@ VerifyEmail.prototype.render = function(cb) {
                 delete user._id;
                 user.object_type = 'user';
 
-                dao.update(user).then(function(result) {
-                    if(util.isError(result))  {
-                        self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
-                        return;
+                dao.save(user, function(err, result) {
+                    if(util.isError(err))  {
+                        return self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
                     }
 
                     self.session.success = self.ls.get('EMAIL_VERIFIED');

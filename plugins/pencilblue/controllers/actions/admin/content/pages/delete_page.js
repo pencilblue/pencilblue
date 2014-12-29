@@ -38,23 +38,28 @@ DeletePage.prototype.render = function(cb) {
     }
 
     var dao = new pb.DAO();
-    dao.query('page', {_id: ObjectID(vars.id)}).then(function(pages) {
-        if(pages.length === 0) {
+    dao.loadById(vars.id, function(err, page) {
+        if (util.isError(err)) {
+            return cb({
+				code: 500,
+				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, err.stack)
+			});
+        }
+        else if(!page) {
             cb({
-				code: 400,
+				code: 404,
 				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
 			});
 			return;
         }
 
-        var page = pages[0];
-        dao.deleteMatching({_id: ObjectID(vars.id)}, 'page').then(function(pagesDeleted) {
-            if(util.isError(pagesDeleted) || pagesDeleted <= 0) {
-                cb({
+        //remove from persistence
+        dao.deleteById(vars.id, 'page', function(err, pagesDeleted) {
+            if(util.isError(err) || pagesDeleted <= 0) {
+                return cb({
 					code: 500,
 					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
 				});
-				return;
             }
 
 			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('DELETED'))});

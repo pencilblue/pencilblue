@@ -85,21 +85,21 @@ MediaForm.prototype.gatherData = function(vars, cb) {
 		},
 
 		topics: function(callback) {
-			dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics){
-				callback(util.isError(topics) ? topics : null, topics);
-			});
+            var opts = {
+                select: pb.DAO.PROJECT_ALL,
+                where: pb.DAO.ANYWHERE,
+                order: {name: pb.DAO.ASC}
+            };
+			dao.q('topic', opts, callback);
 		},
 
 		media: function(callback) {
 			if(!vars.id) {
-				callback(null, {media_topics: []});
-				return;
+				return callback(null, {media_topics: []});
 			}
 
 			var mservice = new pb.MediaService();
-			mservice.loadById(vars.id, function(err, media) {
-				callback(err, media);
-			});
+			mservice.loadById(vars.id, callback);
 		}
 	};
 	async.series(tasks, cb);

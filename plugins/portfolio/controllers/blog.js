@@ -416,11 +416,23 @@ Blog.prototype.getSideNavigation = function(articles, cb) {
                 }
             }
         }
-
+        
+        var opts = {
+            where: {
+                article_topics: {$in: topics}, 
+                _id: {$nin: articleIDs}
+            },
+            limit: 6
+        };
         var dao = new pb.DAO();
-        dao.query('article', {article_topics: {$in: topics}, _id: {$nin: articleIDs}}, null, null, 6).then(function(relatedArticles) {
+        dao.q('article', opts, function(err, relatedArticles) {
             if(relatedArticles.length === 0) {
-                dao.query('topic', {}, null, {name: 1}).then(function(topicObjects) {
+                
+                opts = {
+                    where: pb.DAO.ANYWHERE,
+                    order: {name: 1}
+                };
+                dao.q('topic', opts, function(err, topicObjects) {
                     var articleTopics = [];
                     for(var i = 0; i < topics.length && articleTopics.length < 20; i++) {
                         for(var j = 0; j < topicObjects.length; j++) {

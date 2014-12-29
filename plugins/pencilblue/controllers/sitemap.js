@@ -34,26 +34,32 @@ SiteMap.prototype.render = function(cb) {
 
 		var dao   = new pb.DAO();
 		var today = new Date();
-    	var tasks = [
-             function(callback) {
-            	 var where = {
-            	     type: {$ne: 'container'}
-            	 }
-            	 dao.query('section', where, {url: 1, last_modified: 1, type: 1}).then(function(sections) {
-            		self.processObjects(sections, '/', '0.5', callback);
-            	 });
-             },
-             function(callback) {
-            	 dao.query('page', {publish_date: {$lte: today}}, {url: 1, last_modified: 1}).then(function(sections) {
-            		self.processObjects(sections, '/page/', '1.0', callback);
-            	 });
-             },
-             function(callback) {
-            	 dao.query('article', {publish_date: {$lte: today}}, {url: 1, last_modified: 1}).then(function(sections) {
-            		self.processObjects(sections, '/article/', '1.0', callback);
-            	 });
-             },
-        ];
+        var descriptors = {
+            section: {
+                where: {type: {$ne: 'container'}},
+                weight: '0.5',
+                path: '/'
+            },
+            page: {
+                where: {publish_date: {$lte: today}},
+                weight: '1.0',
+                path: '/page/'
+            },
+            article: {
+                where: {publish_date: {$lte: today}},
+                weight: '1.0',
+                path: '/article/'
+            }
+        };
+    	var tasks = pb.utils.getTasks(Object.keys(descriptors), function(keys, i) {
+            return function(callback) {
+                var data = descriptors[keys[i]];
+                data.select = {url: 1, last_modified: 1};
+                dao.q(keys[i], data, function(err, items) {
+                    self.processObjects(items, data.path, data.weight, callback);
+                });
+            };    
+        });
     	async.parallelLimit(tasks, 2, function(err, htmlParts) {
     		cb(err, new pb.TemplateValue(htmlParts.join(''), false));
     	});

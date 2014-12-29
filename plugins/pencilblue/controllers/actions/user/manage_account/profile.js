@@ -53,10 +53,9 @@ Profile.prototype.onPostParamsRetrieved = function(post, cb) {
 
         //update the document
         pb.DocumentCreator.update(post, user);
-        dao.update(user).then(function(result) {
-            if(util.isError(result)) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
-                return;
+        dao.save(user, function(err, result) {
+            if(util.isError(err)) {
+                return self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
             }
 
             self.session.authentication.user = user;

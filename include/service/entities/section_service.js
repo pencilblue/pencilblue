@@ -164,13 +164,7 @@ SectionService.prototype.deleteChildren = function(parentId, cb) {
 		parent: ''+parentId
 	};
 	var dao = new pb.DAO();
-    dao.deleteMatching(where, 'section').then(function(result) {
-    	if (util.isError(result)) {
-    		cb(result, null);
-    		return;
-    	}
-    	cb(null, result);
-    });
+    dao.delete(where, 'section', cb);
 };
 
 SectionService.prototype.getFormattedSections = function(localizationService, currUrl, cb) {
@@ -187,8 +181,10 @@ SectionService.prototype.getFormattedSections = function(localizationService, cu
 
         //retrieve sections
         var dao = new pb.DAO();
-        dao.query('section').then(function(sections) {
-            //TODO handle error
+        dao.q('section', function(err, sections) {
+            if (util.isError(err)) {
+                return cb(err, []);
+            }
 
         	var formattedSections = [];
             for(var i = 0; i < sectionMap.length; i++) {
@@ -230,24 +226,21 @@ SectionService.prototype.getParentSelectList = function(currItem, cb) {
 		type: 'container',
 	};
 	if (currItem && !pb.utils.isFunction(currItem)) {
-		where._id = pb.DAO.getNotIDField(currItem);
+		where[pb.DAO.getIdField()] = pb.DAO.getNotIDField(currItem);
 	}
 
-	var select = {
-		_id: 1,
-		name: 1
-	};
-	var order = [
-        ['name', pb.DAO.ASC]
-    ];
+    var opts = {
+        select: {
+            _id: 1,
+            name: 1
+        },
+        where: where,
+        order: [
+            ['name', pb.DAO.ASC]
+        ]
+    };
 	var dao = new pb.DAO();
-	dao.query('section', where, select, order).then(function(navItems) {
-		if (util.isError(navItems)) {
-			cb(navItems, null);
-			return;
-		}
-		cb(null, navItems);
-	});
+	dao.q('section', opts, cb);
 };
 
 SectionService.trimForType = function(navItem) {
@@ -519,8 +512,8 @@ SectionService.prototype.save = function(navItem, options, cb) {
 
         //persist the changes
         var dao = new pb.DAO();
-        dao.update(navItem).then(function(data) {
-            if(util.isError(data)) {
+        dao.save(navItem, function(err, data) {
+            if(util.isError(err)) {
                 return cb(err);
             }
 
