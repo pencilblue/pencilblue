@@ -88,8 +88,8 @@ DAO.DESC = -1;
  * @param {Object}   Key value pair object to exclude the retrival of data
  * @param {Function} cb         Callback function
  */
-DAO.prototype.loadById = function(id, collection, options, cb){
-    this.loadByValues(DAO.getIDWhere(id), collection, options, cb);	
+DAO.prototype.loadById = function(id, collection, opts, cb){
+    this.loadByValues(DAO.getIDWhere(id), collection, opts, cb);	
 };
 
 /**
@@ -102,10 +102,10 @@ DAO.prototype.loadById = function(id, collection, options, cb){
  * @param {Object}   Key value pair object to exclude the retrival of data
  * @param {Function} cb         Callback function
  */
-DAO.prototype.loadByValue = function(key, val, collection, options, cb) {
+DAO.prototype.loadByValue = function(key, val, collection, opts, cb) {
     var where = {};
     where[key] = val;
-    this.loadByValues(where, collection, options, cb);
+    this.loadByValues(where, collection, opts, cb);
 };
 
 /**
@@ -117,26 +117,23 @@ DAO.prototype.loadByValue = function(key, val, collection, options, cb) {
  * @param {Object}   Key value pair object to exclude the retrival of data
  * @param {Function} cb         Callback function
  */
-DAO.prototype.loadByValues = function(where, collection, options, cb) {
-    if (options && options.select !== undefined) {
-        var options = {
-            where: where,
-            select: options,
-            order: DAO.NATURAL_ORDER,
-            limit: 1
-        };
-    } else {
-        var options = {
-            where: where,
-            select: DAO.PROJECT_ALL,
-            order: DAO.NATURAL_ORDER,
-            limit: 1
-        };
+DAO.prototype.loadByValues = function(where, collection, opts, cb) {
+    if (pb.utils.isFunction(opts)) {
+        cb = opts;
+        opts = null;
     }
-    
-	this.q(collection, options, function(err, result){
-        cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
-	});
+    if (!pb.utils.isObject(opts)) {
+        opts = { };
+    }
+        var options = {
+            where: where,
+            select: opts.select || DAO.PROJECT_ALL,
+            order: opts.order || DAO.NATURAL_ORDER,
+            limit: 1
+        };
+    this.q(collection, options, function(err, result){
+           cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
+    });
 };
 
 /**
