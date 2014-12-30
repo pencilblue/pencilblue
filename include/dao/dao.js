@@ -85,10 +85,11 @@ DAO.DESC = -1;
  * @method loadById
  * @param {String}   id         The unique id of the object
  * @param {String}   collection The collection the object is in
+ * @param {Object}   Key value pair object to exclude the retrival of data
  * @param {Function} cb         Callback function
  */
-DAO.prototype.loadById = function(id, collection, cb){
-	this.loadByValues(DAO.getIDWhere(id), collection, cb);
+DAO.prototype.loadById = function(id, collection, opts, cb){
+    this.loadByValues(DAO.getIDWhere(id), collection, opts, cb);	
 };
 
 /**
@@ -98,12 +99,13 @@ DAO.prototype.loadById = function(id, collection, cb){
  * @param {String}   key        The key to search for
  * @param {*}        val        The value to search for
  * @param {String}   collection The collection to search in
+ * @param {Object}   Key value pair object to exclude the retrival of data
  * @param {Function} cb         Callback function
  */
-DAO.prototype.loadByValue = function(key, val, collection, cb) {
-	var where = {};
-	where[key] = val;
-	this.loadByValues(where, collection, cb);
+DAO.prototype.loadByValue = function(key, val, collection, opts, cb) {
+    var where = {};
+    where[key] = val;
+    this.loadByValues(where, collection, opts, cb);
 };
 
 /**
@@ -112,18 +114,26 @@ DAO.prototype.loadByValue = function(key, val, collection, cb) {
  * @method loadByValues
  * @param {Object}   where      Key value pair object
  * @param {String}   collection The collection to search in
+ * @param {Object}   Key value pair object to exclude the retrival of data
  * @param {Function} cb         Callback function
  */
-DAO.prototype.loadByValues = function(where, collection, cb) {
-    var options = {
-        where: where,
-        select: DAO.PROJECT_ALL,
-        order: DAO.NATURAL_ORDER,
-        limit: 1
-    };
-	this.q(collection, options, function(err, result){
-        cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
-	});
+DAO.prototype.loadByValues = function(where, collection, opts, cb) {
+    if (pb.utils.isFunction(opts)) {
+        cb = opts;
+        opts = null;
+    }
+    if (!pb.utils.isObject(opts)) {
+        opts = { };
+    }
+        var options = {
+            where: where,
+            select: opts.select || DAO.PROJECT_ALL,
+            order: opts.order || DAO.NATURAL_ORDER,
+            limit: 1
+        };
+    this.q(collection, options, function(err, result){
+           cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
+    });
 };
 
 /**
