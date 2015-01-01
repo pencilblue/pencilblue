@@ -151,12 +151,12 @@ var config = {
             {
                 collection: 'plugin_settings',
                 spec: {plugin_uid: ASC},
-                options: {}
+                options: {unique: true}
             },
             {
                 collection: 'plugin_settings',
                 spec: {plugin_id: ASC},
-                options: {}
+                options: {unique: true}
             },
 
             //settings
