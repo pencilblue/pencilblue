@@ -119,7 +119,7 @@ DBEntityService.prototype.purge = function(key, cb) {
 	var dao              = new pb.DAO();
 	var where            = {};
 	where[this.keyField] = key;
-	dao.delete({where: where}, this.objType, cb);
+	dao.delete(where, this.objType, cb);
 };
 
 //exports
