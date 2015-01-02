@@ -1,13 +1,14 @@
 
 //dependencies
+var process = require('process');
 var HtmlEncoder = require('htmlencode');
 
 /**
  *
- * @class ImageMediaProvider
+ * @class ImageMediaRenderer
  * @constructor
  */
-function ImageMediaProvider(){}
+function ImageMediaRenderer(){}
 
 /**
  * The media type supported by the provider
@@ -44,42 +45,53 @@ var SUPPORTED = Object.freeze({
     }
 });
 
-ImageMediaProvider.isSupported = function(urlStr) {
+ImageMediaRenderer.getName = function() {
+    return 'ImageMediaRenderer';
+};
+
+ImageMediaRenderer.isSupported = function(urlStr) {
     var ext = pb.utils.getExtension(urlStr);
     return SUPPORTED[ext] ? true : false;
 };
 
-ImageMediaProvider.getType = function(urlStr) {
-    return ImageMediaProvider.isSupported(urlStr) ? TYPE : null;
+ImageMediaRenderer.getType = function(urlStr) {
+    return ImageMediaRenderer.isSupported(urlStr) ? TYPE : null;
 }
 
-ImageMediaProvider.getIcon = function(type) {
+ImageMediaRenderer.getIcon = function(type) {
     return 'picture-o';
 };
 
-ImageMediaProvider.renderByUrl = function(urlStr, props) {
-    var mediaId = ImageMediaProvider.getMediaId(urlStr);
-    return ImageMediaProvider.render({location: mediaId}, props);
+ImageMediaRenderer.renderByUrl = function(urlStr, props, cb) {
+    var mediaId = ImageMediaRenderer.getMediaId(urlStr);
+    return ImageMediaRenderer.render({location: mediaId}, props, cb);
 };
 
-ImageMediaProvider.render = function(media, props) {
-    var embedUrl = ImageMediaProvider.getEmbedUrl(media.location);
-    var html = '<img src="' + HtmlEncoder.encode(embedUrl) + '"';
+ImageMediaRenderer.render = function(media, props, cb) {
+    if (pb.utils.isFunction(props)) {
+        cb = props;
+        props = {};
+    }
+    
+    var embedUrl = ImageMediaRenderer.getEmbedUrl(media.location);
+    var html = '<img src="' + HtmlEncoder.htmlEncode(embedUrl) + '"';
     for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.encode(props[prop]) + '" ';
+        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
     }
     html += '/>';
+    
+    cb(null, html);
 };
 
-ImageMediaProvider.getEmbedUrl = function(mediaId) {
+ImageMediaRenderer.getEmbedUrl = function(mediaId) {
     return mediaId;
 };
 
-ImageMediaProvider.getMediaId = function(urlStr) {
+ImageMediaRenderer.getMediaId = function(urlStr) {
     return urlStr;
 };
 
-ImageMediaProvider.getMeta = function(urlStr, cb) {
+ImageMediaRenderer.getMeta = function(urlStr, isFile, cb) {
     var ext = pb.utils.getExtension(urlStr);
     var meta = pb.utils.clone(SUPPORTED[ext]);
     process.nextTick(function() {
@@ -87,11 +99,11 @@ ImageMediaProvider.getMeta = function(urlStr, cb) {
     });
 };
 
-ImageMediaProvider.getThumbnail = function(urlStr, cb) {
+ImageMediaRenderer.getThumbnail = function(urlStr, cb) {
     process.nextTick(function() {
         cb(null, urlStr);
     });
 };
 
 //exports
-module.exports = ImageMediaProvider;
+module.exports = ImageMediaRenderer;

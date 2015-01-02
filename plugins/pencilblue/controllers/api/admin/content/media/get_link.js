@@ -32,51 +32,64 @@ GetMediaLink.prototype.render = function(cb) {
             code: 400,
             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_URL'))
         });
-        return;
     }
+    
+    var service = new pb.MediaService();
+    service.getMediaDescriptor(get.url, function(err, descriptor) {
+        if (util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if (!descriptor) {
+            return cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_URL'))
+            }); 
+        }
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', descriptor)});
+    });
 
-    if(self.checkForMediaFile(get.url, cb)) {
-        return;
-    }
-
-    get.url = get.url.split('https://').join('').split('http://').join('').split('//').join('');
-    if(get.url.charAt(get.url.length - 1) === '/') {
-        get.url = get.url.substr(0, get.url.length - 1);
-    }
-
-    if(get.url.indexOf('youtube.com') !== -1 || get.url.indexOf('youtu.be') !== -1) {
-        self.getYouTube(get.url, cb, get.url.indexOf('youtu.be') > -1 );
-    }
-    else if(get.url.indexOf('vimeo.com') !== -1) {
-        self.getVimeo(get.url, cb);
-    }
-    else if(get.url.indexOf('dailymotion.com/video/') !== -1 || get.url.indexOf('dai.ly') !== -1) {
-        self.getDailyMotion(get.url, cb);
-    }
-    else if(get.url.indexOf('vine.co') !== -1) {
-        self.getVine(get.url, cb);
-    }
-    else if(get.url.indexOf('instagram.com') !== -1) {
-        self.getInstagram(get.url, cb);
-    }
-    else if(get.url.indexOf('slideshare.net') !== -1) {
-        self.getSlideshare(get.url, cb);
-    }
-    else if(get.url.indexOf('trinket.io') !== -1) {
-        self.getTrinket(get.url, cb);
-    }
-    else if(get.url.indexOf('storify.com') !== -1) {
-        self.getStorify(get.url, cb);
-    }
-    else if(get.url.indexOf('kickstarter.com') !== -1) {
-        self.getKickstarter(get.url, cb);
-    }
-    else {
-        cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('UNSUPPORTED_MEDIA'))
-        });
-    }
+//    if(self.checkForMediaFile(get.url, cb)) {
+//        return;
+//    }
+//
+//    get.url = get.url.split('https://').join('').split('http://').join('').split('//').join('');
+//    if(get.url.charAt(get.url.length - 1) === '/') {
+//        get.url = get.url.substr(0, get.url.length - 1);
+//    }
+//
+//    if(get.url.indexOf('youtube.com') !== -1 || get.url.indexOf('youtu.be') !== -1) {
+//        self.getYouTube(get.url, cb, get.url.indexOf('youtu.be') > -1 );
+//    }
+//    else if(get.url.indexOf('vimeo.com') !== -1) {
+//        self.getVimeo(get.url, cb);
+//    }
+//    else if(get.url.indexOf('dailymotion.com/video/') !== -1 || get.url.indexOf('dai.ly') !== -1) {
+//        self.getDailyMotion(get.url, cb);
+//    }
+//    else if(get.url.indexOf('vine.co') !== -1) {
+//        self.getVine(get.url, cb);
+//    }
+//    else if(get.url.indexOf('instagram.com') !== -1) {
+//        self.getInstagram(get.url, cb);
+//    }
+//    else if(get.url.indexOf('slideshare.net') !== -1) {
+//        self.getSlideshare(get.url, cb);
+//    }
+//    else if(get.url.indexOf('trinket.io') !== -1) {
+//        self.getTrinket(get.url, cb);
+//    }
+//    else if(get.url.indexOf('storify.com') !== -1) {
+//        self.getStorify(get.url, cb);
+//    }
+//    else if(get.url.indexOf('kickstarter.com') !== -1) {
+//        self.getKickstarter(get.url, cb);
+//    }
+//    else {
+//        cb({
+//            code: 400,
+//            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('UNSUPPORTED_MEDIA'))
+//        });
+//    }
 };
 
 GetMediaLink.prototype.checkForMediaFile = function(url, cb) {

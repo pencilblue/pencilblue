@@ -4,10 +4,10 @@ var HtmlEncoder = require('htmlencode');
 
 /**
  *
- * @class VideoMediaProvider
+ * @class VideoMediaRenderer
  * @constructor
  */
-function VideoMediaProvider(){}
+function VideoMediaRenderer(){}
 
 /**
  * The media type supported by the provider
@@ -38,43 +38,54 @@ var SUPPORTED = Object.freeze({
     }
 });
 
-VideoMediaProvider.isSupported = function(urlStr) {
+VideoMediaRenderer.getName = function() {
+    return 'ImageMediaProvider';
+};
+
+VideoMediaRenderer.isSupported = function(urlStr) {
     var ext = pb.utils.getExtension(urlStr);
     return SUPPORTED[ext] ? true : false;
 };
 
-VideoMediaProvider.getType = function(urlStr) {
-    return VideoMediaProvider.isSupported(urlStr) ? TYPE : null;
+VideoMediaRenderer.getType = function(urlStr) {
+    return VideoMediaRenderer.isSupported(urlStr) ? TYPE : null;
 }
 
-VideoMediaProvider.getIcon = function(type) {
+VideoMediaRenderer.getIcon = function(type) {
     return 'film';
 };
 
-VideoMediaProvider.renderByUrl = function(urlStr, props) {
+VideoMediaRenderer.renderByUrl = function(urlStr, props, cb) {
     var mime    = SUPPORTED[pb.utils.getExtension(urlStr)];
-    var mediaId = VideoMediaProvider.getMediaId(urlStr);
-    return VideoMediaProvider.render({location: mediaId, mime: mime});
+    var mediaId = VideoMediaRenderer.getMediaId(urlStr);
+    VideoMediaRenderer.render({location: mediaId, mime: mime}, props, cb);
 };
 
-VideoMediaProvider.render = function(media, props) {
-    var embedUrl = VideoMediaProvider.getEmbedUrl(media.location);
+VideoMediaRenderer.render = function(media, props, cb) {
+    if (pb.utils.isFunction(props)) {
+        cb = props;
+        props = {};
+    }
+    
+    var embedUrl = VideoMediaRenderer.getEmbedUrl(media.location);
     var html = '<video ';
     for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.encode(props[prop]) + '" ';
+        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
     }
-    html += ' controls><source src="' + HtmlEncoder.encode(embedUrl) + '" type="' + media.mime + '" /></video>';
+    html += ' controls><source src="' + HtmlEncoder.htmlEncode(embedUrl) + '" type="' + media.mime + '" /></video>';
+    
+    cb(null, html);
 };
 
-VideoMediaProvider.getEmbedUrl = function(mediaId) {
+VideoMediaRenderer.getEmbedUrl = function(mediaId) {
     return mediaId;
 };
 
-VideoMediaProvider.getMediaId = function(urlStr) {
+VideoMediaRenderer.getMediaId = function(urlStr) {
     return urlStr;
 };
 
-VideoMediaProvider.getMeta = function(urlStr, cb) {
+VideoMediaRenderer.getMeta = function(urlStr, isFile, cb) {
     var ext = pb.utils.getExtension(urlStr);
     var meta = pb.utils.clone(SUPPORTED[ext]);
     process.nextTick(function() {
@@ -82,11 +93,11 @@ VideoMediaProvider.getMeta = function(urlStr, cb) {
     });
 };
 
-VideoMediaProvider.getThumbnail = function(urlStr, cb) {
+VideoMediaRenderer.getThumbnail = function(urlStr, cb) {
     process.nextTick(function() {
         cb(null, '');
     });
 };
 
 //exports
-module.exports = VideoMediaProvider;
+module.exports = VideoMediaRenderer;

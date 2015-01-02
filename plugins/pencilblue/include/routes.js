@@ -582,7 +582,7 @@ module.exports = [
         access_level: ACCESS_WRITER,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'media', 'get_link.js'),
-        content_type: 'text/html'
+        content_type: 'application/json'
     },
     {
         method: 'get',
@@ -590,7 +590,7 @@ module.exports = [
         access_level: ACCESS_WRITER,
         auth_required: true,
         controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'media', 'get_preview.js'),
-        content_type: 'text/html'
+        content_type: 'application/json'
     },
 
     // COMMENTS

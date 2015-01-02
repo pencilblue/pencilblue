@@ -27,21 +27,37 @@ GetMediaPreview.prototype.render = function(cb) {
     var self = this;
     var get  = this.query;
 
-    if(pb.validation.isIdStr(get.id, true)) {
-        this.getPreviewById(get.id, cb);
+//    if(pb.validation.isIdStr(get.id, true)) {
+//        this.getPreviewById(get.id, cb);
+//    }
+//    else {
+    var message = this.hasRequiredParams(get, ['location']);
+    if (message) {
+        return cb({
+            code: 400,
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+        });
     }
-    else {
-        var message = this.hasRequiredParams(get, ['type', 'location']);
-        if (message) {
-            cb({
-                code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-            });
-            return;
-        }
 
-        this.getPreviewByType(get.type, get.location, cb);
-    }
+    var props = {
+        'max-width': '100%',
+        'max-height': '300px'
+    };
+    var service = new pb.MediaService();
+    service.renderByUrl(get.location, props, function(err, html) {
+        if (util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if (!html) {
+            return cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('UNSUPPORTED_MEDIA'))
+            });
+        }
+        
+        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', html)});
+    });
+//    }
 };
 
 GetMediaPreview.prototype.getPreviewById = function(id, cb) {
