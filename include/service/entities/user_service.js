@@ -41,8 +41,7 @@ UserService.prototype.getFullName = function(userId, cb) {
 	var dao  = new pb.DAO();
 	dao.loadById(userId, 'user', function(err, author){
 		if (util.isError(err)) {
-			callback(err, null);
-			return;
+			return callback(err, null);
 		}
 
 		cb(null, self.getFormattedName(author));
@@ -73,15 +72,39 @@ UserService.prototype.getFormattedName = function(user) {
  */
 UserService.prototype.getAuthors = function(objArry, cb){
 	var self  = this;
-	var tasks = pb.utils.getTasks(objArry, function(objArry, index){
-    	return function(callback) {
-    		self.getFullName(objArry[index].author, function(err, fullName){
-    			objArry[index].author_name = fullName;
-    			callback(err, objArry[index]);
-    		});
-    	};
+    
+    //retrieve unique author list
+    var authorIds = {};
+    for (var i = 0; i < objArry.length; i++) {
+        authorIds[objArry[i].author] = true;
+    }
+    
+    //retrieve authors
+    var opts = {
+        select: {
+            username: 1,
+            first_name: 1,
+            last_name: 1
+        },
+        where: pb.DAO.getIDInWhere(Object.keys(authorIds))
+    };
+    var dao = new pb.DAO();
+    dao.q('user', opts, function(err, authors) {
+        if (util.isError(err)) {
+            return cb(err);   
+        }
+        
+        //convert results into searchable hash
+        var authLookup = pb.utils.arrayToObj(authors, function(authors, i) { return authors[i][pb.DAO.getIdField()].toString(); });
+        
+        //set the full name of the author
+        for (var i = 0; i < objArry.length; i++) {
+            objArry[i].author_name = self.getFormattedName(authLookup[objArry[i].author]);
+        }
+        
+        //callback with objects (not necessary but we do it anyway)
+        cb(null, objArry);
     });
-    async.parallelLimit(tasks, 3, cb);
 };
 
 /**
@@ -117,28 +140,35 @@ UserService.prototype.getAdminOptions = function(session, ls) {
  * editor select list.
  */
 UserService.prototype.getEditorSelectList = function(currId, cb) {
-	var where = {
-		admin: {
-			$gt: ACCESS_WRITER
-		}
-	};
-	var select = {
-		_id: 1,
-		first_name: 1,
-		last_name: 1
-	};
+    var self = this;
+    
+    var opts = {
+        select: {
+            _id: 1,
+            first_name: 1,
+            last_name: 1
+        },
+        where: {
+            admin: {
+                $gt: ACCESS_WRITER
+            }
+        }
+    };
     var dao     = new pb.DAO();
-	dao.query('user', where, select).then(function(data){
-        if (util.isError(data)) {
-        	cb(data, null);
-        	return;
+	dao.q('user', opts, function(err, data){
+        if (util.isError(err)) {
+        	return cb(err, null);
         }
 
 		var editors = [];
 		for(var i = 0; i < data.length; i++) {
 
-			var editor = {_id: data[i]._id, name: data[i].first_name + ' ' + data[i].last_name};
-            if(currId == data[i]._id.toString()) {
+			var editor = {
+                name: self.getFormattedName(data[i])
+            };
+            editor[pb.DAO.getIdField()] = data[i][pb.DAO.getIdField()];
+            
+            if(currId == data[i][pb.DAO.getIdField()].toString()) {
                 editor.selected = 'selected';
             }
             editors.push(editor);
@@ -291,13 +321,17 @@ UserService.prototype.findByAccessLevel = function(level, options, cb) {
         throw new Error('The options parameter must be an object');
     }
 
-    var where = {
-        admin: level
+    var opts = {
+        select: options.select,
+        where: {
+            admin: level
+        },
+        order: options.orderBy,
+        limit: options.limit,
+        offset: options.offset
     };
     var dao = new pb.DAO();
-    dao.query('user', where, options.select, options.orderBy, options.limit, options.offset).then(function(result) {
-        cb(util.isError(result) ? result : null, result);
-    });
+    dao.q('user', opts, cb);
 };
 
 /**

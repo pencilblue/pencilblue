@@ -45,16 +45,19 @@ HomePageSettings.prototype.render = function(cb) {
         name: 'content_settings',
         title: self.ls.get('HOME_PAGE_SETTINGS'),
         icon: 'chevron-left',
-        href: '/admin/plugins/settings/portfolio'
+        href: '/admin/plugins/portfolio/settings'
     }];
 
+    var opts = {
+        where: {settings_type: 'home_page'}
+    };
     var dao  = new pb.DAO();
-    dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(homePageSettings) {
+    dao.q('portfolio_theme_settings', opts, function(err, homePageSettings) {
         if(homePageSettings.length > 0) {
             homePageSettings = homePageSettings[0];
         }
         else {
-            homePageSettings = {callouts: []};
+            homePageSettings = {callouts: [{}, {}, {}]};
         }
 
         var mservice = new pb.MediaService();
@@ -94,7 +97,7 @@ HomePageSettings.getRoutes = function(cb) {
     var routes = [
         {
             method: 'get',
-            path: '/admin/plugins/settings/portfolio/home_page',
+            path: '/admin/plugins/portfolio/settings/home_page',
             auth_required: true,
             access_level: ACCESS_EDITOR,
             content_type: 'text/html'

@@ -126,6 +126,11 @@
                             $scope.uploadPreview = result.data;
                         })
                     });
+                }).
+                error(function(data, status, headers, config) {
+                    $scope.$parent.errorMessage = data.message;
+                    $scope.uploading = false;
+                    $('#media_modal').modal('hide');
                 });
             }
         };

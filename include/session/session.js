@@ -34,9 +34,6 @@ function SessionHandler(){
 	SessionStore = SessionHandler.getSessionStore();
 	SessionStore.startReaper();
 	this.sessionStore = new SessionStore();
-
-	//create a local storage object
-	this.localStorage = {};
 };
 
 //private static variables
@@ -79,7 +76,7 @@ SessionHandler.prototype.open = function(request, cb){
 			return;
 		}
 		else if(result){
-			handler.setLocal(result);
+			//handler.setLocal(result);
 			cb(null, result);
 			return;
 		}
@@ -103,10 +100,7 @@ SessionHandler.prototype.close = function(session, cb) {
 	}
 
 	if(typeof session != 'object'){
-		session = this.gl(session);
-		if(!session) {
-			throw new Error("SessionHandler: The session has not been opened or is already closed");
-		}
+		throw new Error("SessionHandler: The session has not been opened or is already closed");
 	}
 
 	//update timeout
@@ -137,81 +131,6 @@ SessionHandler.prototype.end = function(session, cb) {
 };
 
 /**
- *
- * NOTE: This function should only be called <b>AFTER</b> SessionHandler.open
- * is called and callsback successfully.
- *
- * @method gl
- * @param {String} sessionId
- * @return {Object} Session
- */
-SessionHandler.prototype.gl = function(sessionId){
-	var localSession = this.localStorage[sessionId];
-	return localSession ? localSession.session : null;
-};
-
-/**
- * Keeps a reference to the session in memory in case multiple requests come in.
- *
- * @method setLocal
- * @param {Object} session
- */
-SessionHandler.prototype.setLocal = function(session){
-	var sid = session[SessionHandler.SID_KEY];
-	if (this.isLocal(sid)) {
-		this.localStorage[sid].request_count += 1;
-	}
-	else{
-		this.localStorage[sid] = {
-			request_count: 1,
-			session: session
-		};
-	}
-};
-
-/**
- * Purges the session from local memory unless multiple requests have accessed
- * the session.
- *
- * @method purgeLocal
- * @param {String} sessionId The session identifier
- * @return {Boolean}
- */
-SessionHandler.prototype.purgeLocal = function(sessionId){
-	if (!this.isLocal(sessionId)) {
-		throw new Error("SessionHandler: The session was never opened or the session is already closed");
-	}
-
-	//decrement request count
-	this.localStorage[sessionId].request_count -= 1;
-
-	//qualifies for local purge if request count is at 0
-	var doesQualify = this.localStorage[sessionId].request_count == 0;
-	if (doesQualify) {
-		delete this.localStorage[sessionId];
-	}
-	return doesQualify;
-};
-
-SessionHandler.prototype.getRequestCount = function(sessionId) {
-	if (this.isLocal(sessionId)) {
-		return this.localStorage[sessionId].request_count;
-	}
-	return 0;
-};
-
-/**
- * Tests if the session is stored locally
- *
- * @method isLocal
- * @param {String} sessionId The ID of the session to search for
- * @return {boolean} True if the session is stored locally
- */
-SessionHandler.prototype.isLocal = function(sessionId){
-	return this.localStorage.hasOwnProperty(sessionId);
-};
-
-/**
  * Creates the shell of a session object
  *
  * @method create
@@ -228,9 +147,7 @@ SessionHandler.prototype.create = function(request){
 		ip: request.connection.remoteAddress,
 		client_id: SessionHandler.getClientId(request)
 	};
-	session[SessionHandler.SID_KEY] = pb.utils.uniqueId();
-
-	this.setLocal(session);
+	session[SessionHandler.SID_KEY] = pb.utils.uniqueId().toString();
 	return session;
 };
 

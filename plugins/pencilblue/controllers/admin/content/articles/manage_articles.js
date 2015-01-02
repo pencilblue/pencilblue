@@ -36,10 +36,18 @@ ManageArticles.prototype.render = function(cb) {
         where.author = this.session.authentication.user_id;
     }
 
-    dao.query('article', where, pb.DAO.PROJECT_ALL, {publish_date: pb.DAO.ASC}).then(function(articles) {
-        if(util.isError(articles) || articles.length <= 0) {
-            self.redirect('/admin/content/articles/new', cb);
-            return;
+    var opts = {
+        select: pb.DAO.PROJECT_ALL,
+        where: where,
+        order: {publish_date: pb.DAO.ASC},
+        
+    };
+    dao.q('article', opts, function(err, articles) {
+        if(util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if (articles.length <= 0) {
+            return self.redirect('/admin/content/articles/new', cb);
         }
 
         pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {

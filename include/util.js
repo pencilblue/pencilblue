@@ -28,31 +28,6 @@ var extend = require('node.extend');
 function Util(){};
 
 /**
- * Takes an array of promises and waits for each to be resolved before calling
- * back.
- * @static
- * @method onPromisesOk
- * @param {Array} promises
- * @param {Function} A callback that takes zero arguments.  It is executed when
- * all promises have been resolved.
- */
-Util.onPromisesOk = function(promises, cb){
-
-	var cnt = 0;
-	for(var i = 0; i < promises.length; i++){
-
-		promises[i].then(function(result){
-
-			pb.log.debug("Promise ["+cnt+"] Compelted");
-			if(++cnt == promises.length){
-				pb.log.debug("All promises Accounted for");
-				cb();
-			}
-		});
-	}
-};
-
-/**
  * Clones an object by serializing it and then re-parsing it.
  * WARNING: Objects with circular dependencies will cause an error to be thrown.
  * @static

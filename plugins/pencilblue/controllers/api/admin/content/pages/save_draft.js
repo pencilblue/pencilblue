@@ -78,8 +78,8 @@ SavePageDraftController.prototype.onPostParamsRetrieved = function(post, cb) {
                 return;
             }
 
-            dao.update(page).then(function(result) {
-                if(util.isError(result)) {
+            dao.save(page, function(err, result) {
+                if(util.isError(err)) {
                     cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'database error')});
                     return;
                 }

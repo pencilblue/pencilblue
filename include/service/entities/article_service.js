@@ -167,10 +167,9 @@ ArticleService.prototype.find = function(where, options, cb) {
 
 	var self = this;
 	var dao  = new pb.DAO();
-	dao.query(this.getContentType(), where, select, order, limit, offset).then(function(articles) {
-		if (util.isError(articles)) {
-			cb(articles, []);
-			return;
+	dao.q(this.getContentType(), {where: where, select: select, order: order, limit: limit, offset: offset}, function(err, articles) {
+		if (util.isError(err)) {
+			return cb(err, []);
 		}
 		else if (articles.length === 0) {
 			return cb(null, []);
@@ -309,10 +308,9 @@ ArticleService.prototype.processArticleForDisplay = function(article, articleCou
         	var where = {article: article._id.toString()};
 	        var order = {created: pb.DAO.ASC};
 	        var dao   = new pb.DAO();
-	        dao.query('comment', where, pb.DAO.PROJECT_ALL, order).then(function(comments) {
-	            if(util.isError(comments) || comments.length == 0) {
-	                cb(null, null);
-	                return;
+	        dao.q('comment', {where: where, select: pb.DAO.PROJECT_ALL, order: order}, function(err, comments) {
+	            if(util.isError(err) || comments.length == 0) {
+	                return cb(null, null);
 	            }
 
 	            self.getCommenters(comments, contentSettings, function(err, commentsWithCommenters) {
@@ -338,17 +336,7 @@ ArticleService.prototype.getArticleAuthors = function(articles, cb) {
 
 	//gather all author IDs
 	var dao = new pb.DAO();
-	dao.query('user', pb.DAO.getIDInWhere(articles, 'author')).then(function(authors) {
-		if (util.isError(authors)) {
-			cb(authors, []);
-			return;
-		}
-		else if (authors.length === 0) {
-			cb(null, []);
-			return;
-		}
-		cb(null, authors);
-	});
+	dao.q('user', {where: pb.DAO.getIDInWhere(articles, 'author')}, cb);
 };
 
 /**

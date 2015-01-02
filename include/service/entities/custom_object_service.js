@@ -140,9 +140,7 @@ CustomObjectService.prototype.saveSortOrdering = function(sortOrder, cb) {
         }
 
         var dao = new pb.DAO();
-        dao.update(sortOrder).then(function(result) {
-            cb(util.isError(result) ? result : null, result);
-        });
+        dao.save(sortOrder, cb);
     });
 };
 
@@ -545,7 +543,7 @@ CustomObjectService.prototype.loadById = function(id, options, cb) {
  * Loads a custom object by name
  * @method loadById
  * @param {String} type The ID string of the custom object type
- * @param {ObjectID|String} name The unique name of the custom object
+ * @param {String} name The unique name of the custom object
  * @param {Object} [options]
  * @param {Function} cb
  */
@@ -885,9 +883,7 @@ CustomObjectService.prototype.save = function(custObj, custObjType, cb) {
         }
 
         var dao = new pb.DAO();
-        dao.update(custObj).then(function(result) {
-            cb(util.isError(result) ? result : null, result);
-        });
+        dao.save(custObj, cb);
     });
 };
 
@@ -912,10 +908,18 @@ CustomObjectService.prototype.saveType = function(custObjType, cb) {
         }
 
         var dao = new pb.DAO();
-        dao.update(custObjType).then(function(result) {
-            cb(util.isError(result) ? result : null, result);
-        });
+        dao.save(custObjType, cb);
     });
+};
+ 
+/**
+ * Deletes a custom object by ID
+ * @method deleteById
+ * @param {String} 
+ */
+CustomObjectService.prototype.deleteById = function(id, cb) {
+    var dao = new pb.DAO();
+    dao.deleteById(id, CustomObjectService.CUST_OBJ_COLL, cb);
 };
 
 /**

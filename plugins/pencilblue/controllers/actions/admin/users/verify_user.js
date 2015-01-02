@@ -48,7 +48,7 @@ VerifyUser.prototype.render = function(cb) {
             return;
         }
 
-        dao.deleteById(vars.id, 'unverified_user').then(function(result)  {
+        dao.deleteById(vars.id, 'unverified_user', function(err, result)  {
             //TODO handle error
 
             //convert to user
@@ -58,7 +58,7 @@ VerifyUser.prototype.render = function(cb) {
             delete user.last_modified;
             user.object_type = 'user';
 
-            dao.update(user).then(function(result) {
+            dao.save(user, function(err, result) {
                 if(util.isError(result))  {
                     cb({
                         code: 500,

@@ -53,13 +53,12 @@ NewArticlePostController.prototype.render = function(cb) {
 	        }
 
 	        var dao = new pb.DAO();
-	        dao.update(articleDocument).then(function(result) {
-	            if(util.isError(result))  {
-					cb({
+	        dao.save(articleDocument, function(err, result) {
+	            if(util.isError(err))  {
+					return cb({
 						code: 400,
 						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
 					});
-	                return;
 	            }
 
 				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, articleDocument.headline + ' ' + self.ls.get('CREATED'), result)});

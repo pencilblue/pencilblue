@@ -78,13 +78,12 @@ ChangePassword.prototype.render = function(cb) {
 	        delete user.new_password;
 	        delete user.current_password;
 
-	        dao.update(user).then(function(result) {
-	            if(util.isError(result)) {
-	                cb({
+	        dao.save(user, function(err, result) {
+	            if(util.isError(err)) {
+	                return cb({
 						code: 500,
 						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
 					});
-	                return;
 	            }
 
 				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('PASSWORD_CHANGED'))});

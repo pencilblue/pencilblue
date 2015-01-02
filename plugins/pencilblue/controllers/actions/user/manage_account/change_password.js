@@ -74,10 +74,9 @@ ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
         }
 
         pb.DocumentCreator.update(post, user);
-        dao.update(user).then(function(result) {
-            if(util.isError(result)) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/user/change_password', cb);
-                return;
+        dao.save(user, function(err, result) {
+            if(util.isError(err)) {
+                return self.formError(self.ls.get('ERROR_SAVING'), '/user/change_password', cb);
             }
 
 			self.session.authentication.reset_password = false;

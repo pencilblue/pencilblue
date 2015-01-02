@@ -142,18 +142,23 @@ PageFormController.prototype.gatherData = function(vars, cb) {
 		},
 
 		sections: function(callback) {
-			var where = {
-				type: {$in: ['container', 'section']}
+			var opts = {
+                select: pb.DAO.PROJECT_ALL,
+                where: {
+				    type: {$in: ['container', 'section']}
+                },
+                order: {name: pb.DAO.ASC}
 			};
-			dao.query('section', where, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(sections){
-				callback(util.isError(sections) ? sections : null, sections);
-			});
+			dao.q('section', opts, callback);
 		},
 
 		topics: function(callback) {
-			dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL, {name: pb.DAO.ASC}).then(function(topics){
-				callback(util.isError(topics) ? topics : null, topics);
-			});
+            var opts = {
+                select: pb.DAO.PROJECT_ALL,
+                where: pb.DAO.ANYWHERE,
+                order: {name: pb.DAO.ASC}
+            };
+			dao.q('topic', opts, callback);
 		},
 
 		media: function(callback) {
@@ -167,9 +172,7 @@ PageFormController.prototype.gatherData = function(vars, cb) {
 				return;
 			}
 
-			dao.loadById(vars.id, 'page', function(err, page) {
-				callback(err, page);
-			});
+			dao.loadById(vars.id, 'page', callback);
 		}
 	};
 	async.parallelLimit(tasks, 2, cb);

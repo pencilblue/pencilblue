@@ -27,7 +27,7 @@ util.inherits(ResetPassword, pb.BaseController);
 ResetPassword.prototype.render = function(cb) {
 	var self = this;
 	var get  = this.query;
-console.log(util.inspect(get));
+
     if(this.hasRequiredParams(get, ['email', 'code'])) {
         this.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
         return;
@@ -52,7 +52,7 @@ console.log(util.inspect(get));
             }
 
             // delete the password reset token
-            dao.deleteById(passwordReset._id, 'password_reset').then(function(result)  {
+            dao.deleteById(passwordReset._id, 'password_reset', function(err, result)  {
         	    //log the user in
                 self.session.authentication.user        = user;
                 self.session.authentication.user_id     = user._id.toString();

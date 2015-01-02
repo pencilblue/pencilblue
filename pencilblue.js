@@ -82,18 +82,16 @@ PencilBlue.initPlugins = function(cb) {
  */
 PencilBlue.initDBConnections = function(cb){
 	//setup database connection to core database
-	pb.dbm.getDB(pb.config.db.name).then(function(result){
-		if (util.isError(result)) {
-			cb(result, false);
+	pb.dbm.getDB(pb.config.db.name, function(err, result){
+		if (util.isError(err)) {
+			return cb(err, false);
 		}
 		else if (!result.databaseName) {
-			cb(new Error("Failed to establish a connection to: "+pb.config.db.name), false);
+			return cb(new Error("Failed to establish a connection to: "+pb.config.db.name), false);
 		}
-		else {
-			log.debug('Established connection to DB: ' + result.databaseName);
-			mongoDB = result;
-			cb(null, true);
-		}
+		
+        log.debug('PencilBlue: Established connection to DB: %s', result.databaseName);
+        cb(null, true);
 	});
 };
 

@@ -44,7 +44,7 @@ Portfolio.onStartup = function(cb) {
                     name: 'home_page_settings',
                     title: 'Home page settings',
                     icon: 'home',
-                    href: '/admin/plugins/settings/portfolio/home_page'
+                    href: '/admin/plugins/portfolio/settings/home_page'
                 }
             ];
         }

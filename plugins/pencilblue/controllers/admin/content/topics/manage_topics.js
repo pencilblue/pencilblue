@@ -28,16 +28,20 @@ var SUB_NAV_KEY = 'manage_topics';
 
 ManageTopics.prototype.render = function(cb) {
 	var self = this;
+    
+    var opts = {
+        select: pb.DAO.PROJECT_ALL,
+        where: pb.DAO.ANYWHERE
+    };
 	var dao  = new pb.DAO();
-	dao.query('topic', pb.DAO.ANYWHERE, pb.DAO.PROJECT_ALL).then(function(topics) {
-		if (util.isError(topics)) {
-			//TODO handle this
+	dao.q('topic', opts, function(err, topics) {
+		if (util.isError(err)) {
+			self.reqHandler.serveError(err);
 		}
-
-		//none to manage
-        if(topics.length === 0) {
-            self.redirect('/admin/content/topics/new', cb);
-            return;
+        else if(topics.length === 0) {
+            
+            //none to manage
+            return self.redirect('/admin/content/topics/new', cb);
         }
 
         //currently, mongo cannot do case-insensitive sorts.  We do it manually

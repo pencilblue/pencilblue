@@ -49,9 +49,16 @@ DeleteNavItem.prototype.render = function(cb) {
         }
 
         //delete the section
-        var where = {$or: [{_id: ObjectID(vars.id)}, {parent: vars.id}]};
-        dao.deleteMatching(where, 'section').then(function(result) {
-            if(result < 1) {
+        var where = {
+            $or: [
+                pb.DAO.getIDWhere(vars.id), 
+                {
+                    parent: vars.id
+                }
+            ]
+        };
+        dao.delete(where, 'section', function(err, result) {
+            if(util.isError(err) || result < 1) {
                 cb({
                     code: 500,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))

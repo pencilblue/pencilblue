@@ -165,10 +165,7 @@ PluginInstallJob.prototype.doPersistenceTasks = function(cb) {
         	 clone.dirName = pluginUid;
 
         	 var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
-        	 self.dao.update(pluginDescriptor).then(function(result) {
-        		 plugin = pluginDescriptor;
-        		 callback(util.isError(result) ? result : null, result);
-        	 });
+        	 self.dao.save(pluginDescriptor, callback);
          },
 
          //load plugin settings

@@ -40,18 +40,7 @@ var SESSION_COLLECTION_NAME = 'session';
  */
 MongoSessionStore.prototype.get = function(sessionId, cb){
 	var dao = new pb.DAO();
-
-	var query = {
-		uid: sessionId
-	};
-	dao.query(SESSION_COLLECTION_NAME, query, pb.DAO.PROJECT_ALL, pb.DAO.NATURAL_ORDER, 1, 0).then(function(result){
-		var isError =  typeof result  == 'Error';
-		if (isError){
-			cb(result, null);
-			return;
-		}
-		cb(null, result.length > 0 ? result[0] : null);
-	});
+    dao.loadByValue('uid', sessionId, SESSION_COLLECTION_NAME, cb);
 };
 
 /**
@@ -74,10 +63,7 @@ MongoSessionStore.prototype.set = function(session, cb){
 	session.object_type = SESSION_COLLECTION_NAME;
 
 	//persist the session
-	dao.update(session).then(function(result){
-		var isError =  typeof result  == 'Error';
-		cb(isError ? result : null, result);
-	});
+	dao.save(session, cb);
 };
 
 /**
@@ -89,10 +75,7 @@ MongoSessionStore.prototype.set = function(session, cb){
  */
 MongoSessionStore.prototype.clear = function(sessionId, cb){
 	var dao = new pb.DAO();
-	dao.deleteMatching(MongoSessionStore.getSessionQuery(sessionId), SESSION_COLLECTION_NAME).then(function(result){
-		var isError =  util.isError(result);
-		cb(isError ? result : null, result);
-	});
+	dao.delete(MongoSessionStore.getSessionQuery(sessionId), SESSION_COLLECTION_NAME, cb);
 };
 
 /**
@@ -124,8 +107,8 @@ MongoSessionStore.clearExpired = function(cb){
 			"$lte": new Date().getTime()
 		}
 	};
-	dao.deleteMatching(query, SESSION_COLLECTION_NAME).then(function(result){
-		pb.log.debug("MongoSessionStore: Expired "+result+" sessions in "+(new Date().getTime() - start)+"ms");
+	dao.delete(query, SESSION_COLLECTION_NAME, function(err, result){
+		pb.log.debug("MongoSessionStore: Expired %d"+result+" sessions in %dms", result, (new Date().getTime() - start));
 		if (cb){
 			cb(null, result);
 		}

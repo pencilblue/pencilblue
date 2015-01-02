@@ -67,7 +67,7 @@ var config = {
 	db: {
         type:'mongo',
 		servers: [
-          'mongodb://127.0.0.1:27017/'
+          '127.0.0.1:27017'
         ],
 
         //the name of the default DB for the system
@@ -151,17 +151,17 @@ var config = {
             {
                 collection: 'plugin_settings',
                 spec: {plugin_uid: ASC},
-                options: {}
+                options: {unique: true}
             },
             {
                 collection: 'plugin_settings',
                 spec: {plugin_id: ASC},
-                options: {}
+                options: {unique: true}
             },
 
             //settings
             {
-                collection: 'settings',
+                collection: 'setting',
                 spec: {key: ASC},
                 options: {unique: true}
             },
@@ -449,6 +449,12 @@ var config = {
     cluster: {
         fatal_error_timeout: 2000,
         fatal_error_count: 5,
+        
+        //This value descibes the number of child processes to spawn when the 
+        //master process is started in self managed mode.  The value can also 
+        //be set to "auto".  This will instruct the master process to inspect 
+        //the number of cores on the server and spawn a child process for each 
+        //core.
         workers: 1,
         
         //The self managed flag indicates whether or not PencilBlue should 
@@ -511,6 +517,10 @@ var config = {
 
         provider: 'fs',
         parent_dir: 'public',
+        
+        //The maximum size of media files that can be uploaded to the server in 
+        //bytes
+        max_upload_size: 2 * 1024 * 1024
     }
 };
 
@@ -584,10 +594,15 @@ var loadConfiguration = function() {
     if (config.siteRoot.lastIndexOf('/') === (config.siteRoot.length - 1)) {
         config.siteRoot = config.siteRoot.substring(0, config.siteRoot.length - 1);
     }
+
+    //ensure that the version is provided
+    var packageInfo = require(path.join(DOCUMENT_ROOT, 'package.json'));
+    config.version = packageInfo.version;
+    
 	return config;
 };
 
 //export configuration
-config                   = loadConfiguration();
+var config               = loadConfiguration();
 config.loadConfiguration = loadConfiguration;
-module.exports           = config;
+module.exports           = Object.freeze(config);

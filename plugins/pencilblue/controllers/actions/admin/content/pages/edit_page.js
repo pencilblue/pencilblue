@@ -69,13 +69,13 @@ EditPagePostController.prototype.render = function(cb) {
 	                return;
 	            }
 
-	            dao.update(page).then(function(result) {
-	                if(util.isError(result)) {
-	                    cb({
-							code: 400,
+	            dao.save(page, function(err, result) {
+	                if(util.isError(err)) {
+                        pb.log.error(err.stack);
+	                    return cb({
+							code: 500,
 							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
 						});
-	                    return;
 	                }
 
 					post.last_modified = new Date();

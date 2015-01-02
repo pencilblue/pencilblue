@@ -65,18 +65,11 @@ ImportTopics.prototype.saveTopics = function(topics, cb) {
 
     		dao.count('topic', {name: topicArry[index].trim()}, function(err, count){
     			if (count > 0) {
-    				callback(null, true);
-    				return;
+    				return callback(null, true);
     			}
 
     			var topicDocument = pb.DocumentCreator.create('topic', {name: topicArry[index].trim()});
-    			dao.update(topicDocument).then(function(result){
-    				if (util.isError(result)) {
-    					callback(result, null);
-    					return;
-    				}
-    				callback(null, result);
-    			});
+    			dao.save(topicDocument, callback);
     		});
 
     	};
@@ -85,11 +78,10 @@ ImportTopics.prototype.saveTopics = function(topics, cb) {
     //execute in parallel
     async.parallelLimit(tasks, 3, function(err, results){
     	if(util.isError(err)) {
-			cb({
+			return cb({
 				code: 500,
 				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
 			});
-			return;
 		}
 		
 		cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, loc.topics.TOPICS_CREATED)});

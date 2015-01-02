@@ -46,21 +46,18 @@ DBEntityService.prototype.get = function(key, cb){
 	where[this.keyField] = key;
 
 	var self = this;
-	dao.query(this.objType, where).then(function(result){
-		if (util.isError(result)) {
-			cb(result, null);
-			return;
+    dao.loadByValue(this.keyField, key, this.objType, function(err, entity){
+		if (util.isError(err)) {
+			return cb(err);
 		}
 
 		//ensure setting exists
-		if (result.length == 0){
-			cb(null, null);
-			return;
+		if (!entity){
+			return cb(null, null);
 		}
 
 		//get setting
-		var entity = result[0];
-		var val    = self.valueField == null ? entity : entity[self.valueField];
+		var val = self.valueField == null ? entity : entity[self.valueField];
 
 		//callback with the result
 		cb(null, val);
@@ -81,10 +78,9 @@ DBEntityService.prototype.set = function(key, value, cb) {
 	where[this.keyField] = key;
 
 	var self = this;
-	dao.query(this.objType, where).then(function(result){
-		if (util.isError(result)) {
-			cb(result, null);
-			return;
+    dao.loadByValue(this.keyField, key, this.objType, function(err, result){
+		if (util.isError(err)) {
+			return cb(err);
 		}
 
 		//value doesn't exist in cache
@@ -94,28 +90,21 @@ DBEntityService.prototype.set = function(key, value, cb) {
 		}
 		else{
 			var rawVal = null;
-			if (result == null || result.length == 0) {
+			if (!result) {
 				rawVal = {
 					object_type: self.objType
 				};
 				rawVal[self.keyField]   = key;
 			}
 			else{
-				rawVal = result[0];
+				rawVal = result;
 			}
 			rawVal[self.valueField] = value;
 			val                     = rawVal;
 		}
 
 		//set into cache
-		dao.update(val).then(function(result){
-			if (util.isError(result)) {
-				cb(result, null);
-			}
-			else{
-				cb(null, result);
-			}
-		});
+		dao.save(val, cb);
 	});
 };
 
@@ -130,14 +119,7 @@ DBEntityService.prototype.purge = function(key, cb) {
 	var dao              = new pb.DAO();
 	var where            = {};
 	where[this.keyField] = key;
-	dao.deleteMatching(where, this.objType).then(function(result){
-		if (util.isError(result)) {
-			cb(result, null);
-		}
-		else{
-			cb(null, result);
-		}
-	});
+	dao.delete(where, this.objType, cb);
 };
 
 //exports

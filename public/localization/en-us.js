@@ -271,7 +271,8 @@ var loc =
         LINK_TO_IMAGE: 'Link to image',
         UPLOAD_IMAGE: 'Upload image',
         IMAGE_URL: 'Image URL',
-        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg'
+        IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
+        FILE_TOO_BIG: 'The file is larger than the allowed limit'
     },
     pages:
     {

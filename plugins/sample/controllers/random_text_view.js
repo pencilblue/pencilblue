@@ -93,6 +93,20 @@ RandomTextViewController.prototype.getRandomText = function(cb) {
         self.ts.registerLocal('sample_plugin_icon', PluginService.genPublicPath('sample', 'imgs/sample.ico'));
         self.ts.registerLocal('sample_text', text);
         
+        //The templating service also supports registering flags with functions.  
+        //The allows controllers to execute complex features only when the flag 
+        //is actually encountered.  This is primarily beneficial when 
+        //functionality is abstracted in a common controller prototype.
+        self.ts.registerLocal('parameterized_text', function(flag, cb) {
+            
+            
+            //The localization service also supports parameterized localizations 
+            //to handle cases where different languages structure subjects and 
+            //predicates differently.
+            var parameterizedLocalizedStr = self.ls.get('PARAMETERIZED_KEY', 'apple', 28, { some: 'value'});
+            cb(null, parameterizedLocalizedStr);
+        });
+        
         //by default, the template service HTML encodes all template flags. 
         //Values provided to template service can be wrapped in an 
         //TemplateValue which contains an option to skip the encoding if the 

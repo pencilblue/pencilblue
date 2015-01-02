@@ -64,10 +64,10 @@ NewPagePostController.prototype.render = function(cb) {
 					return;
 	            }
 
-	        	dao.update(pageDocument).then(function(result) {
-	                if(util.isError(result)) {
+	        	dao.save(pageDocument, function(err, result) {
+	                if(util.isError(err)) {
 	                    cb({
-							code: 400,
+							code: 500,
 							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
 						});
 						return;

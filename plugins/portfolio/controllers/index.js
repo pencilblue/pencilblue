@@ -70,30 +70,32 @@ Index.prototype.render = function(cb) {
                         content.content = template;
                     }
 
+                    var opts = {
+                        where: {settings_type: 'home_page'}
+                    };
                     var dao = new pb.DAO();
-                    dao.query('portfolio_theme_settings', {settings_type: 'home_page'}).then(function(settings) {
+                    dao.q('portfolio_theme_settings', opts, function(err, settings) {
+                        if (util.isError(err)) {
+                            self.reqHandler.serveError(err);
+                        }
                         if(settings.length > 0) {
                             settings = settings[0];
                         }
 
-                        var callouts = settings.callouts;
-
-                        for(var i = 0; i < callouts.length; i++) {
-                            if(!callouts[i].copy.length) {
+                        //remove any callouts that are blank. If the home page
+                        //settings for the plugin have not been set it is
+                        //possible for the setting to be empty.  Therefore we
+                        //must put in a fall back plan of an empty array.
+                        var callouts = settings.callouts || [];
+                        for(var i = callouts.length - 1; i >= 0; i--) {
+                            if(typeof callouts[i].copy === 'undefined' || !callouts[i].copy.length) {
                                 callouts.splice(i, 1);
-                                i--;
-                                continue;
                             }
                         }
+                        content.content = content.content.split('^display_callouts^').join(callouts.length ? '' : 'display: none');
 
-                        if(!callouts.length) {
-                            content.content = content.content.split('^display_callouts^').join('display: none');
-                        }
-                        else {
-                            content.content = content.content.split('^display_callouts^').join('');
-                        }
-
-                        self.ts.registerLocal('col_width', (12 / callouts.length).toString());
+                        var colWidth = Math.floor(12 / callouts.length) + '';
+                        self.ts.registerLocal('col_width', colWidth);
                         self.ts.load('elements/callout', function(err, template) {
                             if(util.isError(err)) {
                                 template = '';

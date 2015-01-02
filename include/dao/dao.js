@@ -34,7 +34,7 @@ function DAO(dbName){
      * @property dbName
      * @type {String}
      */
-	this.dbName  = typeof dbName  !== 'undefined' ? dbName : pb.config.db.name;
+	this.dbName = typeof dbName  !== 'undefined' ? dbName : pb.config.db.name;
 }
 
 /**
@@ -44,7 +44,7 @@ function DAO(dbName){
  * @property PROJECT_ALL
  * @type {Object}
  */
-DAO.PROJECT_ALL   = Object.freeze({});
+DAO.PROJECT_ALL = Object.freeze({});
 
 /**
  * Static variable to indicate that documents should be retrieve from anywhere
@@ -52,7 +52,7 @@ DAO.PROJECT_ALL   = Object.freeze({});
  * @property ANYWHERE
  * @type {Object}
  */
-DAO.ANYWHERE      = Object.freeze({});
+DAO.ANYWHERE = Object.freeze({});
 
 /**
  * Static variable to indicate that documents should be returned in their
@@ -69,7 +69,7 @@ DAO.NATURAL_ORDER = Object.freeze([]);
  * @property ASC
  * @type {Number}
  */
-DAO.ASC  = 1;
+DAO.ASC = 1;
 
 /**
  * Static variable to sort descending
@@ -85,10 +85,11 @@ DAO.DESC = -1;
  * @method loadById
  * @param {String}   id         The unique id of the object
  * @param {String}   collection The collection the object is in
+ * @param {Object}   Key value pair object to exclude the retrival of data
  * @param {Function} cb         Callback function
  */
-DAO.prototype.loadById = function(id, collection, cb){
-	this.loadByValues(DAO.getIDWhere(id), collection, cb);
+DAO.prototype.loadById = function(id, collection, opts, cb){
+    this.loadByValues(DAO.getIDWhere(id), collection, opts, cb);	
 };
 
 /**
@@ -98,12 +99,13 @@ DAO.prototype.loadById = function(id, collection, cb){
  * @param {String}   key        The key to search for
  * @param {*}        val        The value to search for
  * @param {String}   collection The collection to search in
+ * @param {Object}   Key value pair object to exclude the retrival of data
  * @param {Function} cb         Callback function
  */
-DAO.prototype.loadByValue = function(key, val, collection, cb) {
-	var where = {};
-	where[key] = val;
-	this.loadByValues(where, collection, cb);
+DAO.prototype.loadByValue = function(key, val, collection, opts, cb) {
+    var where = {};
+    where[key] = val;
+    this.loadByValues(where, collection, opts, cb);
 };
 
 /**
@@ -112,18 +114,26 @@ DAO.prototype.loadByValue = function(key, val, collection, cb) {
  * @method loadByValues
  * @param {Object}   where      Key value pair object
  * @param {String}   collection The collection to search in
+ * @param {Object}   Key value pair object to exclude the retrival of data
  * @param {Function} cb         Callback function
  */
-DAO.prototype.loadByValues = function(where, collection, cb) {
-    var options = {
-        where: where,
-        select: DAO.PROJECT_ALL,
-        order: DAO.NATURAL_ORDER,
-        limit: 1
-    };
-	this.q(collection, options, function(err, result){
-        cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
-	});
+DAO.prototype.loadByValues = function(where, collection, opts, cb) {
+    if (pb.utils.isFunction(opts)) {
+        cb = opts;
+        opts = null;
+    }
+    if (!pb.utils.isObject(opts)) {
+        opts = { };
+    }
+        var options = {
+            where: where,
+            select: opts.select || DAO.PROJECT_ALL,
+            order: opts.order || DAO.NATURAL_ORDER,
+            limit: 1
+        };
+    this.q(collection, options, function(err, result){
+           cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
+    });
 };
 
 /**
@@ -197,7 +207,8 @@ DAO.prototype.unique = function(collection, where, exclusionId, cb) {
  * @return {Promise}            A promise object
  */
 DAO.prototype.query = function(entityType, where, select, orderBy, limit, offset){
-
+    pb.log.warn('DAO: "query" is deprecated and will be removed 0.4.0. Please update your code to call "q".');
+    
 	var cursor  = this._doQuery(entityType, where, select, orderBy, limit, offset);
 	var promise = new Promise();
 	cursor.toArray(function(err, docs){
@@ -317,14 +328,18 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
 	}
 
 	if(pb.config.db.query_logging){
-		var query = "DAO: SELECT "+JSON.stringify(select)+" FROM "+entityType+" WHERE "+JSON.stringify(where);
+		var query = "DAO: SELECT %j FROM %s.%s WHERE %j";
+        var args = [select, this.dbName, entityType, where];
 		if (typeof orderBy !== 'undefined') {
-			query += " ORDER BY "+JSON.stringify(orderBy);
+			query += " ORDER BY %j";
+            args.push(orderBy);
 		}
 		if (typeof limit !== 'undefined') {
-			query += " LIMIT "+JSON.stringify(limit)+", OFFSET "+offset;
+			query += " LIMIT %d, OFFSET %d";
+            args.push(limit, offset);
 		}
-		pb.log.info(query);
+        args.unshift(query);
+		pb.log.info(util.format.apply(util, args));
 	}
 	return cursor;
 };
@@ -337,6 +352,7 @@ DAO.prototype._doQuery = function(entityType, where, select, orderBy, limit, off
  * @return {Promise} Promise object
  */
 DAO.prototype.insert = function(dbObject) {
+    pb.log.warn('DAO: "insert" is deprecated and will be removed 0.4.0. Please update your code to call "save".');
 	var promise = new Promise();
 
 	DAO.updateChangeHistory(dbObject);
@@ -354,7 +370,8 @@ DAO.prototype.insert = function(dbObject) {
  * @return {Promise} Promise object
  */
 DAO.prototype.update = function(dbObj) {
-
+    pb.log.warn('DAO: "update" is deprecated and will be removed 0.4.0. Please update your code to call "save".');
+    
     //log interaction
     if (pb.config.db.query_logging) {
         var msg;
@@ -468,7 +485,7 @@ DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
  * Updates a specific set of fields. This is handy for performing upserts.
  * @method updateFields
  * @param {String} collection The collection to update object(s) in
- * @param {Object} query The query to execute to find the existing object
+ * @param {Object} query The where clause to execute to find the existing object
  * @param {Object} updates The updates to perform
  * @param {Object} options Any options to go along with the update
  * @param {Boolean} [options.upsert=false] Inserts the object is not found
@@ -482,7 +499,7 @@ DAO.prototype.updateFields = function(collection, query, updates, options, cb) {
     }
 
     if (pb.config.db.query_logging) {
-        pb.log.info('UPDATE %s %s WHERE %s WITH OPTIONS %s', collection, JSON.stringify(updates), JSON.stringify(query), JSON.stringify(options));
+        pb.log.info('UPDATE %s.%s %s WHERE %s WITH OPTIONS %s', this.dbName, collection, JSON.stringify(updates), JSON.stringify(query), JSON.stringify(options));
     }
     pb.dbm[this.dbName].collection(collection).update(query, updates, options, cb);
 };
@@ -520,7 +537,8 @@ DAO.prototype.deleteById = function(oid, collection, cb) {
     }
     else {
         //used for backward compatibility with old way of using promises.
-	   return this.deleteMatching(where, collection);
+        pb.log.warn('DAO: Calling "DAO.deleteById" and expecting a promise is deprecated.  Please update your code to pass a callback as the third parameter');
+        return this.deleteMatching(where, collection);
     }
 };
 
@@ -536,10 +554,11 @@ DAO.prototype.deleteMatching = function(where, collection){
 	if (typeof where === 'undefined') {
 		throw new Error('A where object must be specified in order to delete');
 	}
-
+    pb.log.warn('DAO: "deleteMatching" is deprecated and will be removed 0.4.0. Please update your code to call "delete".');
+    
 	//output delete command
 	if(pb.config.db.query_logging){
-		pb.log.info("DAO: DELETE FROM "+collection+" WHERE "+JSON.stringify(where));
+		pb.log.info("DAO: DELETE FROM %s.%s WHERE %s", this.dbName, collection, JSON.stringify(where));
 	}
 
 	var promise = new Promise();
@@ -583,11 +602,16 @@ DAO.prototype.delete = function(where, collection, options, cb) {
     
     //log interaction
 	if(pb.config.db.query_logging){
-		pb.log.info('DAO: DELETE FROM %s WHERE %s', collection, JSON.stringify(where));
+		pb.log.info('DAO: DELETE FROM %s.%s WHERE %s', this.dbName, collection, JSON.stringify(where));
 	}
-    
+
     //execute delete command
-    pb.dbm[this.dbName].collection(collection).remove(where, options, cb);
+    pb.dbm.getDB(this.dbName, function(err, db) {
+        if (util.isError(err)) { 
+            return cb(err); 
+        }
+        db.collection(collection).remove(where, options, cb);
+    });
 };
 
 /**
@@ -712,6 +736,32 @@ DAO.getIDInWhere = function(objArray, idProp) {
     };
 };
 
+/**
+ * Creates a where clause that equates to select where [idProp] is not in the
+ * specified array of values.
+ * @static
+ * @method getIDInWhere
+ * @param {Array} objArray The array of acceptable values
+ * @param {String} idProp The property that holds a referenced ID value
+ * @return {Object} Where clause
+ */
+DAO.getIdNotInWhere = function(objArray, idProp) {
+	var idArray = [];
+    for(var i = 0; i < objArray.length; i++) {
+
+    	var rawId;
+    	if (idProp) {
+    		rawId = objArray[i][idProp];
+    	}
+    	else{
+    		rawId = objArray[i];
+    	}
+    	idArray.push(DAO.getObjectID(rawId));
+    }
+    return {
+    	_id: {$nin: idArray}
+    };
+};
 
 /**
  * Creates a basic where clause based on not equalling the specified Id

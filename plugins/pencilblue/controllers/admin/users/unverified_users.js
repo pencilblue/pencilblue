@@ -29,11 +29,14 @@ var SUB_NAV_KEY = 'unverified_users';
 
 UnverifiedUsers.prototype.render = function(cb) {
     var self = this;
+    
+    var opts = {
+        where: pb.DAO.ANYWHERE
+    };
     var dao  = new pb.DAO();
-    dao.query('unverified_user', {}).then(function(users) {
-        if(util.isError(users)) {
-            self.redirect('/admin', cb);
-            return;
+    dao.q('unverified_user', opts, function(err, users) {
+        if(util.isError(err)) {
+            return self.redirect('/admin', cb);
         }
 
         var angularObjects = pb.js.getAngularObjects(

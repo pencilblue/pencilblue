@@ -1,0 +1,35 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+	angular.module('pencilblueApp', ['validation'])
+	.controller('PencilBlueController', function($scope, $http, $window, validationService) {
+		^angular_objects^
+		^tmp_angular=admin=elements=is_field_valid^
+
+		for(var i = 0; i < $scope.users.length; i++) {
+			$scope.users[i].password = $scope.users[i].generatedPassword;
+		}
+
+		$scope.saveUsers = function() {
+			$scope.formSubmitted = true;
+
+			if(!validationService.isFormValid($scope.manageUsersForm)) {
+				return;
+			}
+
+			$scope.saving = true;
+
+			var postURL = '/actions/admin/plugins/wp_import/settings/manage_new_users';
+
+			$http.post(postURL, {users: $scope.users})
+			.success(function(result) {
+				$scope.successMessage = result.message;
+				$scope.saving = false;
+				$window.location = '/admin/plugins/wp_import/settings/import';
+			})
+			.error(function(error, status) {
+				$scope.errorMessage = error.message;
+				$scope.saving = false;
+			});
+		};
+	});
+</script>

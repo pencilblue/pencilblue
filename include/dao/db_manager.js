@@ -16,15 +16,8 @@
 */
 
 //requirements
-global.mongo    = require('mongodb').MongoClient;
-global.format   = require('util').format;
+var mongo       = require('mongodb').MongoClient;
 global.ObjectID = require('mongodb').ObjectID;
-
-/**
- * Legacy variable used to reference the main database
- * TODO Remove this once all references are converted over.
- */
-global.mongoDB;
 
 /**
  * Wrapper that protects against direct access to the active connection pools
@@ -51,64 +44,78 @@ var dbs  = {};
  * @param {String} name The database name
  * @return {Object}     A promise object
  */
-DBManager.prototype.getDB = function(name) {
+DBManager.prototype.getDB = function(name, cb) {
     var self = this;
 
+    if (pb.utils.isFunction(name)) {
+        cb = name;
+        name = null;
+    }
     if(!name){
         name = pb.config.db.name;
     }
-    var promise = new Promise();
 
-    if (dbs.hasOwnProperty(name)) {
-        log.debug("Providing cached instance of DB connection [%s]", name);
-        promise.resolve(dbs[name]);
+    //when we already have a connection just pass back the handle
+    if (this.hasConnected(name)) {
+        return cb(null, dbs[name]);
     }
-    else{
-        var dbURL   = pb.config.db.servers[0] + name;
-        var options = {
-            w: pb.config.db.writeConcern
-        };
 
-        pb.log.debug("Attempting connection to: %s", dbURL);
-        mongo.connect(dbURL, options, function(err, db){
-            if(!err){
-                self.authenticate(pb.config.db.authentication, db, function(err, didAuthenticate) {
-                    if (util.isError(err)) {
-                        promise.resolve(err);
-                        return;
-                    }
-                    else if (didAuthenticate !== true && didAuthenticate !== null) {
-                        promise.resolve(new Error("Failed to authenticate to db "+name+": "+util.inspect(didAuthenticate)));
-                        return;
-                    }
+    
+    var dbURL   = DBManager.buildConnectionStr(pb.config);
+    var options = {
+        w: pb.config.db.writeConcern
+    };
 
-                    //save reference to connection in global connection pool
-                    dbs[db.databaseName]  = db;
+    pb.log.debug("Attempting connection to: %s", dbURL);
+    mongo.connect(dbURL, options, function(err, db){
+        if (err) {
+            return cb(err);
+        }
 
-                    //keep directly accessible reference for instance of DBManager
-                    self[db.databaseName] = db;
-
-                    //Indicate the promise was kept.
-                    promise.resolve(db);
-                });
+        self.authenticate(pb.config.db.authentication, db, function(err, didAuthenticate) {
+            if (util.isError(err)) {
+                return cb(err);
             }
-            else {
-                //Fulfill promise with error
-                promise.resolve(err);
+            else if (didAuthenticate !== true && didAuthenticate !== null) {
+                return cb(new Error("Failed to authenticate to db "+name+": "+util.inspect(didAuthenticate)));
             }
+
+            //save reference to connection in global connection pool
+            dbs[db.databaseName]  = db;
+
+            //keep directly accessible reference for instance of DBManager
+            self[db.databaseName] = db;
+
+            //Indicate the promise was kept.
+            cb(null, db);
         });
-    }
-    return promise;
+    });
 };
 
 DBManager.prototype.authenticate = function(auth, db, cb) {
     if (!pb.utils.isObject(auth) || !pb.utils.isString(auth.un) || !pb.utils.isString(auth.pw)) {
         pb.log.debug('DBManager: An empty auth object was passed for DB [%s]. Skipping authentication.', db.databaseName);
-        cb(null, null);
-        return;
+        return cb(null, null);
     }
 
     db.authenticate(auth.un, auth.pw, auth.options ? auth.options : {}, cb);
+};
+
+DBManager.buildConnectionStr = function(config) {
+    var str = 'mongodb://';
+    for (var i = 0; i < config.db.servers.length; i++) {
+        
+        //check for prefix for backward compatibility
+        var hostAndPort = config.db.servers[i];
+        if (hostAndPort.indexOf('mongodb://') === 0) {
+            hostAndPort = hostAndPort.substring('mongodb://'.length);
+        }
+        if (i > 0) {
+            str += ',';
+        }
+        str += hostAndPort;
+    };
+    return pb.UrlService.urlJoin(str, config.db.name);
 };
 
 /**
@@ -116,9 +123,10 @@ DBManager.prototype.authenticate = function(auth, db, cb) {
  * initialized
  *
  * @method hasConnected
+ * @param {String} name
  * @return {Boolean} Whether the pool has been connected
  */
-DBManager.prototype.hasConnected = function(){
+DBManager.prototype.hasConnected = function(name){
     return dbs.hasOwnProperty(name);
 };
 
