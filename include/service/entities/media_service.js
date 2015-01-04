@@ -515,7 +515,8 @@ var REGISTERED_MEDIA_RENDERERS = [
     require('../media/renderers/image_media_renderer.js'),
     require('../media/renderers/video_media_renderer.js'),
     require('../media/renderers/youtube_media_renderer.js'),
-    require('../media/renderers/daily_motion_media_renderer.js')
+    require('../media/renderers/daily_motion_media_renderer.js'),
+    require('../media/renderers/vimeo_media_renderer.js')
 ];
 
 MediaService.registerRenderer = function(interfaceImplementation) {
