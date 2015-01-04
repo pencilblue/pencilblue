@@ -513,7 +513,8 @@ MediaService.prototype.isValidFilePath = function(mediaPath, cb) {
 
 var REGISTERED_MEDIA_RENDERERS = [
     require('../media/renderers/image_media_renderer.js'),
-    require('../media/renderers/video_media_renderer.js')
+    require('../media/renderers/video_media_renderer.js'),
+    require('../media/renderers/youtube_media_renderer.js')
 ];
 
 MediaService.registerRenderer = function(interfaceImplementation) {
@@ -556,6 +557,7 @@ MediaService.prototype.getMediaDescriptor = function(mediaUrl, cb) {
         renderer.getThumbnail(mediaUrl, function(err, thumbnail) {
             var descriptor = {
                 type: result.type,
+                media_type: result.type,
                 isFile: isFile,
                 is_file: isFile,
                 url: mediaUrl,
@@ -568,12 +570,52 @@ MediaService.prototype.getMediaDescriptor = function(mediaUrl, cb) {
     });
 };
 
-MediaService.prototype.renderByUrl = function(mediaUrl, props, cb) {
-    var result = MediaService.getRenderer(mediaUrl);
+MediaService.prototype.renderByLocation = function(options, cb) {
+    var result = options.type ? MediaService.getRendererByType(options.type) : MediaService.getRenderer(mediaUrl);
     if (!result) {
         return cb(null, null);
     }
-    result.renderer.renderByUrl(mediaUrl, props, cb);
+    result.renderer.render(options, options.props, cb);
+};
+
+MediaService.prototype.renderById = function(id, props, cb) {
+    
+    var dao = new pb.DAO();
+    dao.loadById(id, MediaService.COLL, function(err, media) {
+        if (util.isError(err)) {
+            return cb(err);   
+        }
+        else if (!media) {
+            return cb(null, null);
+        }
+        
+        //retrieve renderer
+        var result = MediaService.getRendererByType(media.media_type);
+        if (!result) {
+            return cb(null, null);
+        }
+        
+        //render media
+        result.renderer.render(media, props, cb);
+    });
+};
+
+MediaService.getRendererByType = function(type) {
+    for (var i = 0; i < REGISTERED_MEDIA_RENDERERS.length; i++) {
+        
+        var types = REGISTERED_MEDIA_RENDERERS[i].getSupportedTypes();
+        if (types && types[type]) {
+            
+            pb.log.silly('MediaService: Selected media renderer [%s] for type [%s]', REGISTERED_MEDIA_RENDERERS[i].getName(), type);
+            return {
+                type: type,
+                renderer: REGISTERED_MEDIA_RENDERERS[i]
+            };
+        }
+    }
+    
+    pb.log.silly('MediaService: Failed to select media renderer type [%s]', type);
+    return null;
 };
 
 MediaService.getRenderer = function(mediaUrl, isFile) {
@@ -593,6 +635,8 @@ MediaService.getRenderer = function(mediaUrl, isFile) {
             };
         }
     }
+    
+    pb.log.silly('MediaService: Failed to select media renderer URI [%s]', mediaUrl);
     return null;
 };
 
@@ -865,10 +909,24 @@ MediaService.getMediaLink = function(mediaType, mediaLocation, isFile) {
  * @return {Array} The same array of media that was passed in
  */
 MediaService.formatMedia = function(media) {
-    for(var i = 0; i < media.length; i++) {
-        media[i].icon = MediaService.getMediaIcon(media[i].media_type);
-        media[i].link = MediaService.getMediaLink(media[i].media_type, media[i].location, media[i].is_file);
-    }
+    var quickLookup = {};
+    media.forEach(function(item) {
+        
+        //get the renderer
+        var renderer = quickLookup[item.media_type];
+        if (!renderer) {
+            var result = MediaService.getRendererByType(item.media_type);
+            if (!result) {
+                pb.log.warn('MediaService: Media item [%s] contains an unsupported media type.', media[pb.DAO.getIdField()]);
+            }
+            else {
+                quickLookup[item.media_type] = renderer = result.renderer;
+            }
+        }
+        
+        item.icon = renderer ? renderer.getIcon(item.media_type) : 'question';
+        item.link = renderer ? renderer.getNativeUrl(item) : '#';
+    });
     return media;
 };
 

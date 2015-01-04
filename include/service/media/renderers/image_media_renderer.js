@@ -45,6 +45,12 @@ var SUPPORTED = Object.freeze({
     }
 });
 
+ImageMediaRenderer.getSupportedTypes = function() {
+    var types = {};
+    types[TYPE] = true;
+    return types;
+};
+
 ImageMediaRenderer.getName = function() {
     return 'ImageMediaRenderer';
 };
@@ -103,6 +109,10 @@ ImageMediaRenderer.getThumbnail = function(urlStr, cb) {
     process.nextTick(function() {
         cb(null, urlStr);
     });
+};
+
+ImageMediaRenderer.getNativeUrl = function(media) {
+    return media.location;
 };
 
 //exports

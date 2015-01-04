@@ -27,52 +27,75 @@ GetMediaPreview.prototype.render = function(cb) {
     var self = this;
     var get  = this.query;
 
-//    if(pb.validation.isIdStr(get.id, true)) {
-//        this.getPreviewById(get.id, cb);
-//    }
-//    else {
-    var message = this.hasRequiredParams(get, ['location']);
-    if (message) {
+    //validate request
+    if (!pb.validation.isIdStr(get.id, true) && !pb.validation.isStr(get.location, true)) {
         return cb({
             code: 400,
             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
         });
     }
 
+    //retrieve rendering
     var props = {
         'max-width': '100%',
-        'max-height': '300px'
+        'max-height': '300px',
+        class: 'img-responsive'
     };
-    var service = new pb.MediaService();
-    service.renderByUrl(get.location, props, function(err, html) {
-        if (util.isError(err)) {
-            return self.reqHandler.serveError(err);
-        }
-        else if (!html) {
-            return cb({
-                code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('UNSUPPORTED_MEDIA'))
-            });
-        }
+    var ms = new pb.MediaService();
+    if (get.id) {
+        ms.renderById(get.id, props, function(err, html) {
+            self.renderComplete(err, html, cb);
+        });
+    }
+    else if (get.location && get.type){
         
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', html)});
-    });
-//    }
+        var options = {
+            location: get.location,
+            type: get.type,
+            props: props
+        };
+        ms.renderByLocation(options, function(err, html) {
+            self.renderComplete(err, html, cb);
+        });
+    }
+    else {
+        this.renderComplete(null, null, cb);
+    }
 };
 
-GetMediaPreview.prototype.getPreviewById = function(id, cb) {
-    var self = this;
-    var dao = new pb.DAO();
+GetMediaPreview.prototype.renderComplete = function(err, html, cb) {
+    if (util.isError(err)) {
+        return this.reqHandler.serveError(err);
+    }
+    else if (!html) {
+        return cb({
+            code: 400,
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, this.ls.get('UNSUPPORTED_MEDIA'))
+        });
+    }
 
+    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', html)});
+};
+
+GetMediaPreview.prototype.getPreviewById = function(id, ms, cb) {
+    var self = this;
+    
+    
+    var dao = new pb.DAO();
     dao.loadById(id, 'media', function(err, media) {
-        if(util.isError(err) || media === null) {
-            cb({
+        if(util.isError(err)) {
+            return self.reqHandler.serveError(err);
+        }
+        else if (!media) {
+            return cb({
                 code: 404,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('OBJECT_NOT_FOUND'))
             });
         }
 
-        self.getPreviewByType(media.media_type, media.location, cb);
+        ms.renderById(id, function(err, html) {
+            self.renderComplete(err, html);
+        });
     });
 };
 
