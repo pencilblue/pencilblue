@@ -65,8 +65,12 @@ VideoMediaRenderer.getIcon = function(type) {
 };
 
 VideoMediaRenderer.renderByUrl = function(urlStr, props, cb) {
-    var mediaId = VideoMediaRenderer.getMediaId(urlStr);
-    VideoMediaRenderer.render({location: mediaId}, props, cb);
+    VideoMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        VideoMediaRenderer.render({location: mediaId}, props, cb);
+    });
 };
 
 VideoMediaRenderer.render = function(media, props, cb) {
@@ -104,8 +108,8 @@ VideoMediaRenderer.getEmbedUrl = function(mediaId) {
     return mediaId;
 };
 
-VideoMediaRenderer.getMediaId = function(urlStr) {
-    return urlStr;
+VideoMediaRenderer.getMediaId = function(urlStr, cb) {
+    cb(null, urlStr);
 };
 
 VideoMediaRenderer.getMeta = function(urlStr, isFile, cb) {

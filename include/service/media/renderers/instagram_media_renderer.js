@@ -53,8 +53,12 @@ InstagramMediaRenderer.getIcon = function(type) {
 };
 
 InstagramMediaRenderer.renderByUrl = function(urlStr, props, cb) {
-    var mediaId = InstagramMediaRenderer.getMediaId(urlStr);
-    return InstagramMediaRenderer.render({location: mediaId}, props, cb);
+    InstagramMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        InstagramMediaRenderer.render({location: mediaId}, props, cb);
+    });
 };
 
 InstagramMediaRenderer.render = function(media, props, cb) {
@@ -77,10 +81,10 @@ InstagramMediaRenderer.getEmbedUrl = function(mediaId) {
     return '//instagram.com/p/' + mediaId + '/embed/';
 };
 
-InstagramMediaRenderer.getMediaId = function(urlStr) {
+InstagramMediaRenderer.getMediaId = function(urlStr, cb) {
     var details = url.parse(urlStr, true, true);
     var parts = details.pathname.split('/');
-    return parts[2];
+    cb(null, parts[2]);
 };
 
 InstagramMediaRenderer.getMeta = function(urlStr, isFile, cb) {

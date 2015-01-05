@@ -69,8 +69,12 @@ ImageMediaRenderer.getIcon = function(type) {
 };
 
 ImageMediaRenderer.renderByUrl = function(urlStr, props, cb) {
-    var mediaId = ImageMediaRenderer.getMediaId(urlStr);
-    return ImageMediaRenderer.render({location: mediaId}, props, cb);
+    ImageMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        ImageMediaRenderer.render({location: mediaId}, props, cb);
+    });
 };
 
 ImageMediaRenderer.render = function(media, props, cb) {
@@ -93,8 +97,8 @@ ImageMediaRenderer.getEmbedUrl = function(mediaId) {
     return mediaId;
 };
 
-ImageMediaRenderer.getMediaId = function(urlStr) {
-    return urlStr;
+ImageMediaRenderer.getMediaId = function(urlStr, cb) {
+    cb(null, urlStr);
 };
 
 ImageMediaRenderer.getMeta = function(urlStr, isFile, cb) {

@@ -59,8 +59,12 @@ YouTubeMediaRenderer.getIcon = function(type) {
 };
 
 YouTubeMediaRenderer.renderByUrl = function(urlStr, props, cb) {
-    var mediaId = YouTubeMediaRenderer.getMediaId(urlStr);
-    return YouTubeMediaRenderer.render({location: mediaId}, props, cb);
+    YouTubeMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        YouTubeMediaRenderer.render({location: mediaId}, props, cb);
+    });
 };
 
 YouTubeMediaRenderer.render = function(media, props, cb) {
@@ -83,14 +87,14 @@ YouTubeMediaRenderer.getEmbedUrl = function(mediaId) {
     return '//www.youtube.com/embed/' + mediaId;
 };
 
-YouTubeMediaRenderer.getMediaId = function(urlStr) {
+YouTubeMediaRenderer.getMediaId = function(urlStr, cb) {
     var details = url.parse(urlStr, true, true);
     if (YouTubeMediaRenderer.isFullSite(details)) {
-        return details.query.v;
+        return cb(null, details.query.v);
     }
     
     //we now know that it has to be the belgium domain
-    return details.pathname.substr(details.pathname.lastIndexOf('/') + 1);
+    cb(null, details.pathname.substr(details.pathname.lastIndexOf('/') + 1));
 };
 
 YouTubeMediaRenderer.getMeta = function(urlStr, isFile, cb) {

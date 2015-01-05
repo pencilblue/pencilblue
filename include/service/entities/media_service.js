@@ -518,7 +518,8 @@ var REGISTERED_MEDIA_RENDERERS = [
     require('../media/renderers/daily_motion_media_renderer.js'),
     require('../media/renderers/vimeo_media_renderer.js'),
     require('../media/renderers/vine_media_renderer.js'),
-    require('../media/renderers/instagram_media_renderer.js')
+    require('../media/renderers/instagram_media_renderer.js'),
+    require('../media/renderers/slideshare_media_renderer.js')
 ];
 
 MediaService.registerRenderer = function(interfaceImplementation) {
@@ -549,28 +550,33 @@ MediaService.prototype.getMediaDescriptor = function(mediaUrl, cb) {
     }
     
     var renderer = result.renderer;
-    renderer.getMeta(mediaUrl, isFile, function(err, meta) {
-        if (util.isError(err)) {
-            return cb(err);
-        }
-        else if (!pb.utils.isObject(meta)) {
-            meta = {};
-        }
+    var tasks = {
         
-        //retrieve the thumbnail URL if available
-        renderer.getThumbnail(mediaUrl, function(err, thumbnail) {
-            var descriptor = {
-                type: result.type,
-                media_type: result.type,
-                isFile: isFile,
-                is_file: isFile,
-                url: mediaUrl,
-                icon: renderer.getIcon(result.type),
-                thumbnail: thumbnail,
-                location: renderer.getMediaId(mediaUrl)
-            };
-            cb(err, descriptor);
-        });
+        meta: function(callback) {
+            renderer.getMeta(mediaUrl, isFile, callback);
+        },
+        
+        thumbnail: function(callback) {
+            renderer.getThumbnail(mediaUrl, callback);
+        },
+        
+        mediaId: function(callback) {
+            renderer.getMediaId(mediaUrl, callback);
+        }
+    };
+    async.series(tasks, function(err, taskResult) {
+        var descriptor = {
+            type: result.type,
+            media_type: result.type,
+            isFile: isFile,
+            is_file: isFile,
+            url: mediaUrl,
+            icon: renderer.getIcon(result.type),
+            thumbnail: taskResult.thumbnail,
+            location: taskResult.mediaId,
+            meta: taskResult.meta
+        };
+        cb(err, descriptor);
     });
 };
 

@@ -53,8 +53,12 @@ VineMediaRenderer.getIcon = function(type) {
 };
 
 VineMediaRenderer.renderByUrl = function(urlStr, props, cb) {
-    var mediaId = VineMediaRenderer.getMediaId(urlStr);
-    return VineMediaRenderer.render({location: mediaId}, props, cb);
+    VineMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        VineMediaRenderer.render({location: mediaId}, props, cb);
+    });
 };
 
 VineMediaRenderer.render = function(media, props, cb) {
@@ -77,10 +81,10 @@ VineMediaRenderer.getEmbedUrl = function(mediaId) {
     return 'https://vine.co/v/' + mediaId + '/embed/simple';
 };
 
-VineMediaRenderer.getMediaId = function(urlStr) {
+VineMediaRenderer.getMediaId = function(urlStr, cb) {
     var details = url.parse(urlStr, true, true);
     var parts = details.pathname.split('/');
-    return parts[2];
+    cb(null, parts[2]);
 };
 
 VineMediaRenderer.getMeta = function(urlStr, isFile, cb) {

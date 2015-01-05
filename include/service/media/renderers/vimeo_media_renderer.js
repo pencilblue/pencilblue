@@ -53,8 +53,12 @@ VimeoMediaRenderer.getIcon = function(type) {
 };
 
 VimeoMediaRenderer.renderByUrl = function(urlStr, props, cb) {
-    var mediaId = VimeoMediaRenderer.getMediaId(urlStr);
-    return VimeoMediaRenderer.render({location: mediaId}, props, cb);
+    VimeoMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        VimeoMediaRenderer.render({location: mediaId}, props, cb);
+    });
 };
 
 VimeoMediaRenderer.render = function(media, props, cb) {
@@ -77,9 +81,9 @@ VimeoMediaRenderer.getEmbedUrl = function(mediaId) {
     return '//player.vimeo.com/video/' + mediaId;
 };
 
-VimeoMediaRenderer.getMediaId = function(urlStr) {
+VimeoMediaRenderer.getMediaId = function(urlStr, cb) {
     var details = url.parse(urlStr, true, true);
-    return details.pathname.substr(details.pathname.lastIndexOf('/') + 1);
+    cb(null, details.pathname.substr(details.pathname.lastIndexOf('/') + 1));
 };
 
 VimeoMediaRenderer.getMeta = function(urlStr, isFile, cb) {

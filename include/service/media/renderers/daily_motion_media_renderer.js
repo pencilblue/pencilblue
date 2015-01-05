@@ -59,8 +59,12 @@ DailyMotionMediaRenderer.getIcon = function(type) {
 };
 
 DailyMotionMediaRenderer.renderByUrl = function(urlStr, props, cb) {
-    var mediaId = DailyMotionMediaRenderer.getMediaId(urlStr);
-    return DailyMotionMediaRenderer.render({location: mediaId}, props, cb);
+    DailyMotionMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        DailyMotionMediaRenderer.render({location: mediaId}, props, cb);
+    });
 };
 
 DailyMotionMediaRenderer.render = function(media, props, cb) {
@@ -83,9 +87,9 @@ DailyMotionMediaRenderer.getEmbedUrl = function(mediaId) {
     return '//www.dailymotion.com/embed/video/' + mediaId;
 };
 
-DailyMotionMediaRenderer.getMediaId = function(urlStr) {
+DailyMotionMediaRenderer.getMediaId = function(urlStr, cb) {
     var details = url.parse(urlStr, true, true);
-    return details.pathname.substr(details.pathname.lastIndexOf('/') + 1);
+    cb(null, details.pathname.substr(details.pathname.lastIndexOf('/') + 1));
 };
 
 DailyMotionMediaRenderer.getMeta = function(urlStr, isFile, cb) {
