@@ -69,6 +69,26 @@ function MediaService(){
 MediaService.COLL = 'media';
 
 /**
+ * Contains the list of media renderers
+ * @private
+ * @static
+ * @property REGISTERED_MEDIA_RENDERERS
+ * @type {Array}
+ */
+var REGISTERED_MEDIA_RENDERERS = [
+    require('../media/renderers/image_media_renderer.js'),
+    require('../media/renderers/video_media_renderer.js'),
+    require('../media/renderers/youtube_media_renderer.js'),
+    require('../media/renderers/daily_motion_media_renderer.js'),
+    require('../media/renderers/vimeo_media_renderer.js'),
+    require('../media/renderers/vine_media_renderer.js'),
+    require('../media/renderers/instagram_media_renderer.js'),
+    require('../media/renderers/slideshare_media_renderer.js'),
+    require('../media/renderers/trinket_media_renderer.js'),
+    require('../media/renderers/storify_media_renderer.js')
+];
+
+/**
  * Loads a media descriptor by ID.
  * @method loadById
  * @param {String|ObjectID} mid Media descriptor ID
@@ -300,230 +320,12 @@ MediaService.prototype.isValidFilePath = function(mediaPath, cb) {
 };
 
 /**
- *
- * @method getMediaDescriptor
- * @param {String} mediaURL
- * @param {Boolean} isFile
- * @param {Function} cb
+ * Registers a media renderer
+ * @static
+ * @method registerRenderer
+ * @param {Function|Object} interfaceImplementation A prototype or object that implements the media renderer interface.
+ * @return {Boolean} TRUE if the implementation was registered, FALSE if not
  */
-//MediaService.prototype.getMediaDescriptor = function(mediaURL, isFile, cb) {
-//    var self = this;
-//
-//    var fileType = null;
-//    var index    = mediaURL.lastIndexOf('.');
-//    if (index >= 0) {
-//        fileType = mediaURL.substr(index + 1).toLowerCase();
-//    }
-//
-//    var descriptor = {
-//        url: mediaURL,
-//        is_file: isFile,
-//    };
-//
-//    switch(fileType) {
-//        case 'jpg':
-//        case 'jpeg':
-//        case 'png':
-//        case 'gif':
-//        case 'svg':
-//        case 'webp':
-//            descriptor.media_type = 'image';
-//            break;
-//        case 'mp4':
-//            descriptor.media_type = 'video/mp4';
-//            break;
-//        case 'webm':
-//            descriptor.media_type = 'video/webm';
-//            break;
-//        case 'ogv':
-//            descriptor.media_type = 'video/ogg';
-//    }
-//
-//    //when the media type has been discovered we are done so we check to see if
-//    //phase 1 took care of it for us
-//    if (descriptor.media_type) {
-//        descriptor.location = mediaURL;
-//        return cb(null, descriptor);
-//    }
-//
-//    //we got here so we need to inspect the URL more closely.  We need to check
-//    //for specific sites.
-//    var implementations = {
-//
-//        'youtube.com': function(descriptor, cb) {
-//
-//            if(mediaURL.indexOf('v=') != -1) {
-//
-//                var videoID = mediaURL.substr(mediaURL.indexOf('v=') + 2);
-//                if(videoID.indexOf('&') != -1) {
-//                    videoID = videoID.substr(0, videoID.indexOf('&'));
-//                }
-//
-//                descriptor.media_type = 'youtube';
-//                descriptor.location   = videoID;
-//            }
-//            cb();
-//        },
-//
-//        'youtu.be': function(descriptor, cb) {
-//
-//            if(mediaURL.indexOf('/') != -1) {
-//
-//                var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-//                if(videoID.indexOf('&') != -1) {
-//                    videoID = videoID.substr(0, videoID.indexOf('&'));
-//                }
-//
-//                descriptor.media_type = 'youtube';
-//                descriptor.location   = videoID;
-//            }
-//            cb()
-//        },
-//
-//        'vimeo.com': function(descriptor, cb) {
-//
-//            if(mediaURL.indexOf('/') != -1) {
-//                var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-//                if(videoID.indexOf('&') != -1) {
-//                    videoID = videoID.substr(0, videoID.indexOf('&'));
-//                }
-//                descriptor.media_type = 'vimeo';
-//                descriptor.location   = videoID;
-//            }
-//            cb();
-//        },
-//
-//        'dailymotion.com/video/': function(descriptor, cb) {
-//
-//            var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-//            if(videoID.indexOf('&') != -1) {
-//                videoID = videoID.substr(0, videoID.indexOf('&'));
-//            }
-//
-//            descriptor.media_type = 'daily_motion';
-//            descriptor.location   = videoID;
-//            cb();
-//        },
-//
-//        'dai.ly': function(descriptor, cb) {
-//            if(mediaURL.indexOf('/') != -1) {
-//                var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-//                if(videoID.indexOf('&') != -1) {
-//                    videoID = videoID.substr(0, videoID.indexOf('&'));
-//                }
-//
-//                descriptor.media_type = 'daily_motion';
-//                descriptor.location   = videoID;
-//            }
-//            cb();
-//        },
-//
-//        'vine.co': function(descriptor, cb) {
-//
-//            var mediaURL = mediaURL.split('/embed').join('');
-//            var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-//            if(videoID.indexOf('&') != -1) {
-//                videoID = videoID.substr(0, videoID.indexOf('&'));
-//            }
-//
-//            descriptor.media_type = 'vine';
-//            descriptor.location   = videoID;
-//            cb();
-//        },
-//
-//        'instagram.com': function(descriptor, cb) {
-//
-//            if(mediaURL.substr(mediaURL.length - 1) == '/') {
-//                mediaURL = mediaURL.substr(0, mediaURL.length - 1);
-//            }
-//
-//            var videoID = mediaURL.substr(mediaURL.lastIndexOf('/') + 1);
-//            if(videoID.indexOf('&') != -1) {
-//                videoID = videoID.substr(0, videoID.indexOf('&'));
-//            }
-//
-//            descriptor.media_type = 'instagram';
-//            descriptor.location   = videoID;
-//            cb();
-//        },
-//
-//        'slideshare.net': function(descriptor, cb) {
-//
-//            if(mediaURL.substr(mediaURL.length - 1) == '/') {
-//                mediaURL = mediaURL.substr(0, mediaURL.length - 1);
-//            }
-//
-//            self.getSlideShareId(mediaURL, function(err, slideShowID) {
-//                if (util.isError(err)) {
-//                    pb.log.error('Failed to get slide show ID from SlideShare. M_URL=[%s] Error=\n%s', mediaURL, err.stack);
-//                    return cb();
-//                }
-//                else if(slideshowID) {
-//                    descriptor.media_type = 'slideshare';
-//                    descriptor.location   = videoID;
-//                }
-//                cb();
-//            });
-//        },
-//
-//        'trinket.io': function() {
-//            var mediaID;
-//            if(mediaURL.indexOf('/embed') != -1) {
-//                mediaID = mediaURL.substr(mediaURL.lastIndexOf('/embed') + 7);
-//            }
-//            else {
-//                mediaID = mediaURL.substr(mediaURL.lastIndexOf('trinket.io') + 11);
-//            }
-//
-//            descriptor.media_type = 'trinket';
-//            descriptor.location   = videoID;
-//            cb();
-//        },
-//
-//        'storify.com': function() {
-//            var mediaID = mediaURL.substr(mediaURL.indexOf('storify.com') + 12);
-//
-//            descriptor.media_type = 'storify';
-//            descriptor.location   = videoID;
-//            cb();
-//        }
-//    };
-//
-//    var cnt  = 0;
-//    var keys = Object.keys(implementations);
-//    async.whilst(
-//        function() { return cnt < keys.length && !descriptor.media_type; },
-//        function(callback) {
-//
-//            var key  = keys[cnt++];
-//            var impl = implementations[key](descriptor, callback);
-//        },
-//        function(err) {
-//            if (util.isError(err)) {
-//                return cb(err);
-//            }
-//
-//            self.getMediaThumb(descriptor.media_type, descriptor.location, function(err, thumb) {
-//                descriptor.thumb = thumb;
-//                cb(err, descriptor);
-//            });
-//        }
-//    );
-//};
-
-var REGISTERED_MEDIA_RENDERERS = [
-    require('../media/renderers/image_media_renderer.js'),
-    require('../media/renderers/video_media_renderer.js'),
-    require('../media/renderers/youtube_media_renderer.js'),
-    require('../media/renderers/daily_motion_media_renderer.js'),
-    require('../media/renderers/vimeo_media_renderer.js'),
-    require('../media/renderers/vine_media_renderer.js'),
-    require('../media/renderers/instagram_media_renderer.js'),
-    require('../media/renderers/slideshare_media_renderer.js'),
-    require('../media/renderers/trinket_media_renderer.js'),
-    require('../media/renderers/storify_media_renderer.js')
-];
-
 MediaService.registerRenderer = function(interfaceImplementation) {
     if (!interfaceImplementation) {
         return false;
@@ -533,14 +335,51 @@ MediaService.registerRenderer = function(interfaceImplementation) {
     return true;
 };
 
+/**
+ * Indicates if a media renderer is already registered
+ * @static
+ * @method isRegistered
+ * @param {Function|Object} interfaceImplementation A prototype or object that implements the media renderer interface
+ * @return {Boolean} TRUE if registered, FALSE if not
+ */
 MediaService.isRegistered = function(interfaceImplementation) {
     return REGISTERED_MEDIA_RENDERERS.indexOf(interfaceImplementation) >= 0;
 };
 
+/**
+ * Unregisters a media renderer
+ * @static
+ * @method unregisterRenderer
+ * @param {Function|Object} interfaceImplementation A prototype or object that implements the media renderer interface
+ * @return {Boolean} TRUE if unregistered, FALSE if not
+ */
+MediaService.unregisterRenderer = function(interfaceToUnregister) {
+    var index = REGISTERED_MEDIA_RENDERERS.indexOf(interfaceToUnregister);
+    if (index >= 0) {
+        REGISTERED_MEDIA_RENDERERS.splice(index, 1);
+        return true;
+    }
+    return false;
+};
+
+/**
+ * Determines if the media URI is a file.  It is determined to be a file if and 
+ * only if the URI does not begin with "http" or "//".
+ * @static
+ * @method isFile
+ * @param {String} mediaUrl A URI string that points to a media resource
+ */
 MediaService.isFile = function(mediaUrl) {
     return mediaUrl.indexOf('http') !== 0 && mediaUrl.indexOf('//') !== 0;
 };
 
+/**
+ * Generates a media descriptor for a given media URL
+ * @method getMediaDescriptor
+ * @param {String} mediaURL
+ * @param {Boolean} isFile
+ * @param {Function} cb
+ */
 MediaService.prototype.getMediaDescriptor = function(mediaUrl, cb) {
     
     //get the type
@@ -582,6 +421,16 @@ MediaService.prototype.getMediaDescriptor = function(mediaUrl, cb) {
     });
 };
 
+/**
+ * Renders a resource by type and location (mediaId).  
+ * @method renderByLocation
+ * @param {Object} options
+ * @param {String} options.location The unique media identifier for the type
+ * @param {String} [options.type] The type of provider that knows how to render 
+ * the resource
+ * @param {Function} cb A callback that provides two parameters.  An Error if 
+ * exists and the rendered HTML content for the media resource.
+ */
 MediaService.prototype.renderByLocation = function(options, cb) {
     var result = options.type ? MediaService.getRendererByType(options.type) : MediaService.getRenderer(mediaUrl);
     if (!result) {
@@ -590,6 +439,16 @@ MediaService.prototype.renderByLocation = function(options, cb) {
     result.renderer.render(options, options.props, cb);
 };
 
+/**
+ * Renders a media resource by ID where ID refers the to the media descriptor 
+ * id.
+ * @method renderById
+ * @param {String} The media resource ID
+ * @param {Object} props The desired HTML attributes that will be added to the 
+ * element that provides the rendering.
+ * @param {Function} cb A callback that provides two parameters. An Error if 
+ * exists and the rendered HTML content for the media resource.
+ */
 MediaService.prototype.renderById = function(id, props, cb) {
     
     var dao = new pb.DAO();
@@ -612,6 +471,14 @@ MediaService.prototype.renderById = function(id, props, cb) {
     });
 };
 
+/**
+ * Retrieves a media renderer for the specified type
+ * @static
+ * @method getRendererByType
+ * @param {String} type The media type
+ * @return {MediaRenderer} A media renderer interface implementation or NULL if 
+ * none support the given type.
+ */
 MediaService.getRendererByType = function(type) {
     for (var i = 0; i < REGISTERED_MEDIA_RENDERERS.length; i++) {
         
@@ -630,6 +497,15 @@ MediaService.getRendererByType = function(type) {
     return null;
 };
 
+/**
+ * Retrieves a media renderer for the specified URL
+ * @static
+ * @method getRendererByType
+ * @param {String} mediaUrl The media URL
+ * @param {Boolean} isFile TRUE if the URL represents an uploaded file, FALSE if not
+ * @return {MediaRenderer} A media renderer interface implementation or NULL if 
+ * none support the given URL.
+ */
 MediaService.getRenderer = function(mediaUrl, isFile) {
     if (typeof isFile === 'undefined') {
         isFile = MediaService.isFile(mediaUrl);
@@ -653,127 +529,12 @@ MediaService.getRenderer = function(mediaUrl, isFile) {
 };
 
 /**
- *
- * @method getMediaThumb
- * @param {String} type
- * @param {String} location
- * @param {Function} cb
- */
-MediaService.prototype.getMediaThumb = function(type, location, cb) {
-
-    switch(type) {
-        case 'image':
-        case 'video/mp4':
-        case 'video/webm':
-        case 'video/ogg':
-            cb(null, location);
-            break;
-        case 'youtube':
-            cb(null, 'http://img.youtube.com/vi/' + location + '/0.jpg');
-            break;
-        case 'vimeo':
-            this.getVimeoThumb(location, cb);
-            break;
-        case 'daily_motion':
-            cb(null, 'http://www.dailymotion.com/thumbnail/video/' + location);
-            break;
-        case 'vine':
-            cb(null, '');
-            break;
-        case 'instagram':
-            cb(null, '');
-            break;
-        case 'slideshare':
-            cb(null, location);
-            break;
-        case 'trinket':
-            cb(null, '');
-            break;
-        case 'storify':
-            cb(null, '');
-            break;
-        case 'kickstarter':
-            cb(null, '');
-            break;
-        default:
-            cb(null, '');
-            break;
-    }
-};
-
-/**
- *
- * @method getVimeoThumb
- * @param {String} location
- * @param {Function} cb
- */
-MediaService.prototype.getVimeoThumb = function(location, cb) {
-
-    var options = {
-        host: 'vimeo.com',
-        path: '/api/v2/video/' + location + '.json'
-    };
-    var callback = function(response) {
-        var str = '';
-
-        //another chunk of data has been recieved, so append it to `str`
-        response.on('data', function (chunk) {
-            str += chunk;
-        });
-
-        //the whole response has been recieved, so we just print it out here
-        response.on('end', function () {
-            try {
-                var data = JSON.parse(str);
-                cb(null, data[0].thumbnail_medium);
-            }
-            catch(err) {
-                cb(err);
-            }
-        });
-    };
-    http.request(options, callback).end();
-};
-
-/**
- *
- * @method getSlideShareId
- * @param {String} mediaURL
- * @param {Function} cb
- */
-MediaService.prototype.getSlideShareId = function(mediaURL, cb) {
-    var options = {
-        host: 'www.slideshare.net',
-        path: '/api/oembed/2?url=' + mediaURL + '&format=jsonp&callback=?'
-    };
-    var callback = function(response) {
-        var str = '';
-
-        //another chunk of data has been recieved, so append it to `str`
-        response.on('data', function (chunk) {
-            str += chunk;
-        });
-
-        //the whole response has been recieved, so we just print it out here
-        response.on('end', function () {
-            try {
-                var data = JSON.parse(str);
-                cb(null, data.slideshow_id);
-            }
-            catch(err) {
-                cb(err);
-            }
-        });
-    };
-    http.request(options, callback).end();
-};
-
-/**
- *
+ * Generates a media placeholder for templating
  * @static
  * @method getMediaFlag
- * @param {String} mid
- * @param {Object} [options]
+ * @param {String} mid The media descriptor ID
+ * @param {Object} [options] The list of attributes to be provided to the 
+ * rendering element.
  * @return {String}
  */
 MediaService.getMediaFlag = function(mid, options) {
@@ -839,78 +600,12 @@ MediaService.generateFilename = function(originalFilename){
  * @return {String}
  */
 MediaService.getMediaIcon = function(mediaType) {
-    switch(mediaType) {
-        case 'image':
-            return 'picture-o';
-        case 'video/mp4':
-        case 'video/webm':
-        case 'video/ogg':
-            return 'film';
-        case 'youtube':
-            return 'youtube';
-        case 'vimeo':
-            return 'vimeo-square';
-        case 'daily_motion':
-            return 'play-circle-o';
-        case 'vine':
-            return 'vine';
-        case 'instagram':
-            return 'instagram';
-        case 'slideshare':
-            return 'list-alt';
-        case 'trinket':
-            return 'key fa-flip-horizontal';
-        case 'storify':
-            return 'arrow-circle-right';
-        case 'kickstarter':
-            return 'dollar';
-        default:
-            return 'question';
+    
+    var result = MediaService.getRendererByType(mediaType);
+    if (!result) {
+        return '';
     }
-};
-
-/**
- * Retrieves the content URL for a media type.
- * @static
- * @method getMediaLink
- * @param {String} mediaType
- * @param {String} mediaLocation
- * @param {Boolean} isFile
- * @return {String}
- */
-MediaService.getMediaLink = function(mediaType, mediaLocation, isFile) {
-    switch(mediaType) {
-        case 'youtube':
-            return 'http://youtube.com/watch/?v=' + mediaLocation;
-        case 'vimeo':
-            return 'http://vimeo.com/' + mediaLocation;
-        case 'daily_motion':
-            return 'http://dailymotion.com/video/' + mediaLocation;
-        case 'vine':
-            return 'https://vine.co/v/' + mediaLocation;
-        case 'instagram':
-            return 'http://instagram.com/p/' + mediaLocation;
-        case 'slideshare':
-            return 'http://www.slideshare.net/slideshow/embed_code/' + mediaLocation;
-        case 'trinket':
-            if(mediaLocation.indexOf('/') === -1) {
-                return 'https://trinket.io/embed/python/' + mediaLocation;
-            }
-            return 'https://trinket.io/embed/' + mediaLocation;
-        case 'storify':
-            return 'http://storify.com/' + mediaLocation;
-        case 'kickstarter':
-            return 'http://kickstarter.com/' + mediaLocation;
-        case 'image':
-        case 'video/mp4':
-        case 'video/webm':
-        case 'video/ogg':
-        default:
-            if(isFile) {
-                return pb.config.siteRoot + mediaLocation;//TODO test this: pb.UrlService.urlJoin(pb.config.siteRoot, mediaLocation);
-            }
-            return mediaLocation;
-    }
+    return result.renderer.getIcon(mediaType);
 };
 
 /**
