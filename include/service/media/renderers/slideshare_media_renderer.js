@@ -117,7 +117,7 @@ SlideShareMediaRenderer.getDetails = function(urlStr, cb) {
     var options = {
         host: 'www.slideshare.net',
         path: '/api/oembed/2?url=' + encodeURIComponent(urlStr) + '&format=jsonp&callback=?'
-    };console.log(options.path);
+    };
     var callback = function(response) {
         var str = '';
 

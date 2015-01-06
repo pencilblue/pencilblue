@@ -519,7 +519,8 @@ var REGISTERED_MEDIA_RENDERERS = [
     require('../media/renderers/vimeo_media_renderer.js'),
     require('../media/renderers/vine_media_renderer.js'),
     require('../media/renderers/instagram_media_renderer.js'),
-    require('../media/renderers/slideshare_media_renderer.js')
+    require('../media/renderers/slideshare_media_renderer.js'),
+    require('../media/renderers/trinket_media_renderer.js')
 ];
 
 MediaService.registerRenderer = function(interfaceImplementation) {
