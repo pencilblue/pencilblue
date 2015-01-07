@@ -42,10 +42,9 @@ Index.prototype.render = function(cb) {
     pb.content.getSettings(function(err, contentSettings) {
         self.gatherData(function(err, data) {
             ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle) {
-
                 self.ts.registerLocal('meta_keywords', metaKeywords);
-                self.ts.registerLocal('meta_desc', metaDescription);
-                self.ts.registerLocal('meta_title', metaTitle);
+                self.ts.registerLocal('meta_desc', data.section.description || metaDescription);
+                self.ts.registerLocal('meta_title', data.section.name || metaTitle);
                 self.ts.registerLocal('meta_lang', localizationLanguage);
                 self.ts.registerLocal('current_url', self.req.url);
                 self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
@@ -195,6 +194,16 @@ Index.prototype.gatherData = function(cb) {
         content: function(callback) {
             self.loadContent(callback);
         },
+
+		section: function(callback) {
+			if(!self.req.pencilblue_section) {
+				callback(null, {});
+				return;
+			}
+
+			var dao = new pb.DAO();
+			dao.loadById(self.req.pencilblue_section, 'section', callback);
+		}
     };
     async.parallel(tasks, cb);
 };

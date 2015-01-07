@@ -151,6 +151,13 @@ module.exports = [
     	content_type: 'application/xml'
     },
     {
+        method: 'get',
+        path: "/robots.txt",
+        auth_required: false,
+        controller: path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'controllers', 'robots.js'),
+        content_type: 'text/plain'
+    },
+    {
     	method: 'get',
     	path: "/user/sign_up",
     	auth_required: false,

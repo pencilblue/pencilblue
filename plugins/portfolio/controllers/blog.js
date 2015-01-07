@@ -31,8 +31,8 @@ Blog.prototype.render = function(cb) {
 
                 self.ts.reprocess = false;
                 self.ts.registerLocal('meta_keywords', metaKeywords);
-                self.ts.registerLocal('meta_desc', metaDescription);
-                self.ts.registerLocal('meta_title', metaTitle);
+                self.ts.registerLocal('meta_desc', data.section.description || metaDescription);
+                self.ts.registerLocal('meta_title', data.section.name || metaTitle);
                 self.ts.registerLocal('meta_lang', localizationLanguage);
                 self.ts.registerLocal('current_url', self.req.url);
                 self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
@@ -205,6 +205,16 @@ Blog.prototype.gatherData = function(cb) {
         content: function(callback) {
             self.loadContent(callback);
         },
+
+        section: function(callback) {
+            if(!self.req.pencilblue_section) {
+                callback(null, {});
+                return;
+            }
+
+            var dao = new pb.DAO();
+            dao.loadById(self.req.pencilblue_section, 'section', callback);
+        }
     };
     async.parallel(tasks, cb);
 };
@@ -416,10 +426,10 @@ Blog.prototype.getSideNavigation = function(articles, cb) {
                 }
             }
         }
-        
+
         var opts = {
             where: {
-                article_topics: {$in: topics}, 
+                article_topics: {$in: topics},
                 _id: {$nin: articleIDs}
             },
             limit: 6
@@ -427,7 +437,7 @@ Blog.prototype.getSideNavigation = function(articles, cb) {
         var dao = new pb.DAO();
         dao.q('article', opts, function(err, relatedArticles) {
             if(relatedArticles.length === 0) {
-                
+
                 opts = {
                     where: pb.DAO.ANYWHERE,
                     order: {name: 1}
