@@ -22,9 +22,6 @@
                             <label ng-bind="field.name"></label>
                             <div id="{{getFieldUID(field)}}_wysiwyg"></div>
                         </div>
-                        <div id="temp_wysiwyg" style="display:none">
-                            ^wysiwyg^
-                        </div>
                         <div class="form-group" ng-if="field.field_type == 'boolean'">
                             <label ng-bind="field.name"></label><br/>
                             <div class="btn-group">
@@ -87,6 +84,9 @@
                             </div>
                         </div>
                     </span>
+                    <div id="temp_wysiwyg" style="display:none">
+                        ^wysiwyg^
+                    </div>
                 </div>
                 <a class="btn btn-default" ng-href="/admin/content/objects/{{objectType._id}}">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
