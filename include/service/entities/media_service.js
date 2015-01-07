@@ -85,7 +85,8 @@ var REGISTERED_MEDIA_RENDERERS = [
     require('../media/renderers/instagram_media_renderer.js'),
     require('../media/renderers/slideshare_media_renderer.js'),
     require('../media/renderers/trinket_media_renderer.js'),
-    require('../media/renderers/storify_media_renderer.js')
+    require('../media/renderers/storify_media_renderer.js'),
+    require('../media/renderers/kickstarter_media_renderer.js')
 ];
 
 /**
