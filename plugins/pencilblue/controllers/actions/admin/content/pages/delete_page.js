@@ -38,7 +38,7 @@ DeletePage.prototype.render = function(cb) {
     }
 
     var dao = new pb.DAO();
-    dao.loadById(vars.id, function(err, page) {
+    dao.loadById(vars.id, 'page', function(err, page) {
         if (util.isError(err)) {
             return cb({
 				code: 500,

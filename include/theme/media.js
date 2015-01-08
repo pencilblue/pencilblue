@@ -39,7 +39,7 @@ function MediaService(){}
 MediaService.getMediaEmbed = function(mediaObject, options) {
     switch(mediaObject.media_type) {
         case 'image':
-            return '<img class="img-responsive" src="' + mediaObject.location + '" style="^media_style^"/>';
+            return '<img class="img-responsive" src="' + mediaObject.location + '" style="^media_style^" alt="' + mediaObject.name + '"/>';
 
         case 'youtube':
             return '<iframe width="560" height="315" src="//www.youtube.com/embed/' + mediaObject.location + '" frameborder="0" allowfullscreen></iframe>';
