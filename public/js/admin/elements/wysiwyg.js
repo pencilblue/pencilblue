@@ -318,11 +318,11 @@ function loadLayoutMediaPreviews(wysId)
     var styles = getLayoutMediaStyle(mediaProperties[1]);
     var mediaTag = layout.substr(startIndex - 14, endIndex + 14);
 
-    $.getJSON('/api/content/get_media_embed?id=' + mediaID, function(result)
+    $.getJSON('/api/content/get_media_embed?id=' + mediaID + '&tag=' + encodeURIComponent(mediaTag), function(result)
     {
         if(result.code === 0)
         {
-            var mediaPreview = '<div id="media_preview_' + mediaID + '" class="media_preview" media-tag="' + mediaTag + '" + style="' + styles.containerCSS + '">' + result.data + '</div>';
+            var mediaPreview = result.data;
 
             layout = layout.split('^' + mediaTag + '^').join(mediaPreview);
             $('#wysiwyg_' + wysId + ' .layout_editable').html(layout);

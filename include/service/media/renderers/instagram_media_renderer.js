@@ -3,6 +3,7 @@
 var process = require('process');
 var url = require('url');
 var HtmlEncoder = require('htmlencode');
+var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
  *
@@ -20,6 +21,40 @@ function InstagramMediaRenderer(){}
  */
 var TYPE = 'instagram';
 
+/**
+ * Provides the styles used by each type of view
+ * @private
+ * @static
+ * @property STYLES
+ * @type {Object}
+ */
+var STYLES = Object.freeze({
+    
+    view: {
+        width: "100%"
+    },
+    
+    editor: {
+        width: "400px",
+        height: "475px"
+    },
+    
+    post: {
+        width: "400px",
+        height: "475px"
+    }
+});
+
+/**
+ * Retrieves the style for the specified type of view
+ * @static
+ * @meethod getStyle
+ * @param {String} viewType The view type calling for a styling
+ * @return {Object} a hash of style properties
+ */
+InstagramMediaRenderer.getStyle = function(viewType) {
+    return STYLES[viewType] || STYLES.view;
+};
 
 InstagramMediaRenderer.getSupportedTypes = function() {
     var types = {};
@@ -52,29 +87,23 @@ InstagramMediaRenderer.getIcon = function(type) {
     return TYPE;
 };
 
-InstagramMediaRenderer.renderByUrl = function(urlStr, props, cb) {
+InstagramMediaRenderer.renderByUrl = function(urlStr, options, cb) {
     InstagramMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
         if (util.isError(err)) {
             return cb(err);
         }
-        InstagramMediaRenderer.render({location: mediaId}, props, cb);
+        InstagramMediaRenderer.render({location: mediaId}, options, cb);
     });
 };
 
-InstagramMediaRenderer.render = function(media, props, cb) {
-    if (pb.utils.isFunction(props)) {
-        cb = props;
-        props = {};
+InstagramMediaRenderer.render = function(media, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
     }
     
     var embedUrl = InstagramMediaRenderer.getEmbedUrl(media.location);
-    var html = '<div class="embed-responsive embed-responsive-16by9"><iframe src="' + embedUrl + '" ';
-    for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
-    }
-    html += '/></div>';
-    
-    cb(null, html);
+    cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
 };
 
 InstagramMediaRenderer.getEmbedUrl = function(mediaId) {

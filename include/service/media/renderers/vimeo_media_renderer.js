@@ -68,11 +68,11 @@ VimeoMediaRenderer.render = function(media, props, cb) {
     }
     
     var embedUrl = VimeoMediaRenderer.getEmbedUrl(media.location);
-    var html = '<div class="embed-responsive embed-responsive-16by9"><iframe src="' + embedUrl + '" ';
+    var html = '<iframe src="' + embedUrl + '" ';
     for (var prop in props) {
         html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
     }
-    html += '/></div>';
+    html += '></iframe>';
     
     cb(null, html);
 };

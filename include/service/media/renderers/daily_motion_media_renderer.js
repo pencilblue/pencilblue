@@ -3,6 +3,7 @@
 var process = require('process');
 var url = require('url');
 var HtmlEncoder = require('htmlencode');
+var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
  *
@@ -20,6 +21,44 @@ function DailyMotionMediaRenderer(){}
  */
 var TYPE = 'daily_motion';
 
+/**
+ * Provides the styles used by each type of view
+ * @private
+ * @static
+ * @property STYLES
+ * @type {Object}
+ */
+var STYLES = Object.freeze({
+    
+    view: {
+        frameborder: "0",
+        width: "480px",
+        height: "270px"
+    },
+    
+    editor: {
+        frameborder: "0",
+        width: "480px",
+        height: "270px"
+    },
+    
+    post: {
+        frameborder: "0",
+        width: "480px",
+        height: "270px"
+    }
+});
+
+/**
+ * Retrieves the style for the specified type of view
+ * @static
+ * @meethod getStyle
+ * @param {String} viewType The view type calling for a styling
+ * @return {Object} a hash of style properties
+ */
+DailyMotionMediaRenderer.getStyle = function(viewType) {
+    return STYLES[viewType] || STYLES.view;
+};
 
 DailyMotionMediaRenderer.getSupportedTypes = function() {
     var types = {};
@@ -58,29 +97,23 @@ DailyMotionMediaRenderer.getIcon = function(type) {
     return 'play-circle-o';
 };
 
-DailyMotionMediaRenderer.renderByUrl = function(urlStr, props, cb) {
+DailyMotionMediaRenderer.renderByUrl = function(urlStr, options, cb) {
     DailyMotionMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
         if (util.isError(err)) {
             return cb(err);
         }
-        DailyMotionMediaRenderer.render({location: mediaId}, props, cb);
+        DailyMotionMediaRenderer.render({location: mediaId}, options, cb);
     });
 };
 
-DailyMotionMediaRenderer.render = function(media, props, cb) {
-    if (pb.utils.isFunction(props)) {
-        cb = props;
-        props = {};
+DailyMotionMediaRenderer.render = function(media, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
     }
     
     var embedUrl = DailyMotionMediaRenderer.getEmbedUrl(media.location);
-    var html = '<div class="embed-responsive embed-responsive-16by9"><iframe src="' + embedUrl + '" ';
-    for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
-    }
-    html += '/></div>';
-    
-    cb(null, html);
+    cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
 };
 
 DailyMotionMediaRenderer.getEmbedUrl = function(mediaId) {
@@ -102,9 +135,8 @@ DailyMotionMediaRenderer.getMeta = function(urlStr, isFile, cb) {
 };
 
 DailyMotionMediaRenderer.getThumbnail = function(urlStr, cb) {
-    var mediaId = DailyMotionMediaRenderer.getMediaId(urlStr);
-    process.nextTick(function() {
-        cb(null, 'https://www.dailymotion.com/thumbnail/video/' + mediaId);
+    DailyMotionMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        cb(err, 'https://www.dailymotion.com/thumbnail/video/' + mediaId);
     });
 };
 

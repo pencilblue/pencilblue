@@ -429,6 +429,8 @@ MediaService.prototype.getMediaDescriptor = function(mediaUrl, cb) {
  * @param {String} options.location The unique media identifier for the type
  * @param {String} [options.type] The type of provider that knows how to render 
  * the resource
+ * @param {Object} [options.attrs] The embed element attributes
+ * @param {Object} [options.style] The embed element style properties
  * @param {Function} cb A callback that provides two parameters.  An Error if 
  * exists and the rendered HTML content for the media resource.
  */
@@ -437,7 +439,13 @@ MediaService.prototype.renderByLocation = function(options, cb) {
     if (!result) {
         return cb(null, null);
     }
-    result.renderer.render(options, options.props, cb);
+    
+    //set style properties if we can
+    if (options.view) {
+        options.style = MediaService.getStyleForView(result.renderer, options.view, options.style);
+    }
+    
+    result.renderer.render(options, options, cb);
 };
 
 /**
@@ -445,12 +453,13 @@ MediaService.prototype.renderByLocation = function(options, cb) {
  * id.
  * @method renderById
  * @param {String} The media resource ID
- * @param {Object} props The desired HTML attributes that will be added to the 
+ * @param {Object} options The desired HTML attributes that will be added to the 
  * element that provides the rendering.
  * @param {Function} cb A callback that provides two parameters. An Error if 
  * exists and the rendered HTML content for the media resource.
  */
-MediaService.prototype.renderById = function(id, props, cb) {
+MediaService.prototype.renderById = function(id, options, cb) {
+    var self = this;
     
     var dao = new pb.DAO();
     dao.loadById(id, MediaService.COLL, function(err, media) {
@@ -461,15 +470,68 @@ MediaService.prototype.renderById = function(id, props, cb) {
             return cb(null, null);
         }
         
-        //retrieve renderer
-        var result = MediaService.getRendererByType(media.media_type);
-        if (!result) {
-            return cb(null, null);
-        }
-        
-        //render media
-        result.renderer.render(media, props, cb);
+        //render
+        self.render(media, options, cb);
     });
+};
+
+MediaService.prototype.renderByFlag = function(flag, options, cb) {
+    if (pb.utils.isString(flag)) {
+        flag = MediaService.parseMediaFlag(flag);
+    }
+    if (!flag) {
+        return cb(new Error('An invalid flag was passed'));
+    }
+    
+    //check for absense of props
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {
+            style: {}
+        };
+    }
+    
+    //ensure the max height is set if explicity set for media replacement
+    if (flag.style.maxHeight) {
+        options.style['max-height'] = flag.style.maxHeight;
+    }
+    this.renderById(flag.id, options, cb);
+};
+
+/**
+ * Renders the media represented by the provided media descriptor.
+ * @method render
+ * @param {String} The media resource ID
+ * @param {Object} props The desired HTML attributes that will be added to the 
+ * element that provides the rendering.
+ * @param {Function} cb A callback that provides two parameters. An Error if 
+ * exists and the rendered HTML content for the media resource.
+ */
+MediaService.prototype.render = function(media, options, cb) {
+    //retrieve renderer
+    var result = MediaService.getRendererByType(media.media_type);
+    if (!result) {
+        return cb(null, null);
+    }
+    
+    //set style properties if we can
+    if (options.view) {
+        options.style = MediaService.getStyleForView(result.renderer, options.view, options.style);
+    }
+
+    //render media
+    result.renderer.render(media, options, cb);
+};
+
+MediaService.getStyleForView = function(renderer, view, overrides) {
+    if (!overrides) {
+        overrides = {};
+    }
+    
+    var base = renderer.getStyle(view);
+    var clone = pb.utils.clone(base);
+    pb.utils.merge(overrides, clone);
+    return clone;
 };
 
 /**
@@ -494,7 +556,7 @@ MediaService.getRendererByType = function(type) {
         }
     }
     
-    pb.log.silly('MediaService: Failed to select media renderer type [%s]', type);
+    pb.log.warn('MediaService: Failed to select media renderer type [%s]', type);
     return null;
 };
 
@@ -525,7 +587,7 @@ MediaService.getRenderer = function(mediaUrl, isFile) {
         }
     }
     
-    pb.log.silly('MediaService: Failed to select media renderer URI [%s]', mediaUrl);
+    pb.log.warn('MediaService: Failed to select media renderer URI [%s]', mediaUrl);
     return null;
 };
 
@@ -557,6 +619,83 @@ MediaService.getMediaFlag = function(mid, options) {
     }
     flag += '^';
     return flag;
+};
+
+/**
+ * Given a content string the function will search for and extract the first occurance of a media flag.
+ *
+ */
+MediaService.extractNextMediaFlag = function(content) {
+    if (!pb.utils.isString(content)) {
+        return null;
+    }
+    
+    //ensure a media tags exists
+    var prefix = '^media_display_';
+    var startIndex = content.indexOf(prefix);
+    if (startIndex < 0) {
+        return null;
+    }
+    
+    //ensure media tag is properly terminated
+    var endIndex = content.indexOf('^', startIndex + 1);
+    if (endIndex < 0) {
+        return null;
+    }
+    
+    var flag   = content.substring(startIndex, endIndex + 1);
+    var result = MediaService.parseMediaFlag(flag);
+    if (result) {
+        result.startIndex = startIndex;
+        result.endIndex = endIndex;
+        result.flag = flag;
+    }
+    return result;
+};
+
+/**
+ * Parses a media flag and returns each part in an object
+ * @static
+ * @method parseMediaFlag
+ * @param {String} flag The media flag to parse
+ * @return {Object} All extracted pieces from the flag
+ */
+MediaService.parseMediaFlag = function(flag) {
+    if (!pb.utils.isString(flag)) {
+        return null;
+    }
+    
+    //strip flag start and end markers if exist
+    var hasStartMarker = flag.charAt(0) === '^';
+    var hasEndMarker   = flag.charAt(flag.length - 1) === '^';
+    flag = flag.substring(hasStartMarker ? 1 : 0, hasEndMarker ? flag.length - 1 : undefined);
+
+    //split on forward slash as it is the division between id and style
+    var prefix = 'media_display_';
+    var parts = flag.split('/');
+    var id    = parts[0].substring(prefix.length);
+    
+    var style = {};
+    var attrs = parts[1].split(',');
+    attrs.forEach(function(item) {
+        var division = item.split(':');
+        style[division[0]] = division[1];
+    });
+    
+    return {
+        id: id,
+        style: style,
+        cleanFlag: flag
+    };
+};
+
+MediaService.getStyleForPosition = function(position) {
+    var positionToStyle = {
+        left: 'float: left;margin-right: 1em',
+        right: 'float: right;margin-left: 1em',
+        center: 'text-align: center'
+    };
+	return positionToStyle[position];
 };
 
 /**

@@ -530,33 +530,56 @@ MediaLoader.prototype.start = function(articleLayout, cb) {
  * @param {Function} cb            Callback function
  */
 MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
-	var index = layout.indexOf('^media_display_');
-	if (index == -1) {
-        cb(null, layout);
-        return;
+	var flag = pb.MediaService.extractNextMediaFlag(layout);
+    if (!flag) {
+        return cb(null, layout);
     }
-
-    var startIndex       = index + 15;
-    var endIndex         = layout.substr(startIndex).indexOf('^');
-    var mediaProperties  = layout.substr(startIndex, endIndex).split('/');
-    var mediaID          = mediaProperties[0];
-    var mediaStyleString = mediaProperties[1];
+    
+    var mediaStyleString = flag.style;
 
     var dao = new pb.DAO();
-    dao.loadById(mediaID, 'media', function(err, data) {
-        if(util.isError(err) || !data) {
-            layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join('');
+    dao.loadById(flag.id, 'media', function(err, data) {
+        if(util.isError(err)) {
+            return cb(err);
         }
-        else {
-            var mediaEmbed = mediaTemplate.split('^media^').join(Media.getMediaEmbed(data));
+        else if (!data) {
+            pb.log.warn("ArticleService: Content contains reference to missing media [%s].", flag.id);
+            return cb(null, layout.replace(flag.flag, ''));
+        }
+        
+        //ensure the max height is set if explicity set for media replacement
+        var options = {
+            view: 'post',
+            style: {
+                
+            },
+            attrs: {
+                frameborder: "0",
+                allowfullscreen: ""
+            }
+        };
+        if (flag.style.maxHeight) {
+            options.style['max-height'] = flag.style.maxHeight;
+        }
+        var ms = new pb.MediaService();
+        ms.render(data, options, function(err, html) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            //get the style for the container
+            var containerStyleStr = pb.MediaService.getStyleForPosition(flag.style.position) || '';
+            
+            //finish up replacements
+            var mediaEmbed = mediaTemplate.split('^media^').join(html);
             mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
-			mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption ? '' : 'display: none');
-            mediaEmbed     = Media.getMediaStyle(mediaEmbed, mediaStyleString, data.media_type);
+            mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption ? '' : 'display: none');
+            mediaEmbed     = mediaEmbed.split('^container_style^').join(containerStyleStr);
 
-            layout = layout.split(layout.substr(startIndex - 15, endIndex + 16)).join(mediaEmbed);
-        }
-
-        cb(null, layout);
+            console.log('RL='+layout);
+            console.log('NL='+layout.replace(flag.flag, mediaEmbed));
+            cb(null, layout.replace(flag.flag, mediaEmbed));
+        });
     });
 };
 

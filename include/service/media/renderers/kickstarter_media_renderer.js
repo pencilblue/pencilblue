@@ -3,6 +3,7 @@
 var process = require('process');
 var url = require('url');
 var HtmlEncoder = require('htmlencode');
+var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
  *
@@ -20,6 +21,44 @@ function KickStarterMediaRenderer(){}
  */
 var TYPE = 'kickstarter';
 
+/**
+ * Provides the styles used by each type of view
+ * @private
+ * @static
+ * @property STYLES
+ * @type {Object}
+ */
+var STYLES = Object.freeze({
+    
+    view: {
+        frameborder: "0",
+        width: "500",
+        height: "281"
+    },
+    
+    editor: {
+        frameborder: "0",
+        width: "500",
+        height: "281"
+    },
+    
+    post: {
+        frameborder: "0",
+        width: "500",
+        height: "281"
+    }
+});
+
+/**
+ * Retrieves the style for the specified type of view
+ * @static
+ * @meethod getStyle
+ * @param {String} viewType The view type calling for a styling
+ * @return {Object} a hash of style properties
+ */
+KickStarterMediaRenderer.getStyle = function(viewType) {
+    return STYLES[viewType] || STYLES.view;
+};
 
 KickStarterMediaRenderer.getSupportedTypes = function() {
     var types = {};
@@ -61,20 +100,14 @@ KickStarterMediaRenderer.renderByUrl = function(urlStr, props, cb) {
     });
 };
 
-KickStarterMediaRenderer.render = function(media, props, cb) {
-    if (pb.utils.isFunction(props)) {
-        cb = props;
-        props = {};
+KickStarterMediaRenderer.render = function(media, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
     }
     
     var embedUrl = KickStarterMediaRenderer.getEmbedUrl(media.location);
-    var html = '<div class="embed-responsive embed-responsive-16by9"><iframe src="' + embedUrl + '" scrolling="no" ';
-    for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
-    }
-    html += '/></div>';
-    
-    cb(null, html);
+    cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
 };
 
 KickStarterMediaRenderer.getEmbedUrl = function(mediaId) {

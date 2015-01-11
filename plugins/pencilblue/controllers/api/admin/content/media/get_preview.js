@@ -36,23 +36,21 @@ GetMediaPreview.prototype.render = function(cb) {
     }
 
     //retrieve rendering
-    var props = {
-        'max-width': '100%',
-        'max-height': '300px',
-        class: 'img-responsive'
+    var options = {
+        view: 'view'
     };
     var ms = new pb.MediaService();
     if (get.id) {
-        ms.renderById(get.id, props, function(err, html) {
+        ms.renderById(get.id, options, function(err, html) {
             self.renderComplete(err, html, cb);
         });
     }
     else if (get.location && get.type){
         
         var options = {
+            view: 'view',
             location: get.location,
-            type: get.type,
-            props: props
+            type: get.type
         };
         ms.renderByLocation(options, function(err, html) {
             self.renderComplete(err, html, cb);
@@ -74,6 +72,7 @@ GetMediaPreview.prototype.renderComplete = function(err, html, cb) {
         });
     }
 
+    html = '<div class="embed-responsive embed-responsive-16by9">' + html + '</div>';
     cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', html)});
 };
 
@@ -93,7 +92,7 @@ GetMediaPreview.prototype.getPreviewById = function(id, ms, cb) {
             });
         }
 
-        ms.renderById(id, function(err, html) {
+        ms.render(media, function(err, html) {
             self.renderComplete(err, html);
         });
     });

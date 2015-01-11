@@ -17,45 +17,63 @@
 
 /**
  * Retrieve a media embed
+ * @class GetMediaEmbedController
+ * @constructor
+ * @extends BaseController
  */
-
-function GetMediaEmbed(){}
-
-//dependencies
-var Media = require(path.join(DOCUMENT_ROOT, '/include/theme/media'));
+function GetMediaEmbedController(){}
 
 //inheritance
-util.inherits(GetMediaEmbed, pb.FormController);
+util.inherits(GetMediaEmbedController, pb.BaseController);
 
-GetMediaEmbed.prototype.render = function(cb) {
+GetMediaEmbedController.prototype.render = function(cb) {
     var self = this;
     var get = this.query;
 
-    var message = this.hasRequiredParams(get, ['id']);
-    if(message) {
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'id is missing from URL')});
+    //validation
+    if(!pb.validation.isIdStr(get.id, true)) {
+        return cb({
+            status: 400,
+            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'invalid media Id')
+        });
         return;
     }
 
-    try {
-        ObjectID(get.id);
+    //parse additional info
+    var flag = pb.MediaService.parseMediaFlag(get.tag);
+    if (!flag) {
+        flag = {
+            cleanFlag: '',
+            style: {}
+        };
     }
-    catch(error) {
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'invalid media ID')});
-        return;
-    }
-
-    var dao = new pb.DAO();
-    dao.loadById(get.id, 'media', function(err, mediaObject) {
-        if(!mediaObject) {
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'invalid media ID')});
-            return;
+    flag.style.position = flag.style.position || 'left';
+    
+    var options = {
+        view: 'editor',
+        style: {
+            "max-height": (flag.style.maxHeight || '')
         }
-
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, mediaObject.name + ' retrieved', Media.getMediaEmbed(mediaObject))});
-        return;
+    };
+    var ms = new pb.MediaService();
+    ms.renderById(get.id, options, function(err, html) {
+        if (util.isError(err)) {
+            return this.reqHandler.serveError(err);
+        }
+        else if (!html) {
+            return cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, this.ls.get('UNSUPPORTED_MEDIA'))
+            });
+        }
+        
+        var containerStyleStr = pb.MediaService.getStyleForPosition(flag.style.position);
+        html = '<div id="media_preview_' + get.id + '" class="media_preview" media-tag="'+ flag.cleanFlag + '" style="' + containerStyleStr + '">' + html + '</div>';
+        cb({
+            content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', html)
+        });
     });
 };
 
 //exports
-module.exports = GetMediaEmbed;
+module.exports = GetMediaEmbedController;
