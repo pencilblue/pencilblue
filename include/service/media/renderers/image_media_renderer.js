@@ -56,7 +56,8 @@ var SUPPORTED = Object.freeze({
 var STYLES = Object.freeze({
     
     view: {
-        width: "100%"
+        'max-width': "100%",
+        'max-height': '500px'
     },
     
     editor: {

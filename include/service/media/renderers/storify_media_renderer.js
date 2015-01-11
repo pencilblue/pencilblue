@@ -3,6 +3,7 @@
 var process = require('process');
 var url = require('url');
 var HtmlEncoder = require('htmlencode');
+var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
  *
@@ -20,6 +21,40 @@ function StorifyMediaRenderer(){}
  */
 var TYPE = 'storify';
 
+/**
+ * Provides the styles used by each type of view
+ * @private
+ * @static
+ * @property STYLES
+ * @type {Object}
+ */
+var STYLES = Object.freeze({
+    
+    view: {
+        width: "100%"
+    },
+    
+    editor: {
+        width: "100%",
+        height: "750px"
+    },
+    
+    post: {
+        width: "100%",
+        height: "750px"
+    }
+});
+
+/**
+ * Retrieves the style for the specified type of view
+ * @static
+ * @meethod getStyle
+ * @param {String} viewType The view type calling for a styling
+ * @return {Object} a hash of style properties
+ */
+StorifyMediaRenderer.getStyle = function(viewType) {
+    return STYLES[viewType] || STYLES.view;
+};
 
 StorifyMediaRenderer.getSupportedTypes = function() {
     var types = {};
@@ -52,29 +87,23 @@ StorifyMediaRenderer.getIcon = function(type) {
     return 'arrow-circle-right';
 };
 
-StorifyMediaRenderer.renderByUrl = function(urlStr, props, cb) {
+StorifyMediaRenderer.renderByUrl = function(urlStr, options, cb) {
     StorifyMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
         if (util.isError(err)) {
             return cb(err);
         }
-        StorifyMediaRenderer.render({location: mediaId}, props, cb);
+        StorifyMediaRenderer.render({location: mediaId}, options, cb);
     });
 };
 
-StorifyMediaRenderer.render = function(media, props, cb) {
-    if (pb.utils.isFunction(props)) {
-        cb = props;
-        props = {};
+StorifyMediaRenderer.render = function(media, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
     }
     
     var embedUrl = StorifyMediaRenderer.getEmbedUrl(media.location);
-    var html = '<iframe src="' + embedUrl + '" ';
-    for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
-    }
-    html += '></iframe>';
-    
-    cb(null, html);
+    cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
 };
 
 StorifyMediaRenderer.getEmbedUrl = function(mediaId) {

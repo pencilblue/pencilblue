@@ -2,7 +2,7 @@
 //dependencies
 var process = require('process');
 var url = require('url');
-var HtmlEncoder = require('htmlencode');
+var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
  *
@@ -20,6 +20,41 @@ function VineMediaRenderer(){}
  */
 var TYPE = 'vine';
 
+/**
+ * Provides the styles used by each type of view
+ * @private
+ * @static
+ * @property STYLES
+ * @type {Object}
+ */
+var STYLES = Object.freeze({
+    
+    view: {
+        'max-width': "100%",
+        'max-height': "400px"
+    },
+    
+    editor: {
+        width: "400px",
+        height: "400px"
+    },
+    
+    post: {
+        width: "400px",
+        height: "400px"
+    }
+});
+
+/**
+ * Retrieves the style for the specified type of view
+ * @static
+ * @meethod getStyle
+ * @param {String} viewType The view type calling for a styling
+ * @return {Object} a hash of style properties
+ */
+VineMediaRenderer.getStyle = function(viewType) {
+    return STYLES[viewType] || STYLES.view;
+};
 
 VineMediaRenderer.getSupportedTypes = function() {
     var types = {};
@@ -52,29 +87,23 @@ VineMediaRenderer.getIcon = function(type) {
     return 'vine';
 };
 
-VineMediaRenderer.renderByUrl = function(urlStr, props, cb) {
+VineMediaRenderer.renderByUrl = function(urlStr, options, cb) {
     VineMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
         if (util.isError(err)) {
             return cb(err);
         }
-        VineMediaRenderer.render({location: mediaId}, props, cb);
+        VineMediaRenderer.render({location: mediaId}, options, cb);
     });
 };
 
-VineMediaRenderer.render = function(media, props, cb) {
-    if (pb.utils.isFunction(props)) {
-        cb = props;
-        props = {};
+VineMediaRenderer.render = function(media, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
     }
     
     var embedUrl = VineMediaRenderer.getEmbedUrl(media.location);
-    var html = '<iframe src="' + embedUrl + '" ';
-    for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
-    }
-    html += '></iframe>';
-    
-    cb(null, html);
+    cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
 };
 
 VineMediaRenderer.getEmbedUrl = function(mediaId) {

@@ -31,21 +31,17 @@ var TYPE = 'kickstarter';
 var STYLES = Object.freeze({
     
     view: {
-        frameborder: "0",
-        width: "500",
-        height: "281"
+        width: "100%",
     },
     
     editor: {
-        frameborder: "0",
-        width: "500",
-        height: "281"
+        width: "500px",
+        height: "281px"
     },
     
     post: {
-        frameborder: "0",
-        width: "500",
-        height: "281"
+        width: "500px",
+        height: "281px"
     }
 });
 

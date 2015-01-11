@@ -1,6 +1,7 @@
 
 //dependencies
 var HtmlEncoder = require('htmlencode');
+var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
  *
@@ -41,6 +42,42 @@ var SUPPORTED = Object.freeze({
     }
 });
 
+/**
+ * Provides the styles used by each type of view
+ * @private
+ * @static
+ * @property STYLES
+ * @type {Object}
+ */
+var STYLES = Object.freeze({
+    
+    view: {
+        'max-width': "100%",
+        'max-height': "500px"
+    },
+    
+    editor: {
+        width: "560px",
+        height: "315px"
+    },
+    
+    post: {
+        width: "560px",
+        height: "315px"
+    }
+});
+
+/**
+ * Retrieves the style for the specified type of view
+ * @static
+ * @meethod getStyle
+ * @param {String} viewType The view type calling for a styling
+ * @return {Object} a hash of style properties
+ */
+VideoMediaRenderer.getStyle = function(viewType) {
+    return STYLES[viewType] || STYLES.view;
+};
+
 VideoMediaRenderer.getSupportedTypes = function() {
     var types = {};
     types[TYPE] = true;
@@ -64,19 +101,19 @@ VideoMediaRenderer.getIcon = function(type) {
     return 'film';
 };
 
-VideoMediaRenderer.renderByUrl = function(urlStr, props, cb) {
+VideoMediaRenderer.renderByUrl = function(urlStr, options, cb) {
     VideoMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
         if (util.isError(err)) {
             return cb(err);
         }
-        VideoMediaRenderer.render({location: mediaId}, props, cb);
+        VideoMediaRenderer.render({location: mediaId}, options, cb);
     });
 };
 
-VideoMediaRenderer.render = function(media, props, cb) {
-    if (pb.utils.isFunction(props)) {
-        cb = props;
-        props = {};
+VideoMediaRenderer.render = function(media, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
     }
     
     //try to look up mime if not provided
@@ -91,11 +128,10 @@ VideoMediaRenderer.render = function(media, props, cb) {
     
     //construct HTML snippet
     var embedUrl = VideoMediaRenderer.getEmbedUrl(media.location);
-    var html = '<video ';
-    for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
-    }
-    html += ' controls><source src="' + HtmlEncoder.htmlEncode(embedUrl) + '"';
+    var html = '<video ' + BaseMediaRenderer.getAttributeStr(options.attrs) + 
+        BaseMediaRenderer.getStyleAttrStr(options.style) +
+        ' controls><source src="' + HtmlEncoder.htmlEncode(embedUrl) + '"';
+    
     if (mime) {
         html += ' type="' + mime + '"';
     }

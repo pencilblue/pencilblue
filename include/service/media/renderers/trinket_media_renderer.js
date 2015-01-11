@@ -2,7 +2,7 @@
 //dependencies
 var process = require('process');
 var url = require('url');
-var HtmlEncoder = require('htmlencode');
+var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
  *
@@ -20,6 +20,40 @@ function TrinketMediaRenderer(){}
  */
 var TYPE = 'trinket';
 
+/**
+ * Provides the styles used by each type of view
+ * @private
+ * @static
+ * @property STYLES
+ * @type {Object}
+ */
+var STYLES = Object.freeze({
+    
+    view: {
+        width: "100%"
+    },
+    
+    editor: {
+        width: "600px",
+        height: "400px"
+    },
+    
+    post: {
+        width: "600px",
+        height: "400px"
+    }
+});
+
+/**
+ * Retrieves the style for the specified type of view
+ * @static
+ * @meethod getStyle
+ * @param {String} viewType The view type calling for a styling
+ * @return {Object} a hash of style properties
+ */
+TrinketMediaRenderer.getStyle = function(viewType) {
+    return STYLES[viewType] || STYLES.view;
+};
 
 TrinketMediaRenderer.getSupportedTypes = function() {
     var types = {};
@@ -52,29 +86,23 @@ TrinketMediaRenderer.getIcon = function(type) {
     return 'key fa-flip-horizontal';
 };
 
-TrinketMediaRenderer.renderByUrl = function(urlStr, props, cb) {
+TrinketMediaRenderer.renderByUrl = function(urlStr, options, cb) {
     TrinketMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
         if (util.isError(err)) {
             return cb(err);
         }
-        TrinketMediaRenderer.render({location: mediaId}, props, cb);
+        TrinketMediaRenderer.render({location: mediaId}, options, cb);
     });
 };
 
-TrinketMediaRenderer.render = function(media, props, cb) {
-    if (pb.utils.isFunction(props)) {
-        cb = props;
-        props = {};
+TrinketMediaRenderer.render = function(media, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
     }
     
     var embedUrl = TrinketMediaRenderer.getEmbedUrl(media.location);
-    var html = '<iframe src="' + embedUrl + '" ';
-    for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
-    }
-    html += '></iframe>';
-    
-    cb(null, html);
+    cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
 };
 
 TrinketMediaRenderer.getEmbedUrl = function(mediaId) {

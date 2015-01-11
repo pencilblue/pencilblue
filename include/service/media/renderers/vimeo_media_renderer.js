@@ -2,7 +2,7 @@
 //dependencies
 var process = require('process');
 var url = require('url');
-var HtmlEncoder = require('htmlencode');
+var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
  *
@@ -20,6 +20,41 @@ function VimeoMediaRenderer(){}
  */
 var TYPE = 'vimeo';
 
+/**
+ * Provides the styles used by each type of view
+ * @private
+ * @static
+ * @property STYLES
+ * @type {Object}
+ */
+var STYLES = Object.freeze({
+    
+    view: {
+        'max-width': "100%",
+        'max-height': "500px"
+    },
+    
+    editor: {
+        width: "500px",
+        height: "281px"
+    },
+    
+    post: {
+        width: "500px",
+        height: "281px"
+    }
+});
+
+/**
+ * Retrieves the style for the specified type of view
+ * @static
+ * @meethod getStyle
+ * @param {String} viewType The view type calling for a styling
+ * @return {Object} a hash of style properties
+ */
+VimeoMediaRenderer.getStyle = function(viewType) {
+    return STYLES[viewType] || STYLES.view;
+};
 
 VimeoMediaRenderer.getSupportedTypes = function() {
     var types = {};
@@ -52,29 +87,23 @@ VimeoMediaRenderer.getIcon = function(type) {
     return 'vimeo-square';
 };
 
-VimeoMediaRenderer.renderByUrl = function(urlStr, props, cb) {
+VimeoMediaRenderer.renderByUrl = function(urlStr, options, cb) {
     VimeoMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
         if (util.isError(err)) {
             return cb(err);
         }
-        VimeoMediaRenderer.render({location: mediaId}, props, cb);
+        VimeoMediaRenderer.render({location: mediaId}, options, cb);
     });
 };
 
-VimeoMediaRenderer.render = function(media, props, cb) {
-    if (pb.utils.isFunction(props)) {
-        cb = props;
-        props = {};
+VimeoMediaRenderer.render = function(media, options, cb) {
+    if (pb.utils.isFunction(options)) {
+        cb = options;
+        options = {};
     }
     
     var embedUrl = VimeoMediaRenderer.getEmbedUrl(media.location);
-    var html = '<iframe src="' + embedUrl + '" ';
-    for (var prop in props) {
-        html += prop + '="' + HtmlEncoder.htmlEncode(props[prop]) + '" ';
-    }
-    html += '></iframe>';
-    
-    cb(null, html);
+    cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
 };
 
 VimeoMediaRenderer.getEmbedUrl = function(mediaId) {
