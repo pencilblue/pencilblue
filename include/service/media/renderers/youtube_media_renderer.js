@@ -1,6 +1,5 @@
 
 //dependencies
-var process = require('process');
 var url = require('url');
 var HtmlEncoder = require('htmlencode');
 var BaseMediaRenderer = require('./base_media_renderer.js');
@@ -130,15 +129,12 @@ YouTubeMediaRenderer.getMeta = function(urlStr, isFile, cb) {
     var details = url.parse(urlStr, true, true);
 
     var meta = details.query;
-    process.nextTick(function() {
-        cb(null, meta);
-    });
+    cb(null, meta);
 };
 
 YouTubeMediaRenderer.getThumbnail = function(urlStr, cb) {
-    var mediaId = YouTubeMediaRenderer.getMediaId(urlStr);
-    process.nextTick(function() {
-        cb(null, 'http://img.youtube.com/vi/' + mediaId + '/0.jpg');
+    YouTubeMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        cb(err, 'http://img.youtube.com/vi/' + mediaId + '/0.jpg');
     });
 };
 

@@ -125,33 +125,37 @@ VimeoMediaRenderer.getMeta = function(urlStr, isFile, cb) {
 };
 
 VimeoMediaRenderer.getThumbnail = function(urlStr, cb) {
-    var mediaId = VimeoMediaRenderer.getMediaId(urlStr);
-    
-    var options = {
-        host: 'vimeo.com',
-        path: '/api/v2/video/' + mediaId + '.json'
-    };
-    var callback = function(response) {
-        var str = '';
+    VimeoMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+        if (util.isError(err)) {
+            return cb(err);
+        }
+        
+        var options = {
+            host: 'vimeo.com',
+            path: '/api/v2/video/' + mediaId + '.json'
+        };
+        var callback = function(response) {
+            var str = '';
 
-        //another chunk of data has been recieved, so append it to `str`
-        response.once('error', cb);
-        response.on('data', function (chunk) {
-            str += chunk;
-        });
+            //another chunk of data has been recieved, so append it to `str`
+            response.once('error', cb);
+            response.on('data', function (chunk) {
+                str += chunk;
+            });
 
-        //the whole response has been recieved, so we just print it out here
-        response.on('end', function () {
-            try {
-                var data = JSON.parse(str);
-                cb(null, data[0].thumbnail_medium);
-            }
-            catch(err) {
-                cb(err);
-            }
-        });
-    };
-    http.request(options, callback).end();
+            //the whole response has been recieved, so we just print it out here
+            response.on('end', function () {
+                try {
+                    var data = JSON.parse(str);
+                    cb(null, data[0].thumbnail_medium);
+                }
+                catch(err) {
+                    cb(err);
+                }
+            });
+        };
+        http.request(options, callback).end();
+    });
 };
 
 VimeoMediaRenderer.getNativeUrl = function(media) {
