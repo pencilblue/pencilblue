@@ -67,7 +67,7 @@ GetMediaEmbedController.prototype.render = function(cb) {
             });
         }
         
-        var containerStyleStr = pb.MediaService.getStyleForPosition(flag.style.position);
+        var containerStyleStr = pb.MediaService.getStyleForPosition(flag.style.position) || '';
         html = '<div id="media_preview_' + get.id + '" class="media_preview" media-tag="'+ flag.cleanFlag + '" style="' + containerStyleStr + '">' + html + '</div>';
         cb({
             content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', html)
