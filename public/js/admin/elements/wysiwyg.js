@@ -275,19 +275,18 @@ function addLayoutMedia(wysId)
             associatedMedia.push($(this).attr('id').substr(13));
         }
         mediaOptionsChecked++;
-
-        if(mediaOptionsChecked >= $('#layout_media_options input').length)
-        {
-            var mediaFormat = getMediaFormat(wysId);
-
-            for(var i = 0; i < associatedMedia.length; i++) {
-                toolbarAction(wysId, 'inserthtml', '<div>^media_display_' + associatedMedia[i] + mediaFormat + '^</div>');
-            }
-
-            loadLayoutMediaPreviews(wysId);
-            $('#wysiwyg_modal_' + wysId).modal('hide');
-        }
     });
+    
+    if(mediaOptionsChecked >= $('#layout_media_options input').length) {
+        var mediaFormat = getMediaFormat(wysId);console.log('MF='+mediaFormat);
+
+        for(var i = 0; i < associatedMedia.length; i++) {
+            toolbarAction(wysId, 'inserthtml', '<div>^media_display_' + associatedMedia[i] + mediaFormat + '^</div>');
+        }
+
+        loadLayoutMediaPreviews(wysId);
+        $('#wysiwyg_modal_' + wysId).modal('hide');
+    }
 }
 
 function getMediaFormat(wysId)
