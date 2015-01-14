@@ -535,6 +535,26 @@ Util.getFiles = function(dirPath, options, cb) {
 };
 
 /**
+ * Retrieves the extension off of the end of a string that represents a URI to 
+ * a resource
+ * @static
+ * @method getExtension
+ * @param {String} path URI to the resource
+ * @return {String} The value after the last '.' character
+ */
+Util.getExtension = function(path) {
+    if (!pb.validation.isNonEmptyStr(path, true)) {
+        return null;
+    }
+    
+    var index = path.lastIndexOf('.');
+    if (index >= 0) {
+        return path.substring(index + 1);
+    }
+    return null;
+};
+
+/**
  * Provides typical conversions for time
  * @static
  * @readonly

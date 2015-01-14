@@ -38,12 +38,12 @@
 					return;
 				}
 
-				$scope.media.media_type = result.data.mediaType;
+				$scope.media.media_type = result.data.type;
 				$scope.media.location = result.data.location;
 				$scope.media.thumb = result.data.thumb;
 				$scope.media.is_file = result.data.isFile;
 
-				mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+				mediaService.getMediaPreview(result.data.type, result.data.location, function(err, result) {
 					$scope.loadingLink = false;
 
 					if(err) {
@@ -75,12 +75,12 @@
 							return;
 						}
 
-						$scope.media.media_type = result.data.mediaType;
+						$scope.media.media_type = result.data.type;
 						$scope.media.location = result.data.location;
 						$scope.media.thumb = result.data.thumb;
 						$scope.media.is_file = result.data.isFile;
 
-						mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+						mediaService.getMediaPreview(result.data.type, result.data.location, function(err, result) {
 							$scope.uploading = false;
 
 							if(err) {

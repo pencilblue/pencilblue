@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,16 +17,16 @@
 
 /**
  * Adds new media
+ * @class NewMediaApiController
+ * @constructor
+ * @extends BaseController
  */
-
-function AddMediaActionController(){}
-
-var mediaService = require(DOCUMENT_ROOT + '/include/service/entities/media_service.js');
+function NewMediaApiController(){}
 
 //inheritance
-util.inherits(AddMediaActionController, pb.BaseController);
+util.inherits(NewMediaApiController, pb.BaseController);
 
-AddMediaActionController.prototype.render = function(cb) {
+NewMediaApiController.prototype.render = function(cb) {
 	var self = this;
 
 	this.getJSONPostParams(function(err, post) {
@@ -56,9 +56,13 @@ AddMediaActionController.prototype.render = function(cb) {
 	});
 };
 
-AddMediaActionController.prototype.getRequiredParams = function() {
+/**
+ * @static
+ * @method getRequiredParams
+ */
+NewMediaApiController.prototype.getRequiredParams = function() {
 	return ['media_type', 'location', 'name'];
 };
 
 //exports
-module.exports = AddMediaActionController;
+module.exports = NewMediaApiController;
