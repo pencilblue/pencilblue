@@ -378,8 +378,10 @@ MediaService.isFile = function(mediaUrl) {
  * Generates a media descriptor for a given media URL
  * @method getMediaDescriptor
  * @param {String} mediaURL
- * @param {Boolean} isFile
- * @param {Function} cb
+ * @param {Boolean} isFile Indicates if the media resource was uploaded to the server.
+ * @param {Function} cb A callback with two parameters. First, an Error if 
+ * occurred and second is an object that describes the media resource described 
+ * by the given media URL
  */
 MediaService.prototype.getMediaDescriptor = function(mediaUrl, cb) {
     
@@ -429,8 +431,12 @@ MediaService.prototype.getMediaDescriptor = function(mediaUrl, cb) {
  * @param {String} options.location The unique media identifier for the type
  * @param {String} [options.type] The type of provider that knows how to render 
  * the resource
- * @param {Object} [options.attrs] The embed element attributes
- * @param {Object} [options.style] The embed element style properties
+ * @param {Object} [options.attrs] The desired HTML attributes that will be 
+ * added to the element that provides the rendering
+ * @param {Object} [options.style] The desired style overrides for the media
+ * @param {String} [options.view] The view type that the media will be rendered 
+ * for (view, editor, post).  Any style options provided will override those 
+ * provided by the default style associated with the view.
  * @param {Function} cb A callback that provides two parameters.  An Error if 
  * exists and the rendered HTML content for the media resource.
  */
@@ -453,8 +459,13 @@ MediaService.prototype.renderByLocation = function(options, cb) {
  * id.
  * @method renderById
  * @param {String} The media resource ID
- * @param {Object} options The desired HTML attributes that will be added to the 
- * element that provides the rendering.
+ * @param {Object} options
+ * @param {Object} [options.attrs] The desired HTML attributes that will be 
+ * added to the element that provides the rendering
+ * @param {Object} [options.style] The desired style overrides for the media
+ * @param {String} [options.view] The view type that the media will be rendered 
+ * for (view, editor, post).  Any style options provided will override those 
+ * provided by the default style associated with the view.
  * @param {Function} cb A callback that provides two parameters. An Error if 
  * exists and the rendered HTML content for the media resource.
  */
@@ -475,6 +486,20 @@ MediaService.prototype.renderById = function(id, options, cb) {
     });
 };
 
+/**
+ * Renders the media represented by the provided media flag
+ * @method render
+ * @param {String} The media resource ID
+ * @param {Object} options
+ * @param {Object} [options.attrs] The desired HTML attributes that will be 
+ * added to the element that provides the rendering
+ * @param {Object} [options.style] The desired style overrides for the media
+ * @param {String} [options.view] The view type that the media will be rendered 
+ * for (view, editor, post).  Any style options provided will override those 
+ * provided by the default style associated with the view.
+ * @param {Function} cb A callback that provides two parameters. An Error if 
+ * exists and the rendered HTML content for the media resource.
+ */
 MediaService.prototype.renderByFlag = function(flag, options, cb) {
     if (pb.utils.isString(flag)) {
         flag = MediaService.parseMediaFlag(flag);
@@ -502,8 +527,13 @@ MediaService.prototype.renderByFlag = function(flag, options, cb) {
  * Renders the media represented by the provided media descriptor.
  * @method render
  * @param {String} The media resource ID
- * @param {Object} props The desired HTML attributes that will be added to the 
- * element that provides the rendering.
+ * @param {Object} options
+ * @param {Object} [options.attrs] The desired HTML attributes that will be 
+ * added to the element that provides the rendering
+ * @param {Object} [options.style] The desired style overrides for the media
+ * @param {String} [options.view] The view type that the media will be rendered 
+ * for (view, editor, post).  Any style options provided will override those 
+ * provided by the default style associated with the view.
  * @param {Function} cb A callback that provides two parameters. An Error if 
  * exists and the rendered HTML content for the media resource.
  */
@@ -523,6 +553,17 @@ MediaService.prototype.render = function(media, options, cb) {
     result.renderer.render(media, options, cb);
 };
 
+/**
+ * Retrieves the base style for the given renderer and view.  Overrides will be 
+ * applied on top of the base style.
+ * @static
+ * @method getStyleForView
+ * @param {MediaRenderer} renderer An implementation of MediaRenderer
+ * @param {String} view The view to retrieve the default styling for (view, 
+ * editor, post)
+ * @param {Object} [overrides] A hash of style properties that will be applied 
+ * to the base style for the given view
+ */
 MediaService.getStyleForView = function(renderer, view, overrides) {
     if (!overrides) {
         overrides = {};
@@ -622,8 +663,20 @@ MediaService.getMediaFlag = function(mid, options) {
 };
 
 /**
- * Given a content string the function will search for and extract the first occurance of a media flag.
- *
+ * Given a content string the function will search for and extract the first 
+ * occurance of a media flag. The parsed value that is returned will include:
+ * <ul>
+ * <li>startIndex - The index where the flag was found to start</li>
+ * <li>endIndex - The position in the content string of the last character of the media flag</li>
+ * <li>flag - The entire media flag including the start and end markers</li>
+ * <li>id - The media descriptor id that is referenced by the media flag</li>
+ * <li>style - A hash of the style properties declared for the flag</li>
+ * <li>cleanFlag - The media flag stripped of the start and end markers</li>
+ * </ul>
+ * @static
+ * @method extractNextMediaFlag
+ * @param {String} content The content string that potentially contains 1 or more media flags
+ * @return {Object} An object that contains the information about the parsed media flag.
  */
 MediaService.extractNextMediaFlag = function(content) {
     if (!pb.utils.isString(content)) {
@@ -654,11 +707,17 @@ MediaService.extractNextMediaFlag = function(content) {
 };
 
 /**
- * Parses a media flag and returns each part in an object
+ * Parses a media flag and returns each part in an object. The parsed value that 
+ * is returned will include:
+ * <ul>
+ * <li>id - The media descriptor id that is referenced by the media flag</li>
+ * <li>style - A hash of the style properties declared for the flag</li>
+ * <li>cleanFlag - The media flag stripped of the start and end markers</li>
+ * </ul>
  * @static
- * @method parseMediaFlag
- * @param {String} flag The media flag to parse
- * @return {Object} All extracted pieces from the flag
+ * @method .
+ * @param {String} content The content string that potentially contains 1 or more media flags
+ * @return {Object} An object that contains the information about the parsed media flag.
  */
 MediaService.parseMediaFlag = function(flag) {
     if (!pb.utils.isString(flag)) {
@@ -689,13 +748,23 @@ MediaService.parseMediaFlag = function(flag) {
     };
 };
 
+/**
+ * The default editor implementations all for three position values to declared 
+ * for embeded media (none, left, right, center).  These values map to HTML 
+ * alignments.  This function retrieves the HTML style attribute for the 
+ * provided position.
+ * @static
+ * @method getStyleForPosition
+ * @param {String} position Can be one of 4 values: none, left, right, center
+ * @return {String} The HTML formatted style attribute(s)
+ */
 MediaService.getStyleForPosition = function(position) {
     var positionToStyle = {
         left: 'float: left;margin-right: 1em',
         right: 'float: right;margin-left: 1em',
         center: 'text-align: center'
     };
-	return positionToStyle[position];
+	return positionToStyle[position] || '';
 };
 
 /**
