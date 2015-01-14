@@ -258,9 +258,7 @@ VideoMediaRenderer.getMediaId = function(urlStr, cb) {
 VideoMediaRenderer.getMeta = function(urlStr, isFile, cb) {
     var ext = pb.utils.getExtension(urlStr);
     var meta = pb.utils.clone(SUPPORTED[ext]);
-    process.nextTick(function() {
-        cb(null, meta);
-    });
+    cb(null, meta);
 };
 
 /**
@@ -273,9 +271,7 @@ VideoMediaRenderer.getMeta = function(urlStr, isFile, cb) {
  * NULL if no thumbnail is available
  */
 VideoMediaRenderer.getThumbnail = function(urlStr, cb) {
-    process.nextTick(function() {
-        cb(null, '');
-    });
+    cb(null, '');
 };
 
 /**

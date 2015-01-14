@@ -16,9 +16,7 @@
 */
 
 //dependencies
-var process = require('process');
 var url = require('url');
-var HtmlEncoder = require('htmlencode');
 var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
@@ -232,11 +230,8 @@ InstagramMediaRenderer.getMediaId = function(urlStr, cb) {
  */
 InstagramMediaRenderer.getMeta = function(urlStr, isFile, cb) {
     var details = url.parse(urlStr, true, true);
-
     var meta = details.query;
-    process.nextTick(function() {
-        cb(null, meta);
-    });
+    cb(null, meta);
 };
 
 /**
@@ -249,9 +244,7 @@ InstagramMediaRenderer.getMeta = function(urlStr, isFile, cb) {
  * NULL if no thumbnail is available
  */
 InstagramMediaRenderer.getThumbnail = function(urlStr, cb) {
-    process.nextTick(function() {
-        cb(null, '');
-    });
+    cb(null, '');
 };
 
 /**

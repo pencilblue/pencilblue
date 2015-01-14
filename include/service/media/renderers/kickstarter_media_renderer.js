@@ -16,9 +16,7 @@
 */
 
 //dependencies
-var process = require('process');
 var url = require('url');
-var HtmlEncoder = require('htmlencode');
 var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
@@ -238,11 +236,8 @@ KickStarterMediaRenderer.getMediaId = function(urlStr, cb) {
  */
 KickStarterMediaRenderer.getMeta = function(urlStr, isFile, cb) {
     var details = url.parse(urlStr, true, true);
-
     var meta = details.query;
-    process.nextTick(function() {
-        cb(null, meta);
-    });
+    cb(null, meta);
 };
 
 /**
@@ -255,9 +250,7 @@ KickStarterMediaRenderer.getMeta = function(urlStr, isFile, cb) {
  * NULL if no thumbnail is available
  */
 KickStarterMediaRenderer.getThumbnail = function(urlStr, cb) {
-    process.nextTick(function() {
-        cb(null, '');
-    });
+    cb(null, '');
 };
 
 /**

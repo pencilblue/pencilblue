@@ -16,7 +16,6 @@
 */
 
 //dependencies
-var process = require('process');
 var url = require('url');
 var BaseMediaRenderer = require('./base_media_renderer.js');
 
@@ -231,11 +230,7 @@ VineMediaRenderer.getMediaId = function(urlStr, cb) {
  */
 VineMediaRenderer.getMeta = function(urlStr, isFile, cb) {
     var details = url.parse(urlStr, true, true);
-
-    var meta = details.query;
-    process.nextTick(function() {
-        cb(null, meta);
-    });
+    cb(null, details.query);
 };
 
 /**
@@ -248,9 +243,7 @@ VineMediaRenderer.getMeta = function(urlStr, isFile, cb) {
  * NULL if no thumbnail is available
  */
 VineMediaRenderer.getThumbnail = function(urlStr, cb) {
-    process.nextTick(function() {
-        cb(null, '');
-    });
+    cb(null, '');
 };
 
 /**

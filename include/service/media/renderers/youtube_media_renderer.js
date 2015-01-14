@@ -17,7 +17,6 @@
 
 //dependencies
 var url = require('url');
-var HtmlEncoder = require('htmlencode');
 var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**

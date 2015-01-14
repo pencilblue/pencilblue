@@ -16,7 +16,6 @@
 */
 
 //dependencies
-var process = require('process');
 var url = require('url');
 var BaseMediaRenderer = require('./base_media_renderer.js');
 
@@ -231,11 +230,8 @@ TrinketMediaRenderer.getMediaId = function(urlStr, cb) {
  */
 TrinketMediaRenderer.getMeta = function(urlStr, isFile, cb) {
     var details = url.parse(urlStr, true, true);
-
     var meta = details.query;
-    process.nextTick(function() {
-        cb(null, meta);
-    });
+    cb(null, meta);
 };
 
 /**
@@ -248,9 +244,7 @@ TrinketMediaRenderer.getMeta = function(urlStr, isFile, cb) {
  * NULL if no thumbnail is available
  */
 TrinketMediaRenderer.getThumbnail = function(urlStr, cb) {
-    process.nextTick(function() {
-        cb(null, '');
-    });
+    cb(null, '');
 };
 
 /**

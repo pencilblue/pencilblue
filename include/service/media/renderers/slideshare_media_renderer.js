@@ -16,10 +16,8 @@
 */
 
 //dependencies
-var process = require('process');
 var url = require('url');
 var https = require('https');
-var HtmlEncoder = require('htmlencode');
 var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
@@ -236,11 +234,8 @@ SlideShareMediaRenderer.getMediaId = function(urlStr, cb) {
  */
 SlideShareMediaRenderer.getMeta = function(urlStr, isFile, cb) {
     var details = url.parse(urlStr, true, true);
-
     var meta = details.query;
-    process.nextTick(function() {
-        cb(null, meta);
-    });
+    cb(null, meta);
 };
 
 /**

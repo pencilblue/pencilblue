@@ -16,7 +16,6 @@
 */
 
 //dependencies
-var HtmlEncoder = require('htmlencode');
 var BaseMediaRenderer = require('./base_media_renderer.js');
 
 /**
