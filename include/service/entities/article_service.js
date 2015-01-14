@@ -22,16 +22,6 @@
  */
 
 /**
- * Service calls for individual entities in the system
- *
- * @module Services
- * @submodule Entities
- */
-
-//dependencies
-var Media = require(path.join(DOCUMENT_ROOT, 'include/theme/media'));
-
-/**
  * Retrieves articles and pages
  *
  * @class ArticleService

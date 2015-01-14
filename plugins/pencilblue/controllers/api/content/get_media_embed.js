@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,17 +16,21 @@
 */
 
 /**
- * Retrieve a media embed
- * @class GetMediaEmbedController
+ * Retrieve a media embed for use in an editor
+ * @class GetMediaEmbedApiController
  * @constructor
  * @extends BaseController
  */
-function GetMediaEmbedController(){}
+function GetMediaEmbedApiController(){}
 
 //inheritance
-util.inherits(GetMediaEmbedController, pb.BaseController);
+util.inherits(GetMediaEmbedApiController, pb.BaseController);
 
-GetMediaEmbedController.prototype.render = function(cb) {
+/**
+ * Renders the media for embeding in the editor view
+ * @method 
+ */
+GetMediaEmbedApiController.prototype.render = function(cb) {
     var self = this;
     var get = this.query;
 
@@ -76,4 +80,4 @@ GetMediaEmbedController.prototype.render = function(cb) {
 };
 
 //exports
-module.exports = GetMediaEmbedController;
+module.exports = GetMediaEmbedApiController;

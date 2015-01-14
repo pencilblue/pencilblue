@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -314,7 +314,6 @@ function loadLayoutMediaPreviews(wysId)
     var endIndex = layout.substr(startIndex).indexOf('^');
     var mediaProperties = layout.substr(startIndex, endIndex).split('/');
     var mediaID = mediaProperties[0];
-    //var styles = getLayoutMediaStyle(mediaProperties[1]);
     var mediaTag = layout.substr(startIndex - 14, endIndex + 14);
 
     $.getJSON('/api/content/get_media_embed?id=' + mediaID + '&tag=' + encodeURIComponent(mediaTag), function(result)
@@ -326,55 +325,12 @@ function loadLayoutMediaPreviews(wysId)
             layout = layout.split('^' + mediaTag + '^').join(mediaPreview);
             $('#wysiwyg_' + wysId + ' .layout_editable').html(layout);
 
-            //$('#wysiwyg_' + wysId + ' #media_preview_' + mediaID).children().first().attr('style', styles.mediaCSS);
-
             if(layout.indexOf('^media_display_') > -1) {
                 loadLayoutMediaPreviews(wysId);
             }
         }
     });
 }
-
-//function getLayoutMediaStyle(styleString)
-//{
-//    var styleElements = styleString.split(',');
-//    var containerCSS = [];
-//    var mediaCSS = [];
-//
-//    for(var i = 0; i < styleElements.length; i++)
-//    {
-//        var styleSetting = styleElements[i].split(':');
-//
-//        switch(styleSetting[0])
-//        {
-//            case 'position':
-//                switch(styleSetting[1]) {
-//                    case 'left':
-//                        containerCSS.push('float: left');
-//                        containerCSS.push('margin-right: 1em');
-//                        break;
-//
-//                    case 'right':
-//                        containerCSS.push('float: right');
-//                        containerCSS.push('margin-left: 1em');
-//                        break;
-//                    case 'center':
-//                        containerCSS.push('text-align: center');
-//                        break;
-//                    default:
-//                        break;
-//                }
-//                break;
-//            case 'maxheight':
-//                mediaCSS.push('max-height: ' + styleSetting[1]);
-//                break;
-//            default:
-//                break;
-//        }
-//    }
-//
-//    return {containerCSS: containerCSS.join('; '), mediaCSS: mediaCSS.join('; ')};
-//}
 
 function associateMedia(wysId)
 {
