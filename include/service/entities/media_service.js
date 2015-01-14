@@ -776,8 +776,8 @@ MediaService.getStyleForPosition = function(position) {
  */
 MediaService.generateMediaPath = function(originalFilename) {
     var now = new Date();
-    var fn  = MediaService.generateFilename(originalFilename);
-    return path.join('/media', now.getFullYear() + '', (now.getMonth() + 1) + '', fn);
+    var filename  = MediaService.generateFilename(originalFilename);
+    return pb.UrlService.urlJoin('/media', now.getFullYear() + '', (now.getMonth() + 1) + '', filename);
 };
 
 /**
