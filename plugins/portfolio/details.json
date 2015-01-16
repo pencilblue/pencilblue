@@ -46,7 +46,7 @@
         "content_templates":
         [
             {
-                "file": "blog",
+                "file": "index",
                 "name": "Blog"
             }
         ]

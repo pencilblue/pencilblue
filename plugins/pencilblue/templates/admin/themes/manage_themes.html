@@ -28,7 +28,7 @@
                             <th>^loc_ACTIVE^</th>
                             <th></th>
                         </tr>
-                        <tr class="theme_row" ng-repeat="t in themes track by themes.uid" on-finish-render ng-cloak>
+                        <tr class="theme_row" ng-repeat="t in themes track by t.uid" on-finish-render ng-cloak>
                             <td><a ng-href="/admin/plugins/{{t.uid}}" title="{{t.description}}" ng-bind="t.uid"></a></td>
                             <td ng-bind="t.version"></td>
                             <td ng-bind="t.created | date: 'yyyy-MM-dd HH:mm'"></td>
