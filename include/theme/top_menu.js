@@ -175,7 +175,7 @@ TopMenuService.getBootstrapNav = function(navigation, accountButtons, cb)
                             var childItem = linkTemplate;
                             childItem = childItem.split('^active^').join((navigation[i].children[j].active) ? 'active' : '');
                             childItem = childItem.split('^url^').join(navigation[i].children[j].url);
-                            childItem = childItem.split('^new_tab^').join(navigation[i].children[j].new_tab ? '_blank' : '');
+                            childItem = childItem.split('^new_tab^').join(navigation[i].children[j].new_tab ? '_blank' : '_self');
                             childItem = childItem.split('^name^').join(navigation[i].children[j].name);
 
                             subNav = subNav.concat(childItem);
