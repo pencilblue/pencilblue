@@ -92,7 +92,7 @@ BaseMediaRenderer.getStyleAttrStr = function(style) {
     for (var key in style) {
         styleStr += key + ':' + HtmlEncoder.htmlEncode(style[key] + '') + ';';
     }
-    styleStr += '" ';console.log('***'+styleStr);
+    styleStr += '" ';
     return styleStr;
 }
 

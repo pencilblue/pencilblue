@@ -214,7 +214,7 @@ SlideShareMediaRenderer.getEmbedUrl = function(mediaId) {
  * @method getMediaId
  */
 SlideShareMediaRenderer.getMediaId = function(urlStr, cb) {
-    SlideShareMediaRenderer.getDetails(urlStr, function(err, details) {console.log('***');console.log(details);
+    SlideShareMediaRenderer.getDetails(urlStr, function(err, details) {
         if (util.isError(err)) {
             return cb(err);   
         }
