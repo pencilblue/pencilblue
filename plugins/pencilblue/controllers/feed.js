@@ -39,7 +39,8 @@ ArticleFeed.prototype.render = function(cb) {
         var opts = {
             select: pb.DAO.PROJECT_ALL,
             where: {publish_date: {$lte: new Date()}},
-            order: {publish_date: pb.DAO.DESC}
+            order: {publish_date: pb.DAO.DESC},
+            limit: 100
         };
         var dao   = new pb.DAO();
         dao.q('article', opts, function(err, articles) {
@@ -53,7 +54,7 @@ ArticleFeed.prototype.render = function(cb) {
 	            self.getSectionNames(articles, function(err, articlesWithSectionNames) {
 	                articles = articlesWithSectionNames;
 
-	                self.getMedia(articles, function(articlesWithMedia) {
+	                self.getMedia(articles, function(err, articlesWithMedia) {
 	                    articles = articlesWithMedia;
 
 
@@ -145,7 +146,7 @@ ArticleFeed.prototype.getSectionNames = function(articles, cb) {
             articles[i].section_names = sectionNames;
         }
 
-        cb(articles);
+        cb(null, articles);
     });
 };
 
@@ -161,9 +162,7 @@ ArticleFeed.prototype.getMedia = function(articles, cb) {
     	    });
     	};
     });
-    async.series(tasks, function(err, articles) {
-    	cb(articles);
-    });
+    async.series(tasks, cb);
 };
 
 ArticleFeed.getRSSDate = function(date) {
