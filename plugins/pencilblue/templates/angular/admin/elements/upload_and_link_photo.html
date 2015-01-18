@@ -39,7 +39,7 @@
 
 				$rootScope.photoValue = $scope.photo.location;
 
-				mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+				mediaService.getMediaPreview(result.data.media_type, result.data.location, function(err, result) {
 					$scope.loadingLink = false;
 
 					$('#photo_modal').modal('hide');
@@ -69,14 +69,14 @@
 							return;
 						}
 
-						$scope.photo.media_type = result.data.mediaType;
+						$scope.photo.media_type = result.data.media_type;
 						$scope.photo.location = result.data.location;
 						$scope.photo.thumb = result.data.thumb;
 						$scope.photo.is_file = result.data.isFile;
 
 						$rootScope.photoValue = $scope.photo.location;
 
-						mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+						mediaService.getMediaPreview(result.data.media_type, result.data.location, function(err, result) {
 							$scope.uploading = false;
 
 							$('#photo_modal').modal('hide');
