@@ -565,9 +565,6 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
             mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
             mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption ? '' : 'display: none');
             mediaEmbed     = mediaEmbed.split('^container_style^').join(containerStyleStr);
-
-            console.log('RL='+layout);
-            console.log('NL='+layout.replace(flag.flag, mediaEmbed));
             cb(null, layout.replace(flag.flag, mediaEmbed));
         });
     });
