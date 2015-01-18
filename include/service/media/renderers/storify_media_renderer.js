@@ -117,7 +117,7 @@ StorifyMediaRenderer.isFullSite = function(parsedUrl) {
     if (pb.utils.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
-    return parsedUrl.host.indexOf('storify.com') >= 0 && parsedUrl.pathname.indexOf('/') >= 0;
+    return parsedUrl.host && parsedUrl.host.indexOf('storify.com') >= 0 && parsedUrl.pathname.indexOf('/') >= 0;
 };
 
 /**

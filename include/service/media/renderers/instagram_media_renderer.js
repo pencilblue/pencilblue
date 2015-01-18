@@ -116,7 +116,7 @@ InstagramMediaRenderer.isFullSite = function(parsedUrl) {
     if (pb.utils.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
-    return parsedUrl.host.indexOf('instagram.com') >= 0 && parsedUrl.pathname.indexOf('/p/') === 0;
+    return parsedUrl.host && parsedUrl.host.indexOf('instagram.com') >= 0 && parsedUrl.pathname.indexOf('/p/') === 0;
 };
 
 /**

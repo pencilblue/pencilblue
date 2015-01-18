@@ -124,7 +124,7 @@ ImageMediaRenderer.getName = function() {
  * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
  */
 ImageMediaRenderer.isSupported = function(urlStr) {
-    var ext = pb.utils.getExtension(urlStr);
+    var ext = pb.utils.getExtension(urlStr, {lower: true});console.log('EXT==='+ext);
     return SUPPORTED[ext] ? true : false;
 };
 
@@ -236,7 +236,7 @@ ImageMediaRenderer.getMediaId = function(urlStr, cb) {
  * Object if meta was collected.  NULL if no meta was collected
  */
 ImageMediaRenderer.getMeta = function(urlStr, isFile, cb) {
-    var ext = pb.utils.getExtension(urlStr);
+    var ext = pb.utils.getExtension(urlStr, {lower: true});
     var meta = pb.utils.clone(SUPPORTED[ext]);
     cb(null, meta);
 };

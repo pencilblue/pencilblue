@@ -116,7 +116,7 @@ TrinketMediaRenderer.isFullSite = function(parsedUrl) {
     if (pb.utils.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
-    return parsedUrl.host.indexOf('trinket.io') >= 0 && (parsedUrl.pathname.indexOf('/python/') === 0 || parsedUrl.pathname.indexOf('/embed/') === 0);
+    return parsedUrl.host && parsedUrl.host.indexOf('trinket.io') >= 0 && (parsedUrl.pathname.indexOf('/python/') === 0 || parsedUrl.pathname.indexOf('/embed/') === 0);
 };
 
 /**

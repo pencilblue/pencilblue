@@ -540,18 +540,26 @@ Util.getFiles = function(dirPath, options, cb) {
  * @static
  * @method getExtension
  * @param {String} path URI to the resource
+ * @param {Object} [options]
+ * @param {Boolean} [options.lower=false] When TRUE the extension will be returned as lower case
  * @return {String} The value after the last '.' character
  */
-Util.getExtension = function(path) {
+Util.getExtension = function(path, options) {
     if (!pb.validation.isNonEmptyStr(path, true)) {
         return null;
     }
     
+    var ext = null;
     var index = path.lastIndexOf('.');
     if (index >= 0) {
-        return path.substring(index + 1);
+        ext = path.substring(index + 1);
+        
+        //apply options
+        if (options && options.lower) {
+            ext = ext.toLowerCase();
+        }
     }
-    return null;
+    return ext;
 };
 
 /**
