@@ -117,7 +117,7 @@ VineMediaRenderer.isFullSite = function(parsedUrl) {
     if (pb.utils.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
-    return parsedUrl.host.indexOf('vine.co') >= 0 && parsedUrl.pathname.indexOf('/v/') >= 0;
+    return parsedUrl.host && parsedUrl.host.indexOf('vine.co') >= 0 && parsedUrl.pathname.indexOf('/v/') >= 0;
 };
 
 /**
