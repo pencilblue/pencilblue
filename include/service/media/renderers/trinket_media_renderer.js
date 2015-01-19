@@ -116,7 +116,7 @@ TrinketMediaRenderer.isFullSite = function(parsedUrl) {
     if (pb.utils.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
-    return parsedUrl.host && parsedUrl.host.indexOf('trinket.io') >= 0 && (parsedUrl.pathname.indexOf('/python/') === 0 || parsedUrl.pathname.indexOf('/embed/') === 0);
+    return parsedUrl.host && parsedUrl.host.indexOf('trinket.io') >= 0 && (parsedUrl.pathname.indexOf('/python/') === 0 || parsedUrl.pathname.indexOf('/embed/') === 0 || parsedUrl.pathname.indexOf('/library/trinkets/') === 0);
 };
 
 /**
@@ -215,7 +215,7 @@ TrinketMediaRenderer.getEmbedUrl = function(mediaId) {
 TrinketMediaRenderer.getMediaId = function(urlStr, cb) {
     var details = url.parse(urlStr, true, true);
     var parts = details.pathname.split('/');
-    cb(null, parts[2]);
+    cb(null, parts[3]);
 };
 
 /**
