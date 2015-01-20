@@ -1,3 +1,12 @@
+/*
+ * PencilBlue 0.3.1 localisation file for Polish.
+ * Version:     0.1
+ * Author:      Lukasz Galuszka
+ * Change Log:
+ *              20/01/2015 Initial version
+ *              
+ */
+
 var loc =
 {
     generic:
