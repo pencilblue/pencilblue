@@ -22,7 +22,7 @@ function ThemeService(useMemory, useCache) {
 
 	//add in-memory service
 	if (useMemory){
-		services.push(new pb.MemoryEntityService(objType));
+		services.push(new pb.MemoryEntityService({objType: objType}));
 	}
 
 	//add cache service

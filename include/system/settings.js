@@ -30,7 +30,12 @@ SettingServiceFactory.getService = function(useMemory, useCache) {
 
 	//add in-memory service
 	if (useMemory){
-		services.push(new pb.MemoryEntityService(objType, valueField, keyField));
+        var options = {
+            objType: objType,
+            valueField: valueField,
+            keyField: keyField
+        };
+		services.push(new pb.MemoryEntityService(options));
 	}
 
 	//add cache service

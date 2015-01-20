@@ -79,7 +79,7 @@ RedisRegistrationProvider.prototype.get = function(cb) {
                 for (var key in statusObj) {
                     try {
                         var status = JSON.parse(statusObj[key]);
-                        status._id = key;
+                        status._id = status.id || key;
                         statuses.push(status);
                     }
                     catch(e){}
