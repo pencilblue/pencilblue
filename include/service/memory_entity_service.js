@@ -167,8 +167,7 @@ MemoryEntityService.prototype.setKeyExpiration = function(key) {
     
     //now set the timeout if configured to do so
     var self = this;
-    setTimeout(function() {
-        pb.log.debug('MemoryEntityService: Expiring %s', key);
+    this.timers[key] = setTimeout(function() {
         self.purge(key, pb.utils.cb)
     }, this.timeout);
 };
