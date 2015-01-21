@@ -33,7 +33,8 @@ SettingServiceFactory.getService = function(useMemory, useCache) {
         var options = {
             objType: objType,
             valueField: valueField,
-            keyField: keyField
+            keyField: keyField,
+            timeout: pb.config.settings.memory_timeout
         };
 		services.push(new pb.MemoryEntityService(options));
 	}

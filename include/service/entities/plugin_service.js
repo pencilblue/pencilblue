@@ -506,7 +506,11 @@ PluginService.genSettingsService = function(objType, useMemory, useCache, servic
 	//add in-memory service
 	var services = [];
 	if (useMemory){
-		services.push(new pb.MemoryEntityService({objType: objType}));
+        var options = {
+            objType: objType,
+            timeout: pb.config.plugins.caching.memory_timeout
+        };
+		services.push(new pb.MemoryEntityService(options));
 	}
 
 	//add cache service

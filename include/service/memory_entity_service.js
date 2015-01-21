@@ -35,6 +35,7 @@ function MemoryEntityService(options){
     this.timers     = {};
     this.timeout    = options.timeout || 0;
     this.changeHandler = MemoryEntityService.createChangeHandler(this);
+    
     //register change handler
     pb.CommandService.registerForType(MemoryEntityService.getOnChangeType(this.objType), this.changeHandler);
 }
@@ -79,12 +80,12 @@ MemoryEntityService.prototype.get = function(key, cb){
 };
 
 /**
- * Set a value in memory
- *
+ * Set a value in memory.  Triggers a command to be sent to the cluster to 
+ * update the value
  * @method set
- * @param {String}   key
- * @param {*}        value
- * @param {Function} cb    Callback function
+ * @param {String} key
+ * @param {*} value
+ * @param {Function} cb Callback function
  */
 MemoryEntityService.prototype.set = function(key, value, cb) {
     var self = this;
@@ -96,6 +97,14 @@ MemoryEntityService.prototype.set = function(key, value, cb) {
     });
 };
 
+/**
+ * Sets a value
+ * @private
+ * @method _set
+ * @param {String} key
+ * @param {Object|String|Integer|Float|Boolean} value
+ * @param {Function} 
+ */
 MemoryEntityService.prototype._set = function(key, value, cb) {
     var rawValue = null;
 	if (this.storage.hasOwnProperty(key)) {
@@ -159,6 +168,7 @@ MemoryEntityService.prototype.setKeyExpiration = function(key) {
     //now set the timeout if configured to do so
     var self = this;
     setTimeout(function() {
+        pb.log.debug('MemoryEntityService: Expiring %s', key);
         self.purge(key, pb.utils.cb)
     }, this.timeout);
 };
