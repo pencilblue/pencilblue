@@ -54,7 +54,11 @@ function TemplateService(localizationService){
 
 		//add in-memory service
 		if (pb.config.templates.use_memory){
-			services.push(new pb.MemoryEntityService(objType));
+            var options = {
+                objType: objType,
+                timeout: pb.config.templates.memory_timeout
+            };
+			services.push(new pb.MemoryEntityService(options));
 		}
 
 		//add cache service

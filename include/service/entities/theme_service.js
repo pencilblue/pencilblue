@@ -22,7 +22,11 @@ function ThemeService(useMemory, useCache) {
 
 	//add in-memory service
 	if (useMemory){
-		services.push(new pb.MemoryEntityService(objType));
+        var options = {
+            objType: objType,
+            timeout: pb.config.plugins.caching.memory_timeout
+        };
+		services.push(new pb.MemoryEntityService(options));
 	}
 
 	//add cache service

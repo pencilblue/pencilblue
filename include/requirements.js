@@ -72,10 +72,6 @@ pb.ReadOnlySimpleLayeredService = require(DOCUMENT_ROOT+'/include/service/read_o
 pb.TemplateEntityService        = require(DOCUMENT_ROOT+'/include/service/template_entity_service.js').TemplateEntityService;
 pb.CustomObjectService          = require(path.join(DOCUMENT_ROOT, 'include/service/entities/custom_object_service.js'));
 
-//setup settings service
-pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').SettingServiceFactory;
-pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
-
 //setup template service
 var TemplateModule = require(DOCUMENT_ROOT+'/include/service/entities/template_service.js');
 pb.TemplateService = TemplateModule.TemplateService;
@@ -117,6 +113,10 @@ pb.ServerRegistration        = require(DOCUMENT_ROOT+'/include/system/server_reg
 pb.RedisCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/redis_command_broker.js'));
 pb.MongoCommandBroker = require(path.join(DOCUMENT_ROOT, '/include/system/command/mongo_command_broker.js'));
 pb.CommandService     = require(path.join(DOCUMENT_ROOT, '/include/system/command/command_service.js'));
+
+//setup settings service
+pb.SettingServiceFactory = require(DOCUMENT_ROOT+'/include/system/settings.js').SettingServiceFactory;
+pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
 
 //Jobs
 pb.JobRunner             = require(path.join(DOCUMENT_ROOT, '/include/service/jobs/job_runner.js'));

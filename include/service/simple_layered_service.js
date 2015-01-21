@@ -34,14 +34,18 @@ function SimpleLayeredService(services, name){
 	}
 }
 
+/**
+ * Logs the services that make up this layered service
+ * @method logInitialization
+ */
 SimpleLayeredService.prototype.logInitialization = function() {
 	var serviceTypes = [];
-	for (var i = 0; i < this.services.length; i++){
-		serviceTypes.push(this.services[i].type);
-	}
+	this.services.forEach(function(service) {
+        serviceTypes.push(service.type);
+    });
 
 	if (pb.log.isDebug()) {
-		pb.log.debug(this.name+": Initialized with layers - "+JSON.stringify(serviceTypes));
+		pb.log.debug("%s: Initialized with layers - %s", this.name, serviceTypes.toString());
 	}
 };
 
@@ -91,7 +95,12 @@ SimpleLayeredService.prototype.get = function(key, cb){
 
 				//set value in services that didn't have it.
 				for (var j = 0; j < i; j++) {
-					instance.services[j].set(key, entity, pb.utils.cb);
+                    if (instance.services[j]._set) {
+                        instance.services[j]._set(key, entity, pb.utils.cb)
+                    }
+                    else {
+					   instance.services[j].set(key, entity, pb.utils.cb);
+                    }
 				}
 			}
 

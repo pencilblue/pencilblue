@@ -402,7 +402,12 @@ var config = {
     //synced across cluster workers so be careful if this option is set to true.
 	settings: {
 		use_memory: true,
-		use_cache: false
+		use_cache: false,
+        
+        //The timeout specifies how long in milliseconds a setting will exist 
+        //in memory before being flushed.  A value of 0 indicates that the 
+        //values will not be purged from memory once expired.
+        memory_timeout: 0,
 	},
 
     //The template engine can take advantage of caching so that they are not
@@ -411,7 +416,12 @@ var config = {
     //after each tweak.
 	templates: {
 		use_memory: true,
-		use_cache: false
+		use_cache: false,
+        
+        //The timeout specifies how long in milliseconds a setting will exist 
+        //in memory before being flushed.  A value of 0 indicates that the 
+        //values will not be purged from memory once expired.
+        memory_timeout: 0,
 	},
 
     //Plugins can also take advantage of the caching.  This prevents a DB call
@@ -420,6 +430,11 @@ var config = {
 		caching: {
 			use_memory: true,
 			use_cache: false,
+            
+            //The timeout specifies how long in milliseconds a setting will exist 
+            //in memory before being flushed.  A value of 0 indicates that the 
+            //values will not be purged from memory once expired.
+            memory_timeout: 0,
 		}
 	},
 
