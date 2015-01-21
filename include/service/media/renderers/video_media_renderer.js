@@ -113,7 +113,7 @@ VideoMediaRenderer.getSupportedTypes = function() {
  * @return {String}
  */
 VideoMediaRenderer.getName = function() {
-    return 'ImageMediaProvider';
+    return 'VideoMediaProvider';
 };
 
 /**
