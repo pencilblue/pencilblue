@@ -17,6 +17,8 @@
 
 //dependencies
 var os = require('os');
+var fs = require('fs');
+var path = require('path');
 
 /**
  * A media provider that uses the underlying file system as the method of 

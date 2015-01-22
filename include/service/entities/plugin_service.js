@@ -16,10 +16,10 @@
 */
 
 //dependencies
+var fs  = require('fs');
 var npm = require('npm');
-npm.on('log', function(message) {
-    pb.log.info(message);
-});
+var path = require('path');
+var process = require('process');
 
 /**
  * PluginService - Provides functions for interacting with plugins.

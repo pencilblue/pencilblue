@@ -16,6 +16,8 @@
 */
 
 //dependencies
+var fs         = require('fs');
+var formidable = require('formidable');
 var wpXMLParse = pb.plugins.getService('wp_xml_parse', 'wp_import');
 
 /**

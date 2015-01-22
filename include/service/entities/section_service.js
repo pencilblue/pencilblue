@@ -15,11 +15,22 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var process = require('process');
+
 /**
  * Service for managing the site's navigation
  */
 function SectionService(){}
 
+/**
+ *
+ * @private
+ * @static
+ * @readonly
+ * @property VALID_TYPES
+ * @type {Object}
+ */
 var VALID_TYPES = {
 	container: true,
 	section: true,

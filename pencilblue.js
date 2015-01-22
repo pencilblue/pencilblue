@@ -15,7 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// A grouping of all require calls
+//dependencies
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
 global.pb = require('./include/requirements');
 
 /**

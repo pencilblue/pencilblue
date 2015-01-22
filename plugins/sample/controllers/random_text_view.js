@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var path           = require('path');
 var PluginService  = pb.PluginService;
 var TopMenuService = pb.TopMenuService;
 var TextService    = pb.plugins.getService('textService', 'sample');

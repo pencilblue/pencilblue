@@ -4,13 +4,9 @@
  * @copyright PencilBlue, all rights reserved.
  */
 //setup global resources & modules
-global.url        = require('url');
-global.fs         = require('fs');
-global.http       = require('http');
-global.https      = require('https');
-global.path       = require('path');
-global.formidable = require('formidable');
-global.process    = require('process');
+var path       = require('path');
+var formidable = require('formidable');
+var process    = require('process');
 global.minify     = require('minify');
 global.winston    = require('winston');
 global.async      = require('async');
@@ -24,10 +20,6 @@ var promise       = require('node-promise');
 global.when       = promise.when;
 global.Promise    = promise.Promise;
 global.Cookies    = require('cookies');
-
-//hack for fs module
-fs.exists     = fs.exists     || path.exists;
-fs.existsSync = fs.existsSync || path.existsSync;
 
 //define what will become the global entry point into the server api.
 global.pb = {};

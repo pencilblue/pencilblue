@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var fs  = require('fs');
+
 /**
  * File system storage service
  *

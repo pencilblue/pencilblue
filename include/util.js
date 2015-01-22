@@ -16,7 +16,11 @@
 */
 
 //dependencies
+var util   = require('util');
+var async  = require('async');
 var extend = require('node.extend');
+var fs     = require('fs');
+var path   = require('path');
 
 /**
  * Provides a set of utility functions used throughout the code base
@@ -140,13 +144,13 @@ Util.union = function(a, b) {
  * @example
  * <code>
  * var items = ['apple', 'orange'];
- * var tasks = pb.utils.getTasks(items, function(items, i) {
+ * var tasks = util.getTasks(items, function(items, i) {
  *     return function(callback) {
  *         console.log(items[i]);
  *         callback(null, null);
  *     };
  * });
- * async.series(tasks, pb.utils.cb);
+ * async.series(tasks, util.cb);
  * <code>
  */
 Util.getTasks = function (iterable, getTaskFunction) {
@@ -427,7 +431,7 @@ Util.getDirectories = function(dirPath, cb) {
 			return;
 		}
 
-		var tasks = pb.utils.getTasks(files, function(files, index) {
+		var tasks = Util.getTasks(files, function(files, index) {
 			return function(callback) {
 
 				var fullPath = path.join(dirPath, files[index]);
@@ -545,7 +549,7 @@ Util.getFiles = function(dirPath, options, cb) {
  * @return {String} The value after the last '.' character
  */
 Util.getExtension = function(path, options) {
-    if (!pb.validation.isNonEmptyStr(path, true)) {
+    if (!Util.isString(path) || path.length <= 0) {
         return null;
     }
     
@@ -560,6 +564,23 @@ Util.getExtension = function(path, options) {
         }
     }
     return ext;
+};
+
+//inherit from node's version of 'util'.  We can't use node's "util.inherits"
+//function because util is an object and not a prototype.
+Util.merge(util, Util);
+
+/**
+ * Overrides the basic inherit functionality to include static functions and 
+ * properties of prototypes
+ * @static
+ * @method inherits
+ * @param {Function} Type1
+ * @param {Function} Type2
+ */
+Util.inherits = function(Type1, Type2) {
+    util.inherits(Type1, Type2);
+    Util.merge(Type2, Type1);
 };
 
 /**

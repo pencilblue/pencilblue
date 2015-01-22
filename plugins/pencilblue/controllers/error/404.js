@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var path = require('path');
+var TopMenu = require(path.join(DOCUMENT_ROOT, '/include/theme/top_menu'));
+
 /**
  * 404 error
  * @class NotFoundController
@@ -22,9 +26,6 @@
  * @extends BaseController
  */
 function NotFoundController(){}
-
-//dependencies
-var TopMenu = require(path.join(DOCUMENT_ROOT, '/include/theme/top_menu'));
 
 //inheritance
 util.inherits(NotFoundController, pb.BaseController);

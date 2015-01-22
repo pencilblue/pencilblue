@@ -15,15 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * RSS Feed
- */
-
 //dependencies
+var path           = require('path');
 var HtmlEncoder    = require('htmlencode');
 var ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).ArticleService;
 var MediaLoader    = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).MediaLoader;
 
+/**
+ * RSS Feed
+ */
 function ArticleFeed(){}
 
 //inheritance

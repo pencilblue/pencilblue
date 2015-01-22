@@ -16,9 +16,12 @@
 */
 
 //dependencies
+var fs      = require('fs');
+var path    = require('path');
 var cluster = require('cluster');
 var process = require('process');
-var utils   = require('./util.js');
+var util    = require('./util.js');
+var process = require('process');
 
 /**
  * Default configuration.  The settings here should be overriden by taking the
@@ -593,7 +596,7 @@ var loadConfiguration = function() {
     console.log('SystemStartup: %s', message);
 
     //perform any overrides
-    config = utils.deepMerge(override, config);
+    config = util.deepMerge(override, config);
 
     //setup logging
     if (!config.logging) {

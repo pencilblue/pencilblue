@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var process = require('process');
+
 /**
  * Brokers messages using Redis as the medium.  The implementation follows a
  * publish/subscribe model that allows for listening for changes based on a a

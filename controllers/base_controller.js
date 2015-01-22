@@ -15,7 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//dependencies
+//dependencies 
+var url       = require('url');
 var Sanitizer = require('sanitize-html');
 
 /**

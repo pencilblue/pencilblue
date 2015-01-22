@@ -21,6 +21,7 @@
 
 
 //dependencies
+var path = require('path');
 var BaseController  = pb.BaseController;
 var Comments        = require(path.join(DOCUMENT_ROOT, '/include/theme/comments'));
 var ArticleService  = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).ArticleService;

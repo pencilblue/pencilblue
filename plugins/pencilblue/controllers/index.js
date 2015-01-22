@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Index page of the pencilblue theme
- */
-
-function Index(){}
-
 //dependencies
+var path           = require('path');
 var TopMenu        = require(path.join(DOCUMENT_ROOT, '/include/theme/top_menu'));
 var Comments       = require(path.join(DOCUMENT_ROOT, '/include/theme/comments'));
 var ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).ArticleService;
+
+/**
+ * Index page of the pencilblue theme
+ */
+function Index(){}
 
 //inheritance
 util.inherits(Index, pb.BaseController);

@@ -15,12 +15,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-function System(){}
-
 //dependencies
 var os      = require('os');
 var cluster = require('cluster');
+var process = require('process');
+var npm     = require('npm');
+npm.on('log', function(message) {
+    pb.log.info(message);
+});
+
+/**
+ * 
+ * @class System
+ * @constructor
+ */
+function System(){}
 
 //statics
 var SHUTDOWN_HOOKS    = {};

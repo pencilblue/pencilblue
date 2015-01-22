@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var url = require('url');
+
 /**
  * A service that provides insight into the system's routes (URLs) along with
  * other utility functions to assist in examining and constructing URLs for

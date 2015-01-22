@@ -15,6 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var url = require('url');
+var fs  = require('fs');
+var path = require('path');
+var process = require('process');
+
 /**
  * Responsible for processing a single req by delegating it to the correct controllers
  * @class RequestHandler

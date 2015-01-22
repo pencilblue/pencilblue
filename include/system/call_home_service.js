@@ -16,8 +16,15 @@
 */
 
 //dependencies
-var os = require('os');
+var os      = require('os');
+var https   = require('https');
+var process = require('process');
 
+/**
+ *
+ * @class CallHomeService
+ * @constructor
+ */
 function CallHomeService(){}
 
 //constants
@@ -27,9 +34,22 @@ var PATH   = '/api/v1/callhome/event';
 var METHOD = 'POST';
 
 //statics
+/**
+ *
+ * @static
+ * @readonly
+ * @property SYSTEM_SETUP_EVENT
+ * @type {String}
+ */
 CallHomeService.SYSTEM_SETUP_EVENT = 'system_setup';
 
-
+/**
+ *
+ * @static
+ * @method callHome
+ * @param {String} type
+ * @param {Object} data
+ */
 CallHomeService.callHome = function(type, data) {
     if (!pb.utils.isObject(data)) {
         data = {};

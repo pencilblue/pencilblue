@@ -15,10 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var fs         = require('fs');
+var formidable = require('formidable');
+
 /**
  * Imports a CSV of topics
+ * @class ImportTopics
+ * @constructor
  */
-
 function ImportTopics(){}
 
 //inheritance

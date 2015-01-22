@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var fs         = require('fs');
+var formidable = require('formidable');
+
 /**
  * Uploads a media file to the system
  * @class UploadMediaController
@@ -34,11 +38,6 @@ function UploadMediaController(){
 //inheritance
 util.inherits(UploadMediaController, pb.BaseController);
 
-//setup
-var MEDIA_DIRECTORY = DOCUMENT_ROOT + '/public/media/';
-if(!fs.existsSync(MEDIA_DIRECTORY)){
-    fs.mkdirSync(MEDIA_DIRECTORY);
-}
 
 UploadMediaController.prototype.render = function(cb) {
 	var self  = this;

@@ -15,10 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var fs = require('fs');
+
 /**
  * Interface for displaying the site's configuration settings
  */
-
 function Configuration(){}
 
 //inheritance

@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var path = require('path');
 var HtmlEncoder = require('htmlencode');
 HtmlEncoder.EncodeType = 'numerical';
 

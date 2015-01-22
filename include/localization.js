@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var fs   = require('fs');
+var path = require('path');
+
 /**
  * Provides functions to translate items based on keys.  Also
  * assists in the determination of the best language for the given user.

@@ -1,16 +1,17 @@
+
+//dependencies
+var path          = require('path');
+var PluginService = pb.PluginService;
+var TopMenu       = require(DOCUMENT_ROOT + '/include/theme/top_menu');
+var MediaLoader = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).MediaLoader;
+
 /**
  * Index - The home page controller of the portfolio theme.
  *
  * @author Blake Callens <blake@pencilblue.org>
  * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
  */
-
 function Index() {}
-
-//dependencies
-var PluginService = pb.PluginService;
-var TopMenu       = require(DOCUMENT_ROOT + '/include/theme/top_menu');
-var MediaLoader = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).MediaLoader;
 
 //inheritance
 util.inherits(Index, pb.BaseController);

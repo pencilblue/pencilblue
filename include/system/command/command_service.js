@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var process = require('process');
+
 /**
  * Provides a mechanism to send commands to all members of the cluster or a
  * specific member.

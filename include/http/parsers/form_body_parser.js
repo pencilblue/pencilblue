@@ -15,6 +15,9 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//dependencies
+var formidable = require('formidable');
+
 /**
  * Parser for incoming form bodies.  The parser handles 
  * application/x-www-form-urlencoded and multipart/form-data encoded data. Any 
