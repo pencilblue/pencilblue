@@ -1,3 +1,11 @@
+
+//dependencies
+var async          = require('async');
+var PluginService  = pb.PluginService;
+var TopMenu        = require(DOCUMENT_ROOT + '/include/theme/top_menu');
+var Comments       = require(DOCUMENT_ROOT + '/include/theme/comments');
+var ArticleService = require(DOCUMENT_ROOT + '/include/service/entities/article_service').ArticleService;
+
 /**
  * Blog page of the pencilblue theme
  *
@@ -5,12 +13,6 @@
  * @copyright PencilBlue 2014, All rights reserved
  */
 function Blog(){}
-
-//dependencies
-var PluginService = pb.PluginService;
-var TopMenu        = require(DOCUMENT_ROOT + '/include/theme/top_menu');
-var Comments       = require(DOCUMENT_ROOT + '/include/theme/comments');
-var ArticleService = require(DOCUMENT_ROOT + '/include/service/entities/article_service').ArticleService;
 
 //inheritance
 util.inherits(Blog, pb.BaseController);
@@ -445,7 +447,7 @@ Blog.prototype.getSideNavigation = function(articles, cb) {
                     var articleTopics = [];
                     for(var i = 0; i < topics.length && articleTopics.length < 20; i++) {
                         for(var j = 0; j < topicObjects.length; j++) {
-                            if(ObjectID(topics[i]).equals(topicObjects[j]._id)) {
+                            if(pb.DAO.areIdsEqual(topics[i], topicObjects[j][pb.DAO.getIdField()])) {
                                 articleTopics.push(topicObjects[j]);
                                 topicObjects.splice(j, 1);
                                 break;

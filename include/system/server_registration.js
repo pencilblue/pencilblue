@@ -20,6 +20,7 @@ var cluster              = require('cluster');
 var os                   = require('os');
 var domain               = require('domain');
 var process              = require('process');
+var async                = require('async');
 var RegistrationProvider = null;
 
 /**

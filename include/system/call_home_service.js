@@ -19,6 +19,7 @@
 var os      = require('os');
 var https   = require('https');
 var process = require('process');
+var domain  = require('domain');
 
 /**
  *

@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var Promise = require('node-promise').Promise;
+var ObjectID = require('mongodb').ObjectID;
+
 /**
  * Controlls the data model
  *
@@ -698,13 +702,26 @@ DAO.prototype.createEntity = function(entityName, options, cb) {
 
 /**
  * Creates a basic where clause based on the specified Id
+ * @deprecated since 0.4.0
  * @static
  * @method getIDWhere
  * @param {String} oid Object Id String
  * @return {Object}    Where clause
  */
 DAO.getIDWhere = function(oid){
-	return {
+    pb.log.warn('DAO: getIDWhere is deprecated.  Use getIdWhere instead');
+	return DAO.getIdWhere(oid);
+};
+
+/**
+ * Creates a basic where clause based on the specified Id
+ * @static
+ * @method getIdWhere
+ * @param {String} oid Object Id String
+ * @return {Object} Where clause
+ */
+DAO.getIdWhere = function(oid) {
+    return {
 		_id: DAO.getObjectID(oid)
 	};
 };
@@ -719,6 +736,20 @@ DAO.getIDWhere = function(oid){
  * @return {Object} Where clause
  */
 DAO.getIDInWhere = function(objArray, idProp) {
+    pb.log.warn('DAO: getIDInWhere is deprecated. Use getIdInWhere instead');
+	return DAO.getIDInWhere(objArray, idProp);
+};
+
+/**
+ * Creates a where clause that equates to select where [idProp] is in the
+ * specified array of values.
+ * @static
+ * @method getIdInWhere
+ * @param {Array} objArray The array of acceptable values
+ * @param {String} idProp The property that holds a referenced ID value
+ * @return {Object} Where clause
+ */
+DAO.getIdInWhere = function(objArray, idProp) {
 	var idArray = [];
     for(var i = 0; i < objArray.length; i++) {
 
@@ -799,8 +830,8 @@ DAO.getObjectID = function(oid) {
 	   return new ObjectID(oid + '');
     }
     catch(err) {
-        err.message += ' - VALUE=['+util.inspect(oid)+']';
-        throw err;
+        pb.log.warn('%s - VALUE=[%s]', err.message, util.inspect(oid));
+        return oid;
     }
 };
 
@@ -853,6 +884,18 @@ DAO.transfer = function(obj, to) {
  */
 DAO.getIdField = function() {
     return '_id';
+};
+
+/**
+ * Determines if two object IDs are equal
+ * @static
+ * @method areIdsEqual
+ * @param {ObjectID|String} id1
+ * @param {ObjectID|String} id2
+ * @return {Boolean} TRUE if IDs are equal
+ */
+DAO.areIdsEqual = function(id1, id2) {
+    return id1.toString() === id2.toString();
 };
 
 //exports

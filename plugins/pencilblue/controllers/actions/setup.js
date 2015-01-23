@@ -15,14 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async           = require('async');
+var CallHomeService = pb.CallHomeService;
+
 /**
  * Creates the initial admin user
  */
-
 function Setup(){}
-
-//dependencies
-var CallHomeService = pb.CallHomeService;
 
 //inheritance
 util.inherits(Setup, pb.BaseController);

@@ -18,6 +18,7 @@
 //dependencies
 var fs         = require('fs');
 var formidable = require('formidable');
+var async      = require('async');
 
 /**
  * Imports a CSV of topics

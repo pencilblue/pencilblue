@@ -16,10 +16,13 @@
 */
 
 //dependencies
-var url = require('url');
-var fs  = require('fs');
-var path = require('path');
+var url     = require('url');
+var fs      = require('fs');
+var path    = require('path');
 var process = require('process');
+var async   = require('async');
+var domain  = require('domain');
+var Cookies = require('cookies');
 
 /**
  * Responsible for processing a single req by delegating it to the correct controllers

@@ -16,9 +16,10 @@
 */
 
 //dependencies
-var http = require('http');
-var fs   = require('fs');
-var path = require('path');
+var http  = require('http');
+var fs    = require('fs');
+var path  = require('path');
+var async = require('async');
 
 /**
  * Provides information on media

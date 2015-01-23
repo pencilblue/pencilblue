@@ -17,6 +17,8 @@
 
 //dependencies
 var process = require('process');
+var async   = require('async');
+var domain  = require('domain');
 
 /**
  * Provides a mechanism to send commands to all members of the cluster or a

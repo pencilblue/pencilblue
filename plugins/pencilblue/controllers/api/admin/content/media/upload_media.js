@@ -18,6 +18,7 @@
 //dependencies
 var fs         = require('fs');
 var formidable = require('formidable');
+var async      = require('async');
 
 /**
  * Uploads a media file to the system

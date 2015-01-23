@@ -17,6 +17,7 @@
 
 //dependencies
 var process = require('process');
+var async   = require('async');
 
 /**
  * Service for managing the site's navigation

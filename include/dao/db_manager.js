@@ -16,8 +16,10 @@
 */
 
 //requirements
-var mongo       = require('mongodb').MongoClient;
-global.ObjectID = require('mongodb').ObjectID;
+var async    = require('async');
+var mongo    = require('mongodb').MongoClient;
+var domain   = require('domain');
+var ObjectID = require('mongodb').ObjectID;
 
 /**
  * Wrapper that protects against direct access to the active connection pools

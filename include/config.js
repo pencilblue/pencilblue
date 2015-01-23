@@ -22,6 +22,7 @@ var cluster = require('cluster');
 var process = require('process');
 var util    = require('./util.js');
 var process = require('process');
+var winston = require('winston');
 
 /**
  * Default configuration.  The settings here should be overriden by taking the
@@ -53,8 +54,7 @@ var config = {
     //the siteIP
 	siteRoot: 'http://localhost:8080',
 
-    //The hostname or IP address represented by the entire site.  Should match
-    //your domain name if in production use.
+    //The hostname or IP address that the web server instance will bind to
 	siteIP:   '0.0.0.0',
 
     //The primary port to listen for traffic on.  Some environment such as

@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async = require('async');
+
 /**
  * Service for performing user specific operations.
  *
@@ -276,7 +279,7 @@ UserService.prototype.getExistingUsernameEmailCounts = function(username, email,
 
 	var getWhere = function(where) {
 		if (id) {
-			where[pb.DAO.getIdField()] = {$ne: pb.DAO.getObjectID(id)};
+			where[pb.DAO.getIdField()] = pb.DAO.getNotIDField(id);
 		}
 		return where;
 	};

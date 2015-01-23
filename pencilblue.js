@@ -16,9 +16,10 @@
 */
 
 //dependencies
-var fs = require('fs');
-var http = require('http');
+var fs    = require('fs');
+var http  = require('http');
 var https = require('https');
+var async = require('async');
 global.pb = require('./include/requirements');
 
 /**
@@ -178,7 +179,7 @@ PencilBlue.initServer = function(cb){
  */
 PencilBlue.onHttpConnect = function(req, resp){
 	if (pb.log.isSilly()) {
-		req.uid = new ObjectID();
+		req.uid = pb.utils.uniqueId();
 		pb.log.silly('New Request: '+req.uid);
 	}
 

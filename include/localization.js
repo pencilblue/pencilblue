@@ -16,8 +16,9 @@
 */
 
 //dependencies
-var fs   = require('fs');
-var path = require('path');
+var fs     = require('fs');
+var path   = require('path');
+var locale = require('locale');
 
 /**
  * Provides functions to translate items based on keys.  Also

@@ -15,10 +15,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async  = require('async');
+var domain = require('domain');
 
+/**
+ * Provides functionality to render HTML snippets to report metrics back to 
+ * registered analytics providers.
+ * @class AnalyticsManager
+ * @constructor
+ */
 function AnalyticsManager(){}
 
-//statics
+/**
+ * Stores the registered analytics providers
+ * @private
+ * @static
+ * @readonly
+ * @property PROVIDER_HOOKS
+ * @type {Object}
+ */
 var PROVIDER_HOOKS = {};
 
 /**

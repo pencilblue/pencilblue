@@ -21,6 +21,7 @@ var async  = require('async');
 var extend = require('node.extend');
 var fs     = require('fs');
 var path   = require('path');
+var uuid   = require('node-uuid');
 
 /**
  * Provides a set of utility functions used throughout the code base
@@ -365,10 +366,10 @@ Util.cb = function(err, result){
  * Creates a unique Id
  * @static
  * @method uniqueId
- * @return {ObjectID} Unique Id Object
+ * @return {String} Unique Id Object
  */
 Util.uniqueId = function(){
-	return new ObjectID();
+	return uuid.v4();
 };
 
 /**

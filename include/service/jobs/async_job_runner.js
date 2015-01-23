@@ -17,6 +17,8 @@
 
 //dependencies
 var process   = require('process');
+var async     = require('async');
+var domain    = require('domain');
 var JobRunner = require('./job_runner.js');
 
 /**

@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var async           = require('async');
 var PluginJobRunner = require('./plugin_job_runner.js');
 
 /**

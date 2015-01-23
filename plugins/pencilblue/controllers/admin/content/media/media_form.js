@@ -15,6 +15,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async = require('async');
+
 /**
 * Interface for adding and editing media
 * @class MediaForm
@@ -113,7 +116,7 @@ MediaForm.prototype.getMediaTopics = function(data) {
 
 	for(i = 0; i < data.media.media_topics.length; i++) {
 		for(j = 0; j < data.topics.length; j++) {
-			if(data.topics[j]._id.equals(ObjectID(data.media.media_topics[i]))) {
+			if(pb.DAO.areIdsEqual(data.topics[j][pb.DAO.getIdField()], data.media.media_topics[i])) {
 				topics.push(data.topics[j]);
 				data.topics.splice(j, 1);
 				break;

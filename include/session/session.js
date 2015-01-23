@@ -16,7 +16,8 @@
 */
 
 //dependencies
-var path = require('path');
+var path   = require('path');
+var crypto = require('crypto');
 
 /**
  * Tools for session storage

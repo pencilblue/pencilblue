@@ -49,9 +49,7 @@ ChangePassword.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
 
-    var where = {
-		_id: ObjectID(self.session.authentication.user._id)
-	};
+    var where = pb.DAO.getIdWhere(self.session.authentication.user[pb.DAO.getIdField()])
 	if(!self.session.authentication.reset_password) {
 		where.password = pb.security.encrypt(post.current_password);
 	}

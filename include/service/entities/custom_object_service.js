@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var async       = require('async');
 var HtmlEncoder = require('htmlencode');
 
 /**

@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var ObjectID = require('mongodb').ObjectID;
+
 /**
  * Provides a set of functions for common validations.
  *
@@ -104,13 +107,8 @@ ValidationService.isId = function(val, required) {
         return true;
     }
 
-    try {
-        new pb.DAO.getObjectID(val);
-        return true;
-    }
-    catch(e) {
-        return false;
-    }
+    var id = pb.DAO.getObjectID(val);
+    return id instanceof ObjectID;
 };
 
 /**

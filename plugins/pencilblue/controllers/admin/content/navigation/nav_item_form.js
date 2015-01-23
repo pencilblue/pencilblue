@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async          = require('async');
+var SectionService = pb.SectionService;
+
 /**
  * Interface for creating and editing navigation items
  * @class NavItemFormController
@@ -22,9 +26,6 @@
 function NavItemFormController(){
     this.navItem = null;
 }
-
-//dependencies
-var SectionService = pb.SectionService;
 
 //inheritance
 util.inherits(NavItemFormController, pb.BaseController);

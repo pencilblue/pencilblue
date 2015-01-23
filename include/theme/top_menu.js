@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async = require('async');
+
 /**
  * Service for top menu navigation.
  * NOTE: This is not for administrative pages.

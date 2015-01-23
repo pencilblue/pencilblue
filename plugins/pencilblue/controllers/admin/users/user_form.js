@@ -15,10 +15,12 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async = require('async');
+
 /**
 * Interface for editing a user
 */
-
 function UserForm(){}
 
 //inheritance

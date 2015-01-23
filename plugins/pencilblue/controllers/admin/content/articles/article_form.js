@@ -15,10 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async = require('async');
+
 /**
  * Interface for creating and editing articles
  */
-
 function ArticleForm(){}
 
 //inheritance
@@ -67,7 +69,7 @@ ArticleForm.prototype.getAngularObjects = function(tabs, data) {
 
 		for(i = 0; i < data.article.article_media.length; i++) {
 			for(j = 0; j < data.media.length; j++) {
-				if(data.media[j]._id.equals(ObjectID(data.article.article_media[i]))) {
+				if(pb.DAO.areIdsEqual(data.media[j][pb.DAO.idField()], data.article.article_media[i])) {
 					media.push(data.media[j]);
 					data.media.splice(j, 1);
 					break;
@@ -79,7 +81,7 @@ ArticleForm.prototype.getAngularObjects = function(tabs, data) {
 		var sections = [];
 		for(i = 0; i < data.article.article_sections.length; i++) {
 			for(j = 0; j < data.sections.length; j++) {
-				if(data.sections[j]._id.equals(ObjectID(data.article.article_sections[i]))) {
+				if(pb.DAO.areIdsEqual(data.sections[j][pb.DAO.getIdField()], data.article.article_sections[i])) {
 					sections.push(data.sections[j]);
 					data.sections.splice(j, 1);
 					break;
@@ -91,7 +93,7 @@ ArticleForm.prototype.getAngularObjects = function(tabs, data) {
 		var topics = [];
 		for(i = 0; i < data.article.article_topics.length; i++) {
 			for(j = 0; j < data.topics.length; j++) {
-				if(data.topics[j]._id.equals(ObjectID(data.article.article_topics[i]))) {
+				if(pb.DAO.areIdsEqual(data.topics[j][pb.DAO.getIdField()], data.article.article_topics[i])) {
 					topics.push(data.topics[j]);
 					data.topics.splice(j, 1);
 					break;

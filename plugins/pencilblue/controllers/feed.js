@@ -18,6 +18,7 @@
 //dependencies
 var path           = require('path');
 var HtmlEncoder    = require('htmlencode');
+var async          = require('async');
 var ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).ArticleService;
 var MediaLoader    = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).MediaLoader;
 
@@ -136,7 +137,7 @@ ArticleFeed.prototype.getSectionNames = function(articles, cb) {
 
             	for(var o = 0; o < sections.length; o++) {
 
-                	if(sections[o]._id.equals(ObjectID(articles[i].article_sections[j]))) {
+                	if(pb.DAO.areIdsEqual(sections[o][pb.DAO.getIdField()], articles[i].article_sections[j])) {
                         sectionNames.push(sections[o].name);
                         break;
                     }

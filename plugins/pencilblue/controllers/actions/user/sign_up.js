@@ -15,14 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Creates an READER level user
- */
-
 //dependencies
+var async          = require('async');
 var BaseController = pb.BaseController;
 var FormController = pb.FormController;
 
+/**
+ * Creates an READER level user
+ */
 function SignUp(){}
 
 //inheritance

@@ -19,6 +19,8 @@
 var os      = require('os');
 var cluster = require('cluster');
 var process = require('process');
+var async   = require('async');
+var domain  = require('domain');
 var npm     = require('npm');
 npm.on('log', function(message) {
     pb.log.info(message);

@@ -17,6 +17,8 @@
 
 //dependencies
 var process        = require('process');
+var async          = require('async');
+var domain         = require('domain');
 var xml2js         = pb.PluginService.require('wp_import', 'xml2js');
 var BaseController = pb.BaseController;
 

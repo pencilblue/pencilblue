@@ -17,6 +17,7 @@
 
 //dependencies
 var process = require('process');
+var domain  = require('domain');
 
 /**
  * Brokers messages using Redis as the medium.  The implementation follows a

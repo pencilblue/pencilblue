@@ -17,6 +17,7 @@
 
 //dependencies
 var process         = require('process');
+var domain          = require('domain');
 var PluginJobRunner = require('./plugin_job_runner.js');
 
 /**

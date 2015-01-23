@@ -15,6 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async          = require('async');
+var BaseController = pb.BaseController;
+var PluginService  = pb.PluginService;
+var RequestHandler = pb.RequestHandler;
+
 /**
  * Controller to properly route and handle remote calls to interact with
  * the PluginService
@@ -23,11 +29,6 @@
  * @extends BaseController
  */
 function PluginApiController(){}//TODO refactor to match api_action_controller
-
-//dependencies
-var BaseController = pb.BaseController;
-var PluginService  = pb.PluginService;
-var RequestHandler = pb.RequestHandler;
 
 //inheritance
 util.inherits(PluginApiController, BaseController);

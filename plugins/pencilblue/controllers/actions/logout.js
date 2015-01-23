@@ -15,10 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var Cookies = require('cookies');
+
 /**
  * Logs a user out of the system
  */
-
 function Logout(){}
 
 //inheritance

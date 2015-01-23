@@ -4,22 +4,8 @@
  * @copyright PencilBlue, all rights reserved.
  */
 //setup global resources & modules
-var path       = require('path');
-var formidable = require('formidable');
-var process    = require('process');
-global.minify     = require('minify');
-global.winston    = require('winston');
-global.async      = require('async');
-global.crypto     = require('crypto');
+var path = require('path');
 global.util       = require('util');
-global.locale     = require('locale');
-global.domain     = require('domain');
-global.cluster    = require('cluster');
-
-var promise       = require('node-promise');
-global.when       = promise.when;
-global.Promise    = promise.Promise;
-global.Cookies    = require('cookies');
 
 //define what will become the global entry point into the server api.
 global.pb = {};
@@ -32,7 +18,7 @@ pb.config = require('./config');
 //setup utils
 pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
 global.log =
-pb.log     = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(winston, pb.config);
+pb.log     = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(pb.config);
 pb.system  = require(path.join(DOCUMENT_ROOT, 'include/system/system.js'));
 
 //configure cache

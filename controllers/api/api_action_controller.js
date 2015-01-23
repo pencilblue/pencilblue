@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var async          = require('async');
 var BaseController = pb.BaseController;
 var PluginService  = pb.PluginService;
 var RequestHandler = pb.RequestHandler;

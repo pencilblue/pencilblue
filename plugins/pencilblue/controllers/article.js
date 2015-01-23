@@ -33,17 +33,15 @@ Article.prototype.render = function(cb) {
 	var custUrl = this.pathVars.customUrl;
 
 	//check for object ID as the custom URL
+    var where      = null;
 	var doRedirect = false;
-	var where      = null;
-	try {
-		where      = {_id: pb.DAO.getObjectID(custUrl)};
+    if (pb.validation.isId(custUrl, true)) {
+        where      = pb.DAO.getIdWhere(custUrl);
 		doRedirect = true;
-	}
-	catch(e){
-		if (pb.log.isSilly()) {
-			pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
-		}
-	}
+    }
+    else if (pb.log.isSilly()) {
+        pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field.", custUrl);
+    }
 
 	// fall through to URL key
 	if (where === null) {

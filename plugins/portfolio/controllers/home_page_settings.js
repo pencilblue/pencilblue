@@ -66,7 +66,7 @@ HomePageSettings.prototype.render = function(cb) {
                 var pageMedia = [];
                 for(i = 0; i < homePageSettings.page_media.length; i++) {
                     for(j = 0; j < media.length; j++) {
-                        if(media[j]._id.equals(ObjectID(homePageSettings.page_media[i]))) {
+                        if(pb.DAO.areIdsEqual(media[j][pb.DAO.getIdField()], homePageSettings.page_media[i])) {
                             pageMedia.push(media[j]);
                             media.splice(j, 1);
                             break;

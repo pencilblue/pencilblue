@@ -15,7 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports.logger = function(winston, config){
+//dependencies
+var winston = require('winston');
+
+module.exports.logger = function(config){
 	var logger =  new (winston.Logger)({
 	    transports: config.logging.transports,
 	    level: config.log_level,

@@ -15,10 +15,12 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async = require('async');
+
 /**
 * Interface for creating and editing pages
 */
-
 function PageFormController(){}
 
 //inheritance
@@ -65,7 +67,7 @@ PageFormController.prototype.getAngularObjects = function(tabs, data) {
 
 		for(i = 0; i < data.page.page_media.length; i++) {
 			for(j = 0; j < data.media.length; j++) {
-				if(data.media[j]._id.equals(ObjectID(data.page.page_media[i]))) {
+				if(pb.DAO.areIdsEqual(data.media[j][pb.DAO.getIdField()], data.page.page_media[i])) {
 					media.push(data.media[j]);
 					data.media.splice(j, 1);
 					break;
@@ -77,7 +79,7 @@ PageFormController.prototype.getAngularObjects = function(tabs, data) {
 		var topics = [];
 		for(i = 0; i < data.page.page_topics.length; i++) {
 			for(j = 0; j < data.topics.length; j++) {
-				if(data.topics[j]._id.equals(ObjectID(data.page.page_topics[i]))) {
+				if(pb.DAO.areIdsEqual(data.topics[j][pb.DAO.getIdField()], data.page.page_topics[i])) {
 					topics.push(data.topics[j]);
 					data.topics.splice(j, 1);
 					break;

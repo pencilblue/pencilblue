@@ -15,6 +15,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var async = require('async');
+
 /**
  * Reusable service classes to be called from controllers
  *
@@ -209,7 +212,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, articleCou
 
 	        for(var j = 0; j < authors.length; j++) {
 
-	        	if(authors[j]._id.equals(ObjectID(article.author))) {
+	        	if(pb.DAO.areIdsEqual(authors[j][pb.DAO.getIdField()], article.author)) {
 	                if(authors[j].photo && contentSettings.display_author_photo) {
 	                    article.author_photo     = authors[j].photo;
 	                    article.media_body_style = '';

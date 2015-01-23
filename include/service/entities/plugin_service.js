@@ -16,10 +16,12 @@
 */
 
 //dependencies
-var fs  = require('fs');
-var npm = require('npm');
-var path = require('path');
+var fs      = require('fs');
+var npm     = require('npm');
+var path    = require('path');
 var process = require('process');
+var async   = require('async');
+var domain  = require('domain');
 
 /**
  * PluginService - Provides functions for interacting with plugins.
@@ -467,8 +469,8 @@ PluginService.prototype.isInstalled = function(pluginIdentifier, cb) {
  */
 PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
 	var where = {};
-	if (pluginIdentifier instanceof ObjectID) {
-		where._id = pluginIdentifier;
+	if (pb.validation.isId(pluginIdentifier)) {
+		where[pb.DAO.getIdField()] = pluginIdentifier;
 	}
 	else {
 		where.uid = pluginIdentifier;

@@ -16,9 +16,10 @@
 */
 
 //dependencies
-var os = require('os');
-var fs = require('fs');
-var path = require('path');
+var os    = require('os');
+var fs    = require('fs');
+var path  = require('path');
+var async = require('async');
 
 /**
  * A media provider that uses the underlying file system as the method of 
