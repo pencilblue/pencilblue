@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var semver = require('semver');
+
 /**
  * Provides a set of functions for common validations.
  *
@@ -148,6 +151,20 @@ ValidationService.isEmail = function(value, required) {
  */
 ValidationService.validateVersionNum = function(value, required) {
 	return ValidationService.isVersionNum(value, required);
+};
+
+/**
+ * Validates a version expression
+ *
+ * @method isVersionExpression
+ * @param {String} expression
+ * @param {Boolean} required
+ */
+ValidationService.isVersionExpression = function(expression, required) {
+  if (!expression && !required) {
+    return true;
+  }
+  return semver.valid(expression) !== null;
 };
 
 /**
