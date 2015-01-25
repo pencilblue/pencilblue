@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var semver = require('semver');
 var npm = require('npm');
 npm.on('log', function(message) {
     pb.log.info(message);
@@ -1067,9 +1068,12 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
             if(!details.pbVersion){
                 // pb version was not specified
                 // assumes plugin is compatible with all pb versions
-                // [TODO] change log to warn
-                pb.log.info('PluginService: The plugin, %s does not specify pb version.', details.name);
+                pb.log.warn('PluginService: The plugin, %s does not specify pb version.', details.name);
                 return callback(null, true);
+            }, else {
+                var results = semver.satisfies(pb.config.version, details.pbVersion);
+                
+                return callback(null, results);
             }
         },
         
