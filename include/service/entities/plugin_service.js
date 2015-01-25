@@ -1583,7 +1583,7 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 	}
 
 	//validate version
-	if (!v.validateVersionNum(details.version, true)) {
+	if (!v.isVersionExpression(details.version, true)) {
 		errors.push("An invalid version number ["+details.version+"] was provided.  Must match the form: xx.xx.xx");
 	}
     
