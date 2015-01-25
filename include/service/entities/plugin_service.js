@@ -1061,7 +1061,18 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
                 });
             });
         },
-
+        
+        // check the pb version plugin supports
+        function(callback) {
+            if(!details.pbVersion){
+                // pb version was not specified
+                // assumes plugin is compatible with all pb versions
+                // [TODO] change log to warn
+                pb.log.info('PluginService: The plugin, %s does not specify pb version.', details.name);
+                return callback(null, true);
+            }
+        },
+        
          //register plugin & load main module
          function(callback) {
 
@@ -1575,6 +1586,13 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 	if (!v.validateVersionNum(details.version, true)) {
 		errors.push("An invalid version number ["+details.version+"] was provided.  Must match the form: xx.xx.xx");
 	}
+    
+    //validate pbVersion
+    if(details.pbVersion){        
+        if (!v.validateVersionNum(details.pbVersion, true)) {
+            errors.push("An invalid version number ["+details.pbVersion+"] was provided.  Must match the form: xx.xx.xx");
+        }
+    }
 
 	//validate icon
 	if (details.icon) {
