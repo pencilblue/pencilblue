@@ -1588,10 +1588,8 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 	}
     
     //validate pbVersion
-    if(details.pbVersion){        
-        if (!v.validateVersionNum(details.pbVersion, true)) {
-            errors.push("An invalid version number ["+details.pbVersion+"] was provided.  Must match the form: xx.xx.xx");
-        }
+    if (!v.validateVersionNum(details.pbVersion, false)) {
+      errors.push("An invalid version expression ["+details.pbVersion+"] was provided.");
     }
 
 	//validate icon
