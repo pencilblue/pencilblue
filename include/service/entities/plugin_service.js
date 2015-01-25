@@ -1583,12 +1583,12 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 	}
 
 	//validate version
-	if (!v.isVersionExpression(details.version, true)) {
+	if (!v.validateVersionNum(details.version, true)) {
 		errors.push("An invalid version number ["+details.version+"] was provided.  Must match the form: xx.xx.xx");
 	}
     
     //validate pbVersion
-    if (!v.validateVersionNum(details.pbVersion, false)) {
+    if (!v.isVersionExpression(details.pbVersion, false)) {
       errors.push("An invalid version expression ["+details.pbVersion+"] was provided.");
     }
 
