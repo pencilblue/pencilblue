@@ -30,7 +30,7 @@ NewArticlePostController.prototype.render = function(cb) {
 	this.getJSONPostParams(function(err, post) {
 		post.author       = self.session.authentication.user_id;
 		post.publish_date = new Date(parseInt(post.publish_date));
-		delete post._id;
+		delete post[pb.DAO.getIdField()];
 
 		var message = self.hasRequiredParams(post, self.getRequiredFields());
 		if (message) {

@@ -59,7 +59,7 @@ SectionService.prototype.removeFromSectionMap = function(section, sectionMap, cb
 
 	//ensure we have an ID
 	if (pb.utils.isObject(section)) {
-		section = section._id.toString();
+		section = section[pb.DAO.getIdField()].toString();
 	}
 
 	//provide a function to abstract retrieval of map
@@ -129,13 +129,13 @@ SectionService.prototype.updateNavMap = function(section, cb) {
 	var self = this;
 
 	//do validation
-	if (!pb.utils.isObject(section) || !section._id) {
+	if (!pb.utils.isObject(section) || !section[pb.DAO.getIdField()]) {
 		cb(new Error("A valid section object must be provided", false));
 		return;
 	}
 
 	//retrieve the section map
-    var sid = section._id.toString();
+    var sid = section[pb.DAO.getIdField()].toString();
     pb.settings.get('section_map', function(err, sectionMap) {
     	if (util.isError(err)) {
     		cb(err, false);
@@ -361,7 +361,7 @@ SectionService.prototype.validateNavItemName = function(navItem, cb) {
 		name: navItem.name
 	};
 	var dao = new pb.DAO();
-	dao.unique('section', where, navItem._id, function(err, unique) {
+	dao.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
 		var error = null;
 		if (!unique) {
 			error = {field: 'name', message: 'The provided name is not unique'};
@@ -408,8 +408,13 @@ SectionService.prototype.validateSectionNavItem = function(navItem, cb) {
         //url
 	    function(callback) {
 
+            var params = {
+                type: 'section', 
+                id: navItem[pb.DAO.getIdField()], 
+                url: navItem.url
+            };
 	    	var urlService = new pb.UrlService();
-	    	urlService.existsForType({type: 'section', id: navItem._id, url: navItem.url}, function(err, exists) {
+	    	urlService.existsForType(params, function(err, exists) {
 	    		if (exists) {
 	    			errors.push({field: 'url', message: 'The url key ['+navItem.url+'] already exists'});
 	    		}

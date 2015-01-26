@@ -47,7 +47,7 @@ TopicForm.prototype.render = function(cb) {
         data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.topic);
         var angularObjects = pb.js.getAngularObjects(data);
 
-        self.setPageName(self.topic._id ? self.topic.name : self.ls.get('NEW_TOPIC'));
+        self.setPageName(self.topic[pb.DAO.getIdField()] ? self.topic.name : self.ls.get('NEW_TOPIC'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/topics/topic_form', function(err, result) {
             cb({content: result});
@@ -93,7 +93,7 @@ TopicForm.prototype.gatherData = function(vars, cb) {
 TopicForm.getSubNavItems = function(key, ls, data) {
     return [{
         name: SUB_NAV_KEY,
-        title: data._id ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_TOPIC'),
+        title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_TOPIC'),
         icon: 'chevron-left',
         href: '/admin/content/topics'
     }, {

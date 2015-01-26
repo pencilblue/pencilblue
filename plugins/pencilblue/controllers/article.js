@@ -60,7 +60,7 @@ Article.prototype.render = function(cb) {
 			return;
 		}
 
-		self.req.pencilblue_article = article._id.toString();
+		self.req.pencilblue_article = article[pb.DAO.getIdField()].toString();
 		this.article = article;
         self.setPageName(article.name);
 		Article.super_.prototype.render.apply(self, [cb]);

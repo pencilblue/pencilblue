@@ -53,7 +53,7 @@ MediaForm.prototype.render = function(cb) {
 		data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.media);
 		var angularObjects = pb.js.getAngularObjects(data);
 
-		self.setPageName(self.media._id ? self.media.name : self.ls.get('NEW_MEDIA'));
+		self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.get('NEW_MEDIA'));
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 		self.ts.load('admin/content/media/media_form', function(err, result) {
 			cb({content: result});
@@ -130,7 +130,7 @@ MediaForm.prototype.getMediaTopics = function(data) {
 MediaForm.getSubNavItems = function(key, ls, data) {
 	return [{
 		name: 'manage_media',
-		title: data._id ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_MEDIA'),
+		title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_MEDIA'),
 		icon: 'chevron-left',
 		href: '/admin/content/media'
 	}, {

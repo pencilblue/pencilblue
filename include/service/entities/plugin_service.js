@@ -557,7 +557,7 @@ PluginService.prototype.resetSettings = function(details, cb) {
 			var baseDoc  = {
 				plugin_name: plugin.name,
 				plugin_uid: plugin.uid,
-				plugin_id: plugin._id.toString(),
+				plugin_id: plugin[pb.DAO.getIdField()].toString(),
 				settings: details.settings
 			};
 			var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
@@ -610,7 +610,7 @@ PluginService.prototype.resetThemeSettings = function(details, cb) {
 			var baseDoc  = {
 				plugin_name: plugin.name,
 				plugin_uid: plugin.uid,
-				plugin_id: plugin._id.toString(),
+				plugin_id: plugin[pb.DAO.getIdField()].toString(),
 				settings: details.theme.settings
 			};
 			var settings = pb.DocumentCreator.create('theme_settings', baseDoc);

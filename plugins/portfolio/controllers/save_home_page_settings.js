@@ -14,7 +14,7 @@ SaveHomePageSettings.prototype.render = function(cb) {
     var self = this;
 
     this.getJSONPostParams(function(err, post) {
-        delete post._id;
+        delete post[pb.DAO.getIdField()];
 
         var opts = {
             where: {settings_type: 'home_page'}

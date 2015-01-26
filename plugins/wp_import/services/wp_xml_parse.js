@@ -286,7 +286,7 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
                     if(pb.utils.isString(rawPage.category[i])) {
                         for(var j = 0; j < topics.length; j++) {
                             if(topics[j].name == rawPage.category[i]) {
-                                pageTopics.push(topics[j]._id.toString());
+                                pageTopics.push(topics[j][pb.DAO.getIdField()].toString());
                             }
                         }
                     }
@@ -359,7 +359,7 @@ WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, use
                         if(pb.utils.isString(rawArticle.category[i])) {
                             for(var j = 0; j < topics.length; j++) {
                                 if(topics[j].name == rawArticle.category[i]) {
-                                    articleTopics.push(topics[j]._id.toString());
+                                    articleTopics.push(topics[j][pb.DAO.getIdField()].toString());
                                 }
                             }
                         }

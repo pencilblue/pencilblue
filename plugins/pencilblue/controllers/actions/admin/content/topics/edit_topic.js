@@ -60,7 +60,7 @@ NewTopic.prototype.render = function(cb) {
             pb.DocumentCreator.update(post, topic);
 
             dao.loadByValue('name', topic.name, 'topic', function(err, testTopic) {
-                if(testTopic && !testTopic._id.equals(topic._id)) {
+                if(testTopic && !testTopic[pb.DAO.getIdField()].equals(topic[pb.DAO.getIdField()])) {
                     cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_TOPIC'))

@@ -298,7 +298,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, articleCou
 
         if (self.getContentType() === 'article') {
 
-        	var where = {article: article._id.toString()};
+        	var where = {article: article[pb.DAO.getIdField()].toString()};
 	        var order = {created: pb.DAO.ASC};
 	        var dao   = new pb.DAO();
 	        dao.q('comment', {where: where, select: pb.DAO.PROJECT_ALL, order: order}, function(err, comments) {
@@ -382,7 +382,7 @@ ArticleService.prototype.getCommenters = function(comments, contentSettings, cb)
     	        }
 
     	        //process the comment
-    	        users[commenter._id.toString()] = commenter;
+    	        users[commenter[pb.DAO.getIdField()].toString()] = commenter;
     	        processComment(comment, commenter);
     			processedComments.push(comment);
 

@@ -43,7 +43,7 @@ PageFormController.prototype.render = function(cb) {
 		self.page = results.page;
 		var tabs = self.getTabs();
 
-		self.setPageName(self.page._id ? self.page.headline : self.ls.get('NEW_PAGE'));
+		self.setPageName(self.page[pb.DAO.getIdField()] ? self.page.headline : self.ls.get('NEW_PAGE'));
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
 		self.ts.load('admin/content/pages/page_form', function(err, data) {
             var result = data;
@@ -61,7 +61,7 @@ PageFormController.prototype.render = function(cb) {
  *
  */
 PageFormController.prototype.getAngularObjects = function(tabs, data) {
-	if(data.page._id) {
+	if(data.page[pb.DAO.getIdField()]) {
 		var media = [];
 		var i, j;
 
@@ -110,7 +110,7 @@ PageFormController.prototype.getAngularObjects = function(tabs, data) {
 PageFormController.getSubNavItems = function(key, ls, data) {
 	return [{
 		name: 'manage_pages',
-		title: data.page._id ? ls.get('EDIT') + ' ' + data.page.headline : ls.get('NEW_PAGE'),
+		title: data.page[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.page.headline : ls.get('NEW_PAGE'),
 		icon: 'chevron-left',
 		href: '/admin/content/pages'
 	}, {

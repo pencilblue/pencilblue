@@ -38,7 +38,7 @@ Section.prototype.render = function(cb) {
 			return;
 		}
 
-		self.req.pencilblue_section = section._id.toString();
+		self.req.pencilblue_section = section[pb.DAO.getIdField()].toString();
 		this.section = section;
 		Section.super_.prototype.render.apply(self, [cb]);
 	});

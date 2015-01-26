@@ -101,7 +101,7 @@ SecurityService.authenticateSession = function(session, options, authenticator, 
 	        //build out session object
 	        user.permissions                   = pb.PluginService.getPermissionsForRole(user.admin);
 	        session.authentication.user        = user;
-	        session.authentication.user_id     = user._id.toString();
+	        session.authentication.user_id     = user[pb.DAO.getIdField()].toString();
 	        session.authentication.admin_level = user.admin;
 	        cb(null, user);
 		});

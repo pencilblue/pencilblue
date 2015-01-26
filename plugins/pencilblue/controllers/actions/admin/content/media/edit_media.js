@@ -37,7 +37,7 @@ EditMediaActionController.prototype.render = function(cb) {
 	var vars = this.pathVars;
 
 	this.getJSONPostParams(function(err, post) {
-		delete post._id;
+		delete post[pb.DAO.getIdField()];
 
 		var message = self.hasRequiredParams(post, self.getRequiredParams());
 	    if(message) {

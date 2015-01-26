@@ -48,7 +48,7 @@ SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
             }
 
             if(!passwordReset) {
-                passwordReset = pb.DocumentCreator.create('password_reset', {user_id: user._id.toString()});
+                passwordReset = pb.DocumentCreator.create('password_reset', {user_id: user[pb.DAO.getIdField()].toString()});
             }
 
             passwordReset.verification_code = pb.utils.uniqueId().toString();

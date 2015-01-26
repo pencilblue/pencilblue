@@ -56,7 +56,7 @@ EditUser.prototype.render = function(cb) {
 	            return;
 	        }
 
-			delete post._id;
+			delete post[pb.DAO.getIdField()];
 	        pb.DocumentCreator.update(post, user);
 
 	        pb.users.isUserNameOrEmailTaken(user.username, user.email, vars.id, function(err, isTaken) {

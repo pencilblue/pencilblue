@@ -31,7 +31,7 @@ EditArticle.prototype.render = function(cb) {
 	this.getJSONPostParams(function(err, post) {
 	    post.publish_date = new Date(parseInt(post.publish_date));
 		post.id = vars.id;
-		delete post._id;
+		delete post[pb.DAO.getIdField()];
 
 	    var message = self.hasRequiredParams(post, self.getRequiredFields());
 	    if (message) {

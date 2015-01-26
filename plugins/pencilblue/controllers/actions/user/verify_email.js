@@ -56,7 +56,7 @@ VerifyEmail.prototype.render = function(cb) {
 
             	//convert to user
             	var user = unverifiedUser;
-                delete user._id;
+                delete user[pb.DAO.getIdField()];
                 user.object_type = 'user';
 
                 dao.save(user, function(err, result) {

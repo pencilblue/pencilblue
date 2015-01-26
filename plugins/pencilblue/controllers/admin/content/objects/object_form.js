@@ -52,21 +52,24 @@ ObjectFormController.prototype.render = function(cb) {
             
             //iterate over fields
             for(var i = 0; i < data.objectType.fields.length; i++) {
+                var custObjField = data.objectType.fields[i];
                 
                 //perform operation only when field type is child objects
-                if(data.objectType.fields[i].field_type === 'child_objects') {
+                if(custObjField.field_type === 'child_objects') {
                     
                     //iterate over objects selected for the child objects field
-                    for(var j = 0; j < data.customObject[data.objectType.fields[i].name].length; j++) {
+                    for(var j = 0; j < data.customObject[custObjField.name].length; j++) {
+                        var associatedObj = data.customObject[custObjField.name][j];
                         
                         //iterate over the entire list of possible objects that could be linked back as a child object
-                        for(var s = 0; s < data.objectType.fields[i].available_objects.length; s++) {
+                        for(var s = 0; s < custObjField.available_objects.length; s++) {
+                            var availableObj = custObjField.available_objects[s];
                             
                             //when an associated child object is found in the overall list of items
-                            if(data.customObject[data.objectType.fields[i].name][j]._id.equals(data.objectType.fields[i].available_objects[s]._id)) {
+                            if(pb.DAO.areIdsEqual(associatedObj[pb.DAO.getIdField()], availableObj[pb.DAO.getIdField()])) {
                                 
                                 //remove it from the list of possible objects to choose from
-                                data.objectType.fields[i].available_objects.splice(s, 1);
+                                custObjField.available_objects.splice(s, 1);
                                 break;
                             }
                         }
@@ -80,7 +83,7 @@ ObjectFormController.prototype.render = function(cb) {
         data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject});
         var angularObjects = pb.js.getAngularObjects(data);
 
-        self.setPageName(self.customObject._id ? self.customObject.name : self.ls.get('NEW') + ' ' + self.objectType.name + ' ' + self.ls.get('OBJECT'));
+        self.setPageName(self.customObject[pb.DAO.getIdField()] ? self.customObject.name : self.ls.get('NEW') + ' ' + self.objectType.name + ' ' + self.ls.get('OBJECT'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/objects/object_form',  function(err, result) {
             cb({content: result});
@@ -236,15 +239,15 @@ ObjectFormController.getSubNavItems = function(key, ls, data) {
     return [
         {
             name: 'manage_objects',
-            title: data.customObject._id ? ls.get('EDIT') + ' ' + data.customObject.name : ls.get('NEW') + ' ' + data.objectType.name + ' ' + ls.get('OBJECT'),
+            title: data.customObject[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.customObject.name : ls.get('NEW') + ' ' + data.objectType.name + ' ' + ls.get('OBJECT'),
             icon: 'chevron-left',
-            href: '/admin/content/objects/' + data.objectType._id
+            href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()]
         },
         {
             name: 'new_object',
             title: '',
             icon: 'plus',
-            href: '/admin/content/objects/' + data.objectType._id + '/new'
+            href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()] + '/new'
         }
     ];
 };

@@ -53,14 +53,14 @@ BlogFilter.prototype.render = function(cb) {
                     return;
                 }
                 
-                self.req['pencilblue_' + objectType] = result._id.toString();
+                self.req['pencilblue_' + objectType] = result[pb.DAO.getIdField()].toString();
                 this.result = result;
                 BlogFilter.super_.prototype.render.apply(self, [cb]);
             });
             return;
         }
 
-        self.req['pencilblue_' + objectType] = result._id.toString();
+        self.req['pencilblue_' + objectType] = result[pb.DAO.getIdField()].toString();
         this.result = result;
         BlogFilter.super_.prototype.render.apply(self, [cb]);
     });

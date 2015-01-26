@@ -65,7 +65,7 @@ PageController.prototype.render = function(cb) {
 			return;
 		}
 
-		self.req.pencilblue_page = page._id.toString();
+		self.req.pencilblue_page = page[pb.DAO.getIdField()].toString();
 		this.page = page;
 		PageController.super_.prototype.render.apply(self, [cb]);
 	});

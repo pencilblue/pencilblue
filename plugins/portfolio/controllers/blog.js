@@ -274,7 +274,7 @@ Blog.prototype.renderContent = function(content, contentSettings, themeSettings,
     ats.registerLocal('article_headline_nolink', content.headline);
     ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
     ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
-    ats.registerLocal('article_id', content._id.toString());
+    ats.registerLocal('article_id', content[pb.DAO.getIdField()].toString());
     ats.registerLocal('article_index', index);
     ats.registerLocal('article_timestamp', showTimestamp && content.timestamp ? content.timestamp : '');
     ats.registerLocal('article_timestamp_display', showTimestamp ? '' : 'display:none;');
@@ -409,7 +409,7 @@ Blog.prototype.getSideNavigation = function(articles, cb) {
 
         if(self.req.pencilblue_article) {
             topics = articles[0].article_topics;
-            articleIDs = [articles[0]._id];
+            articleIDs = [articles[0][pb.DAO.getIdField()]];
         }
         else if(self.req.pencilblue_page) {
             articleIDs = [];
@@ -421,7 +421,7 @@ Blog.prototype.getSideNavigation = function(articles, cb) {
         }
         else {
             for(var i = 0; i < articles.length; i++) {
-                articleIDs.push(articles[i]._id);
+                articleIDs.push(articles[i][pb.DAO.getIdField()]);
                 for(var j = 0; j < articles[i].article_topics.length; j++) {
                     topics.push(articles[i].article_topics[j]);
                 }

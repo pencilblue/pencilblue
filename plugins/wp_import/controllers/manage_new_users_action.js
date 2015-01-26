@@ -59,7 +59,7 @@ ManageNewWPUsers.prototype.render = function(cb) {
                     return;
                 }
 
-                delete post.users[index]._id;
+                delete post.users[index][pb.DAO.getIdField()];
                 pb.DocumentCreator.update(post.users[index], user);
                 dao.save(user, function(err, result) {
                     index++;

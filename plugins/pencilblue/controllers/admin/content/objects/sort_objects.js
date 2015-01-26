@@ -78,12 +78,12 @@ SortObjects.getSubNavItems = function(key, ls, data) {
         name: 'manage_objects',
         title: ls.get('SORT') + ' ' + data.name + ' ' + ls.get('OBJECTS'),
         icon: 'chevron-left',
-        href: '/admin/content/objects/' + data._id
+        href: '/admin/content/objects/' + data[pb.DAO.getIdField()]
     }, {
         name: 'new_object',
         title: '',
         icon: 'plus',
-        href: '/admin/content/objects/' + data._id + '/new'
+        href: '/admin/content/objects/' + data[pb.DAO.getIdField()] + '/new'
     }];
 };
 

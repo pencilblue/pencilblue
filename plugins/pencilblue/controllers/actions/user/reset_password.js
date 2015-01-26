@@ -40,7 +40,7 @@ ResetPassword.prototype.render = function(cb) {
             return;
         }
 
-        dao.loadByValue('user_id', user._id.toString(), 'password_reset', function(err, passwordReset) {
+        dao.loadByValue('user_id', user[pb.DAO.getIdField()].toString(), 'password_reset', function(err, passwordReset) {
             if(passwordReset === null) {
                 self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
                 return;
@@ -52,10 +52,10 @@ ResetPassword.prototype.render = function(cb) {
             }
 
             // delete the password reset token
-            dao.deleteById(passwordReset._id, 'password_reset', function(err, result)  {
+            dao.deleteById(passwordReset[pb.DAO.getIdField()], 'password_reset', function(err, result)  {
         	    //log the user in
                 self.session.authentication.user        = user;
-                self.session.authentication.user_id     = user._id.toString();
+                self.session.authentication.user_id     = user[pb.DAO.getIdField()].toString();
                 self.session.authentication.admin_level = user.admin;
 				self.session.authentication.reset_password = true;
 

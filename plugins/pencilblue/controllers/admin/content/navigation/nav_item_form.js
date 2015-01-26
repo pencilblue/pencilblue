@@ -54,7 +54,7 @@ NavItemFormController.prototype.render = function(cb) {
         data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
         var angularObjects = pb.js.getAngularObjects(data);
 
-        self.setPageName(self.navItem._id ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
+        self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.registerLocal('content_type', '{{section.type}}');
         self.ts.registerLocal('selection_id_field', 'item');
@@ -148,7 +148,7 @@ NavItemFormController.getSubNavItems = function(key, ls, data) {
     pills.unshift(
     {
         name: 'manage_nav_items',
-        title: data._id ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_NAV_ITEM'),
+        title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_NAV_ITEM'),
         icon: 'chevron-left',
         href: '/admin/content/navigation'
     });

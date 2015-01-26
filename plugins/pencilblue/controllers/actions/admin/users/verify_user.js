@@ -53,7 +53,7 @@ VerifyUser.prototype.render = function(cb) {
 
             //convert to user
             var user = unverifiedUser;
-            delete user._id;
+            delete user[pb.DAO.getIdField()];
             delete user.created;
             delete user.last_modified;
             user.object_type = 'user';

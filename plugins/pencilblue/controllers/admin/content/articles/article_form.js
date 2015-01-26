@@ -119,7 +119,7 @@ ArticleForm.prototype.getAngularObjects = function(tabs, data) {
 ArticleForm.getSubNavItems = function(key, ls, data) {
 	return [{
 	    name: 'manage_articles',
-	    title: data.article._id ? ls.get('EDIT') + ' ' + data.article.headline : ls.get('NEW_ARTICLE'),
+	    title: data.article[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.article.headline : ls.get('NEW_ARTICLE'),
 	    icon: 'chevron-left',
 	    href: '/admin/content/articles'
 	}, {

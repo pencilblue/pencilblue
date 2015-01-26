@@ -39,15 +39,15 @@ Preview.prototype.render = function(cb) {
 			return;
 		}
 
-		self.req.pencilblue_preview = item._id.toString();
+		self.req.pencilblue_preview = item[pb.DAO.getIdField()].toString();
 		switch(vars.type) {
 		    case 'page':
-		        self.req.pencilblue_page = item._id.toString();
+		        self.req.pencilblue_page = item[pb.DAO.getIdField()].toString();
 		        this.page = item;
 		        break;
 		    case 'article':
 		    default:
-		        self.req.pencilblue_article = item._id.toString();
+		        self.req.pencilblue_article = item[pb.DAO.getIdField()].toString();
 		        this.article = item;
 		        break;
         }

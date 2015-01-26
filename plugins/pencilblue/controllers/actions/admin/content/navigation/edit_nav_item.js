@@ -88,7 +88,7 @@ EditNavItem.prototype.render = function(cb){
 
 EditNavItem.prototype.deleteOrphans = function(navItem, cb) {
     var service = new pb.SectionService();
-    service.deleteChildren(navItem._id, cb);
+    service.deleteChildren(navItem[pb.DAO.getIdField()], cb);
 };
 
 EditNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {

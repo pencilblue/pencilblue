@@ -84,7 +84,7 @@ NavigationMap.getOrderedItems = function(sections, sectionMap) {
 
         var parentSection = null;
         for(var j = 0; j < sections.length; j++) {
-            if(sectionMap[i].uid == sections[j]._id) {
+            if(sectionMap[i].uid == sections[j][pb.DAO.getIdField()]) {
                 parentSection          = sections[j];
                 parentSection.children = [];
                 sections.splice(j, 1);

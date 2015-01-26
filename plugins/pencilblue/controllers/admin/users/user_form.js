@@ -46,13 +46,13 @@ UserForm.prototype.render = function(cb) {
 		data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: self.user});
 
 		data.adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR}];
-		if(!data.user._id || self.session.authentication.user_id !== data.user._id.toString()) {
+		if(!data.user[pb.DAO.getIdField()] || self.session.authentication.user_id !== data.user[pb.DAO.getIdField()].toString()) {
 			data.adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
 		}
 
 		var angularObjects = pb.js.getAngularObjects(data);
 
-		self.setPageName(data.user._id ? data.user.username : self.ls.get('NEW_USER'));
+		self.setPageName(data.user[pb.DAO.getIdField()] ? data.user.username : self.ls.get('NEW_USER'));
 		self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
 		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
 		self.ts.load('admin/users/user_form', function(err, result) {
@@ -101,18 +101,18 @@ UserForm.prototype.gatherData = function(vars, cb) {
 UserForm.getSubNavItems = function(key, ls, data) {
 	var pills = [{
 		name: 'manage_users',
-		title: data.user._id ? ls.get('EDIT') + ' ' + data.user.username : ls.get('NEW_USER'),
+		title: data.user[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.user.username : ls.get('NEW_USER'),
 		icon: 'chevron-left',
 		href: '/admin/users'
 	}];
 
-	if(data.user._id) {
-		if(data.session.authentication.user_id === data.user._id.toString()) {
+	if(data.user[pb.DAO.getIdField()]) {
+		if(data.session.authentication.user_id === data.user[pb.DAO.getIdField()].toString()) {
 			pills.push({
 				name: 'change_password',
 				title: ls.get('CHANGE_PASSWORD'),
 				icon: 'key',
-				href: '/admin/users/password/' + data.user._id.toString()
+				href: '/admin/users/password/' + data.user[pb.DAO.getIdField()].toString()
 			});
 		}
 		else if(data.session.authentication.admin_level >= ACCESS_MANAGING_EDITOR) {
@@ -120,7 +120,7 @@ UserForm.getSubNavItems = function(key, ls, data) {
 				name: 'reset_password',
 				title: ls.get('RESET_PASSWORD'),
 				icon: 'key',
-				href: '/actions/admin/users/send_password_reset/' + data.user._id.toString()
+				href: '/actions/admin/users/send_password_reset/' + data.user[pb.DAO.getIdField()].toString()
 			});
 		}
 	}

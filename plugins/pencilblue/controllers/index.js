@@ -262,7 +262,7 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
     ats.registerLocal('article_headline_nolink', content.headline);
     ats.registerLocal('article_subheading', content.subheading ? content.subheading : '');
     ats.registerLocal('article_subheading_display', content.subheading ? '' : 'display:none;');
-    ats.registerLocal('article_id', content._id.toString());
+    ats.registerLocal('article_id', content[pb.DAO.getIdField()].toString());
     ats.registerLocal('article_index', index);
     ats.registerLocal('article_timestamp', showTimestamp && content.timestamp ? content.timestamp : '');
     ats.registerLocal('article_timestamp_display', showTimestamp ? '' : 'display:none;');
