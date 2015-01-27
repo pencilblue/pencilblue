@@ -20,6 +20,7 @@ var async    = require('async');
 var mongo    = require('mongodb').MongoClient;
 var domain   = require('domain');
 var ObjectID = require('mongodb').ObjectID;
+var pb       = require('../requirements.js');
 
 /**
  * Wrapper that protects against direct access to the active connection pools

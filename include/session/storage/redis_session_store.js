@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var pb = require('../../lib');
+
 /**
  * Session storage backed by Redis
  *

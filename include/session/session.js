@@ -18,6 +18,7 @@
 //dependencies
 var path   = require('path');
 var crypto = require('crypto');
+var pb     = require('../../lib');
 
 /**
  * Tools for session storage

@@ -3,12 +3,12 @@
  * needed to construct the system API object.
  * @copyright PencilBlue, all rights reserved.
  */
-//setup global resources & modules
+
+//dependencies
 var path = require('path');
-global.util       = require('util');
 
 //define what will become the global entry point into the server api.
-global.pb = {};
+var pb = exports;
 
 //load the configuration
 pb.config = require('./config');
@@ -16,8 +16,8 @@ pb.config = require('./config');
 
 //configure basic services
 //setup utils
-pb.utils = require(DOCUMENT_ROOT+'/include/util.js');
-global.log =
+pb.utils   = require(DOCUMENT_ROOT+'/include/util.js');
+pb.util    = pb.utils;
 pb.log     = require(DOCUMENT_ROOT+'/include/utils/logging.js').logger(pb.config);
 pb.system  = require(path.join(DOCUMENT_ROOT, 'include/system/system.js'));
 
@@ -135,6 +135,3 @@ pb.MediaService       = require(path.join(DOCUMENT_ROOT, '/include/service/entit
 pb.SectionService = require(DOCUMENT_ROOT+'/include/service/entities/section_service.js');
 pb.TopMenuService = require(DOCUMENT_ROOT+'/include/theme/top_menu.js');
 pb.ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service.js')).ArticleService;
-
-//Export system object
-module.exports = pb;

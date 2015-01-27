@@ -15,6 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var pb = require('../requirements.js');
+
 /**
  * Creates the cache
  *
@@ -37,6 +40,9 @@ CacheFactory.getInstance = function() {
     if (CLIENT !== null) {
         return CLIENT;
     }
+    
+    //register for shutdown
+    pb.system.registerShutdownHook('CacheFactory', CacheFactory.shutdown);
 
     CLIENT = CacheFactory.createInstance();
     return CLIENT;
@@ -67,9 +73,6 @@ CacheFactory.shutdown = function(cb) {
     }
     cb(null, null);
 };
-
-//register for shutdown
-pb.system.registerShutdownHook('CacheFactory', CacheFactory.shutdown);
 
 //exports
 module.exports = CacheFactory;

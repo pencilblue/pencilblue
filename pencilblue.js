@@ -20,7 +20,8 @@ var fs    = require('fs');
 var http  = require('http');
 var https = require('https');
 var async = require('async');
-global.pb = require('./include/requirements');
+var util  = require('./include/util.js');
+var pb    = require('./include/requirements');
 
 /**
  * The main driver file for PencilBlue.  Provides the function necessary to

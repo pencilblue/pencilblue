@@ -437,10 +437,7 @@ Util.getDirectories = function(dirPath, cb) {
 
 				var fullPath = path.join(dirPath, files[index]);
 				fs.stat(fullPath, function(err, stat) {
-					if (util.isError(err)) {
-						pb.log.error("Failed to get stats on file ["+fullPath+"]: "+err);
-					}
-					else if (stat.isDirectory()) {
+					if (stat.isDirectory()) {
 						dirs.push(fullPath);
 					}
 					callback(err, null);
@@ -499,7 +496,6 @@ Util.getFiles = function(dirPath, options, cb) {
                 var fullPath = q.shift();
 				fs.stat(fullPath, function(err, stat) {
 					if (util.isError(err)) {
-						pb.log.error("Failed to get stats on file DP=[%s] FILE=[%s] AP=[%s]: %s", dirPath, item, fullPath, err.stack);
                         return callback(err);
 					}
 					
