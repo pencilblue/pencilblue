@@ -1070,7 +1070,7 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
                 // assumes plugin is compatible with all pb versions
                 pb.log.warn('PluginService: The plugin, %s does not specify pb version.', details.name);
                 return callback(null, true);
-            }, else {
+            } else {
                 var results = semver.satisfies(pb.config.version, details.pbVersion);
                 
                 return callback(null, results);
