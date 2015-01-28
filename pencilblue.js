@@ -21,7 +21,7 @@ var http  = require('http');
 var https = require('https');
 var async = require('async');
 var util  = require('./include/util.js');
-var pb    = require('./include/requirements');
+var lib   = require('./lib');
 
 /**
  * The main driver file for PencilBlue.  Provides the function necessary to
@@ -31,14 +31,16 @@ var pb    = require('./include/requirements');
  * @class PencilBlue
  * @constructor
  */
-function PencilBlue(){}
+function PencilBlue(config){
+    this.pb = lib(config);
+};
 
 /**
  * To be called when the configuration is loaded.  The function is responsible
  * for triggered the startup of the HTTP connection listener as well as start a
  * connection pool to the core DB.
  */
-PencilBlue.init = function(){
+PencilBlue.prototype.init = function(){
     var tasks = [
         PencilBlue.initRequestHandler,
         PencilBlue.initDBConnections,
@@ -252,5 +254,15 @@ PencilBlue.initLibraries = function(cb) {
     pb.libraries.init(cb);
 };
 
-//start system
-pb.system.onStart(PencilBlue.init);
+PencilBlue.prototype.start = function() {
+    pb.system.onStart(PencilBlue.init);
+}
+
+//start system only when the module is called directly
+if (require.main === module) {
+    
+    var Configuration = require('./include/config.js');
+    var config        = Configuration.load();
+    var pb            = new PencilBlue(config);
+    pb.start();
+}
