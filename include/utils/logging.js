@@ -16,23 +16,61 @@
 */
 
 //dependencies
+var path    = require('path');
+var cluster = require('cluster');
 var winston = require('winston');
+var util    = require('../util.js');
 
-module.exports.logger = function(config){
+module.exports = function LogFactory(config){
+    
+    //verify that we have a valid logging configuration provided
+    if (!util.isObject(config.logging)) {
+        config.logging = {};
+    }
+    if (!util.isString(config.logging.level)) {
+        config.logging.level = "info";
+    }
+    if (!util.isArray(config.logging.transports)) {
+        
+        //initialize transports with console by default
+        config.logging.transports = [
+            new (winston.transports.Console)({ level: config.logging.level, timestamp: true, label: cluster.worker ? cluster.worker.id : 'M'}),
+        ];
+        
+        //when a log file path is provided log to a file
+        if (util.isString(config.logging.file)) {
+            
+            //ensure the directory structure exists
+            util.mkdirsSync(config.logging.file, true, util.cb);
+            
+            //add the transport
+            var fileTransport = new (winston.transports.File)({ filename: config.logging.file, level: config.logging.level, timestamp: true });
+            config.logging.transports.push(fileTransport);
+        }
+    }
+    
+    //configure winston
 	var logger =  new (winston.Logger)({
 	    transports: config.logging.transports,
 	    level: config.log_level,
         padLevels: false
    });
 
+    /**
+     * Determines if the root log level is set to debug or silly
+     */
 	logger.isDebug = function(){
 		return pb.log.levels[pb.log.level] <= 1;
 	};
 
+    /**
+     * Determines if the root log level is set to silly
+     */
 	logger.isSilly = function(){
 		return pb.log.levels[pb.log.level] <= 0;
 	};
 
-	console.log('SystemStartup: Log Level is: '+config.log_level);
+    //return the conifgured logger instance
+	logger.info('SystemStartup: Log Level is: '+config.logging.level);
 	return logger;
 };

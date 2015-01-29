@@ -473,8 +473,16 @@ var BASE_CONFIG = {
 		timeout: 2000000
 	},
 
-    //The global log level: silly, debug, info, warn, error
-	log_level: "info",
+    //The logging settings.  The level property specifies at what level to log.  
+    //It can be of any of the following: silly, debug, info, warn, error.  The 
+    //file property specifes the absolute file path where the log file should 
+    //be written.  If no value is provided the file transport will not be 
+    //configured.
+    logging: {
+        
+        level: "info",
+        file: LOG_FILE
+    },
 
     //System settings always have the persistent storage layer on.  Optionally,
     //the cache and/or memory can be used.  It is not recommended to use memory
@@ -675,34 +683,21 @@ Configuration.load = function(filePaths) {
             message += util.format('\n* %s', filePath);
         });
     }
+    console.log(message);
 
     //perform any overrides
     return Configuration.mergeWithBase(override);
 };
 
+/**
+ * 
+ * @static
+ * @method mergeWithBase
+ */
 Configuration.mergeWithBase = function(overrides) {
     
+    //merge in all overrides with the base configuration
     var config = util.deepMerge(overrides, Configuration.getBaseConfig());
-    
-    //setup logging
-    if (!config.logging) {
-        
-        // If no log file exists, we should create one
-        if (!fs.existsSync(LOG_FILE)) {
-            if (!fs.existsSync(LOG_DIR)) {
-                fs.mkdirSync(LOG_DIR);
-            }
-            console.log('SystemStartup: Creating log file [%s]', LOG_FILE);
-            fs.writeFileSync(LOG_FILE, '');
-        }
-
-        config.logging = {
-            transports: [
-                 new (winston.transports.Console)({ level: config.log_level, timestamp: true, label: cluster.worker ? cluster.worker.id : 'M'}),
-                 new (winston.transports.File)({ filename: LOG_FILE, level: config.log_level, timestamp: true })
-           ]
-        };
-    }
 
     //special check to ensure that there is no ending slash on the site root
     if (config.siteRoot.lastIndexOf('/') === (config.siteRoot.length - 1)) {

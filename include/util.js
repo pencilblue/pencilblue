@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var os     = require('os');
 var util   = require('util');
 var async  = require('async');
 var extend = require('node.extend');
@@ -532,6 +533,68 @@ Util.getFiles = function(dirPath, options, cb) {
                 cb(err, filePaths);
             }
         );
+    });
+};
+
+Util.mkdirs = function(absoluteDirPath, isFileName, cb) {
+    if (!Util.isString(absoluteDirPath)) {
+        return cb(new Error('absoluteDirPath must be a valid file path'));
+    }
+    
+    //check to see if optional isFileName parameter was provided
+    if (Util.isFunction(isFileName)) {
+        cb = isFileName;
+        isFileName = false;
+    }
+    
+    var pieces = absoluteDirPath.split(path.sep);
+    
+    var curr      = '';
+    var isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
+    var tasks     = pb.utils.getTasks(pieces, function(pieces, i) {
+        return function(callback) {
+            
+            //we need to skip the first one bc it will probably be empty and we 
+            //want to skip the last one because it will probably be the file 
+            //name not a directory.
+            var p = pieces[i];
+            if (p.length === 0 || (isFileName && i >= pieces.length - 1)) {
+                return callback();   
+            }
+            
+            curr += (isWindows && i === 0 ? '' : path.sep) + p;
+            fs.exists(curr, function(exists) {
+                if (exists) {
+                    return callback();
+                }
+                fs.mkdir(curr, callback);
+            });
+        };
+    });
+    async.series(tasks, cb);
+};
+
+Util.mkdirsSync = function(absoluteDirPath, isFileName) {
+    if (!Util.isString(absoluteDirPath)) {
+        throw new Error('absoluteDirPath must be a valid file path');
+    }
+    
+    var pieces    = absoluteDirPath.split(path.sep);
+    var curr      = '';
+    var isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
+    pieces.forEach(function(p, i) {
+            
+        //we need to skip the first one bc it will probably be empty and we 
+        //want to skip the last one because it will probably be the file 
+        //name not a directory.
+        if (p.length === 0 || (isFileName && i >= pieces.length - 1)) {
+            return;   
+        }
+
+        curr += (isWindows && i === 0 ? '' : path.sep) + p;
+        if (!fs.existsSync(curr)) {
+            fs.mkdirSync(curr);
+        }
     });
 };
 
