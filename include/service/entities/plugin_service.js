@@ -1596,6 +1596,14 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
       errors.push("An invalid version expression ["+details.pbVersion+"] was provided.");
     }
 
+    //validate pbVersion in config against pb version
+    if(details.pbVersion){
+    	if(!semver.satisfies(details.pbVersion, pb.config.version)) {
+      		errors.push("The version of ["+details.name+"] ("+ details.pbVersion +") does not match the pencilblue version (" + pb.config.version + ") you are using.");
+    	}
+    }
+    
+
 	//validate icon
 	if (details.icon) {
 		if (!pb.utils.isString(details.icon) || !PluginService.validateIconPath(details.icon, pluginDirName)) {
