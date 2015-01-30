@@ -20,6 +20,7 @@ var fs    = require('fs');
 var http  = require('http');
 var https = require('https');
 var async = require('async');
+var npm   = require('npm');
 var util  = require('./include/util.js');
 
 
@@ -49,6 +50,7 @@ function PencilBlue(config){
      */
     this.init = function(){
         var tasks = [
+            PencilBlue.initLogWrappers,
             PencilBlue.initRequestHandler,
             PencilBlue.initDBConnections,
             PencilBlue.initDBIndices,
@@ -66,6 +68,18 @@ function PencilBlue(config){
         });
     };
     
+    /**
+     * Ensures that any log messages by the NPM module are fowarded as output 
+     * to the system logs
+     * @static
+     * @method initLogWrappers
+     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
+     */
+    this.initLogWrappers = function(cb) {
+        npm.on('log', function(message) {
+            pb.log.info(message);
+        });
+    };
     
     /**
      * Initializes the request handler.  This causes all system routes to be
@@ -279,3 +293,6 @@ if (require.main === module) {
     var pb            = new PencilBlue(config);
     pb.start();
 }
+
+//exports
+module.exports = PencilBlue;

@@ -32,7 +32,6 @@
     "locale": "0.0.14",
     "minify": "0.2.3",
     "mongodb": "1.4.26",
-    "node-promise": "0.5.9",
     "node-uuid": "1.4.2",
     "node.extend": "1.0.10",
     "nodemailer": "0.5.3",

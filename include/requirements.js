@@ -30,11 +30,11 @@ module.exports = function PB(config) {
     //define what will become the global entry point into the server api.
     var pb = {};
 
-    //load the configuration
-    pb.config = require('./config');
+    //make the configuration available
+    pb.config = config;
 
     //setup utils
-    pb.util    = require(config.docRoot+'/include/util.js');
+    pb.util    = require(path.join(config.docRoot, '/include/util.js'));
     Object.defineProperty(pb, 'utils', {
         get: function() {
             pb.log.warn('PencilBlue: pb.utils is deprecated.  Use pb.util instead');
@@ -42,19 +42,24 @@ module.exports = function PB(config) {
         }
     });
 
-    pb.log    = require(config.docRoot+'/include/utils/logging.js')(config);
-    pb.system = require(path.join(config.docRoot, 'include/system/system.js'));
+    //initialize logging
+    pb.log    = require(path.join(config.docRoot, '/include/utils/logging.js'))(config);
+    
+    //setup the System instance
+    pb.System = require(path.join(config.docRoot, 'include/system/system.js'));
+    pb.system = new pb.System(pb);
 
-//configure cache
-pb.CacheFactory = require(config.docRoot+'/include/dao/cache.js');
-pb.cache = pb.CacheFactory.getInstance();
+    //configure cache
+    var CacheModule = require(path.join(config.docRoot, '/include/dao/cache.js'));
+    pb.CacheFactory = CacheModule(pb).CacheFactory;
+    pb.cache        = pb.CacheFactory.getInstance();
 
-//configure the DB manager
-pb.DBManager = require(config.docRoot+'/include/dao/db_manager').DBManager;
-pb.dbm       = new pb.DBManager();
+    //configure the DB manager
+    pb.DBManager = require(config.docRoot+'/include/dao/db_manager');
+    pb.dbm       = new pb.DBManager(pb);
 
-//setup system class types
-pb.DAO = require(config.docRoot+'/include/dao/dao');
+    //setup system class types
+    pb.DAO = require(config.docRoot+'/include/dao/dao');
 
 //setup validation services
 pb.validation = require(config.docRoot+'/include/validation/validation_service.js');

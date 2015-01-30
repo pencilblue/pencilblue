@@ -407,6 +407,17 @@ Util.isFunction = function(value) {
 };
 
 /**
+ * Tests if a value is NULL or undefined
+ * @static
+ * @method isNullOrUndefined
+ * @param {*} value
+ * @return {Boolean}
+ */
+Util.isNullOrUndefined = function(value) {
+    return value === null || typeof value === 'undefined';
+};
+
+/**
  * Tests if a value is a boolean
  * @static
  * @method isBoolean

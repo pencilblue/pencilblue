@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,63 +16,81 @@
 */
 
 //dependencies
-var pb = require('../requirements.js');
+var util = require('../util.js');
 
-/**
- * Creates the cache
- *
- * @module Database
- * @class CacheFactory
- * @constructor
- */
-function CacheFactory(){}
+module.exports = function CacheModule(pb){
 
-//statics
-var CLIENT = null;
-
-/**
- * Retrieves the instance of Redis or FakeRedis
- *
- * @method getInstance
- * @return {Object} client
- */
-CacheFactory.getInstance = function() {
-    if (CLIENT !== null) {
-        return CLIENT;
-    }
+    /**
+     * Creates the cache
+     *
+     * @module dao
+     * @class CacheFactory
+     * @constructor
+     */
+    var CacheFactory = function(){};
     
-    //register for shutdown
-    pb.system.registerShutdownHook('CacheFactory', CacheFactory.shutdown);
+    /**
+     *
+     * @private
+     * @static
+     * @property CLIENT
+     * @type {RedisClient}
+     */
+    var CLIENT = null;
 
-    CLIENT = CacheFactory.createInstance();
-    return CLIENT;
+    /**
+     * Retrieves the instance of Redis or FakeRedis
+     *
+     * @method getInstance
+     * @return {Object} client
+     */
+    CacheFactory.getInstance = function() {
+        if (CLIENT !== null) {
+            return CLIENT;
+        }
+
+        //create instance
+        CLIENT = CacheFactory.createInstance();
+        
+        //register for shutdown so we can clean up after ourselves
+        pb.system.registerShutdownHook('CacheFactory', CacheFactory.shutdown);
+        return CLIENT;
+    };
+
+    /**
+     * 
+     * @method createInstance
+     * @param {Object} [config] The Redis configuration.  When not provided the 
+     * configuration for this instance of PencilBlue is used.
+     * return {RedisClient}
+     */
+    CacheFactory.createInstance = function(config) {
+        if (!util.isObject(config)) {
+            config = pb.config.cache;
+        }
+
+        var moduleAtPlay = config.fake ? "fakeredis" : "redis";
+        var Redis        = require(moduleAtPlay);
+        return Redis.createClient(config.port, config.host, config);
+    };
+
+    /**
+     * Shuts down the Redis or FakeRedis instance
+     *
+     * @method shutdown
+     * @param  {Function} cb Callback function
+     */
+    CacheFactory.shutdown = function(cb) {
+        cb = cb || pb.utils.cb;
+
+        if (CLIENT !== null) {
+            CLIENT.quit();
+        }
+        cb(null, null);
+    };
+    
+    //return inner export
+    return {
+        CacheFactory: CacheFactory
+    };
 };
-
-/**
- *
- *
- *
- */
-CacheFactory.createInstance = function() {
-    var moduleAtPlay = pb.config.cache.fake ? "fakeredis" : "redis";
-    var Redis        = require(moduleAtPlay);
-    return Redis.createClient(pb.config.cache.port, pb.config.cache.host, pb.config.cache);
-};
-
-/**
- * Shuts down the Redis or FakeRedis instance
- *
- * @method shutdown
- * @param  {Function} cb Callback function
- */
-CacheFactory.shutdown = function(cb) {
-    cb = cb || pb.utils.cb;
-
-    if (CLIENT !== null) {
-        CLIENT.quit();
-    }
-    cb(null, null);
-};
-
-//exports
-module.exports = CacheFactory;
