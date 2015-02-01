@@ -164,7 +164,7 @@ ValidationService.isVersionExpression = function(expression, required) {
   if (!expression && !required) {
     return true;
   }
-  return semver.valid(expression) !== null;
+  return semver.validRange(expression) !== null;
 };
 
 /**
