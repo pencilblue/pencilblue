@@ -1065,13 +1065,13 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
         
         // check the pb version plugin supports
         function(callback) {
-            if(!details.pbVersion){
+            if(!details.pb_version){
                 // pb version was not specified
                 // assumes plugin is compatible with all pb versions
                 pb.log.warn('PluginService: The plugin, %s does not specify pb version.', details.name);
                 return callback(null, true);
             } else {
-                var results = semver.satisfies(pb.config.version, details.pbVersion);
+                var results = semver.satisfies(pb.config.version, details.pb_version);
                 
                 return callback(null, results);
             }
@@ -1591,17 +1591,17 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 		errors.push("An invalid version number ["+details.version+"] was provided.  Must match the form: xx.xx.xx");
 	}
     
-    //validate pbVersion
-    if (!v.isVersionExpression(details.pbVersion, false)) {
-      errors.push("An invalid version expression ["+details.pbVersion+"] was provided.");
-    }
+    if (pb.utils.isString(details.pb_version)) {
+	    if (!v.isVersionExpression(details.pb_version, true)) {
+	        errors.push('An invalid version expression "' + details.pb_version + '" was provided.');
+	    }
 
-    //validate pbVersion in config against pb version
-    if(details.pbVersion){
-    	if(!semver.satisfies(details.pbVersion, pb.config.version)) {
-      		errors.push("The version of ["+details.name+"] ("+ details.pbVersion +") does not match the pencilblue version (" + pb.config.version + ") you are using.");
-    	}
-    }
+	    //validate pb_version in config against pb version
+	    else if (!semver.satisfies(pb.config.version, details.pb_version)) {
+	        errors.push("Version " + details.version + " is incompatible with PencilBlue version " + pb.config.version);
+	    }
+	}
+
     
 
 	//validate icon
