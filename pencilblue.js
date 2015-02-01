@@ -55,6 +55,7 @@ function PencilBlue(config){
             PencilBlue.initDBConnections,
             PencilBlue.initDBIndices,
             PencilBlue.initServer,
+            PencilBlue.initSessions,
             PencilBlue.initPlugins,
             PencilBlue.initServerRegistration,
             PencilBlue.initCommandService,
@@ -92,6 +93,15 @@ function PencilBlue(config){
         pb.RequestHandler.init();
         cb(null, true);
     }
+    
+    /**
+     * Starts the session handler
+     * @method initSessions
+     * @param {Function} cb
+     */
+    this.initSessions = function(cb) {
+        pb.session.start(cb);
+    };
 
     /**
      * Initializes the installed plugins.

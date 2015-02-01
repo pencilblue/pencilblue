@@ -61,12 +61,15 @@ module.exports = function PB(config) {
     //setup system class types
     pb.DAO = require(config.docRoot+'/include/dao/dao');
 
-//setup validation services
-pb.validation = require(config.docRoot+'/include/validation/validation_service.js');
+    //setup validation services
+    var ValidationModule = require(path.join(config.docRoot, '/include/validation/validation_service.js'));
+    pb.ValidationService = ValidationModule(pb);
+    pb.validation        = pb.ValidationService;
 
-//setup the session handler
-pb.SessionHandler = require(config.docRoot+'/include/session/session.js');
-pb.session        = new pb.SessionHandler();
+    //setup the session handler
+    var SessionModule = require(path.join(config.docRoot, '/include/session/session.js'));
+    pb.SessionHandler = SessionModule(pb);
+    pb.session        = new pb.SessionHandler(pb.SessionHandler.getSessionStoreInstance());
 
 //setup object services
 pb.SimpleLayeredService         = require(config.docRoot+'/include/service/simple_layered_service.js').SimpleLayeredService;

@@ -31,7 +31,7 @@ var uuid   = require('node-uuid');
  * @class Util
  * @constructor
  */
-function Util(){};
+function Util(){}
 
 /**
  * Clones an object by serializing it and then re-parsing it.
@@ -234,7 +234,6 @@ Util.arrayToObj = function(array, keyFieldOrTransform, valFieldOrTransform) {
         var item = array[i];
         var key  = keyIsString ? item[keyFieldOrTransform] : keyFieldOrTransform(array, i);
         
-        var val;
         if (valIsString) {
             obj[key] = item[valFieldOrTransform];
         }
@@ -359,7 +358,7 @@ Util.arrayPushAll = function(from, to) {
  * @static
  * @method cb
  */
-Util.cb = function(err, result){
+Util.cb = function(/*err, result*/){
 	//do nothing
 };
 
@@ -381,7 +380,7 @@ Util.uniqueId = function(){
  * @return {Boolean}
  */
 Util.isObject = function(value) {
-	return value != undefined && value != null && typeof value === 'object';
+	return !Util.isNullOrUndefined(value) && typeof value === 'object';
 };
 
 /**
@@ -392,7 +391,7 @@ Util.isObject = function(value) {
  * @return {Boolean}
  */
 Util.isString = function(value) {
-	return value != undefined && value != null && typeof value === 'string';
+	return !Util.isNullOrUndefined(value) && typeof value === 'string';
 };
 
 /**
@@ -403,7 +402,7 @@ Util.isString = function(value) {
  * @return {Boolean}
  */
 Util.isFunction = function(value) {
-	return value != undefined && value != null && typeof value === 'function';
+	return !Util.isNullOrUndefined(value) && typeof value === 'function';
 };
 
 /**
@@ -426,7 +425,7 @@ Util.isNullOrUndefined = function(value) {
  */
 Util.isBoolean = function(value) {
     return value === true || value === false;
-}
+};
 
 /**
  * Retrieves the subdirectories of a path
@@ -456,7 +455,7 @@ Util.getDirectories = function(dirPath, cb) {
 				});
 			};
 		});
-		async.parallel(tasks, function(err, results) {
+		async.parallel(tasks, function(err/*, results*/) {
 			cb(err, dirs);
 		});
 	});
@@ -484,7 +483,7 @@ Util.getFiles = function(dirPath, options, cb) {
         cb      = options;
         options = {
             recursive: false,
-            filter: function(fullPath, stat) { return true; }
+            filter: function(/*fullPath, stat*/) { return true; }
         };
     }
     
@@ -562,7 +561,7 @@ Util.mkdirs = function(absoluteDirPath, isFileName, cb) {
     
     var curr      = '';
     var isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
-    var tasks     = pb.utils.getTasks(pieces, function(pieces, i) {
+    var tasks     = Util.getTasks(pieces, function(pieces, i) {
         return function(callback) {
             
             //we need to skip the first one bc it will probably be empty and we 
