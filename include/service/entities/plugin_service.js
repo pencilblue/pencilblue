@@ -16,12 +16,14 @@
 */
 
 //dependencies
+<<<<<<< HEAD
 var fs      = require('fs');
 var npm     = require('npm');
 var path    = require('path');
 var process = require('process');
 var async   = require('async');
 var domain  = require('domain');
+var semver  = require('semver');
 
 /**
  * PluginService - Provides functions for interacting with plugins.
@@ -1063,7 +1065,21 @@ PluginService.prototype.initPlugin = function(plugin, cb) {
                 });
             });
         },
-
+        
+        // check the pb version plugin supports
+        function(callback) {
+            if(!details.pb_version){
+                // pb version was not specified
+                // assumes plugin is compatible with all pb versions
+                pb.log.warn('PluginService: The plugin, %s does not specify pb version.', details.name);
+                return callback(null, true);
+            } else {
+                var results = semver.satisfies(pb.config.version, details.pb_version);
+                
+                return callback(null, results);
+            }
+        },
+        
          //register plugin & load main module
          function(callback) {
 
@@ -1577,6 +1593,19 @@ PluginService.validateDetails = function(details, pluginDirName, cb) {
 	if (!v.validateVersionNum(details.version, true)) {
 		errors.push("An invalid version number ["+details.version+"] was provided.  Must match the form: xx.xx.xx");
 	}
+    
+    if (pb.utils.isString(details.pb_version)) {
+	    if (!v.isVersionExpression(details.pb_version, true)) {
+	        errors.push('An invalid version expression "' + details.pb_version + '" was provided.');
+	    }
+
+	    //validate pb_version in config against pb version
+	    else if (!semver.satisfies(pb.config.version, details.pb_version)) {
+	        errors.push("Version " + details.version + " is incompatible with PencilBlue version " + pb.config.version);
+	    }
+	}
+
+    
 
 	//validate icon
 	if (details.icon) {
