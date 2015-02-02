@@ -191,6 +191,28 @@ ArticleService.prototype.find = function(where, options, cb) {
 };
 
 /**
+ * Updates articles
+ *
+ * @param {String} articleId	id of article
+ * @param {Object} fields	fields to update
+ * @param {Object} options
+ * @param {Function} cb      Callback function
+ */
+ArticleService.prototype.update = function(articleId, fields, options, cb) {
+        if(!pb.utils.isObject(fields)){
+                return cb(new Error('The fields parameter is required'));
+        }
+
+	var where = {
+		_id: pb.DAO.getIdWhere(articleId)
+	}
+        var content_type = this.getContentType();
+
+	var dao  = new pb.DAO();
+	dao.updateFields(content_type, where, fields, options, cb);
+};
+
+/**
  * Retrieves data necessary for displaying an articles and appends it to the
  * article object
  *
