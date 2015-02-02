@@ -191,6 +191,28 @@ ArticleService.prototype.find = function(where, options, cb) {
 };
 
 /**
+ * Updates articles
+ *
+ * @param {String} articleId	id of article
+ * @param {Object} options	
+ * @param {Object} fields	fields to update	
+ * @param {Function} cb      Callback function
+ */
+ArticleService.prototype.update = function(articleId, options, fields, cb) {
+	var where = {
+		_id: articleId
+	}
+	
+	var dao  = new pb.DAO();
+	dao.updateFields('article', where, fields, options, function(err, result) {
+	   	if (util.isError(err)) {
+			return cb(err, false);
+		}
+	   	return cb(null, result)
+	});
+};
+
+/**
  * Retrieves data necessary for displaying an articles and appends it to the
  * article object
  *
