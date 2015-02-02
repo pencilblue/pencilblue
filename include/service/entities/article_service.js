@@ -198,18 +198,18 @@ ArticleService.prototype.find = function(where, options, cb) {
  * @param {Object} fields	fields to update	
  * @param {Function} cb      Callback function
  */
-ArticleService.prototype.update = function(articleId, options, fields, cb) {
+ArticleService.prototype.update = function(articleId, fields, options, cb) {
+        if(!pb.utils.isObject(fields)){
+                return cb(new Error('The fields parameter is required'));
+        }
+
 	var where = {
-		_id: articleId
+		_id: pb.DAO.getIdWhere(articleId)
 	}
-	
+        var content_type = this.getContentType();
+
 	var dao  = new pb.DAO();
-	dao.updateFields('article', where, fields, options, function(err, result) {
-	   	if (util.isError(err)) {
-			return cb(err, false);
-		}
-	   	return cb(null, result)
-	});
+	dao.updateFields(content_type, where, fields, options, cb);
 };
 
 /**
