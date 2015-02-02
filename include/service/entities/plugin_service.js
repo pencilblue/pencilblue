@@ -16,7 +16,6 @@
 */
 
 //dependencies
-<<<<<<< HEAD
 var fs      = require('fs');
 var npm     = require('npm');
 var path    = require('path');
