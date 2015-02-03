@@ -25,8 +25,6 @@ var path = require('path');
  */
 module.exports = function PB(config) {
     
-
-
     //define what will become the global entry point into the server api.
     var pb = {};
 
@@ -71,16 +69,16 @@ module.exports = function PB(config) {
     pb.SessionHandler = SessionModule(pb);
     pb.session        = new pb.SessionHandler(pb.SessionHandler.getSessionStoreInstance());
 
-//setup object services
-pb.SimpleLayeredService         = require(config.docRoot+'/include/service/simple_layered_service.js').SimpleLayeredService;
-pb.MemoryEntityService          = require(config.docRoot+'/include/service/memory_entity_service.js').MemoryEntityService;
-pb.CacheEntityService           = require(config.docRoot+'/include/service/cache_entity_service.js').CacheEntityService;
-pb.DBEntityService              = require(config.docRoot+'/include/service/db_entity_service.js').DBEntityService;
-pb.FSEntityService              = require(config.docRoot+'/include/service/fs_entity_service.js').FSEntityService;
-pb.JSONFSEntityService          = require(config.docRoot+'/include/service/json_fs_entity_service.js').JSONFSEntityService;
-pb.ReadOnlySimpleLayeredService = require(config.docRoot+'/include/service/read_only_simple_layered_service.js').ReadOnlySimpleLayeredService;
-pb.TemplateEntityService        = require(config.docRoot+'/include/service/template_entity_service.js').TemplateEntityService;
-pb.CustomObjectService          = require(path.join(config.docRoot, 'include/service/entities/custom_object_service.js'));
+    //setup object services
+    pb.SimpleLayeredService         = require(path.join(config.docRoot, '/include/service/simple_layered_service.js'))(pb);
+    pb.MemoryEntityService          = require(path.join(config.docRoot, '/include/service/memory_entity_service.js'))(pb);
+    pb.CacheEntityService           = require(path.join(config.docRoot, '/include/service/cache_entity_service.js'))(pb);
+    pb.DBEntityService              = require(path.join(config.docRoot, '/include/service/db_entity_service.js'))(pb);
+    pb.FSEntityService              = require(path.join(config.docRoot, '/include/service/fs_entity_service.js'))(pb);
+    pb.JSONFSEntityService          = require(path.join(config.docRoot, '/include/service/json_fs_entity_service.js'))(pb);
+    pb.ReadOnlySimpleLayeredService = require(path.join(config.docRoot, '/include/service/read_only_simple_layered_service.js'))(pb);
+    pb.TemplateEntityService        = require(path.join(config.docRoot, '/include/service/template_entity_service.js'))(pb);
+    pb.CustomObjectService          = require(path.join(config.docRoot, 'include/service/entities/custom_object_service.js'))(pb);
 
 //setup template service
 var TemplateModule = require(config.docRoot+'/include/service/entities/template_service.js');

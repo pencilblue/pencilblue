@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,84 +16,86 @@
 */
 
 //dependencies
-var fs  = require('fs');
+var fs   = require('fs');
+var util = require('../util.js');
 
-/**
- * JSON file system storage service
- *
- * @module Services
- * @submodule Storage
- * @class JSONFSEntityService
- * @constructor
- * @param {String} objType
- */
-function JSONFSEntityService(objType){
-	this.type       = 'JSONFS';
-	this.objType    = objType;
-}
+module.exports = function JSONFSEntityServiceModule(pb) {
+    
+    /**
+     * JSON file system storage service
+     *
+     * @module Services
+     * @submodule Storage
+     * @class JSONFSEntityService
+     * @constructor
+     * @param {String} objType
+     */
+    function JSONFSEntityService(objType){
+        this.type       = 'JSONFS';
+        this.objType    = objType;
+    }
 
-//inheritance
-util.inherits(JSONFSEntityService, pb.FSEntityService);
+    //inheritance
+    util.inherits(JSONFSEntityService, pb.FSEntityService);
 
-/**
- * Retrieve a value from the file system
- *
- * @method get
- * @param  {String}   key
- * @param  {Function} cb  Callback function
- */
-JSONFSEntityService.prototype.get = function(key, cb){
-	var handler = function(err, value) {
-		if (util.isError(err)) {
-			cb(err, null);
-			return;
-		}
+    /**
+     * Retrieve a value from the file system
+     *
+     * @method get
+     * @param  {String}   key
+     * @param  {Function} cb  Callback function
+     */
+    JSONFSEntityService.prototype.get = function(key, cb){
+        var handler = function(err, value) {
+            if (util.isError(err)) {
+                return cb(err, null);
+            }
 
-		try {
-			cb(null, JSON.parse(value));
-		}
-		catch(e) {
-			var error = this.type+": Failed to parse JSON from file: "+key;
-			pb.log.error(error);
-			cb(new PBError(error).setSource(e), null);
-		}
-	};
-	JSONFSEntityService.super_.prototype.render.apply([this, key, handler]);
+            try {
+                cb(null, JSON.parse(value));
+            }
+            catch(e) {
+                var error = util.format("%s: Failed to parse JSON from file: %s", this.type, key);
+                pb.log.error(error);
+                cb(new PBError(error).setSource(e));
+            }
+        };
+        JSONFSEntityService.super_.prototype.render.apply([this, key, handler]);
+    };
+
+    /**
+     * Set a value in the file system
+     *
+     * @method set
+     * @param {String}   key
+     * @param {*}        value
+     * @param {Function} cb    Callback function
+     */
+    JSONFSEntityService.prototype.set = function(key, value, cb) {
+        if (!pb.utils.isObject(value) && !util.isArray(value)) {
+            cb(new PBError(this.type+": Value must be an array or object: "+util.inspect(value)), null);
+        }
+
+        try {
+            value = JSON.stringify(value);
+        }
+        catch(e) {
+            cb(e, null);
+            return;
+        }
+        fs.writeFile(key, value, {encoding: "UTF-8"}, cb);
+    };
+
+    /**
+     * Purge the file system of a value
+     *
+     * @method purge
+     * @param  {String}   key
+     * @param  {Function} cb  Callback function
+     */
+    JSONFSEntityService.prototype.purge = function(key, cb) {
+        fs.unlink(key, cb);
+    };
+
+    return JSONFSEntityService;
 };
-
-/**
- * Set a value in the file system
- *
- * @method set
- * @param {String}   key
- * @param {*}        value
- * @param {Function} cb    Callback function
- */
-JSONFSEntityService.prototype.set = function(key, value, cb) {
-	if (!pb.utils.isObject(value) && !util.isArray(value)) {
-		cb(new PBError(this.type+": Value must be an array or object: "+util.inspect(value)), null);
-	}
-
-	try {
-		value = JSON.stringify(value);
-	}
-	catch(e) {
-		cb(e, null);
-		return;
-	}
-	fs.writeFile(key, value, {encoding: "UTF-8"}, cb);
-};
-
-/**
- * Purge the file system of a value
- *
- * @method purge
- * @param  {String}   key
- * @param  {Function} cb  Callback function
- */
-JSONFSEntityService.prototype.purge = function(key, cb) {
-	fs.unlink(key, cb);
-};
-
-//exports
-module.exports.JSONFSEntityService = JSONFSEntityService;

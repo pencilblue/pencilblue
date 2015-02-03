@@ -17,144 +17,147 @@
 
 //dependencies
 var async = require('async');
+var util  = require('../util.js');
 
-/**
- * Service for layering storage services
- *
- * @module Services
- * @submodule Storage
- * @class SimpleLayeredService
- * @constructor
- * @param {Array} services Array of services
- * @param {String} [name]  The name to assign to this service
- */
-function SimpleLayeredService(services, name){
-	this.services = services;
-	this.name     = name ? name : 'SimpleLayeredService';
+module.exports = function SimpleLayeredServiceModule(pb) {
 
-	if (pb.log.isDebug()) {
-		this.logInitialization();
-	}
-}
+    /**
+     * Service for layering storage services
+     *
+     * @module Services
+     * @submodule Storage
+     * @class SimpleLayeredService
+     * @constructor
+     * @param {Array} services Array of services
+     * @param {String} [name]  The name to assign to this service
+     */
+    function SimpleLayeredService(services, name){
+        this.services = services;
+        this.name     = name ? name : 'SimpleLayeredService';
 
-/**
- * Logs the services that make up this layered service
- * @method logInitialization
- */
-SimpleLayeredService.prototype.logInitialization = function() {
-	var serviceTypes = [];
-	this.services.forEach(function(service) {
-        serviceTypes.push(service.type);
-    });
+        if (pb.log.isDebug()) {
+            this.logInitialization();
+        }
+    }
 
-	if (pb.log.isDebug()) {
-		pb.log.debug("%s: Initialized with layers - %s", this.name, serviceTypes.toString());
-	}
-};
+    /**
+     * Logs the services that make up this layered service
+     * @method logInitialization
+     */
+    SimpleLayeredService.prototype.logInitialization = function() {
+        var serviceTypes = [];
+        this.services.forEach(function(service) {
+            serviceTypes.push(service.type);
+        });
 
-/**
- * Retrieves the setting value from various storage areas.
- *
- * @method get
- * @param {String} key
- * @param {Object} cb Callback function
- */
-SimpleLayeredService.prototype.get = function(key, cb){
+        if (pb.log.isDebug()) {
+            pb.log.debug("%s: Initialized with layers - %s", this.name, serviceTypes.toString());
+        }
+    };
 
-	var i              = 0;
-	var resultNotFound = true;
-	var entity         = null;
-	var instance       = this;
-	async.whilst(
-		function() { //while
-			return i < instance.services.length && resultNotFound;
-		},
-		function(callback) {//do
-			if (pb.log.isSilly()) {
-				pb.log.silly(instance.name+": Checking Service ["+instance.services[i].type+"] for Key ["+key+"]");
-			}
+    /**
+     * Retrieves the setting value from various storage areas.
+     *
+     * @method get
+     * @param {String} key
+     * @param {Object} cb Callback function
+     */
+    SimpleLayeredService.prototype.get = function(key, cb){
 
-			instance.services[i].get(key, function(err, result){
-				if (util.isError(err)){
-					resultNotFound = false;
-					callback(err);
-					return;
-				}
+        var i              = 0;
+        var resultNotFound = true;
+        var entity         = null;
+        var instance       = this;
+        async.whilst(
+            function() { //while
+                return i < instance.services.length && resultNotFound;
+            },
+            function(callback) {//do
+                if (pb.log.isSilly()) {
+                    pb.log.silly(instance.name+": Checking Service ["+instance.services[i].type+"] for Key ["+key+"]");
+                }
 
-				if (result) {
-					resultNotFound = false;
-					entity         = result;
-				}
-				else{
-					i++;
-				}
-
-				callback();
-			});
-		},
-		function(err){//when done
-
-			if (entity) {
-
-				//set value in services that didn't have it.
-				for (var j = 0; j < i; j++) {
-                    if (instance.services[j]._set) {
-                        instance.services[j]._set(key, entity, pb.utils.cb)
+                instance.services[i].get(key, function(err, result){
+                    if (util.isError(err)){
+                        resultNotFound = false;
+                        callback(err);
+                        return;
                     }
-                    else {
-					   instance.services[j].set(key, entity, pb.utils.cb);
+
+                    if (result) {
+                        resultNotFound = false;
+                        entity         = result;
                     }
-				}
-			}
+                    else{
+                        i++;
+                    }
 
-			//callback to original caller
-			cb(err, entity);
-		}
-	);
+                    callback();
+                });
+            },
+            function(err){//when done
+
+                if (entity) {
+
+                    //set value in services that didn't have it.
+                    for (var j = 0; j < i; j++) {
+                        if (instance.services[j]._set) {
+                            instance.services[j]._set(key, entity, util.cb)
+                        }
+                        else {
+                           instance.services[j].set(key, entity, util.cb);
+                        }
+                    }
+                }
+
+                //callback to original caller
+                cb(err, entity);
+            }
+        );
+    };
+
+    /**
+     * Persists a new value for the setting.  When the setting does not exist a new
+     * one is created.
+     *
+     * @method set
+     * @param {String} key
+     * @param {*}      value
+     * @param cb       Callback function
+     */
+    SimpleLayeredService.prototype.set = function(key, value, cb){
+        var self = this;
+
+        var tasks = [];
+        for (var i = this.services.length -1; i >= 0; i--){
+            var task = function(index){
+                return function(callback) {
+                    if (pb.log.isSilly()) {
+                        pb.log.silly("%s:%s: Setting [%s] Value %s", self.name, self.services[index].type, key, JSON.stringify(value));
+                    }
+                    self.services[index].set(key, value, callback);
+                };
+            };
+            tasks.push(task(i));
+        }
+        async.series(tasks, cb);
+    };
+
+    /**
+     * Removes the value from storage.
+     *
+     * @method purge
+     * @param {String} key
+     * @param cb       Callback function
+     */
+    SimpleLayeredService.prototype.purge = function(key, cb){
+        var tasks = pb.utils.getTasks(this.services, function(services, i) {
+            return function(callback) {
+                services[i].purge(key, callback);
+            };
+        });
+        async.series(tasks, cb);
+    };
+
+    return SimpleLayeredService;
 };
-
-/**
- * Persists a new value for the setting.  When the setting does not exist a new
- * one is created.
- *
- * @method set
- * @param {String} key
- * @param {*}      value
- * @param cb       Callback function
- */
-SimpleLayeredService.prototype.set = function(key, value, cb){
-	var self = this;
-
-	var tasks = [];
-	for (var i = this.services.length -1; i >= 0; i--){
-		var task = function(index){
-			return function(callback) {
-				if (pb.log.isSilly()) {
-					pb.log.silly(self.name+":"+self.services[index].type+": Setting ["+key+"] Value ["+JSON.stringify(value)+"]");
-				}
-				self.services[index].set(key, value, callback);
-			};
-		};
-		tasks.push(task(i));
-	}
-	async.series(tasks, cb);
-};
-
-/**
- * Removes the value from storage.
- *
- * @method purge
- * @param {String} key
- * @param cb       Callback function
- */
-SimpleLayeredService.prototype.purge = function(key, cb){
-	var tasks = pb.utils.getTasks(this.services, function(services, i) {
-		return function(callback) {
-			services[i].purge(key, callback);
-		};
-	});
-	async.series(tasks, cb);
-};
-
-//exports
-module.exports.SimpleLayeredService = SimpleLayeredService;

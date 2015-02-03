@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,63 +16,69 @@
 */
 
 //dependencies
-var fs  = require('fs');
+var fs   = require('fs');
+var util = require('../util.js');
 
-/**
- * File system storage service
- *
- * @module Services
- * @submodule Storage
- * @class FSEntityService
- * @constructor
- * @param {String} objType
- */
-function FSEntityService(objType){
-	this.type       = 'FS';
-	this.objType    = objType;
-}
+module.exports = function FSEntityServiceModule(/*pb*/) {
+    
+    /**
+     * Encoding options for interacting with the file system
+     * @private
+     * @static
+     * @readonly
+     * @property FS_ENCODING_OPTS
+     */
+    var FS_ENCODING_OPTS = Object.freeze({
+        encoding: "UTF-8"
+    });
 
-/**
- * Retrieve a value from the file system
- *
- * @method get
- * @param  {String}   key
- * @param  {Function} cb  Callback function
- */
-FSEntityService.prototype.get = function(key, cb){
-	fs.readFile(key, {encoding: "UTF-8"}, function(err, result){
-		if (util.isError(err)) {
-			cb(err, null);
-			return;
-		}
+    /**
+     * File system storage service
+     *
+     * @module Services
+     * @submodule Storage
+     * @class FSEntityService
+     * @constructor
+     * @param {String} objType
+     */
+    function FSEntityService(objType){
+        this.type       = 'FS';
+        this.objType    = objType;
+    }
 
-		//make call back
-		cb(null, result);
-	});
+    /**
+     * Retrieve a value from the file system
+     *
+     * @method get
+     * @param  {String}   key
+     * @param  {Function} cb  Callback function
+     */
+    FSEntityService.prototype.get = function(key, cb){
+        fs.readFile(key, FS_ENCODING_OPTS, cb);
+    };
+
+    /**
+     * Set a value in the file system
+     *
+     * @method set
+     * @param {String}   key
+     * @param {*}        value
+     * @param {Function} cb    Callback function
+     */
+    FSEntityService.prototype.set = function(key, value, cb) {
+        fs.writeFile(key, value, FS_ENCODING_OPTS, cb);
+    };
+
+    /**
+     * Purge the file system of a value
+     *
+     * @method purge
+     * @param  {String}   key
+     * @param  {Function} cb  Callback function
+     */
+    FSEntityService.prototype.purge = function(key, cb) {
+        fs.unlink(key, cb);
+    };
+
+    return FSEntityService;
 };
-
-/**
- * Set a value in the file system
- *
- * @method set
- * @param {String}   key
- * @param {*}        value
- * @param {Function} cb    Callback function
- */
-FSEntityService.prototype.set = function(key, value, cb) {
-	fs.writeFile(key, value, {encoding: "UTF-8"}, cb);
-};
-
-/**
- * Purge the file system of a value
- *
- * @method purge
- * @param  {String}   key
- * @param  {Function} cb  Callback function
- */
-FSEntityService.prototype.purge = function(key, cb) {
-	fs.unlink(key, cb);
-};
-
-//exports
-module.exports.FSEntityService = FSEntityService;
