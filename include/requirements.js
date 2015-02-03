@@ -80,15 +80,16 @@ module.exports = function PB(config) {
     pb.TemplateEntityService        = require(path.join(config.docRoot, '/include/service/template_entity_service.js'))(pb);
     pb.CustomObjectService          = require(path.join(config.docRoot, 'include/service/entities/custom_object_service.js'))(pb);
 
-//setup template service
-var TemplateModule = require(config.docRoot+'/include/service/entities/template_service.js');
-pb.TemplateService = TemplateModule.TemplateService;
-pb.TemplateValue   = TemplateModule.TemplateValue;
+    //setup template service
+    var TemplateModule = require(config.docRoot+'/include/service/entities/template_service.js')(pb);
+    pb.TemplateService = TemplateModule.TemplateService;
+    pb.TemplateValue   = TemplateModule.TemplateValue;
 
-//setup security
-pb.security                       = require(config.docRoot+'/include/access_management.js').SecurityService;
-pb.UsernamePasswordAuthentication = require(config.docRoot+'/include/security/authentication/UsernamePasswordAuthentication.js');
-pb.FormAuthentication             = require(config.docRoot+'/include/security/authentication/FormAuthentication.js');
+    //setup security
+    pb.security                       = require(path.join(config.docRoot, '/include/access_management.js'))(pb);
+    var Authentication                = require(path.join(config.docRoot, '/include/security/authentication'))(pb);
+    pb.UsernamePasswordAuthentication = Authentication.UsernamePasswordAuthentication;
+    pb.FormAuthentication             = Authentication.FormAuthentication.js;
 
 //setup user service
 pb.UserService = require(config.docRoot+'/include/service/entities/user_service.js').UserService;

@@ -22,6 +22,7 @@ var https = require('https');
 var async = require('async');
 var npm   = require('npm');
 var util  = require('./include/util.js');
+var HtmlEncoder = require('htmlencode');
 
 
 /**
@@ -50,7 +51,7 @@ function PencilBlue(config){
      */
     this.init = function(){
         var tasks = [
-            PencilBlue.initLogWrappers,
+            PencilBlue.initModules,
             PencilBlue.initRequestHandler,
             PencilBlue.initDBConnections,
             PencilBlue.initDBIndices,
@@ -76,10 +77,12 @@ function PencilBlue(config){
      * @method initLogWrappers
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
-    this.initLogWrappers = function(cb) {
+    this.initModules = function(cb) {
         npm.on('log', function(message) {
             pb.log.info(message);
         });
+        
+        HtmlEncoder.EncodeType = 'numerical';
     };
     
     /**
