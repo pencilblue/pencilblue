@@ -203,9 +203,7 @@ ArticleService.prototype.update = function(articleId, fields, options, cb) {
                 return cb(new Error('The fields parameter is required'));
         }
 
-	var where = {
-		_id: pb.DAO.getIdWhere(articleId)
-	}
+	var where = pb.DAO.getIdWhere(articleId);
         var content_type = this.getContentType();
 
 	var dao  = new pb.DAO();
