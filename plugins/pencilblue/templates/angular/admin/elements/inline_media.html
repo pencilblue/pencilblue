@@ -68,18 +68,19 @@
             $scope.loadingLink = true;
 
             mediaService.loadMediaLink($scope.addedMedia.link, function(err, result) {
+
                 if(err) {
                     $scope.loadingLink = false;
                     console.log(err);
                     return;
                 }
 
-                $scope.addedMedia.media_type = result.data.mediaType;
+                $scope.addedMedia.media_type = result.data.media_type;
                 $scope.addedMedia.location = result.data.location;
                 $scope.addedMedia.thumb = result.data.thumb;
                 $scope.addedMedia.is_file = result.data.isFile;
 
-                mediaService.getMediaPreview(result.data.mediaType, result.data.location, function(err, result) {
+                mediaService.getMediaPreview(result.data.media_type, result.data.location, function(err, result) {
                     $scope.loadingLink = false;
 
                     if(err) {
