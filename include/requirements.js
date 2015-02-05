@@ -91,23 +91,24 @@ module.exports = function PB(config) {
     pb.UsernamePasswordAuthentication = Authentication.UsernamePasswordAuthentication;
     pb.FormAuthentication             = Authentication.FormAuthentication.js;
 
-//setup user service
-pb.UserService = require(config.docRoot+'/include/service/entities/user_service.js').UserService;
-pb.users = new pb.UserService();
+    //setup user service
+    pb.UserService = require(path.join(config.docRoot, '/include/service/entities/user_service.js'))(pb);
+    pb.users       = new pb.UserService();
 
-//setup request handling
-pb.BaseBodyParser      = require(path.join(config.docRoot, 'include/http/parsers/base_body_parser.js'));
-pb.JsonBodyParser      = require(path.join(config.docRoot, 'include/http/parsers/json_body_parser.js'));
-pb.FormBodyParser      = require(path.join(config.docRoot, 'include/http/parsers/form_body_parser.js'));
-pb.BaseController      = require(config.docRoot+'/controllers/base_controller.js').BaseController;
-pb.FormController      = require(config.docRoot+'/controllers/form_controller.js').FormController;
-pb.DeleteController    = require(config.docRoot+'/controllers/delete_controller.js').DeleteController;
-pb.ApiActionController = require(config.docRoot+'/controllers/api/api_action_controller.js').ApiActionController;
-pb.RequestHandler      = require(config.docRoot+'/include/http/request_handler.js').RequestHandler;
+    //setup request handling
+    var BodyParsers        = require(path.join(config.docRoot, 'include/http/parsers'))(pb);
+    pb.BaseBodyParser      = BodyParsers.BaseBodyParser;
+    pb.JsonBodyParser      = BodyParsers.JsonBodyParser;
+    pb.FormBodyParser      = BodyParsers.FormBodyParser;
+    pb.BaseController      = require(path.join(config.docRoot, '/controllers/base_controller.js'))(pb);
+    pb.FormController      = require(path.join(config.docRoot, '/controllers/form_controller.js'))(pb);
+    pb.DeleteController    = require(path.join(config.docRoot, '/controllers/delete_controller.js'))(pb);
+    pb.ApiActionController = require(path.join(config.docRoot, '/controllers/api/api_action_controller.js'))(pb);
+    pb.RequestHandler      = require(path.join(config.docRoot, '/include/http/request_handler.js'))(pb);
 
-//setup errors
-global.PBError    = require(config.docRoot+'/include/error/pb_error.js').PBError;
-pb.ErrorsOverTime = require(path.join(config.docRoot, '/include/error/errors_over_time.js'));
+    //setup errors
+    pb.PBError    = require(path.join(config.docRoot, '/include/error/pb_error.js'))(pb);
+    pb.ErrorsOverTime = require(path.join(config.docRoot, '/include/error/errors_over_time.js'))(pb);
 
 //setup localization
 pb.Localization = require(config.docRoot+'/include/localization.js').Localization;

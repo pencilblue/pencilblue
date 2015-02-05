@@ -16,92 +16,92 @@
 */
 
 //dependencies
-var BaseController = pb.BaseController;
+var util = require('../include/util.js');
 
-/**
- * Provides the basic functionality for implementing a controller that
- * needs access to a posted form.
- * @class FormController
- * @constructor
- */
-function FormController(){};
+module.exports = function FormControllerModule(pb) {
+    
+    /**
+     * Provides the basic functionality for implementing a controller that
+     * needs access to a posted form.
+     * @class FormController
+     * @constructor
+     */
+    function FormController(){};
+    util.inherits(FormController, pb.BaseController);
 
-//inheritance
-util.inherits(FormController, BaseController);
+    /**
+     * Instructs the controller to automatically sanitize any incoming post data
+     * when set to TRUE.
+     * @property autoSanitize
+     * @type {Boolean}
+     */
+    FormController.prototype.autoSanitize = true;
 
-/**
- * Instructs the controller to automatically sanitize any incoming post data
- * when set to TRUE.
- * @property autoSanitize
- * @type {Boolean}
- */
-FormController.prototype.autoSanitize = true;
+    /**
+     * Responsible for gathering the payload data from the request and parsing it.
+     * The result is passed down to the controller's onPostParamsRetrieved function.
+     * In addition and the <i>autoSanitize</i> property is TRUE, the posted
+     * parameters will be sanitized.
+     * @see BaseController#render
+     * @method render
+     * @param {Function} cb
+     */
+    FormController.prototype.render = function(cb) {
+        var self = this;
+        this.getPostParams(function(err, params) {
+            if (util.isError(err)) {
+                self.onPostParamsError(err, cb);
+                return;
+            }
 
-/**
- * Responsible for gathering the payload data from the request and parsing it.
- * The result is passed down to the controller's onPostParamsRetrieved function.
- * In addition and the <i>autoSanitize</i> property is TRUE, the posted
- * parameters will be sanitized.
- * @see BaseController#render
- * @method render
- * @param {Function} cb
- */
-FormController.prototype.render = function(cb) {
-	var self = this;
-	this.getPostParams(function(err, params) {
-		if (util.isError(err)) {
-			self.onPostParamsError(err, cb);
-            return;
-		}
+            if (self.getAutoSanitize()) {
+                self.sanitizeObject(params);
+            }
+            self.onPostParamsRetrieved(params, cb);
+        });
+    };
 
-        if (self.getAutoSanitize()) {
-            self.sanitizeObject(params);
-        }
-        self.onPostParamsRetrieved(params, cb);
-	});
+    /**
+     *
+     * @method getAutoSanitize
+     * @return {Boolean}
+     */
+    FormController.prototype.getAutoSanitize = function() {
+        return this.autoSanitize;
+    };
+
+    /**
+     *
+     * @method setAutoSanitize
+     * @param {Boolean} val
+     */
+    FormController.prototype.setAutoSanitize = function(val) {
+        this.autoSanitize = val ? true : false;
+    };
+
+    /**
+     *
+     * @method onPostParamsError
+     * @param {Error} err
+     * @param {Function} cb
+     */
+    FormController.prototype.onPostParamsError = function(err, cb) {
+        pb.log.silly("FormController: Error processing form parameters"+err);
+        cb({content: err, code: 400});
+    };
+
+    /**
+     * Called after the posted parameters have been received and parsed.  The
+     * function should be overriden in order to continue processing and render the
+     * result of the request.  The default implementation echoes the received
+     * parameters as JSON.
+     * @method onPostParamsRetrieved
+     * @param {Object} params
+     * @param {Function} cb
+     */
+    FormController.prototype.onPostParamsRetrieved = function(params, cb) {
+        cb({content: JSON.stringify(params), content_type:'application/json'});
+    };
+    
+    return FormController;
 };
-
-/**
- *
- * @method getAutoSanitize
- * @return {Boolean}
- */
-FormController.prototype.getAutoSanitize = function() {
-    return this.autoSanitize;
-};
-
-/**
- *
- * @method setAutoSanitize
- * @param {Boolean} val
- */
-FormController.prototype.setAutoSanitize = function(val) {
-    this.autoSanitize = val ? true : false;
-};
-
-/**
- *
- * @method onPostParamsError
- * @param {Error} err
- * @param {Function} cb
- */
-FormController.prototype.onPostParamsError = function(err, cb) {
-	pb.log.silly("FormController: Error processing form parameters"+err);
-	cb({content: err, code: 400});
-};
-
-/**
- * Called after the posted parameters have been received and parsed.  The
- * function should be overriden in order to continue processing and render the
- * result of the request.  The default implementation echoes the received
- * parameters as JSON.
- * @method onPostParamsRetrieved
- * @param {Object} params
- * @param {Function} cb
- */
-FormController.prototype.onPostParamsRetrieved = function(params, cb) {
-	cb({content: JSON.stringify(params), content_type:'application/json'});
-};
-
-//exports
-module.exports.FormController = FormController;
