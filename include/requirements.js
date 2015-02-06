@@ -110,14 +110,13 @@ module.exports = function PB(config) {
     pb.PBError    = require(path.join(config.docRoot, '/include/error/pb_error.js'))(pb);
     pb.ErrorsOverTime = require(path.join(config.docRoot, '/include/error/errors_over_time.js'))(pb);
 
-//setup localization
-pb.Localization = require(config.docRoot+'/include/localization.js').Localization;
-pb.Localization.init();
+    //setup localization
+    pb.Localization = require(path.join(config.docRoot, '/include/localization.js'))(pb);
 
-//server registration
-pb.MongoRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/mongo_registration_provider.js'));
-pb.RedisRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/redis_registration_provider.js'));
-pb.ServerRegistration        = require(config.docRoot+'/include/system/server_registration.js');
+    //server registration
+    pb.MongoRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/mongo_registration_provider.js'))(pb);
+    pb.RedisRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/redis_registration_provider.js'))(pb);
+    pb.ServerRegistration        = require(path.join(config.docRoot, '/include/system/server_registration.js'))(pb);
 
 //command service
 pb.RedisCommandBroker = require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js'));

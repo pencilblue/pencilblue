@@ -83,6 +83,8 @@ function PencilBlue(config){
         });
         
         HtmlEncoder.EncodeType = 'numerical';
+        
+        pb.Localization.init();
     };
     
     /**
@@ -266,7 +268,7 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
      */
     this.initServerRegistration = function(cb) {
-        pb.ServerRegistration.init(cb);
+        pb.ServerRegistration.getInstance().init(cb);
     };
 
     /**
