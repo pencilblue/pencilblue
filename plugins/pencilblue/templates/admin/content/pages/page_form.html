@@ -78,6 +78,12 @@
                         <label>^loc_META_KEYWORDS^</label>
                         <input type="text" class="form-control" ng-model="page.meta_keywords" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
                     </div>
+                    <div class="form-group" ng-if="page.page_media.length">
+                        <label>^loc_THUMBNAIL^</label>
+                        <select class="form-control" ng-model="page.thumbnail">
+                            <option ng-value="media._id" ng-repeat="media in page.page_media" ng-selected="page.thumbnail === media._id" ng-bind="media.name" ng-if="media.media_type === 'image'"></option>
+                        </select>
+                    </div>
                 </div>
                 <a class="btn btn-default" href="/admin/content/pages">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^

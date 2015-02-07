@@ -160,7 +160,8 @@ var loc =
         REQUIRED_FIELD: 'Campul este obligatoriu',
         INVALID_FILE: 'Un fisier invalid a fost furnizat',
         COMPLETE: 'Finalizeaza',
-        WYSIWYG: 'WYSIWYG'
+        WYSIWYG: 'WYSIWYG',
+        THUMBNAIL: 'Thumbnail'
     },
     error:
     {
