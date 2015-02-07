@@ -1,8 +1,9 @@
+<script type="text/javascript" src="/js/angular/filters/parsable_date.js"></script>
 <script type="text/javascript" src="/js/angular/services/search.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
 <script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['ui.sortable', 'search', 'paginate', 'validation'])
+    angular.module('pencilblueApp', ['ui.sortable', 'search', 'paginate', 'parseDate', 'validation'])
     .controller('PencilBlueController', function($scope, $sce, $http, $window, $timeout, $filter, searchService, paginationService, validationService) {
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
@@ -88,7 +89,7 @@
             var wysiwygFields = [];
             for(var i = 0; i < $scope.objectType.fields.length; i++) {
                 if($scope.objectType.fields[i].field_type === 'date') {
-                    saveObject[$scope.objectType.fields[i].name] = (new Date($scope.customObject[$scope.objectType.fields[i].name])).getTime();
+                    saveObject[$scope.objectType.fields[i].name] = (new Date($filter('parsableDate')($scope.customObject[$scope.objectType.fields[i].name]))).getTime();
                 }
                 else if($scope.objectType.fields[i].field_type === 'wysiwyg') {
                     wysiwygFields.push($scope.objectType.fields[i]);
