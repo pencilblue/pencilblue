@@ -134,6 +134,11 @@ var config = {
                 spec: {admin: DESC},
                 options: {}
             },
+            {
+                collection: 'user',
+                spec: { created: { type: Date, expires: 2592000000, default: Date.now }},
+                options: {}
+            },
 
             //theme settings
             {
