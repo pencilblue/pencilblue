@@ -118,20 +118,21 @@ module.exports = function PB(config) {
     pb.RedisRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/redis_registration_provider.js'))(pb);
     pb.ServerRegistration        = require(path.join(config.docRoot, '/include/system/server_registration.js'))(pb);
 
-//command service
-pb.RedisCommandBroker = require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js'));
-pb.MongoCommandBroker = require(path.join(config.docRoot, '/include/system/command/mongo_command_broker.js'));
-pb.CommandService     = require(path.join(config.docRoot, '/include/system/command/command_service.js'));
+    //command service
+    pb.RedisCommandBroker = require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js'))(pb);
+    pb.MongoCommandBroker = require(path.join(config.docRoot, '/include/system/command/mongo_command_broker.js'))(pb);
+    pb.CommandService     = require(path.join(config.docRoot, '/include/system/command/command_service.js'))(pb);
 
-//setup settings service
-pb.SettingServiceFactory = require(config.docRoot+'/include/system/settings.js').SettingServiceFactory;
-pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
+    //setup settings service
+    pb.SettingServiceFactory = require(path.join(config.docRoot, '/include/system/settings.js'))(pb);
+    pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
 
-//Jobs
-pb.JobRunner             = require(path.join(config.docRoot, '/include/service/jobs/job_runner.js'));
-pb.AsyncJobRunner        = require(path.join(config.docRoot, '/include/service/jobs/async_job_runner'));
-pb.ClusterJobRunner      = require(path.join(config.docRoot, '/include/service/jobs/cluster_job_runner'));
-pb.PluginUninstallJob    = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_uninstall_job.js'));
+    //Jobs
+    pb.JobRunner             = require(path.join(config.docRoot, '/include/service/jobs/job_runner.js'))(pb);
+    pb.AsyncJobRunner        = require(path.join(config.docRoot, '/include/service/jobs/async_job_runner'))(pb);
+    pb.ClusterJobRunner      = require(path.join(config.docRoot, '/include/service/jobs/cluster_job_runner'))(pb);
+    pb.PluginJobRunner       = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_job_runner.js'))(pb);
+    pb.PluginUninstallJob    = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_uninstall_job.js'))(pb);
 pb.PluginAvailableJob    = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_available_job.js'));
 pb.PluginDependenciesJob = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_dependencies_job.js'));
 pb.PluginInitializeJob   = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_initialize_job.js'));
