@@ -16,149 +16,160 @@
 */
 
 //dependencies
-NodeMailer = require('nodemailer');
+var NodeMailer = require('nodemailer');
+var util       = require('./util.js');
 
-/**
- * Service for sending emails.
- *
- * @module Services
- * @class EmailService
- * @constructor
- */
-function EmailService(){}
+module.exports = function EmailServiceModule(pb) {
 
+    /**
+     * Service for sending emails.
+     *
+     * @module Services
+     * @class EmailService
+     * @constructor
+     */
+    function EmailService(){}
 
-/**
- * Retrieves a template and sends it as an email
- *
- * @method sendFromTemplate
- * @param {Object}   options Object containing the email settings and template name
- * @param {Function} cb      Callback function
- */
-EmailService.prototype.sendFromTemplate = function(options, cb){
-	var self = this;
-	var ts   = new pb.TemplateService();
-	if (options.replacements) {
-		for(var key in options.replacements) {
-			ts.registerLocal(key, options.replacements[key]);
-		}
-	}
-	ts.load(options.template, function(err, data) {
-
-		var body = '' + data;
-		self.send(options.from, options.to, options.subject, body, cb);
-	});
-};
-
-/**
-* Uses an HTML layout and sends it as an email
-*
-* @method sendFromTemplate
-* @param {Object}   options Object containing the email settings and template name
-* @param {Function} cb      Callback function
-*/
-EmailService.prototype.sendFromLayout = function(options, cb){
-	var self = this;
-	var layout = options.layout;
-	if (options.replacements) {
-		for(var key in options.replacements) {
-			layout.split('^' + key + '^').join(options.replacements[key]);
-		}
-	}
-	self.send(options.from, options.to, options.subject, layout, cb);
-};
-
-/**
- * Sends an email
- *
- * @method send
- * @param  {String}   from    From name
- * @param  {String}   to      To email address
- * @param  {String}   subject Email subject
- * @param  {String}   body    Email content
- * @param  {Function} cb      Callback function
- */
-EmailService.prototype.send = function(from, to, subject, body, cb) {
-
-	this.getSettings(function(err, emailSettings) {
-        if (util.isError(err)) {
-            throw err;
-        }
-        else if (!emailSettings) {
-            var err = new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
-            pb.log.error(err.stack);
-            return cb(err);
-        }
-
-        var options = {
-            service: emailSettings.service,
-            auth:
-            {
-                user: emailSettings.username,
-                pass: emailSettings.password
-            }
-        };
-        if (emailSettings.service == 'custom') {
-        	options.host = emailSettings.host,
-        	options.secureConnection = emailSettings.secure_connection,
-        	options.port = emailSettings.port;
-        }
-        var smtpTransport = NodeMailer.createTransport("SMTP", options);
-
-        var mailOptions =
-        {
-            from: from || (emailSettings.from_name + '<' + emailSettings.from_address + '>'),
-            to: to,
-            subject: subject,
-            html: body
-        };
-
-        smtpTransport.sendMail(mailOptions, function(err, response) {
-            if (util.isError(err)) {
-            	pb.log.error("EmailService: Failed to send email: ", err.stack);
-            }
-            smtpTransport.close();
-
-            cb(err, response);
-        });
-    });
-};
-
-/**
- * Retrieves the email settings
- *
- * @method getSettings
- * @param {Function} cb Callback function
- */
-EmailService.prototype.getSettings = function(cb) {
-	var self = this;
-	pb.settings.get('email_settings', function(err, settings) {
-		var defaultSettings = self.getDefaultSettings();
-        cb(err, util.isError(err) || !settings ? defaultSettings : settings);
-    });
-};
-
-/**
- * Retrieves the default email settings from installation
- *
- * @method getDefaultSettings
- * @return {Object} Email settings
- */
-EmailService.prototype.getDefaultSettings = function() {
-	return {
-        from_name: 'pencilblue',
-        from_address: 'no-reply@pencilblue.org',
-        verification_subject: 'pencilblue Account Confirmation',
-		verification_content: '',
-		template: 'admin/elements/default_verification_email',
+    /** 
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property DEFAULT_SETTINGS
+     * @type {Object}
+     */
+    var DEFAULT_SETTINGS = Object.freeze({
+        from_name: pb.config.siteName,
+        from_address: 'no-reply@sample.com',
+        verification_subject: pb.config.siteName+' Account Confirmation',
+        verification_content: '',
+        template: 'admin/elements/default_verification_email',
         service: 'Gmail',
         host: '',
         secure_connection: 1,
         port: 465,
         username: '',
         password: ''
-    };
-};
+    });
+    
+    /**
+     * Retrieves a template and sends it as an email
+     *
+     * @method sendFromTemplate
+     * @param {Object}   options Object containing the email settings and template name
+     * @param {Function} cb      Callback function
+     */
+    EmailService.prototype.sendFromTemplate = function(options, cb){
+        var self = this;
+        var ts   = new pb.TemplateService();
+        if (options.replacements) {
+            for(var key in options.replacements) {
+                ts.registerLocal(key, options.replacements[key]);
+            }
+        }
+        ts.load(options.template, function(err, data) {
 
-//exports
-module.exports.EmailService = EmailService;
+            var body = '' + data;
+            self.send(options.from, options.to, options.subject, body, cb);
+        });
+    };
+
+    /**
+    * Uses an HTML layout and sends it as an email
+    *
+    * @method sendFromTemplate
+    * @param {Object}   options Object containing the email settings and template name
+    * @param {Function} cb      Callback function
+    */
+    EmailService.prototype.sendFromLayout = function(options, cb){
+        var self = this;
+        var layout = options.layout;
+        if (options.replacements) {
+            for(var key in options.replacements) {
+                layout.split('^' + key + '^').join(options.replacements[key]);
+            }
+        }
+        self.send(options.from, options.to, options.subject, layout, cb);
+    };
+
+    /**
+     * Sends an email
+     *
+     * @method send
+     * @param  {String}   from    From name
+     * @param  {String}   to      To email address
+     * @param  {String}   subject Email subject
+     * @param  {String}   body    Email content
+     * @param  {Function} cb      Callback function
+     */
+    EmailService.prototype.send = function(from, to, subject, body, cb) {
+
+        this.getSettings(function(err, emailSettings) {
+            if (util.isError(err)) {
+                throw err;
+            }
+            else if (!emailSettings) {
+                var err = new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
+                pb.log.error(err.stack);
+                return cb(err);
+            }
+
+            var options = {
+                service: emailSettings.service,
+                auth:
+                {
+                    user: emailSettings.username,
+                    pass: emailSettings.password
+                }
+            };
+            if (emailSettings.service == 'custom') {
+                options.host = emailSettings.host,
+                options.secureConnection = emailSettings.secure_connection,
+                options.port = emailSettings.port;
+            }
+            var smtpTransport = NodeMailer.createTransport("SMTP", options);
+
+            var mailOptions = {
+                from: from || (emailSettings.from_name + '<' + emailSettings.from_address + '>'),
+                to: to,
+                subject: subject,
+                html: body
+            };
+
+            smtpTransport.sendMail(mailOptions, function(err, response) {
+                if (util.isError(err)) {
+                    pb.log.error("EmailService: Failed to send email: ", err.stack);
+                }
+                smtpTransport.close();
+
+                cb(err, response);
+            });
+        });
+    };
+
+    /**
+     * Retrieves the email settings
+     *
+     * @method getSettings
+     * @param {Function} cb Callback function
+     */
+    EmailService.prototype.getSettings = function(cb) {
+        var self = this;
+        pb.settings.get('email_settings', function(err, settings) {
+            cb(err, util.isError(err) || !settings ? EmailService.getDefaultSettings() : settings);
+        });
+    };
+
+    /**
+     * Retrieves the default email settings from installation
+     *
+     * @method getDefaultSettings
+     * @return {Object} Email settings
+     */
+    EmailService.getDefaultSettings = function() {
+        return DEFAULT_SETTINGS;
+    };
+
+    //exports
+    return EmailService;
+};

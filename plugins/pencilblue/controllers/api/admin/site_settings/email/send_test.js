@@ -38,7 +38,8 @@ SendTestEmail.prototype.onPostParamsRetrieved = function(post, cb) {
         subject: 'Test email from PencilBlue',
         layout: 'This is a successful test email from the PencilBlue system.',
     };
-    pb.email.sendFromLayout(options, function(err, response) {
+    var emailService = new pb.EmailService();
+    emailService.sendFromLayout(options, function(err, response) {
         if(err) {
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, JSON.stringify(err))});
             return;

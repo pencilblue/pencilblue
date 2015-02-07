@@ -194,9 +194,9 @@ module.exports = function UserServiceModule(pb) {
         cb = cb || util.cb;
 
         // We need to see if email settings have been saved with verification content
-        var options;
-        pb.email.getSettings(function(err, emailSettings) {
-            options = {
+        var emailService = new pb.EmailService();
+        emailService.getSettings(function(err, emailSettings) {
+            var options = {
                 to: user.email,
                 replacements: {
                     'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
@@ -207,12 +207,12 @@ module.exports = function UserServiceModule(pb) {
             if(emailSettings.layout) {
                 options.subject= emailSettings.verification_subject;
                 options.layout = emailSettings.verification_content;
-                pb.email.sendFromLayout(options, cb);
+                emailService.sendFromLayout(options, cb);
             }
             else {
                 options.subject = pb.config.siteName + ' Account Confirmation';
                 options.template = emailSettings.template;
-                pb.email.sendFromTemplate(options, cb);
+                emailService.sendFromTemplate(options, cb);
             }
         });
     };
@@ -239,7 +239,8 @@ module.exports = function UserServiceModule(pb) {
                 'last_name': user.last_name
             }
         };
-        pb.email.sendFromTemplate(options, cb);
+        var emailService = new pb.EmailService();
+        emailService.sendFromTemplate(options, cb);
     };
 
     /**

@@ -134,13 +134,12 @@ module.exports = function PB(config) {
     pb.PluginJobRunner       = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_job_runner.js'))(pb);
     pb.PluginUninstallJob    = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_uninstall_job.js'))(pb);
     pb.PluginAvailableJob    = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_available_job.js'))(pb);
-pb.PluginDependenciesJob = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_dependencies_job.js'));
-pb.PluginInitializeJob   = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_initialize_job.js'));
-pb.PluginInstallJob      = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_install_job.js'));
+    pb.PluginDependenciesJob = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_dependencies_job.js'))(pb);
+    pb.PluginInitializeJob   = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_initialize_job.js'))(pb);
+    pb.PluginInstallJob      = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_install_job.js'))(pb);
 
-//Email settings and functions
-pb.EmailService = require(config.docRoot+'/include/email').EmailService;
-pb.email        = new pb.EmailService();
+    //Email settings and functions
+    pb.EmailService = require(path.join(config.docRoot, '/include/email'))(pb);
 
 //system requires
 pb.DocumentCreator    = require(config.docRoot+'/include/model/create_document.js').DocumentCreator;	// Document creation
