@@ -26,13 +26,14 @@ Blog.prototype.render = function(cb) {
 
     pb.content.getSettings(function(err, contentSettings) {
         self.gatherData(function(err, data) {
-            ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle) {
+            ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle, metaThumbnail) {
 
                 self.ts.reprocess = false;
                 self.ts.registerLocal('meta_keywords', metaKeywords);
                 self.ts.registerLocal('meta_desc', data.section.description || metaDescription);
                 self.ts.registerLocal('meta_title', data.section.name || metaTitle);
                 self.ts.registerLocal('meta_lang', localizationLanguage);
+                self.ts.registerLocal('meta_thumbnail', metaThumbnail);
                 self.ts.registerLocal('current_url', self.req.url);
                 self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
                 self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));

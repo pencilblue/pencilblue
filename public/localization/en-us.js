@@ -160,7 +160,8 @@ var loc =
         REQUIRED_FIELD: 'This field is required',
         INVALID_FILE: 'An invalid file was supplied',
         COMPLETE: 'Complete',
-        WYSIWYG: 'WYSIWYG'
+        WYSIWYG: 'WYSIWYG',
+        THUMBNAIL: 'Thumbnail'
     },
     error:
     {

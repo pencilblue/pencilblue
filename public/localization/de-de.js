@@ -173,7 +173,8 @@ var loc = {
         REQUIRED_FIELD: 'Dieses Feld muss ausgefüllt werden.',
         INVALID_FILE: 'Es wurde eine ungültige Datei angegeben.',
         COMPLETE: 'Fertig',
-        WYSIWYG: 'WYSIWYG'
+        WYSIWYG: 'WYSIWYG',
+        THUMBNAIL: 'Thumbnail'
     },
     error:
     {
