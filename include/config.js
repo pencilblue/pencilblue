@@ -214,6 +214,13 @@ var BASE_CONFIG = {
                 spec: {admin: DESC},
                 options: {}
             },
+            
+            //unverified user
+            {
+                collection: 'unverified_user',
+                spec: { last_modified: ASC },
+                options: { expireAfterSeconds: 2592000 }
+            },
 
             //theme settings
             {
