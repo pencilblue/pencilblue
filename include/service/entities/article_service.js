@@ -171,11 +171,8 @@ ArticleService.prototype.find = function(where, options, cb) {
 		//get authors
 		self.getArticleAuthors(articles, function(err, authors) {
 
-			pb.content.getSettings(function(err, contentSettings) {
-				if(!contentSettings.read_more_text) {
-					var defaultSettings = pb.content.getDefaultSettings();
-					contentSettings.read_more_text = defaultSettings.read_more_text;
-				}
+            var contentService = new pb.ContentService();
+			contentService.getSettings(function(err, contentSettings) {
 
 				var tasks = pb.utils.getTasks(articles, function(articles, i) {
 					return function(callback) {
@@ -246,7 +243,7 @@ ArticleService.prototype.processArticleForDisplay = function(article, articleCou
 	    }
 
 	    if(contentSettings.display_timestamp ) {
-	        article.timestamp = pb.content.getTimestampTextFromSettings(
+	        article.timestamp = pb.ContentService.getTimestampTextFromSettings(
 	        		article.publish_date,
 	        		contentSettings
 			);
@@ -365,7 +362,7 @@ ArticleService.prototype.getCommenters = function(comments, contentSettings, cb)
 	//callback for iteration to handle setting the commenter attributes
     var processComment = function(comment, commenter) {
     	comment.commenter_name = 'Anonymous';
-    	comment.timestamp      = pb.content.getTimestampTextFromSettings(comment.created, contentSettings);
+    	comment.timestamp      = pb.ContentService.getTimestampTextFromSettings(comment.created, contentSettings);
 
     	if (commenter) {
 	    	comment.commenter_name = pb.users.getFormattedName(commenter);

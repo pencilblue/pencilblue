@@ -39,7 +39,8 @@ Index.prototype.render = function(cb) {
     var article = self.req.pencilblue_article || null;
     var page    = self.req.pencilblue_page    || null;
 
-    pb.content.getSettings(function(err, contentSettings) {
+    var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
         self.gatherData(function(err, data) {
             ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle) {
                 self.ts.registerLocal('meta_keywords', metaKeywords);

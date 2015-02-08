@@ -92,8 +92,11 @@ TopMenuService.getTopMenu = function(session, localizationService, options, cb) 
  * @param {Function} cb      Callback function
  */
 TopMenuService.getAccountButtons = function(session, ls, cb) {
-	pb.content.getSettings(function(err, contentSettings) {
-		//TODO handle error
+	var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
+		if (util.isError(err)) {
+            return cb(err);
+        }
 
         var accountButtons = [];
 

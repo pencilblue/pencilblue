@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,8 @@ util.inherits(NewComment, pb.FormController);
 NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
 	var self = this;
 
-	pb.content.getSettings(function(err, contentSettings) {
+	var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
 		if(!contentSettings.allow_comments) {
             cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'commenting not allowed'), code: 400});
             return;
@@ -57,7 +58,7 @@ NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
                 	return cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'error saving'), code: 500});
                 }
 
-                var timestamp  = pb.content.getTimestampTextFromSettings(commentDocument.created, contentSettings);
+                var timestamp  = pb.ContentService.getTimestampTextFromSettings(commentDocument.created, contentSettings, self.ls);
                 commentDocument.timestamp = self.localizationService.localize(['timestamp'], timestamp);
 				cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, 'comment created' , commentDocument)});
             });

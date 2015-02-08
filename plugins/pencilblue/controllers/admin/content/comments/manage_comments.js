@@ -56,7 +56,8 @@ ManageComments.prototype.render = function(cb) {
         }
 
         //retrieve the content settings or defaults if they have not yet been configured
-        pb.content.getSettings(function(err, contentSettings) {
+        var contentService = new pb.ContentService();
+        contentService.getSettings(function(err, contentSettings) {
             //TODO handle error
             
             //retrieve any details

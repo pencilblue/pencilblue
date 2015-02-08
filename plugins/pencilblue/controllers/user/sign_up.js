@@ -27,7 +27,8 @@ util.inherits(SignUp, pb.BaseController);
 SignUp.prototype.render = function(cb) {
 	var self = this;
 
-	pb.content.getSettings(function(err, contentSettings) {
+	var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
         if(!contentSettings.allow_comments) {
             self.redirect('/', cb);
             return;

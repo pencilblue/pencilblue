@@ -39,7 +39,8 @@ NotFoundController.prototype.render = function(cb) {
 	var self = this;
 
 	this.setPageName('404');
-    pb.content.getSettings(function(err, contentSettings) {
+    var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
         
         var options = {
             currUrl: self.req.url

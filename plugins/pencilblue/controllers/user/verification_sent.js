@@ -27,7 +27,8 @@ util.inherits(VerificationSent, pb.BaseController);
 VerificationSent.prototype.render = function(cb) {
 	var self = this;
 
-	pb.content.getSettings(function(err, contentSettings) {
+	var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
         if(!contentSettings.allow_comments || !contentSettings.require_verification) {
             self.redirect('/', cb);
             return;

@@ -45,8 +45,8 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
         return;
     }
 
-    var dao = new pb.DAO();
-    pb.content.getSettings(function(err, contentSettings) {
+    var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
     	//TODO handle error
 
     	var collection      = 'user';
@@ -81,6 +81,7 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
                 return;
             }
 
+            var dao = new pb.DAO();
             dao.save(user, function(err, data) {
                 if(util.isError(err)) {
                     return self.formError(request, session, self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);

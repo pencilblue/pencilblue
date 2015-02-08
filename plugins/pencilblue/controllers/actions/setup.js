@@ -91,13 +91,12 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
 				pb.RequestHandler.DEFAULT_THEME, callback);
 			},
 			function(callback) {
-				pb.content.getSettings(function(contentSettings) {
-					//Do nothing here because it calls set under the covers.  
-                    //We assume it does what it is supposed to.  Attempting to 
-                    //set the settings again will only cause a failure due to a 
-                    //duplicate key
-                    callback();
-				});
+                //Do nothing here because it calls set under the covers.  
+                //We assume it does what it is supposed to.  Attempting to 
+                //set the settings again will only cause a failure due to a 
+                //duplicate key
+                var contentService = new pb.ContentService();
+                contentService.getSettings(callback);
 			},
 			function(callback) {
 				pb.settings.set('system_initialized', true, callback);

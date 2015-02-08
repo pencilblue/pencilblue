@@ -35,7 +35,8 @@ GetArticles.prototype.render = function(cb) {
 	var self = this;
 	var get  = this.query;
 
-	pb.content.getSettings(function(err, contentSettings) {
+	var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
 
 	    if(!get.limit || get.limit.length === 0)
 	    {
@@ -71,7 +72,8 @@ GetArticles.prototype.render = function(cb) {
 GetArticles.prototype.processArticles = function(articles, cb) {
 	var self = this;
 
-	pb.content.getSettings(function(err, contentSettings) {
+	var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
 
         var cnt   = 0;
         var tasks = pb.utils.getTasks(articles, function(content, i) {

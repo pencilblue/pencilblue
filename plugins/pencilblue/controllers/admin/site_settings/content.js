@@ -55,7 +55,8 @@ Content.prototype.render = function(cb) {
         }
     ];
 
-    pb.content.getSettings(function(err, contentSettings) {
+    var contentService = new pb.ContentService();
+    contentService.getSettings(function(err, contentSettings) {
         var angularObjects = pb.js.getAngularObjects({
             navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content'),

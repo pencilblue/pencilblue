@@ -141,9 +141,15 @@ module.exports = function PB(config) {
     //Email settings and functions
     pb.EmailService = require(path.join(config.docRoot, '/include/email'))(pb);
 
-//system requires
-pb.DocumentCreator    = require(config.docRoot+'/include/model/create_document.js').DocumentCreator;	// Document creation
-pb.content            = require(config.docRoot+'/include/content').ContentService; // Content settings and functions
+    //system requires
+    pb.DocumentCreator    = require(config.docRoot+'/include/model/create_document.js')(pb);	// Document creation
+    pb.ContentService     = require(path.join(config.docRoot, '/include/content'))(pb); // Content settings and functions
+    Object.defineProperty(pb, 'content', {
+        get: function() {
+            pb.log.warn('PencilBlue: pb.content is deprecated.  Use pb.util instead');
+            return new pb.ContentService();
+        }
+    });
 pb.libraries          = require(config.docRoot+'/include/libraries').LibrariesService; // JS libraries settings and functions
 pb.js                 = require(config.docRoot+'/include/client_js').ClientJS;							// Client JS
 pb.AdminNavigation    = require(config.docRoot+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
