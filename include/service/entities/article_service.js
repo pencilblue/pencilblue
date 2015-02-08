@@ -444,7 +444,9 @@ ArticleService.getMetaInfo = function(article, cb)
 
     var keywords = article.meta_keywords || [];
     var topics = article.article_topics || article.page_topics || [];
+	var thumbnail = '';
     var instance = this;
+	var dao = new pb.DAO();
 
     this.loadTopic = function(index)
     {
@@ -460,15 +462,14 @@ ArticleService.getMetaInfo = function(article, cb)
                 description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
             }
 
-            cb(keywords.join(','), description, (article.seo_title) ? article.seo_title : article.headline);
+            cb(keywords.join(','), description, (article.seo_title) ? article.seo_title : article.headline, thumbnail);
             return;
         }
 
-        var dao  = new pb.DAO();
         dao.loadById(topics[index], 'topic', function(err, topic) {
             if(util.isError(err) || !topic) {
                 pb.log.error('ArticleService: Failed to load topic. %s', err.stack);
-                
+
                 index++;
                 instance.loadTopic(index);
                 return;
@@ -493,7 +494,20 @@ ArticleService.getMetaInfo = function(article, cb)
         });
     };
 
-    this.loadTopic(0);
+	if(!article.thumbnail || !article.thumbnail.length) {
+		this.loadTopic(0);
+	}
+	else {
+		dao.loadById(article.thumbnail, 'media', function(err, media) {
+			if(util.isError(err) || !media) {
+				instance.loadTopic(0);
+				return;
+			}
+
+			thumbnail = media.location;
+			instance.loadTopic(0);
+		});
+	}
 };
 
 /**
@@ -544,7 +558,7 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
     if (!flag) {
         return cb(null, layout);
     }
-    
+
     var mediaStyleString = flag.style;
 
     var dao = new pb.DAO();
@@ -556,12 +570,12 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
             pb.log.warn("ArticleService: Content contains reference to missing media [%s].", flag.id);
             return cb(null, layout.replace(flag.flag, ''));
         }
-        
+
         //ensure the max height is set if explicity set for media replacement
         var options = {
             view: 'post',
             style: {
-                
+
             },
             attrs: {
                 frameborder: "0",
@@ -576,10 +590,10 @@ MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             //get the style for the container
             var containerStyleStr = pb.MediaService.getStyleForPosition(flag.style.position) || '';
-            
+
             //finish up replacements
             var mediaEmbed = mediaTemplate.split('^media^').join(html);
             mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
