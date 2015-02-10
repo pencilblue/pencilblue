@@ -168,9 +168,9 @@ module.exports = function PB(config) {
     pb.AdminNavigation    = require(path.join(config.docRoot, '/include/admin_navigation'))(pb);			// Admin Navigation
     pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'))(pb);
     pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'))(pb);
-pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'));
-pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'));
-pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'));
+    pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'))(pb);
+    pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'))(pb);
+    pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
 
 //create plugin service
 pb.PluginService = require(config.docRoot+'/include/service/entities/plugin_service.js');
