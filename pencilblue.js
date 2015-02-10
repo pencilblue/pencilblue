@@ -288,7 +288,7 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
      */
     this.initLibraries = function(cb) {
-        pb.libraries.init(cb);
+        pb.LibrariesService.init(cb);
     };
 
     /**

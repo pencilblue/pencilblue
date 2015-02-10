@@ -45,14 +45,15 @@ Libraries.prototype.render = function(cb) {
 		}
 	];
 
-	pb.libraries.getSettings(function(err, librarySettings) {
+    var librariesService = new pb.LibrariesService();
+	librariesService.getSettings(function(err, librarySettings) {
 		var angularObjects = pb.js.getAngularObjects({
 			navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
 			pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'libraries'),
 			tabs: tabs,
 			librarySettings: librarySettings,
-			cdnDefaults: pb.libraries.getCDNDefaults(),
-			bowerDefaults: pb.libraries.getBowerDefaults()
+			cdnDefaults: pb.LibrariesService.getCDNDefaults(),
+			bowerDefaults: pb.LibrariesService.getBowerDefaults()
 		});
 
 		self.setPageName(self.ls.get('LIBRARIES'));

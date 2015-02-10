@@ -86,7 +86,8 @@ module.exports = function PB(config) {
     pb.TemplateValue   = TemplateModule.TemplateValue;
 
     //setup security
-    pb.security                       = require(path.join(config.docRoot, '/include/access_management.js'))(pb);
+    pb.SecurityService                = require(path.join(config.docRoot, '/include/access_management.js'))(pb);
+    pb.security                       = pb.SecurityService;
     var Authentication                = require(path.join(config.docRoot, '/include/security/authentication'))(pb);
     pb.UsernamePasswordAuthentication = Authentication.UsernamePasswordAuthentication;
     pb.FormAuthentication             = Authentication.FormAuthentication.js;
@@ -142,17 +143,29 @@ module.exports = function PB(config) {
     pb.EmailService = require(path.join(config.docRoot, '/include/email'))(pb);
 
     //system requires
-    pb.DocumentCreator    = require(config.docRoot+'/include/model/create_document.js')(pb);	// Document creation
-    pb.ContentService     = require(path.join(config.docRoot, '/include/content'))(pb); // Content settings and functions
+    pb.DocumentCreator = require(config.docRoot+'/include/model/create_document.js')(pb);	// Document creation
+    pb.ContentService  = require(path.join(config.docRoot, '/include/content'))(pb); // Content settings and functions
     Object.defineProperty(pb, 'content', {
         get: function() {
-            pb.log.warn('PencilBlue: pb.content is deprecated.  Use pb.util instead');
+            pb.log.warn('PencilBlue: pb.content is deprecated.  Use pb.ContentService instead');
             return new pb.ContentService();
         }
     });
-pb.libraries          = require(config.docRoot+'/include/libraries').LibrariesService; // JS libraries settings and functions
-pb.js                 = require(config.docRoot+'/include/client_js').ClientJS;							// Client JS
-pb.AdminNavigation    = require(config.docRoot+'/include/admin_navigation').AdminNavigation;			// Admin Navigation
+    pb.LibrariesService = require(path.join(config.docRoot, '/include/libraries.js'))(pb); // JS libraries settings and functions
+    Object.defineProperty(pb, 'libraries', {
+        get: function() {
+            pb.log.warn('PencilBlue: pb.libraries is deprecated.  Use pb.LibrariesService instead');
+            return new pb.ContentService();
+        }
+    });
+    pb.ClientJS = require(config.docRoot+'/include/client_js')(pb); // Client JS
+    Object.defineProperty(pb, 'js', {
+        get: function() {
+            pb.log.warn('PencilBlue: pb.js is deprecated.  Use pb.ClientJS instead');
+            return new pb.ClientJS;
+        }
+    });						
+    pb.AdminNavigation    = require(config.docRoot+'/include/admin_navigation')(pb);			// Admin Navigation
 pb.AdminSubnavService = require(config.docRoot+'/include/service/admin/admin_subnav_service.js');
 pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'));
 pb.UrlService         = require(config.docRoot+'/include/service/entities/url_service.js');
