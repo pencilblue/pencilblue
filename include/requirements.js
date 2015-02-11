@@ -162,7 +162,7 @@ module.exports = function PB(config) {
     Object.defineProperty(pb, 'js', {
         get: function() {
             pb.log.warn('PencilBlue: pb.js is deprecated.  Use pb.ClientJS instead');
-            return new pb.ClientJS;
+            return pb.ClientJS;
         }
     });						
     pb.AdminNavigation    = require(path.join(config.docRoot, '/include/admin_navigation'))(pb);			// Admin Navigation
@@ -172,9 +172,14 @@ module.exports = function PB(config) {
     pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'))(pb);
     pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
 
-//create plugin service
-pb.PluginService = require(config.docRoot+'/include/service/entities/plugin_service.js');
-pb.plugins       = new pb.PluginService();
+    //create plugin service
+    pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);
+    Object.defineProperty(pb, 'js', {
+        get: function() {
+            pb.log.warn('PencilBlue: pb.plugins is deprecated.  Use new pb.PluginService instead');
+            return new pb.PluginService();
+        }
+    });
 
 //media
 pb.FsMediaProvider    = require(path.join(config.docRoot, '/include/service/media/fs_media_provider.js'));

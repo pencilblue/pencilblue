@@ -115,7 +115,13 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     this.initPlugins = function(cb) {
-        pb.plugins.initPlugins(cb);
+        
+        //initialize command listeners
+        pb.PluginService.init();
+        
+        //initialize the plugins
+        var pluginService = new pb.PluginService();
+        pluginService.initPlugins(cb);
     };
 
     /**
