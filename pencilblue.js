@@ -301,8 +301,11 @@ function PencilBlue(config){
      *
      *
      */
-    this.prototype.start = function() {
-        pb.system.onStart(PencilBlue.init);
+    this.start = function() {
+        var self = this;
+        pb.system.onStart(function(){
+            self.init();
+        });
     }
 };
 
