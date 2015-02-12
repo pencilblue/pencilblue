@@ -47,9 +47,7 @@ BlogFilter.prototype.render = function(cb) {
 
     dao.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
         if (util.isError(err) || result === null) {
-            try {
-              ObjectID(custUrl);
-
+            if(pb.validation.isIdStr(custUrl)) {
               dao.loadById(custUrl, objectType, function(err, result) {
                   if (util.isError(err) || result === null) {
                       self.reqHandler.serve404();
@@ -61,9 +59,9 @@ BlogFilter.prototype.render = function(cb) {
                   BlogFilter.super_.prototype.render.apply(self, [cb]);
               });
             }
-            catch(e) {
+            else {
               self.reqHandler.serve404();
-            };
+            }
 
             return;
         }
