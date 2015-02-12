@@ -446,6 +446,7 @@ module.exports = function CommandServiceModule(pb) {
             }
         };
     };
+    
     /**
      * Retrieves the singleton instance of CommandService.
      * @static

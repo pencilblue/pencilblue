@@ -174,22 +174,44 @@ module.exports = function PB(config) {
 
     //create plugin service
     pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);
-    Object.defineProperty(pb, 'js', {
+    Object.defineProperty(pb, 'plugins', {
         get: function() {
             pb.log.warn('PencilBlue: pb.plugins is deprecated.  Use new pb.PluginService instead');
             return new pb.PluginService();
         }
     });
 
-//media
-pb.FsMediaProvider    = require(path.join(config.docRoot, '/include/service/media/fs_media_provider.js'));
-pb.MongoMediaProvider = require(path.join(config.docRoot, '/include/service/media/mongo_media_provider.js'));
-pb.MediaService       = require(path.join(config.docRoot, '/include/service/entities/media_service.js'));
+    //media renderers
+    pb.media = {
+        renderers: {
+            ImageMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/image_media_renderer.js'))(pb),
+            VideoMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/video_media_renderer.js'))(pb),
+            YouTubeMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/youtube_media_renderer.js'))(pb),
+            DailyMotionMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/daily_motion_media_renderer.js'))(pb),
+            VimeoMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/vimeo_media_renderer.js'))(pb),
+            VineMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/vine_media_renderer.js'))(pb),
+            InstagramMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/instagram_media_renderer.js'))(pb),
+            SlideShareMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/slideshare_media_renderer.js'))(pb),
+            TrinketMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/trinket_media_renderer.js'))(pb),
+            StorifyMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/storify_media_renderer.js'))(pb),
+            KickStarterMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/kickstarter_media_renderer.js'))(pb)
+        },
+        
+        providers: {
+            FsMediaProvider: require(path.join(config.docRoot, '/include/service/media/fs_media_provider.js'))(pb),
+            MongoMediaProvider: require(path.join(config.docRoot, '/include/service/media/mongo_media_provider.js'))(pb)
+        }
+    };
+    
+    //providers and service
+    pb.MediaService       = require(path.join(config.docRoot, '/include/service/entities/media_service.js'));
 
-//content services
-pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js');
-pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js');
-pb.ArticleService = require(path.join(config.docRoot, '/include/service/entities/article_service.js')).ArticleService;
+    //content services
+    pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js')(pb);
+    pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js')(pb);
+    
+    var ArticleServiceModule = require(path.join(config.docRoot, '/include/service/entities/article_service.js'))(pb);
+    pb.ArticleService        = ArticleServiceModule.ArticleService;
     
     return pb;
 }

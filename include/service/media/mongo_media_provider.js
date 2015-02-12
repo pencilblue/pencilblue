@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,188 +18,223 @@
 //dependencies
 var MongoDB   = require('mongodb');
 var GridStore = MongoDB.GridStore;
+var util      = require('../../util.js');
 
-/**
- * A media provider that uses Mongo's GridFS as the method of storage.
- * @class MongoMediaProvider
- * @constructor
- */
-function MongoMediaProvider() {};
+module.exports = function MongoMediaProviderModule(pb) {
 
-/**
- * Retrieves the item in GridFS as a stream. 
- * @method getStream
- * @param {String} mediaPath The path/key to the media.  Typically this is a 
- * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
- * @param {Object} [options] Options for interacting with S3
- * @param {String} [options.bucket] The S3 bucket to interact with
- * @param {Function} cb A callback that provides two parameters: An Error, if 
- * occurred and a ReadableStream that contains the media content.
- */
-MongoMediaProvider.prototype.getStream = function(mediaPath, cb) {
-    
-    var db  = pb.dbm[pb.config.db.name];
-    var gs  = new GridStore(db, mediaPath, 'r');
-    gs.open(function(err, gs) {
-        if (util.isError(err)) {
-            return cb(err);
-        }
-        
-        cb(null, gs.stream(true));
-    });
-};
+    /**
+     * A media provider that uses Mongo's GridFS as the method of storage.
+     * @class MongoMediaProvider
+     * @constructor
+     */
+    function MongoMediaProvider() {};
 
-/**
- * Retrieves the content from GridFS as a String or Buffer.
- * @method get
- * @param {String} mediaPath The path/key to the media.  Typically this is a 
- * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
- * @param {Function} cb A callback that provides two parameters: An Error, if 
- * occurred and an entity that contains the media content.
- */
-MongoMediaProvider.prototype.get = function(mediaPath, cb) {
-    
-    var db  = pb.dbm[pb.config.db.name];
-    var gs  = new GridStore(db, mediaPath, 'r');
-    gs.open(function(err, gs) {
-        if (util.isError(err)) {
-            return cb(err);
-        }
-        
-        gs.read(function(err, data) {
+    /**
+     * Retrieves the item in GridFS as a stream. 
+     * @method getStream
+     * @param {String} mediaPath The path/key to the media.  Typically this is a 
+     * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
+     * @param {Object} [options] Options for interacting with S3
+     * @param {String} [options.bucket] The S3 bucket to interact with
+     * @param {Function} cb A callback that provides two parameters: An Error, if 
+     * occurred and a ReadableStream that contains the media content.
+     */
+    MongoMediaProvider.prototype.getStream = function(mediaPath, cb) {
+
+        pb.dbm.getDb(pb.config.db.name, function(err, db) {
             if (util.isError(err)) {
                 return cb(err);
             }
             
-            gs.close(function(err) {
-                cb(err, data);
+            var gs  = new GridStore(db, mediaPath, 'r');
+            gs.open(function(err, gs) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+
+                cb(null, gs.stream(true));
             });
         });
-    });
-};
-
-/**
- * Sets media content into GridFS based on the specified media path and 
- * options.  The stream provided must be a ReadableStream.
- * @method setStream
- * @param {ReadableStream} stream The content stream
- * @param {String} mediaPath The path/key to the media.  Typically this is a 
- * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
- * @param {Function} cb A callback that provides two parameters: An Error, if 
- * occurred and the success of the operation.
- */
-MongoMediaProvider.prototype.setStream = function(stream, mediaPath, cb) {
-    var self = this;
-    
-    var buffers = [];
-    stream.on('data', function(buffer) {
-        buffers.push(buffer);
-    });
-    stream.on('end', function() {
-        
-        var buffer = Buffer.concat(buffers);
-        self.set(buffer, mediaPath, cb);
-    });
-    stream.on('error', function(err) {
-        cb(err);
-    });
-};
-
-/**
- * Sets media content into GridFS based on the specified media path and 
- * options.  The data must be in the form of a String or Buffer.
- * @method setStream
- * @param {String|Buffer} fileDataStrOrBuffOrStream The content to persist
- * @param {String} mediaPath The path/key to the media.  Typically this is a 
- * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
- * @param {Function} cb A callback that provides two parameters: An Error, if 
- * occurred and the success of the operation.
- */
-MongoMediaProvider.prototype.set = function(fileDataStrOrBuff, mediaPath, cb) {
-    
-    var opt = {
-        content_type: "application/octet-stream",
-        metadata:{
-            provider: "MongoMediaProvider",
-            mediaPath: mediaPath
-        }
     };
-    var db  = pb.dbm[pb.config.db.name];
-    var gs  = new GridStore(db, mediaPath, 'w', opt);
-    gs.open(function(err, gs) {
-        gs.write(fileDataStrOrBuff, true, cb);
-    });
-};
 
-/**
- * Not Implemented
- * @method createWriteStream
- * @param {String} mediaPath The path/key to the media.  Typically this is a 
- * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
- * @param {Function} cb A callback that provides two parameters: An Error, if 
- * occurred and a WriteableStream.
- */
-MongoMediaProvider.prototype.createWriteStream = function(mediaPath, cb) {
-    throw new Error('Not implemented');
-};
+    /**
+     * Retrieves the content from GridFS as a String or Buffer.
+     * @method get
+     * @param {String} mediaPath The path/key to the media.  Typically this is a 
+     * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
+     * @param {Function} cb A callback that provides two parameters: An Error, if 
+     * occurred and an entity that contains the media content.
+     */
+    MongoMediaProvider.prototype.get = function(mediaPath, cb) {
 
-/**
- * Checks to see if the file actually exists in GridFS
- * @method exists
- * @param {String} mediaPath The path/key to the media.  Typically this is a 
- * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
- * @param {Function} cb A callback that provides two parameters: An Error, if 
- * occurred and a Boolean.
- */
-MongoMediaProvider.prototype.exists = function(mediaPath, cb) {
-    
-    var db = pb.dbm[pb.config.db.name];
-    GridStore.exist(db, mediaPath, cb);
-};
+        pb.dbm.getDb(pb.config.db.name, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            var gs  = new GridStore(db, mediaPath, 'r');
+            gs.open(function(err, gs) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
 
-/**
- * Deletes a file from the GridFS
- * @method delete
- * @param {String} mediaPath The path/key to the media.  Typically this is a 
- * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
- * @param {Function} cb A callback that provides two parameters: An Error, if 
- * occurred and the success of the operation.
- */
-MongoMediaProvider.prototype.delete = function(mediaPath, cb) {
-    
-    var db = pb.dbm[pb.config.db.name];
-    GridStore.unlink(db, mediaPath, cb);
-};
-        
-/**
- * Retrieve the stats on the file
- * @method stat
- * @param {String} mediaPath The path/key to the media.  Typically this is a 
- * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
- * @param {Function} cb A callback that provides two parameters: An Error, if 
- * occurred and an object that contains the file stats
- */
-MongoMediaProvider.prototype.stat = function(mediaPath, cb) {
-    
-    var db  = pb.dbm[pb.config.db.name];
-    var gs  = new GridStore(db, mediaPath, 'r');
-    gs.open(function(err, gs) {
-        if (util.isError(err)) {
-            return cb(err);
-        }
-        
-        var stat = {
-            length: gs.length,
-            contentType: gs.contentType,
-            uploadDate: gs.uploadDate,
-            metadata: gs.metadata,
-            chunkSize: gs.chunkSize
-        };
-        gs.close(function(err) {
-            cb(err, stat);
+                gs.read(function(err, data) {
+                    if (util.isError(err)) {
+                        return cb(err);
+                    }
+
+                    gs.close(function(err) {
+                        cb(err, data);
+                    });
+                });
+            });
         });
-    });
-};
+    };
 
-//exports
-module.exports = MongoMediaProvider;
+    /**
+     * Sets media content into GridFS based on the specified media path and 
+     * options.  The stream provided must be a ReadableStream.
+     * @method setStream
+     * @param {ReadableStream} stream The content stream
+     * @param {String} mediaPath The path/key to the media.  Typically this is a 
+     * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
+     * @param {Function} cb A callback that provides two parameters: An Error, if 
+     * occurred and the success of the operation.
+     */
+    MongoMediaProvider.prototype.setStream = function(stream, mediaPath, cb) {
+        var self = this;
+
+        var buffers = [];
+        stream.on('data', function(buffer) {
+            buffers.push(buffer);
+        });
+        stream.on('end', function() {
+
+            var buffer = Buffer.concat(buffers);
+            self.set(buffer, mediaPath, cb);
+        });
+        stream.on('error', function(err) {
+            cb(err);
+        });
+    };
+
+    /**
+     * Sets media content into GridFS based on the specified media path and 
+     * options.  The data must be in the form of a String or Buffer.
+     * @method setStream
+     * @param {String|Buffer} fileDataStrOrBuffOrStream The content to persist
+     * @param {String} mediaPath The path/key to the media.  Typically this is a 
+     * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
+     * @param {Function} cb A callback that provides two parameters: An Error, if 
+     * occurred and the success of the operation.
+     */
+    MongoMediaProvider.prototype.set = function(fileDataStrOrBuff, mediaPath, cb) {
+
+        var opt = {
+            content_type: "application/octet-stream",
+            metadata:{
+                provider: "MongoMediaProvider",
+                mediaPath: mediaPath
+            }
+        };
+        
+        pb.dbm.getDb(pb.config.db.name, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            var gs  = new GridStore(db, mediaPath, 'w', opt);
+            gs.open(function(err, gs) {
+                gs.write(fileDataStrOrBuff, true, cb);
+            });
+        });
+    };
+
+    /**
+     * Not Implemented
+     * @method createWriteStream
+     * @param {String} mediaPath The path/key to the media.  Typically this is a 
+     * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
+     * @param {Function} cb A callback that provides two parameters: An Error, if 
+     * occurred and a WriteableStream.
+     */
+    MongoMediaProvider.prototype.createWriteStream = function(mediaPath, cb) {
+        throw new Error('Not implemented');
+    };
+
+    /**
+     * Checks to see if the file actually exists in GridFS
+     * @method exists
+     * @param {String} mediaPath The path/key to the media.  Typically this is a 
+     * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
+     * @param {Function} cb A callback that provides two parameters: An Error, if 
+     * occurred and a Boolean.
+     */
+    MongoMediaProvider.prototype.exists = function(mediaPath, cb) {
+
+        pb.dbm.getDb(pb.config.db.name, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            GridStore.exist(db, mediaPath, cb);
+        });
+    };
+
+    /**
+     * Deletes a file from the GridFS
+     * @method delete
+     * @param {String} mediaPath The path/key to the media.  Typically this is a 
+     * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
+     * @param {Function} cb A callback that provides two parameters: An Error, if 
+     * occurred and the success of the operation.
+     */
+    MongoMediaProvider.prototype.delete = function(mediaPath, cb) {
+
+        pb.dbm.getDb(pb.config.db.name, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            GridStore.unlink(db, mediaPath, cb);
+        });
+    };
+
+    /**
+     * Retrieve the stats on the file
+     * @method stat
+     * @param {String} mediaPath The path/key to the media.  Typically this is a 
+     * path such as: /media/2014/9/540a3ff0e30ddfb9e60000be-1409957872680.jpg
+     * @param {Function} cb A callback that provides two parameters: An Error, if 
+     * occurred and an object that contains the file stats
+     */
+    MongoMediaProvider.prototype.stat = function(mediaPath, cb) {
+
+        pb.dbm.getDb(pb.config.db.name, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            var gs  = new GridStore(db, mediaPath, 'r');
+            gs.open(function(err, gs) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+
+                var stat = {
+                    length: gs.length,
+                    contentType: gs.contentType,
+                    uploadDate: gs.uploadDate,
+                    metadata: gs.metadata,
+                    chunkSize: gs.chunkSize
+                };
+                gs.close(function(err) {
+                    cb(err, stat);
+                });
+            });
+        });
+    };
+
+    //exports
+    return MongoMediaProvider;
+};
