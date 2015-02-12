@@ -46,29 +46,34 @@ BlogFilter.prototype.render = function(cb) {
     }
 
     dao.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
-        if (util.isError(err) || result === null) {
-            if(pb.validation.isIdStr(custUrl)) {
-              dao.loadById(custUrl, objectType, function(err, result) {
-                  if (util.isError(err) || result === null) {
-                      self.reqHandler.serve404();
-                      return;
-                  }
-
-                  self.req['pencilblue_' + objectType] = result._id.toString();
-                  this.result = result;
-                  BlogFilter.super_.prototype.render.apply(self, [cb]);
-              });
-            }
-            else {
+      if (util.isError(err) || result === null) {
+        if(pb.validation.isIdStr(custUrl)) {
+          dao.loadById(custUrl, objectType, function(err, result) {
+            if (util.isError(err) || result === null || result.draft) {
               self.reqHandler.serve404();
+              return;
             }
 
-            return;
+            self.req['pencilblue_' + objectType] = result._id.toString();
+            this.result = result;
+            BlogFilter.super_.prototype.render.apply(self, [cb]);
+          });
+        }
+        else {
+          self.reqHandler.serve404();
         }
 
-        self.req['pencilblue_' + objectType] = result._id.toString();
-        this.result = result;
-        BlogFilter.super_.prototype.render.apply(self, [cb]);
+        return;
+      }
+
+      if(result.draft) {
+        self.reqHandler.serve404();
+        return;
+      }
+
+      self.req['pencilblue_' + objectType] = result._id.toString();
+      this.result = result;
+      BlogFilter.super_.prototype.render.apply(self, [cb]);
     });
 };
 
