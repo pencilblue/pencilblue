@@ -53,11 +53,11 @@ module.exports = function PB(config) {
     pb.cache        = pb.CacheFactory.getInstance();
 
     //configure the DB manager
-    pb.DBManager = require(config.docRoot+'/include/dao/db_manager');
+    pb.DBManager = require(config.docRoot+'/include/dao/db_manager')(pb);
     pb.dbm       = new pb.DBManager(pb);
 
     //setup system class types
-    pb.DAO = require(config.docRoot+'/include/dao/dao');
+    pb.DAO = require(config.docRoot+'/include/dao/dao')(pb);
 
     //setup validation services
     var ValidationModule = require(path.join(config.docRoot, '/include/validation/validation_service.js'));

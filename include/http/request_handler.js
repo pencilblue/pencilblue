@@ -86,7 +86,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @property CORE_ROUTES
      * @type {Array}
      */
-    RequestHandler.CORE_ROUTES = require(path.join(pb.config.docRoot, '/plugins/pencilblue/include/routes.js'));
+    RequestHandler.CORE_ROUTES = require(path.join(pb.config.docRoot, '/plugins/pencilblue/include/routes.js'))(pb);
 
     /**
      * Initializes the request handler prototype by registering the core routes for
@@ -102,7 +102,12 @@ module.exports = function RequestHandlerModule(pb) {
             var descriptor = RequestHandler.CORE_ROUTES[i];
 
             //register the route
-            RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
+            try {
+                RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
+            }
+            catch(e) {
+                pb.log.error('RequestHandler: Failed to register PB route: %s %s \n%s', descriptor.method, descriptor.path, e.stack);
+            }
         }
     };
 

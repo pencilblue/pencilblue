@@ -16,11 +16,11 @@
 */
 
 //dependencies
-var cluster              = require('cluster');
-var os                   = require('os');
-var domain               = require('domain');
-var process              = require('process');
-var async                = require('async');
+var cluster = require('cluster');
+var os      = require('os');
+var domain  = require('domain');
+var process = require('process');
+var async   = require('async');
 
 module.exports = function ServerRegistrationModule(pb) {
     

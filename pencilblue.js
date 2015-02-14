@@ -51,16 +51,16 @@ function PencilBlue(config){
      */
     this.init = function(){
         var tasks = [
-            PencilBlue.initModules,
-            PencilBlue.initRequestHandler,
-            PencilBlue.initDBConnections,
-            PencilBlue.initDBIndices,
-            PencilBlue.initServer,
-            PencilBlue.initSessions,
-            PencilBlue.initPlugins,
-            PencilBlue.initServerRegistration,
-            PencilBlue.initCommandService,
-            PencilBlue.initLibraries
+            this.initModules,
+            this.initRequestHandler,
+            this.initDBConnections,
+            this.initDBIndices,
+            this.initServer,
+            this.initSessions,
+            this.initPlugins,
+            this.initServerRegistration,
+            this.initCommandService,
+            this.initLibraries
         ];
         async.series(tasks, function(err, results) {
             if (util.isError(err)) {
@@ -85,6 +85,8 @@ function PencilBlue(config){
         HtmlEncoder.EncodeType = 'numerical';
         
         pb.Localization.init();
+        
+        cb(null, true);
     };
     
     /**
@@ -140,7 +142,7 @@ function PencilBlue(config){
                 return cb(new Error("Failed to establish a connection to: "+pb.config.db.name), false);
             }
 
-            log.debug('PencilBlue: Established connection to DB: %s', result.databaseName);
+            pb.log.debug('PencilBlue: Established connection to DB: %s', result.databaseName);
             cb(null, true);
         });
     };
@@ -172,7 +174,7 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     this.initServer = function(cb){
-        log.debug('Starting server...');
+        pb.log.debug('Starting server...');
 
         try{
             if (pb.config.server.ssl.enabled) {
@@ -188,7 +190,7 @@ function PencilBlue(config){
                 //create an http server that redirects to SSL site
                 pb.handOffServer = http.createServer(PencilBlue.onHttpConnectForHandoff);
                 pb.handOffServer.listen(pb.config.server.ssl.handoff_port, function() {
-                    log.info('PencilBlue: Handoff HTTP server running on port: %d', pb.config.server.ssl.handoff_port);
+                    pb.log.info('PencilBlue: Handoff HTTP server running on port: %d', pb.config.server.ssl.handoff_port);
                 });
             }
             else {
@@ -202,7 +204,7 @@ function PencilBlue(config){
             };
             pb.server.once('error', onServerStartError);
             pb.server.listen(pb.config.sitePort, pb.config.siteIP, function() {
-                log.info('PencilBlue: %s running at site root [%s] on port [%d]', pb.config.siteName, pb.config.siteRoot, pb.config.sitePort);
+                pb.log.info('PencilBlue: %s running at site root [%s] on port [%d]', pb.config.siteName, pb.config.siteRoot, pb.config.sitePort);
                 pb.server.removeListener('error', onServerStartError);
                 cb(null, true);
             });
@@ -298,7 +300,7 @@ function PencilBlue(config){
     };
 
     /**
-     *
+     * Starts up the instance of PencilBlue
      *
      */
     this.start = function() {

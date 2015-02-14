@@ -101,7 +101,7 @@ module.exports = function SessionModule(pb) {
      * @param {Function} cb
      */
     SessionHandler.prototype.start = function(cb) {
-        this.sessionStore.start();
+        this.sessionStore.start(cb);
     };
 
     /**

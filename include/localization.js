@@ -201,7 +201,7 @@ module.exports = function LocalizationModule(pb) {
         Localization.storage = {};
 
         //create path to localization directory
-        var localizationDir = path.join(DOCUMENT_ROOT, 'public', 'localization');
+        var localizationDir = path.join(pb.config.docRoot, 'public', 'localization');
         var files = fs.readdirSync(localizationDir);
         files.forEach(function(file) {
             if (file === '.' || file === '..') {

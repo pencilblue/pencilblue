@@ -848,4 +848,7 @@ module.exports = function DAOModule(pb) {
     DAO.areIdsEqual = function(id1, id2) {
         return id1.toString() === id2.toString();
     };
+    
+    //exports
+    return DAO;
 }
