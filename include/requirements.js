@@ -54,7 +54,7 @@ module.exports = function PB(config) {
 
     //configure the DB manager
     pb.DBManager = require(config.docRoot+'/include/dao/db_manager')(pb);
-    pb.dbm       = new pb.DBManager(pb);
+    pb.dbm       = new pb.DBManager();
 
     //setup system class types
     pb.DAO = require(config.docRoot+'/include/dao/dao')(pb);
@@ -121,7 +121,7 @@ module.exports = function PB(config) {
 
     //command service
     pb.RedisCommandBroker = require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js'))(pb);
-    pb.MongoCommandBroker = require(path.join(config.docRoot, '/include/system/command/mongo_command_broker.js'))(pb);
+    pb.MongoCommandBroker = require(path.join(config.docRoot, '/include/system/command/mongo_command_broker.js'))(pb);console.log(pb.RedisCommandBroker);
     pb.CommandService     = require(path.join(config.docRoot, '/include/system/command/command_service.js'))(pb);
 
     //setup settings service

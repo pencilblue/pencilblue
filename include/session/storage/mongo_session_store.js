@@ -120,7 +120,7 @@ module.exports = function MongoSessionStoreModule(pb) {
         dao.ensureIndex(procedure, function(err, result) {
             pb.log.silly('MongoRegistrationProvider: Attempted to ensure TTL index. RESULT=[%s] ERROR=[%s]', util.inspect(result), err ? err.message : 'NONE');
              var command = {
-                collMod: pb.config.registry.key,
+                collMod: SESSION_COLLECTION_NAME,
                 index: {
                     keyPattern: procedure.spec,
                     expireAfterSeconds: expiry

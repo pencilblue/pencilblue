@@ -459,7 +459,7 @@ module.exports = function CommandServiceModule(pb) {
         }
         
         //figure out which broker to use
-        var CommandBroker = null;
+        var CommandBroker = null;console.log(DEFALULT_BROKERS[pb.config.command.broker]);
         if (DEFALULT_BROKERS[pb.config.command.broker]) {
             CommandBroker = DEFALULT_BROKERS[pb.config.command.broker]
         }
@@ -472,4 +472,4 @@ module.exports = function CommandServiceModule(pb) {
     };
 
     return CommandService;
-}
+};

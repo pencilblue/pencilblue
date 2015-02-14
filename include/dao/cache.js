@@ -81,7 +81,7 @@ module.exports = function CacheModule(pb){
      * @param  {Function} cb Callback function
      */
     CacheFactory.shutdown = function(cb) {
-        cb = cb || pb.utils.cb;
+        cb = cb || utils.cb;
 
         if (CLIENT !== null) {
             CLIENT.quit();

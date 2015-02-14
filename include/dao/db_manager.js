@@ -52,11 +52,11 @@ module.exports = function DBManagerModule(pb) {
 
         /**
          * Retrieves a handle to the specified database.
-         * @method getDB
+         * @method getDb
          * @param {String} name The database name
          * @return {Object}     A promise object
          */
-        this.getDB = function(name, cb) {
+        this.getDb = function(name, cb) {
             if (util.isFunction(name)) {
                 cb = name;
                 name = null;
@@ -256,6 +256,7 @@ module.exports = function DBManagerModule(pb) {
         };
         return pb.UrlService.urlJoin(str, config.db.name);
     };
+    
     //exports
     return DBManager;
 };

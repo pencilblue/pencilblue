@@ -134,7 +134,7 @@ function PencilBlue(config){
      */
     this.initDBConnections = function(cb){
         //setup database connection to core database
-        pb.dbm.getDB(pb.config.db.name, function(err, result){
+        pb.dbm.getDb(pb.config.db.name, function(err, result){
             if (util.isError(err)) {
                 return cb(err, false);
             }
@@ -227,7 +227,7 @@ function PencilBlue(config){
      */
     this.onHttpConnect = function(req, resp){
         if (pb.log.isSilly()) {
-            req.uid = pb.utils.uniqueId();
+            req.uid = util.uniqueId();
             pb.log.silly('New Request: '+req.uid);
         }
 

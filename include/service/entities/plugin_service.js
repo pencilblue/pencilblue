@@ -218,7 +218,7 @@ module.exports = function PluginServiceModule(pb) {
                 return cb(null, null);
             }
 
-            cb(null, pb.utils.arrayToObj(settings, 'name', 'value'));
+            cb(null, util.arrayToObj(settings, 'name', 'value'));
         });
     };
 
@@ -443,7 +443,7 @@ module.exports = function PluginServiceModule(pb) {
                 return cb(null, null);
             }
 
-            cb(null, pb.utils.arrayToObj(settings, 'name', 'value'));
+            cb(null, util.arrayToObj(settings, 'name', 'value'));
         });
     };
 
@@ -648,7 +648,7 @@ module.exports = function PluginServiceModule(pb) {
 
                 var permsAtLevel = permissions[role];
                 if (permsAtLevel) {
-                    pb.utils.merge(permsAtLevel, perms);
+                    util.merge(permsAtLevel, perms);
                 }
             }
         }
@@ -691,7 +691,7 @@ module.exports = function PluginServiceModule(pb) {
      * @return {String} URL path to the resource
      */
     PluginService.genPublicPath = function(plugin, relativePathToMedia) {
-        if (!pb.utils.isString(plugin) || !pb.utils.isString(relativePathToMedia)) {
+        if (!util.isString(plugin) || !util.isString(relativePathToMedia)) {
             return '';
         }
         return pb.UrlService.urlJoin('/public', plugin, relativePathToMedia);
@@ -725,7 +725,7 @@ module.exports = function PluginServiceModule(pb) {
         for (var uid in ACTIVE_PLUGINS) {
             var plugin = ACTIVE_PLUGINS[uid];
             if (plugin.templates) {
-                var clone = pb.utils.clone(plugin.templates);
+                var clone = util.clone(plugin.templates);
                 for(var i = 0; i < clone.length; i++) {
                     clone[i].theme_uid = uid;
                     templates.push(clone[i]);
@@ -764,24 +764,24 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.getAvailablePlugins = function(active, inactive, cb) {
         if (util.isArray(active)) {
-            active = pb.utils.arrayToHash(active, function(active, i) {
+            active = util.arrayToHash(active, function(active, i) {
                 return active[i] ? active[i].uid : '';
             });
         }
         if (util.isArray(inactive)) {
-            inactive = pb.utils.arrayToHash(inactive, function(inactive, i) {
+            inactive = util.arrayToHash(inactive, function(inactive, i) {
                 return inactive[i] ? inactive[i].uid : '';
             });
         }
 
-        pb.utils.getDirectories(PluginService.getPluginsDir(), function(err, directories) {
+        util.getDirectories(PluginService.getPluginsDir(), function(err, directories) {
             if (util.isError(err)) {
                 cb(err, null);
                 return;
             }
 
             var plugins   = [];
-            var tasks     = pb.utils.getTasks(directories, function(directories, i) {
+            var tasks     = util.getTasks(directories, function(directories, i) {
                 return function(callback) {
 
                     //skip pencilblue
@@ -879,15 +879,15 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.uninstallPlugin = function(pluginUid, options, cb) {
         var self = this;
 
-        if (pb.utils.isFunction(options)) {
+        if (util.isFunction(options)) {
             cb = options;
             options = {};
         }
-        if (!pb.utils.isObject(options)) {
+        if (!util.isObject(options)) {
             options = {};
         }
-        if (!pb.utils.isFunction(cb)) {
-            cb = pb.utils.cb;
+        if (!util.isFunction(cb)) {
+            cb = util.cb;
         }
 
         //log start of operation
@@ -928,7 +928,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.installPlugin = function(pluginDirName, cb) {
 
-        cb       = cb || pb.utils.cb;
+        cb       = cb || util.cb;
         var name = util.format('INSTALL_PLUGIN_%s', pluginDirName);
         var job  = new pb.PluginInstallJob();
         job.init(name);
@@ -963,7 +963,7 @@ module.exports = function PluginServiceModule(pb) {
                 pb.log.debug('PluginService: No plugins are installed');
                 return cb(null, true);
             }
-            var tasks  = pb.utils.getTasks(plugins, function(plugins, i) {
+            var tasks  = util.getTasks(plugins, function(plugins, i) {
                 return function(callback) {
 
                     try {
@@ -1046,7 +1046,7 @@ module.exports = function PluginServiceModule(pb) {
             //verify that dependencies are available
             function(callback) {
 
-                if (!pb.utils.isObject(details.dependencies) || details.dependencies === {}) {
+                if (!util.isObject(details.dependencies) || details.dependencies === {}) {
                     //no dependencies were declared so we're good
                     return callback(null, true);
                 }
@@ -1091,7 +1091,7 @@ module.exports = function PluginServiceModule(pb) {
                      pb.log.debug('PluginService:[INIT] Loading permission sets for plugin [%s]', details.uid);
 
                      for (var role in plugin.permissions) {
-                         map[role] = pb.utils.arrayToHash(plugin.permissions[role]);
+                         map[role] = util.arrayToHash(plugin.permissions[role]);
                      }
                  }
                  else {
@@ -1126,7 +1126,7 @@ module.exports = function PluginServiceModule(pb) {
                  pb.log.debug('PluginService:[INIT] Attempting to call onStartup function for %s.', details.uid);
 
                 var mainModule = ACTIVE_PLUGINS[details.uid].main_module;
-                if (pb.utils.isFunction(mainModule.onStartup)) {
+                if (util.isFunction(mainModule.onStartup)) {
 
                     var timeoutProtect = setTimeout(function() {
 
@@ -1226,14 +1226,14 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb
      */
     PluginService.prototype.hasDependencies = function(plugin, cb) {
-        if (!pb.utils.isObject(plugin.dependencies) || plugin.dependencies === {}) {
+        if (!util.isObject(plugin.dependencies) || plugin.dependencies === {}) {
             //no dependencies were declared so we're good
             return cb(null, true);
         }
 
         //iterate over dependencies to ensure that they exist
         var hasDependencies = true;
-        var tasks = pb.utils.getTasks(Object.keys(plugin.dependencies), function(keys, i) {
+        var tasks = util.getTasks(Object.keys(plugin.dependencies), function(keys, i) {
             return function(callback) {
                 var modulePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'node_modules', keys[i]);
                 fs.exists(modulePath, function(exists) {
@@ -1259,13 +1259,13 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb
      */
     PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
-        if (pb.utils.isFunction(plugin)) {
+        if (util.isFunction(plugin)) {
             cb = plugin;
             plugin = null;
         }
 
         //verify parameters
-        if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !pb.utils.isObject(dependencies)) {
+        if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
             cb(new Error('The plugin directory name and the dependencies are required'));
             return;
         }
@@ -1319,7 +1319,7 @@ module.exports = function PluginServiceModule(pb) {
                 //a callback function that allows for deleting the lock key
                 var onDone = function(err, result) {
                     if (didLock) {
-                        pb.cache.del(key, pb.utils.cb);
+                        pb.cache.del(key, util.cb);
                     }
                     cb(err, result);
                 };
@@ -1331,7 +1331,7 @@ module.exports = function PluginServiceModule(pb) {
                 else if (depFound) {
 
                     //when the dependencies have already been set we can move on and just return
-                    var result = pb.utils.initArray(Object.keys(dependencies).length, true);
+                    var result = util.initArray(Object.keys(dependencies).length, true);
                     return onDone(null, result);
                 }
 
@@ -1375,7 +1375,7 @@ module.exports = function PluginServiceModule(pb) {
             npm.config.prefix = prefixPath;
 
             //lines up the install tasks
-            var tasks = pb.utils.getTasks(Object.keys(dependencies), function(keys, i) {
+            var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
                 return function(callback) {
 
                     var modVer  = keys[i]+'@'+dependencies[keys[i]];
@@ -1419,7 +1419,7 @@ module.exports = function PluginServiceModule(pb) {
             }
 
             var localizations = {};
-            var tasks = pb.utils.getTasks(files, function(files, index) {
+            var tasks = util.getTasks(files, function(files, index) {
                 return function(callback) {
 
                     var pathToLocalization = path.join(localizationDir, files[index]);
@@ -1567,7 +1567,7 @@ module.exports = function PluginServiceModule(pb) {
      * TRUE if the details object passes validation, FALSE if not.
      */
     PluginService.validateDetails = function(details, pluginDirName, cb) {
-        if (!pb.utils.isObject(details)) {
+        if (!util.isObject(details)) {
             cb(new Error("Details cannot be null and must be an object"), false);
             return;
         }
@@ -1596,7 +1596,7 @@ module.exports = function PluginServiceModule(pb) {
             errors.push("An invalid version number ["+details.version+"] was provided.  Must match the form: xx.xx.xx");
         }
 
-        if (pb.utils.isString(details.pb_version)) {
+        if (util.isString(details.pb_version)) {
             if (!v.isVersionExpression(details.pb_version, true)) {
                 errors.push('An invalid version expression "' + details.pb_version + '" was provided.');
             }
@@ -1611,7 +1611,7 @@ module.exports = function PluginServiceModule(pb) {
 
         //validate icon
         if (details.icon) {
-            if (!pb.utils.isString(details.icon) || !PluginService.validateIconPath(details.icon, pluginDirName)) {
+            if (!util.isString(details.icon) || !PluginService.validateIconPath(details.icon, pluginDirName)) {
                 errors.push("The optional plugin icon must be a valid path to an image");
             }
         }
@@ -1792,7 +1792,7 @@ module.exports = function PluginServiceModule(pb) {
 
         //validate the plugin's dependencies
         if (details.dependencies) {
-            if (!pb.utils.isObject(details.dependencies)) {
+            if (!util.isObject(details.dependencies)) {
                 errors.push("The dependencies block must be an object");
             }
             else {
@@ -1865,7 +1865,7 @@ module.exports = function PluginServiceModule(pb) {
         var v      = pb.validation;
 
         //validate object
-        if (pb.utils.isObject(setting)) {
+        if (util.isObject(setting)) {
 
             //validate name
             if (!v.validateNonEmptyStr(setting.name, true)) {
@@ -1894,7 +1894,7 @@ module.exports = function PluginServiceModule(pb) {
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     PluginService.validateSettingValue = function(value) {
-        return pb.utils.isString(value) || !isNaN(value) || value === true || value === false;
+        return util.isString(value) || !isNaN(value) || value === true || value === false;
     };
 
     /**
@@ -1914,13 +1914,13 @@ module.exports = function PluginServiceModule(pb) {
                 return fullPath.lastIndexOf('.js') === (fullPath.length - '.js'.length);
             }
         };
-        pb.utils.getFiles(servicesDir, options, function(err, files) {
+        util.getFiles(servicesDir, options, function(err, files) {
             if (util.isError(err)) {
                 return cb(err, null);
             }
 
             var services = {};
-            var tasks = pb.utils.getTasks(files, function(files, index) {
+            var tasks = util.getTasks(files, function(files, index) {
                 return function(callback) {
 
                     var pathToService = files[index];
@@ -1986,7 +1986,7 @@ module.exports = function PluginServiceModule(pb) {
                 return fullPath.lastIndexOf('.js') === (fullPath.length - '.js'.length);
             }
         };
-        pb.utils.getFiles(controllersDir, options, function(err, files) {
+        util.getFiles(controllersDir, options, function(err, files) {
             if (util.isError(err)) {
                 pb.log.debug('PluginService[INIT]: The controllers directory [%s] does not exist or could not be read.', controllersDir);
                 pb.log.silly('PluginService[INIT]: %s', err.stack);
@@ -1994,7 +1994,7 @@ module.exports = function PluginServiceModule(pb) {
                 return;
             }
 
-            var tasks = pb.utils.getTasks(files, function(files, index) {
+            var tasks = util.getTasks(files, function(files, index) {
                 return function(callback) {
 
                     var pathToController = files[index];
@@ -2028,7 +2028,7 @@ module.exports = function PluginServiceModule(pb) {
             var ControllerPrototype = require(pathToController);
 
             //ensure we can get the routes
-            if (!pb.utils.isFunction(ControllerPrototype.getRoutes)){
+            if (!util.isFunction(ControllerPrototype.getRoutes)){
                 return cb(new Error('Controller at ['+pathToController+'] does not implement function "getRoutes"'));
             }
 
@@ -2077,7 +2077,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.getServiceName = function(pathToService, service) {
         var name = 'UNKNOWN';
-        if (service && pb.utils.isFunction(service.getName)) {
+        if (service && util.isFunction(service.getName)) {
             name = service.getName();
         }
         else {
@@ -2104,7 +2104,7 @@ module.exports = function PluginServiceModule(pb) {
      * process is intended to join.
      */
     PluginService.onUninstallPluginCommandReceived = function(command) {
-        if (!pb.utils.isObject(command)) {
+        if (!util.isObject(command)) {
             pb.log.error('PluginService: an invalid uninstall plugin command object was passed. %s', util.inspect(command));
             return;
         }
@@ -2136,7 +2136,7 @@ module.exports = function PluginServiceModule(pb) {
      * process is intended to join.
      */
     PluginService.onIsPluginAvailableCommandReceived = function(command) {
-        if (!pb.utils.isObject(command)) {
+        if (!util.isObject(command)) {
             pb.log.error('PluginService: an invalid is_plugin_available command object was passed. %s', util.inspect(command));
             return;
         }
@@ -2168,7 +2168,7 @@ module.exports = function PluginServiceModule(pb) {
      * process is intended to join.
      */
     PluginService.onInstallPluginDependenciesCommandReceived = function(command) {
-        if (!pb.utils.isObject(command)) {
+        if (!util.isObject(command)) {
             pb.log.error('PluginService: an invalid install_plugin_dependencies command object was passed. %s', util.inspect(command));
             return;
         }
@@ -2200,7 +2200,7 @@ module.exports = function PluginServiceModule(pb) {
      * process is intended to join.
      */
     PluginService.onInitializePluginCommandReceived = function(command) {
-        if (!pb.utils.isObject(command)) {
+        if (!util.isObject(command)) {
             pb.log.error('PluginService: an invalid initialize_plugin command object was passed. %s', util.inspect(command));
             return;
         }
@@ -2228,10 +2228,11 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.init = function() {
         
         //register for commands
-        pb.CommandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
-        pb.CommandService.registerForType('is_plugin_available', PluginService.onIsPluginAvailableCommandReceived);
-        pb.CommandService.registerForType('install_plugin_dependencies', PluginService.onInstallPluginDependenciesCommandReceived);
-        pb.CommandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
+        var commandService = pb.CommandService.getInstance();
+        commandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
+        commandService.registerForType('is_plugin_available', PluginService.onIsPluginAvailableCommandReceived);
+        commandService.registerForType('install_plugin_dependencies', PluginService.onInstallPluginDependenciesCommandReceived);
+        commandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
     };
 
     //exports
