@@ -93,7 +93,7 @@ WPManageUsers.getRoutes = function(cb) {
             method: 'get',
             path: '/admin/plugins/wp_import/settings/manage_new_users',
             auth_required: true,
-            access_level: ACCESS_MANAGING_EDITOR,
+            access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
             content_type: 'text/html'
         }
     ];

@@ -45,7 +45,7 @@ UserForm.prototype.render = function(cb) {
 		self.user = data.user;
 		data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: self.user});
 
-		data.adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR}];
+		data.adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR}];
 		if(!data.user[pb.DAO.getIdField()] || self.session.authentication.user_id !== data.user[pb.DAO.getIdField()].toString()) {
 			data.adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
 		}
@@ -115,7 +115,7 @@ UserForm.getSubNavItems = function(key, ls, data) {
 				href: '/admin/users/password/' + data.user[pb.DAO.getIdField()].toString()
 			});
 		}
-		else if(data.session.authentication.admin_level >= ACCESS_MANAGING_EDITOR) {
+		else if(data.session.authentication.admin_level >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
 			pills.push({
 				name: 'reset_password',
 				title: ls.get('RESET_PASSWORD'),

@@ -609,7 +609,7 @@ module.exports = function SectionServiceModule(pb) {
         }
 
         var service = new pb.UserService();
-        service.hasAccessLevel(editor, ACCESS_EDITOR, function(err, hasAccess) {
+        service.hasAccessLevel(editor, pb.SecurityService.ACCESS_EDITOR, function(err, hasAccess) {
             if (!hasAccess) {
                 error = {field: 'editor', message: 'The editor is not valid'};
             }

@@ -87,7 +87,7 @@ module.exports = function PluginDependenciesJobModule(pb) {
 
                 self.log("Loading plugin details to extract dependencies from: %s", filePath);
                 pb.PluginService.loadDetailsFile(filePath, function(err, details) {
-                    var didLoad = pb.utils.isObject(details);
+                    var didLoad = util.isObject(details);
                     if (didLoad) {
                         dependencies = details.dependencies;
                     }

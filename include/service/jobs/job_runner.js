@@ -119,7 +119,7 @@ module.exports = function JobRunnerModule(pb) {
     JobRunner.prototype.init = function(name, jobId) {
 
         this.dao  = new pb.DAO();
-        this.id   = jobId || pb.utils.uniqueId().toString();
+        this.id   = jobId || util.uniqueId();
         this.name = name || this.id;
         return this;
     }
@@ -197,7 +197,7 @@ module.exports = function JobRunnerModule(pb) {
                 message: message,
                 metadata: meta
             };
-            this.dao.save(statement, pb.utils.cb);
+            this.dao.save(statement, util.cb);
             pb.log.debug.apply(pb.log, args);
         }
     };

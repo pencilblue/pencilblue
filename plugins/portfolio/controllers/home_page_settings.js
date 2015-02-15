@@ -99,7 +99,7 @@ HomePageSettings.getRoutes = function(cb) {
             method: 'get',
             path: '/admin/plugins/portfolio/settings/home_page',
             auth_required: true,
-            access_level: ACCESS_EDITOR,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
             content_type: 'text/html'
         }
     ];

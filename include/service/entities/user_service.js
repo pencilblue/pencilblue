@@ -122,16 +122,16 @@ module.exports = function UserServiceModule(pb) {
      */
     UserService.prototype.getAdminOptions = function(session, ls) {
         var adminOptions = [
-            {name: ls.get('READER'), value: ACCESS_USER},
-            {name: ls.get('WRITER'), value: ACCESS_WRITER},
-            {name: ls.get('EDITOR'), value: ACCESS_EDITOR}
+            {name: ls.get('READER'), value: pb.SecurityService.ACCESS_USER},
+            {name: ls.get('WRITER'), value: pb.SecurityService.ACCESS_WRITER},
+            {name: ls.get('EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}
         ];
 
-        if(session.authentication.user.admin >= ACCESS_MANAGING_EDITOR) {
-            adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: ACCESS_MANAGING_EDITOR});
+        if(session.authentication.user.admin >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
+            adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: pb.SecurityService.ACCESS_MANAGING_EDITOR});
         }
-        if(session.authentication.user.admin >= ACCESS_ADMINISTRATOR) {
-            adminOptions.push({name: ls.get('ADMINISTRATOR'), value: ACCESS_ADMINISTRATOR});
+        if(session.authentication.user.admin >= pb.SecurityService.ACCESS_ADMINISTRATOR) {
+            adminOptions.push({name: ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR});
         }
 
         return adminOptions;

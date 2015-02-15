@@ -60,7 +60,7 @@ SaveHomePageSettings.getRoutes = function(cb) {
             method: 'post',
             path: '/actions/admin/plugins/settings/portfolio/home_page',
             auth_required: true,
-            access_level: ACCESS_EDITOR,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
             content_type: 'text/html'
         }
     ];

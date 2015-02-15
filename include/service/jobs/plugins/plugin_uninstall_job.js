@@ -112,7 +112,7 @@ module.exports = function PluginUninstallJobModule(pb) {
                 }
 
                 var mm = pb.PluginService.getActiveMainModule(pluginUid);
-                if (pb.utils.isFunction(mm.onUninstall)) {
+                if (util.isFunction(mm.onUninstall)) {
                     self.log('Calling plugin onUnstall', pluginUid);
 
                     var d = domain.create();

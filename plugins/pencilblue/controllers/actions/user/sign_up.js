@@ -33,7 +33,7 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
 
 	post.position   = '';
     post.photo      = null;
-    post.admin      = ACCESS_USER;
+    post.admin      = pb.SecurityService.ACCESS_USER;
     post.username   = BaseController.sanitize(post.username);
     post.email      = BaseController.sanitize(post.email);
     post.first_name = BaseController.sanitize(post.first_name);

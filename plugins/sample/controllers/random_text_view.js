@@ -233,7 +233,7 @@ RandomTextViewController.getRoutes = function(cb) {
             
             //specifies the role that is required of the authenticated user.  
             //Defaults to no role
-	    	access_level: ACCESS_USER,
+	    	access_level: pb.SecurityService.ACCESS_USER,
             
             //specifies the specific persions that are required by users in 
             //order to access the resource.  The permissions are AND'ed 

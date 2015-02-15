@@ -81,22 +81,17 @@ module.exports = function CommandServiceModule(pb) {
     CommandService.prototype.init = function(cb) {
         pb.log.debug('CommandService: Initializing...');
 
-        //ensure a broker was found
-        if (!BrokerPrototype) {
-            cb(new Error('A valid CommandBroker must be provided in order to initialize the CommandService'));
-        }
-
         //instantiate the command broker
+        var self = this;
         this.broker.init(function(err, result) {
             if (util.isError(err)) {
                 return cb(err);
             }
 
-            this.broker.subscribe(pb.ServerRegistration.generateKey(), CommandService.onCommandReceived(this), cb);
+            self.broker.subscribe(pb.ServerRegistration.generateKey(), CommandService.onCommandReceived(this), cb);
         });
 
         //register for events
-        var self = this;
         pb.system.registerShutdownHook('CommandService', function(cb) {
             self.shutdown(cb);
         });

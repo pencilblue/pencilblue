@@ -252,7 +252,7 @@ module.exports = function AdminNavigationModule(pb) {
         });
         
         //add additions
-        keys.forEach(function(id) {
+        Object.keys(childrenAdditions).forEach(function(id) {
             var children = childrenAdditions[id];
 
             //find the nav that the children should be added to

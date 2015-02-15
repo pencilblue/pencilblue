@@ -74,7 +74,7 @@ module.exports = function RedisSessionStoreModule(pb) {
 
         //in seconds
         var millisFromNow = session.timeout - new Date().getTime();
-        var timeout       = Math.floor(millisFromNow / pb.utils.TIME.MILLIS_PER_SEC);
+        var timeout       = Math.floor(millisFromNow / util.TIME.MILLIS_PER_SEC);
         pb.cache.setex(sid, timeout, json, cb);
     };
 

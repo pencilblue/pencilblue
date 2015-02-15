@@ -120,14 +120,14 @@ module.exports = function LibrariesServiceModule(pb) {
      * @param {Function} cb Callback function
      */
     LibrariesService.prototype.getSettings = function(cb){
-        pb.settings.get(CONTENT_SETTINGS_REF, function(err, settings){
+        pb.settings.get(LIBRARIES_SETTINGS_REF, function(err, settings){
             if (settings) {
                 return cb(err, settings);
             }
 
             //set default settings if they don't exist
             settings = ContentService.getCDNDefaultSettings();
-            pb.settings.set(CONTENT_SETTINGS_REF, settings, function(err, result) {
+            pb.settings.set(LIBRARIES_SETTINGS_REF, settings, function(err, result) {
                 cb(err, settings);
             });
         });

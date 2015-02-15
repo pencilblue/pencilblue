@@ -991,6 +991,11 @@ module.exports = function PluginServiceModule(pb) {
                     }
                     if (result.error) {
                         pb.log.error('PluginService: The following error was produced while initializing the %s plugin: %s', result.plugin.name, result.error.stack);
+                        if (util.isArray(result.error.validationErrors)) {
+                            result.error.validationErrors.forEach(function(item) {
+                                pb.log.warn('PluginService: Plugin %s validation error: %s', result.plugin.uid, item.toString());
+                            });
+                        }
                     }
                 }
 
@@ -1107,6 +1112,10 @@ module.exports = function PluginServiceModule(pb) {
                      }
                  }
                  var mainModule = PluginService.loadMainModule(plugin.dirName, details.main_module.path);
+                 if (!mainModule) {
+                     return cb(new Error('Failed to load main module for plugin '+plugin.uid));
+                 }
+                 
                  ACTIVE_PLUGINS[details.uid] = {
                      main_module: mainModule,
                      public_dir: PluginService.getPublicPath(plugin.dirName),
@@ -1487,7 +1496,7 @@ module.exports = function PluginServiceModule(pb) {
         var mainModule = null;
         for (var i = 0; i < paths.length; i++) {
             try {
-                mainModule = require(paths[i]);
+                mainModule = require(paths[i])(pb);
                 break;
             }
             catch(e) {}
@@ -1955,7 +1964,7 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.loadService = function(pathToService, cb) {
         try {
             pb.log.debug("PluginService: Attempting to load service ["+pathToService+"]");
-            var service = require(pathToService);
+            var service = require(pathToService)(pb);
 
             pb.log.debug("PluginService: Initializing service ["+pathToService+"]");
             service.init(function(err, result) {

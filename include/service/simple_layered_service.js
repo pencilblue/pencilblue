@@ -151,7 +151,7 @@ module.exports = function SimpleLayeredServiceModule(pb) {
      * @param cb       Callback function
      */
     SimpleLayeredService.prototype.purge = function(key, cb){
-        var tasks = pb.utils.getTasks(this.services, function(services, i) {
+        var tasks = util.getTasks(this.services, function(services, i) {
             return function(callback) {
                 services[i].purge(key, callback);
             };

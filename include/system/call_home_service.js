@@ -89,7 +89,7 @@ module.exports = function CallHomeServiceModule(pb) {
      * @param {Object} data
      */
     CallHomeService.callHome = function(type, data) {
-        if (!pb.utils.isObject(data)) {
+        if (!util.isObject(data)) {
             data = {};
         }
 

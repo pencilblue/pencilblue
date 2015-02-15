@@ -85,7 +85,7 @@ module.exports = function RedisRegistrationProviderModule(pb) {
 
                 //do data transform
                 var statuses = [];
-                if (pb.utils.isObject(statusObj)) {
+                if (util.isObject(statusObj)) {
                     for (var key in statusObj) {
                         try {
                             var status = JSON.parse(statusObj[key]);
@@ -108,13 +108,13 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
      */
     RedisRegistrationProvider.prototype.set = function(id, status, cb) {
-        if (!pb.utils.isObject(status)) {
+        if (!util.isObject(status)) {
             cb(new Error('The status parameter must be a valid object'));
             return;
         }
 
         var key    = RedisRegistrationProvider.getKey(id);
-        var expiry = Math.floor(pb.config.registry.update_interval / pb.utils.TIME.MILLIS_PER_SEC);
+        var expiry = Math.floor(pb.config.registry.update_interval / util.TIME.MILLIS_PER_SEC);
         CLIENT.setex(key, expiry, JSON.stringify(status), cb);
     };
 

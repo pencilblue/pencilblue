@@ -32,7 +32,7 @@ ManageArticles.prototype.render = function(cb) {
 	var dao  = new pb.DAO();
 
 	var where = {};
-    if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: ACCESS_EDITOR})) {
+    if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: pb.SecurityService.ACCESS_EDITOR})) {
         where.author = this.session.authentication.user_id;
     }
 

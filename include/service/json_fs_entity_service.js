@@ -72,7 +72,7 @@ module.exports = function JSONFSEntityServiceModule(pb) {
      * @param {Function} cb    Callback function
      */
     JSONFSEntityService.prototype.set = function(key, value, cb) {
-        if (!pb.utils.isObject(value) && !util.isArray(value)) {
+        if (!util.isObject(value) && !util.isArray(value)) {
             cb(new PBError(this.type+": Value must be an array or object: "+util.inspect(value)), null);
         }
 

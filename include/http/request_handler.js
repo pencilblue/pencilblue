@@ -971,7 +971,10 @@ module.exports = function RequestHandlerModule(pb) {
             var result   = {success: true};
             var reqPerms = self.themeRoute.permissions;
             var auth     = self.session.authentication;
-            if (auth && auth.user && auth.access_level !== ACCESS_ADMINISTRATOR && auth.user.permissisions && util.isArray(reqPerms)) {
+            if (auth && auth.user && 
+                auth.access_level !== pb.SecurityService.ACCESS_ADMINISTRATOR && 
+                auth.user.permissisions && 
+                util.isArray(reqPerms)) {
 
                 var permMap = self.session.authentication.user.permissions;
                 for(var i = 0; i < reqPerms.length; i++) {

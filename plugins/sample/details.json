@@ -2,8 +2,8 @@
     "uid": "sample",
     "name": "Sample Plugin",
 	"description": "This is a sample description just to give an idea of what this field should contain.  Provide details about the overall goal of the plugin along with any details information",
-    "version": "0.0.1",
-    "pb_version": "0.4.*",
+    "version": "0.1.0",
+    "pb_version": ">=0.4.0",
 	"icon": "/imgs/sample.ico",
 	"author": {
 		"name": "John Doe",

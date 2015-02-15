@@ -162,7 +162,7 @@ module.exports = function PluginInstallJobModule(pb) {
             function(callback) {
                  self.log("Setting system install flags for %s", details.uid);
 
-                 var clone     = pb.utils.clone(details);
+                 var clone     = util.clone(details);
                  clone.dirName = pluginUid;
 
                  var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);

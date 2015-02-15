@@ -199,7 +199,7 @@ module.exports = function SessionModule(pb) {
             authentication: {
                 user_id: null,
                 permissions: [],
-                admin_level: ACCESS_USER
+                admin_level: pb.SecurityService.ACCESS_USER
             },
             ip: request.connection.remoteAddress,
             client_id: SessionHandler.getClientId(request)

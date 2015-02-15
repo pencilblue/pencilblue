@@ -21,6 +21,7 @@ var os      = require('os');
 var domain  = require('domain');
 var process = require('process');
 var async   = require('async');
+var util    = require('../util.js');
 
 module.exports = function ServerRegistrationModule(pb) {
     
@@ -90,7 +91,8 @@ module.exports = function ServerRegistrationModule(pb) {
         },
 
         active_plugins: function(cb) {
-            cb(null, pb.plugins.getActivePluginNames());
+            var pluginService = new pb.PluginService();
+            cb(null, pluginService.getActivePluginNames());
         },
 
         uptime: function(cb) {
@@ -149,19 +151,20 @@ module.exports = function ServerRegistrationModule(pb) {
          }
 
          //initialize the provider
-         this.provider.init(function(err, result) {
-             if (util.isError(err) || !result) {
-                 return cb(err, false);
-             }
+        var self = this;
+        this.provider.init(function(err, result) {
+            if (util.isError(err) || !result) {
+                return cb(err, false);
+            }
 
-             //do first update and schedule the rest
-             ServerRegistration.doRegistration();
-             this.timerHandle = setInterval(function() {
-                 ServerRegistration.doRegistration();
-             }, pb.config.registry.update_interval);
+            //do first update and schedule the rest
+            self.doRegistration();
+            this.timerHandle = setInterval(function() {
+                self.doRegistration();
+            }, pb.config.registry.update_interval);
 
-             cb(err, true);
-         });
+            cb(err, true);
+        });
     };
 
     /**
@@ -220,6 +223,7 @@ module.exports = function ServerRegistrationModule(pb) {
         }
 
         //create a function to execute when all items have been retrieved
+        var self = this;
         var onItemsGathered = function(err, update) {
             if (util.isError(err)) {
                 pb.log.error("ServerRegistration: Failed to gather all data for registration: %s", err.message);
@@ -231,7 +235,7 @@ module.exports = function ServerRegistrationModule(pb) {
             //perform the registration update
             update.id          = ServerRegistration.generateKey();
             update.last_update = new Date();
-            this.provider.set(update.id, update, function(err, result) {
+            self.provider.set(update.id, update, function(err, result) {
                 ServerRegistration.logUpdateResult(update.id, update, err, result);
                 cb(err, result);
             });
