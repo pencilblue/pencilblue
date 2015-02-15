@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
                 return;
             }
 
-           user.verification_code = pb.utils.uniqueId();
+           user.verification_code = util.uniqueId();
 
            dao.save(user, function(err, result) {
                 if(util.isError(result)) {
@@ -56,7 +56,7 @@ ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
 
                 self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
                 self.redirect('/user/verification_sent', cb);
-                pb.users.sendVerificationEmail(user, pb.utils.cb);
+                pb.users.sendVerificationEmail(user, util.cb);
             });
         });
     });

@@ -62,7 +62,7 @@ BaseMediaRenderer.renderSingleElementEmbed = function(elementName, srcUrl, attrs
  * @return {String}
  */
 BaseMediaRenderer.getAttributeStr = function(attr) {
-    if (!pb.utils.isObject(attr)) {
+    if (!util.isObject(attr)) {
         return null;
     }
     
@@ -81,7 +81,7 @@ BaseMediaRenderer.getAttributeStr = function(attr) {
  * @return {String}
  */
 BaseMediaRenderer.getStyleAttrStr = function(style) {
-    if (!pb.utils.isObject(style)) {
+    if (!util.isObject(style)) {
         return null;
     }
     else if (Object.keys(style).length === 0) {

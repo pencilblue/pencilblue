@@ -102,6 +102,7 @@ module.exports = function PB(config) {
     pb.JsonBodyParser      = BodyParsers.JsonBodyParser;
     pb.FormBodyParser      = BodyParsers.FormBodyParser;
     pb.BaseController      = require(path.join(config.docRoot, '/controllers/base_controller.js'))(pb);
+    pb.ViewController      = require(path.join(config.docRoot, '/controllers/view_controller.js'))(pb);
     pb.FormController      = require(path.join(config.docRoot, '/controllers/form_controller.js'))(pb);
     pb.DeleteController    = require(path.join(config.docRoot, '/controllers/delete_controller.js'))(pb);
     pb.ApiActionController = require(path.join(config.docRoot, '/controllers/api/api_action_controller.js'))(pb);
@@ -212,6 +213,7 @@ module.exports = function PB(config) {
     
     var ArticleServiceModule = require(path.join(config.docRoot, '/include/service/entities/article_service.js'))(pb);
     pb.ArticleService        = ArticleServiceModule.ArticleService;
+    pb.MediaLoader           = ArticleServiceModule.MediaLoader;
     
     return pb;
 }

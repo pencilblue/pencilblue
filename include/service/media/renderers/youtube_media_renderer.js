@@ -113,7 +113,7 @@ YouTubeMediaRenderer.isSupported = function(urlStr) {
  * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
  */
 YouTubeMediaRenderer.isFullSite = function(parsedUrl) {
-    if (pb.utils.isString(parsedUrl)) {
+    if (util.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
     return parsedUrl.host && parsedUrl.host.indexOf('youtube.com') >= 0 && parsedUrl.query.v;
@@ -129,7 +129,7 @@ YouTubeMediaRenderer.isFullSite = function(parsedUrl) {
  * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
  */
 YouTubeMediaRenderer.isBelgiumDomain = function(parsedUrl) {
-    if (pb.utils.isString(parsedUrl)) {
+    if (util.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
     return parsedUrl.host && parsedUrl.host.indexOf('youtu.be') >= 0 && parsedUrl.pathname.indexOf('/') >= 0;
@@ -200,7 +200,7 @@ YouTubeMediaRenderer.renderByUrl = function(urlStr, options, cb) {
  * formatted string
  */
 YouTubeMediaRenderer.render = function(media, options, cb) {
-    if (pb.utils.isFunction(options)) {
+    if (util.isFunction(options)) {
         cb = options;
         options = {};
     }

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -96,17 +96,17 @@ UploadMediaController.prototype.render = function(cb) {
  * @param {Function} cb
  */
 UploadMediaController.prototype.onDone = function(err, content, files, cb) {
-    if (pb.utils.isFunction(files)) {
+    if (util.isFunction(files)) {
         cb = files;
         files = null;
     }
-    if (!pb.utils.isObject(files)) {
+    if (!util.isObject(files)) {
         files = {};
     }
 
     //ensure all files are removed
     var self = this;
-    var tasks = pb.utils.getTasks(Object.keys(files), function(fileFields, i) {
+    var tasks = util.getTasks(Object.keys(files), function(fileFields, i) {
         return function(callback) {
             var fileDescriptor = files[fileFields[i]];
 

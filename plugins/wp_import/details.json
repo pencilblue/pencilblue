@@ -2,7 +2,8 @@
     "uid": "wp_import",
     "name": "WordPress Import",
 	"description": "Import a WordPress blog's content into PencilBlue.",
-    "version": "0.0.2",
+    "version": "0.2.0",
+    "pb_version": "0.4.x",
 	"author": {
         "name": "PencilBlue",
         "email": "info@pencilblue.org",

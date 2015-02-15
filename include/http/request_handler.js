@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -102,10 +102,14 @@ module.exports = function RequestHandlerModule(pb) {
 
             //register the route
             try {
-                RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
+                var result = RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
+                if (!result) {
+                    throw new Error();
+                }
             }
             catch(e) {
-                pb.log.error('RequestHandler: Failed to register PB route: %s %s \n%s', descriptor.method, descriptor.path, e.stack);
+                pb.log.error('RequestHandler: Failed to register PB route: %s %s', descriptor.method, descriptor.path);
+                pb.log.silly(e.stack);
             }
         });
     };
@@ -135,8 +139,8 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} descriptor.path The URL path
      */
     RequestHandler.isValidRoute = function(descriptor) {
-        return fs.existsSync(descriptor.controller) &&
-               typeof descriptor.path != 'undefined';
+        return fs.existsSync(descriptor.controller) && 
+            !util.isNullOrUndefined(descriptor.path);
     };
 
     /**
@@ -649,8 +653,7 @@ module.exports = function RequestHandlerModule(pb) {
             }
             //all good
             if (result.success) {
-                self.onSecurityChecksPassed(rt.theme, rt.method, route);
-                return;
+                return self.onSecurityChecksPassed(rt.theme, rt.method, route);
             }
 
             //handle failures through bypassing other processing and doing output

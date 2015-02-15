@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014  PencilBlue, LLC
+	Copyright (C) 2015  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ PermissionsMapController.prototype.render = function(cb) {
 	//setup angular
 	var roleDNMap   = pb.security.getRoleToDisplayNameMap(this.ls);
 	var roles       = Object.keys(roleDNMap);
-	var roleDNs     = Object.keys(pb.utils.invertHash(roleDNMap));
+	var roleDNs     = Object.keys(util.invertHash(roleDNMap));
 	var map         = {};
 	var rolePermMap = {};
 	for (var i = 0; i < roles.length; i++) {

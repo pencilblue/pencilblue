@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014  PencilBlue, LLC
+	Copyright (C) 2015  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ PluginSettingsFormController.prototype.renderGet = function(cb) {
 				return;
 			}
 
-			var clone = pb.utils.copyArray(settings);
+			var clone = util.copyArray(settings);
 			for (var i = 0; i < clone.length; i++) {
 				var item = clone[i];
 
@@ -104,7 +104,7 @@ PluginSettingsFormController.prototype.renderGet = function(cb) {
 				if (item.value === true || item.value === false) {
 					item.type = 'checkbox';
 				}
-				else if (pb.utils.isString(item.value)) {
+				else if (util.isString(item.value)) {
 					item.type = 'text';
 				}
 				else if (!isNaN()) {
@@ -270,7 +270,7 @@ PluginSettingsFormController.getValueInputType = function(value) {
 	if (value === true || value === false) {
 		type = 'checkbox';
 	}
-	else if (pb.utils.isString(value)) {
+	else if (util.isString(value)) {
 		type = 'text';
 	}
 	else if (!isNaN(value)) {
@@ -289,7 +289,7 @@ PluginSettingsFormController.getValueType = function(value) {
 	if (value === true || value === false) {
 		type = 'boolean';
 	}
-	else if (pb.utils.isString(value)) {
+	else if (util.isString(value)) {
 		type = 'string';
 	}
 	else if (!isNaN(value)) {
@@ -338,7 +338,7 @@ PluginSettingsFormController.formatValue = function(value, type) {
 			return false;
 		}
 
-		if (pb.utils.isString(value)) {
+		if (util.isString(value)) {
 			value = value.toLowerCase();
 			return value === 'true';
 		}

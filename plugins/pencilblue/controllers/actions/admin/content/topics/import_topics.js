@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ ImportTopics.prototype.saveTopics = function(topics, cb) {
 
     //create tasks
     var dao = new pb.DAO();
-    var tasks = pb.utils.getTasks(topics, function(topicArry, index) {
+    var tasks = util.getTasks(topics, function(topicArry, index) {
     	return function(callback) {
 
     		dao.count('topic', {name: topicArry[index].trim()}, function(err, count){

@@ -121,7 +121,7 @@ AudioMediaRenderer.getName = function() {
  * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
  */
 AudioMediaRenderer.isSupported = function(urlStr) {
-    var ext = pb.utils.getExtension(urlStr, {lower: true});
+    var ext = util.getExtension(urlStr, {lower: true});
     return SUPPORTED[ext] ? true : false;
 };
 
@@ -190,7 +190,7 @@ AudioMediaRenderer.renderByUrl = function(urlStr, options, cb) {
  * formatted string
  */
 AudioMediaRenderer.render = function(media, options, cb) {
-    if (pb.utils.isFunction(options)) {
+    if (util.isFunction(options)) {
         cb = options;
         options = {};
     }
@@ -199,7 +199,7 @@ AudioMediaRenderer.render = function(media, options, cb) {
     var mime = media.mime;
     if (!mime) {
         
-        var extension = SUPPORTED[pb.utils.getExtension(media.location, {lower: true})];
+        var extension = SUPPORTED[util.getExtension(media.location, {lower: true})];
         if (extension) {
             mime = extension.mime;
         }
@@ -253,8 +253,8 @@ AudioMediaRenderer.getMediaId = function(urlStr, cb) {
  * Object if meta was collected.  NULL if no meta was collected
  */
 AudioMediaRenderer.getMeta = function(urlStr, isFile, cb) {
-    var ext = pb.utils.getExtension(urlStr, {lower: true});
-    var meta = pb.utils.clone(SUPPORTED[ext]);
+    var ext = util.getExtension(urlStr, {lower: true});
+    var meta = util.clone(SUPPORTED[ext]);
     cb(null, meta);
 };
 

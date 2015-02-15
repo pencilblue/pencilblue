@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,33 +15,43 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for admin login
- */
+module.exports = function LoginViewControllerModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
 
-function Login(){}
+    /**
+     * Interface for admin login
+     * @class LoginViewController
+     * @constructor
+     * @extends BaseController
+     */
+    function LoginViewController(){}
+    util.inherits(LoginViewController, pb.BaseController);
 
-//inheritance
-util.inherits(Login, pb.BaseController);
+
+    /**
+     *
+     * @method render
+     */
+    LoginViewController.prototype.render = function(cb) {
 
 
-Login.prototype.render = function(cb) {
+        if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: pb.SecurityService.ACCESS_WRITER})) {
+            this.redirect('/admin', cb);
+            return;
+        }
+        else if(pb.security.isAuthenticated(this.session)) {
+            this.redirect('/', cb);
+            return;
+        }
 
+        this.setPageName(' ' + this.ls.get('LOGIN'));
+        this.templateService.load('admin/login',  function(err, data) {
+            cb({content: data});
+        });
+    };
 
-    if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: ACCESS_WRITER})) {
-        this.redirect('/admin', cb);
-        return;
-    }
-    else if(pb.security.isAuthenticated(this.session)) {
-        this.redirect('/', cb);
-        return;
-    }
-
-    this.setPageName(' ' + this.ls.get('LOGIN'));
-    this.templateService.load('admin/login',  function(err, data) {
-    	cb({content: data});
-    });
+    //exports
+    return LoginViewController;
 };
-
-//exports
-module.exports = Login;

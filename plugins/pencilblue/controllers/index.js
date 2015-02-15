@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ Index.prototype.render = function(cb) {
                     }
                 });
                 self.ts.registerLocal('articles', function(flag, cb) {
-                    var tasks = pb.utils.getTasks(data.content, function(content, i) {
+                    var tasks = util.getTasks(data.content, function(content, i) {
                         return function(callback) {
                             if (i >= contentSettings.articles_per_page) {//TODO, limit articles in query, not through hackery
                                 callback(null, '');
@@ -322,7 +322,7 @@ Index.prototype.renderComments = function(content, ts, cb) {
             return;
         }
 
-        var tasks = pb.utils.getTasks(content.comments, function(comments, i) {
+        var tasks = util.getTasks(content.comments, function(comments, i) {
             return function(callback) {
                 self.renderComment(comments[i], callback);
             };

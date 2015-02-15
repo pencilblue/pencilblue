@@ -113,7 +113,7 @@ InstagramMediaRenderer.isSupported = function(urlStr) {
  * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
  */
 InstagramMediaRenderer.isFullSite = function(parsedUrl) {
-    if (pb.utils.isString(parsedUrl)) {
+    if (util.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
     return parsedUrl.host && parsedUrl.host.indexOf('instagram.com') >= 0 && parsedUrl.pathname.indexOf('/p/') === 0;
@@ -184,7 +184,7 @@ InstagramMediaRenderer.renderByUrl = function(urlStr, options, cb) {
  * formatted string
  */
 InstagramMediaRenderer.render = function(media, options, cb) {
-    if (pb.utils.isFunction(options)) {
+    if (util.isFunction(options)) {
         cb = options;
         options = {};
     }

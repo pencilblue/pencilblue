@@ -113,7 +113,7 @@ TrinketMediaRenderer.isSupported = function(urlStr) {
  * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
  */
 TrinketMediaRenderer.isFullSite = function(parsedUrl) {
-    if (pb.utils.isString(parsedUrl)) {
+    if (util.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
     return parsedUrl.host && parsedUrl.host.indexOf('trinket.io') >= 0 && (parsedUrl.pathname.indexOf('/python/') === 0 || parsedUrl.pathname.indexOf('/embed/') === 0 || parsedUrl.pathname.indexOf('/library/trinkets/') === 0);
@@ -184,7 +184,7 @@ TrinketMediaRenderer.renderByUrl = function(urlStr, options, cb) {
  * formatted string
  */
 TrinketMediaRenderer.render = function(media, options, cb) {
-    if (pb.utils.isFunction(options)) {
+    if (util.isFunction(options)) {
         cb = options;
         options = {};
     }

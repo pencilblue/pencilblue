@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ GetArticles.prototype.processArticles = function(articles, cb) {
     contentService.getSettings(function(err, contentSettings) {
 
         var cnt   = 0;
-        var tasks = pb.utils.getTasks(articles, function(content, i) {
+        var tasks = util.getTasks(articles, function(content, i) {
             return function(callback) {
                 if (i < self.offset || i >= (self.offset + self.limit)) {//TODO, limit articles in query, not through hackery
                     callback(null, '');

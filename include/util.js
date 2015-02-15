@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -191,14 +191,17 @@ Util.forEach = function(iterable, handler) {
     
     var internalHandler = handler;
     var internalIterable = iterable;
-    if (Util.isObject(iterable)) {
+    if (Util.isArray(iterable)) {
+        //no-op but we have to type check here first because an array is an object
+    }
+    else if (Util.isObject(iterable)) {
         
         internalIterable = Object.getOwnPropertyNames(iterable);
         internalHandler = function(propName, i) {
             handler(iterable[propName], i, iterable, propName);
         };
     }
-    else if (!Util.isArray(iterable)){
+    else {
         return false;
     };
     

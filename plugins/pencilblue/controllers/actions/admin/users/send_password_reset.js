@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
                 passwordReset = pb.DocumentCreator.create('password_reset', {user_id: user[pb.DAO.getIdField()].toString()});
             }
 
-            passwordReset.verification_code = pb.utils.uniqueId().toString();
+            passwordReset.verification_code = util.uniqueId().toString();
 
             dao.save(passwordReset, function(err, result) {
                 if(util.isError(err)) {

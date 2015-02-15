@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
         	collection      = 'unverified_user';
         	successRedirect = '/user/verification_sent';
         	successMsg      = self.ls.get('VERIFICATION_SENT') + post.email;
-        	post.verification_code = pb.utils.uniqueId();
+        	post.verification_code = util.uniqueId();
         }
 
         var user = pb.DocumentCreator.create(collection, post);
@@ -92,7 +92,7 @@ SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
 
                 //send email for verification when required
                 if (contentSettings.require_verification) {
-                	pb.users.sendVerificationEmail(user, pb.utils.cb);
+                	pb.users.sendVerificationEmail(user, util.cb);
                 }
             });
         });

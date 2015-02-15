@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ SortObjects.prototype.render = function(cb) {
         if(util.isError(err) || objectType === null) {
             return self.reqHandler.serveError(err);
         }
-        else if (!pb.utils.isObject(objectType)) {
+        else if (!util.isObject(objectType)) {
             return self.reqHandler.serve404();
         }
 

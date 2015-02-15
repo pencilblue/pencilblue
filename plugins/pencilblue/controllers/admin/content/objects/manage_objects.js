@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ ManageObjects.prototype.render = function(cb) {
         if (util.isError(err)) {
             return self.serveError(err);
         }
-        else if (!pb.utils.isObject(custObjType)) {
+        else if (!util.isObject(custObjType)) {
             return self.reqHandler.serve404();
         }
 

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ ArticleFeed.prototype.render = function(cb) {
 
 
 
-                        var tasks = pb.utils.getTasks(articles, function(articles, i) {
+                        var tasks = util.getTasks(articles, function(articles, i) {
                             return function(callback) {
 
                                 self.ts.registerLocal('url', '/article/' + articles[i].url);
@@ -153,7 +153,7 @@ ArticleFeed.prototype.getSectionNames = function(articles, cb) {
 
 ArticleFeed.prototype.getMedia = function(articles, cb) {
 
-    var tasks = pb.utils.getTasks(articles, function(articles, i) {
+    var tasks = util.getTasks(articles, function(articles, i) {
     	return function (callback) {
 
     		var mediaLoader = new MediaLoader();

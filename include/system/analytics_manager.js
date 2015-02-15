@@ -122,6 +122,21 @@ module.exports = function AnalyticsManagerModule(pb) {
         PROVIDER_HOOKS[name] = onPageRendering;
         return true;
     };
+    
+    /**
+     * Unregisters an analytics provider
+     * @static
+     * @method unregisterProvider
+     * @param {String} name
+     * @return {Boolean} TRUE if was unregistered, FALSE if not found
+     */
+    AnalyticsManager.unregisterProvider = function(name) {
+        if (!AnalyticsManager.isRegistered(name)) {
+            return false;
+        }
+        delete PROVIDER_HOOKS[name];
+        return true;
+    };
 
     /**
      * Indicates if an analytics provider with the specified name has already 
@@ -132,7 +147,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @return {Boolean} TRUE when the provider is registered, FALSE if not
      */
     AnalyticsManager.isRegistered = function(name) {
-        return PROVIDER_HOOKS[name] !== undefined;
+        return !util.isNullOrUndefined(PROVIDER_HOOKS[name]);
     };
 
     /**

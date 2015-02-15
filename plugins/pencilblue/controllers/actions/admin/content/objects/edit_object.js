@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ EditObject.prototype.render = function(cb) {
 
     var service = new pb.CustomObjectService();
     service.loadById(vars.id, function(err, custObj) {
-        if(util.isError(err) || !pb.utils.isObject(custObj)) {
+        if(util.isError(err) || !util.isObject(custObj)) {
             cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
@@ -50,7 +50,7 @@ EditObject.prototype.render = function(cb) {
 
         //load the type definition
         service.loadTypeById(vars.type_id, function(err, custObjType) {
-            if(util.isError(err) || !pb.utils.isObject(custObjType)) {
+            if(util.isError(err) || !util.isObject(custObjType)) {
                 cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
@@ -63,7 +63,7 @@ EditObject.prototype.render = function(cb) {
             //format post fields
             var post = self.body;
             pb.CustomObjectService.formatRawForType(post, custObjType);
-            pb.utils.deepMerge(post, custObj);
+            util.deepMerge(post, custObj);
 
             //validate and persist
             service.save(custObj, custObjType, function(err, result) {

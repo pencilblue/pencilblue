@@ -114,7 +114,7 @@ SlideShareMediaRenderer.isSupported = function(urlStr) {
  * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
  */
 SlideShareMediaRenderer.isFullSite = function(parsedUrl) {
-    if (pb.utils.isString(parsedUrl)) {
+    if (util.isString(parsedUrl)) {
         parsedUrl = url.parse(urlStr, true, true);
     }
     return parsedUrl.host && (parsedUrl.host.indexOf('slideshare.com') >= 0 || parsedUrl.host.indexOf('slideshare.net') >= 0) && parsedUrl.pathname.indexOf('/') >= 0;
@@ -185,7 +185,7 @@ SlideShareMediaRenderer.renderByUrl = function(urlStr, options, cb) {
  * formatted string
  */
 SlideShareMediaRenderer.render = function(media, options, cb) {
-    if (pb.utils.isFunction(options)) {
+    if (util.isFunction(options)) {
         cb = options;
         options = {};
     }

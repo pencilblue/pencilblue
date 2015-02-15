@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -220,7 +220,7 @@ PluginApiController.prototype.set_theme = function(uid, cb) {
 		}
 
 		//plugin wasn't found & has theme
-		if (uid !== RequestHandler.DEFAULT_THEME && (!plugin || !pb.utils.isObject(plugin.theme))) {
+		if (uid !== RequestHandler.DEFAULT_THEME && (!plugin || !util.isObject(plugin.theme))) {
 			self.reqHandler.serve404();
 			return;
 		}

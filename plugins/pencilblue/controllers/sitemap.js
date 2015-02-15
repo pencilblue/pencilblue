@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ SiteMap.prototype.render = function(cb) {
                 path: '/article/'
             }
         };
-    	var tasks = pb.utils.getTasks(Object.keys(descriptors), function(keys, i) {
+    	var tasks = util.getTasks(Object.keys(descriptors), function(keys, i) {
             return function(callback) {
                 var data = descriptors[keys[i]];
                 data.select = {url: 1, last_modified: 1};
@@ -84,7 +84,7 @@ SiteMap.prototype.processObjects = function(objArray, urlPrefix, priority, cb) {
 	ts.registerLocal('priority', priority);
 
 
-	var tasks = pb.utils.getTasks(objArray, function(objArray, i) {
+	var tasks = util.getTasks(objArray, function(objArray, i) {
 		return function(callback) {
 
 			var url;

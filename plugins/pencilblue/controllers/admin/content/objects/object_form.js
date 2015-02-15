@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -155,7 +155,7 @@ ObjectFormController.prototype.loadFieldOptions = function(service, objectType, 
         });
     };
 
-    var tasks = pb.utils.getTasks(keys, function(keys, i) {
+    var tasks = util.getTasks(keys, function(keys, i) {
         return function(callback) {
             
             //only proceed for peer or child object types

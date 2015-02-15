@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,65 +15,67 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function WPImportForm() {}
+module.exports = function WPImportViewControllerModule(pb) {
 
-//dependencies
-var PluginService = pb.PluginService;
+    //pb dependencies
+    var util          = pb.util;
+    var PluginService = pb.PluginService;
 
-//inheritance
-util.inherits(WPImportForm, pb.BaseController);
+    function WPImportViewController() {}
+    util.inherits(WPImportViewController, pb.BaseController);
 
-WPImportForm.prototype.render = function(cb) {
-    var self = this;
+    WPImportViewController.prototype.render = function(cb) {
+        var self = this;
 
-    var tabs = [
+        var tabs = [
+            {
+                active: 'active',
+                href: '#import',
+                icon: 'upload',
+                title: self.ls.get('UPLOAD_XML')
+            }
+        ];
+
+        var pills = [
         {
-            active: 'active',
-            href: '#import',
-            icon: 'upload',
-            title: self.ls.get('UPLOAD_XML')
-        }
-    ];
+            name: 'content_settings',
+            title: self.ls.get('IMPORT_WORDPRESS'),
+            icon: 'chevron-left',
+            href: '/admin/plugins/wp_import/settings'
+        }];
 
-    var pills = [
-    {
-        name: 'content_settings',
-        title: self.ls.get('IMPORT_WORDPRESS'),
-        icon: 'chevron-left',
-        href: '/admin/plugins/wp_import/settings'
-    }];
+        var objects = {
+            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+            pills: pills,
+            tabs: tabs
+        };
 
-    var objects = {
-        navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-        pills: pills,
-        tabs: tabs
+        this.setPageName(this.ls.get('IMPORT_WORDPRESS'));
+        var angularObjects = pb.js.getAngularObjects(objects);
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('/admin/plugins/settings/wp_import/import', function(err, result) {
+            var content = {
+                content: result,
+                content_type: "text/html",
+                code: 200
+            };
+            cb(content);
+        });
     };
 
-    this.setPageName(this.ls.get('IMPORT_WORDPRESS'));
-    var angularObjects = pb.js.getAngularObjects(objects);
-    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-    self.ts.load('/admin/plugins/settings/wp_import/import', function(err, result) {
-        var content = {
-            content: result,
-            content_type: "text/html",
-            code: 200
-        };
-        cb(content);
-    });
-};
+    WPImportViewController.getRoutes = function(cb) {
+        var routes = [
+            {
+                method: 'get',
+                path: '/admin/plugins/wp_import/settings/import',
+                auth_required: true,
+                access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
+                content_type: 'text/html'
+            }
+        ];
+        cb(null, routes);
+    };
 
-WPImportForm.getRoutes = function(cb) {
-    var routes = [
-        {
-            method: 'get',
-            path: '/admin/plugins/wp_import/settings/import',
-            auth_required: true,
-            access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
-            content_type: 'text/html'
-        }
-    ];
-    cb(null, routes);
+    //exports
+    return WPImportViewController;
 };
-
-//exports
-module.exports = WPImportForm;

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ ContentSearchController.prototype.render = function(cb) {
 	}
 
 	//build query & get results
-    var patternStr = ".*" + pb.utils.escapeRegExp(search) + ".*";
+    var patternStr = ".*" + util.escapeRegExp(search) + ".*";
 	var pattern = new RegExp(patternStr, "i");
     var opts = {
         select: {

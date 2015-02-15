@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ ForgotPasswordController.prototype.onPostParamsRetrieved = function(post, cb) {
                 if(!passwordReset) {
                     passwordReset = pb.DocumentCreator.create('password_reset', {user_id: userIdStr});
                 }
-                passwordReset.verification_code = pb.utils.uniqueId().toString();
+                passwordReset.verification_code = util.uniqueId().toString();
 
                 //persist reset entry
                 dao.save(passwordReset, function(err, result) {
@@ -91,7 +91,7 @@ ForgotPasswordController.prototype.onPostParamsRetrieved = function(post, cb) {
 
                     self.session.success = self.ls.get('YOUR_PASSWORD_RESET');
                     self.redirect(returnURL, cb);
-                    pb.users.sendPasswordResetEmail(user, passwordReset, pb.utils.cb);
+                    pb.users.sendPasswordResetEmail(user, passwordReset, util.cb);
                 });
             });
         });

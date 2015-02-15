@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,90 +15,92 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function WPManageUsers() {}
+module.exports = function WPManageUsersViewControllerModule(pb) {
+    
+    //pb dependencies
+    var util          = pb.util;
+    var PluginService = pb.PluginService;
 
-//dependencies
-var PluginService = pb.PluginService;
+    function WPManageUsersViewController() {}
+    util.inherits(WPManageUsersViewController, pb.BaseController);
 
-//inheritance
-util.inherits(WPManageUsers, pb.BaseController);
+    WPManageUsersViewController.prototype.render = function(cb) {
+        var self = this;
 
-WPManageUsers.prototype.render = function(cb) {
-    var self = this;
-
-    if(!self.session.importedUsers) {
-        this.redirect('/admin/plugins/wp_import/settings/import', cb);
-        return;
-    }
-    else if(!self.session.importedUsers.length) {
-        this.redirect('/admin/plugins/wp_import/settings/import', cb);
-        return;
-    }
-
-    var newUsers = false;
-    for(var i = 0; i < self.session.importedUsers.length; i++) {
-        if(self.session.importedUsers[i].generatedPassword) {
-            newUsers = true;
-            break;
+        if(!self.session.importedUsers) {
+            this.redirect('/admin/plugins/wp_import/settings/import', cb);
+            return;
         }
-    }
-    if(!newUsers) {
-        this.redirect('/admin/plugins/wp_import/settings/import', cb);
-        return;
-    }
+        else if(!self.session.importedUsers.length) {
+            this.redirect('/admin/plugins/wp_import/settings/import', cb);
+            return;
+        }
+
+        var newUsers = false;
+        for(var i = 0; i < self.session.importedUsers.length; i++) {
+            if(self.session.importedUsers[i].generatedPassword) {
+                newUsers = true;
+                break;
+            }
+        }
+        if(!newUsers) {
+            this.redirect('/admin/plugins/wp_import/settings/import', cb);
+            return;
+        }
 
 
-    var tabs = [
+        var tabs = [
+            {
+                active: 'active',
+                href: '#users',
+                icon: 'users',
+                title: self.ls.get('USERS')
+            }
+        ];
+
+        var pills = [
         {
-            active: 'active',
-            href: '#users',
-            icon: 'users',
-            title: self.ls.get('USERS')
-        }
-    ];
+            name: 'content_settings',
+            title: self.ls.get('MANAGE_NEW_USERS'),
+            icon: 'chevron-left',
+            href: '/admin/plugins/wp_import/settings'
+        }];
 
-    var pills = [
-    {
-        name: 'content_settings',
-        title: self.ls.get('MANAGE_NEW_USERS'),
-        icon: 'chevron-left',
-        href: '/admin/plugins/wp_import/settings'
-    }];
+        var objects = {
+            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+            pills: pills,
+            tabs: tabs,
+            users: self.session.importedUsers,
+            adminOptions: pb.users.getAdminOptions(self.session, self.localizationService)
+        };
 
-    var objects = {
-        navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-        pills: pills,
-        tabs: tabs,
-        users: self.session.importedUsers,
-        adminOptions: pb.users.getAdminOptions(self.session, self.localizationService)
+        this.setPageName(this.ls.get('IMPORT_WORDPRESS'));
+        var angularObjects = pb.js.getAngularObjects(objects);
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('/admin/plugins/settings/wp_import/manage_new_users', function(err, result) {
+
+            var content = {
+                content: result,
+                content_type: "text/html",
+                code: 200
+            };
+            cb(content);
+        });
     };
 
-    this.setPageName(this.ls.get('IMPORT_WORDPRESS'));
-    var angularObjects = pb.js.getAngularObjects(objects);
-    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-    self.ts.load('/admin/plugins/settings/wp_import/manage_new_users', function(err, result) {
+    WPManageUsersViewController.getRoutes = function(cb) {
+        var routes = [
+            {
+                method: 'get',
+                path: '/admin/plugins/wp_import/settings/manage_new_users',
+                auth_required: true,
+                access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
+                content_type: 'text/html'
+            }
+        ];
+        cb(null, routes);
+    };
 
-        var content = {
-            content: result,
-            content_type: "text/html",
-            code: 200
-        };
-        cb(content);
-    });
+    //exports
+    return WPManageUsersViewController;
 };
-
-WPManageUsers.getRoutes = function(cb) {
-    var routes = [
-        {
-            method: 'get',
-            path: '/admin/plugins/wp_import/settings/manage_new_users',
-            auth_required: true,
-            access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
-            content_type: 'text/html'
-        }
-    ];
-    cb(null, routes);
-};
-
-//exports
-module.exports = WPManageUsers;

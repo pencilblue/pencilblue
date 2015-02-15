@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,54 +15,63 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Authenticates a user
- */
+module.exports = function LoginActionControllerModule(pb) {
+    
+    //dependencies
+    var util               = pb.util;
+    var FormController     = pb.FormController;
+    var FormAuthentication = pb.FormAuthentication;
 
-function Login(){}
+    /**
+     * Authenticates a user
+     * @class LoginActionController
+     * @constructor
+     * @extends FormController
+     */
+    function LoginActionController(){}
+    util.inherits(LoginActionController, FormController);
 
-//dependencies
-var FormController     = pb.FormController;
-var FormAuthentication = pb.FormAuthentication;
+    /**
+     * 
+     * @method onPostParamsRetrieved
+     * @param {Object} post
+     * @param {Function} cb
+     */
+    LoginActionController.prototype.onPostParamsRetrieved = function(post, cb) {
+        var self         = this;
+        var adminAttempt = this.query.admin_attempt ? true : false;
 
-//inheritance
-util.inherits(Login, FormController);
+        var options = post;
+        options.access_level = adminAttempt ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_USER;
+        pb.security.authenticateSession(this.session, options, new FormAuthentication(), function(err, user) {
+            if(util.isError(err) || user === null)  {
+                self.loginError(adminAttempt, cb);
+                return;
+            }
 
+            //redirect
+            var location = '/';
+            if (self.session.on_login !== undefined) {
+                location = self.session.on_login;
+                delete self.session.on_login;
+            }
+            else if(adminAttempt) {
+                location = '/admin';
+            }
+            self.redirect(location, cb);
+        });
+    };
 
-Login.prototype.onPostParamsRetrieved = function(post, cb) {
-	var self         = this;
-    var adminAttempt = this.query.admin_attempt ? true : false;
-
-    var options = post;
-    options.access_level = adminAttempt ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_USER;
-    pb.security.authenticateSession(this.session, options, new FormAuthentication(), function(err, user) {
-    	if(util.isError(err) || user === null)  {
-            self.loginError(adminAttempt, cb);
+    LoginActionController.prototype.loginError = function(adminAttempt, cb) {
+        this.session.error = this.ls.get('INVALID_LOGIN');
+        if(adminAttempt){
+            this.redirect('/admin/login', cb);
             return;
         }
 
-    	//redirect
-        var location = '/';
-        if (self.session.on_login !== undefined) {
-        	location = self.session.on_login;
-        	delete self.session.on_login;
-        }
-        else if(adminAttempt) {
-            location = '/admin';
-        }
-        self.redirect(location, cb);
-    });
+        this.redirect('/user/login', cb);
+    };
+
+    //exports
+    return LoginActionController;
 };
-
-Login.prototype.loginError = function(adminAttempt, cb) {
-    this.session.error = this.ls.get('INVALID_LOGIN');
-    if(adminAttempt){
-        this.redirect('/admin/login', cb);
-        return;
-    }
-
-    this.redirect('/user/login', cb);
-};
-
-//exports
-module.exports = Login;

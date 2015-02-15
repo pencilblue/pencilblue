@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ EditNavItem.prototype.render = function(cb){
     this.getJSONPostParams(function(err, post) {
         //load object
         dao.loadById(vars.id, 'section', function(err, navItem) {
-            if(util.isError(err) || !pb.utils.isObject(navItem)) {
+            if(util.isError(err) || !util.isObject(navItem)) {
                 cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))

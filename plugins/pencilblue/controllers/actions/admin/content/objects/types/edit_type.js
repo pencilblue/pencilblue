@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ EditObjectType.prototype.render = function(cb) {
 
     var service = new pb.CustomObjectService();
     service.loadTypeById(vars.id, function(err, custObjType) {
-        if(util.isError(err) || !pb.utils.isObject(custObjType)) {
+        if(util.isError(err) || !util.isObject(custObjType)) {
             cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))

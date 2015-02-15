@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,26 +15,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for logging in
- */
+module.exports = function LoginViewControllerModule(pb) {
 
-function Login(){}
-
-//inheritance
-util.inherits(Login, pb.BaseController);
-
-Login.prototype.render = function(cb) {
-    if(pb.security.isAuthenticated(this.session)) {
-        this.redirect('/', cb);
-        return;
-    }
+    //pb dependencies
+    var util           = pb.util;
+    var ViewController = pb.ViewController;
     
-	this.setPageName(this.ls.get('LOGIN'));
-	this.ts.load('user/login', function(err, data) {
-        cb({content: data});
-    });
-};
+    /**
+     * Interface for logging in
+     * @class LoginViewController
+     * @constructor
+     * @extends ViewController
+     */
+    function LoginViewController(){}
+    util.inherits(LoginViewController, ViewController);
 
-//exports
-module.exports = Login;
+    LoginViewController.prototype.login = function(cb) {
+        if(pb.security.isAuthenticated(this.session)) {
+            this.redirect('/', cb);
+            return;
+        }
+
+        this.setPageName(this.ls.get('LOGIN'));
+        this.render('user/login', cb);
+    };
+
+    //exports
+    return LoginViewController;
+};

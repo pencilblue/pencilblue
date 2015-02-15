@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014  PencilBlue, LLC
+	Copyright (C) 2015  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ ManageThemes.prototype.render = function(cb) {
 			}
 
 			//add default pencil blue theme
-			var options = pb.utils.copyArray(themes);
+			var options = util.copyArray(themes);
 			options.push({
 				uid: 'pencilblue',
 				name: 'PencilBlue'
