@@ -163,10 +163,47 @@ Util.getTasks = function (iterable, getTaskFunction) {
 	return tasks;
 };
 
+/**
+ * Wraps a function in an anonymous function.  The wrapper function will call 
+ * the wrapped function with the provided context.  This comes in handy when 
+ * creating your own task arrays in conjunction with the async function when a 
+ * prototype function needs to be called with a specific context.
+ * @static
+ * @method wrapTask
+ * @return {Function}
+ */
 Util.wrapTask = function(context, func) {
     return function(callback) {
         func.call(context, callback);
     };
+};
+
+/**
+ * Provides an implementation of for each that accepts an array or object.
+ * @static
+ * @method forEach
+ * @param {Object|Array} iterable
+ * @param {Function} handler A function that accepts 4 parameters.  The value 
+ * of the current property or index.  The current index.  The iterable.  
+ * Finally, the property name if the iterable is an object.
+ */
+Util.forEach = function(iterable, handler) {
+    
+    var internalHandler = handler;
+    var internalIterable = iterable;
+    if (Util.isObject(iterable)) {
+        
+        internalIterable = Object.getOwnPropertyNames(iterable);
+        internalHandler = function(propName, i) {
+            handler(iterable[propName], i, iterable, propName);
+        };
+    }
+    else if (!Util.isArray(iterable)){
+        return false;
+    };
+    
+    //execute native foreach on interable
+    internalIterable.forEach(internalHandler);
 };
 
 /**

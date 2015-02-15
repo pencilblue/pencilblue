@@ -98,8 +98,7 @@ module.exports = function RequestHandlerModule(pb) {
 
         //iterate core routes adding them
         pb.log.debug('RequestHandler: Registering System Routes');
-        for (var i = 0; i < RequestHandler.CORE_ROUTES.length; i++) {
-            var descriptor = RequestHandler.CORE_ROUTES[i];
+        util.forEach(RequestHandler.CORE_ROUTES, function(descriptor) {
 
             //register the route
             try {
@@ -108,7 +107,7 @@ module.exports = function RequestHandlerModule(pb) {
             catch(e) {
                 pb.log.error('RequestHandler: Failed to register PB route: %s %s \n%s', descriptor.method, descriptor.path, e.stack);
             }
-        }
+        });
     };
 
     /**
@@ -676,7 +675,7 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //execute controller
-        var ControllerType  = route.themes[activeTheme][method].controller;console.log(ControllerType);
+        var ControllerType  = route.themes[activeTheme][method].controller;
         var cInstance       = new ControllerType();
         this.doRender(pathVars, cInstance, route.themes[activeTheme][method]);
     };

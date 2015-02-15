@@ -122,7 +122,7 @@ ImageMediaRenderer.getName = function() {
  * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
  */
 ImageMediaRenderer.isSupported = function(urlStr) {
-    var ext = pb.utils.getExtension(urlStr, {lower: true});console.log('EXT==='+ext);
+    var ext = pb.utils.getExtension(urlStr, {lower: true});
     return SUPPORTED[ext] ? true : false;
 };
 

@@ -278,7 +278,7 @@ function addLayoutMedia(wysId)
     });
     
     if(mediaOptionsChecked >= $('#layout_media_options input').length) {
-        var mediaFormat = getMediaFormat(wysId);console.log('MF='+mediaFormat);
+        var mediaFormat = getMediaFormat(wysId);
 
         for(var i = 0; i < associatedMedia.length; i++) {
             toolbarAction(wysId, 'inserthtml', '<div>^media_display_' + associatedMedia[i] + mediaFormat + '^</div>');
@@ -320,7 +320,7 @@ function loadLayoutMediaPreviews(wysId)
     {
         if(result.code === 0)
         {
-            var mediaPreview = result.data;console.log('MediaTag='+mediaTag);
+            var mediaPreview = result.data;
 
             layout = layout.split('^' + mediaTag + '^').join(mediaPreview);
             $('#wysiwyg_' + wysId + ' .layout_editable').html(layout);
