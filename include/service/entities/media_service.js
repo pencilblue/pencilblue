@@ -312,7 +312,7 @@ module.exports = function MediaServiceModule(pb) {
      * @param {Function} cb        Callback function
      */
     MediaService.prototype.isValidFilePath = function(mediaPath, cb) {
-        var absolutePath = path.join(DOCUMENT_ROOT, 'public', mediaPath);
+        var absolutePath = path.join(pb.config.docRoot, 'public', mediaPath);
         fs.exists(absolutePath, function(exists) {
             cb(null, exists);
         });
@@ -877,7 +877,7 @@ module.exports = function MediaServiceModule(pb) {
         }
         
         var instance = null;
-        var paths = [path.join(DOCUMENT_ROOT, pb.config.media.provider), pb.config.media.provider];
+        var paths = [path.join(pb.config.docRoot, pb.config.media.provider), pb.config.media.provider];
         for(var i = 0; i < paths.length; i++) {
             try{
                 var ProviderType = require(paths[i])(pb);

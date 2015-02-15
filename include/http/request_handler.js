@@ -269,7 +269,7 @@ module.exports = function RequestHandlerModule(pb) {
             routeDescriptor.themes[theme] = {};
         }
         routeDescriptor.themes[theme][descriptor.method]            = descriptor;
-        routeDescriptor.themes[theme][descriptor.method].controller = require(descriptor.controller);
+        routeDescriptor.themes[theme][descriptor.method].controller = require(descriptor.controller)(pb);
 
         pb.log.debug("RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]", theme, descriptor.method, descriptor.path, pattern);
         return true;
@@ -389,8 +389,8 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.prototype.servePublicContent = function(absolutePath) {
 
         //check for provided path, then default if necessary
-        if (absolutePath === undefined) {
-            absolutePath = path.join(DOCUMENT_ROOT, 'public', this.url.pathname);
+        if (util.isNullOrUndefined(absolutePath)) {
+            absolutePath = path.join(pb.config.docRoot, 'public', this.url.pathname);
         }
 
         var self = this;
@@ -470,7 +470,7 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.prototype.serve404 = function() {
 
-        var NotFound  = require(path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', '/controllers/error/404.js'));
+        var NotFound  = require(path.join(pb.config.docRoot, 'plugins', 'pencilblue', '/controllers/error/404.js'));
         var cInstance = new NotFound();
         this.doRender({}, cInstance, {});
 
@@ -676,7 +676,7 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //execute controller
-        var ControllerType  = route.themes[activeTheme][method].controller;
+        var ControllerType  = route.themes[activeTheme][method].controller;console.log(ControllerType);
         var cInstance       = new ControllerType();
         this.doRender(pathVars, cInstance, route.themes[activeTheme][method]);
     };

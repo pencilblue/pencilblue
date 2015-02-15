@@ -18,9 +18,9 @@
 //dependencies
 var path           = require('path');
 var async          = require('async');
-var TopMenu        = require(path.join(DOCUMENT_ROOT, '/include/theme/top_menu'));
-var Comments       = require(path.join(DOCUMENT_ROOT, '/include/theme/comments'));
-var ArticleService = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).ArticleService;
+var TopMenu        = require(path.join(pb.config.docRoot, '/include/theme/top_menu'));
+var Comments       = require(path.join(pb.config.docRoot, '/include/theme/comments'));
+var ArticleService = require(path.join(pb.config.docRoot, '/include/service/entities/article_service')).ArticleService;
 
 /**
  * Index page of the pencilblue theme

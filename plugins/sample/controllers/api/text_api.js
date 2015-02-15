@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,156 +15,158 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//dependencies
-var PluginService  = pb.PluginService;
-var TextService    = pb.plugins.getService('textService', 'sample');
+module.exports = function TextApiControllerModule(pb) {
 
-/**
- * TextApiController - A sample controller to demonstrate how to build an API
- * 
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
- * @returns
- */
-function TextApiController(){}
+    //PB dependencies
+    var util           = pb.util;
+    var PluginService  = pb.PluginService;
+    var TextService    = pb.plugins.getService('textService', 'sample');
 
-//inheritance
-util.inherits(TextApiController, pb.BaseController);
+    /**
+     * TextApiController - A sample controller to demonstrate how to build an API
+     * 
+     * @author Brian Hyder <brian@pencilblue.org>
+     * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
+     * @returns
+     */
+    function TextApiController(){}
+    util.inherits(TextApiController, pb.BaseController);
 
-/**
- * Simple GET end point that retrieves random text
- * 
- * @method getRandomText
- * @param cb The callback.  It does not require a an error parameter.  
- */
-TextApiController.prototype.getRandomText = function(cb) {
-	var self = this;
-	
-    var service = new TextService();
-    var text = service.getText();
-    var dataStr = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', text);
-	var content = {
-        content: dataStr
-	};
-    cb(content);
+    /**
+     * Simple GET end point that retrieves random text
+     * 
+     * @method getRandomText
+     * @param cb The callback.  It does not require a an error parameter.  
+     */
+    TextApiController.prototype.getRandomText = function(cb) {
+        var self = this;
+
+        var service = new TextService();
+        var text = service.getText();
+        var dataStr = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', text);
+        var content = {
+            content: dataStr
+        };
+        cb(content);
+    };
+
+    /**
+     * Simple GET end point that retrieves the length of the string provided by the 
+     * path parameter
+     * 
+     * @method getTextLengthByPathParam
+     * @param cb The callback.  It does not require a an error parameter.
+     */
+    TextApiController.prototype.getTextLengthByPathParam = function(cb) {
+        var self = this;
+
+        var text = this.pathVars.text;
+        var dataStr = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', text.length);
+        var content = {
+            content: dataStr
+        };
+        cb(content);
+    };
+
+    /**
+     * Simple GET end point that retrieves the length of the string provided by the 
+     * query parameter
+     * 
+     * @method getTextLengthByQueryParam
+     * @param cb The callback.  It does not require a an error parameter.
+     */
+    TextApiController.prototype.getTextLengthByQueryParam = function(cb) {
+        var self = this;
+
+        var dataStr;
+        var text = this.query.text;
+        if (!text) {
+            dataStr = pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, '', null);
+        }
+        else {
+            dataStr = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', text.length);
+        }
+
+        var content = {
+            content: dataStr
+        };
+        cb(content);
+    };
+
+    /*
+     * Simple POST end point that retrieves the length of the string provided by the 
+     * post parameter.  The RequestHandler will attempt to parse the payload based on 
+     * the allowed MIME types specified by the route.  The content-type header is 
+     * expected to be passed by the client as part of the incoming request.
+     * 
+     * @method getTextLengthByPostParam
+     * @param cb The callback.  It does not require a an error parameter.
+     */
+    TextApiController.prototype.getTextLengthByPostParam = function(cb) {
+        var self = this;
+
+        var dataStr;
+        var text = this.body.text;
+        if (!text) {
+            dataStr = pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, '', null);
+        }
+        else {
+            dataStr = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', text.length);
+        }
+
+        var content = {
+            content: dataStr
+        };
+        cb(content);
+    };
+
+    /**
+     * Provides the routes that are to be handled by an instance of this prototype.  
+     * The route provides a definition of path, permissions, authentication, and 
+     * expected content type. 
+     * Method is optional
+     * Path is required
+     * Permissions are optional
+     * Access levels are optional
+     * Content type is optional
+     * 
+     * @param cb A callback of the form: cb(error, array of objects)
+     */
+    TextApiController.getRoutes = function(cb) {
+        var routes = [
+            {
+                method: 'get',
+                path: "/api/sample/random/text",
+                handler: "getText",
+                content_type: 'application/json',
+                handler: "getRandomText"
+            },
+            {
+                method: 'get',
+                path: "/api/sample/text/length/:text",
+                handler: "getText",
+                content_type: 'application/json',
+                handler: "getTextLengthByPathParam"
+            },
+            {
+                method: 'get',
+                path: "/api/sample/text/length",
+                handler: "getText",
+                content_type: 'application/json',
+                handler: "getTextLengthByQueryParam"
+            },
+            {
+                method: 'post',
+                path: "/api/sample/text/length",
+                handler: "getText",
+                content_type: 'application/json',
+                handler: "getTextLengthByPostParam",
+                request_body: ['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data']
+            }
+        ];
+        cb(null, routes);
+    };
+
+    //exports
+    return TextApiController;
 };
-
-/**
- * Simple GET end point that retrieves the length of the string provided by the 
- * path parameter
- * 
- * @method getTextLengthByPathParam
- * @param cb The callback.  It does not require a an error parameter.
- */
-TextApiController.prototype.getTextLengthByPathParam = function(cb) {
-	var self = this;
-	
-    var text = this.pathVars.text;
-    var dataStr = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', text.length);
-	var content = {
-        content: dataStr
-	};
-    cb(content);
-};
-
-/**
- * Simple GET end point that retrieves the length of the string provided by the 
- * query parameter
- * 
- * @method getTextLengthByQueryParam
- * @param cb The callback.  It does not require a an error parameter.
- */
-TextApiController.prototype.getTextLengthByQueryParam = function(cb) {
-	var self = this;
-	
-    var dataStr;
-    var text = this.query.text;
-    if (!text) {
-        dataStr = pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, '', null);
-    }
-    else {
-        dataStr = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', text.length);
-    }
-    
-	var content = {
-        content: dataStr
-	};
-    cb(content);
-};
-
-/*
- * Simple POST end point that retrieves the length of the string provided by the 
- * post parameter.  The RequestHandler will attempt to parse the payload based on 
- * the allowed MIME types specified by the route.  The content-type header is 
- * expected to be passed by the client as part of the incoming request.
- * 
- * @method getTextLengthByPostParam
- * @param cb The callback.  It does not require a an error parameter.
- */
-TextApiController.prototype.getTextLengthByPostParam = function(cb) {
-	var self = this;
-	
-    var dataStr;
-    var text = this.body.text;
-    if (!text) {
-        dataStr = pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, '', null);
-    }
-    else {
-        dataStr = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', text.length);
-    }
-    
-	var content = {
-        content: dataStr
-	};
-    cb(content);
-};
-
-/**
- * Provides the routes that are to be handled by an instance of this prototype.  
- * The route provides a definition of path, permissions, authentication, and 
- * expected content type. 
- * Method is optional
- * Path is required
- * Permissions are optional
- * Access levels are optional
- * Content type is optional
- * 
- * @param cb A callback of the form: cb(error, array of objects)
- */
-TextApiController.getRoutes = function(cb) {
-	var routes = [
-		{
-	    	method: 'get',
-	    	path: "/api/sample/random/text",
-            handler: "getText",
-	    	content_type: 'application/json',
-            handler: "getRandomText"
-		},
-        {
-	    	method: 'get',
-	    	path: "/api/sample/text/length/:text",
-            handler: "getText",
-	    	content_type: 'application/json',
-            handler: "getTextLengthByPathParam"
-		},
-        {
-	    	method: 'get',
-	    	path: "/api/sample/text/length",
-            handler: "getText",
-	    	content_type: 'application/json',
-            handler: "getTextLengthByQueryParam"
-		},
-        {
-	    	method: 'post',
-	    	path: "/api/sample/text/length",
-            handler: "getText",
-	    	content_type: 'application/json',
-            handler: "getTextLengthByPostParam",
-            request_body: ['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data']
-		}
-	];
-	cb(null, routes);
-};
-
-//exports
-module.exports = TextApiController;

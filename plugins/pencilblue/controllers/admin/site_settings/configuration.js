@@ -46,7 +46,7 @@ Configuration.prototype.render = function(cb) {
             dbName: pb.config.db.name,
             dbServers: pb.config.db.servers,
             callHome: callHome || true,
-            configSet: fs.existsSync(DOCUMENT_ROOT + '/config.json')
+            configSet: fs.existsSync(pb.config.docRoot + '/config.json')
         };
 
         var angularObjects = pb.js.getAngularObjects({

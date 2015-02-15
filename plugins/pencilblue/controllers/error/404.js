@@ -17,7 +17,7 @@
 
 //dependencies
 var path = require('path');
-var TopMenu = require(path.join(DOCUMENT_ROOT, '/include/theme/top_menu'));
+var TopMenu = require(path.join(pb.config.docRoot, '/include/theme/top_menu'));
 
 /**
  * 404 error

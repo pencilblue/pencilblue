@@ -19,8 +19,8 @@
 var path            = require('path');
 var async           = require('async');
 var BaseController  = pb.BaseController;
-var Comments        = require(path.join(DOCUMENT_ROOT, '/include/theme/comments'));
-var ArticleService  = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).ArticleService;
+var Comments        = require(path.join(pb.config.docRoot, '/include/theme/comments'));
+var ArticleService  = require(path.join(pb.config.docRoot, '/include/service/entities/article_service')).ArticleService;
 var IndexController = require('../../index.js');
 
 /**

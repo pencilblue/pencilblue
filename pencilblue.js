@@ -50,12 +50,14 @@ function PencilBlue(config){
      * connection pool to the core DB.
      */
     this.init = function(){
+        var self = this;
+        
         var tasks = [
             this.initModules,
             this.initRequestHandler,
             this.initDBConnections,
             this.initDBIndices,
-            this.initServer,
+            util.wrapTask(this, this.initServer),
             this.initSessions,
             this.initPlugins,
             this.initServerRegistration,
@@ -185,16 +187,16 @@ function PencilBlue(config){
                     cert: fs.readFileSync(pb.config.server.ssl.cert),
                     ca: fs.readFileSync(pb.config.server.ssl.chain)
                 };
-                pb.server = https.createServer(options, PencilBlue.onHttpConnect);
+                pb.server = https.createServer(options, this.onHttpConnect);
 
                 //create an http server that redirects to SSL site
-                pb.handOffServer = http.createServer(PencilBlue.onHttpConnectForHandoff);
+                pb.handOffServer = http.createServer(this.onHttpConnectForHandoff);
                 pb.handOffServer.listen(pb.config.server.ssl.handoff_port, function() {
                     pb.log.info('PencilBlue: Handoff HTTP server running on port: %d', pb.config.server.ssl.handoff_port);
                 });
             }
             else {
-                pb.server = http.createServer(PencilBlue.onHttpConnect);
+                pb.server = http.createServer(this.onHttpConnect);
             }
 
             //start the server
@@ -236,7 +238,7 @@ function PencilBlue(config){
         //computation on more powerful load balancers.  For me it is a giant pain
         //in the ass when all I want to do is simple load balancing.
         if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
-            PencilBlue.onHttpConnectForHandoff(req, resp);
+            this.onHttpConnectForHandoff(req, resp);
             return;
         }
 

@@ -584,7 +584,7 @@ module.exports = function(pb) {
      * @return {string} The absolute path
      */
     TemplateService.getDefaultPath = function(templateLocation){
-        return path.join(DOCUMENT_ROOT, 'plugins', 'pencilblue', 'templates', templateLocation + '.html');
+        return path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'templates', templateLocation + '.html');
     };
 
     /**
@@ -597,7 +597,7 @@ module.exports = function(pb) {
      * @return {string} The absolute path
      */
     TemplateService.getCustomPath = function(themeName, templateLocation){
-        return path.join(DOCUMENT_ROOT, 'plugins', themeName, 'templates', templateLocation + '.html');
+        return path.join(pb.config.docRoot, 'plugins', themeName, 'templates', templateLocation + '.html');
     };
 
     /**

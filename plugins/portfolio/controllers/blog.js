@@ -2,9 +2,9 @@
 //dependencies
 var async          = require('async');
 var PluginService  = pb.PluginService;
-var TopMenu        = require(DOCUMENT_ROOT + '/include/theme/top_menu');
-var Comments       = require(DOCUMENT_ROOT + '/include/theme/comments');
-var ArticleService = require(DOCUMENT_ROOT + '/include/service/entities/article_service').ArticleService;
+var TopMenu        = require(pb.config.docRoot + '/include/theme/top_menu');
+var Comments       = require(pb.config.docRoot + '/include/theme/comments');
+var ArticleService = require(pb.config.docRoot + '/include/service/entities/article_service').ArticleService;
 
 /**
  * Blog page of the pencilblue theme

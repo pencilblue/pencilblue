@@ -219,7 +219,7 @@ module.exports = function FsMediaProviderModule(pb) {
     /**
      * Generates an absolute path based on the parent directory and media path.  
      * The parent directory is expected to a single directory or set of directories 
-     * nested under the DOCUMENT_ROOT.
+     * nested under the pb.config.docRoot.
      * @static
      * @method getMediaPath
      * @param {String} parentDir

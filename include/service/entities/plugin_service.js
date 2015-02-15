@@ -2034,7 +2034,7 @@ module.exports = function PluginServiceModule(pb) {
         try {
 
             //load the controller type
-            var ControllerPrototype = require(pathToController);
+            var ControllerPrototype = require(pathToController)(pb);
 
             //ensure we can get the routes
             if (!util.isFunction(ControllerPrototype.getRoutes)){

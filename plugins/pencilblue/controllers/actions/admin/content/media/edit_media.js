@@ -23,7 +23,7 @@
  */
 function EditMediaActionController(){}
 
-var mediaService = require(DOCUMENT_ROOT + '/include/service/entities/media_service.js');
+var mediaService = require(pb.config.docRoot + '/include/service/entities/media_service.js');
 
 //inheritance
 util.inherits(EditMediaActionController, pb.BaseController);

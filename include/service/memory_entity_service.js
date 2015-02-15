@@ -42,7 +42,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         this.changeHandler = MemoryEntityService.createChangeHandler(this);
 
         //register change handler
-        pb.CommandService.registerForType(MemoryEntityService.getOnChangeType(this.objType), this.changeHandler);
+        pb.CommandService.getInstance().registerForType(MemoryEntityService.getOnChangeType(this.objType), this.changeHandler);
     }
 
     /**
@@ -207,7 +207,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         this.timers = null;
 
         //clean up by un registering the change handler to prevent memory leaks
-        pb.CommandService.unregisterForType(MemoryEntityService.getOnChangeType(this.objType), this.changeHandler);
+        pb.CommandService.getInstance().unregisterForType(MemoryEntityService.getOnChangeType(this.objType), this.changeHandler);
         this.changeHandler = null;
     };
 

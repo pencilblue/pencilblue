@@ -2,8 +2,8 @@
 //dependencies
 var path          = require('path');
 var PluginService = pb.PluginService;
-var TopMenu       = require(DOCUMENT_ROOT + '/include/theme/top_menu');
-var MediaLoader = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).MediaLoader;
+var TopMenu       = require(pb.config.docRoot + '/include/theme/top_menu');
+var MediaLoader = require(path.join(pb.config.docRoot, '/include/service/entities/article_service')).MediaLoader;
 
 /**
  * Index - The home page controller of the portfolio theme.

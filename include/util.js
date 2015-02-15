@@ -163,6 +163,12 @@ Util.getTasks = function (iterable, getTaskFunction) {
 	return tasks;
 };
 
+Util.wrapTask = function(context, func) {
+    return function(callback) {
+        func.call(context, callback);
+    };
+};
+
 /**
  * Hashes an array
  * @static
