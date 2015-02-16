@@ -25,46 +25,45 @@ module.exports = function AuthenticationModule(pb) {
      * @class UsernamePasswordAuthentication
      * @constructor
      */
-    function UsernamePasswordAuthentication() {
+    function UsernamePasswordAuthentication() {}
     
-        /**
-         *
-         * @method authenticate
-         * @param {Object} credentials
-         * @param {String} credentials.username
-         * @param {String} credentials.password
-         * @param {Function} cb
-         */
-        this.authenticate = function(credentials, cb) {
-            if (!util.isObject(credentials) || !util.isString(credentials.username) || !util.isString(credentials.password)) {
-                return cb(new Error("UsernamePasswordAuthentication: The username and password must be passed as part of the credentials object: "+credentials), null);
-            }
+    /**
+     *
+     * @method authenticate
+     * @param {Object} credentials
+     * @param {String} credentials.username
+     * @param {String} credentials.password
+     * @param {Function} cb
+     */
+    UsernamePasswordAuthentication.prototype.authenticate = function(credentials, cb) {
+        if (!util.isObject(credentials) || !util.isString(credentials.username) || !util.isString(credentials.password)) {
+            return cb(new Error("UsernamePasswordAuthentication: The username and password must be passed as part of the credentials object: "+credentials), null);
+        }
 
-            //build query
-            var query = {
-                object_type : 'user',
-                '$or' : [
-                    {
-                        username : credentials.username
-                    },
-                    {
-                        email : credentials.username
-                    }
-                ],
-                password : credentials.password
-            };
-
-            //check for required access level
-            if (!isNaN(credentials.access_level)) {
-                query.admin = {
-                    '$gte': credentials.access_level
-                };
-            }
-
-            //search for user
-            var dao = new pb.DAO();
-            dao.loadByValues(query, 'user', cb);
+        //build query
+        var query = {
+            object_type : 'user',
+            '$or' : [
+                {
+                    username : credentials.username
+                },
+                {
+                    email : credentials.username
+                }
+            ],
+            password : credentials.password
         };
+
+        //check for required access level
+        if (!isNaN(credentials.access_level)) {
+            query.admin = {
+                '$gte': credentials.access_level
+            };
+        }
+
+        //search for user
+        var dao = new pb.DAO();
+        dao.loadByValues(query, 'user', cb);
     };
 
     /**
@@ -73,19 +72,21 @@ module.exports = function AuthenticationModule(pb) {
      * @constructor
      * @extends UsernamePasswordAuthentication
      */
-    function FormAuthentication() {
-    
-        this.authenticate = function(postObj, cb) {
-            if (!util.isObject(postObj)) {
-                return cb(new Error("FormAuthentication: The postObj parameter must be an object: "+postObj), null);
-            }
-
-            //call the parent function
-            var userDocument = pb.DocumentCreator.create('user', postObj);
-            FormAuthentication.super_.prototype.authenticate.apply(this, [userDocument, cb]);
-        };
-    };
+    function FormAuthentication() {}
     util.inherits(FormAuthentication, UsernamePasswordAuthentication);
+    
+    /**
+     * @method authenticate
+     */
+    FormAuthentication.prototype.authenticate = function(postObj, cb) {
+        if (!util.isObject(postObj)) {
+            return cb(new Error("FormAuthentication: The postObj parameter must be an object: "+postObj), null);
+        }
+
+        //call the parent function
+        var userDocument = pb.DocumentCreator.create('user', postObj);
+        FormAuthentication.super_.prototype.authenticate.apply(this, [userDocument, cb]);
+    };
     
     return {
         UsernamePasswordAuthentication: UsernamePasswordAuthentication,

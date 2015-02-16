@@ -90,7 +90,7 @@ module.exports = function PB(config) {
     pb.security                       = pb.SecurityService;
     var Authentication                = require(path.join(config.docRoot, '/include/security/authentication'))(pb);
     pb.UsernamePasswordAuthentication = Authentication.UsernamePasswordAuthentication;
-    pb.FormAuthentication             = Authentication.FormAuthentication.js;
+    pb.FormAuthentication             = Authentication.FormAuthentication;
 
     //setup user service
     pb.UserService = require(path.join(config.docRoot, '/include/service/entities/user_service.js'))(pb);

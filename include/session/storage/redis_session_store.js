@@ -94,8 +94,9 @@ module.exports = function RedisSessionStoreModule(pb) {
      * Repsonsible for ensuring that the mechanism that expires sessions becomes
      * active.
      */
-    RedisSessionStore.prototype.start = function(){
+    RedisSessionStore.prototype.start = function(cb){
         pb.log.debug("RedisSessionStore: Initialized");
+        cb(null, true);
     };
     
     /**

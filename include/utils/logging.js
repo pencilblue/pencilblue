@@ -52,7 +52,7 @@ module.exports = function LogFactory(config){
     //configure winston
 	var logger =  new (winston.Logger)({
 	    transports: config.logging.transports,
-	    level: config.log_level,
+	    level: config.logging.level,
         padLevels: false
    });
 

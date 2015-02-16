@@ -17,57 +17,61 @@
 
 //dependencies
 var path = require('path');
-var TopMenu = require(path.join(pb.config.docRoot, '/include/theme/top_menu'));
 
-/**
- * 404 error
- * @class NotFoundController
- * @constructor
- * @extends BaseController
- */
-function NotFoundController(){}
+module.exports = function NotFoundControllerModule(pb) {
+    
+    //pb dependencies
+    var util    = pb.util;
+    var TopMenu = pb.TopMenuService;
 
-//inheritance
-util.inherits(NotFoundController, pb.BaseController);
+    /**
+     * 404 error
+     * @class NotFoundController
+     * @constructor
+     * @extends BaseController
+     */
+    function NotFoundController(){}
+    util.inherits(NotFoundController, pb.BaseController);
 
-/**
- * @see BaseController.render
- * @method render
- * @param {Function} cb
- */
-NotFoundController.prototype.render = function(cb) {
-	var self = this;
+    /**
+     * @see BaseController.render
+     * @method render
+     * @param {Function} cb
+     */
+    NotFoundController.prototype.render = function(cb) {
+        var self = this;
 
-	this.setPageName('404');
-    var contentService = new pb.ContentService();
-    contentService.getSettings(function(err, contentSettings) {
-        
-        var options = {
-            currUrl: self.req.url
-        };
-        TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
-            TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
+        this.setPageName('404');
+        var contentService = new pb.ContentService();
+        contentService.getSettings(function(err, contentSettings) {
 
-                //load template
-                self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
-                self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));
-                self.ts.load('error/404', function(err, data) {
-                    var result = '' + data;
+            var options = {
+                currUrl: self.req.url
+            };
+            TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
+                TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
 
-                    result = result.concat(pb.js.getAngularController(
-                    {
-                        navigation: navigation,
-                        contentSettings: contentSettings,
-                        loggedIn: pb.security.isAuthenticated(self.session),
-                        accountButtons: accountButtons
-                    }));
+                    //load template
+                    self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
+                    self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));
+                    self.ts.load('error/404', function(err, data) {
+                        var result = '' + data;
 
-                    cb({content: result, code: 404, content_type: 'text/html'});
+                        result = result.concat(pb.js.getAngularController(
+                        {
+                            navigation: navigation,
+                            contentSettings: contentSettings,
+                            loggedIn: pb.security.isAuthenticated(self.session),
+                            accountButtons: accountButtons
+                        }));
+
+                        cb({content: result, code: 404, content_type: 'text/html'});
+                    });
                 });
             });
         });
-    });
-};
+    };
 
-//exports
-module.exports = NotFoundController;
+    //exports
+    return NotFoundController;
+};

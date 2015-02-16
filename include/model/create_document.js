@@ -83,7 +83,7 @@ module.exports = function DocumentCreatorModule(pb) {
         }
         
         if (post.hasOwnProperty('password')) {
-            post[key] = pb.security.encrypt(post[key]);
+            post['password'] = pb.security.encrypt(post['password']);
         }
 
         if(post['confirm_password']) {

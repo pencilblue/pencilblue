@@ -1,6 +1,9 @@
 
 module.exports = function GoogleAnalyticsModule(pb) {
 
+    //pb dependencies
+    var util = pb.util;
+    
     /**
      * GoogleAnalytics - A sample for exemplifying what the main module file should
      * look like.

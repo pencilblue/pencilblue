@@ -21,168 +21,168 @@ var path = require('path');
 //exports
 module.exports = function Routes(pb){
     return [
-//        {
-//            method: 'get',
-//            path: '/media/*',
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'media_content_controller.js')
-//        },
-//        {
-//            method: 'get',
-//            path: "/public/:plugin/*",
-//            access_level: 0,
-//            auth_required: false,
-//            setup_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'public.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'get',
-//            path: "/setup",
-//            access_level: 0,
-//            auth_required: false,
-//            setup_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'setup.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'post',
-//            path: "/actions/setup",
-//            access_level: 0,
-//            auth_required: false,
-//            setup_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'setup.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'get',
-//            path: "/admin/login",
-//            access_level: 0,
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'login.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'post',
-//            path: "/actions/login",
-//            access_level: 0,
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'login.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'post',
-//            path: "/actions/forgot_password",
-//            access_level: 0,
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'forgot_password.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'get',
-//            path: "/actions/user/reset_password",
-//            access_level: 0,
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'reset_password.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'get',
-//            path: "/admin",
-//            access_level: pb.SecurityService.ACCESS_WRITER,
-//            auth_required: true,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'index.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            path: "/actions/logout",
-//            access_level: 0,
-//            auth_required: true,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'logout.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'get',
-//            path: "/",
-//            access_level: 0,
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'index.js'),
-//            content_type: 'text/html'
-//        },
-//
-//        {
-//            method: 'get',
-//            path: "/preview/:type/:id",
-//            access_level: pb.SecurityService.ACCESS_WRITER,
-//            auth_required: true,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'preview.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'post',
-//            path: "/actions/user/manage_account/change_password",
-//            auth_required: true,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'manage_account', 'change_password.js'),
-//        },
-//        {
-//            method: 'post',
-//            path: "/actions/user/manage_account/profile",
-//            auth_required: true,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'manage_account', 'profile.js'),
-//            content_type: 'text/html'
-//        },
-//        {
-//            method: 'post',
-//            path: "/actions/user/resend_verification",
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'resend_verification.js'),
-//        },
-//        {
-//            method: 'post',
-//            path: "/actions/user/sign_up",
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'sign_up.js'),
-//        },
-//        {
-//            method: 'get',
-//            path: "/actions/user/verify_email",
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'verify_email.js'),
-//        },
-//        {
-//            method: 'get',
-//            path: "/sitemap",
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'sitemap.js'),
-//            content_type: 'application/xml'
-//        },
-//        {
-//            method: 'get',
-//            path: "/robots.txt",
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'robots.js'),
-//            content_type: 'text/plain'
-//        },
-//        {
-//            method: 'get',
-//            path: "/user/sign_up",
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'sign_up.js'),
-//        },
-//        {
-//            method: 'get',
-//            path: "/api/user/get_username_available",
-//            auth_required: false,
-//            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'user', 'get_username_available.js'),
-//            content_type: 'application/json'
-//        },
+        {
+            method: 'get',
+            path: '/media/*',
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'media_content_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/public/:plugin/*",
+            access_level: 0,
+            auth_required: false,
+            setup_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'public.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/setup",
+            access_level: 0,
+            auth_required: false,
+            setup_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'setup.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/setup",
+            access_level: 0,
+            auth_required: false,
+            setup_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'setup.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin/login",
+            access_level: 0,
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'login.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/login",
+            access_level: 0,
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'login.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/forgot_password",
+            access_level: 0,
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'forgot_password.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/actions/user/reset_password",
+            access_level: 0,
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'reset_password.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'index.js'),
+            content_type: 'text/html'
+        },
+        {
+            path: "/actions/logout",
+            access_level: 0,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'logout.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/",
+            access_level: 0,
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'index.js'),
+            content_type: 'text/html'
+        },
+
+        {
+            method: 'get',
+            path: "/preview/:type/:id",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'preview.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/user/manage_account/change_password",
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'manage_account', 'change_password.js'),
+        },
+        {
+            method: 'post',
+            path: "/actions/user/manage_account/profile",
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'manage_account', 'profile.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/user/resend_verification",
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'resend_verification.js'),
+        },
+        {
+            method: 'post',
+            path: "/actions/user/sign_up",
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'sign_up.js'),
+        },
+        {
+            method: 'get',
+            path: "/actions/user/verify_email",
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'verify_email.js'),
+        },
+        {
+            method: 'get',
+            path: "/sitemap",
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'sitemap.js'),
+            content_type: 'application/xml'
+        },
+        {
+            method: 'get',
+            path: "/robots.txt",
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'robots.js'),
+            content_type: 'text/plain'
+        },
+        {
+            method: 'get',
+            path: "/user/sign_up",
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'sign_up.js'),
+        },
+        {
+            method: 'get',
+            path: "/api/user/get_username_available",
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'user', 'get_username_available.js'),
+            content_type: 'application/json'
+        },
         {
             method: 'get',
             handler: 'login',
             path: "/user/login",
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'login.js'),
-        }
+        },
 //        {
 //            method: 'get',
 //            path: "/feed",
@@ -974,6 +974,6 @@ module.exports = function Routes(pb){
 //            auth_required: false,
 //            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'localization_controller.js'),
 //            content_type: 'text/javascript'
-//        },
+//        }
     ];
 };

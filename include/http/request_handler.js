@@ -473,7 +473,7 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.prototype.serve404 = function() {
 
-        var NotFound  = require(path.join(pb.config.docRoot, 'plugins', 'pencilblue', '/controllers/error/404.js'));
+        var NotFound  = require(path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/error/404.js'))(pb);
         var cInstance = new NotFound();
         this.doRender({}, cInstance, {});
 

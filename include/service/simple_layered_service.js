@@ -34,26 +34,7 @@ module.exports = function SimpleLayeredServiceModule(pb) {
     function SimpleLayeredService(services, name){
         this.services = services;
         this.name     = name ? name : 'SimpleLayeredService';
-
-        if (pb.log.isDebug()) {
-            this.logInitialization();
-        }
     }
-
-    /**
-     * Logs the services that make up this layered service
-     * @method logInitialization
-     */
-    SimpleLayeredService.prototype.logInitialization = function() {
-        var serviceTypes = [];
-        this.services.forEach(function(service) {
-            serviceTypes.push(service.type);
-        });
-
-        if (pb.log.isDebug()) {
-            pb.log.debug("%s: Initialized with layers - %s", this.name, serviceTypes.toString());
-        }
-    };
 
     /**
      * Retrieves the setting value from various storage areas.

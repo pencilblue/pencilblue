@@ -32,8 +32,7 @@ module.exports = function LoginViewControllerModule(pb) {
 
     LoginViewController.prototype.login = function(cb) {
         if(pb.security.isAuthenticated(this.session)) {
-            this.redirect('/', cb);
-            return;
+            return this.redirect('/', cb);
         }
 
         this.setPageName(this.ls.get('LOGIN'));
