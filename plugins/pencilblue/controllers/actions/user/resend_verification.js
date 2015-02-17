@@ -15,56 +15,60 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Resends an account verification email
- */
 
-function ResendVerification(){}
+module.exports = function ResendVerificationModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Resends an account verification email
+     */
+    function ResendVerification(){}
+    util.inherits(ResendVerification, pb.FormController);
 
-//inheritance
-util.inherits(ResendVerification, pb.FormController);
+    ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
+        var self = this;
 
-ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
-	var self = this;
-
-	var message = this.hasRequiredParams(post, this.getRequiredFields());
-	if(message) {
-        self.formError(message, '/user/resend_verification', cb);
-        return;
-    }
-
-	var dao = new pb.DAO();
-	dao.loadByValue('email', post.email, 'user', function(err, user) {
-        if(util.isError(err) || user === null) {
-            self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
+        var message = this.hasRequiredParams(post, this.getRequiredFields());
+        if(message) {
+            self.formError(message, '/user/resend_verification', cb);
             return;
         }
 
-        dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
-        	if(util.isError(err) || user === null) {
-                self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
+        var dao = new pb.DAO();
+        dao.loadByValue('email', post.email, 'user', function(err, user) {
+            if(util.isError(err) || user === null) {
+                self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
                 return;
             }
 
-           user.verification_code = util.uniqueId();
-
-           dao.save(user, function(err, result) {
-                if(util.isError(result)) {
-                    self.formError(self.ls.get('ERROR_SAVING'), '/user/resend_verification', cb);
+            dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
+                if(util.isError(err) || user === null) {
+                    self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
                     return;
                 }
 
-                self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
-                self.redirect('/user/verification_sent', cb);
-                pb.users.sendVerificationEmail(user, util.cb);
+               user.verification_code = util.uniqueId();
+
+               dao.save(user, function(err, result) {
+                    if(util.isError(result)) {
+                        self.formError(self.ls.get('ERROR_SAVING'), '/user/resend_verification', cb);
+                        return;
+                    }
+
+                    self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
+                    self.redirect('/user/verification_sent', cb);
+                    pb.users.sendVerificationEmail(user, util.cb);
+                });
             });
         });
-    });
-};
+    };
 
-ResendVerification.prototype.getRequiredFields = function() {
-	return ['email'];
-};
+    ResendVerification.prototype.getRequiredFields = function() {
+        return ['email'];
+    };
 
-//exports
-module.exports = ResendVerification;
+    //exports
+    return ResendVerification;
+};

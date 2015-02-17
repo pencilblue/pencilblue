@@ -218,4 +218,4 @@ module.exports = function PB(config) {
     pb.CommentService        = require(config.docRoot+'/include/theme/comments.js')(pb);
     
     return pb;
-}
+};

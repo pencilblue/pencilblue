@@ -15,32 +15,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for resending a verification email
- */
+module.exports = function ResendVerificationModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for resending a verification email
+     */
+    function ResendVerification(){}
+    util.inherits(ResendVerification, pb.BaseController);
 
-function ResendVerification(){}
+    ResendVerification.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(ResendVerification, pb.BaseController);
+        var contentService = new pb.ContentService();
+        contentService.getSettings(function(err, contentSettings) {
 
-ResendVerification.prototype.render = function(cb) {
-	var self = this;
+            if(!contentSettings.allow_comments || !contentSettings.require_verification) {
+                self.redirect('/', cb);
+                return;
+            }
 
-	var contentService = new pb.ContentService();
-    contentService.getSettings(function(err, contentSettings) {
-
-        if(!contentSettings.allow_comments || !contentSettings.require_verification) {
-            self.redirect('/', cb);
-            return;
-        }
-
-        self.setPageName(self.ls.get('RESEND_VERIFICATION'));
-        self.ts.load('user/resend_verification', function(err, data) {
-            cb({content: data});
+            self.setPageName(self.ls.get('RESEND_VERIFICATION'));
+            self.ts.load('user/resend_verification', function(err, data) {
+                cb({content: data});
+            });
         });
-    });
-};
+    };
 
-//exports
-module.exports = ResendVerification;
+    //exports
+    return ResendVerification;
+};

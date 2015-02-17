@@ -15,53 +15,56 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Deletes a comment
- */
+module.exports = function DeleteCommentModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Deletes a comment
+     */
+    function DeleteComment(){}
+    util.inherits(DeleteComment, pb.BaseController);
 
-function DeleteComment(){}
+    DeleteComment.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-//inheritance
-util.inherits(DeleteComment, pb.BaseController);
-
-DeleteComment.prototype.render = function(cb) {
-    var self = this;
-    var vars = this.pathVars;
-
-    //verify that the ID is a valid format
-    if (!pb.validation.isIdStr(vars.id, true)) {
-        return cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-        });
-    }
-
-    //verify that the comment exists
-    var dao = new pb.DAO();
-    dao.loadById(vars.id, 'comment', function(err, comment) {
-        if(util.isError(err)) {
-            return self.reqHandler.serveError(err);
-        }
-        else if (!comment) {
+        //verify that the ID is a valid format
+        if (!pb.validation.isIdStr(vars.id, true)) {
             return cb({
-                code: 404,
+                code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
             });
         }
 
-        //delete it
-        dao.deleteById(vars.id, 'comment', function(err, recordsDeleted) {
+        //verify that the comment exists
+        var dao = new pb.DAO();
+        dao.loadById(vars.id, 'comment', function(err, comment) {
             if(util.isError(err)) {
+                return self.reqHandler.serveError(err);
+            }
+            else if (!comment) {
                 return cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                    code: 404,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                 });
             }
 
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('COMMENT') + ' ' + self.ls.get('DELETED'))});
-        });
-    });
-};
+            //delete it
+            dao.deleteById(vars.id, 'comment', function(err, recordsDeleted) {
+                if(util.isError(err)) {
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                    });
+                }
 
-//exports
-module.exports = DeleteComment;
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('COMMENT') + ' ' + self.ls.get('DELETED'))});
+            });
+        });
+    };
+
+    //exports
+    return DeleteComment;
+};

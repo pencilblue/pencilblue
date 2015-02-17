@@ -15,62 +15,65 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Tests the token from a verication email and verifies the user if correct
- */
+module.exports = function VerifyEmailModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Tests the token from a verication email and verifies the user if correct
+     */
+    function VerifyEmail(){}
+    util.inherits(VerifyEmail, pb.BaseController);
 
-function VerifyEmail(){}
+    VerifyEmail.prototype.render = function(cb) {
+        var self = this;
+        var get  = this.query;
 
-//inheritance
-util.inherits(VerifyEmail, pb.BaseController);
-
-VerifyEmail.prototype.render = function(cb) {
-	var self = this;
-	var get  = this.query;
-
-    if(this.hasRequiredParams(get, ['email', 'code'])) {
-        this.formError(self.ls.get('INVALID_VERIFICATION'), '/user/resend_verification', cb);
-        return;
-    }
-
-    var dao = new pb.DAO();
-    dao.count('user', {email: get.email}, function(err, count) {
-        if(count > 0) {
-            self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
+        if(this.hasRequiredParams(get, ['email', 'code'])) {
+            this.formError(self.ls.get('INVALID_VERIFICATION'), '/user/resend_verification', cb);
             return;
         }
 
-        dao.loadByValue('email', get.email, 'unverified_user', function(err, unverifiedUser) {
-            if(unverifiedUser === null) {
-                self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
+        var dao = new pb.DAO();
+        dao.count('user', {email: get.email}, function(err, count) {
+            if(count > 0) {
+                self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
                 return;
             }
 
-            if(unverifiedUser.verification_code != get.code) {
-                self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/resend_verification', cb);
-                return;
-            }
+            dao.loadByValue('email', get.email, 'unverified_user', function(err, unverifiedUser) {
+                if(unverifiedUser === null) {
+                    self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
+                    return;
+                }
 
-            dao.deleteById(unverifiedUser[pb.DAO.getIdField()], 'unverified_user', function(err, result)  {
-                //TODO handle error
+                if(unverifiedUser.verification_code != get.code) {
+                    self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/resend_verification', cb);
+                    return;
+                }
 
-            	//convert to user
-            	var user = unverifiedUser;
-                delete user[pb.DAO.getIdField()];
-                user.object_type = 'user';
+                dao.deleteById(unverifiedUser[pb.DAO.getIdField()], 'unverified_user', function(err, result)  {
+                    //TODO handle error
 
-                dao.save(user, function(err, result) {
-                    if(util.isError(err))  {
-                        return self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
-                    }
+                    //convert to user
+                    var user = unverifiedUser;
+                    delete user[pb.DAO.getIdField()];
+                    user.object_type = 'user';
 
-                    self.session.success = self.ls.get('EMAIL_VERIFIED');
-                    self.redirect('/user/login', cb);
+                    dao.save(user, function(err, result) {
+                        if(util.isError(err))  {
+                            return self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
+                        }
+
+                        self.session.success = self.ls.get('EMAIL_VERIFIED');
+                        self.redirect('/user/login', cb);
+                    });
                 });
             });
         });
-    });
-};
+    };
 
-//exports
-module.exports = VerifyEmail;
+    //exports
+    return VerifyEmail;
+};

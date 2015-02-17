@@ -15,63 +15,66 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Verifies a user
- */
+module.exports = function VerifyUserModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Verifies a user
+     */
+    function VerifyUser(){}
+    util.inherits(VerifyUser, pb.BaseController);
 
-function VerifyUser(){}
+    VerifyUser.prototype.render = function(cb) {
+        var self    = this;
+        var vars    = this.pathVars;
 
-//inheritance
-util.inherits(VerifyUser, pb.BaseController);
-
-VerifyUser.prototype.render = function(cb) {
-    var self    = this;
-    var vars    = this.pathVars;
-
-    var message = this.hasRequiredParams(vars, ['id']);
-    if (message) {
-        cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-        });
-        return;
-    }
-
-    //ensure existence
-    var dao = new pb.DAO();
-    dao.loadById(vars.id, 'unverified_user', function(err, unverifiedUser) {
-        if(unverifiedUser === null) {
+        var message = this.hasRequiredParams(vars, ['id']);
+        if (message) {
             cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
             });
             return;
         }
 
-        dao.deleteById(vars.id, 'unverified_user', function(err, result)  {
-            //TODO handle error
+        //ensure existence
+        var dao = new pb.DAO();
+        dao.loadById(vars.id, 'unverified_user', function(err, unverifiedUser) {
+            if(unverifiedUser === null) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                });
+                return;
+            }
 
-            //convert to user
-            var user = unverifiedUser;
-            delete user[pb.DAO.getIdField()];
-            delete user.created;
-            delete user.last_modified;
-            user.object_type = 'user';
+            dao.deleteById(vars.id, 'unverified_user', function(err, result)  {
+                //TODO handle error
 
-            dao.save(user, function(err, result) {
-                if(util.isError(result))  {
-                    cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                    });
-                    return;
-                }
+                //convert to user
+                var user = unverifiedUser;
+                delete user[pb.DAO.getIdField()];
+                delete user.created;
+                delete user.last_modified;
+                user.object_type = 'user';
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, user.username + ' ' + self.ls.get('VERIFIED'))});
+                dao.save(user, function(err, result) {
+                    if(util.isError(result))  {
+                        cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        });
+                        return;
+                    }
+
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, user.username + ' ' + self.ls.get('VERIFIED'))});
+                });
             });
         });
-    });
-};
+    };
 
-//exports
-module.exports = VerifyUser;
+    //exports
+    return VerifyUser;
+};
