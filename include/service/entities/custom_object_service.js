@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var util        = require('../../util.js');
 var async       = require('async');
 var HtmlEncoder = require('htmlencode');
 

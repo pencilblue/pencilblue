@@ -66,5 +66,5 @@ module.exports = function(pb) {
     };
 
     //exports
-    module.exports = DeleteObject;
+    return DeleteObject;
 };

@@ -162,5 +162,5 @@ module.exports = function(pb) {
     pb.AdminSubnavService.registerFor(SUB_NAV_KEY, NavItemFormController.getSubNavItems);
 
     //exports
-    module.exports = NavItemFormController;
+    return NavItemFormController;
 };

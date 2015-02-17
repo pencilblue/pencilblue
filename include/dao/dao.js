@@ -156,7 +156,12 @@ module.exports = function DAOModule(pb) {
             entityType: entityType,
             where: where
         };
-        this._doQuery(options).count(cb);
+        this._doQuery(options, function(err, cursor) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            cursor.count(cb);
+        });
     };
 
     /**

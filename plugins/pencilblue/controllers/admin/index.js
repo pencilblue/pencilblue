@@ -96,7 +96,7 @@ module.exports = function AdminIndexControllerModule(pb) {
 
             //cluster status
             clusterStatus: function(callback) {
-                var service = new pb.ServerRegistration();
+                var service = pb.ServerRegistration.getInstance();
                 service.getClusterStatus(function(err, cluster) {
                     callback(err, cluster);
                 });

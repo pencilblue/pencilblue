@@ -54,7 +54,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ClusterApiController.prototype.refresh = function(cb) {
-        pb.ServerRegistration.flush(function(err, result) {
+        pb.ServerRegistration.getInstance().flush(function(err, result) {
             var content = BaseController.apiResponse(BaseController.API_SUCCESS, 'The wait time in seconds', {wait: pb.config.registry.update_interval});
             cb({content: content});
         });
