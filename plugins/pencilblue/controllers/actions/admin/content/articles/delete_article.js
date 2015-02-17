@@ -15,49 +15,53 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Deletes an article
- * @class DeleteArticleActionController
- * @constructor
- */
-function DeleteArticleActionController(){}
+module.exports = function(pb) {
 
-//inheritance
-util.inherits(DeleteArticleActionController, pb.BaseController);
+    //pb dependencies
+    var util = pb.util;
 
-DeleteArticleActionController.prototype.render = function(cb) {
-	var self = this;
-	var vars = this.pathVars;
+    /**
+     * Deletes an article
+     * @class DeleteArticleActionController
+     * @constructor
+     */
+    function DeleteArticleActionController(){}
+    util.inherits(DeleteArticleActionController, pb.BaseController);
 
-    if (!pb.validation.isIdStr(vars.id, true)) {
-		return cb({
-			code: 400,
-			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-		});
-    }
+    DeleteArticleActionController.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-    var dao = new pb.DAO();
-    dao.loadById(vars.id, 'article', function(err, article) {
-        var isError = util.isError(err);
-        if(isError || !article) {
-			return cb({
-				code: isError ? 500 : 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, isError ? err.stack : self.ls.get('INVALID_UID'))
-			});
+        if (!pb.validation.isIdStr(vars.id, true)) {
+            return cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+            });
         }
 
-        dao.deleteById(vars.id, 'article', function(err, articlesDeleted) {
-            if(util.isError(err) || articlesDeleted <= 0) {
+        var dao = new pb.DAO();
+        dao.loadById(vars.id, 'article', function(err, article) {
+            var isError = util.isError(err);
+            if(isError || !article) {
                 return cb({
-					code: 500,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
-				});
+                    code: isError ? 500 : 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, isError ? err.stack : self.ls.get('INVALID_UID'))
+                });
             }
 
-			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('DELETED'))});
-        });
-    });
-};
+            dao.deleteById(vars.id, 'article', function(err, articlesDeleted) {
+                if(util.isError(err) || articlesDeleted <= 0) {
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                    });
+                }
 
-//exports
-module.exports = DeleteArticleActionController;
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('DELETED'))});
+            });
+        });
+    };
+
+    //exports
+    return DeleteArticleActionController;
+};

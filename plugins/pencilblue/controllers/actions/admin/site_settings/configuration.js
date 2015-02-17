@@ -15,41 +15,44 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Saves the site's setting to call home
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Saves the site's setting to call home
+     */
+    function ConfigurationSettingsPostController(){}
+    util.inherits(ConfigurationSettingsPostController, pb.BaseController);
 
-function ConfigurationSettingsPostController(){}
+    ConfigurationSettingsPostController.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(ConfigurationSettingsPostController, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
+            var message = self.hasRequiredParams(post, ['call_home']);
+            if (message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
+                return;
+            }
 
-ConfigurationSettingsPostController.prototype.render = function(cb) {
-	var self = this;
+            pb.settings.set('call_home', post.call_home, function(data) {
+                if(util.isError(data)) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                    });
+                    return;
+                }
 
-	this.getJSONPostParams(function(err, post) {
-		var message = self.hasRequiredParams(post, ['call_home']);
-		if (message) {
-			cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-			});
-			return;
-		}
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CONFIGURATION_SETTINGS') + ' ' +  self.ls.get('EDITED'))});
+            });
+        });
+    };
 
-	    pb.settings.set('call_home', post.call_home, function(data) {
-	        if(util.isError(data)) {
-	            cb({
-					code: 500,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-				});
-	            return;
-	        }
-
-			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CONFIGURATION_SETTINGS') + ' ' +  self.ls.get('EDITED'))});
-	    });
-	});
+    //exports
+    return ConfigurationSettingsPostController;
 };
-
-//exports
-module.exports = ConfigurationSettingsPostController;

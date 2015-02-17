@@ -15,52 +15,55 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Deletes a topic
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Deletes a topic
+     */
+    function DeleteTopic(){}
+    util.inherits(DeleteTopic, pb.BaseController);
 
-function DeleteTopic(){}
+    DeleteTopic.prototype.render = function(cb) {
+        var self    = this;
+        var vars    = this.pathVars;
 
-//inheritance
-util.inherits(DeleteTopic, pb.BaseController);
-
-DeleteTopic.prototype.render = function(cb) {
-	var self    = this;
-	var vars    = this.pathVars;
-
-	var message = this.hasRequiredParams(vars, ['id']);
-	if (message) {
-        cb({
-			code: 400,
-			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-		});
-        return;
-    }
-
-	//ensure existence
-	var dao = new pb.DAO();
-	dao.loadById(vars.id, 'topic', function(err, topic) {
-        if(topic === null) {
+        var message = this.hasRequiredParams(vars, ['id']);
+        if (message) {
             cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-			});
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+            });
             return;
         }
 
-        //delete the topic
-        dao.deleteById(vars.id, 'topic', function(err, result) {
-        	if(util.isError(err) || result < 1) {
-                return cb({
-					code: 500,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
-				});
+        //ensure existence
+        var dao = new pb.DAO();
+        dao.loadById(vars.id, 'topic', function(err, topic) {
+            if(topic === null) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                });
+                return;
             }
 
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topic.name + ' ' + self.ls.get('DELETED'))});
-        });
-    });
-};
+            //delete the topic
+            dao.deleteById(vars.id, 'topic', function(err, result) {
+                if(util.isError(err) || result < 1) {
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                    });
+                }
 
-//exports
-module.exports = DeleteTopic;
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topic.name + ' ' + self.ls.get('DELETED'))});
+            });
+        });
+    };
+
+    //exports
+    return DeleteTopic;
+};

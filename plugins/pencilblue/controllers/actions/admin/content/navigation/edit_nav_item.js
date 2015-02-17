@@ -15,97 +15,100 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Edits a nav item
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Edits a nav item
+     */
+    function EditNavItem(){}
+    util.inherits(EditNavItem, pb.BaseController);
 
-function EditNavItem(){}
+    EditNavItem.prototype.render = function(cb){
+        var self = this;
+        var vars = this.pathVars;
+        var dao = new pb.DAO();
 
-//inheritance
-util.inherits(EditNavItem, pb.BaseController);
+        var message = this.hasRequiredParams(vars, ['id']);
+        if (message) {
+            cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+            });
+            return;
+        }
 
-EditNavItem.prototype.render = function(cb){
-    var self = this;
-    var vars = this.pathVars;
-    var dao = new pb.DAO();
-
-    var message = this.hasRequiredParams(vars, ['id']);
-    if (message) {
-        cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-        });
-        return;
-    }
-
-    this.getJSONPostParams(function(err, post) {
-        //load object
-        dao.loadById(vars.id, 'section', function(err, navItem) {
-            if(util.isError(err) || !util.isObject(navItem)) {
-                cb({
-                    code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-                });
-                return;
-            }
-
-            self.wasContainer = navItem.type === 'container';
-            pb.DocumentCreator.update(post, navItem, ['keywords'], ['url', 'parent']);
-
-            //ensure a URL was provided
-            if(!navItem.url && navItem.name) {
-                navItem.url = navItem.name.toLowerCase().split(' ').join('-');
-            }
-
-            //strip unneeded properties
-            pb.SectionService.trimForType(navItem);
-
-            //validate
-            var navService = new pb.SectionService();
-            navService.save(navItem, function(err, result) {
-                if(util.isError(err)) {
+        this.getJSONPostParams(function(err, post) {
+            //load object
+            dao.loadById(vars.id, 'section', function(err, navItem) {
+                if(util.isError(err) || !util.isObject(navItem)) {
                     cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                    });
-                    return;
-                }
-                else if(util.isArray(result) && result.length > 0) {
-                    cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, EditNavItem.getHtmlErrorMsg(result))
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                     });
                     return;
                 }
 
-                self.checkForNavMapUpdate(navItem, function() {
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, navItem.name + ' ' + self.ls.get('EDITED'))});
+                self.wasContainer = navItem.type === 'container';
+                pb.DocumentCreator.update(post, navItem, ['keywords'], ['url', 'parent']);
+
+                //ensure a URL was provided
+                if(!navItem.url && navItem.name) {
+                    navItem.url = navItem.name.toLowerCase().split(' ').join('-');
+                }
+
+                //strip unneeded properties
+                pb.SectionService.trimForType(navItem);
+
+                //validate
+                var navService = new pb.SectionService();
+                navService.save(navItem, function(err, result) {
+                    if(util.isError(err)) {
+                        cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        });
+                        return;
+                    }
+                    else if(util.isArray(result) && result.length > 0) {
+                        cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, EditNavItem.getHtmlErrorMsg(result))
+                        });
+                        return;
+                    }
+
+                    self.checkForNavMapUpdate(navItem, function() {
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, navItem.name + ' ' + self.ls.get('EDITED'))});
+                    });
                 });
             });
         });
-    });
-};
+    };
 
-EditNavItem.prototype.deleteOrphans = function(navItem, cb) {
-    var service = new pb.SectionService();
-    service.deleteChildren(navItem[pb.DAO.getIdField()], cb);
-};
+    EditNavItem.prototype.deleteOrphans = function(navItem, cb) {
+        var service = new pb.SectionService();
+        service.deleteChildren(navItem[pb.DAO.getIdField()], cb);
+    };
 
-EditNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {
-    var service = new pb.SectionService();
-    service.updateNavMap(navItem, cb);
-};
+    EditNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {
+        var service = new pb.SectionService();
+        service.updateNavMap(navItem, cb);
+    };
 
-EditNavItem.getHtmlErrorMsg = function(validationErrors) {
-    var html = '';
-    for (var i = 0; i < validationErrors.length; i++) {
-        if (i > 0) {
-            html += '<br/>';
+    EditNavItem.getHtmlErrorMsg = function(validationErrors) {
+        var html = '';
+        for (var i = 0; i < validationErrors.length; i++) {
+            if (i > 0) {
+                html += '<br/>';
+            }
+            html += validationErrors[i].field + ':' + validationErrors[i].message;
         }
-        html += validationErrors[i].field + ':' + validationErrors[i].message;
-    }
-    return html;
-};
+        return html;
+    };
 
-//exports
-module.exports = EditNavItem;
+    //exports
+    return EditNavItem;
+};

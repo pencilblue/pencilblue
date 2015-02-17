@@ -15,66 +15,69 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for importing topics from CSV
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for importing topics from CSV
+     */
+    function ImportTopics(){}
+    util.inherits(ImportTopics, pb.BaseController);
 
-function ImportTopics(){}
+    //statics
+    var SUB_NAV_KEY = 'import_topics';
 
-//inheritance
-util.inherits(ImportTopics, pb.BaseController);
+    ImportTopics.prototype.render = function(cb) {
+        var self = this;
 
-//statics
-var SUB_NAV_KEY = 'import_topics';
+        var tabs   =
+        [
+            {
+                active: 'active',
+                href: '#topic_settings',
+                icon: 'file-text-o',
+                title: self.ls.get('LOAD_FILE')
+            }
+        ];
 
-ImportTopics.prototype.render = function(cb) {
-	var self = this;
-
-    var tabs   =
-    [
+        var angularObjects = pb.js.getAngularObjects(
         {
-            active: 'active',
-            href: '#topic_settings',
-            icon: 'file-text-o',
-            title: self.ls.get('LOAD_FILE')
-        }
-    ];
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
+            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics'),
+            tabs: tabs
+        });
 
-    var angularObjects = pb.js.getAngularObjects(
-    {
-        navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics'),
-        tabs: tabs
-    });
+        this.setPageName(this.ls.get('IMPORT_TOPICS'));
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        this.ts.load('admin/content/topics/import_topics', function(err, result) {
+            cb({content: result});
+        });
+    };
 
-	this.setPageName(this.ls.get('IMPORT_TOPICS'));
-	self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-	this.ts.load('admin/content/topics/import_topics', function(err, result) {
-        cb({content: result});
-    });
+    ImportTopics.getSubNavItems = function(key, ls, data) {
+        return [{
+            name: 'manage_topics',
+            title: ls.get('IMPORT_TOPICS'),
+            icon: 'chevron-left',
+            href: '/admin/content/topics'
+        }, {
+            name: 'import_topics',
+            title: '',
+            icon: 'upload',
+            href: '/admin/content/topics/import'
+        }, {
+            name: 'new_topic',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/topics/new'
+        }];
+    };
+
+    //register admin sub-nav
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ImportTopics.getSubNavItems);
+
+    //exports
+    return ImportTopics;
 };
-
-ImportTopics.getSubNavItems = function(key, ls, data) {
-	return [{
-		name: 'manage_topics',
-		title: ls.get('IMPORT_TOPICS'),
-		icon: 'chevron-left',
-		href: '/admin/content/topics'
-	}, {
-		name: 'import_topics',
-		title: '',
-		icon: 'upload',
-		href: '/admin/content/topics/import'
-	}, {
-		name: 'new_topic',
-		title: '',
-		icon: 'plus',
-		href: '/admin/content/topics/new'
-	}];
-};
-
-//register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ImportTopics.getSubNavItems);
-
-//exports
-module.exports = ImportTopics;

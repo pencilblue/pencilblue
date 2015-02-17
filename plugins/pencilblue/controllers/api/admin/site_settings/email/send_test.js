@@ -15,42 +15,45 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Resends an account verification email
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Resends an account verification email
+     */
+    function SendTestEmail(){}
+    util.inherits(SendTestEmail, pb.FormController);
 
-function SendTestEmail(){}
+    SendTestEmail.prototype.onPostParamsRetrieved = function(post, cb) {
+        var self = this;
 
-//inheritance
-util.inherits(SendTestEmail, pb.FormController);
-
-SendTestEmail.prototype.onPostParamsRetrieved = function(post, cb) {
-    var self = this;
-
-    var message = this.hasRequiredParams(post, this.getRequiredFields());
-    if(message) {
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)});
-        return;
-    }
-
-    var options = {
-        to: post.email,
-        subject: 'Test email from PencilBlue',
-        layout: 'This is a successful test email from the PencilBlue system.',
-    };
-    var emailService = new pb.EmailService();
-    emailService.sendFromLayout(options, function(err, response) {
-        if(err) {
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, JSON.stringify(err))});
+        var message = this.hasRequiredParams(post, this.getRequiredFields());
+        if(message) {
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)});
             return;
         }
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'email successfully sent')});
-    });
-};
 
-SendTestEmail.prototype.getRequiredFields = function() {
-    return ['email'];
-};
+        var options = {
+            to: post.email,
+            subject: 'Test email from PencilBlue',
+            layout: 'This is a successful test email from the PencilBlue system.',
+        };
+        var emailService = new pb.EmailService();
+        emailService.sendFromLayout(options, function(err, response) {
+            if(err) {
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, JSON.stringify(err))});
+                return;
+            }
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'email successfully sent')});
+        });
+    };
 
-//exports
-module.exports = SendTestEmail;
+    SendTestEmail.prototype.getRequiredFields = function() {
+        return ['email'];
+    };
+
+    //exports
+    return SendTestEmail;
+};

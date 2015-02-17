@@ -15,31 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Creates a new topic
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Creates a new topic
+     */
+    function NewTopic(){}
+    util.inherits(NewTopic, pb.BaseController);
 
-function NewTopic(){}
+    NewTopic.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-//inheritance
-util.inherits(NewTopic, pb.BaseController);
-
-NewTopic.prototype.render = function(cb) {
-    var self = this;
-    var vars = this.pathVars;
-
-    var message = this.hasRequiredParams(vars, ['id']);
-    if (message) {
-        cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-        });
-        return;
-    }
-
-    this.getJSONPostParams(function(err, post) {
-        message = self.hasRequiredParams(post, ['name']);
-        if(message) {
+        var message = this.hasRequiredParams(vars, ['id']);
+        if (message) {
             cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
@@ -47,41 +39,52 @@ NewTopic.prototype.render = function(cb) {
             return;
         }
 
-        var dao = new pb.DAO();
-        dao.loadById(vars.id, 'topic', function(err, topic) {
-            if(util.isError(err) || !util.isObject(topic)) {
+        this.getJSONPostParams(function(err, post) {
+            message = self.hasRequiredParams(post, ['name']);
+            if(message) {
                 cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
                 });
                 return;
             }
 
-            pb.DocumentCreator.update(post, topic);
-
-            dao.loadByValue('name', topic.name, 'topic', function(err, testTopic) {
-                if(testTopic && !testTopic[pb.DAO.getIdField()].equals(topic[pb.DAO.getIdField()])) {
+            var dao = new pb.DAO();
+            dao.loadById(vars.id, 'topic', function(err, topic) {
+                if(util.isError(err) || !util.isObject(topic)) {
                     cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_TOPIC'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                     });
                     return;
                 }
 
-                dao.save(topic, function(err, result) {
-                    if(util.isError(err)) {
-                        return cb({
-                            code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                pb.DocumentCreator.update(post, topic);
+
+                dao.loadByValue('name', topic.name, 'topic', function(err, testTopic) {
+                    if(testTopic && !testTopic[pb.DAO.getIdField()].equals(topic[pb.DAO.getIdField()])) {
+                        cb({
+                            code: 400,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_TOPIC'))
                         });
+                        return;
                     }
 
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topic.name + ' ' + self.ls.get('EDITED'))});
+                    dao.save(topic, function(err, result) {
+                        if(util.isError(err)) {
+                            return cb({
+                                code: 500,
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                            });
+                        }
+
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topic.name + ' ' + self.ls.get('EDITED'))});
+                    });
                 });
             });
         });
-    });
-};
+    };
 
-//exports
-module.exports = NewTopic;
+    //exports
+    return NewTopic;
+};

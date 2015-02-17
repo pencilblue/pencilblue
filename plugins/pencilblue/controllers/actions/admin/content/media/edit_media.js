@@ -15,70 +15,73 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Edits media
- * @class EditMediaActionController
- * @extends FormController
- * @constructor
- */
-function EditMediaActionController(){}
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util         = pb.util;
+    var mediaService = pb.MediaService;
+    
+    /**
+     * Edits media
+     * @class EditMediaActionController
+     * @extends FormController
+     * @constructor
+     */
+    function EditMediaActionController(){}
+    util.inherits(EditMediaActionController, pb.BaseController);
 
-var mediaService = require(pb.config.docRoot + '/include/service/entities/media_service.js');
+    /**
+     *
+     * @method onPostParamsRetrieved
+     */
+    EditMediaActionController.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-//inheritance
-util.inherits(EditMediaActionController, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
+            delete post[pb.DAO.getIdField()];
 
-/**
- *
- * @method onPostParamsRetrieved
- */
-EditMediaActionController.prototype.render = function(cb) {
-	var self = this;
-	var vars = this.pathVars;
+            var message = self.hasRequiredParams(post, self.getRequiredParams());
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                });
+                return;
+            }
 
-	this.getJSONPostParams(function(err, post) {
-		delete post[pb.DAO.getIdField()];
+            var mediaService = new pb.MediaService();
+            mediaService.loadById(vars.id, function(err, media) {
+                if(util.isError(err) || media === null) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    });
+                    return;
+                }
 
-		var message = self.hasRequiredParams(post, self.getRequiredParams());
-	    if(message) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-			});
-			return;
-	    }
+                //update existing document
+                pb.DocumentCreator.update(post, media);
+                mediaService.save(media, function(err, result) {
+                    if(util.isError(err) || util.isArray(result)) {
+                        cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        });
+                        return;
+                    }
 
-	    var mediaService = new pb.MediaService();
-	    mediaService.loadById(vars.id, function(err, media) {
-	    	if(util.isError(err) || media === null) {
-	            cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-				});
-				return;
-	        }
+                    result.icon = pb.MediaService.getMediaIcon(media.media_type);
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, media.name + ' ' + self.ls.get('EDITED'), result)});
+                });
+            });
+        });
+    };
 
-	        //update existing document
-	        pb.DocumentCreator.update(post, media);
-	        mediaService.save(media, function(err, result) {
-	            if(util.isError(err) || util.isArray(result)) {
-	                cb({
-						code: 500,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-					});
-					return;
-	            }
+    EditMediaActionController.prototype.getRequiredParams = function() {
+        return ['media_type', 'location', 'name'];
+    };
 
-				result.icon = pb.MediaService.getMediaIcon(media.media_type);
-				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, media.name + ' ' + self.ls.get('EDITED'), result)});
-	        });
-	    });
-	});
+    //exports
+    return EditMediaActionController;
 };
-
-EditMediaActionController.prototype.getRequiredParams = function() {
-	return ['media_type', 'location', 'name'];
-};
-
-//exports
-module.exports = EditMediaActionController;

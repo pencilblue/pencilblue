@@ -15,65 +15,68 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Creates a new user
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Creates a new user
+     */
+    function NewUser(){}
+    util.inherits(NewUser, pb.BaseController);
 
-function NewUser(){}
+    NewUser.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(NewUser, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
+            var message = self.hasRequiredParams(post, self.getRequiredFields());
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                });
+                return;
+            }
 
-NewUser.prototype.render = function(cb) {
-	var self = this;
+            if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+                });
+                return;
+            }
 
-	this.getJSONPostParams(function(err, post) {
-	    var message = self.hasRequiredParams(post, self.getRequiredFields());
-	    if(message) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-			});
-	        return;
-	    }
+            var user = pb.DocumentCreator.create('user', post);
+            pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
+                if(util.isError(err) || isTaken) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
+                    });
+                    return;
+                }
 
-	    if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
-			});
-	        return;
-	    }
+                var dao = new pb.DAO();
+                dao.save(user, function(err, result) {
+                    if(util.isError(err)) {
+                        cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        });
+                        return;
+                    }
 
-	    var user = pb.DocumentCreator.create('user', post);
-	    pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
-	        if(util.isError(err) || isTaken) {
-	            cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
-				});
-	            return;
-	        }
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_CREATED'), result)});
+                });
+            });
+        });
+    };
 
-	        var dao = new pb.DAO();
-	        dao.save(user, function(err, result) {
-	            if(util.isError(err)) {
-	                cb({
-						code: 500,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-					});
-	                return;
-	            }
+    NewUser.prototype.getRequiredFields = function() {
+        return ['username', 'email', 'password', 'confirm_password', 'admin'];
+    };
 
-				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_CREATED'), result)});
-	        });
-	    });
-	});
+    //exports
+    return NewUser;
 };
-
-NewUser.prototype.getRequiredFields = function() {
-	return ['username', 'email', 'password', 'confirm_password', 'admin'];
-};
-
-//exports
-module.exports = NewUser;

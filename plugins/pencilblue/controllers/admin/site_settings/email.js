@@ -15,79 +15,82 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for the site's email settings
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for the site's email settings
+     */
+    function Email(){}
+    util.inherits(Email, pb.BaseController);
 
-function Email(){}
+    //statics
+    var SUB_NAV_KEY = 'site_email_settings';
 
-//inheritance
-util.inherits(Email, pb.BaseController);
+    Email.prototype.render = function(cb) {
+        var self = this;
 
-//statics
-var SUB_NAV_KEY = 'site_email_settings';
+        var tabs =
+        [
+            {
+                active: 'active',
+                href: '#preferences',
+                icon: 'wrench',
+                title: self.ls.get('PREFERENCES')
+            },
+            {
+                href: '#smtp',
+                icon: 'upload',
+                title: self.ls.get('SMTP')
+            },
+            {
+                href: '#test',
+                icon: 'flask',
+                title: self.ls.get('TEST')
+            }
+        ];
 
-Email.prototype.render = function(cb) {
-    var self = this;
+        var emailService = new pb.EmailService();
+        emailService.getSettings(function(err, emailSettings) {
+            var angularObjects = pb.js.getAngularObjects({
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email'),
+                tabs: tabs,
+                emailSettings: emailSettings
+            });
 
-    var tabs =
-    [
-        {
-            active: 'active',
-            href: '#preferences',
-            icon: 'wrench',
-            title: self.ls.get('PREFERENCES')
-        },
-        {
-            href: '#smtp',
-            icon: 'upload',
-            title: self.ls.get('SMTP')
-        },
-        {
-            href: '#test',
-            icon: 'flask',
-            title: self.ls.get('TEST')
-        }
-    ];
-
-    var emailService = new pb.EmailService();
-    emailService.getSettings(function(err, emailSettings) {
-        var angularObjects = pb.js.getAngularObjects({
-            navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email'),
-            tabs: tabs,
-            emailSettings: emailSettings
+            self.setPageName(self.ls.get('EMAIL'));
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+            self.ts.load('admin/site_settings/email', function(err, result) {
+                cb({content: result});
+            });
         });
+    };
 
-        self.setPageName(self.ls.get('EMAIL'));
-        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-        self.ts.load('admin/site_settings/email', function(err, result) {
-            cb({content: result});
-        });
-    });
+    Email.getSubNavItems = function(key, ls, data) {
+        return [{
+            name: 'configuration',
+            title: ls.get('EMAIL'),
+            icon: 'chevron-left',
+            href: '/admin/site_settings'
+        }, {
+            name: 'content',
+            title: ls.get('CONTENT'),
+            icon: 'quote-right',
+            href: '/admin/site_settings/content'
+        }, {
+            name: 'libraries',
+            title: ls.get('LIBRARIES'),
+            icon: 'book',
+            href: '/admin/site_settings/libraries'
+        }];
+    };
+
+    //register admin sub-nav
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, Email.getSubNavItems);
+
+    //exports
+    return Email;
 };
-
-Email.getSubNavItems = function(key, ls, data) {
-    return [{
-        name: 'configuration',
-        title: ls.get('EMAIL'),
-        icon: 'chevron-left',
-        href: '/admin/site_settings'
-    }, {
-        name: 'content',
-        title: ls.get('CONTENT'),
-        icon: 'quote-right',
-        href: '/admin/site_settings/content'
-    }, {
-        name: 'libraries',
-        title: ls.get('LIBRARIES'),
-        icon: 'book',
-        href: '/admin/site_settings/libraries'
-    }];
-};
-
-//register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, Email.getSubNavItems);
-
-//exports
-module.exports = Email;

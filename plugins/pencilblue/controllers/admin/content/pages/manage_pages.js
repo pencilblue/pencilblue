@@ -15,87 +15,90 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for managing pages
- */
-
-function ManagePages(){}
-
-//inheritance
-util.inherits(ManagePages, pb.BaseController);
-
-//statics
-var SUB_NAV_KEY = 'manage_pages';
-
-ManagePages.prototype.render = function(cb) {
-	var self = this;
+module.exports = function(pb) {
     
-    var opts = {
-        select: pb.DAO.PROJECT_ALL,
-        where: pb.DAO.ANYWHERE,
-        order: {headline: pb.DAO.ASC}
-    };
-	var dao  = new pb.DAO();
-    dao.q('page', opts, function(err, pages) {
-        if (util.isError(err)) {
-            return self.reqHandler.serveError(err);
-        }
-        else if(pages.length === 0) {
-            return self.redirect('/admin/content/pages/new', cb);
-        }
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for managing pages
+     */
+    function ManagePages(){}
+    util.inherits(ManagePages, pb.BaseController);
 
-        pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-            var angularObjects = pb.js.getAngularObjects(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_pages'),
-                pages: self.getPageStatuses(pagesWithAuthor)
-            });
+    //statics
+    var SUB_NAV_KEY = 'manage_pages';
 
-            var title = self.ls.get('MANAGE_PAGES');
-            self.setPageName(title);
-			self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/content/pages/manage_pages', function(err, data) {
-                var result = '' + data;
-                cb({content: result});
+    ManagePages.prototype.render = function(cb) {
+        var self = this;
+
+        var opts = {
+            select: pb.DAO.PROJECT_ALL,
+            where: pb.DAO.ANYWHERE,
+            order: {headline: pb.DAO.ASC}
+        };
+        var dao  = new pb.DAO();
+        dao.q('page', opts, function(err, pages) {
+            if (util.isError(err)) {
+                return self.reqHandler.serveError(err);
+            }
+            else if(pages.length === 0) {
+                return self.redirect('/admin/content/pages/new', cb);
+            }
+
+            pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
+                var angularObjects = pb.js.getAngularObjects(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_pages'),
+                    pages: self.getPageStatuses(pagesWithAuthor)
+                });
+
+                var title = self.ls.get('MANAGE_PAGES');
+                self.setPageName(title);
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/pages/manage_pages', function(err, data) {
+                    var result = '' + data;
+                    cb({content: result});
+                });
             });
         });
-    });
-};
+    };
 
-ManagePages.prototype.getPageStatuses = function(pages) {
-    var now = new Date();
-    for(var i = 0; i < pages.length; i++) {
-        if(pages[i].draft) {
-            pages[i].status = this.ls.get('DRAFT');
+    ManagePages.prototype.getPageStatuses = function(pages) {
+        var now = new Date();
+        for(var i = 0; i < pages.length; i++) {
+            if(pages[i].draft) {
+                pages[i].status = this.ls.get('DRAFT');
+            }
+            else if(pages[i].publish_date > now) {
+                pages[i].status = this.ls.get('UNPUBLISHED');
+            }
+            else {
+                pages[i].status = this.ls.get('PUBLISHED');
+            }
         }
-        else if(pages[i].publish_date > now) {
-            pages[i].status = this.ls.get('UNPUBLISHED');
-        }
-        else {
-            pages[i].status = this.ls.get('PUBLISHED');
-        }
-    }
 
-    return pages;
+        return pages;
+    };
+
+    ManagePages.getSubNavItems = function(key, ls, data) {
+        return [{
+            name: 'manage_pages',
+            title: ls.get('MANAGE_PAGES'),
+            icon: 'refresh',
+            href: '/admin/content/pages'
+        }, {
+            name: 'new_page',
+            title: '' ,
+            icon: 'plus',
+            href: '/admin/content/pages/new'
+        }];
+    };
+
+    //register admin sub-nav
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManagePages.getSubNavItems);
+
+    //exports
+    return ManagePages;
 };
-
-ManagePages.getSubNavItems = function(key, ls, data) {
-	return [{
-		name: 'manage_pages',
-		title: ls.get('MANAGE_PAGES'),
-		icon: 'refresh',
-		href: '/admin/content/pages'
-	}, {
-		name: 'new_page',
-		title: '' ,
-		icon: 'plus',
-		href: '/admin/content/pages/new'
-	}];
-};
-
-//register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManagePages.getSubNavItems);
-
-//exports
-module.exports = ManagePages;

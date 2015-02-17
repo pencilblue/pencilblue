@@ -15,29 +15,30 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-* Interface for changing a theme's settings
-*/
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    var PluginSettings = require('../plugins/plugin_settings.js')(pb);
+    
+    /**
+     * Interface for changing a theme's settings
+     */
+    function ThemeSettings() {}
+    util.inherits(ThemeSettings, PluginSettings);
 
-function ThemeSettings() {}
+    ThemeSettings.prototype.getSettings = function(uid, cb) {
+        pb.plugins.getThemeSettings(uid, cb);
+    };
 
-//dependencies
-var PluginSettings = require('../plugins/plugin_settings.js');
+    ThemeSettings.prototype.setSettings = function(settings, uid, cb) {
+        pb.plugins.setThemeSettings(settings, uid, cb);
+    };
 
-//inheritance
-util.inherits(ThemeSettings, PluginSettings);
+    PluginSettings.prototype.getBackUrl = function() {
+        return '/admin/themes/';
+    };
 
-ThemeSettings.prototype.getSettings = function(uid, cb) {
-	pb.plugins.getThemeSettings(uid, cb);
+    //exports
+    return ThemeSettings;
 };
-
-ThemeSettings.prototype.setSettings = function(settings, uid, cb) {
-	pb.plugins.setThemeSettings(settings, uid, cb);
-};
-
-PluginSettings.prototype.getBackUrl = function() {
-	return '/admin/themes/';
-};
-
-//exports
-module.exports = ThemeSettings;

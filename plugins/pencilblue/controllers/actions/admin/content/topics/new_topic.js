@@ -15,52 +15,55 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Creates a new topic
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Creates a new topic
+     */
+    function NewTopic(){}
+    util.inherits(NewTopic, pb.BaseController);
 
-function NewTopic(){}
+    NewTopic.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(NewTopic, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
+            var message = self.hasRequiredParams(post, ['name']);
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                });
+                return;
+            }
 
-NewTopic.prototype.render = function(cb) {
-	var self = this;
+            var dao = new pb.DAO();
+            dao.count('topic', {name: post.name}, function(err, count) {
+                if(count > 0) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_TOPIC'))
+                    });
+                    return;
+                }
 
-	this.getJSONPostParams(function(err, post) {
-		var message = self.hasRequiredParams(post, ['name']);
-		if(message) {
-			cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-			});
-	        return;
-	    }
+                var topicDocument = pb.DocumentCreator.create('topic', post);
+                dao.save(topicDocument, function(err, result) {
+                    if(util.isError(err)) {
+                        return cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        });
+                    }
 
-	    var dao = new pb.DAO();
-	    dao.count('topic', {name: post.name}, function(err, count) {
-	        if(count > 0) {
-				cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_TOPIC'))
-				});
-	            return;
-	        }
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topicDocument.name + ' ' + self.ls.get('CREATED'))});
+                });
+            });
+        });
+    };
 
-	        var topicDocument = pb.DocumentCreator.create('topic', post);
-	        dao.save(topicDocument, function(err, result) {
-	            if(util.isError(err)) {
-	                return cb({
-						code: 500,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-					});
-	            }
-
-				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, topicDocument.name + ' ' + self.ls.get('CREATED'))});
-	        });
-	    });
-	});
+    //exports
+    return NewTopic;
 };
-
-//exports
-module.exports = NewTopic;

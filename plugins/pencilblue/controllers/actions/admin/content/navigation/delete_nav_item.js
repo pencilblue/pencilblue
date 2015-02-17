@@ -15,66 +15,69 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Deletes a navigation item
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Deletes a navigation item
+     */
+    function DeleteNavItem(){}
+    util.inherits(DeleteNavItem, pb.BaseController);
 
-function DeleteNavItem(){}
+    DeleteNavItem.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-//inheritance
-util.inherits(DeleteNavItem, pb.BaseController);
-
-DeleteNavItem.prototype.render = function(cb) {
-    var self = this;
-    var vars = this.pathVars;
-
-    var message = this.hasRequiredParams(vars, ['id']);
-    if (message) {
-        cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-        });
-        return;
-    }
-
-    //ensure existence
-    var dao = new pb.DAO();
-    dao.loadById(vars.id, 'section', function(err, section) {
-        if(section === null) {
+        var message = this.hasRequiredParams(vars, ['id']);
+        if (message) {
             cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
             });
             return;
         }
 
-        //delete the section
-        var where = {
-            $or: [
-                pb.DAO.getIDWhere(vars.id), 
-                {
-                    parent: vars.id
-                }
-            ]
-        };
-        dao.delete(where, 'section', function(err, result) {
-            if(util.isError(err) || result < 1) {
+        //ensure existence
+        var dao = new pb.DAO();
+        dao.loadById(vars.id, 'section', function(err, section) {
+            if(section === null) {
                 cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                 });
                 return;
             }
 
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, section.name + ' ' + self.ls.get('DELETED'))});
+            //delete the section
+            var where = {
+                $or: [
+                    pb.DAO.getIDWhere(vars.id), 
+                    {
+                        parent: vars.id
+                    }
+                ]
+            };
+            dao.delete(where, 'section', function(err, result) {
+                if(util.isError(err) || result < 1) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                    });
+                    return;
+                }
+
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, section.name + ' ' + self.ls.get('DELETED'))});
+            });
         });
-    });
-};
+    };
 
-DeleteNavItem.prototype.updateNavMap = function(removeID, cb) {
-    var service = new pb.SectionService();
-    service.removeFromSectionMap(removeID, cb);
-};
+    DeleteNavItem.prototype.updateNavMap = function(removeID, cb) {
+        var service = new pb.SectionService();
+        service.removeFromSectionMap(removeID, cb);
+    };
 
-//exports
-module.exports = DeleteNavItem;
+    //exports
+    return DeleteNavItem;
+};

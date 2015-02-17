@@ -18,204 +18,208 @@
 //dependencies
 var async = require('async');
 
-/**
- * Interface for creating and editing articles
- */
-function ArticleForm(){}
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for creating and editing articles
+     */
+    function ArticleForm(){}
+    util.inherits(ArticleForm, pb.BaseController);
 
-//inheritance
-util.inherits(ArticleForm, pb.BaseController);
+    ArticleForm.prototype.render = function(cb) {
+        var self  = this;
+        var vars = this.pathVars;
+        this.vars = vars;
 
-ArticleForm.prototype.render = function(cb) {
-	var self  = this;
-	var vars = this.pathVars;
-	this.vars = vars;
+        self.gatherData(vars, function(err, results){
+            if(util.isError(err)) {
+                throw err;
+            }
+            else if(!results.article) {
+                self.reqHandler.serve404();
+                return;
+            }
 
-    self.gatherData(vars, function(err, results){
-		if(util.isError(err)) {
-			throw err;
-		}
-		else if(!results.article) {
-			self.reqHandler.serve404();
-			return;
-		}
+            self.article = results.article;
+            var tabs   = self.getTabs();
 
-        self.article = results.article;
-        var tabs   = self.getTabs();
-
-		self.setPageName(self.article[pb.DAO.getIdField()] ? self.article.headline : self.ls.get('NEW_ARTICLE'));
-		self.ts.registerLocal('angular_script', '');
-		self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
-    	self.ts.load('admin/content/articles/article_form', function(err, data) {
-    		self.onTemplateRetrieved('' + data, function(err, data) {
-    	        var result = '' + data;
-                self.checkForFormRefill(result, function(newResult) {
-                    result = newResult;
-                    cb({content: result});
+            self.setPageName(self.article[pb.DAO.getIdField()] ? self.article.headline : self.ls.get('NEW_ARTICLE'));
+            self.ts.registerLocal('angular_script', '');
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
+            self.ts.load('admin/content/articles/article_form', function(err, data) {
+                self.onTemplateRetrieved('' + data, function(err, data) {
+                    var result = '' + data;
+                    self.checkForFormRefill(result, function(newResult) {
+                        result = newResult;
+                        cb({content: result});
+                    });
                 });
-    		});
+            });
         });
-    });
-};
-
-ArticleForm.prototype.onTemplateRetrieved = function(template, cb) {
-	cb(null, template);
-};
-
-ArticleForm.prototype.getAngularObjects = function(tabs, data) {
-	if(data.article[pb.DAO.getIdField()]) {
-		var media = [];
-		var i, j;
-
-		for(i = 0; i < data.article.article_media.length; i++) {
-			for(j = 0; j < data.media.length; j++) {
-				if(pb.DAO.areIdsEqual(data.media[j][pb.DAO.idField()], data.article.article_media[i])) {
-					media.push(data.media[j]);
-					data.media.splice(j, 1);
-					break;
-				}
-			}
-		}
-		data.article.article_media = media;
-
-		var sections = [];
-		for(i = 0; i < data.article.article_sections.length; i++) {
-			for(j = 0; j < data.sections.length; j++) {
-				if(pb.DAO.areIdsEqual(data.sections[j][pb.DAO.getIdField()], data.article.article_sections[i])) {
-					sections.push(data.sections[j]);
-					data.sections.splice(j, 1);
-					break;
-				}
-			}
-		}
-		data.article.article_sections = sections;
-
-		var topics = [];
-		for(i = 0; i < data.article.article_topics.length; i++) {
-			for(j = 0; j < data.topics.length; j++) {
-				if(pb.DAO.areIdsEqual(data.topics[j][pb.DAO.getIdField()], data.article.article_topics[i])) {
-					topics.push(data.topics[j]);
-					data.topics.splice(j, 1);
-					break;
-				}
-			}
-		}
-		data.article.article_topics = topics;
-	}
-
-	var objects = {
-        navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
-        pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), data),
-        tabs: tabs,
-        templates: data.templates,
-        sections: data.sections,
-        topics: data.topics,
-        media: data.media,
-		article: data.article
     };
-	return pb.js.getAngularObjects(objects);
-};
 
-ArticleForm.getSubNavItems = function(key, ls, data) {
-	return [{
-	    name: 'manage_articles',
-	    title: data.article[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.article.headline : ls.get('NEW_ARTICLE'),
-	    icon: 'chevron-left',
-	    href: '/admin/content/articles'
-	}, {
-        name: 'new_article',
-        title: '',
-        icon: 'plus',
-        href: '/admin/content/articles/new'
-    }];
-};
-
-ArticleForm.prototype.getActivePill = function() {
-	return 'new_article';
-};
-
-ArticleForm.prototype.gatherData = function(vars, cb) {
-	var self  = this;
-	var dao   = new pb.DAO();
-    var tasks = {
-    	templates: function(callback) {
-            callback(null, pb.TemplateService.getAvailableContentTemplates());
-    	},
-
-    	sections: function(callback) {
-            var opts = {
-                select: pb.DAO.PROJECT_ALL,
-                where: {
-                    type: {$in: ['container', 'section']}
-                },
-                order: {name: pb.DAO.ASC}
-            };
-    		var where = {
-    			type: {$in: ['container', 'section']}
-    		};
-    		dao.q('section', opts, callback);
-    	},
-
-    	topics: function(callback) {
-            var opts = {
-                select: pb.DAO.PROJECT_ALL,
-                where: pb.DAO.ANYWHERE,
-                order: {name: pb.DAO.ASC}
-            };
-    		dao.q('topic', opts, callback);
-    	},
-
-    	media: function(callback) {
-            var mservice = new pb.MediaService();
-    		mservice.get(callback);
-    	},
-
-		article: function(callback) {
-			if(!pb.validation.isIdStr(vars.id, true)) {
-				callback(null, {});
-				return;
-			}
-            
-            //TODO call article service
-			dao.loadById(vars.id, 'article', callback);
-		}
+    ArticleForm.prototype.onTemplateRetrieved = function(template, cb) {
+        cb(null, template);
     };
-    async.parallelLimit(tasks, 2, cb);
-};
 
-ArticleForm.prototype.getTabs = function() {
-	return [
-        {
-            active: 'active',
-            href: '#content',
-            icon: 'quote-left',
-            title: this.ls.get('CONTENT')
-        },
-        {
-            href: '#media',
-            icon: 'camera',
-            title: this.ls.get('MEDIA')
-        },
-        {
-            href: '#sections_dnd',
-            icon: 'th-large',
-            title: this.ls.get('SECTIONS')
-        },
-        {
-            href: '#topics_dnd',
-            icon: 'tags',
-            title: this.ls.get('TOPICS')
-        },
-        {
-            href: '#seo',
-            icon: 'tasks',
-            title: this.ls.get('SEO')
+    ArticleForm.prototype.getAngularObjects = function(tabs, data) {
+        if(data.article[pb.DAO.getIdField()]) {
+            var media = [];
+            var i, j;
+
+            for(i = 0; i < data.article.article_media.length; i++) {
+                for(j = 0; j < data.media.length; j++) {
+                    if(pb.DAO.areIdsEqual(data.media[j][pb.DAO.idField()], data.article.article_media[i])) {
+                        media.push(data.media[j]);
+                        data.media.splice(j, 1);
+                        break;
+                    }
+                }
+            }
+            data.article.article_media = media;
+
+            var sections = [];
+            for(i = 0; i < data.article.article_sections.length; i++) {
+                for(j = 0; j < data.sections.length; j++) {
+                    if(pb.DAO.areIdsEqual(data.sections[j][pb.DAO.getIdField()], data.article.article_sections[i])) {
+                        sections.push(data.sections[j]);
+                        data.sections.splice(j, 1);
+                        break;
+                    }
+                }
+            }
+            data.article.article_sections = sections;
+
+            var topics = [];
+            for(i = 0; i < data.article.article_topics.length; i++) {
+                for(j = 0; j < data.topics.length; j++) {
+                    if(pb.DAO.areIdsEqual(data.topics[j][pb.DAO.getIdField()], data.article.article_topics[i])) {
+                        topics.push(data.topics[j]);
+                        data.topics.splice(j, 1);
+                        break;
+                    }
+                }
+            }
+            data.article.article_topics = topics;
         }
-    ];
+
+        var objects = {
+            navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
+            pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), data),
+            tabs: tabs,
+            templates: data.templates,
+            sections: data.sections,
+            topics: data.topics,
+            media: data.media,
+            article: data.article
+        };
+        return pb.js.getAngularObjects(objects);
+    };
+
+    ArticleForm.getSubNavItems = function(key, ls, data) {
+        return [{
+            name: 'manage_articles',
+            title: data.article[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.article.headline : ls.get('NEW_ARTICLE'),
+            icon: 'chevron-left',
+            href: '/admin/content/articles'
+        }, {
+            name: 'new_article',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/articles/new'
+        }];
+    };
+
+    ArticleForm.prototype.getActivePill = function() {
+        return 'new_article';
+    };
+
+    ArticleForm.prototype.gatherData = function(vars, cb) {
+        var self  = this;
+        var dao   = new pb.DAO();
+        var tasks = {
+            templates: function(callback) {
+                callback(null, pb.TemplateService.getAvailableContentTemplates());
+            },
+
+            sections: function(callback) {
+                var opts = {
+                    select: pb.DAO.PROJECT_ALL,
+                    where: {
+                        type: {$in: ['container', 'section']}
+                    },
+                    order: {name: pb.DAO.ASC}
+                };
+                var where = {
+                    type: {$in: ['container', 'section']}
+                };
+                dao.q('section', opts, callback);
+            },
+
+            topics: function(callback) {
+                var opts = {
+                    select: pb.DAO.PROJECT_ALL,
+                    where: pb.DAO.ANYWHERE,
+                    order: {name: pb.DAO.ASC}
+                };
+                dao.q('topic', opts, callback);
+            },
+
+            media: function(callback) {
+                var mservice = new pb.MediaService();
+                mservice.get(callback);
+            },
+
+            article: function(callback) {
+                if(!pb.validation.isIdStr(vars.id, true)) {
+                    callback(null, {});
+                    return;
+                }
+
+                //TODO call article service
+                dao.loadById(vars.id, 'article', callback);
+            }
+        };
+        async.parallelLimit(tasks, 2, cb);
+    };
+
+    ArticleForm.prototype.getTabs = function() {
+        return [
+            {
+                active: 'active',
+                href: '#content',
+                icon: 'quote-left',
+                title: this.ls.get('CONTENT')
+            },
+            {
+                href: '#media',
+                icon: 'camera',
+                title: this.ls.get('MEDIA')
+            },
+            {
+                href: '#sections_dnd',
+                icon: 'th-large',
+                title: this.ls.get('SECTIONS')
+            },
+            {
+                href: '#topics_dnd',
+                icon: 'tags',
+                title: this.ls.get('TOPICS')
+            },
+            {
+                href: '#seo',
+                icon: 'tasks',
+                title: this.ls.get('SEO')
+            }
+        ];
+    };
+
+    //register admin sub-nav
+    pb.AdminSubnavService.registerFor('new_article', ArticleForm.getSubNavItems);
+
+    //exports
+    return ArticleForm;
 };
-
-//register admin sub-nav
-pb.AdminSubnavService.registerFor('new_article', ArticleForm.getSubNavItems);
-
-//exports
-module.exports = ArticleForm;

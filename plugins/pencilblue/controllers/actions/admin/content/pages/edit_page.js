@@ -15,86 +15,90 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Edits a page
- * @cclass EditPagePostController
- * @constructor
- * @extends FormController
- */
-function EditPagePostController(){}
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Edits a page
+     * @cclass EditPagePostController
+     * @constructor
+     * @extends FormController
+     */
+    function EditPagePostController(){}
+    util.inherits(EditPagePostController, pb.BaseController);
 
-//inheritance
-util.inherits(EditPagePostController, pb.BaseController);
+    EditPagePostController.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-EditPagePostController.prototype.render = function(cb) {
-	var self = this;
-	var vars = this.pathVars;
+        this.getJSONPostParams(function(err, post) {
+            post.publish_date = new Date(parseInt(post.publish_date));
+            post.id = vars.id;
+            delete post[pb.DAO.getIdField()];
 
-	this.getJSONPostParams(function(err, post) {
-	    post.publish_date = new Date(parseInt(post.publish_date));
-		post.id = vars.id;
-		delete post[pb.DAO.getIdField()];
+            var message = self.hasRequiredParams(post, self.getRequiredParams());
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
+                return;
+            }
 
-		var message = self.hasRequiredParams(post, self.getRequiredParams());
-	    if(message) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-			});
-	        return;
-	    }
+            var dao = new pb.DAO();
+            dao.loadById(post.id, 'page', function(err, page) {
+                if(util.isError(err) || page === null) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
+                    });
+                    return;
+                }
 
-	    var dao = new pb.DAO();
-	    dao.loadById(post.id, 'page', function(err, page) {
-	        if(util.isError(err) || page === null) {
-	            cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
-				});
-	            return;
-	        }
+                post.author = page.author;
+                post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
+                pb.DocumentCreator.update(post, page, ['meta_keywords']);
 
-	        post.author = page.author;
-	        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
-	        pb.DocumentCreator.update(post, page, ['meta_keywords']);
+                self.setFormFieldValues(post);
 
-	        self.setFormFieldValues(post);
+                pb.RequestHandler.urlExists(page.url, post.id, function(err, exists) {
+                    if(util.isError(err) || exists) {
+                        cb({
+                            code: 400,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+                        });
+                        return;
+                    }
 
-	        pb.RequestHandler.urlExists(page.url, post.id, function(err, exists) {
-	            if(util.isError(err) || exists) {
-	                cb({
-						code: 400,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
-					});
-	                return;
-	            }
+                    dao.save(page, function(err, result) {
+                        if(util.isError(err)) {
+                            pb.log.error(err.stack);
+                            return cb({
+                                code: 500,
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                            });
+                        }
 
-	            dao.save(page, function(err, result) {
-	                if(util.isError(err)) {
-                        pb.log.error(err.stack);
-	                    return cb({
-							code: 500,
-							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-						});
-	                }
-
-					post.last_modified = new Date();
-					cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('EDITED'), post)});
-	            });
-	        });
-	    });
-	});
-};
-
-EditPagePostController.prototype.getRequiredParams = function() {
-	return ['url', 'headline', 'page_layout', 'id'];
-};
-
-EditPagePostController.prototype.getSanitizationRules = function() {
-    return {
-        page_layout: pb.BaseController.getContentSanitizationRules()
+                        post.last_modified = new Date();
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('EDITED'), post)});
+                    });
+                });
+            });
+        });
     };
-};
 
-//exports
-module.exports = EditPagePostController;
+    EditPagePostController.prototype.getRequiredParams = function() {
+        return ['url', 'headline', 'page_layout', 'id'];
+    };
+
+    EditPagePostController.prototype.getSanitizationRules = function() {
+        return {
+            page_layout: pb.BaseController.getContentSanitizationRules()
+        };
+    };
+
+    //exports
+    return EditPagePostController;
+};

@@ -15,41 +15,44 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Saves the site's content settings
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Saves the site's content settings
+     */
+    function Content(){}
+    util.inherits(Content, pb.BaseController);
 
-function Content(){}
+    Content.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(Content, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
+            var message = self.hasRequiredParams(post, ['articles_per_page']);
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
+                return;
+            }
 
-Content.prototype.render = function(cb) {
-	var self = this;
+            pb.settings.set('content_settings', post, function(data) {
+                if(util.isError(data)) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                    });
+                    return;
+                }
 
-	this.getJSONPostParams(function(err, post) {
-		var message = self.hasRequiredParams(post, ['articles_per_page']);
-		if(message) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-			});
-	        return;
-	    }
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CONTENT_SETTINGS') + ' ' +  self.ls.get('EDITED'))});
+            });
+        });
+    };
 
-	    pb.settings.set('content_settings', post, function(data) {
-	        if(util.isError(data)) {
-	            cb({
-					code: 500,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-				});
-	            return;
-	        }
-
-			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CONTENT_SETTINGS') + ' ' +  self.ls.get('EDITED'))});
-	    });
-	});
+    //exports
+    return Content;
 };
-
-//exports
-module.exports = Content;
