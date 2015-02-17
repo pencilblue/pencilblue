@@ -348,7 +348,7 @@ module.exports = function ArticleServiceModule(pb) {
 
         //gather all author IDs
         var dao = new pb.DAO();
-        dao.q('user', {where: pb.DAO.getIDInWhere(articles, 'author')}, cb);
+        dao.q('user', {where: pb.DAO.getIdInWhere(articles, 'author')}, cb);
     };
 
     /**

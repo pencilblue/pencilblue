@@ -92,7 +92,7 @@ module.exports = function UserServiceModule(pb) {
                 first_name: 1,
                 last_name: 1
             },
-            where: pb.DAO.getIDInWhere(Object.keys(authorIds))
+            where: pb.DAO.getIdInWhere(Object.keys(authorIds))
         };
         var dao = new pb.DAO();
         dao.q('user', opts, function(err, authors) {

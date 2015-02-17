@@ -689,7 +689,7 @@ module.exports = function DAOModule(pb) {
      */
     DAO.getIDInWhere = function(objArray, idProp) {
         pb.log.warn('DAO: getIDInWhere is deprecated. Use getIdInWhere instead');
-        return DAO.getIDInWhere(objArray, idProp);
+        return DAO.getIdInWhere(objArray, idProp);
     };
 
     /**

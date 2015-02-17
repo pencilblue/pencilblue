@@ -19,11 +19,10 @@
 var path  = require('path');
 var async = require('async');
 
-module.exports = function PreviewModule(pb) {
+module.exports = function IndexModule(pb) {
     
     //pb dependencies
     var util           = pb.util;
-    var Index          = require('./index.js')(pb);
     var TopMenu        = pb.TopMenuService;
     var Comments       = pb.CommentService;
     var ArticleService = pb.ArticleService;
@@ -227,7 +226,7 @@ module.exports = function PreviewModule(pb) {
                 if(page) {
                     service.setContentType('page');
                 }
-                var where = pb.DAO.getIDWhere(page || article);
+                var where = pb.DAO.getIdWhere(page || article);
                 where.draft = {$exists: true};
                 where.publish_date = {$exists: true};
                 service.find(where, articleCallback);

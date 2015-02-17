@@ -341,7 +341,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                     }
 
                     var opts = {
-                        where: pb.DAO.getIDInWhere(ids),
+                        where: pb.DAO.getIdInWhere(ids),
                         fetch_depth: options.fetch_depth - 1
                     };
                     self.findByType(type, opts, cb);
@@ -349,7 +349,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             }
             else {
 
-                var opts = { where: pb.DAO.getIDInWhere(ids) };
+                var opts = { where: pb.DAO.getIdInWhere(ids) };
                 var dao  = new pb.DAO();
                 dao.q(objType, opts, cb);
             }

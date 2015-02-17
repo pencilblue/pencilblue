@@ -206,7 +206,7 @@ module.exports = function PB(config) {
     pb.media.renderers.KickStarterMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/kickstarter_media_renderer.js'))(pb)
     
     //providers and service
-    pb.MediaService       = require(path.join(config.docRoot, '/include/service/entities/media_service.js'));
+    pb.MediaService = require(path.join(config.docRoot, '/include/service/entities/media_service.js'))(pb);
 
     //content services
     pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js')(pb);

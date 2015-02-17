@@ -220,12 +220,12 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} theme The plugin/theme UID
      * @return {Boolean} TRUE if the route was registered, FALSE if not
      */
-    RequestHandler.registerRoute = function(descriptor, theme){console.log(theme);
+    RequestHandler.registerRoute = function(descriptor, theme){
         //validate route
         if (!RequestHandler.isValidRoute(descriptor)) {
             pb.log.error("Route Validation Failed for: "+JSON.stringify(descriptor));
             return false;
-        }console.log(descriptor.path);
+        }
 
         //standardize http method (if exists) to upper case
         if (descriptor.method) {
