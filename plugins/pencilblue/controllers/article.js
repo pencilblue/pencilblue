@@ -15,57 +15,58 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Loads a single article
- */
+module.exports = function PreviewModule(pb) {
+    
+    //pb dependencies
+    var util  = pb.util;
+    var Index = require('./index.js')(pb);
+    
+    /**
+     * Loads a single article
+     */
+    function Article(){}
+    util.inherits(Article, Index);
 
-function Article(){}
 
-//dependencies
-var Index = require('./index.js');
+    Article.prototype.render = function(cb) {
+        var self    = this;
+        var custUrl = this.pathVars.customUrl;
 
-//inheritance
-util.inherits(Article, Index);
+        //check for object ID as the custom URL
+        var where      = null;
+        var doRedirect = false;
+        if (pb.validation.isId(custUrl, true)) {
+            where      = pb.DAO.getIdWhere(custUrl);
+            doRedirect = true;
+        }
+        else if (pb.log.isSilly()) {
+            pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field.", custUrl);
+        }
 
+        // fall through to URL key
+        if (where === null) {
+            where = {url: custUrl};
+        }
 
-Article.prototype.render = function(cb) {
-	var self    = this;
-	var custUrl = this.pathVars.customUrl;
+        //attempt to load object
+        var dao = new pb.DAO();
+        dao.loadByValues(where, 'article', function(err, article) {
+            if (util.isError(err) || article == null) {
+                self.reqHandler.serve404();
+                return;
+            }
+            else if (doRedirect) {
+                self.redirect(pb.UrlService.urlJoin('/article', article.url), cb);
+                return;
+            }
 
-	//check for object ID as the custom URL
-    var where      = null;
-	var doRedirect = false;
-    if (pb.validation.isId(custUrl, true)) {
-        where      = pb.DAO.getIdWhere(custUrl);
-		doRedirect = true;
-    }
-    else if (pb.log.isSilly()) {
-        pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field.", custUrl);
-    }
+            self.req.pencilblue_article = article[pb.DAO.getIdField()].toString();
+            this.article = article;
+            self.setPageName(article.name);
+            Article.super_.prototype.render.apply(self, [cb]);
+        });
+    };
 
-	// fall through to URL key
-	if (where === null) {
-		where = {url: custUrl};
-	}
-
-	//attempt to load object
-	var dao = new pb.DAO();
-	dao.loadByValues(where, 'article', function(err, article) {
-		if (util.isError(err) || article == null) {
-			self.reqHandler.serve404();
-			return;
-		}
-		else if (doRedirect) {
-			self.redirect(pb.UrlService.urlJoin('/article', article.url), cb);
-			return;
-		}
-
-		self.req.pencilblue_article = article[pb.DAO.getIdField()].toString();
-		this.article = article;
-        self.setPageName(article.name);
-		Article.super_.prototype.render.apply(self, [cb]);
-	});
+    //exports
+    return Article;
 };
-
-//exports
-module.exports = Article;

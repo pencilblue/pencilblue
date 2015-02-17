@@ -23,7 +23,7 @@ module.exports = function IndexModule(pb) {
     //pb dependencies
     var util          = pb.util;
     var PluginService = pb.PluginService;
-    var TopMenu       = pb.TopMenu;
+    var TopMenu       = pb.TopMenuService;
     var MediaLoader   = pb.MediaLoader;
 
     /**

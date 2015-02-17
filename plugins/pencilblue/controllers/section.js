@@ -15,38 +15,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Loads a section
- */
+module.exports = function SectionModule(pb) {
+    
+    //pb dependencies
+    var util  = pb.util;
+    var Index = require('./index.js')(pb);
 
-function Section(){}
-
-//dependencies
-var Index = require('./index.js');
-
-//inheritance
-util.inherits(Section, Index);
+    /**
+     * Loads a section
+     */
+    function Section(){}
+    util.inherits(Section, Index);
 
 
-Section.prototype.render = function(cb) {
-	var self    = this;
-	var custUrl = this.pathVars.customUrl;
-	var dao     = new pb.DAO();
-	dao.loadByValue('url', custUrl, 'section', function(err, section) {
-		if (util.isError(err) || section == null) {
-			self.reqHandler.serve404();
-			return;
-		}
+    Section.prototype.render = function(cb) {
+        var self    = this;
+        var custUrl = this.pathVars.customUrl;
+        var dao     = new pb.DAO();
+        dao.loadByValue('url', custUrl, 'section', function(err, section) {
+            if (util.isError(err) || section == null) {
+                self.reqHandler.serve404();
+                return;
+            }
 
-		self.req.pencilblue_section = section[pb.DAO.getIdField()].toString();
-		this.section = section;
-		Section.super_.prototype.render.apply(self, [cb]);
-	});
+            self.req.pencilblue_section = section[pb.DAO.getIdField()].toString();
+            this.section = section;
+            Section.super_.prototype.render.apply(self, [cb]);
+        });
+    };
+
+    Section.prototype.getPageTitle = function() {
+        return this.section.name;
+    };
+
+    //exports
+    return Section;
 };
-
-Section.prototype.getPageTitle = function() {
-	return this.section.name;
-};
-
-//exports
-module.exports = Section;

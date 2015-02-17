@@ -17,7 +17,7 @@
 
 module.exports = function MediaContentController(pb) {
     
-    //PB dependencies
+    //pb dependencies
     var util = pb.util;
 
     /**

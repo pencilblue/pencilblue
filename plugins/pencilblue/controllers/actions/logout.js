@@ -18,29 +18,33 @@
 //dependencies
 var Cookies = require('cookies');
 
-/**
- * Logs a user out of the system
- */
-function Logout(){}
+module.exports = function LogoutModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Logs a user out of the system
+     */
+    function Logout(){}
+    util.inherits(Logout, pb.BaseController);
 
-//inheritance
-util.inherits(Logout, pb.BaseController);
+    Logout.prototype.render = function(cb) {
+        var self = this;
+        pb.session.end(this.session, function(err, result){
 
-Logout.prototype.render = function(cb) {
-	var self = this;
-	pb.session.end(this.session, function(err, result){
+            //clear the cookie
+            var cookies      = new Cookies(self.req, self.res);
+            var cookie       = pb.SessionHandler.getSessionCookie(self.session);
+            cookie.expires   = new Date();
+            cookie.overwrite = true;
+            cookies.set(pb.SessionHandler.COOKIE_NAME, null, cookie);
 
-		//clear the cookie
-		var cookies      = new Cookies(self.req, self.res);
-		var cookie       = pb.SessionHandler.getSessionCookie(self.session);
-		cookie.expires   = new Date();
-		cookie.overwrite = true;
-		cookies.set(pb.SessionHandler.COOKIE_NAME, null, cookie);
+            //send redirect
+            self.redirect('/', cb);
+        });
+    };
 
-		//send redirect
-		self.redirect('/', cb);
-	});
+    //exports
+    return Logout;
 };
-
-//exports
-module.exports = Logout;

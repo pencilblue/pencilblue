@@ -220,12 +220,12 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} theme The plugin/theme UID
      * @return {Boolean} TRUE if the route was registered, FALSE if not
      */
-    RequestHandler.registerRoute = function(descriptor, theme){
+    RequestHandler.registerRoute = function(descriptor, theme){console.log(theme);
         //validate route
         if (!RequestHandler.isValidRoute(descriptor)) {
             pb.log.error("Route Validation Failed for: "+JSON.stringify(descriptor));
             return false;
-        }
+        }console.log(descriptor.path);
 
         //standardize http method (if exists) to upper case
         if (descriptor.method) {
@@ -241,6 +241,7 @@ module.exports = function RequestHandlerModule(pb) {
         var pattern    = patternObj.pattern;
 
         //insert it
+        var isNew = false;
         var routeDescriptor = null;
         if (RequestHandler.index[pattern] !== undefined) {
 
@@ -254,6 +255,7 @@ module.exports = function RequestHandlerModule(pb) {
             }
         }
         else{//does not exist so create it
+            isNew = true;
             routeDescriptor = {
                 path: patternObj.path,
                 pattern: pattern,
@@ -261,10 +263,6 @@ module.exports = function RequestHandlerModule(pb) {
                 expression: new RegExp(pattern),
                 themes: {}
             };
-
-            //set them in storage
-            RequestHandler.index[pattern] = RequestHandler.storage.length;
-            RequestHandler.storage.push(routeDescriptor);
         }
 
         //set the descriptor for the theme and load the controller type
@@ -273,7 +271,15 @@ module.exports = function RequestHandlerModule(pb) {
         }
         routeDescriptor.themes[theme][descriptor.method]            = descriptor;
         routeDescriptor.themes[theme][descriptor.method].controller = require(descriptor.controller)(pb);
-
+                                                               
+       //only add the descriptor it is new.  We do it here because we need to 
+       //know that the controller is good.
+        if (isNew) {
+            //set them in storage
+            RequestHandler.index[pattern] = RequestHandler.storage.length;
+            RequestHandler.storage.push(routeDescriptor);
+        }
+                                                               
         pb.log.debug("RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]", theme, descriptor.method, descriptor.path, pattern);
         return true;
     };
