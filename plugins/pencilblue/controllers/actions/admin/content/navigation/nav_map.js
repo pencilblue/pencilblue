@@ -15,47 +15,40 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Updates the navigation
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Updates the navigation
+     */
+    function NavigationMap(){}
+    util.inherits(NavigationMap, pb.BaseController);
 
-function NavigationMap(){}
+    NavigationMap.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(NavigationMap, pb.BaseController);
-
-NavigationMap.prototype.render = function(cb) {
-    var self = this;
-
-    this.getJSONPostParams(function(err, post) {
-        if(util.isError(err)) {
-            cb({
-                code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-            });
-            return;
-        }
-
-        var message = self.hasRequiredParams(post, ['map']);
-        if(message) {
-            cb({
-                code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-            });
-            return;
-        }
-
-        var sectionMap = post.map;
-        if(sectionMap.length <= 0 || !sectionMap[0].uid) {
-            cb({
-                code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
-            });
-            return;
-        }
-
-        pb.settings.set('section_map', sectionMap, function(err, data) {
+        this.getJSONPostParams(function(err, post) {
             if(util.isError(err)) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
+                return;
+            }
+
+            var message = self.hasRequiredParams(post, ['map']);
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
+                return;
+            }
+
+            var sectionMap = post.map;
+            if(sectionMap.length <= 0 || !sectionMap[0].uid) {
                 cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
@@ -63,13 +56,23 @@ NavigationMap.prototype.render = function(cb) {
                 return;
             }
 
-            cb({
-                code: 200,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('NAV_MAP_SAVED'), post)
+            pb.settings.set('section_map', sectionMap, function(err, data) {
+                if(util.isError(err)) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+                    });
+                    return;
+                }
+
+                cb({
+                    code: 200,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('NAV_MAP_SAVED'), post)
+                });
             });
         });
-    });
-};
+    };
 
-//exports
-module.exports = NavigationMap;
+    //exports
+    return NavigationMap;
+};

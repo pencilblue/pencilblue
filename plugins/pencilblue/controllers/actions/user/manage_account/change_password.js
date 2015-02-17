@@ -18,6 +18,7 @@
 module.exports = function(pb) {
     
     //pb dependencies
+    var util           = pb.util;
     var BaseController = pb.BaseController;
     var FormController = pb.FormController;
     

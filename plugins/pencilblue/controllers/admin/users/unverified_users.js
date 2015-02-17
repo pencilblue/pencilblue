@@ -15,61 +15,64 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for managing unverified users
- */
-
-function UnverifiedUsers(){}
-
-//inheritance
-util.inherits(UnverifiedUsers, pb.BaseController);
-
-//statics
-var SUB_NAV_KEY = 'unverified_users';
-
-UnverifiedUsers.prototype.render = function(cb) {
-    var self = this;
+module.exports = function(pb) {
     
-    var opts = {
-        where: pb.DAO.ANYWHERE
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for managing unverified users
+     */
+    function UnverifiedUsers(){}
+    util.inherits(UnverifiedUsers, pb.BaseController);
+
+    //statics
+    var SUB_NAV_KEY = 'unverified_users';
+
+    UnverifiedUsers.prototype.render = function(cb) {
+        var self = this;
+
+        var opts = {
+            where: pb.DAO.ANYWHERE
+        };
+        var dao  = new pb.DAO();
+        dao.q('unverified_user', opts, function(err, users) {
+            if(util.isError(err)) {
+                return self.redirect('/admin', cb);
+            }
+
+            var angularObjects = pb.js.getAngularObjects(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                users: users
+            });
+
+            self.setPageName(self.ls.get('UNVERIFIED_USERS'));
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+            self.ts.load('admin/users/unverified_users', function(err, result){
+                cb({content: result});
+            });
+        });
     };
-    var dao  = new pb.DAO();
-    dao.q('unverified_user', opts, function(err, users) {
-        if(util.isError(err)) {
-            return self.redirect('/admin', cb);
-        }
 
-        var angularObjects = pb.js.getAngularObjects(
-        {
-            navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
-            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-            users: users
-        });
+    UnverifiedUsers.getSubNavItems = function(key, ls, data) {
+        return [{
+            name: SUB_NAV_KEY,
+            title: ls.get('UNVERIFIED_USERS'),
+            icon: 'chevron-left',
+            href: '/admin/users'
+        }, {
+            name: 'new_user',
+            title: '',
+            icon: 'plus',
+            href: '/admin/users/new'
+        }];
+    };
 
-        self.setPageName(self.ls.get('UNVERIFIED_USERS'));
-        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-        self.ts.load('admin/users/unverified_users', function(err, result){
-            cb({content: result});
-        });
-    });
+    //register admin sub-nav
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, UnverifiedUsers.getSubNavItems);
+
+    //exports
+    return UnverifiedUsers;
 };
-
-UnverifiedUsers.getSubNavItems = function(key, ls, data) {
-    return [{
-        name: SUB_NAV_KEY,
-        title: ls.get('UNVERIFIED_USERS'),
-        icon: 'chevron-left',
-        href: '/admin/users'
-    }, {
-        name: 'new_user',
-        title: '',
-        icon: 'plus',
-        href: '/admin/users/new'
-    }];
-};
-
-//register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, UnverifiedUsers.getSubNavItems);
-
-//exports
-module.exports = UnverifiedUsers;

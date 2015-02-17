@@ -18,109 +18,113 @@
 //dependencies
 var async = require('async');
 
-/**
- * Interface for creating and editing custom object types
- */
-function TypeForm(){}
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for creating and editing custom object types
+     */
+    function TypeForm(){}
+    util.inherits(TypeForm, pb.BaseController);
 
-//inheritance
-util.inherits(TypeForm, pb.BaseController);
+    //statics
+    var SUB_NAV_KEY = 'type_form';
 
-//statics
-var SUB_NAV_KEY = 'type_form';
+    TypeForm.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-TypeForm.prototype.render = function(cb) {
-    var self = this;
-    var vars = this.pathVars;
-
-    this.gatherData(vars, function(err, data) {
-        if (util.isError(err)) {
-            throw err;
-        }
-        else if(!data.objectType) {
-            self.reqHandler.serve404();
-            return;
-        }
-
-        self.objectType = data.objectType;
-        data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.objectType);
-        var angularObjects = pb.js.getAngularObjects(data);
-
-        self.setPageName(self.objectType[pb.DAO.getIdField()] ? self.objectType.name : self.ls.get('NEW_OBJECT'));
-        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-        self.ts.load('admin/content/objects/types/type_form', function(err, result) {
-            cb({content: result});
-        });
-    });
-};
-
-TypeForm.prototype.gatherData = function(vars, cb) {
-    var self = this;
-    var cos = new pb.CustomObjectService();
-
-    var tasks = {
-        tabs: function(callback) {
-            var tabs = [
-                {
-                    active: 'active',
-                    href: '#object_settings',
-                    icon: 'cog',
-                    title: self.ls.get('SETTINGS')
-                },
-                {
-                    href: '#object_fields',
-                    icon: 'list-ul',
-                    title: self.ls.get('FIELDS')
-                }
-            ];
-
-            callback(null, tabs);
-        },
-
-        navigation: function(callback) {
-            callback(null, pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls));
-        },
-
-        objectTypes: function(callback) {
-            cos.getReferenceTypes(function(err, objectTypes) {
-                callback(err, objectTypes);
-            });
-        },
-
-        objectType: function(callback) {
-            if(!vars.id) {
-                var objectType = {
-                    fields: {}
-                };
-                callback(null, objectType);
+        this.gatherData(vars, function(err, data) {
+            if (util.isError(err)) {
+                throw err;
+            }
+            else if(!data.objectType) {
+                self.reqHandler.serve404();
                 return;
             }
 
-            cos.loadTypeById(vars.id, function(err, objectType) {
-                delete objectType.fields.name;
-                callback(err, objectType);
+            self.objectType = data.objectType;
+            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.objectType);
+            var angularObjects = pb.js.getAngularObjects(data);
+
+            self.setPageName(self.objectType[pb.DAO.getIdField()] ? self.objectType.name : self.ls.get('NEW_OBJECT'));
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+            self.ts.load('admin/content/objects/types/type_form', function(err, result) {
+                cb({content: result});
             });
-        }
+        });
     };
-    async.series(tasks, cb);
+
+    TypeForm.prototype.gatherData = function(vars, cb) {
+        var self = this;
+        var cos = new pb.CustomObjectService();
+
+        var tasks = {
+            tabs: function(callback) {
+                var tabs = [
+                    {
+                        active: 'active',
+                        href: '#object_settings',
+                        icon: 'cog',
+                        title: self.ls.get('SETTINGS')
+                    },
+                    {
+                        href: '#object_fields',
+                        icon: 'list-ul',
+                        title: self.ls.get('FIELDS')
+                    }
+                ];
+
+                callback(null, tabs);
+            },
+
+            navigation: function(callback) {
+                callback(null, pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls));
+            },
+
+            objectTypes: function(callback) {
+                cos.getReferenceTypes(function(err, objectTypes) {
+                    callback(err, objectTypes);
+                });
+            },
+
+            objectType: function(callback) {
+                if(!vars.id) {
+                    var objectType = {
+                        fields: {}
+                    };
+                    callback(null, objectType);
+                    return;
+                }
+
+                cos.loadTypeById(vars.id, function(err, objectType) {
+                    delete objectType.fields.name;
+                    callback(err, objectType);
+                });
+            }
+        };
+        async.series(tasks, cb);
+    };
+
+    TypeForm.getSubNavItems = function(key, ls, data) {
+        return [{
+            name: SUB_NAV_KEY,
+            title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_OBJECT_TYPE'),
+            icon: 'chevron-left',
+            href: '/admin/content/objects/types'
+        }, {
+            name: 'new_object_type',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/objects/types/new'
+        }];
+    };
+
+    //register admin sub-nav
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, TypeForm.getSubNavItems);
+
+    //exports
+    return TypeForm;
 };
-
-TypeForm.getSubNavItems = function(key, ls, data) {
-    return [{
-        name: SUB_NAV_KEY,
-        title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_OBJECT_TYPE'),
-        icon: 'chevron-left',
-        href: '/admin/content/objects/types'
-    }, {
-        name: 'new_object_type',
-        title: '',
-        icon: 'plus',
-        href: '/admin/content/objects/types/new'
-    }];
-};
-
-//register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, TypeForm.getSubNavItems);
-
-//exports
-module.exports = TypeForm;

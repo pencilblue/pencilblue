@@ -15,80 +15,84 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for sorting objects
- * @class SortObjects
- * @constructor
- * @extends BaseController
- */
-function SortObjects() {}
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for sorting objects
+     * @class SortObjects
+     * @constructor
+     * @extends BaseController
+     */
+    function SortObjects() {}
+    util.inherits(SortObjects, pb.BaseController);
 
-//inheritance
-util.inherits(SortObjects, pb.BaseController);
+    //statics
+    var SUB_NAV_KEY = 'sort_custom_objects';
 
-//statics
-var SUB_NAV_KEY = 'sort_custom_objects';
-
-SortObjects.prototype.render = function(cb) {
-    var self = this;
-    var vars = this.pathVars;
-    if(!vars.type_id) {
-        return this.reqHandler.serve404();
-    }
-
-    var service = new pb.CustomObjectService();
-    service.loadTypeById(vars.type_id, function(err, objectType) {
-        if(util.isError(err) || objectType === null) {
-            return self.reqHandler.serveError(err);
-        }
-        else if (!util.isObject(objectType)) {
-            return self.reqHandler.serve404();
+    SortObjects.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
+        if(!vars.type_id) {
+            return this.reqHandler.serve404();
         }
 
-        service.findByTypeWithOrdering(objectType, function(err, customObjects) {
-            if (util.isError(customObjects)) {
+        var service = new pb.CustomObjectService();
+        service.loadTypeById(vars.type_id, function(err, objectType) {
+            if(util.isError(err) || objectType === null) {
                 return self.reqHandler.serveError(err);
             }
-
-            //none to manage
-            if(customObjects.length === 0) {
-                self.redirect('/admin/content/objects/' + vars.type_id + '/new', cb);
-                return;
+            else if (!util.isObject(objectType)) {
+                return self.reqHandler.serve404();
             }
 
-            var angularObjects = pb.js.getAngularObjects(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType),
-                customObjects: customObjects,
-                objectType: objectType
-            });
+            service.findByTypeWithOrdering(objectType, function(err, customObjects) {
+                if (util.isError(customObjects)) {
+                    return self.reqHandler.serveError(err);
+                }
 
-            self.setPageName(self.ls.get('SORT') + ' ' + objectType.name);
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/content/objects/sort_objects', function(err, result) {
-                cb({content: result});
+                //none to manage
+                if(customObjects.length === 0) {
+                    self.redirect('/admin/content/objects/' + vars.type_id + '/new', cb);
+                    return;
+                }
+
+                var angularObjects = pb.js.getAngularObjects(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType),
+                    customObjects: customObjects,
+                    objectType: objectType
+                });
+
+                self.setPageName(self.ls.get('SORT') + ' ' + objectType.name);
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/objects/sort_objects', function(err, result) {
+                    cb({content: result});
+                });
             });
         });
-    });
+    };
+
+    SortObjects.getSubNavItems = function(key, ls, data) {
+        return [{
+            name: 'manage_objects',
+            title: ls.get('SORT') + ' ' + data.name + ' ' + ls.get('OBJECTS'),
+            icon: 'chevron-left',
+            href: '/admin/content/objects/' + data[pb.DAO.getIdField()]
+        }, {
+            name: 'new_object',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/objects/' + data[pb.DAO.getIdField()] + '/new'
+        }];
+    };
+
+    //register admin sub-nav
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, SortObjects.getSubNavItems);
+
+    //exports
+    return SortObjects;
 };
-
-SortObjects.getSubNavItems = function(key, ls, data) {
-    return [{
-        name: 'manage_objects',
-        title: ls.get('SORT') + ' ' + data.name + ' ' + ls.get('OBJECTS'),
-        icon: 'chevron-left',
-        href: '/admin/content/objects/' + data[pb.DAO.getIdField()]
-    }, {
-        name: 'new_object',
-        title: '',
-        icon: 'plus',
-        href: '/admin/content/objects/' + data[pb.DAO.getIdField()] + '/new'
-    }];
-};
-
-//register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, SortObjects.getSubNavItems);
-
-//exports
-module.exports = SortObjects;

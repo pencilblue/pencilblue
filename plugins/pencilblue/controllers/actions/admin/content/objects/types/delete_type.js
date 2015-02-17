@@ -15,49 +15,52 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- *  Deletes an object type
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     *  Deletes an object type
+     */
+    function DeleteObjectType(){}
+    util.inherits(DeleteObjectType, pb.FormController);
 
-function DeleteObjectType(){}
+    DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-//inheritance
-util.inherits(DeleteObjectType, pb.FormController);
-
-DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
-    var self = this;
-    var vars = this.pathVars;
-
-    if(!pb.validation.isIdStr(vars.id, true)) {
-        return cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-        });
-    }
-
-    //ensure existence
-    var service = new pb.CustomObjectService();
-    service.loadTypeById(vars.id, function(err, objectType) {
-        if(objectType === null) {
-            cb({
+        if(!pb.validation.isIdStr(vars.id, true)) {
+            return cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
             });
-            return;
         }
 
-        service.deleteTypeById(vars.id, function(err, recordsDeleted) {
-            if(util.isError(err)) {
+        //ensure existence
+        var service = new pb.CustomObjectService();
+        service.loadTypeById(vars.id, function(err, objectType) {
+            if(objectType === null) {
                 cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                 });
                 return;
             }
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, objectType.name + ' ' + self.ls.get('DELETED'))});
-        });
-    });
-};
 
-//exports
-module.exports = DeleteObjectType;
+            service.deleteTypeById(vars.id, function(err, recordsDeleted) {
+                if(util.isError(err)) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                    });
+                    return;
+                }
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, objectType.name + ' ' + self.ls.get('DELETED'))});
+            });
+        });
+    };
+
+    //exports
+    return DeleteObjectType;
+};
