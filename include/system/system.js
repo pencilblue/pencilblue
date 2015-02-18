@@ -113,9 +113,9 @@ module.exports = function System(pb){
         for (var i = 0; i < workerCnt; i++) {
             cluster.fork();
         }
-        cluster.on('disconnect', System.onWorkerDisconntect);
+        cluster.on('disconnect', this.onWorkerDisconntect);
 
-        pb.log.info('System[%s]: %d workers spawned. Listening for disconnects.', System.getWorkerId(), workerCnt);
+        pb.log.info('System[%s]: %d workers spawned. Listening for disconnects.', this.getWorkerId(), workerCnt);
     };
 
     /**
@@ -123,7 +123,7 @@ module.exports = function System(pb){
      * @method 
      */
     this.onWorkerDisconntect = function(worker) {
-        pb.log.debug('System[%s]: Worker [%d] disconnected', System.getWorkerId(), worker.id);
+        pb.log.debug('System[%s]: Worker [%d] disconnected', this.getWorkerId(), worker.id);
 
         var okToFork = true;
         var currTime = new Date().getTime();
@@ -143,16 +143,16 @@ module.exports = function System(pb){
                 okToFork = false;
             }
             else {
-                pb.log.silly("System[%s]: Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]", System.getWorkerId(), disconnectCnt, pb.config.fatal_error_count, range);
+                pb.log.silly("System[%s]: Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]", this.getWorkerId(), disconnectCnt, pb.config.fatal_error_count, range);
             }
         }
 
-        if (okToFork && !System.isShuttingDown()) {
+        if (okToFork && !this.isShuttingDown()) {
             var worker = cluster.fork();
-            log.silly("System[%s] Forked worker [%d]", System.getWorkerId(), worker ? worker.id : 'FAILED');
+            pb.log.silly("System[%s] Forked worker [%d]", this.getWorkerId(), worker ? worker.id : 'FAILED');
         }
-        else if (!System.isShuttingDown()){
-           log.error("System[%s]: %d failures have occurred within %sms.  Bailing out.", System.getWorkerId(), pb.config.fatal_error_count, pb.config.fatal_error_timeout);
+        else if (!this.isShuttingDown()){
+           pb.log.error("System[%s]: %d failures have occurred within %sms.  Bailing out.", this.getWorkerId(), pb.config.fatal_error_count, pb.config.fatal_error_timeout);
             process.kill();
         }
     };
@@ -200,7 +200,8 @@ module.exports = function System(pb){
         }
         
         //notify of shutdown
-        pb.log.debug('System[%s]: Shutting down...', System.getWorkerId());
+        var self = this;
+        pb.log.debug('System[%s]: Shutting down...', this.getWorkerId());
 
         //create tasks to shutdown registered services in parallel
         var toh   = null;
@@ -215,7 +216,7 @@ module.exports = function System(pb){
 
                 var d = domain.create();
                 d.run(function() {
-                    pb.log.debug('System[%s]: Calling [%s] shutdown hook', System.getWorkerId(), keys[i]);
+                    pb.log.debug('System[%s]: Calling [%s] shutdown hook', self.getWorkerId(), keys[i]);
                     SHUTDOWN_HOOKS[keys[i]](function(err, result) {
                         if (timeoutHandle) {
                             clearTimeout(timeoutHandle);
@@ -235,7 +236,7 @@ module.exports = function System(pb){
             };
         });
         async.parallel(tasks.reverse(), function(err, results) {
-            pb.log.info('System[%s]: Shutdown complete', System.getWorkerId());
+            pb.log.info('System[%s]: Shutdown complete', self.getWorkerId());
             if (toh) {
                 clearTimeout(toh);
                 toh = null;
@@ -250,7 +251,7 @@ module.exports = function System(pb){
         //create fallback so that when services do not shutdown within 5 seconds the process is forced to terminate
         if (killProcess) {
             toh = setTimeout(function() {
-               log.info("System[%s]: Shutdown completed but was forced", System.getWorkerId());
+               log.info("System[%s]: Shutdown completed but was forced", self.getWorkerId());
                 process.exit();
             }, FORCE_PROCESS_EXIT_TIMEOUT);
         }
@@ -273,7 +274,7 @@ module.exports = function System(pb){
         
         // listen for TERM signal .e.g. kill
         process.on ('SIGTERM', function() {
-            log.debug('System[%s]: SIGTERM detected %s', System.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
+            log.debug('System[%s]: SIGTERM detected %s', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
             if (!IS_SHUTTING_DOWN) {
                 self.shutdown(killProcess);
             }
@@ -281,7 +282,7 @@ module.exports = function System(pb){
 
         // listen for INT signal e.g. Ctrl-C
         process.on ('SIGINT', function() {
-            log.debug('System[%s]: SIGINT detected %s', System.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
+            log.debug('System[%s]: SIGINT detected %s', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
             if (!IS_SHUTTING_DOWN) {
                 self.shutdown(killProcess);
             }
