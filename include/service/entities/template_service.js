@@ -707,7 +707,7 @@ TemplateValue.prototype.encode = function(doHtmlEncoding) {
  * @method skipEncode
  */
 TemplateValue.prototype.skipEncode = function() {
-    this.enocde(false);
+    this.encode(false);
 };
 
 /**
