@@ -32,6 +32,24 @@ module.exports = function SetupActionControllerModule(pb) {
      */
     function SetupActionController(){}
     util.inherits(SetupActionController, pb.BaseController);
+    
+    /**
+     * The setup events are ran in sequence.  The error key is mapped to the 
+     * task index + 1 so that on error you can check the result length to 
+     * determine which task errored.
+     * @private
+     * @static
+     * @readonly
+     * @property ERROR_KEYS
+     * @type {Object}
+     */
+    var ERROR_KEYS = Object.freeze({
+        1: 'ERROR_CREATING_USER',
+        2: 'ERROR_SETTING_ACTIVE_THEME',
+        3: 'ERROR_SETTING_CONTENT_SETTINGS',
+        4: 'ERROR_SETTING_SYS_INITIALIZED',
+        5: 'ERROR_SETTING_CALLHOME'
+    });
 
     /**
      *
@@ -91,56 +109,54 @@ module.exports = function SetupActionControllerModule(pb) {
         }
 
         //set the access level (role)
-        post.admin = 4;
+        post.admin = pb.SecurityService.ACCESS_ADMINISTRATOR;
 
         //get call home allowance
         var callHome = 1 == post.call_home;
         delete post.call_home;
 
         //do setup events
-        async.series(
-            [
-                function(callback) {
-                    var userDocument = pb.DocumentCreator.create('user', post);
+        var tasks = [
+            function(callback) {
+                var userDocument = pb.DocumentCreator.create('user', post);
 
-                    var dao = new pb.DAO();
-                    dao.save(userDocument, callback);
-                },
-                function(callback) {
-                    pb.settings.set('active_theme',
-                    pb.RequestHandler.DEFAULT_THEME, callback);
-                },
-                function(callback) {
-                    //Do nothing here because it calls set under the covers.  
-                    //We assume it does what it is supposed to.  Attempting to 
-                    //set the settings again will only cause a failure due to a 
-                    //duplicate key
-                    var contentService = new pb.ContentService();
-                    contentService.getSettings(callback);
-                },
-                function(callback) {
-                    pb.settings.set('system_initialized', true, callback);
-                },
-                function(callback) {
-                    pb.settings.set('call_home', callHome, callback);
-                },
-                function(callback) {
-                    if (callHome) {
-                        CallHomeService.callHome(CallHomeService.SYSTEM_SETUP_EVENT);
-                    }
-                    callback(null, null);
+                var dao = new pb.DAO();
+                dao.save(userDocument, callback);
+            },
+            function(callback) {
+                pb.settings.set('active_theme',
+                pb.RequestHandler.DEFAULT_THEME, callback);
+            },
+            function(callback) {
+                //Do nothing here because it calls set under the covers.  
+                //We assume it does what it is supposed to.  Attempting to 
+                //set the settings again will only cause a failure due to a 
+                //duplicate key
+                var contentService = new pb.ContentService();
+                contentService.getSettings(callback);
+            },
+            function(callback) {
+                pb.settings.set('system_initialized', true, callback);
+            },
+            function(callback) {
+                pb.settings.set('call_home', callHome, callback);
+            },
+            function(callback) {
+                if (callHome) {
+                    CallHomeService.callHome(CallHomeService.SYSTEM_SETUP_EVENT);
                 }
-            ],
-            function(err, results){
-                if (util.isError(err)) {
-                    pb.log.error('An error occurred while attempting to perform setup: %s', err.stack || err.message);
-                    return self.formError(self.ls.get('ERROR_SAVING'), '/setup', cb);
-                }
-
-                self.session.success = self.ls.get('READY_TO_USE');
-                self.redirect('/admin/login', cb);
+                callback(null, null);
             }
-        );
+        ];
+        async.series(tasks, function(err, results){console.log(results.length);
+            if (util.isError(err)) {
+                pb.log.error('An error occurred while attempting to perform setup: %s', err.stack || err.message);
+                return self.formError(self.ls.get(ERROR_KEYS[results.length]), '/setup', cb);
+            }
+
+            self.session.success = self.ls.get('READY_TO_USE');
+            self.redirect('/admin/login', cb);
+        });
     };
 
     //exports

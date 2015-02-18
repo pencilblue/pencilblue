@@ -150,7 +150,8 @@ module.exports = function MemoryEntityServiceModule(pb) {
             value: value,
             ignoreme: true
         };
-        pb.CommandService.sendCommandToAllGetResponses(MemoryEntityService.getOnChangeType(this.objType), command, util.cb);
+        pb.CommandService.getInstance()
+            .sendCommandToAllGetResponses(MemoryEntityService.getOnChangeType(this.objType), command, util.cb);
     };
 
     /**

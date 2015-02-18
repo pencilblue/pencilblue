@@ -161,7 +161,12 @@ var loc =
         INVALID_FILE: 'An invalid file was supplied',
         COMPLETE: 'Complete',
         WYSIWYG: 'WYSIWYG',
-        THUMBNAIL: 'Thumbnail'
+        THUMBNAIL: 'Thumbnail',
+        ERROR_CREATING_USER: 'An error occurred while attempting to create the user',
+        ERROR_SETTING_ACTIVE_THEME: 'An error occurred while attempting to set the active theme',
+        ERROR_SETTING_CONTENT_SETTINGS: 'An error occurred while attempting to set the default content settings',
+        ERROR_SETTING_SYS_INITIALIZED: 'An error occurred while attempting to set the system initialized setting',
+        ERROR_SETTING_CALLHOME: 'An error occurred while attempting to set the system reporting preference'
     },
     error:
     {

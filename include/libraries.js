@@ -126,7 +126,7 @@ module.exports = function LibrariesServiceModule(pb) {
             }
 
             //set default settings if they don't exist
-            settings = ContentService.getCDNDefaultSettings();
+            settings = LibrariesService.getCDNDefaults();
             pb.settings.set(LIBRARIES_SETTINGS_REF, settings, function(err, result) {
                 cb(err, settings);
             });
