@@ -36,20 +36,47 @@ $(document).ready(function()
         if(scrollPosition >= documentHeight - 200)
         {
             self.loadingArticles = true;
-            var parameters = (self.offset) ? '?offset=' + self.offset + '&limit=' + self.limit : '?';
-            if(typeof infiniteScrollSection !== 'undefined') {
-                if(parameters.length) {
-                    parameters += '&';
-                }
-                parameters += 'section=' + infiniteScrollSection;
+            var parameters = [];  
+
+            //Offset
+            if(!self.offset && typeof infiniteScrollOffset !== 'undefined'){
+                self.offset = infiniteScrollOffset;
             }
-            else if(typeof infiniteScrollTopic !== 'undefined') {
-                if(parameters.length) {
-                    parameters += '&';
-                }
-                parameters += 'topic=' + inifiniteScrollTopic;
+            if(self.offset){
+                parameters.push({offset: self.offset });
             }
-            $.getJSON('/api/content/get_articles' + parameters, function(result)
+
+            //Limit
+            if(!self.limit && typeof infiniteScrollLimit !== 'undefined'){
+                self.limit = infiniteScrollLimit;
+            }
+            if(self.limit){
+                parameters.push({limit: self.limit });
+            }
+            
+            //Section or Topic
+            if(typeof infiniteScrollSection !== 'undefined'){
+                parameters.push({section: infiniteScrollSection });
+            }
+            else if(typeof infiniteScrollTopic !== 'undefined'){
+                parameters.push({topic: infiniteScrollTopic });
+            }
+
+            var query;
+            for(var p = 0; p < parameters.length; p++) {
+                var parameter = parameters[p];
+                for(var key in parameter) {
+                    var value = parameter[key];
+                    var pair = key + '=' + value;
+                    if(!query) { query = '?' + pair; }
+                    else { query += '&' + pair; }
+                }
+            };
+            
+            var uri = '/api/content/get_articles';
+            if(query){ uri += query; }
+
+            $.getJSON(uri, function(result)
             {
                 if(!result)
                 {
