@@ -826,7 +826,6 @@ module.exports = function DAOModule(pb) {
            return new ObjectID(oid + '');
         }
         catch(err) {
-            pb.log.warn('%s - VALUE=[%s]', err.message, util.inspect(oid));throw err;
             return oid;
         }
     };

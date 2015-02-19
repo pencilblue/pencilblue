@@ -23,7 +23,7 @@ module.exports = function ImportWPActionControllerModule(pb) {
     
     //pb dependencies
     var util       = pb.util;
-    var wpXMLParse = pb.pluginService.getService('wp_xml_parse', 'wp_import');
+    var wpXMLParse = pb.PluginService.getService('wp_xml_parse', 'wp_import');
 
     /**
      * @class ImportWPActionController

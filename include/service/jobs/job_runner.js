@@ -210,7 +210,7 @@ module.exports = function JobRunnerModule(pb) {
      * @param {String} [status='RUNNING'] The starting status of the job
      */
     JobRunner.prototype.onStart = function(status) {
-        var job         = pb.DAO.getIDWhere(this.getId());
+        var job         = pb.DAO.getIdWhere(this.getId());
         job.object_type = JOB_STORE_NAME;
         job.name        = this.name;
         job.status      = status || DEFAULT_START_STATUS;
@@ -234,7 +234,7 @@ module.exports = function JobRunnerModule(pb) {
     JobRunner.prototype.onUpdate = function(progressIncrement, status) {
         this.log('Updating job [%s:%s] by %s percent with status: %s', this.getId(), this.name, Math.floor(progressIncrement), status);
 
-        var query   = pb.DAO.getIDWhere(this.getId());
+        var query   = pb.DAO.getIdWhere(this.getId());
         var updates = {};
         if (pb.validation.isFloat(progressIncrement, true, true)) {
             updates['$inc'] = {progress: progressIncrement};
@@ -277,7 +277,7 @@ module.exports = function JobRunnerModule(pb) {
         this.log('Setting job [%s:%s] as completed with status: %s', this.getId(), this.name, status);
 
         //persist result
-        var query = pb.DAO.getIDWhere(this.getId());
+        var query = pb.DAO.getIdWhere(this.getId());
         var sets  = {
             $set: {
                 status: status,

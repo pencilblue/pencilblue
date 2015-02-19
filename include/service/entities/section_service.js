@@ -551,7 +551,7 @@ module.exports = function SectionServiceModule(pb) {
         else if (parent) {
 
             //ensure parent exists
-            var where = pb.DAO.getIDWhere(parent);
+            var where = pb.DAO.getIdWhere(parent);
             where.type = 'container';
             var dao = new pb.DAO();
             dao.count('section', where, function(err, count) {
@@ -583,7 +583,7 @@ module.exports = function SectionServiceModule(pb) {
         }
 
         //ensure content exists
-        var where = pb.DAO.getIDWhere(content);
+        var where = pb.DAO.getIdWhere(content);
         var dao   = new pb.DAO();
         dao.count(type, where, function(err, count) {
             if (count !== 1) {

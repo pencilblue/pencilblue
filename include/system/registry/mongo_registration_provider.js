@@ -133,7 +133,7 @@ module.exports = function MongoRegistrationProviderModule(pb) {
             cb(null, false);
         }
 
-        //ID is always a string so we don't use pb.DAO.getIDWhere(id)
+        //ID is always a string so we don't use pb.DAO.getIdWhere(id)
         var where = {};
         where[pb.DAO.getIdField()] = id;
         var dao = new pb.DAO();

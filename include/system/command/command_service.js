@@ -193,9 +193,10 @@ module.exports = function CommandServiceModule(pb) {
         }
 
         //emit command to each handler
+        var self = this;
         var emitFunction = function(type, i, command){
             return function() {
-                this.registrants[type][i](command);
+                self.registrants[type][i](command);
             };
         };
         for (var i = 0; i < this.registrants[type].length; i++) {

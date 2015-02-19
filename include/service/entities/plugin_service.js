@@ -2250,7 +2250,7 @@ module.exports = function PluginServiceModule(pb) {
                 error: err ? err.stack : undefined,
                 result: result ? true : false
             };
-            pb.CommandService.getIntance().sendInResponseTo(command, response);
+            pb.CommandService.getInstance().sendInResponseTo(command, response);
         });
     };
     

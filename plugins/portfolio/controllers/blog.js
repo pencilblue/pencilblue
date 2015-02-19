@@ -254,7 +254,7 @@ module.exports = function BlogModule(pb) {
                 if(page) {
                     service.setContentType('page');
                 }
-                var where = pb.DAO.getIDWhere(page || article);
+                var where = pb.DAO.getIdWhere(page || article);
                 where.draft = {$exists: true};
                 where.publish_date = {$exists: true};
                 service.find(where, articleCallback);

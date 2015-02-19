@@ -350,7 +350,7 @@ module.exports = function UserServiceModule(pb) {
      * @param {Function} cb          Callback function
      */
     UserService.prototype.hasAccessLevel = function(uid, accessLevel, cb) {
-        var where = pb.DAO.getIDWhere(uid);
+        var where = pb.DAO.getIdWhere(uid);
         where.admin = {$gte: accessLevel};
         var dao = new pb.DAO();
         dao.count('user', where, function(err, count) {

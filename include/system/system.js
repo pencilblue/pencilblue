@@ -113,7 +113,11 @@ module.exports = function System(pb){
         for (var i = 0; i < workerCnt; i++) {
             cluster.fork();
         }
-        cluster.on('disconnect', this.onWorkerDisconntect);
+        
+        var self = this;
+        cluster.on('disconnect', function(worker) {
+            self.onWorkerDisconntect(worker)
+        });
 
         pb.log.info('System[%s]: %d workers spawned. Listening for disconnects.', this.getWorkerId(), workerCnt);
     };

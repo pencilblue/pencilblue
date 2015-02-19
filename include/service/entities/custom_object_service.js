@@ -290,7 +290,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             //build out the where clause
             var where = null;
             if (pb.validation.isIdStr(type, true)) {
-                where = pb.DAO.getIDWhere(type);
+                where = pb.DAO.getIdWhere(type);
             }
             else {
                 where = {
@@ -540,7 +540,7 @@ module.exports = function CustomObjectServiceModule(pb) {
      * @param {Function} cb
      */
     CustomObjectService.prototype.loadById = function(id, options, cb) {
-        this.loadBy(undefined, pb.DAO.getIDWhere(id), options, cb);
+        this.loadBy(undefined, pb.DAO.getIdWhere(id), options, cb);
     };
 
     /**
@@ -598,7 +598,7 @@ module.exports = function CustomObjectServiceModule(pb) {
      * @param {Function} cb
      */
     CustomObjectService.prototype.loadTypeById = function(id, cb) {
-        this.loadTypeBy(pb.DAO.getIDWhere(id), cb);
+        this.loadTypeBy(pb.DAO.getIdWhere(id), cb);
     };
 
     /**

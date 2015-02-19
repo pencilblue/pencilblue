@@ -65,7 +65,7 @@ module.exports = function ArticleServiceModule(pb) {
      * @param {Function} cb        Callback function
      */
     ArticleService.prototype.findById = function(articleId, cb) {
-        this.find(pb.DAO.getIDWhere(articleId), cb);
+        this.find(pb.DAO.getIdWhere(articleId), cb);
     };
 
     /**

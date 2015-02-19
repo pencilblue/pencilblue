@@ -53,7 +53,7 @@ module.exports = function(pb) {
             //delete the section
             var where = {
                 $or: [
-                    pb.DAO.getIDWhere(vars.id), 
+                    pb.DAO.getIdWhere(vars.id), 
                     {
                         parent: vars.id
                     }
