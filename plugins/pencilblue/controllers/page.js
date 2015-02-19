@@ -41,36 +41,45 @@ PageController.prototype.render = function(cb) {
 	//check for object ID as the custom URL
 	var doRedirect = false;
 	var where      = null;
-	try {
-		where      = {_id: pb.DAO.getObjectID(custUrl)};
-		doRedirect = true;
-	}
-	catch(e){
+	if(pb.validation.isIdStr(custUrl)) {
+		where = {_id: pb.DAO.getObjectID(custUrl)};
 		if (pb.log.isSilly()) {
-			pb.log.silly("PageController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
+			pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
 		}
 	}
-
-	// fall through to URL key
-	if (where === null) {
+	else {
 		where = {url: custUrl};
 	}
 
-	var dao     = new pb.DAO();
+	var dao = new pb.DAO();
 	dao.loadByValues(where, 'page', function(err, page) {
 		if (util.isError(err) || page == null) {
-			self.reqHandler.serve404();
-			return;
-		}
-		else if (doRedirect) {
-			self.redirect(pb.UrlService.urlJoin('/page', page.url), cb);
+			if (where.url) {
+				self.reqHandler.serve404();
+				return;
+			}
+
+			dao.loadByValues({url: custUrl}, 'page', function(err, page) {
+				if (util.isError(err) || page == null) {
+					self.reqHandler.serve404();
+					return;
+				}
+
+				self.renderPage(page, cb);
+			});
+
 			return;
 		}
 
-		self.req.pencilblue_page = page._id.toString();
-		this.page = page;
-		PageController.super_.prototype.render.apply(self, [cb]);
+		self.renderPage(page, cb);
 	});
+};
+
+PageController.prototype.renderPage = function(page, cb) {
+	this.req.pencilblue_page = page._id.toString();
+	this.page = page;
+	this.setPageName(page.name);
+	PageController.super_.prototype.render.apply(this, [cb]);
 };
 
 /**
