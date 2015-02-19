@@ -36,14 +36,14 @@ $(document).ready(function()
         if(scrollPosition >= documentHeight - 200)
         {
             self.loadingArticles = true;
-            var parameters = [];  
+            var parameters = [];
 
             //Offset
             if(!self.offset && typeof infiniteScrollOffset !== 'undefined'){
                 self.offset = infiniteScrollOffset;
             }
             if(self.offset){
-                parameters.push({offset: self.offset });
+                parameters.push({ name: 'offset', value: self.offset });
             }
 
             //Limit
@@ -51,30 +51,19 @@ $(document).ready(function()
                 self.limit = infiniteScrollLimit;
             }
             if(self.limit){
-                parameters.push({limit: self.limit });
+                parameters.push({ name: 'limit', value: self.limit });
             }
             
             //Section or Topic
             if(typeof infiniteScrollSection !== 'undefined'){
-                parameters.push({section: infiniteScrollSection });
+                parameters.push({ name: 'section', value: infiniteScrollSection });
             }
             else if(typeof infiniteScrollTopic !== 'undefined'){
-                parameters.push({topic: infiniteScrollTopic });
+                parameters.push({ name: 'topic', value: infiniteScrollTopic });
             }
 
-            var query;
-            for(var p = 0; p < parameters.length; p++) {
-                var parameter = parameters[p];
-                for(var key in parameter) {
-                    var value = parameter[key];
-                    var pair = key + '=' + value;
-                    if(!query) { query = '?' + pair; }
-                    else { query += '&' + pair; }
-                }
-            };
-            
-            var uri = '/api/content/get_articles';
-            if(query){ uri += query; }
+            var query = $.param(parameters, true);
+            var uri = '/api/content/get_articles?' + query;
 
             $.getJSON(uri, function(result)
             {
