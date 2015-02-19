@@ -41,18 +41,13 @@ PageController.prototype.render = function(cb) {
 	//check for object ID as the custom URL
 	var doRedirect = false;
 	var where      = null;
-	try {
-		where      = {_id: pb.DAO.getObjectID(custUrl)};
-		doRedirect = true;
-	}
-	catch(e){
+	if(pb.validation.isIdStr(custUrl)) {
+		where = {_id: pb.DAO.getObjectID(custUrl)};
 		if (pb.log.isSilly()) {
-			pb.log.silly("PageController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
+			pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
 		}
 	}
-
-	// fall through to URL key
-	if (where === null) {
+	else {
 		where = {url: custUrl};
 	}
 

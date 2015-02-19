@@ -34,17 +34,13 @@ Article.prototype.render = function(cb) {
 
 	//check for object ID as the custom URL
 	var where  = null;
-	try {
+	if(pb.validation.isIdStr(custUrl)) {
 		where = {_id: pb.DAO.getObjectID(custUrl)};
-	}
-	catch(e){
 		if (pb.log.isSilly()) {
 			pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
 		}
 	}
-
-	// fall through to URL key
-	if (where === null) {
+	else {
 		where = {url: custUrl};
 	}
 
