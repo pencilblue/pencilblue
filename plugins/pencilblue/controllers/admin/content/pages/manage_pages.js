@@ -47,7 +47,7 @@ module.exports = function(pb) {
             }
 
             pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-                var angularObjects = pb.js.getAngularObjects(
+                var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                     pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_pages'),

@@ -116,7 +116,7 @@ module.exports = function(pb) {
             media: data.media,
             article: data.article
         };
-        return pb.js.getAngularObjects(objects);
+        return pb.ClientJs.getAngularObjects(objects);
     };
 
     ArticleForm.getSubNavItems = function(key, ls, data) {

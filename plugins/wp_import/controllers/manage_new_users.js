@@ -75,7 +75,7 @@ module.exports = function WPManageUsersViewControllerModule(pb) {
         };
 
         this.setPageName(this.ls.get('IMPORT_WORDPRESS'));
-        var angularObjects = pb.js.getAngularObjects(objects);
+        var angularObjects = pb.ClientJs.getAngularObjects(objects);
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('/admin/plugins/settings/wp_import/manage_new_users', function(err, result) {
 

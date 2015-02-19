@@ -57,7 +57,7 @@ module.exports = function NotFoundControllerModule(pb) {
                     self.ts.load('error/404', function(err, data) {
                         var result = '' + data;
 
-                        result = result.concat(pb.js.getAngularController(
+                        result = result.concat(pb.ClientJs.getAngularController(
                         {
                             navigation: navigation,
                             contentSettings: contentSettings,

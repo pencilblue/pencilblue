@@ -43,7 +43,7 @@ module.exports = function ManageAccountModule(pb) {
             self.setPageName(self.ls.get('MANAGE_ACCOUNT'));
             self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
             self.ts.registerLocal('uploaded_image', (user.photo ? user.photo : ''));
-            self.ts.registerLocal('angular_script', pb.js.getAngularController(objects));
+            self.ts.registerLocal('angular_script', pb.ClientJs.getAngularController(objects));
             self.ts.load('user/manage_account', function(err, result) {
 
                 cb({content: result});

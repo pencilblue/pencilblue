@@ -1067,7 +1067,7 @@ module.exports = function PluginServiceModule(pb) {
 
                     //dependencies are missing, go install them
                     pb.log.silly('PluginService: Dependency check failed for plugin %s', plugin.name);
-                    pb.plugins.installPluginDependencies(plugin.dirName, details.dependencies, plugin, function(err, results) {
+                    self.installPluginDependencies(plugin.dirName, details.dependencies, plugin, function(err, results) {
                         callback(err, !util.isError(err));
                     });
                 });
@@ -1463,18 +1463,41 @@ module.exports = function PluginServiceModule(pb) {
      * it may also be an instance as along as that instance fufills all
      * responsbilities of the service interface.  When the desired service does not
      * exist NULL is returned.
+     * @deprecated
      * @method getService
      * @param {String} serviceName
      * @param {String} pluginUid The unique plugin identifier
      * @return {Object} Service prototype
      */
     PluginService.prototype.getService = function(serviceName, pluginUid) {
+        pb.log.warn('PluginService: Instance function getService is deprecated. Use pb.PluginService.getService intead');
+        try{
+            return PluginService.getService(serviceName, pluginUid);
+        }
+        catch(e) {
+            //for backward compatibility until the function is removed
+            return null;
+        }
+    };
+    
+    /**
+     * Retrieves a plugin service prototype.  It is expected to be a prototype but
+     * it may also be an instance as along as that instance fufills all
+     * responsbilities of the service interface.  When the desired service does not
+     * exist NULL is returned.
+     * @static 
+     * @method getService
+     * @param {String} serviceName
+     * @param {String} pluginUid The unique plugin identifier
+     * @return {Object} Service prototype
+     */
+    PluginService.getService = function(serviceName, pluginUid) {
         if (ACTIVE_PLUGINS[pluginUid]) {
             if (ACTIVE_PLUGINS[pluginUid].services && ACTIVE_PLUGINS[pluginUid].services[serviceName]) {
                 return ACTIVE_PLUGINS[pluginUid].services[serviceName];
             }
         }
-        return null;
+        throw new Error('Either plugin ['+pluginUid+'] or the service ['+serviceName+'] does not exist');
     };
 
     /**
@@ -2122,13 +2145,15 @@ module.exports = function PluginServiceModule(pb) {
             forCluster: false,
             jobId: command.jobId
         }
-        pb.plugins.uninstallPlugin(command.pluginUid, options, function(err, result) {
+        
+        var pluginService = new PluginService();
+        pluginService.uninstallPlugin(command.pluginUid, options, function(err, result) {
 
             var response = {
                 error: err ? err.stack : undefined,
                 result: result
             };
-            pb.CommandService.sendInResponseTo(command, response);
+            pb.CommandService.getInstance().sendInResponseTo(command, response);
         });
     };
 
@@ -2161,7 +2186,7 @@ module.exports = function PluginServiceModule(pb) {
                 error: err ? err.stack : undefined,
                 result: result ? true : false
             };
-            pb.CommandService.sendInResponseTo(command, response);
+            pb.CommandService.getInstance().sendInResponseTo(command, response);
         });
     };
 
@@ -2193,7 +2218,7 @@ module.exports = function PluginServiceModule(pb) {
                 error: err ? err.stack : undefined,
                 result: result ? true : false
             };
-            pb.CommandService.sendInResponseTo(command, response);
+            pb.CommandService.getInstance().sendInResponseTo(command, response);
         });
     };
 
@@ -2225,7 +2250,7 @@ module.exports = function PluginServiceModule(pb) {
                 error: err ? err.stack : undefined,
                 result: result ? true : false
             };
-            pb.CommandService.sendInResponseTo(command, response);
+            pb.CommandService.getIntance().sendInResponseTo(command, response);
         });
     };
     

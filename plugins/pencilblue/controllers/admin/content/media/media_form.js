@@ -54,7 +54,7 @@ module.exports = function(pb) {
             self.media = data.media;
             data.media.media_topics = self.getMediaTopics(data);
             data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.media);
-            var angularObjects = pb.js.getAngularObjects(data);
+            var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.get('NEW_MEDIA'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));

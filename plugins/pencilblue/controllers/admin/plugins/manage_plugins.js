@@ -39,14 +39,15 @@ module.exports = function(pb) {
         var self = this;
 
         //get the data
-        pb.plugins.getPluginMap(function(err, map) {
+        var pluginService = new pb.PluginService();
+        pluginService.getPluginMap(function(err, map) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
                 return;
             }
 
             //setup angular
-            var angularObjects = pb.js.getAngularObjects({
+            var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
                 installedPlugins: map.active,

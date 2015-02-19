@@ -53,7 +53,7 @@ module.exports = function(pb) {
                 data.adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
             }
 
-            var angularObjects = pb.js.getAngularObjects(data);
+            var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(data.user[pb.DAO.getIdField()] ? data.user.username : self.ls.get('NEW_USER'));
             self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));

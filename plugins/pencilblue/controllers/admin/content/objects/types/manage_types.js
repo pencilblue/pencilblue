@@ -48,7 +48,7 @@ module.exports = function(pb) {
             pb.CustomObjectService.setFieldTypesUsed(custObjTypes, self.ls);
 
             //build out the angular controller
-            var angularObjects = pb.js.getAngularObjects(
+            var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_object_types'),

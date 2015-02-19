@@ -54,7 +54,7 @@ module.exports = function(pb) {
 
             pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
                 articles = self.getArticleStatuses(articlesWithAuthorNames);
-                var angularObjects = pb.js.getAngularObjects(
+                var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
                     pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),

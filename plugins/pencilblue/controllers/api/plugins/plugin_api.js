@@ -34,7 +34,15 @@ module.exports = function(pb) {
      * @constructor
      * @extends BaseController
      */
-    function PluginApiController(){}//TODO refactor to match api_action_controller
+    function PluginApiController(){
+        
+        /**
+         *
+         * @property pluginService
+         * @type {PluginService}
+         */
+        this.pluginService = new PluginService();
+    }
     util.inherits(PluginApiController, BaseController);
 
     //constants
@@ -93,7 +101,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     PluginApiController.prototype.install = function(uid, cb) {
-        var jobId   = pb.plugins.installPlugin(uid);
+        var jobId   = this.pluginService.installPlugin(uid);
         var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', jobId);
         cb({content: content});
     };
@@ -107,7 +115,7 @@ module.exports = function(pb) {
     PluginApiController.prototype.uninstall = function(uid, cb) {
         var self = this;
 
-        var jobId   = pb.plugins.uninstallPlugin(uid);
+        var jobId   = this.pluginService.uninstallPlugin(uid);
         var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', jobId);
         cb({content: content});
     };
@@ -126,7 +134,7 @@ module.exports = function(pb) {
 
             //load plugin
             function(callback) {
-                pb.plugins.getPlugin(uid, function(err, plugin) {
+                self.pluginService.getPlugin(uid, function(err, plugin) {
                     if (!plugin) {
                         callback(new Error(util.format(self.ls.get('PLUGIN_NOT_FOUND'), uid)), false);
                         return;
@@ -147,7 +155,7 @@ module.exports = function(pb) {
 
             //pass plugin to reset settings
             function(callback) {
-                pb.plugins.resetSettings(details, callback);
+                self.pluginService.resetSettings(details, callback);
             },
 
             //pass plugin to reset theme settings
@@ -156,7 +164,7 @@ module.exports = function(pb) {
                     callback(null, true);
                     return;
                 }
-                pb.plugins.resetThemeSettings(details, callback);
+                self.pluginService.resetThemeSettings(details, callback);
             }
         ];
         async.series(tasks, function(err, results) {
@@ -186,14 +194,14 @@ module.exports = function(pb) {
     PluginApiController.prototype.initialize = function(uid, cb) {
         var self = this;
 
-        pb.plugins.getPlugin(uid, function(err, plugin) {
+        this.pluginService.getPlugin(uid, function(err, plugin) {
             if (util.isError(err)) {
                 var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INITIALIZATION_FAILED'), uid), [err.message]);
                 cb({content: content, code: 500});
                 return;
             }
 
-            pb.plugins.initPlugin(plugin, function(err, results) {
+            self.pluginService.initPlugin(plugin, function(err, results) {
                 if (util.isError(err)) {
                     var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INITIALIZATION_FAILED'), uid), [err.message]);
                     cb({content: content, code: 400});
@@ -216,7 +224,7 @@ module.exports = function(pb) {
         var self = this;
 
         //retrieve plugin
-        pb.plugins.getPlugin(uid, function(err, plugin) {
+        this.pluginService.getPlugin(uid, function(err, plugin) {
             if (uid !== RequestHandler.DEFAULT_THEME && util.isError(err)) {
                 var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('SET_THEME_FAILED'), uid), [err.message]);
                 cb({content: content, code: 500});

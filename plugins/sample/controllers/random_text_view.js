@@ -24,7 +24,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
     var util           = pb.util;
     var PluginService  = pb.PluginService;
     var TopMenuService = pb.TopMenuService;
-    var TextService    = pb.plugins.getService('textService', 'sample');
+    var TextService    = PluginService.getService('textService', 'sample');
 
     /**
      * RandomTextViewController - A sample controller to show how to register a controller and 

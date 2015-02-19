@@ -112,7 +112,7 @@ module.exports = function LocalizationModule(pb) {
 
         // If the localization is for HTML output, load the localization into client side JS
         if (text.indexOf('<body') > -1)  {
-            text = text.concat(pb.js.includeJS(pb.config.siteRoot + '/localization/' + localizationLanguage + '.js'));
+            text = text.concat(pb.ClientJs.includeJS(pb.config.siteRoot + '/localization/' + localizationLanguage + '.js'));
         }
 
         return text;

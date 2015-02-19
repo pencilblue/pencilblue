@@ -59,7 +59,9 @@ module.exports = function IndexModule(pb) {
         };
         TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
-                pb.plugins.getSettings('portfolio', function(err, portfolioSettings) {
+                
+                var pluginService = new pb.PluginService();
+                pluginService.getSettings('portfolio', function(err, portfolioSettings) {
                     var homePageKeywords = '';
                     var homePageDescription = '';
                     for(var i = 0; i < portfolioSettings.length; i++) {
@@ -151,7 +153,7 @@ module.exports = function IndexModule(pb) {
 
                                     content.content = self.ls.localize([], content.content);
 
-                                    var angularData = pb.js.getAngularController({}, ['ngSanitize']);
+                                    var angularData = pb.ClientJs.getAngularController({}, ['ngSanitize']);
                                     content.content = content.content.concat(angularData);
 
                                     cb(content);

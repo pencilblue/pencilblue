@@ -27,7 +27,15 @@ module.exports = function(pb) {
      * @constructor
      * @extends BaseController
      */
-    function PluginSettingsFormController(){}
+    function PluginSettingsFormController(){
+    
+        /**
+         *
+         * @property pluginService
+         * @type {PluginService}
+         */
+        this.pluginService = new PluginService();
+    }
     util.inherits(PluginSettingsFormController, BaseController);
 
     //statics
@@ -75,7 +83,7 @@ module.exports = function(pb) {
         var self = this;
 
         var uid = this.pathVars.id;
-        pb.plugins.getPlugin(uid, function(err, plugin) {
+        this.pluginService.getPlugin(uid, function(err, plugin) {
             if (util.isError(err)) {
                 throw err;
             }
@@ -123,7 +131,7 @@ module.exports = function(pb) {
                 ];
 
                 //setup angular
-                var angularObjects = pb.js.getAngularObjects({
+                var angularObjects = pb.ClientJs.getAngularObjects({
                     pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, plugin),
                     tabs: tabs,
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
@@ -155,7 +163,7 @@ module.exports = function(pb) {
      *
      */
     PluginSettingsFormController.prototype.getSettings = function(uid, cb) {
-        pb.plugins.getSettings(uid, cb);
+        this.pluginService.getSettings(uid, cb);
     };
 
     /**
@@ -164,7 +172,7 @@ module.exports = function(pb) {
      *
      */
     PluginSettingsFormController.prototype.setSettings = function(settings, uid, cb) {
-        pb.plugins.setSettings(settings, uid, cb);
+        this.pluginService.setSettings(settings, uid, cb);
     };
 
     /**

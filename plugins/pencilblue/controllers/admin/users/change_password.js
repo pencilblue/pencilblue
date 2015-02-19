@@ -58,7 +58,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
                 title: self.ls.get('PASSWORD')
             }];
 
-            var angularObjects = pb.js.getAngularObjects(
+            var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, user),

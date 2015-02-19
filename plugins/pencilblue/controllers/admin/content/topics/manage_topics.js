@@ -55,7 +55,7 @@ module.exports = function(pb) {
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
             });
 
-            var angularObjects = pb.js.getAngularObjects(
+            var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),

@@ -64,12 +64,12 @@ module.exports = function BlogModule(pb) {
                             cb(null, '');
                         }
                         else {
-                            var infiniteScrollScript = pb.js.includeJS('/js/infinite_article_scroll.js');
+                            var infiniteScrollScript = pb.ClientJs.includeJS('/js/infinite_article_scroll.js');
                             if(section) {
-                                infiniteScrollScript += pb.js.getJSTag('var infiniteScrollSection = "' + section + '";');
+                                infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollSection = "' + section + '";');
                             }
                             else if(topic) {
-                                infiniteScrollScript += pb.js.getJSTag('var infiniteScrollTopic = "' + topic + '";');
+                                infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollTopic = "' + topic + '";');
                             }
                             cb(null, new pb.TemplateValue(infiniteScrollScript, false));
                         }
@@ -124,7 +124,7 @@ module.exports = function BlogModule(pb) {
                                         sideNavItems: sideNavItems,
                                         trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
                                     };
-                                    var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
+                                    var angularData = pb.ClientJs.getAngularController(objects, ['ngSanitize']);
                                     cb(null, angularData);
                                 });
                                 self.ts.load(template, function(err, result) {
@@ -419,7 +419,8 @@ module.exports = function BlogModule(pb) {
     Blog.prototype.getSideNavigation = function(articles, cb) {
         var self = this;
 
-        pb.plugins.getSetting('show_side_navigation', 'portfolio', function(err, showSideNavigation) {
+        var pluginService = new pb.PluginService();
+        pluginService.getSetting('show_side_navigation', 'portfolio', function(err, showSideNavigation) {
             if(!showSideNavigation) {
                 cb('', null);
                 return;

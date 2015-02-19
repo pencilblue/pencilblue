@@ -54,7 +54,7 @@ module.exports = function(pb) {
             }
 
             //angular data
-            var angularObjects = pb.js.getAngularObjects({
+            var angularObjects = pb.ClientJs.getAngularObjects({
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj),
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                 d: obj.details,
@@ -79,7 +79,8 @@ module.exports = function(pb) {
     PluginDetailsViewController.prototype.getDetails = function(puid, cb) {
         var self = this;
 
-        pb.plugins.getPlugin(puid, function(err, plugin) {
+        var pluginService = new pb.PluginService();
+        pluginService.getPlugin(puid, function(err, plugin) {
             if (util.isError(err)) {
                 cb(err, plugin);
                 return;

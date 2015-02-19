@@ -28,6 +28,13 @@ module.exports = function PluginJobRunnerModule(pb) {
      */
     function PluginJobRunner() {
         PluginJobRunner.super_.call(this);
+        
+        /**
+         * 
+         * @property pluginService
+         * @type {PluginService}
+         */
+        this.pluginService = new pb.PluginService();
     };
     util.inherits(PluginJobRunner, pb.ClusterJobRunner);
 

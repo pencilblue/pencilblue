@@ -149,7 +149,7 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.requiresClientLocalizationCallback = function(flag, cb) {
         var val = '';
         if (this.requiresClientLocalization()) {
-            val = pb.js.includeJS('/api/localization/script');
+            val = pb.ClientJs.includeJS('/api/localization/script');
         }
         cb(null, new pb.TemplateValue(val, false));
     };
@@ -315,7 +315,7 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.checkForFormRefill = function(result, cb) {
         if(this.session.fieldValues) {
             var content    = util.format(FORM_REFILL_PATTERN, JSON.stringify(this.session.fieldValues));
-            var formScript = pb.js.getJSTag(content);
+            var formScript = pb.ClientJs.getJSTag(content);
             result         = result.concat(formScript);
 
             delete this.session.fieldValues;

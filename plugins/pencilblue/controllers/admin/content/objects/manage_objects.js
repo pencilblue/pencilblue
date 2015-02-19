@@ -68,7 +68,7 @@ module.exports = function(pb) {
                     }
                 }
 
-                var angularObjects = pb.js.getAngularObjects(
+                var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                     pills: pills,

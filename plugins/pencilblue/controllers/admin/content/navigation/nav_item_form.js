@@ -55,7 +55,7 @@ module.exports = function(pb) {
             delete self.navItem.contentSearchValue;
 
             data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
-            var angularObjects = pb.js.getAngularObjects(data);
+            var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));

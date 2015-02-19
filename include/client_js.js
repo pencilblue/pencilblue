@@ -18,16 +18,16 @@
 //dependencies
 var util = require('./util.js');
 
-module.exports = function ClientJSModule(pb) {
+module.exports = function ClientJsModule(pb) {
 
     /**
      * Service for creating JavaScript tags
      *
      * @module Services
-     * @class ClientJS
+     * @class ClientJs
      * @constructor
      */
-    function ClientJS(){}
+    function ClientJs(){}
 
     /**
      * Creates a basic AngularJS controller with a repeat directive for templatizing
@@ -37,7 +37,7 @@ module.exports = function ClientJSModule(pb) {
      * @param {Array}  modules     Array of AngularJS module names
      * @param {String} directiveJS JavaScript to run after on-finish-render directive
      */
-    ClientJS.getAngularController = function(objects, modules, directiveJS) {
+    ClientJs.getAngularController = function(objects, modules, directiveJS) {
         if(!util.isArray(modules) || modules.length === 0) {
             modules = ['ngRoute'];
         }
@@ -47,10 +47,10 @@ module.exports = function ClientJSModule(pb) {
             angularController += '.directive("onFinishRender", function($timeout){return {restrict: "A",link: function(scope, element, attr){if (scope.$last === true){$timeout(function(){' + directiveJS + '})}}}})';
         }
 
-        var scopeString = ClientJS.getAngularObjects(objects);
+        var scopeString = ClientJs.getAngularObjects(objects);
         angularController = angularController.concat('.controller("PencilBlueController", function($scope, $sce) {' + scopeString + "});\n");
         angularController = angularController.concat('pencilblueApp.config(["$compileProvider",function(e){e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/)}]);');
-        return ClientJS.getJSTag(angularController);
+        return ClientJs.getJSTag(angularController);
     };
 
     /**
@@ -60,7 +60,7 @@ module.exports = function ClientJSModule(pb) {
      * @param {Object} objects
      * @return {String} 
      */
-    ClientJS.getAngularObjects = function(objects) {
+    ClientJs.getAngularObjects = function(objects) {
         var scopeString = '';
         for(var key in objects) {
             if(util.isString(objects[key]) && objects[key].indexOf('function(') == 0) {
@@ -80,7 +80,7 @@ module.exports = function ClientJSModule(pb) {
      * @method includeJS
      * @param {String} url
      */
-    ClientJS.includeJS = function(url) {
+    ClientJs.includeJS = function(url) {
         return new pb.TemplateValue('<script type="text/javascript" src="' + url + '"></script>', false);
     };
 
@@ -91,10 +91,10 @@ module.exports = function ClientJSModule(pb) {
      * @method getJSTag
      * @param {String} jsCode
      */
-    ClientJS.getJSTag = function(jsCode) {
+    ClientJs.getJSTag = function(jsCode) {
         return new pb.TemplateValue('<script type="text/javascript">\n' + jsCode + '\n</script>', false);
     };
 
     //exports
-    return ClientJS;
+    return ClientJs;
 };

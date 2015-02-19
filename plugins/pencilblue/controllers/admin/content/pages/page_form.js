@@ -102,7 +102,7 @@ module.exports = function(pb) {
             media: data.media,
             page: data.page
         };
-        return pb.js.getAngularObjects(objects);
+        return pb.ClientJs.getAngularObjects(objects);
     };
 
     /**

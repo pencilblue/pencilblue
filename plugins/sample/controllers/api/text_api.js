@@ -20,7 +20,7 @@ module.exports = function TextApiControllerModule(pb) {
     //PB dependencies
     var util           = pb.util;
     var PluginService  = pb.PluginService;
-    var TextService    = pb.plugins.getService('textService', 'sample');
+    var TextService    = PluginService.getService('textService', 'sample');
 
     /**
      * TextApiController - A sample controller to demonstrate how to build an API

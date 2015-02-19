@@ -51,7 +51,7 @@ module.exports = function WPImportViewControllerModule(pb) {
         };
 
         this.setPageName(this.ls.get('IMPORT_WORDPRESS'));
-        var angularObjects = pb.js.getAngularObjects(objects);
+        var angularObjects = pb.ClientJs.getAngularObjects(objects);
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('/admin/plugins/settings/wp_import/import', function(err, result) {
             var content = {

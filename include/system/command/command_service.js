@@ -88,7 +88,7 @@ module.exports = function CommandServiceModule(pb) {
                 return cb(err);
             }
 
-            self.broker.subscribe(pb.ServerRegistration.generateKey(), CommandService.onCommandReceived(this), cb);
+            self.broker.subscribe(pb.ServerRegistration.generateKey(), CommandService.onCommandReceived(self), cb);
         });
 
         //register for events
@@ -144,7 +144,7 @@ module.exports = function CommandServiceModule(pb) {
      * @return {Boolean} TRUE if the handler was unregistered, FALSE if not.
      */
     CommandService.prototype.unregisterForType = function(type, handler) {
-        if (!pb.validation.validateNonEmptyStr(type, true) || !util.isFunction(handler) || !util.isArray(REGISTRANTS[type])) {
+        if (!pb.validation.validateNonEmptyStr(type, true) || !util.isFunction(handler) || !util.isArray(this.registrants[type])) {
             return false;
         }
 
@@ -198,7 +198,7 @@ module.exports = function CommandServiceModule(pb) {
                 this.registrants[type][i](command);
             };
         };
-        for (var i = 0; i < REGISTRANTS[type].length; i++) {
+        for (var i = 0; i < this.registrants[type].length; i++) {
             process.nextTick(emitFunction(type, i, command));
         }
     };

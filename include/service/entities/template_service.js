@@ -89,6 +89,12 @@ module.exports = function(pb) {
          * @type {Function}
          */
         this.unregisteredFlagHandler = null;
+        
+        /**
+         * @property pluginService
+         * @type {PluginService}
+         */
+        this.pluginService = new pb.PluginService();
     }
 
     //constants
@@ -121,7 +127,8 @@ module.exports = function(pb) {
         },
         site_menu_logo: '/img/logo_menu.png',
         site_icon: function(flag, callback) {
-            pb.plugins.getActiveIcon(callback);
+            var pluginService = new pb.PluginService();
+            pluginService.getActiveIcon(callback);
         },
         version: pb.config.version
     };
@@ -218,7 +225,8 @@ module.exports = function(pb) {
      * @param {function} cb Callback function
      */
     TemplateService.prototype.getTemplateContentsByPriority = function(relativePath, cb) {
-
+        var self = this;
+        
         //build set of paths to search through
         var hintedTheme   = this.getTheme();
         var paths         = [];
@@ -230,7 +238,7 @@ module.exports = function(pb) {
                 paths.push(TemplateService.getCustomPath(activeTheme, relativePath));
             }
 
-            var activePlugins = pb.plugins.getActivePluginNames();
+            var activePlugins = self.pluginService.getActivePluginNames();
             for (var i = 0; i < activePlugins.length; i++) {
                 if (hintedTheme !== activePlugins[i] && 'pencilblue' !== activePlugins[i]) {
                     paths.push(TemplateService.getCustomPath(activePlugins[i], relativePath));
@@ -491,7 +499,8 @@ module.exports = function(pb) {
      * @param {function} cb A call back that provides two parameters: cb(err, [{templateName: templateLocation])
      */
     TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
-
+        var self = this;
+        
         pb.settings.get('active_theme', function(err, activeTheme) {
             if(util.isError(err) || activeTheme == null) {
                 cb(err, []);
@@ -513,7 +522,7 @@ module.exports = function(pb) {
                 }
                 else {
                     //load normal plugin
-                    pb.plugins.getPlugin(activeTheme, callback);
+                    self.pluginService.getPlugin(activeTheme, callback);
                 }
             };
 

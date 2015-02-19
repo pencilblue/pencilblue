@@ -73,7 +73,7 @@ module.exports = function(pb) {
             href: '/admin/plugins'
         }];
 
-        var angularObjects = pb.js.getAngularObjects({
+        var angularObjects = pb.ClientJs.getAngularObjects({
             navigation: pb.AdminNavigation.get(this.session, ['users', 'permissions'], this.ls),
             pills: pills,
             roles: roleDNs,

@@ -59,12 +59,12 @@ module.exports = function IndexModule(pb) {
                             cb(null, '');
                         }
                         else {
-                            var infiniteScrollScript = pb.js.includeJS('/js/infinite_article_scroll.js');
+                            var infiniteScrollScript = pb.ClientJs.includeJS('/js/infinite_article_scroll.js');
                             if(section) {
-                                infiniteScrollScript += pb.js.getJSTag('var infiniteScrollSection = "' + section + '";');
+                                infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollSection = "' + section + '";');
                             }
                             else if(topic) {
-                                infiniteScrollScript += pb.js.getJSTag('var infiniteScrollTopic = "' + topic + '";');
+                                infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollTopic = "' + topic + '";');
                             }
 
                             var val = new pb.TemplateValue(infiniteScrollScript, false);
@@ -94,7 +94,7 @@ module.exports = function IndexModule(pb) {
                         var objects = {
                             trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
                         };
-                        var angularData = pb.js.getAngularController(objects, ['ngSanitize']);
+                        var angularData = pb.ClientJs.getAngularController(objects, ['ngSanitize']);
                         cb(null, angularData);
                     });
                     self.getTemplate(data.content, function(err, template) {

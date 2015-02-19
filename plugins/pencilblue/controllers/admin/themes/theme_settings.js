@@ -24,15 +24,23 @@ module.exports = function(pb) {
     /**
      * Interface for changing a theme's settings
      */
-    function ThemeSettings() {}
+    function ThemeSettings() {
+        
+        /**
+         *
+         * @property pluginService
+         * @type {PluginService}
+         */
+        this.pluginService = new PluginService();
+    }
     util.inherits(ThemeSettings, PluginSettings);
 
     ThemeSettings.prototype.getSettings = function(uid, cb) {
-        pb.plugins.getThemeSettings(uid, cb);
+        this.pluginService.getThemeSettings(uid, cb);
     };
 
     ThemeSettings.prototype.setSettings = function(settings, uid, cb) {
-        pb.plugins.setThemeSettings(settings, uid, cb);
+        this.pluginService.setThemeSettings(settings, uid, cb);
     };
 
     PluginSettings.prototype.getBackUrl = function() {

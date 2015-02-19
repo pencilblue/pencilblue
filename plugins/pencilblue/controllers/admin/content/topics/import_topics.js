@@ -42,7 +42,7 @@ module.exports = function(pb) {
             }
         ];
 
-        var angularObjects = pb.js.getAngularObjects(
+        var angularObjects = pb.ClientJs.getAngularObjects(
         {
             navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics'),

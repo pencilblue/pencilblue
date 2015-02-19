@@ -95,7 +95,7 @@ module.exports = function DAOModule(pb) {
      * @param {Function} cb         Callback function
      */
     DAO.prototype.loadById = function(id, collection, opts, cb){
-        this.loadByValues(DAO.getIDWhere(id), collection, opts, cb);	
+        this.loadByValues(DAO.getIdWhere(id), collection, opts, cb);	
     };
 
     /**
@@ -506,7 +506,7 @@ module.exports = function DAOModule(pb) {
             return cb(new Error('An id must be specified in order to delete'));
         }
 
-        var where = DAO.getIDWhere(oid);
+        var where = DAO.getIdWhere(oid);
         this.delete(where, collection, cb);
     };
 
@@ -753,41 +753,80 @@ module.exports = function DAOModule(pb) {
 
     /**
      * Creates a basic where clause based on not equalling the specified Id
+     * @deprecated
      * @static
      * @method getNotIDWhere
      * @param {String} oid Object Id String
      * @return {Object}    Where clause
      */
     DAO.getNotIDWhere = function(oid) {
+        pb.log.warn('DAO: getNotIDField is deprecated. Use getNotIdField instead');
+        return DAO.getNotIdWhere(oid);
+    };
+    
+    /**
+     * Creates a basic where clause based on not equalling the specified Id
+     * @static
+     * @method getNotIdWhere
+     * @param {String} oid Object Id String
+     * @return {Object}    Where clause
+     */
+    DAO.getNotIdWhere = function(oid) {
         return {
-            _id: DAO.getNotIDField(oid)
+            _id: DAO.getNotIdField(oid)
         };
     };
 
     /**
      * Creates a where clause that indicates to select where the '_id' field does
      * not equal the specified value.
+     * @deprecated since 0.4.0
      * @static
      * @method getNotIDField
      * @return {Object} Where clause
      */
     DAO.getNotIDField = function(oid) {
-        return {$ne: DAO.getObjectID(oid)};
+        pb.log.warn('DAO: getNotIDField is deprecated. Use getNotIdField instead');
+        return DAO.getNotIdField(oid);
+    };
+    
+    /**
+     * Creates a where clause that indicates to select where the '_id' field does
+     * not equal the specified value.
+     * @static
+     * @method getNotIdField
+     * @return {Object} Where clause
+     */
+    DAO.getNotIdField = function(oid) {
+        return {$ne: DAO.getObjectId(oid)};
     };
 
     /**
      * Creates an MongoDB ObjectID object
+     * @deprecated since 0.4.0
      * @static
      * @method getObjectID
      * @param {String} oid Object Id String
      * @return {Object}    ObjectID object
      */
     DAO.getObjectID = function(oid) {
+        pb.log.warn('DAO: getObjectID is deprecated. Use getObjectId instead');
+        return DAO.getObjectId(oid);
+    };
+    
+    /**
+     * Creates an MongoDB ObjectID object
+     * @static
+     * @method getObjectId
+     * @param {String} oid Object Id String
+     * @return {Object}    ObjectID object
+     */
+    DAO.getObjectId = function(oid) {
         try {
            return new ObjectID(oid + '');
         }
         catch(err) {
-            pb.log.warn('%s - VALUE=[%s]', err.message, util.inspect(oid));
+            pb.log.warn('%s - VALUE=[%s]', err.message, util.inspect(oid));throw err;
             return oid;
         }
     };

@@ -128,7 +128,7 @@ module.exports = function DeleteControllerModule(pb) {
      * @return 
      */
     DeleteController.prototype.getDeleteQuery = function() {
-        return pb.DAO.getIDWhere(this.query.id);
+        return pb.DAO.getIdWhere(this.query.id);
     };
 
     /**

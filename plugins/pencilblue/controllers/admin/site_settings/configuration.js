@@ -52,7 +52,7 @@ module.exports = function(pb) {
                 configSet: fs.existsSync(pb.config.docRoot + '/config.json')
             };
 
-            var angularObjects = pb.js.getAngularObjects({
+            var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration'),
                 config: config

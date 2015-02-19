@@ -47,7 +47,7 @@ module.exports = function ChangePasswordFormControllerModule(pb) {
 
 
             self.setPageName(self.ls.get('CHANGE_PASSWORD'));
-            self.ts.registerLocal('angular_script', pb.js.getAngularController(self.gatherData()));
+            self.ts.registerLocal('angular_script', pb.ClientJs.getAngularController(self.gatherData()));
             self.ts.registerLocal('hide_current', self.session.authentication.reset_password ? 'display: none' : '');
             self.ts.load('user/change_password', function(err, result) {
 

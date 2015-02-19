@@ -47,7 +47,7 @@ module.exports = function(pb) {
 
             self.objectType = data.objectType;
             data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.objectType);
-            var angularObjects = pb.js.getAngularObjects(data);
+            var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.objectType[pb.DAO.getIdField()] ? self.objectType.name : self.ls.get('NEW_OBJECT'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));

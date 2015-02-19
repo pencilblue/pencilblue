@@ -101,7 +101,7 @@ module.exports = function HomePageSettingsModule(pb) {
                 };
 
                 self.ts.registerLocal('angular_script', '');
-                self.ts.registerLocal('angular_objects', new pb.TemplateValue(pb.js.getAngularObjects(objects), false));
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(pb.ClientJs.getAngularObjects(objects), false));
                 self.ts.load('admin/settings/home_page_settings', function(err, result) {
                     cb({content: result});
                 });

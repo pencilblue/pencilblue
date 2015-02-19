@@ -159,10 +159,10 @@ module.exports = function PB(config) {
             return new pb.ContentService();
         }
     });
-    pb.ClientJS = require(config.docRoot+'/include/client_js')(pb); // Client JS
+    pb.ClientJs = require(config.docRoot+'/include/client_js')(pb); // Client JS
     Object.defineProperty(pb, 'js', {
         get: function() {
-            pb.log.warn('PencilBlue: pb.js is deprecated.  Use pb.ClientJS instead');
+            pb.log.warn('PencilBlue: pb.js is deprecated.  Use pb.ClientJs instead');
             return pb.ClientJS;
         }
     });						
