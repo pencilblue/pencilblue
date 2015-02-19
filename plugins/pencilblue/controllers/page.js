@@ -56,21 +56,35 @@ PageController.prototype.render = function(cb) {
 		where = {url: custUrl};
 	}
 
-	var dao     = new pb.DAO();
+	var dao = new pb.DAO();
 	dao.loadByValues(where, 'page', function(err, page) {
 		if (util.isError(err) || page == null) {
-			self.reqHandler.serve404();
-			return;
-		}
-		else if (doRedirect) {
-			self.redirect(pb.UrlService.urlJoin('/page', page.url), cb);
+			if (where.url) {
+				self.reqHandler.serve404();
+				return;
+			}
+
+			dao.loadByValues({url: custUrl}, 'page', function(err, page) {
+				if (util.isError(err) || page == null) {
+					self.reqHandler.serve404();
+					return;
+				}
+
+				self.renderPage(page, cb);
+			});
+
 			return;
 		}
 
-		self.req.pencilblue_page = page._id.toString();
-		this.page = page;
-		PageController.super_.prototype.render.apply(self, [cb]);
+		self.renderPage(page, cb);
 	});
+};
+
+PageController.prototype.renderPage = function(page, cb) {
+	this.req.pencilblue_page = page._id.toString();
+	this.page = page;
+	this.setPageName(page.name);
+	PageController.super_.prototype.render.apply(this, [cb]);
 };
 
 /**
