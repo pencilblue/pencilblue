@@ -33,38 +33,52 @@ module.exports = function PreviewModule(pb) {
         var custUrl = this.pathVars.customUrl;
 
         //check for object ID as the custom URL
-        var where      = null;
-        var doRedirect = false;
-        if (pb.validation.isId(custUrl, true)) {
-            where      = pb.DAO.getIdWhere(custUrl);
-            doRedirect = true;
+        var where  = null;
+        if(pb.validation.isIdStr(custUrl)) {
+            where = {_id: pb.DAO.getObjectID(custUrl)};
+            if (pb.log.isSilly()) {
+                pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
+            }
         }
-        else if (pb.log.isSilly()) {
-            pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field.", custUrl);
+        else {
+            where = {url: custUrl};
         }
 
         // fall through to URL key
         if (where === null) {
             where = {url: custUrl};
         }
-
+        
         //attempt to load object
         var dao = new pb.DAO();
         dao.loadByValues(where, 'article', function(err, article) {
             if (util.isError(err) || article == null) {
-                self.reqHandler.serve404();
-                return;
-            }
-            else if (doRedirect) {
-                self.redirect(pb.UrlService.urlJoin('/article', article.url), cb);
+                if (where.url) {
+                    self.reqHandler.serve404();
+                    return;
+                }
+
+                dao.loadByValues({url: custUrl}, 'article', function(err, article) {
+                    if (util.isError(err) || article == null) {
+                        self.reqHandler.serve404();
+                        return;
+                    }
+
+                    self.renderArticle(article, cb);
+                });
+
                 return;
             }
 
-            self.req.pencilblue_article = article[pb.DAO.getIdField()].toString();
-            this.article = article;
-            self.setPageName(article.name);
-            Article.super_.prototype.render.apply(self, [cb]);
+            self.renderArticle(article, cb);
         });
+    };
+    
+    Article.prototype.renderArticle = function(article, cb) {
+        this.req.pencilblue_article = article._id.toString();
+        this.article = article;
+        this.setPageName(article.name);
+        Article.super_.prototype.render.apply(this, [cb]);
     };
 
     //exports
