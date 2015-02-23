@@ -545,7 +545,7 @@ module.exports = function CustomObjectServiceModule(pb) {
 
     /**
      * Loads a custom object by name
-     * @method loadById
+     * @method loadByName
      * @param {String} type The ID string of the custom object type
      * @param {String} name The unique name of the custom object
      * @param {Object} [options]
@@ -603,7 +603,7 @@ module.exports = function CustomObjectServiceModule(pb) {
 
     /**
      * Loads a custom object type by name
-     * @method loadTypeById
+     * @method loadTypeByName
      * @param {String} name
      * @param {Function} cb
      */
