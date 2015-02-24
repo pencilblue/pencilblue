@@ -43,7 +43,10 @@
     "winston": "0.8.3"
   },
   "devDependencies": {
+    "coveralls": "2.11.2",
+    "istanbul": "0.3.6",
     "mocha": "2.1.0",
+    "mocha-lcov-reporter": "0.0.1",
     "should": "5.0.1"
   },
   "main": "./pencilblue.js",
@@ -52,7 +55,7 @@
   },
   "scripts": {
     "start": "node pencilblue.js",
-    "test": "mocha --recursive"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec --recursive"
   },
   "licenses": [
     {
