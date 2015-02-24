@@ -52,7 +52,7 @@
   },
   "scripts": {
     "start": "node pencilblue.js",
-    "test": "echo Not hooked up yet"
+    "test": "mocha --recursive"
   },
   "licenses": [
     {
