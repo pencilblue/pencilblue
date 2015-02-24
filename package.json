@@ -43,7 +43,8 @@
     "winston": "0.8.3"
   },
   "devDependencies": {
-    "nodeunit": "0.8.2"
+    "mocha": "2.1.0",
+    "should": "5.0.1"
   },
   "main": "./pencilblue.js",
   "engines": {
