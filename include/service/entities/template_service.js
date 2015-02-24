@@ -315,8 +315,7 @@ module.exports = function(pb) {
                 //callback with static content
                 var part = parts[i];
                 if (part.type === TEMPLATE_PIECE_STATIC) {
-                    callback(null, part.val);
-                    return;
+                    return callback(null, part.val);
                 }
                 else if (part.type === TEMPLATE_PIECE_FLAG) {
 
@@ -333,7 +332,7 @@ module.exports = function(pb) {
                 }
                 else {
                     pb.log.error('An invalid template part type was provided: %s', part.type);
-                    cb(new Error('An invalid template part type was provided: '+part.type));
+                    callback(new Error('An invalid template part type was provided: '+part.type));
                 }
             };
         });
