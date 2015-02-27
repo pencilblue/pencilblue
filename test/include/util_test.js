@@ -312,4 +312,88 @@ describe('util', function() {
             expected.should.eql(result);
         });
     });
+    
+    describe('util.arrayToObj', function() {
+        
+        it('should return null when a non-array is provided', function() {
+            should.strictEqual(null, util.arrayToObj('not an array'));
+        });
+        
+        it('should return null when an invalid key field is passed', function() {
+            should.strictEqual(null, util.arrayToObj([], null));
+        });
+        
+        it('should return an object with each property set to value of array item', function() {
+            
+            var val = [
+                {
+                    key: 'apple'
+                }
+            ];
+            var result = util.arrayToObj(val, 'key');
+            var expected = {
+                apple: {
+                    key: 'apple'
+                }
+            };
+            expected.should.eql(result);
+        });
+        
+        it('should return an object with each property set to the value of the key property', function() {
+            var val = [
+                {
+                    key: 'apple'
+                }
+            ];
+            var result = util.arrayToObj(val, 'key', 'key');
+            var expected = {
+                apple: 'apple'
+            };
+            expected.should.eql(result);
+        });
+        
+        it('should return an object with each property calculated by the key length and a value calculated by adding an addition field', function() {
+            var val = [
+                {
+                    key: 'apple'
+                }
+            ];
+            var result = util.arrayToObj(val, function(val, i){
+                return val[i].key.length;
+            }, 
+            function(array, i) {
+                val[i].default = true;
+                return val[i];
+            });
+            var expected = {
+                '5': {
+                    key: 'apple',
+                    default: true
+                }
+            };
+            expected.should.eql(result);
+        });
+    });
+    
+    describe('util.objArrayToHash', function() {
+        
+        it('should return null when an invalid array is provided', function() {
+            should.strictEqual(null, util.objArrayToHash('hello world', 'key'));
+        });
+        
+        it('should return an object where the value of the id property for each array item is the hash key and the value is the array item', function() {
+            var val = [
+                {
+                    id: 'abc'   
+                }
+            ];
+            var result = util.objArrayToHash(val, 'id');
+            var expected = {
+                abc: {
+                    id: 'abc'   
+                }
+            };
+            result.should.eql(expected);
+        });
+    });
 });

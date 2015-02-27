@@ -273,7 +273,7 @@ Util.arrayToObj = function(array, keyFieldOrTransform, valFieldOrTransform) {
     
     var valIsString = Util.isString(valFieldOrTransform);
     var valIsFunc   = Util.isFunction(valFieldOrTransform);
-    if (!Util.isString(valFieldOrTransform) && !Util.isFunction(valFieldOrTransform)) {
+    if (!valIsString && !valIsFunc) {
         valFieldOrTransform = null;
     }
     
