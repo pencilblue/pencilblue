@@ -72,7 +72,7 @@ module.exports = function BaseMediaRenderer(pb) {
         }
 
         var attrStr = '';
-        util.forEach(attr, function(value, i, attr, key) {
+        util.forEach(attr, function(value, key/*, attr, i*/) {
             attrStr += key + '="' + HtmlEncoder.htmlEncode(value + '') + '" ';
         });
         return attrStr;
@@ -94,7 +94,7 @@ module.exports = function BaseMediaRenderer(pb) {
         }
 
         var styleStr = 'style="';
-        util.forEach(style, function(value, i, style, key) {
+        util.forEach(style, function(value, key/*, style, i*/) {
             styleStr += key + ':' + HtmlEncoder.htmlEncode(value + '') + ';';
         });
         styleStr += '" ';

@@ -117,9 +117,9 @@ Util.escapeRegExp = function(str) {
  * @param {Object} to
  */
 Util.merge = function(from, to) {
-	for (var prop in from) {
-		to[prop] = from[prop];
-	}
+    Util.forEach(from, function(val, propName/*, */) {
+        to[propName] = val;
+    });
 };
 
 /**
@@ -184,21 +184,21 @@ Util.wrapTask = function(context, func) {
  * @method forEach
  * @param {Object|Array} iterable
  * @param {Function} handler A function that accepts 4 parameters.  The value 
- * of the current property or index.  The current index.  The iterable.  
- * Finally, the property name if the iterable is an object.
+ * of the current property or index.  The current index (property name if object).  The iterable.  
+ * Finally, the numerical index if the iterable is an object.
  */
 Util.forEach = function(iterable, handler) {
     
     var internalHandler = handler;
     var internalIterable = iterable;
-    if (Util.isArray(iterable)) {
+    if (util.isArray(iterable)) {
         //no-op but we have to type check here first because an array is an object
     }
     else if (Util.isObject(iterable)) {
         
         internalIterable = Object.getOwnPropertyNames(iterable);
         internalHandler = function(propName, i) {
-            handler(iterable[propName], i, iterable, propName);
+            handler(iterable[propName], propName, iterable, i);
         };
     }
     else {
@@ -222,10 +222,13 @@ Util.arrayToHash = function(array, defaultVal) {
 		return null;
 	}
 
-	defaultVal = defaultVal || true;
+    //set the default value
+    if (Util.isNullOrUndefined(defaultVal)) {
+        defaultVal = true;
+    }
 	var hash = {};
 	for(var i = 0; i < array.length; i++) {
-		if (typeof defaultVal === 'function') {
+		if (Util.isFunction(defaultVal)) {
 			hash[defaultVal(array, i)] = array[i];
 		}
 		else {
