@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,70 +15,73 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Creates a nav item
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Creates a nav item
+     */
+    function NewNavItem(){}
+    util.inherits(NewNavItem, pb.BaseController);
 
-function NewNavItem(){}
+    NewNavItem.prototype.render = function(cb){
+        var self = this;
 
-//inheritance
-util.inherits(NewNavItem, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
 
-NewNavItem.prototype.render = function(cb){
-    var self = this;
+            var navItem = pb.DocumentCreator.create('section', post, ['keywords'], ['parent']);
 
-    this.getJSONPostParams(function(err, post) {
-
-        var navItem = pb.DocumentCreator.create('section', post, ['keywords'], ['parent']);
-
-        //ensure a URL was provided
-        if(!navItem.url && navItem.name) {
-            navItem.url = navItem.name.toLowerCase().split(' ').join('-');
-        }
-
-        //strip unneeded properties
-        pb.SectionService.trimForType(navItem);
-
-        //validate
-        var navService = new pb.SectionService();
-        navService.save(navItem, function(err, result) {
-            if(util.isError(err)) {
-                cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                });
-                return;
-            }
-            else if(util.isArray(result) && result.length > 0) {
-                cb({
-                    code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, NewNavItem.getHtmlErrorMsg(result))
-                });
-                return;
+            //ensure a URL was provided
+            if(!navItem.url && navItem.name) {
+                navItem.url = navItem.name.toLowerCase().split(' ').join('-');
             }
 
-            self.checkForNavMapUpdate(navItem, function() {
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, navItem.name + ' ' + self.ls.get('CREATED'), true)});
+            //strip unneeded properties
+            pb.SectionService.trimForType(navItem);
+
+            //validate
+            var navService = new pb.SectionService();
+            navService.save(navItem, function(err, result) {
+                if(util.isError(err)) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    });
+                    return;
+                }
+                else if(util.isArray(result) && result.length > 0) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, NewNavItem.getHtmlErrorMsg(result))
+                    });
+                    return;
+                }
+
+                self.checkForNavMapUpdate(navItem, function() {
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, navItem.name + ' ' + self.ls.get('CREATED'), true)});
+                });
             });
         });
-    });
-};
+    };
 
-NewNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {
-    var service = new pb.SectionService();
-    service.updateNavMap(navItem, cb);
-};
+    NewNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {
+        var service = new pb.SectionService();
+        service.updateNavMap(navItem, cb);
+    };
 
-NewNavItem.getHtmlErrorMsg = function(validationErrors) {
-    var html = '';
-    for (var i = 0; i < validationErrors.length; i++) {
-        if (i > 0) {
-            html += '<br/>';
+    NewNavItem.getHtmlErrorMsg = function(validationErrors) {
+        var html = '';
+        for (var i = 0; i < validationErrors.length; i++) {
+            if (i > 0) {
+                html += '<br/>';
+            }
+            html += validationErrors[i].field + ':' + validationErrors[i].message;
         }
-        html += validationErrors[i].field + ':' + validationErrors[i].message;
-    }
-    return html;
-};
+        return html;
+    };
 
-//exports
-module.exports = NewNavItem;
+    //exports
+    return NewNavItem;
+};

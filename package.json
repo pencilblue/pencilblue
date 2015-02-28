@@ -18,7 +18,7 @@
     "website",
     "platform"
   ],
-  "version": "0.3.1",
+  "version": "0.4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/pencilblue/pencilblue.git"
@@ -32,7 +32,7 @@
     "locale": "0.0.14",
     "minify": "0.2.3",
     "mongodb": "1.4.26",
-    "node-promise": "0.5.9",
+    "node-uuid": "1.4.2",
     "node.extend": "1.0.10",
     "nodemailer": "0.5.3",
     "npm": "1.4.20",
@@ -43,7 +43,11 @@
     "winston": "0.8.3"
   },
   "devDependencies": {
-    "nodeunit": "0.8.2"
+    "coveralls": "2.11.2",
+    "istanbul": "0.3.6",
+    "mocha": "2.1.0",
+    "mocha-lcov-reporter": "0.0.1",
+    "should": "5.0.1"
   },
   "main": "./pencilblue.js",
   "engines": {
@@ -51,7 +55,7 @@
   },
   "scripts": {
     "start": "node pencilblue.js",
-    "test": "echo Not hooked up yet"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec --recursive"
   },
   "licenses": [
     {

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ SavePageDraftController.prototype.onPostParamsRetrieved = function(post, cb) {
     post['publish_date']   = new Date(post['publish_date']);
 
     //add vars to post
-    pb.utils.merge(vars, post);
+    util.merge(vars, post);
 
     var message = this.hasRequiredParams(post, this.getRequiredFields());
     if (message) {

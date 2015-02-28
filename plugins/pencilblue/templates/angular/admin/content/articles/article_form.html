@@ -1,6 +1,7 @@
+<script type="text/javascript" src="/js/angular/filters/parsable_date.js"></script>
 <script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
-	angular.module('pencilblueApp', ['inlineMedia', 'sectionSelect', 'topicSelect', 'validation'])
+	angular.module('pencilblueApp', ['inlineMedia', 'sectionSelect', 'topicSelect', 'parseDate', 'validation'])
 	.controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window, validationService) {
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
@@ -99,7 +100,7 @@
 
 		$scope.getArticleData = function(draft, cb) {
 			var articleData = JSON.parse(JSON.stringify($scope.article));
-			articleData.publish_date = (new Date($scope.article.publish_date)).getTime();
+			articleData.publish_date = (new Date($filter('parsableDate')($scope.article.publish_date))).getTime();
 			articleData.draft = draft ? 1 : 0;
 
 			var media = [];

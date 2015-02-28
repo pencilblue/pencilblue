@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,29 +15,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for creating a new READER level user
- */
+module.exports = function SignUpModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for creating a new READER level user
+     */
+    function SignUp(){}
+    util.inherits(SignUp, pb.BaseController);
 
-function SignUp(){}
+    SignUp.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(SignUp, pb.BaseController);
+        var contentService = new pb.ContentService();
+        contentService.getSettings(function(err, contentSettings) {
+            if(!contentSettings.allow_comments) {
+                self.redirect('/', cb);
+                return;
+            }
 
-SignUp.prototype.render = function(cb) {
-	var self = this;
-
-	pb.content.getSettings(function(err, contentSettings) {
-        if(!contentSettings.allow_comments) {
-            self.redirect('/', cb);
-            return;
-        }
-
-        self.ts.load('user/sign_up', function(err, data) {
-            cb({content: self.ls.localize([], data)});
+            self.ts.load('user/sign_up', function(err, data) {
+                cb({content: self.ls.localize([], data)});
+            });
         });
-    });
-};
+    };
 
-//exports
-module.exports = SignUp;
+    //exports
+    return SignUp;
+};

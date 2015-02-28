@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,170 +15,259 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Service for managing user access
- *
- * @module Services
- * @submodule Security
- * @class SecurityService
- * @constructor
- */
-function SecurityService(){}
+//dependencies
+var crypto = require('crypto');
+var util   = require('./util.js');
 
-//constants
-global.ACCESS_USER            = 0;
-global.ACCESS_WRITER          = 1;
-global.ACCESS_EDITOR          = 2;
-global.ACCESS_MANAGING_EDITOR = 3;
-global.ACCESS_ADMINISTRATOR   = 4;
+module.exports = function(pb) {
 
-var PASSWORD_CHARS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '!', '@', '#', '$', '%', '^', '&', '*', '?'];
+    /**
+     * Service for managing user access
+     *
+     * @module Services
+     * @submodule Security
+     * @class SecurityService
+     * @constructor
+     */
+    function SecurityService(){}
 
-SecurityService.AUTHENTICATED = 'authenticated';
-SecurityService.ADMIN_LEVEL   = 'admin_level';
+    /**
+     *
+     * @static
+     * @readonly
+     * @property ACCESS_USER
+     * @type {Integer}
+     */
+    SecurityService.ACCESS_USER = 0;
+    
+    /**
+     *
+     * @static
+     * @readonly
+     * @property ACCESS_WRITER
+     * @type {Integer}
+     */
+    SecurityService.ACCESS_WRITER = 1;
+    
+    /**
+     *
+     * @static
+     * @readonly
+     * @property ACCESS_EDITOR
+     * @type {Integer}
+     */
+    SecurityService.ACCESS_EDITOR = 2;
+    
+    /**
+     *
+     * @static
+     * @readonly
+     * @property ACCESS_MANAGING_EDITOR
+     * @type {Integer}
+     */
+    SecurityService.ACCESS_MANAGING_EDITOR = 3;
+    
+    /**
+     *
+     * @static
+     * @readonly
+     * @property ACCESS_ADMINISTRATOR
+     * @type {Integer}
+     */
+    SecurityService.ACCESS_ADMINISTRATOR = 4;
 
-/**
- * Retrieves the localized names of access levels
- *
- * @method getRoleNames
- * @param {Object} ls The localization service
- */
-SecurityService.getRoleNames = function(ls) {
-	var map = SecurityService.getRoleToDisplayNameMap(ls);
-	return pb.utils.hashToArray(map);
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property PASSWORD_CHARS
+     * @type {Array}
+     */
+    var PASSWORD_CHARS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '!', '@', '#', '$', '%', '^', '&', '*', '?'];
+
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property ROLE_VAL_TO_NAME
+     * @type {Array}
+     */
+    var ROLE_VAL_TO_NAME = {};
+    ROLE_VAL_TO_NAME[SecurityService.ACCESS_USER]            = 'ACCESS_USER';
+    ROLE_VAL_TO_NAME[SecurityService.ACCESS_WRITER]          = 'ACCESS_WRITER';
+    ROLE_VAL_TO_NAME[SecurityService.ACCESS_EDITOR]          = 'ACCESS_EDITOR';
+    ROLE_VAL_TO_NAME[SecurityService.ACCESS_MANAGING_EDITOR] = 'ACCESS_MANAGING_EDITOR';
+    ROLE_VAL_TO_NAME[SecurityService.ACCESS_ADMINISTRATOR]   = 'ACCESS_ADMINISTRATOR';
+    
+    /**
+     *
+     * @static
+     * @readonly
+     * @property ACCESS_
+     * @type {Integer}
+     */
+    SecurityService.AUTHENTICATED = 'authenticated';
+    
+    /**
+     *
+     * @static
+     * @readonly
+     * @property ACCESS_
+     * @type {Integer}
+     */
+    SecurityService.ADMIN_LEVEL = 'admin_level';
+
+    /**
+     * Retrieves the localized names of access levels
+     *
+     * @method getRoleNames
+     * @param {Object} ls The localization service
+     */
+    SecurityService.getRoleNames = function(ls) {
+        var map = SecurityService.getRoleToDisplayNameMap(ls);
+        return util.hashToArray(map);
+    };
+
+    /**
+     * 
+     * @static
+     * @method getRoleToDisplayNameMap
+     * @param {Localization} ls
+     * @return {Object}
+     */
+    SecurityService.getRoleToDisplayNameMap = function(ls) {
+        if (util.isFunction(ls)) {
+            return {
+                'ACCESS_USER': ls.get('ACCESS_USER'),
+                'ACCESS_WRITER': ls.get('ACCESS_WRITER'),
+                'ACCESS_EDITOR': ls.get('ACCESS_EDITOR'),
+                'ACCESS_MANAGING_EDITOR': ls.get('ACCESS_MANAGING_EDITOR'),
+                'ACCESS_ADMINISTRATOR': ls.get('ACCESS_ADMINISTRATOR'),
+            };
+        }
+        return null;
+    };
+
+    /**
+     * Returns the constant name of an access level number
+     *
+     * @method getRoleName
+     * @param {Number} accessLevel
+     */
+    SecurityService.getRoleName = function(accessLevel) {
+        var val = ROLE_VAL_TO_NAME[accessLevel];
+        if (!val) {
+            throw new PBError(util.format("An invalid access level [%s] was provided", accessLevel), 500);
+        }
+        return val;
+    };
+
+    /**
+     * Authenticates a session
+     * @static
+     * @method authenticateSession
+     * @param {Object} session
+     * @param {Object} options
+     * @param {Authentication}
+     * @param {Function} cb
+     */
+    SecurityService.authenticateSession = function(session, options, authenticator, cb){
+        var doAuthentication = function(session, options, authenticator, cb) {
+            authenticator.authenticate(options, function(err, user) {
+                if (util.isError(err) || user == null) {
+                    cb(err, user);
+                    return;
+                }
+
+                //remove password from data to be cached
+                delete user.password;
+
+                //build out session object
+                user.permissions                   = pb.PluginService.getPermissionsForRole(user.admin);
+                session.authentication.user        = user;
+                session.authentication.user_id     = user[pb.DAO.getIdField()].toString();
+                session.authentication.admin_level = user.admin;
+                cb(null, user);
+            });
+        };
+        doAuthentication(session, options, authenticator, cb);
+    };
+
+    /**
+     * Check to see if a user meets security requirements
+     * @static
+     * @method isAuthorized
+     * @param {Object} session      [description]
+     * @param {Object} requirements Object containing access requirements
+     */
+    SecurityService.isAuthorized = function(session, requirements) {
+
+        //check if authentication is required
+        if (requirements[SecurityService.AUTHENTICATED]) {
+            if (session.authentication.user_id == null) {
+                return false;
+            }
+        }
+
+        //check for admin access level
+        if (requirements[SecurityService.ADMIN_LEVEL] !== undefined) {
+            if (session.authentication.admin_level < requirements[SecurityService.ADMIN_LEVEL]) {
+                return false;
+            }
+        }
+
+        //all good
+        return true;
+    };
+
+    /**
+     * Check to see if a session is authentic
+     *
+     * @method isAuthenticated
+     * @param {Object} session
+     */
+    SecurityService.isAuthenticated = function(session) {
+        if (typeof session !== 'object') {
+            return false;
+        }
+        var reqs = {};
+        reqs[SecurityService.AUTHENTICATED] = true;
+        return SecurityService.isAuthorized(session, reqs);
+    };
+
+    /**
+     * One way encrypt a string
+     *
+     * @method encrypt
+     * @param {String} valString
+     * #return {String} Encrypted string
+     */
+    SecurityService.encrypt = function(valStr) {
+        var whirlpool = crypto.createHash('whirlpool');
+        whirlpool.update(valStr);
+        return whirlpool.digest('hex');
+    };
+
+    /**
+     * @static
+     * @method generatePassword
+     * @param {Integer} [length=8]
+     */
+    SecurityService.generatePassword = function(length) {
+
+        //ensure a length
+        if (pb.validation.isInt(length, true, true)) {
+            length = 8;
+        }
+
+        var password = [];
+        while(password.length < length) {
+            password.push(PASSWORD_CHARS[parseInt(Math.random() * PASSWORD_CHARS.length)]);
+        }
+        return password.join('');
+    };
+    
+    return SecurityService;
 };
-
-SecurityService.getRoleToDisplayNameMap = function(ls) {
-	if (ls && typeof ls.get === 'function') {
-		return {
-			'ACCESS_USER': ls.get('ACCESS_USER'),
-	        'ACCESS_WRITER': ls.get('ACCESS_WRITER'),
-	        'ACCESS_EDITOR': ls.get('ACCESS_EDITOR'),
-	        'ACCESS_MANAGING_EDITOR': ls.get('ACCESS_MANAGING_EDITOR'),
-	        'ACCESS_ADMINISTRATOR': ls.get('ACCESS_ADMINISTRATOR'),
-		};
-	}
-	return null;
-};
-
-/**
- * Returns the constant name of an access level number
- *
- * @method getRoleName
- * @param {Number} accessLevel
- */
-SecurityService.getRoleName = function(accessLevel) {
-	switch(accessLevel) {
-	case ACCESS_USER:
-		return 'ACCESS_USER';
-	case ACCESS_WRITER:
-		return 'ACCESS_WRITER';
-	case ACCESS_EDITOR:
-		return 'ACCESS_EDITOR';
-	case ACCESS_MANAGING_EDITOR:
-		return 'ACCESS_MANAGING_EDITOR';
-	case ACCESS_ADMINISTRATOR:
-		return 'ACCESS_ADMINISTRATOR';
-	default:
-		throw new PBError(util.format("An invalid access level [%s] was provided", accessLevel), 500);
-	}
-};
-
-SecurityService.authenticateSession = function(session, options, authenticator, cb){
-	var doAuthentication = function(session, options, authenticator, cb) {
-		authenticator.authenticate(options, function(err, user) {
-			if (util.isError(err) || user == null) {
-				cb(err, user);
-				return;
-			}
-
-			//remove password from data to be cached
-	        delete user.password;
-
-	        //build out session object
-	        user.permissions                   = pb.PluginService.getPermissionsForRole(user.admin);
-	        session.authentication.user        = user;
-	        session.authentication.user_id     = user._id.toString();
-	        session.authentication.admin_level = user.admin;
-	        cb(null, user);
-		});
-	};
-	doAuthentication(session, options, authenticator, cb);
-};
-
-/**
- * Check to see if a user meets security requirements
- *
- * @method isAuthorized
- * @param {Object} session      [description]
- * @param {Object} requirements Object containing access requirements
- */
-SecurityService.isAuthorized = function(session, requirements) {
-
-	//check if authentication is required
-	if (requirements[SecurityService.AUTHENTICATED]) {
-		if (session.authentication.user_id == null) {
-			return false;
-		}
-	}
-
-	//check for admin access level
-	if (requirements[SecurityService.ADMIN_LEVEL] !== undefined) {
-		if (session.authentication.admin_level < requirements[SecurityService.ADMIN_LEVEL]) {
-			return false;
-		}
-	}
-
-	//all good
-	return true;
-};
-
-/**
- * Check to see if a session is authentic
- *
- * @method isAuthenticated
- * @param {Object} session
- */
-SecurityService.isAuthenticated = function(session) {
-	if (typeof session !== 'object') {
-		return false;
-	}
-	var reqs = {};
-	reqs[SecurityService.AUTHENTICATED] = true;
-	return SecurityService.isAuthorized(session, reqs);
-};
-
-/**
- * One way encrypt a string
- *
- * @method encrypt
- * @param {String} valString
- * #return {String} Encrypted string
- */
-SecurityService.encrypt = function(valStr) {
-	var whirlpool = crypto.createHash('whirlpool');
-    whirlpool.update(valStr);
-    return whirlpool.digest('hex');
-};
-
-/**
- * @static
- * @method generatePassword
- * @param {Integer} [length=8]
- */
-SecurityService.generatePassword = function(length) {
-
-    //ensure a length
-    if (pb.validation.isInt(length, true, true)) {
-        length = 8;
-    }
-
-    var password = [];
-    while(password.length < length) {
-        password.push(PASSWORD_CHARS[parseInt(Math.random() * PASSWORD_CHARS.length)]);
-    }
-    return password.join('');
-};
-
-//exports
-module.exports.SecurityService = SecurityService;

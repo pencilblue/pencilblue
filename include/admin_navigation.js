@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2014  PencilBlue, LLC
+ Copyright (C) 2015  PencilBlue, LLC
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -15,83 +15,107 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Provides function to construct the structure needed to display the navigation
- * in the Admin section of the application.
- *
- * @module Services
- * @submodule Admin
- * @class AdminNavigation
- * @constructor
- */
-function AdminNavigation() {
-}
+//dependencies
+var util = require('./util.js');
 
-AdminNavigation.navigation = null;
-AdminNavigation.additions = [];
-AdminNavigation.childrenAdditions = {};
+module.exports = function AdminNavigationModule(pb) {
+    
+    //PB dependencies
+    var SecurityService = pb.SecurityService;
 
-/**
- *
- * @returns {*[]}
- */
-function getDefaultNavigation() {
-    return [
+    /**
+     * Provides function to construct the structure needed to display the navigation
+     * in the Admin section of the application.
+     *
+     * @module Services
+     * @submodule Admin
+     * @class AdminNavigation
+     * @constructor
+     */
+    function AdminNavigation() {}
+
+    /**
+     *
+     * @private
+     * @static
+     * @property additions
+     * @type {Array}
+     */
+    AdminNavigation.additions = [];
+    
+    /**
+     *
+     * @private
+     * @static
+     * @property childrenAdditions
+     * @type {Object}
+     */
+    AdminNavigation.childrenAdditions = {};
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property DEFAULT_NAV
+     * @type {Array}
+     */
+    var DEFAULT_NAV = Object.freeze([
         {
             id: 'content',
             title: 'CONTENT',
             icon: 'quote-right',
             href: '#',
-            access: ACCESS_WRITER,
+            access: SecurityService.ACCESS_WRITER,
             children: [
                 {
                     id: 'navigation',
                     title: 'NAVIGATION',
                     icon: 'th-large',
                     href: '/admin/content/navigation',
-                    access: ACCESS_EDITOR
+                    access: SecurityService.ACCESS_EDITOR
                 },
                 {
                     id: 'topics',
                     title: 'TOPICS',
                     icon: 'tags',
                     href: '/admin/content/topics',
-                    access: ACCESS_EDITOR
+                    access: SecurityService.ACCESS_EDITOR
                 },
                 {
                     id: 'pages',
                     title: 'PAGES',
                     icon: 'file-o',
                     href: '/admin/content/pages',
-                    access: ACCESS_EDITOR
+                    access: SecurityService.ACCESS_EDITOR
                 },
                 {
                     id: 'articles',
                     title: 'ARTICLES',
                     icon: 'files-o',
                     href: '/admin/content/articles',
-                    access: ACCESS_WRITER
+                    access: SecurityService.ACCESS_WRITER
                 },
                 {
                     id: 'media',
                     title: 'MEDIA',
                     icon: 'camera',
                     href: '/admin/content/media',
-                    access: ACCESS_WRITER
+                    access: SecurityService.ACCESS_WRITER
                 },
                 {
                     id: 'comments',
                     title: 'COMMENTS',
                     icon: 'comments',
                     href: '/admin/content/comments',
-                    access: ACCESS_EDITOR
+                    access: SecurityService.ACCESS_EDITOR
                 },
                 {
                     id: 'custom_objects',
                     title: 'CUSTOM_OBJECTS',
                     icon: 'sitemap',
                     href: '/admin/content/objects/types',
-                    access: ACCESS_EDITOR
+                    access: SecurityService.ACCESS_EDITOR
                 }
             ]
         },
@@ -100,7 +124,7 @@ function getDefaultNavigation() {
             title: 'PLUGINS',
             icon: 'puzzle-piece',
             href: '#',
-            access: ACCESS_ADMINISTRATOR,
+            access: SecurityService.ACCESS_ADMINISTRATOR,
             children: [
                 {
                     divider: true,
@@ -122,21 +146,21 @@ function getDefaultNavigation() {
             title: 'USERS',
             icon: 'users',
             href: '#',
-            access: ACCESS_EDITOR,
+            access: SecurityService.ACCESS_EDITOR,
             children: [
                 {
                     id: 'manage',
                     title: 'MANAGE',
                     icon: 'users',
                     href: '/admin/users',
-                    access: ACCESS_EDITOR
+                    access: SecurityService.ACCESS_EDITOR
                 },
                 {
                     id: 'permissions',
                     title: 'PERMISSIONS',
                     icon: 'lock',
                     href: '/admin/users/permissions',
-                    access: ACCESS_ADMINISTRATOR
+                    access: SecurityService.ACCESS_ADMINISTRATOR
                 },
             ]
         },
@@ -145,14 +169,14 @@ function getDefaultNavigation() {
             title: 'SETTINGS',
             icon: 'cogs',
             href: '#',
-            access: ACCESS_WRITER,
+            access: SecurityService.ACCESS_WRITER,
             children: [
                 {
                     id: 'site_settings',
                     title: 'SITE_SETTINGS',
                     icon: 'cog',
                     href: '/admin/site_settings',
-                    access: ACCESS_MANAGING_EDITOR
+                    access: SecurityService.ACCESS_MANAGING_EDITOR
                 },
                 {
                     divider: true,
@@ -160,259 +184,301 @@ function getDefaultNavigation() {
                     title: 'LOGOUT',
                     icon: 'power-off',
                     href: '/actions/logout',
-                    access: ACCESS_WRITER
+                    access: SecurityService.ACCESS_WRITER
                 }
             ]
         }
-    ];
-}
+    ]);
 
-/**
- *
- * @returns {*}
- */
-function getAdditions() {
-    return pb.utils.clone(AdminNavigation.additions);
-};
+    /**
+     *
+     * @private
+     * @static
+     * @method getDefaultNavigation
+     * @returns {Array}
+     */
+    function getDefaultNavigation() {
+        return util.clone(DEFAULT_NAV);
+    }
 
-/**
- *
- * @returns {*}
- */
-function getChildrenAdditions() {
-    return pb.utils.clone(AdminNavigation.childrenAdditions);
-};
+    /**
+     *
+     * @private
+     * @static
+     * @method getAdditions
+     * @returns {Array}
+     */
+    function getAdditions() {
+        return util.clone(AdminNavigation.additions);
+    };
 
-/**
- *
- * @returns {Array}
- */
-function buildNavigation() {
-    var i;
-    var navigation = [];
-    var defaultNavigation = getDefaultNavigation();
-    var additions = getAdditions();
-    var childrenAdditions = getChildrenAdditions();
+    /**
+     *
+     * @private
+     * @static
+     * @method getChildrenAdditions
+     * @returns {Object}
+     */
+    function getChildrenAdditions() {
+        return util.clone(AdminNavigation.childrenAdditions);
+    };
 
-    pb.utils.arrayPushAll(defaultNavigation, navigation);
-    pb.utils.arrayPushAll(additions, navigation);
+    /**
+     *
+     * @private
+     * @static
+     * @method buildNavigation
+     * @returns {Array}
+     */
+    function buildNavigation() {
+        var i;
+        var navigation = [];
+        var defaultNavigation = getDefaultNavigation();
+        var additions = getAdditions();
+        var childrenAdditions = getChildrenAdditions();
 
-    for (var id in childrenAdditions) {
-        var children = childrenAdditions[id];
+        util.arrayPushAll(defaultNavigation, navigation);
+        util.arrayPushAll(additions, navigation);
 
-        for (i = 0; i < navigation.length; i++) {
-            if (navigation[i].id == id) {
-                if (!navigation[i].children) {
-                    navigation[i].children = [];
-                }
+        //retrieve the nav items to iterate over
+        var ids = Object.keys(childrenAdditions);
+        if (ids.length === 0) {
+            return navigation;
+        }
+        
+        //convert to hash to create quick lookup
+        var lookup = util.arrayToHash(navigation, function(navigation, i) {
+            return navigation[i].id;
+        });
+        
+        //add additions
+        Object.keys(childrenAdditions).forEach(function(id) {
+            var children = childrenAdditions[id];
 
-                for (var j = 0; j < children.length; j++) {
-                    navigation[i].children.push(children[j]);
-                }
-                break;
+            //find the nav that the children should be added to
+            var nav = lookup[id];
+            if (!nav) {
+                return;
             }
-        }
-    }
+            
 
-    return navigation;
-};
-
-/**
- *
- * @param navigation
- * @param ls
- * @returns {*}
- */
-function localizeNavigation(navigation, ls) {
-    for(var i = 0; i < navigation.length; i++) {
-        navigation[i].title = ls.get(navigation[i].title);
-        if(navigation[i].children) {
-            navigation[i].children = localizeNavigation(navigation[i].children, ls);
-        }
-    }
-
-    return navigation;
-};
-
-/**
- *
- * @param id
- * @param navigation
- * @returns {boolean}
- */
-function isDuplicate(id, navigation) {
-    if (!navigation) {
-        navigation = buildNavigation();
-    }
-
-    for (var i = 0; i < navigation.length; i++) {
-        var node = navigation[i];
-
-        if (node.id == id) {
-            return true;
-        }
-
-        if (node.children && isDuplicate(id, node.children)) {
-            return true;
-        }
-    }
-
-    return false;
-};
-
-function isDefaultNode(id) {
-    return isDuplicate(id, getDefaultNavigation());
-};
-
-/**
- * Retrive the admin navigation hierarchy
- *
- * @method get
- * @param {object} session
- * @param {array} activeMenuItems Array of nav item names that are active
- * @param {Object} ls Localization service
- * @return {object} Admin navigation
- */
-AdminNavigation.get = function (session, activeMenuItems, ls) {
-    var navigation = AdminNavigation.removeUnauthorized(
-        session,
-        buildNavigation(),
-        activeMenuItems
-    );
-
-    return localizeNavigation(navigation, ls);
-};
-
-/**
- * Adds a new child node to an existing top level node
- *
- * @method addChild
- * @param parentId
- * @param node
- * @returns {boolean}
- */
-AdminNavigation.addChild = function (parentId, node) {
-    if (isDuplicate(node.id)) {
-        return false;
-    }
-
-    if (!AdminNavigation.childrenAdditions[parentId]) {
-        AdminNavigation.childrenAdditions[parentId] = [];
-    }
-
-    AdminNavigation.childrenAdditions[parentId].push(node);
-    return true;
-};
-
-/**
- * Adds a new top level node
- *
- * @method add
- * @param node
- * @returns {boolean}
- */
-AdminNavigation.add = function (node) {
-    if (isDuplicate(node.id)) {
-        return false;
-    }
-
-    AdminNavigation.additions.push(node);
-    return true;
-};
-
-/**
- * Remove a navigation node
- *
- * @param id
- * @param navigation
- * @returns {boolean}
- */
-AdminNavigation.remove = function (id) {
-    if (!isDuplicate(id, buildNavigation())) {
-        return false;
-    }
-
-    if (isDefaultNode(id)) {
-        pb.log.warn("Admin Navigation: Attempting to remove default Node %s", id);
-        return false;
-    }
-
-    function removeNode(id, navigation) {
-        for (var i = 0; i < navigation.length; i++) {
-            if (navigation[i].id == id) {
-                navigation.splice(i, 1);
-                return navigation;
+            if (!util.isArray(nav.children)) {
+                navigation[i].children = [];
             }
-
-            if (navigation[i].children) {
-                navigation[i].children = removeNode(id, navigation[i].children);
-            }
-        }
+            util.arrayPushAll(children, nav.children);
+        });
 
         return navigation;
-    }
+    };
 
-    AdminNavigation.additions = removeNode(id, AdminNavigation.additions);
-
-    for (var parentId in AdminNavigation.childrenAdditions) {
-        AdminNavigation.childrenAdditions[parentId] = removeNode(id, AdminNavigation.childrenAdditions[parentId]);
-    }
-
-    return true;
-};
-
-/**
- * @param session
- * @param adminNavigation
- * @param activeItems
- * @returns {*}
- */
-AdminNavigation.removeUnauthorized = function (session, adminNavigation, activeItems) {
-    for (var i = 0; i < adminNavigation.length; i++) {
-        if (typeof adminNavigation[i].access !== 'undefined') {
-
-            if (!pb.security.isAuthorized(session, {admin_level: adminNavigation[i].access})) {
-                adminNavigation.splice(i, 1);
-                i--;
-                continue;
+    /**
+     * @private
+     * @static
+     * @method localizeNavigation
+     * @param navigation
+     * @param ls
+     * @returns {*}
+     */
+    function localizeNavigation(navigation, ls) {
+        navigation.forEach(function(nav) {
+            nav.title = ls.get(nav.title);
+            if(util.isArray(nav.children)) {
+                nav.children = localizeNavigation(nav.children, ls);
             }
+        });
+        return navigation;
+    };
+
+    /**
+     * @private
+     * @static
+     * @method isDuplicate
+     * @param {String} id
+     * @param {Array} navigation
+     * @returns {boolean}
+     */
+    function isDuplicate(id, navigation) {
+        if (!navigation) {
+            navigation = buildNavigation();
         }
 
-        for (var o = 0; o < activeItems.length; o++) {
-            if (activeItems[o] == adminNavigation[i].id) {
-                adminNavigation[i].active = 'active';
-                break;
+        for (var i = 0; i < navigation.length; i++) {
+            var node = navigation[i];
+
+            if (node.id == id) {
+                return true;
+            }
+            if (node.children && isDuplicate(id, node.children)) {
+                return true;
             }
         }
+        return false;
+    };
 
-        if (typeof adminNavigation[i].children !== 'undefined') {
-            if (adminNavigation[i].children.length > 0) {
-                adminNavigation[i].dropdown = 'dropdown';
+    /**
+     * @private
+     * @static
+     * @method isDefaultNode
+     * @param {String} id
+     * @return {Boolean}
+     */
+    function isDefaultNode(id) {
+        return isDuplicate(id, getDefaultNavigation());
+    };
 
-                for (var j = 0; j < adminNavigation[i].children.length; j++) {
+    /**
+     * Retrive the admin navigation hierarchy
+     * @static
+     * @method get
+     * @param {object} session
+     * @param {array} activeMenuItems Array of nav item names that are active
+     * @param {Object} ls Localization service
+     * @return {object} Admin navigation
+     */
+    AdminNavigation.get = function (session, activeMenuItems, ls) {
+        var navigation = AdminNavigation.removeUnauthorized(
+            session,
+            buildNavigation(),
+            activeMenuItems
+        );
 
-                    if (typeof adminNavigation[i].children[j].access !== 'undefined') {
+        return localizeNavigation(navigation, ls);
+    };
 
-                        if (!pb.security.isAuthorized(session, {admin_level: adminNavigation[i].children[j].access})) {
-                            adminNavigation[i].children.splice(j, 1);
-                            j--;
-                            continue;
+    /**
+     * Adds a new child node to an existing top level node
+     * @static
+     * @method addChild
+     * @param {String} parentId
+     * @param {Object} node
+     * @returns {Boolean}
+     */
+    AdminNavigation.addChild = function (parentId, node) {
+        if (isDuplicate(node.id)) {
+            return false;
+        }
+
+        if (!AdminNavigation.childrenAdditions[parentId]) {
+            AdminNavigation.childrenAdditions[parentId] = [];
+        }
+
+        AdminNavigation.childrenAdditions[parentId].push(node);
+        return true;
+    };
+
+    /**
+     * Adds a new top level node
+     * @static
+     * @method add
+     * @param {Object} node
+     * @returns {Boolean}
+     */
+    AdminNavigation.add = function (node) {
+        if (isDuplicate(node.id)) {
+            return false;
+        }
+
+        AdminNavigation.additions.push(node);
+        return true;
+    };
+
+    /**
+     * Remove a navigation node
+     * @static
+     * @method remove
+     * @param id
+     * @param navigation
+     * @returns {boolean}
+     */
+    AdminNavigation.remove = function (id) {
+        if (!isDuplicate(id, buildNavigation())) {
+            return false;
+        }
+
+        if (isDefaultNode(id)) {
+            pb.log.warn("Admin Navigation: Attempting to remove default Node %s", id);
+            return false;
+        }
+
+        function removeNode(id, navigation) {
+            for (var i = 0; i < navigation.length; i++) {
+                if (navigation[i].id == id) {
+                    navigation.splice(i, 1);
+                    return navigation;
+                }
+
+                if (navigation[i].children) {
+                    navigation[i].children = removeNode(id, navigation[i].children);
+                }
+            }
+
+            return navigation;
+        }
+
+        AdminNavigation.additions = removeNode(id, AdminNavigation.additions);
+
+        for (var parentId in AdminNavigation.childrenAdditions) {
+            AdminNavigation.childrenAdditions[parentId] = removeNode(id, AdminNavigation.childrenAdditions[parentId]);
+        }
+
+        return true;
+    };
+
+    /**
+     * @static
+     * @method removeUnauthorized
+     * @param {Object} session
+     * @param {Array} adminNavigation
+     * @param {Array} activeItems
+     * @returns {Array}
+     */
+    AdminNavigation.removeUnauthorized = function (session, adminNavigation, activeItems) {
+        for (var i = 0; i < adminNavigation.length; i++) {
+            if (typeof adminNavigation[i].access !== 'undefined') {
+
+                if (!pb.security.isAuthorized(session, {admin_level: adminNavigation[i].access})) {
+                    adminNavigation.splice(i, 1);
+                    i--;
+                    continue;
+                }
+            }
+
+            for (var o = 0; o < activeItems.length; o++) {
+                if (activeItems[o] == adminNavigation[i].id) {
+                    adminNavigation[i].active = 'active';
+                    break;
+                }
+            }
+
+            if (typeof adminNavigation[i].children !== 'undefined') {
+                if (adminNavigation[i].children.length > 0) {
+                    adminNavigation[i].dropdown = 'dropdown';
+
+                    for (var j = 0; j < adminNavigation[i].children.length; j++) {
+
+                        if (typeof adminNavigation[i].children[j].access !== 'undefined') {
+
+                            if (!pb.security.isAuthorized(session, {admin_level: adminNavigation[i].children[j].access})) {
+                                adminNavigation[i].children.splice(j, 1);
+                                j--;
+                                continue;
+                            }
                         }
-                    }
 
-                    for (var o = 0; o < activeItems.length; o++) {
-                        if (activeItems[o] == adminNavigation[i].children[j].id) {
-                            adminNavigation[i].children[j].active = 'active';
-                            break;
+                        for (var o = 0; o < activeItems.length; o++) {
+                            if (activeItems[o] == adminNavigation[i].children[j].id) {
+                                adminNavigation[i].children[j].active = 'active';
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
-    return adminNavigation;
+        return adminNavigation;
+    };
+
+    //exports
+    return AdminNavigation;
 };
-
-//exports
-module.exports.AdminNavigation = AdminNavigation;

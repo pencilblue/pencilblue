@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,40 +15,56 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Initial setup page
- */
+module.exports = function SetupViewControllerModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
 
-function Setup(){}
+    /**
+     * Initial setup page
+     * @class SetupViewController
+     * @constructor
+     * @extends BaseController
+     */
+    function SetupViewController(){}
+    util.inherits(SetupViewController, pb.BaseController);
 
-//inheritance
-util.inherits(Setup, pb.BaseController);
+    /**
+     *
+     * @method render
+     * @param {Function} cb
+     */
+    SetupViewController.prototype.render = function(cb) {
+        var self = this;
 
-Setup.prototype.render = function(cb) {
-	var self = this;
+        pb.settings.get('system_initialized', function(err, isSetup){
+            if (util.isError(err)) {
+                throw new PBError("A database connection could not be established", 500);
+            }
 
-	pb.settings.get('system_initialized', function(err, isSetup){
-    	if (util.isError(err)) {
-    		throw new PBError("A database connection could not be established", 500);
-    	}
+            //when user count is 1 or higher the system has already been initialized
+            if (isSetup) {
+                self.redirect('/', cb);
+                return;
+            }
 
-    	//when user count is 1 or higher the system has already been initialized
-    	if (isSetup) {
-			self.redirect('/', cb);
-    		return;
-    	}
+            self.doSetup(cb);
+        });
 
-    	self.doSetup(cb);
-    });
+    };
 
+    /**
+     *
+     * @method doSetup
+     * @param {Function} cb
+     */
+    SetupViewController.prototype.doSetup = function(cb) {
+        this.setPageName('Setup');
+        this.ts.load('setup', function(err, data) {
+            cb({content: data});
+        });
+    };
+
+    //exports
+    return SetupViewController;
 };
-
-Setup.prototype.doSetup = function(cb) {
-	this.setPageName('Setup');
-	this.ts.load('setup', function(err, data) {
-        cb({content: data});
-    });
-};
-
-//exports
-module.exports = Setup;

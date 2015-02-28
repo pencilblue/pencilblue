@@ -1,45 +1,72 @@
-/**
- * GoogleAnalytics - A sample for exemplifying what the main module file should
- * look like.
- *
- * @author Brian Hyder <brian@pencilblue.org>
- * @copyright 2014 PencilBlue, LLC
- */
-function GoogleAnalytics(){}
 
-/**
- * Called when the application is being installed for the first time.
- *
- * @param cb A callback that must be called upon completion.  cb(err, result).
- * The result is ignored
- */
-GoogleAnalytics.onInstall = function(cb) {
-    cb(null, true);
-};
+module.exports = function GoogleAnalyticsModule(pb) {
 
-/**
- * Called when the application is uninstalling this plugin.  The plugin should
- * make every effort to clean up any plugin-specific DB items or any in function
- * overrides it makes.
- *
- * @param cb A callback that must be called upon completion.  cb(err, result).
- * The result is ignored
- */
-GoogleAnalytics.onUninstall = function(cb) {
-    cb(null, true);
-};
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * GoogleAnalytics - A sample for exemplifying what the main module file should
+     * look like.
+     *
+     * @author Brian Hyder <brian@pencilblue.org>
+     * @copyright 2015 PencilBlue, LLC
+     */
+    function GoogleAnalytics(){}
+    
+    /**
+     * The ID for the analytics provider
+     * @private
+     * @static
+     * @readonly
+     * @property PROVIDER_NAME
+     * @type {String}
+     */
+    var PROVIDER_NAME = 'google_analytics';
 
-/**
- * Called when the application is starting up. The function is also called at
- * the end of a successful install. It is guaranteed that all core PB services
- * will be available including access to the core DB.
- *
- * @param cb A callback that must be called upon completion.  cb(err, result).
- * The result is ignored
- */
-GoogleAnalytics.onStartup = function(cb) {
-    pb.AnalyticsManager.registerProvider('google_analytics', function(req, session, ls, cb) {
-        pb.plugins.getSettingsKV('ga', function(err, settings) {
+    /**
+     * Called when the application is being installed for the first time.
+     *
+     * @param cb A callback that must be called upon completion.  cb(err, result).
+     * The result is ignored
+     */
+    GoogleAnalytics.onInstall = function(cb) {
+        cb(null, true);
+    };
+
+    /**
+     * Called when the application is uninstalling this plugin.  The plugin should
+     * make every effort to clean up any plugin-specific DB items or any in function
+     * overrides it makes.
+     *
+     * @param cb A callback that must be called upon completion.  cb(err, result).
+     * The result is ignored
+     */
+    GoogleAnalytics.onUninstall = function(cb) {
+        var result = pb.AnalyticsManager.unregisterProvider(PROVIDER_NAME);
+        cb(null, result);
+    };
+
+    /**
+     * Called when the application is starting up. The function is also called at
+     * the end of a successful install. It is guaranteed that all core PB services
+     * will be available including access to the core DB.
+     *
+     * @param cb A callback that must be called upon completion.  cb(err, result).
+     * The result is ignored
+     */
+    GoogleAnalytics.onStartup = function(cb) {
+        var result = pb.AnalyticsManager.registerProvider(PROVIDER_NAME, GoogleAnalytics.onRequest);
+        cb(null, result);
+    };
+    
+    /**
+     * Called on each request
+     *
+     */
+    GoogleAnalytics.onRequest = function(req, session, ls, cb) {
+        
+        var pluginService = new pb.PluginService();
+        pluginService.getSettingsKV('ga', function(err, settings) {
             if (util.isError(err)) {
                 return cb(err, '');
             }
@@ -47,7 +74,7 @@ GoogleAnalytics.onStartup = function(cb) {
                 pb.log.warn('GoogleAnalytics: Settings have not been initialized!');
                 return cb(null, '');
             }
-            
+
             var trackingId          = settings.google_analytics_tracking_id;
             var demographicsSupport = settings.demographics_support;
             var website             = pb.config.siteRoot.split('http://').join('').split('https://').join('');
@@ -55,20 +82,19 @@ GoogleAnalytics.onStartup = function(cb) {
 
             cb(null, script);
         });
-    });
-    cb(null, true);
-};
+    };
 
-/**
- * Called when the application is gracefully shutting down.  No guarantees are
- * provided for how much time will be provided the plugin to shut down.
- *
- * @param cb A callback that must be called upon completion.  cb(err, result).
- * The result is ignored
- */
-GoogleAnalytics.onShutdown = function(cb) {
-    cb(null, true);
-};
+    /**
+     * Called when the application is gracefully shutting down.  No guarantees are
+     * provided for how much time will be provided the plugin to shut down.
+     *
+     * @param cb A callback that must be called upon completion.  cb(err, result).
+     * The result is ignored
+     */
+    GoogleAnalytics.onShutdown = function(cb) {
+        cb(null, true);
+    };
 
-//exports
-module.exports = GoogleAnalytics;
+    //exports
+    return GoogleAnalytics;
+};

@@ -2,7 +2,8 @@
     "uid": "ga",
     "name": "Google Analytics Plugin",
     "description": "Adds a Google Analytics tracking script to the site.",
-    "version": "0.1.0",
+    "version": "0.2.0",
+    "pb_version": "0.4.x",
     "author": {
         "name": "PencilBlue",
         "email": "info@pencilblue.org",

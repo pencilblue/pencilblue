@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014  PencilBlue, LLC
+	Copyright (C) 2015  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -15,29 +15,38 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-* Interface for changing a theme's settings
-*/
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    var PluginSettings = require('../plugins/plugin_settings.js')(pb);
+    
+    /**
+     * Interface for changing a theme's settings
+     */
+    function ThemeSettings() {
+        
+        /**
+         *
+         * @property pluginService
+         * @type {PluginService}
+         */
+        this.pluginService = new PluginService();
+    }
+    util.inherits(ThemeSettings, PluginSettings);
 
-function ThemeSettings() {}
+    ThemeSettings.prototype.getSettings = function(uid, cb) {
+        this.pluginService.getThemeSettings(uid, cb);
+    };
 
-//dependencies
-var PluginSettings = require('../plugins/plugin_settings.js');
+    ThemeSettings.prototype.setSettings = function(settings, uid, cb) {
+        this.pluginService.setThemeSettings(settings, uid, cb);
+    };
 
-//inheritance
-util.inherits(ThemeSettings, PluginSettings);
+    PluginSettings.prototype.getBackUrl = function() {
+        return '/admin/themes/';
+    };
 
-ThemeSettings.prototype.getSettings = function(uid, cb) {
-	pb.plugins.getThemeSettings(uid, cb);
+    //exports
+    return ThemeSettings;
 };
-
-ThemeSettings.prototype.setSettings = function(settings, uid, cb) {
-	pb.plugins.setThemeSettings(settings, uid, cb);
-};
-
-PluginSettings.prototype.getBackUrl = function() {
-	return '/admin/themes/';
-};
-
-//exports
-module.exports = ThemeSettings;

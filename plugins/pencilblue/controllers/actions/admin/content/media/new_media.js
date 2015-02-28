@@ -15,54 +15,58 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Adds new media
- * @class NewMediaApiController
- * @constructor
- * @extends BaseController
- */
-function NewMediaApiController(){}
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Adds new media
+     * @class NewMediaApiController
+     * @constructor
+     * @extends BaseController
+     */
+    function NewMediaApiController(){}
+    util.inherits(NewMediaApiController, pb.BaseController);
 
-//inheritance
-util.inherits(NewMediaApiController, pb.BaseController);
+    NewMediaApiController.prototype.render = function(cb) {
+        var self = this;
 
-NewMediaApiController.prototype.render = function(cb) {
-	var self = this;
+        this.getJSONPostParams(function(err, post) {
+            var message = self.hasRequiredParams(post, self.getRequiredParams());
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                });
+                return;
+            }
 
-	this.getJSONPostParams(function(err, post) {
-		var message = self.hasRequiredParams(post, self.getRequiredParams());
-	    if(message) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-			});
-			return;
-	    }
+            var mediaDocument = pb.DocumentCreator.create('media', post);
+            var mediaService = new pb.MediaService();
+            mediaService.save(mediaDocument, function(err, result) {
+                if(util.isError(err) || util.isArray(result)) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    });
+                    return;
+                }
 
-	    var mediaDocument = pb.DocumentCreator.create('media', post);
-	    var mediaService = new pb.MediaService();
-	    mediaService.save(mediaDocument, function(err, result) {
-	        if(util.isError(err) || util.isArray(result)) {
-				cb({
-					code: 500,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-				});
-				return;
-	        }
+                result.icon = pb.MediaService.getMediaIcon(result.media_type);
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, result.name + ' ' + self.ls.get('ADDED'), result)});
+            });
+        });
+    };
 
-			result.icon = pb.MediaService.getMediaIcon(result.media_type);
-			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, result.name + ' ' + self.ls.get('ADDED'), result)});
-	    });
-	});
+    /**
+     * @static
+     * @method getRequiredParams
+     */
+    NewMediaApiController.prototype.getRequiredParams = function() {
+        return ['media_type', 'location', 'name'];
+    };
+
+    //exports
+    return NewMediaApiController;
 };
-
-/**
- * @static
- * @method getRequiredParams
- */
-NewMediaApiController.prototype.getRequiredParams = function() {
-	return ['media_type', 'location', 'name'];
-};
-
-//exports
-module.exports = NewMediaApiController;

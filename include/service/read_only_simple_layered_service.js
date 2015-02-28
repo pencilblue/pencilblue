@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,42 +15,60 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Service to set storage services as read only
- *
- * @module Services
- * @submodule Storage
- * @class ReadOnlySimpleLayeredService
- * @constructor
- * @param {Array} services Array of services
- * @param {String} [name]  The name to assign to this service
- */
-function ReadOnlySimpleLayeredService(services, name){
-	this.services = services;
-	this.name     = name ? name : 'ReadOnlySimpleLayeredService';
+//dependencies
+var util = require('../util.js');
 
-	//convert services
-	for (var i = 0; i < this.services.length; i++) {
-		ReadOnlySimpleLayeredService.makeReadOnly(this.services[i]);
-	}
+module.exports = function ReadOnlySimpleLayeredServiceModule(pb) {
 
-	if (pb.log.isDebug()) {
-		this.logInitialization();
-	}
-}
+    /**
+     * Service to set storage services as read only
+     *
+     * @module Services
+     * @submodule Storage
+     * @class ReadOnlySimpleLayeredService
+     * @constructor
+     * @param {Array} services Array of services
+     * @param {String} [name]  The name to assign to this service
+     */
+    function ReadOnlySimpleLayeredService(services, name){
+        this.services = services;
+        this.name     = name ? name : 'ReadOnlySimpleLayeredService';
 
-//inheritance
-util.inherits(ReadOnlySimpleLayeredService, pb.SimpleLayeredService);
+        //convert services
+        for (var i = 0; i < this.services.length; i++) {
+            ReadOnlySimpleLayeredService.makeReadOnly(this.services[i]);
+        }
 
-ReadOnlySimpleLayeredService.prototype.set = function(key, value, cb) {
-	cb(new PBError(this.name+": This service is readonly"), null);
+        if (pb.log.isDebug()) {
+            this.logInitialization();
+        }
+    }
+
+    //inheritance
+    util.inherits(ReadOnlySimpleLayeredService, pb.SimpleLayeredService);
+
+    /**
+     * 
+     * @method set
+     * @param {String} key
+     * @param {*} value
+     * @param {Function} cb
+     */
+    ReadOnlySimpleLayeredService.prototype.set = function(key, value, cb) {
+        cb(new Error(this.name+": This service is readonly"), null);
+    };
+
+    /**
+     *
+     * @static
+     * @method makeReadOnly
+     * @param {EntityService}
+     */
+    ReadOnlySimpleLayeredService.makeReadOnly = function(serviceInstance) {
+        serviceInstance.set = function(key, value, cb) {
+            cb(new Error(this.name+": This service is readonly"), null);
+        };
+    };
+
+    return ReadOnlySimpleLayeredService;
 };
-
-ReadOnlySimpleLayeredService.makeReadOnly = function(serviceInstance) {
-	serviceInstance.set = function(key, value, cb) {
-		cb(new PBError(this.name+": This service is readonly"), null);
-	};
-};
-
-//exports
-module.exports.ReadOnlySimpleLayeredService = ReadOnlySimpleLayeredService;

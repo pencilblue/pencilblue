@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,71 +15,74 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Interface for managing media
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Interface for managing media
+     */
+    function ManageMedia(){}
+    util.inherits(ManageMedia, pb.BaseController);
 
-function ManageMedia(){}
+    //statics
+    var SUB_NAV_KEY = 'manage_media';
 
-//inheritance
-util.inherits(ManageMedia, pb.BaseController);
+    ManageMedia.prototype.render = function(cb) {
+        var self = this;
 
-//statics
-var SUB_NAV_KEY = 'manage_media';
+        var options = {
+            select: {
+                name: 1,
+                caption: 1,
+                last_modified: 1,
+                media_type: 1,
+                location: 1
+            },
+            order: {created: pb.DAO.DESC},
+            format_media: true
+        };
+        var mservice = new pb.MediaService();
+        mservice.get(options, function(err, mediaData) {
+            if(util.isError(mediaData) || mediaData.length === 0) {
+                self.redirect('/admin/content/media/new', cb);
+                return;
+            }
 
-ManageMedia.prototype.render = function(cb) {
-	var self = this;
+            var angularObjects = pb.ClientJs.getAngularObjects(
+            {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_media'),
+                media: pb.MediaService.formatMedia(mediaData)
+            });
 
-    var options = {
-        select: {
-            name: 1,
-            caption: 1,
-            last_modified: 1,
-            media_type: 1,
-			location: 1
-        },
-        order: {created: pb.DAO.DESC},
-        format_media: true
+            var title = self.ls.get('MANAGE_MEDIA');
+            self.setPageName(title);
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+            self.ts.load('admin/content/media/manage_media', function(err, result) {
+               cb({content: result});
+            });
+        });
     };
-    var mservice = new pb.MediaService();
-    mservice.get(options, function(err, mediaData) {
-        if(util.isError(mediaData) || mediaData.length === 0) {
-            self.redirect('/admin/content/media/new', cb);
-            return;
-        }
 
-        var angularObjects = pb.js.getAngularObjects(
-        {
-            navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
-            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_media'),
-            media: pb.MediaService.formatMedia(mediaData)
-        });
+    ManageMedia.getSubNavItems = function(key, ls, data) {
+        return [{
+            name: 'manage_media',
+            title: ls.get('MANAGE_MEDIA'),
+            icon: 'refresh',
+            href: '/admin/content/media'
+        }, {
+            name: 'new_media',
+            title: '',
+            icon: 'plus',
+            href: '/admin/content/media/new'
+        }];
+    };
 
-        var title = self.ls.get('MANAGE_MEDIA');
-        self.setPageName(title);
-		self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-        self.ts.load('admin/content/media/manage_media', function(err, result) {
-           cb({content: result});
-        });
-    });
+    //register admin sub-nav
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageMedia.getSubNavItems);
+
+    //exports
+    return ManageMedia;
 };
-
-ManageMedia.getSubNavItems = function(key, ls, data) {
-	return [{
-		name: 'manage_media',
-		title: ls.get('MANAGE_MEDIA'),
-		icon: 'refresh',
-		href: '/admin/content/media'
-	}, {
-		name: 'new_media',
-		title: '',
-		icon: 'plus',
-		href: '/admin/content/media/new'
-	}];
-};
-
-//register admin sub-nav
-pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageMedia.getSubNavItems);
-
-//exports
-module.exports = ManageMedia;

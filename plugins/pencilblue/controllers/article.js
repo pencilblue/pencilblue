@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,59 +15,72 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Loads a single article
- */
+module.exports = function PreviewModule(pb) {
+    
+    //pb dependencies
+    var util  = pb.util;
+    var Index = require('./index.js')(pb);
+    
+    /**
+     * Loads a single article
+     */
+    function Article(){}
+    util.inherits(Article, Index);
 
-function Article(){}
 
-//dependencies
-var Index = require('./index.js');
+    Article.prototype.render = function(cb) {
+        var self    = this;
+        var custUrl = this.pathVars.customUrl;
 
-//inheritance
-util.inherits(Article, Index);
+        //check for object ID as the custom URL
+        var where  = null;
+        if(pb.validation.isIdStr(custUrl)) {
+            where = {_id: pb.DAO.getObjectID(custUrl)};
+            if (pb.log.isSilly()) {
+                pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
+            }
+        }
+        else {
+            where = {url: custUrl};
+        }
 
+        // fall through to URL key
+        if (where === null) {
+            where = {url: custUrl};
+        }
+        
+        //attempt to load object
+        var dao = new pb.DAO();
+        dao.loadByValues(where, 'article', function(err, article) {
+            if (util.isError(err) || article == null) {
+                if (where.url) {
+                    self.reqHandler.serve404();
+                    return;
+                }
 
-Article.prototype.render = function(cb) {
-	var self    = this;
-	var custUrl = this.pathVars.customUrl;
+                dao.loadByValues({url: custUrl}, 'article', function(err, article) {
+                    if (util.isError(err) || article == null) {
+                        self.reqHandler.serve404();
+                        return;
+                    }
 
-	//check for object ID as the custom URL
-	var doRedirect = false;
-	var where      = null;
-	try {
-		where      = {_id: pb.DAO.getObjectID(custUrl)};
-		doRedirect = true;
-	}
-	catch(e){
-		if (pb.log.isSilly()) {
-			pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
-		}
-	}
+                    self.renderArticle(article, cb);
+                });
 
-	// fall through to URL key
-	if (where === null) {
-		where = {url: custUrl};
-	}
+                return;
+            }
 
-	//attempt to load object
-	var dao = new pb.DAO();
-	dao.loadByValues(where, 'article', function(err, article) {
-		if (util.isError(err) || article == null) {
-			self.reqHandler.serve404();
-			return;
-		}
-		else if (doRedirect) {
-			self.redirect(pb.UrlService.urlJoin('/article', article.url), cb);
-			return;
-		}
+            self.renderArticle(article, cb);
+        });
+    };
+    
+    Article.prototype.renderArticle = function(article, cb) {
+        this.req.pencilblue_article = article._id.toString();
+        this.article = article;
+        this.setPageName(article.name);
+        Article.super_.prototype.render.apply(this, [cb]);
+    };
 
-		self.req.pencilblue_article = article._id.toString();
-		this.article = article;
-        self.setPageName(article.name);
-		Article.super_.prototype.render.apply(self, [cb]);
-	});
+    //exports
+    return Article;
 };
-
-//exports
-module.exports = Article;

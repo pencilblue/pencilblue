@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,112 +15,117 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Database storage service
- *
- * @module Services
- * @submodule Storage
- * @class DBEntityService
- * @constructor
- * @param {String} objType
- * @param {String} valueField
- * @param {String} keyField
- */
-function DBEntityService(objType, valueField, keyField){
-	this.type       = 'DB';
-	this.objType    = objType;
-	this.keyField   = keyField;
-	this.valueField = valueField ? valueField : null;
-}
+//dependencies
+var util = require('../util.js');
 
-/**
- * Retrieve a value from the database
- *
- * @method get
- * @param  {String}   key
- * @param  {Function} cb  Callback function
- */
-DBEntityService.prototype.get = function(key, cb){
-	var dao              = new pb.DAO();
-	var where            = {};
-	where[this.keyField] = key;
+module.exports = function DbEntityServiceModule(pb) {
+    
+    /**
+     * Database storage service
+     *
+     * @module Services
+     * @submodule Storage
+     * @class DbEntityService
+     * @constructor
+     * @param {String} objType
+     * @param {String} valueField
+     * @param {String} keyField
+     */
+    function DbEntityService(objType, valueField, keyField){
+        this.type       = 'DB';
+        this.objType    = objType;
+        this.keyField   = keyField;
+        this.valueField = valueField ? valueField : null;
+    }
 
-	var self = this;
-    dao.loadByValue(this.keyField, key, this.objType, function(err, entity){
-		if (util.isError(err)) {
-			return cb(err);
-		}
+    /**
+     * Retrieve a value from the database
+     *
+     * @method get
+     * @param  {String}   key
+     * @param  {Function} cb  Callback function
+     */
+    DbEntityService.prototype.get = function(key, cb){
+        var dao              = new pb.DAO();
+        var where            = {};
+        where[this.keyField] = key;
 
-		//ensure setting exists
-		if (!entity){
-			return cb(null, null);
-		}
+        var self = this;
+        dao.loadByValue(this.keyField, key, this.objType, function(err, entity){
+            if (util.isError(err)) {
+                return cb(err);
+            }
 
-		//get setting
-		var val = self.valueField == null ? entity : entity[self.valueField];
+            //ensure setting exists
+            if (!entity){
+                return cb(null, null);
+            }
 
-		//callback with the result
-		cb(null, val);
-	});
+            //get setting
+            var val = self.valueField == null ? entity : entity[self.valueField];
+
+            //callback with the result
+            cb(null, val);
+        });
+    };
+
+    /**
+     * Set a value in the database
+     *
+     * @method set
+     * @param {String}   key
+     * @param {*}        value
+     * @param {Function} cb    Callback function
+     */
+    DbEntityService.prototype.set = function(key, value, cb) {
+        var dao              = new pb.DAO();
+        var where            = {};
+        where[this.keyField] = key;
+
+        var self = this;
+        dao.loadByValue(this.keyField, key, this.objType, function(err, result){
+            if (util.isError(err)) {
+                return cb(err);
+            }
+
+            //value doesn't exist in cache
+            var val = null;
+            if (self.valueField == null) {
+                val = value;
+            }
+            else{
+                var rawVal = null;
+                if (!result) {
+                    rawVal = {
+                        object_type: self.objType
+                    };
+                    rawVal[self.keyField]   = key;
+                }
+                else{
+                    rawVal = result;
+                }
+                rawVal[self.valueField] = value;
+                val                     = rawVal;
+            }
+
+            //set into cache
+            dao.save(val, cb);
+        });
+    };
+
+    /**
+     * Purge the database of a value
+     *
+     * @method purge
+     * @param  {String}   key
+     * @param  {Function} cb  Callback function
+     */
+    DbEntityService.prototype.purge = function(key, cb) {
+        var dao              = new pb.DAO();
+        var where            = {};
+        where[this.keyField] = key;
+        dao.delete(where, this.objType, cb);
+    };
+    
+    return DbEntityService;
 };
-
-/**
- * Set a value in the database
- *
- * @method set
- * @param {String}   key
- * @param {*}        value
- * @param {Function} cb    Callback function
- */
-DBEntityService.prototype.set = function(key, value, cb) {
-	var dao              = new pb.DAO();
-	var where            = {};
-	where[this.keyField] = key;
-
-	var self = this;
-    dao.loadByValue(this.keyField, key, this.objType, function(err, result){
-		if (util.isError(err)) {
-			return cb(err);
-		}
-
-		//value doesn't exist in cache
-		var val = null;
-		if (self.valueField == null) {
-			val = value;
-		}
-		else{
-			var rawVal = null;
-			if (!result) {
-				rawVal = {
-					object_type: self.objType
-				};
-				rawVal[self.keyField]   = key;
-			}
-			else{
-				rawVal = result;
-			}
-			rawVal[self.valueField] = value;
-			val                     = rawVal;
-		}
-
-		//set into cache
-		dao.save(val, cb);
-	});
-};
-
-/**
- * Purge the database of a value
- *
- * @method purge
- * @param  {String}   key
- * @param  {Function} cb  Callback function
- */
-DBEntityService.prototype.purge = function(key, cb) {
-	var dao              = new pb.DAO();
-	var where            = {};
-	where[this.keyField] = key;
-	dao.delete(where, this.objType, cb);
-};
-
-//exports
-module.exports.DBEntityService = DBEntityService;

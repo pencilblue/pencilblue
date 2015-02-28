@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,43 +15,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Service for content settings retrieval
- *
- * @module Services
- * @class ContentService
- * @constructor
- */
-function ContentService(){}
+var util = require('./util.js');
 
-/**
- * Retrieves the content settings
- *
- * @method getSettings
- * @param {Function} cb Callback function
- */
-ContentService.getSettings = function(cb){
-	pb.settings.get('content_settings', function(err, settings){
-		if (settings === null) {
-			settings = ContentService.getDefaultSettings();
-			pb.settings.set('content_settings', settings, pb.utils.cb);
-		}
-		
-		cb(err, settings);
-	});
-};
+module.exports = function ContentServiceModule(pb) {
 
-/**
- * Retrieves the default content settings from installation
- *
- * @method getDefaultSettings
- * @return {Object} Content settings
- */
-ContentService.getDefaultSettings = function() {
-    return {
+    /**
+     * Service for content settings retrieval
+     *
+     * @module Services
+     * @class ContentService
+     * @constructor
+     */
+    function ContentService(){}
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property CONTENT_SETTINGS_REF
+     * @type {String}
+     */
+    var CONTENT_SETTINGS_REF = 'content_settings';
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property DEFAULT_SETTINGS
+     * @type {String}
+     */
+    var DEFAULT_SETTINGS = Object.freeze({
         articles_per_page: 5,
         auto_break_articles: 0,
-		read_more_text: 'Read more',
+        read_more_text: 'Read more',
         display_timestamp: 1,
         date_format: 'M dd, YYYY',
         two_digit_date: 0,
@@ -65,80 +63,138 @@ ContentService.getDefaultSettings = function() {
         default_comments: 1,
         require_account: 0,
         require_verification: 0
+    });
+
+    /**
+     * Retrieves the content settings
+     *
+     * @method getSettings
+     * @param {Function} cb Callback function
+     */
+    ContentService.prototype.getSettings = function(cb){
+        pb.settings.get(CONTENT_SETTINGS_REF, function(err, settings){
+            if (settings) {
+                return cb(err, settings);
+            }
+
+            //set default settings if they don't exist
+            settings = ContentService.getDefaultSettings();
+            pb.settings.set(CONTENT_SETTINGS_REF, settings, function(err, result) {
+                cb(err, settings);
+            });
+        });
     };
-};
 
-/**
- * Returns a formatted time stamp from a date
- *
- * @method getTimestampTextFromSettings
- * @param {Date} date
- * @param {Object} contentSettings
- */
-ContentService.getTimestampTextFromSettings = function(date, contentSettings) {
-	return ContentService.getTimestampText(date, contentSettings.date_format, contentSettings.two_digit_date,
-    		contentSettings.display_hours_minutes, contentSettings.time_format, contentSettings.two_digit_time);
-};
+    /**
+     * Retrieves the default content settings from installation
+     *
+     * @method getDefaultSettings
+     * @return {Object} Content settings
+     */
+    ContentService.getDefaultSettings = function() {
+        return util.clone(DEFAULT_SETTINGS);
+    };
 
-ContentService.getTimestampText = function(date, format, twoDigitDate, displayTime, timeFormat, twoDigitTime, ls) {
-    if (!ls) {
-        ls = new pb.Localization();
-    }
+    /**
+     * Returns a formatted time stamp from a date
+     *
+     * @method getTimestampTextFromSettings
+     * @param {Date} date
+     * @param {Object} contentSettings
+     */
+    ContentService.getTimestampTextFromSettings = function(date, contentSettings, ls) {
+        var options = {
+            date: date,
+            format: contentSettings.date_format,
+            twoDigitDate: contentSettings.two_digit_date,
+            displayTime: contentSettings.display_hours_minutes,
+            timeFormat: contentSettings.time_format,
+            twoDigitDate: contentSettings.two_digit_time,
+            ls: ls
+        };
+        return ContentService.getTimestampText(options);
+    };
 
-	var dateString = format;
-    var monthNames = [
-      ls.get('JAN'),
-      ls.get('FEB'),
-      ls.get('MAR'),
-      ls.get('APR'),
-      ls.get('MAY'),
-      ls.get('JUN'),
-      ls.get('JUL'),
-      ls.get('AUG'),
-      ls.get('SEP'),
-      ls.get('OCT'),
-      ls.get('NOV'),
-      ls.get('DEC')
-    ];
-
-    var month = date.getMonth() + 1;
-	var day = date.getDate();
-
-	month = (twoDigitDate && month < 10) ? '0' + month : month.toString();
-	day = (twoDigitDate && day < 10) ? '0' + day : day.toString();
-
-    dateString = dateString.split('YYYY').join(date.getFullYear());
-    dateString = dateString.split('yy').join(date.getYear());
-    dateString = dateString.split('M').join(monthNames[date.getMonth()]);
-    dateString = dateString.split('mm').join(month);
-    dateString = dateString.split('dd').join(day);
-
-    if (typeof displayTime !== 'undefined' && displayTime) {
-
-        var hours   = date.getHours();
-        var minutes = date.getMinutes();
-        if(minutes < 10) {
-            minutes = '0' + minutes;
+    /**
+     * 
+     * @static
+     * @method getTimestampText
+     * @param {Object} options
+     * @param {Date} options.date
+     * @param {String} options.format
+     * @param {Boolean} options.twoDigitDate
+     * @param {Boolean} options.displayTime
+     * @param {String} options.timeFormat
+     * @param {Boolean} options.twoDigitTime
+     * @param {Localization} options.ls
+     */
+    ContentService.getTimestampText = function(options) {
+        var date         = options.date;
+        var format       = options.format;
+        var twoDigitDate = options.twoDigitDate;
+        var displayTime  = options.displayTime;
+        var timeFormat   = options.timeFormat;
+        var twoDigitTime = options.twoDigitTime;
+        var ls           = options.ls;
+        if (!ls) {
+            ls = new pb.Localization();
         }
-        var ampm = '';
 
-        if(timeFormat == '12') {
-            if(hours > 12) {
-                hours -= 12;
-                ampm = ' '+ls.get('TIME_PM');
+        var dateString = format;
+        var monthNames = [
+          ls.get('JAN'),
+          ls.get('FEB'),
+          ls.get('MAR'),
+          ls.get('APR'),
+          ls.get('MAY'),
+          ls.get('JUN'),
+          ls.get('JUL'),
+          ls.get('AUG'),
+          ls.get('SEP'),
+          ls.get('OCT'),
+          ls.get('NOV'),
+          ls.get('DEC')
+        ];
+
+        var month = date.getMonth() + 1;
+        var day   = date.getDate();
+
+        month = (twoDigitDate && month < 10) ? '0' + month : month.toString();
+        day   = (twoDigitDate && day < 10) ? '0' + day : day.toString();
+
+        dateString = dateString.split('YYYY').join(date.getFullYear());
+        dateString = dateString.split('yy').join(date.getYear());
+        dateString = dateString.split('M').join(monthNames[date.getMonth()]);
+        dateString = dateString.split('mm').join(month);
+        dateString = dateString.split('dd').join(day);
+
+        if (typeof displayTime !== 'undefined' && displayTime) {
+
+            var hours   = date.getHours();
+            var minutes = date.getMinutes();
+            if(minutes < 10) {
+                minutes = '0' + minutes;
             }
-            else {
-                ampm = ' '+ls.get('TIME_AM');
+            var ampm = '';
+
+            if(timeFormat == '12') {
+                if(hours > 12) {
+                    hours -= 12;
+                    ampm = ' '+ls.get('TIME_PM');
+                }
+                else {
+                    ampm = ' '+ls.get('TIME_AM');
+                }
             }
-        }
-        if(twoDigitTime && hours < 10) {
-            hours = '0' + hours;
-        }
+            if(twoDigitTime && hours < 10) {
+                hours = '0' + hours;
+            }
 
-        dateString = dateString.concat(' ' + hours + ':' + minutes + ampm);
-    }
-    return dateString;
+            dateString = dateString.concat(' ' + hours + ':' + minutes + ampm);
+        }
+        return dateString;
+    };
+
+    //exports
+    return ContentService;
 };
-
-//exports
-module.exports.ContentService = ContentService;

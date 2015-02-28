@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,86 +15,89 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Retrieve articles
- */
-
-
 //dependencies
-var BaseController  = pb.BaseController;
-var Comments        = require(path.join(DOCUMENT_ROOT, '/include/theme/comments'));
-var ArticleService  = require(path.join(DOCUMENT_ROOT, '/include/service/entities/article_service')).ArticleService;
-var IndexController = require('../../index.js');
+var path  = require('path');
+var async = require('async');
 
-/**
- * Get articles within indices, for real time pagination
- */
-function GetArticles(){}
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    var BaseController  = pb.BaseController;
+    var Comments        = pb.CommentService;
+    var ArticleService  = pb.ArticleService;
+    var IndexController = require('../../index.js')(pb);
 
-//inheritance
-util.inherits(GetArticles, IndexController);
+    /**
+     * Get articles within indices, for real time pagination
+     */
+    function GetArticles(){}
+    util.inherits(GetArticles, IndexController);
 
-GetArticles.prototype.render = function(cb) {
-	var self = this;
-	var get  = this.query;
+    GetArticles.prototype.render = function(cb) {
+        var self = this;
+        var get  = this.query;
 
-	pb.content.getSettings(function(err, contentSettings) {
+        var contentService = new pb.ContentService();
+        contentService.getSettings(function(err, contentSettings) {
 
-	    if(!get.limit || get.limit.length === 0)
-	    {
-	        get.limit = contentSettings.articles_per_page;
-	    }
-	    if(!get.offset)
-	    {
-	        get.offset = contentSettings.articles_per_page;
-	    }
+            if(!get.limit || get.limit.length === 0)
+            {
+                get.limit = contentSettings.articles_per_page;
+            }
+            if(!get.offset)
+            {
+                get.offset = contentSettings.articles_per_page;
+            }
 
-	    self.limit  = parseInt(get.limit);
-	    self.offset = parseInt(get.offset);
+            self.limit  = parseInt(get.limit);
+            self.offset = parseInt(get.offset);
 
-	    //create callback to be issued by all the find calls
-        var articleCallback = function(err, articles) {
-        	self.processArticles(articles, cb);
-        };
-
-        var service = new ArticleService();
-
-        if(get.section) {
-            service.findBySection(get.section, articleCallback);
-        }
-        else if(get.topic) {
-            service.findByTopic(get.topic, articleCallback);
-        }
-        else {
-            service.find({}, articleCallback);
-        }
-    });
-};
-
-GetArticles.prototype.processArticles = function(articles, cb) {
-	var self = this;
-
-	pb.content.getSettings(function(err, contentSettings) {
-
-        var cnt   = 0;
-        var tasks = pb.utils.getTasks(articles, function(content, i) {
-            return function(callback) {
-                if (i < self.offset || i >= (self.offset + self.limit)) {//TODO, limit articles in query, not through hackery
-                    callback(null, '');
-                    return;
-                }
-                cnt++;
-                self.renderContent(content[i], contentSettings, {}, i, callback);
+            //create callback to be issued by all the find calls
+            var articleCallback = function(err, articles) {
+                self.processArticles(articles, cb);
             };
-        });
-        async.parallel(tasks, function(err, result) {
 
-            var data   = {count: cnt, articles: result.join('')};
-            var apiObj = BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'success', data);
-            cb({content: apiObj});
+            var service = new ArticleService();
+
+            if(get.section) {
+                service.findBySection(get.section, articleCallback);
+            }
+            else if(get.topic) {
+                service.findByTopic(get.topic, articleCallback);
+            }
+            else {
+                service.find({}, articleCallback);
+            }
         });
-    });
+    };
+
+    GetArticles.prototype.processArticles = function(articles, cb) {
+        var self = this;
+
+        var contentService = new pb.ContentService();
+        contentService.getSettings(function(err, contentSettings) {
+
+            var cnt   = 0;
+            var tasks = util.getTasks(articles, function(content, i) {
+                return function(callback) {
+                    if (i < self.offset || i >= (self.offset + self.limit)) {//TODO, limit articles in query, not through hackery
+                        callback(null, '');
+                        return;
+                    }
+                    cnt++;
+                    self.renderContent(content[i], contentSettings, {}, i, callback);
+                };
+            });
+            async.parallel(tasks, function(err, result) {
+
+                var data   = {count: cnt, articles: result.join('')};
+                var apiObj = BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'success', data);
+                cb({content: apiObj});
+            });
+        });
+    };
+
+    //exports
+    return GetArticles;
 };
-
-//exports
-module.exports = GetArticles;

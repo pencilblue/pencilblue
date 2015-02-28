@@ -4,7 +4,7 @@
  * Author:      Lukasz Galuszka
  * Change Log:
  *              20/01/2015 Initial version
- *              
+ *
  */
 
 var loc =
@@ -169,7 +169,8 @@ var loc =
         REQUIRED_FIELD: 'To pole jest wymagane',
         INVALID_FILE: 'Dostarczony plik jest niewłaściwy',
         COMPLETE: 'Gotowe',
-        WYSIWYG: 'WYSIWYG'
+        WYSIWYG: 'WYSIWYG',
+        THUMBNAIL: 'Thumbnail'
     },
     error:
     {

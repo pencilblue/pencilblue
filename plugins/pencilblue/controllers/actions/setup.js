@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,93 +15,129 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Creates the initial admin user
- */
-
-function Setup(){}
-
 //dependencies
-var CallHomeService = pb.CallHomeService;
+var async = require('async');
 
-//inheritance
-util.inherits(Setup, pb.BaseController);
+module.exports = function SetupActionControllerModule(pb) {
+    
+    //pb dependencies
+    var util            = pb.util;
+    var CallHomeService = pb.CallHomeService;
 
-
-Setup.prototype.render = function(cb) {
-
-	var self = this;
-    pb.settings.get('system_initialized', function(err, isSetup){
-    	if (util.isError(err)) {
-            self.reqHandler.serveError(err);
-            return;
-    	}
-
-    	//when user count is 1 or higher the system has already been initialized
-    	if (isSetup) {
-    		self.redirect('/', cb);
-    		return;
-    	}
-
-    	self.doSetup(cb);
+    /**
+     * Creates the initial admin user
+     * @class SetupActionController
+     * @constructor
+     * @extends BaseController
+     */
+    function SetupActionController(){}
+    util.inherits(SetupActionController, pb.BaseController);
+    
+    /**
+     * The setup events are ran in sequence.  The error key is mapped to the 
+     * task index + 1 so that on error you can check the result length to 
+     * determine which task errored.
+     * @private
+     * @static
+     * @readonly
+     * @property ERROR_KEYS
+     * @type {Object}
+     */
+    var ERROR_KEYS = Object.freeze({
+        1: 'ERROR_CREATING_USER',
+        2: 'ERROR_SETTING_ACTIVE_THEME',
+        3: 'ERROR_SETTING_CONTENT_SETTINGS',
+        4: 'ERROR_SETTING_SYS_INITIALIZED',
+        5: 'ERROR_SETTING_CALLHOME'
     });
-};
 
-Setup.prototype.doSetup = function(cb) {
+    /**
+     *
+     * @method render
+     * @param {Function} cb
+     */
+    SetupActionController.prototype.render = function(cb) {
 
-	var self = this;
-	this.getPostParams(function(err, post){
-		if (util.isError(err)) {
-			self.reqHandler.serveError(err);
+        var self = this;
+        pb.settings.get('system_initialized', function(err, isSetup){
+            if (util.isError(err)) {
+                self.reqHandler.serveError(err);
+                return;
+            }
+
+            //when user count is 1 or higher the system has already been initialized
+            if (isSetup) {
+                self.redirect('/', cb);
+                return;
+            }
+
+            self.doSetup(cb);
+        });
+    };
+
+    /**
+     *
+     * @method doSetup
+     * @param {Function} cb
+     */
+    SetupActionController.prototype.doSetup = function(cb) {
+
+        var self = this;
+        this.getPostParams(function(err, post){
+            if (util.isError(err)) {
+                self.reqHandler.serveError(err);
+                return;
+            }
+
+            self.onPostParamsRetrieved(post, cb);
+        });
+    };
+
+    /**
+     *
+     * @method onPostParamsRetrieved
+     * @param {Function} cb
+     */
+    SetupActionController.prototype.onPostParamsRetrieved = function(post, cb) {
+        var self = this;
+
+        var reqParams = ['username', 'email', 'password', 'confirm_password', 'call_home'];
+        var message   = this.hasRequiredParams(post, reqParams);
+        if(message) {
+            this.formError(message, '/setup', cb);
             return;
-		}
+        }
 
-		self.onPostParamsRetrieved(post, cb);
-	});
-};
+        //set the access level (role)
+        post.admin = pb.SecurityService.ACCESS_ADMINISTRATOR;
 
-Setup.prototype.onPostParamsRetrieved = function(post, cb) {
-	var self = this;
+        //get call home allowance
+        var callHome = 1 == post.call_home;
+        delete post.call_home;
 
-	var reqParams = ['username', 'email', 'password', 'confirm_password', 'call_home'];
-	var message   = this.hasRequiredParams(post, reqParams);
-	if(message) {
-        this.formError(message, '/setup', cb);
-        return;
-    }
+        //do setup events
+        var tasks = [
+            function(callback) {
+                var userDocument = pb.DocumentCreator.create('user', post);
 
-    //set the access level (role)
-    post.admin = 4;
-
-    //get call home allowance
-    var callHome = 1 == post.call_home;
-    delete post.call_home;
-
-    //do setup events
-    async.series(
-		[
-			function(callback) {
-				var userDocument = pb.DocumentCreator.create('user', post);
-
-				var dao = new pb.DAO();
-				dao.save(userDocument, callback);
-			},
-			function(callback) {
-				pb.settings.set('active_theme',
-				pb.RequestHandler.DEFAULT_THEME, callback);
-			},
-			function(callback) {
-				pb.content.getSettings(function(contentSettings) {
-					//Do nothing here because it calls set under the covers.  
-                    //We assume it does what it is supposed to.  Attempting to 
-                    //set the settings again will only cause a failure due to a 
-                    //duplicate key
-                    callback();
-				});
-			},
-			function(callback) {
-				pb.settings.set('system_initialized', true, callback);
-			},
+                var dao = new pb.DAO();
+                dao.save(userDocument, callback);
+            },
+            function(callback) {
+                pb.settings.set('active_theme',
+                pb.RequestHandler.DEFAULT_THEME, callback);
+            },
+            function(callback) {
+                //Do nothing here because it calls set under the covers.  
+                //We assume it does what it is supposed to.  Attempting to 
+                //set the settings again will only cause a failure due to a 
+                //duplicate key
+                var contentService = new pb.ContentService();
+                contentService.getSettings(callback);
+            },
+            function(callback) {
+                pb.settings.set('system_initialized', true, callback);
+            },
             function(callback) {
                 pb.settings.set('call_home', callHome, callback);
             },
@@ -111,18 +147,18 @@ Setup.prototype.onPostParamsRetrieved = function(post, cb) {
                 }
                 callback(null, null);
             }
-		],
-        function(err, results){
-    		if (util.isError(err)) {
+        ];
+        async.series(tasks, function(err, results){console.log(results.length);
+            if (util.isError(err)) {
                 pb.log.error('An error occurred while attempting to perform setup: %s', err.stack || err.message);
-    			return self.formError(self.ls.get('ERROR_SAVING'), '/setup', cb);
-    		}
+                return self.formError(self.ls.get(ERROR_KEYS[results.length]), '/setup', cb);
+            }
 
-    		self.session.success = self.ls.get('READY_TO_USE');
-    		self.redirect('/admin/login', cb);
-		}
-    );
+            self.session.success = self.ls.get('READY_TO_USE');
+            self.redirect('/admin/login', cb);
+        });
+    };
+
+    //exports
+    return SetupActionController;
 };
-
-//exports
-module.exports = Setup;
