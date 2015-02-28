@@ -396,4 +396,261 @@ describe('util', function() {
             result.should.eql(expected);
         });
     });
+    
+    describe('util.hashToArray', function() {
+        
+        it('should return null when a non-object is provided', function() {
+            should.strictEqual(null, util.arrayToObj(78.8));
+        });
+        
+        it('should return an array where each item in the array is the value of a hash key', function() {
+            var val = {
+                apple: {
+                    type: 'fruit'
+                }
+            };
+            var result = util.hashToArray(val);
+            var expected = [
+                {
+                    type: 'fruit'
+                }
+            ];
+            expected.should.eql(result);
+        });
+        
+        it('should return an array where each item in the array contains a property "key" who\'s value is the kash key', function() {
+            var val = {
+                apple: {
+                    type: 'fruit'
+                }
+            };
+            var result = util.hashToArray(val, 'key');
+            var expected = [
+                {
+                    type: 'fruit',
+                    key: 'apple'
+                }
+            ];
+            expected.should.eql(result);
+        });
+    });
+    
+    describe('util.invertHash', function() {
+        
+        it('should return null when a non-object is passed', function() {
+            should.strictEqual(null, util.invertHash(78.8));
+        });
+        
+        it('should return an object where by the keys and values are swapped', function() {
+            var val = {
+                a: 'apple',
+                b: 'banana'
+            };
+            var result = util.invertHash(val);
+            var expected = {
+                apple: 'a',
+                banana: 'b'
+            };
+            expected.should.eql(result);
+        });
+    });
+    
+    describe('util.copyArray', function() {
+        
+        it('should return null when a non-array is passed', function() {
+            should.strictEqual(null, util.copyArray(78.8));
+        });
+        
+        it('should return an array identical to the one provided', function() {
+            var val = [
+                {a: 'apple'},
+                {b: 'banana'}
+            ];
+            var result = util.copyArray(val);
+            val.should.eql(result);
+        });
+    });
+    
+    describe('util.arrayPushAll', function() {
+        
+        it('should return null when a non-array "from" parameter is passed', function() {
+            should.strictEqual(false, util.arrayPushAll(67, []));
+        });
+        
+        it('should return null when a non-array "to" parameter is passed', function() {
+            should.strictEqual(false, util.arrayPushAll([], 90));
+        });
+        
+        it('should return an array that contains the items of the "from" array and the items from the "to" array appended', function() {
+            var from = [
+                {a: 'apple'},
+                {b: 'banana'}
+            ];
+            var to = [
+                {c: 'cantaloupe'},
+                {d: 'date'}
+            ];
+            util.arrayPushAll(from, to);
+            var expected = [
+                {c: 'cantaloupe'},
+                {d: 'date'},
+                {a: 'apple'},
+                {b: 'banana'}
+            ];
+            expected.should.eql(to);
+        });
+    });
+    
+    describe('util.uniqueId', function() {
+        
+        it('should return a unique string of characters, length 36', function() {
+            var result = util.uniqueId();
+            result.should.be.type('string');
+            result.should.be.length(36);
+        });
+    });
+    
+    describe('util.isObject', function() {
+        
+        it('should return false when passed null', function() {
+            var result = util.isObject(null);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed undefined', function() {
+            var result = util.isObject(undefined);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an integer', function() {
+            var result = util.isObject(5);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a float', function() {
+            var result = util.isObject(5.9);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a boolean', function() {
+            var result = util.isObject(true);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a string', function() {
+            var result = util.isObject('hello world');
+            result.should.eql(false);
+        });
+        
+        it('should return true when passed an array', function() {
+            var result = util.isObject([]);
+            result.should.eql(true);
+        });
+        
+        it('should return false when passed a function', function() {
+            var result = util.isObject(function(){});
+            result.should.eql(false);
+        });
+        
+        it('should return true when passed an object', function() {
+            var result = util.isObject({});
+            result.should.eql(true);
+        });
+    });
+    
+    describe('util.isString', function() {
+        
+        it('should return false when passed null', function() {
+            var result = util.isString(null);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed undefined', function() {
+            var result = util.isString(undefined);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an integer', function() {
+            var result = util.isString(5);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a float', function() {
+            var result = util.isString(5.9);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a boolean', function() {
+            var result = util.isString(true);
+            result.should.eql(false);
+        });
+        
+        it('should return true when passed a string', function() {
+            var result = util.isString('hello world');
+            result.should.eql(true);
+        });
+        
+        it('should return false when passed an array', function() {
+            var result = util.isString([]);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a function', function() {
+            var result = util.isString(function(){});
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an object', function() {
+            var result = util.isString({});
+            result.should.eql(false);
+        });
+    });
+    
+    describe('util.isFunction', function() {
+        
+        it('should return false when passed null', function() {
+            var result = util.isFunction(null);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed undefined', function() {
+            var result = util.isFunction(undefined);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an integer', function() {
+            var result = util.isFunction(5);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a float', function() {
+            var result = util.isFunction(5.9);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a boolean', function() {
+            var result = util.isFunction(true);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a string', function() {
+            var result = util.isFunction('hello world');
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an array', function() {
+            var result = util.isFunction([]);
+            result.should.eql(false);
+        });
+        
+        it('should return true when passed a function', function() {
+            var result = util.isFunction(function(){});
+            result.should.eql(true);
+        });
+        
+        it('should return false when passed an object', function() {
+            var result = util.isFunction({});
+            result.should.eql(false);
+        });
+    });
 });

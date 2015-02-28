@@ -390,10 +390,11 @@ Util.copyArray = function(array) {
  * @method arrayPushAll
  * @param {Array} from
  * @param {Array} to
+ * @return {Boolean} FALSE when the parameters are not Arrays
  */
 Util.arrayPushAll = function(from, to) {
 	if (!util.isArray(from) || !util.isArray(to)) {
-		return;
+		return false;
 	}
 
 	for (var i = 0; i < from.length; i++) {
