@@ -16,37 +16,44 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Resends an account verification email
      */
     function SendTestEmail(){}
-    util.inherits(SendTestEmail, pb.FormController);
+    util.inherits(SendTestEmail, pb.BaseController);
 
-    SendTestEmail.prototype.onPostParamsRetrieved = function(post, cb) {
+    SendTestEmail.prototype.render = function(cb) {
         var self = this;
 
-        var message = this.hasRequiredParams(post, this.getRequiredFields());
-        if(message) {
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)});
-            return;
-        }
-
-        var options = {
-            to: post.email,
-            subject: 'Test email from PencilBlue',
-            layout: 'This is a successful test email from the PencilBlue system.',
-        };
-        var emailService = new pb.EmailService();
-        emailService.sendFromLayout(options, function(err, response) {
-            if(err) {
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, JSON.stringify(err))});
+        this.getJSONPostParams(function(err, post) {
+            var message = self.hasRequiredParams(post, self.getRequiredFields());
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
                 return;
             }
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'email successfully sent')});
+
+            var options = {
+                to: post.email,
+                subject: 'Test email from PencilBlue',
+                layout: 'This is a successful test email from the PencilBlue system.',
+            };
+            pb.email.sendFromLayout(options, function(err, response) {
+                if(err) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, JSON.stringify(err))
+                    });
+                    return;
+                }
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'email successfully sent')});
+            });
         });
     };
 
