@@ -727,7 +727,7 @@ Util.merge(util, Util);
  * @param {Function} Type2
  */
 Util.inherits = function(Type1, Type2) {
-    if (util.isNullOrUndefined(Type1) || util.isNullOrUndefined(Type2)) {
+    if (Util.isNullOrUndefined(Type1) || Util.isNullOrUndefined(Type2)) {
         throw new Error('The type parameters must be objects or prototypes');
     }
     
