@@ -19,10 +19,10 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for creating and editing articles
      */
@@ -72,7 +72,7 @@ module.exports = function(pb) {
 
             for(i = 0; i < data.article.article_media.length; i++) {
                 for(j = 0; j < data.media.length; j++) {
-                    if(pb.DAO.areIdsEqual(data.media[j][pb.DAO.idField()], data.article.article_media[i])) {
+                    if(pb.DAO.areIdsEqual(data.media[j][pb.DAO.getIdField()], data.article.article_media[i])) {
                         media.push(data.media[j]);
                         data.media.splice(j, 1);
                         break;

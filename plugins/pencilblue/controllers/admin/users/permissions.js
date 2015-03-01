@@ -16,11 +16,11 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
     var BaseController = pb.BaseController;
-    
+
     /**
      * Interface for displaying how a plugin's user permissions are organized
      */

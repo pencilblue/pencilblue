@@ -39,7 +39,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.ACCESS_USER = 0;
-    
+
     /**
      *
      * @static
@@ -48,7 +48,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.ACCESS_WRITER = 1;
-    
+
     /**
      *
      * @static
@@ -57,7 +57,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.ACCESS_EDITOR = 2;
-    
+
     /**
      *
      * @static
@@ -66,7 +66,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.ACCESS_MANAGING_EDITOR = 3;
-    
+
     /**
      *
      * @static
@@ -100,7 +100,7 @@ module.exports = function(pb) {
     ROLE_VAL_TO_NAME[SecurityService.ACCESS_EDITOR]          = 'ACCESS_EDITOR';
     ROLE_VAL_TO_NAME[SecurityService.ACCESS_MANAGING_EDITOR] = 'ACCESS_MANAGING_EDITOR';
     ROLE_VAL_TO_NAME[SecurityService.ACCESS_ADMINISTRATOR]   = 'ACCESS_ADMINISTRATOR';
-    
+
     /**
      *
      * @static
@@ -109,7 +109,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.AUTHENTICATED = 'authenticated';
-    
+
     /**
      *
      * @static
@@ -131,14 +131,14 @@ module.exports = function(pb) {
     };
 
     /**
-     * 
+     *
      * @static
      * @method getRoleToDisplayNameMap
      * @param {Localization} ls
      * @return {Object}
      */
     SecurityService.getRoleToDisplayNameMap = function(ls) {
-        if (util.isFunction(ls)) {
+        if (util.isFunction(ls.get)) {
             return {
                 'ACCESS_USER': ls.get('ACCESS_USER'),
                 'ACCESS_WRITER': ls.get('ACCESS_WRITER'),
@@ -147,7 +147,8 @@ module.exports = function(pb) {
                 'ACCESS_ADMINISTRATOR': ls.get('ACCESS_ADMINISTRATOR'),
             };
         }
-        return null;
+        // Return an empty object instead of null, so things won't break after return
+        return {};
     };
 
     /**
@@ -268,6 +269,6 @@ module.exports = function(pb) {
         }
         return password.join('');
     };
-    
+
     return SecurityService;
 };
