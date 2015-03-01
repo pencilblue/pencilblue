@@ -60,6 +60,9 @@ module.exports = function ImageMediaRendererModule(pb) {
         },
         webp: {
             mime: 'image/webp'
+        },
+        gif: {
+            mime: 'image/gif'
         }
     });
 
