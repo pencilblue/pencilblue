@@ -55,7 +55,7 @@
   },
   "scripts": {
     "start": "node pencilblue.js",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --include-all-sources --report html -- -R spec --recursive"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec --recursive"
   },
   "licenses": [
     {
