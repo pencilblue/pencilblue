@@ -679,7 +679,7 @@ module.exports = function DAOModule(pb) {
      */
     DAO.getIdWhere = function(oid) {
         return {
-            _id: DAO.getObjectID(oid)
+            _id: DAO.getObjectId(oid)
         };
     };
 
@@ -717,7 +717,7 @@ module.exports = function DAOModule(pb) {
             else{
                 rawId = objArray[i];
             }
-            idArray.push(DAO.getObjectID(rawId));
+            idArray.push(DAO.getObjectId(rawId));
         }
         return {
             _id: {$in: idArray}
@@ -744,7 +744,7 @@ module.exports = function DAOModule(pb) {
             else{
                 rawId = objArray[i];
             }
-            idArray.push(DAO.getObjectID(rawId));
+            idArray.push(DAO.getObjectId(rawId));
         }
         return {
             _id: {$nin: idArray}
@@ -809,7 +809,7 @@ module.exports = function DAOModule(pb) {
      * @param {String} oid Object Id String
      * @return {Object}    ObjectID object
      */
-    DAO.getObjectID = function(oid) {
+    DAO.getObjectId = function(oid) {
         pb.log.warn('DAO: getObjectID is deprecated. Use getObjectId instead');
         return DAO.getObjectId(oid);
     };
