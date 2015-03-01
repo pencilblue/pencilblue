@@ -22,7 +22,7 @@
 function SendTestEmail(){}
 
 //inheritance
-util.inherits(SendTestEmail, pb.FormController);
+util.inherits(SendTestEmail, pb.BaseController);
 
 SendTestEmail.prototype.render = function(cb) {
     var self = this;
