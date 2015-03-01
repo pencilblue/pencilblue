@@ -34,7 +34,7 @@ module.exports = function(pb) {
     util.inherits(NavItemFormController, pb.BaseController);
 
     //statics
-    var SUB_NAV_KEY = 'article_form';
+    var SUB_NAV_KEY = 'nav_item_form';
 
     NavItemFormController.prototype.render = function(cb) {
         var self = this;

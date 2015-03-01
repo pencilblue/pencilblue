@@ -52,11 +52,21 @@ module.exports = function AdminSubnavServiceModule(pb) {
             return false;
         }
 
-        if (CALLBACKS[key] === undefined) {
+        if (util.isNullOrUndefined(CALLBACKS[key])) {
             CALLBACKS[key] = [];
         }
         else if (CALLBACKS[key].indexOf(getSubNavItems) > -1) {
             return true;
+        }
+        else {
+            //hack in place until PB theme controllers are moved over or admin sub nav is URL based
+            //ensures that functions are only registered once by using a string comparison
+            var funcStr = getSubNavItems.toString();
+            for (var i = 0; i < CALLBACKS[key].length; i++) {
+                if (CALLBACKS[key][i].toString() === funcStr) {
+                    return true;
+                }
+            }
         }
 
         CALLBACKS[key].push(getSubNavItems);
