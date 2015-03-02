@@ -489,8 +489,7 @@ Util.getDirectories = function(dirPath, cb) {
 	var dirs = [];
 	fs.readdir(dirPath, function(err, files) {
 		if (util.isError(err)) {
-			cb(err, null);
-			return;
+			return cb(err);
 		}
 
 		var tasks = Util.getTasks(files, function(files, index) {
@@ -501,7 +500,7 @@ Util.getDirectories = function(dirPath, cb) {
 					if (stat.isDirectory()) {
 						dirs.push(fullPath);
 					}
-					callback(err, null);
+					callback(err);
 				});
 			};
 		});
@@ -596,15 +595,24 @@ Util.getFiles = function(dirPath, options, cb) {
     });
 };
 
+/* Asynchronously makes the specified directory structure.
+ * @static
+ * @method mkdirsSync
+ * @param {String} absoluteDirPath The absolute path of the directory structure 
+ * to be created
+ * @param {Boolean} isFileName When true the value after the last file 
+ * separator is treated as a file.  This means that a directory with that value 
+ * will not be created.
+ * @param {Function} cb A callback that provides an error, if occurred
+ */
 Util.mkdirs = function(absoluteDirPath, isFileName, cb) {
-    if (!Util.isString(absoluteDirPath)) {
-        return cb(new Error('absoluteDirPath must be a valid file path'));
-    }
-    
-    //check to see if optional isFileName parameter was provided
     if (Util.isFunction(isFileName)) {
         cb = isFileName;
         isFileName = false;
+    }
+    
+    if (!Util.isString(absoluteDirPath)) {
+        return cb(new Error('absoluteDirPath must be a valid file path'));
     }
     
     var pieces = absoluteDirPath.split(path.sep);
@@ -631,9 +639,21 @@ Util.mkdirs = function(absoluteDirPath, isFileName, cb) {
             });
         };
     });
-    async.series(tasks, cb);
+    async.series(tasks, function(err, results){
+        cb(err);
+    });
 };
 
+/**
+ * Synchronously makes the specified directory structure.
+ * @static
+ * @method mkdirsSync
+ * @param {String} absoluteDirPath The absolute path of the directory structure 
+ * to be created
+ * @param {Boolean} isFileName When true the value after the last file 
+ * separator is treated as a file.  This means that a directory with that value 
+ * will not be created.
+ */
 Util.mkdirsSync = function(absoluteDirPath, isFileName) {
     if (!Util.isString(absoluteDirPath)) {
         throw new Error('absoluteDirPath must be a valid file path');
@@ -663,23 +683,31 @@ Util.mkdirsSync = function(absoluteDirPath, isFileName) {
  * a resource
  * @static
  * @method getExtension
- * @param {String} path URI to the resource
+ * @param {String} filePath URI to the resource
  * @param {Object} [options]
  * @param {Boolean} [options.lower=false] When TRUE the extension will be returned as lower case
+ * @param {String} [options.sep] The file path separator used in the path.  Defaults to the OS default.
  * @return {String} The value after the last '.' character
  */
-Util.getExtension = function(path, options) {
-    if (!Util.isString(path) || path.length <= 0) {
+Util.getExtension = function(filePath, options) {
+    if (!Util.isString(filePath) || filePath.length <= 0) {
         return null;
     }
+    if (!Util.isObject(options)) {
+        options = {};
+    }
+    
+    //do to the end of the path
+    var pathPartIndex = filePath.lastIndexOf(options.sep || path.sep) || 0;
+    filePath = filePath.substr(pathPartIndex);
     
     var ext = null;
-    var index = path.lastIndexOf('.');
+    var index = filePath.lastIndexOf('.');
     if (index >= 0) {
-        ext = path.substring(index + 1);
+        ext = filePath.substring(index + 1);
         
         //apply options
-        if (options && options.lower) {
+        if (options.lower) {
             ext = ext.toLowerCase();
         }
     }
@@ -699,6 +727,10 @@ Util.merge(util, Util);
  * @param {Function} Type2
  */
 Util.inherits = function(Type1, Type2) {
+    if (Util.isNullOrUndefined(Type1) || Util.isNullOrUndefined(Type2)) {
+        throw new Error('The type parameters must be objects or prototypes');
+    }
+    
     util.inherits(Type1, Type2);
     Util.merge(Type2, Type1);
 };

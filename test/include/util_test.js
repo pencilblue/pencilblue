@@ -2,6 +2,8 @@
 //dependencies
 var async  = require('async');
 var should = require('should');
+var path   = require('path');
+var fs     = require('fs');
 var util   = require('../../include/util.js');
 
 describe('util', function() {
@@ -653,4 +655,358 @@ describe('util', function() {
             result.should.eql(false);
         });
     });
+    
+    describe('util.isNullOrUndefined', function() {
+        
+        it('should return true when passed null', function() {
+            var result = util.isNullOrUndefined(null);
+            result.should.eql(true);
+        });
+        
+        it('should return true when passed undefined', function() {
+            var result = util.isNullOrUndefined(undefined);
+            result.should.eql(true);
+        });
+        
+        it('should return false when passed an integer', function() {
+            var result = util.isNullOrUndefined(5);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a float', function() {
+            var result = util.isNullOrUndefined(5.9);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a boolean', function() {
+            var result = util.isNullOrUndefined(true);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a string', function() {
+            var result = util.isNullOrUndefined('hello world');
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an array', function() {
+            var result = util.isNullOrUndefined([]);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a function', function() {
+            var result = util.isNullOrUndefined(function(){});
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an object', function() {
+            var result = util.isNullOrUndefined({});
+            result.should.eql(false);
+        });
+    });
+    
+    describe('util.isNullOrUndefined', function() {
+        
+        it('should return false when passed null', function() {
+            var result = util.isBoolean(null);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed undefined', function() {
+            var result = util.isBoolean(undefined);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an integer', function() {
+            var result = util.isBoolean(5);
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed a float', function() {
+            var result = util.isBoolean(5.9);
+            result.should.eql(false);
+        });
+        
+        it('should return true when passed a boolean "true"', function() {
+            var result = util.isBoolean(true);
+            result.should.eql(true);
+        });
+        
+        it('should return true when passed a boolean "false"', function() {
+            var result = util.isBoolean(false);
+            result.should.eql(true);
+        });
+        
+        it('should return false when passed a string', function() {
+            var result = util.isBoolean('hello world');
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an array', function() {
+            var result = util.isBoolean([]);
+            result.should.eql(false);
+        });
+        
+        it('should return true when passed a function', function() {
+            var result = util.isBoolean(function(){});
+            result.should.eql(false);
+        });
+        
+        it('should return false when passed an object', function() {
+            var result = util.isBoolean({});
+            result.should.eql(false);
+        });
+    });
+    
+    describe('util.getDirectories', function() {
+        
+        it('should throw an error when passed a null path', function() {
+            
+            util.getDirectories.bind(null, function(err, results) {}).should.throwError();
+        });
+        
+        it('should callback with an error when not passed a valid path', function(done) {
+            
+            util.getDirectories('&!^!%@!', function(err, results) {
+                
+                should.exist(err);
+                should.not.exist(results);
+                done();
+            });
+        });
+        
+        it('should callback with an error when not passed an iteger as the path', function() {
+            
+            util.getDirectories.bind(54, function(err, results) {}).should.throwError();
+        });
+        
+        it('should callback with an array with 1 path', function(done) {
+            
+            util.getDirectories('./controllers', function(err, results) {
+                
+                should.not.exist(err);
+                results.should.be.instanceof(Array).and.have.lengthOf(1);
+                
+                var expected = [
+                    'controllers/api'
+                ];
+                results.should.eql(expected);
+                done();
+            });
+        });
+    });
+    
+    describe('util.getFiles', function() {
+        
+        it('should throw an error when passed a null path', function() {
+            
+            util.getFiles.bind(null, function(err, results) {}).should.throwError();
+        });
+        
+        it('should callback with an error when not passed a valid path', function(done) {
+            
+            util.getFiles('&!^!%@!', function(err, results) {
+                
+                should.exist(err);
+                should.not.exist(results);
+                done();
+            });
+        });
+        
+        it('should callback with an error when not passed a valid path to a file', function(done) {
+            
+            util.getFiles('./controllers/base_controller.js', function(err, results) {
+                
+                should.exist(err);
+                should.not.exist(results);
+                done();
+            });
+        });
+        
+        it('should callback with an error when not passed a valid path to a file that does not exist', function(done) {
+            
+            util.getFiles('./controllers/non_existing_controller.js', function(err, results) {
+                
+                should.exist(err);
+                should.not.exist(results);
+                done();
+            });
+        });
+        
+        it('should callback with an array of 4 files when called with no options and a valid path', function(done) {
+            
+            util.getFiles('./controllers', function(err, results) {
+
+                should.not.exist(err);
+                results.should.be.instanceof(Array);
+                should(results.length >= 4).be.ok;
+                
+                done();
+            });
+        });
+        
+        it('should callback with an empty array of file paths', function(done) {
+            
+            var options = {
+                filter: function(/*fullPath, stat*/) {
+                    return false;
+                }
+            };
+            util.getFiles('./controllers', options, function(err, results) {
+
+                should.not.exist(err);
+                results.should.be.instanceof(Array).and.have.lengthOf(0);
+                
+                done();
+            });
+        });
+        
+        it('should callback with an array containing at least 5 file paths', function(done) {
+            
+            var options = {
+                recursive: true
+            };
+            util.getFiles('./controllers', options, function(err, results) {
+
+                should.not.exist(err);
+                results.should.be.instanceof(Array);
+                should(results.length >= 4).be.ok;
+                
+                done();
+            });
+        });
+    });
+    
+    describe('util.mkdirs', function() {
+        
+        it('should callback with an error when passed a null path', function(done) {
+            
+            util.mkdirs(null, function(err) {
+                
+                should.exist(err);
+                done();
+            });
+        });
+        
+        it('should callback with an error when an absolute file path is not provided', function(done) {
+            
+            util.mkdirs('./test/playground/'+new Date().getTime(), function(err) {
+                
+                should.exist(err);
+                done();
+            });
+        });
+        
+        it('should callback with no error and dir path should exist', function(done) {
+            
+            var dirsPath = getNextTestDir('mdirs-async');
+            util.mkdirs(dirsPath, function(err) {
+                
+                should.not.exist(err);
+                fs.existsSync(dirsPath).should.be.eql(true);
+                done();
+            });
+        });
+    });
+    
+    describe('util.mkdirsSync', function() {
+        
+        it('should throw an error when passed a null path', function() {
+            
+            util.mkdirsSync.bind(null,null).should.throwError();
+        });
+        
+        it('should throw an error when an absolute file path is not provided', function() {
+            
+            util.mkdirsSync.bind(null, './test/playground/'+new Date().getTime() + '-' + (cnt++)).should.throwError();
+        });
+        
+        it('should return void and dir path should exist', function() {
+            
+            var dirsPath = getNextTestDir('mdirs-async');
+            util.mkdirsSync(dirsPath);
+            fs.existsSync(dirsPath).should.be.eql(true);
+        });
+    });
+    
+    describe('util.getExtension', function() {
+        
+        it('should return null when passed a null path', function() {
+            
+            var result = util.getExtension(null);
+            should.strictEqual(null, result);
+        });
+        
+        it('should return null when passed an empty path', function() {
+            
+            var result = util.getExtension('');
+            should.strictEqual(null, result);
+        });
+        
+        it('should return "" when passed a path with no extension', function() {
+            
+            var result = util.getExtension('./controllers/config');
+            should.strictEqual(null, result);
+        });
+        
+        it('should return the "yml" extension when pass a path that is prefixed with a period but still provides extension', function() {
+            
+            var result = util.getExtension('./controllers/.config.yml');
+            result.should.eql("yml");
+        });
+        
+        it('should return "gif" when passed a path ending in .gif', function() {
+            
+            var options = {
+                lower: true
+            };
+            var result = util.getExtension('/hello/world.GiF', options);
+            result.should.eql("gif");
+        });
+    });
+    
+    describe('util.inherits', function() {
+        
+        var staticFuncFor1 = function(){};
+        function Type1(){}
+        Type1.PROP = 'abc';
+        Type1.staticFunc = staticFuncFor1;
+        Type1.staticFunc2 = function(){};
+        Type1.prototype.instanceFunc = function(){var y = 1;};
+        Type1.prototype.instanceFunc2 = function(){var z = 3;};
+        
+        var staticFuncFor2 = function(){var x = 2;};
+        function Type2(){}
+        Type2.PROP = 'def';
+        Type2.staticFunc = staticFuncFor2
+        Type2.prototype.instanceFunc = function(){var j = 8;};
+        
+        it('should throw an error when null is passed for the first type', function() {
+            
+            util.inherits.bind(null, null, Type2).should.throwError();
+        });
+        
+        it('should throw an error when null is passed for the second type', function() {
+            
+            util.inherits.bind(null, Type1, null).should.throwError();
+        });
+        
+        it('should cause Type2 to inherit the prototype function and static functions/properties of type 1', function() {
+            
+            util.inherits(Type2, Type1);
+            
+            Type1.PROP.should.eql("abc");
+            Type1.staticFunc.should.eql(staticFuncFor1);
+            
+            Type2.PROP.should.eql("def");
+            Type2.staticFunc.should.eql(staticFuncFor2);
+            Type2.prototype.instanceFunc.should.eql(Type1.prototype.instanceFunc);
+            Type2.prototype.instanceFunc2.should.eql(Type1.prototype.instanceFunc2);
+        });
+    });
 });
+
+var cnt = 0;
+var getNextTestDir = function(id) {
+    var base = (new Date()).getTime() + '-' + id + '-';
+    return path.join(__dirname, '..', 'testrun', base + (cnt++), base + (cnt++));
+};

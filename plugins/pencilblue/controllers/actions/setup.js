@@ -148,7 +148,7 @@ module.exports = function SetupActionControllerModule(pb) {
                 callback(null, null);
             }
         ];
-        async.series(tasks, function(err, results){console.log(results.length);
+        async.series(tasks, function(err, results){
             if (util.isError(err)) {
                 pb.log.error('An error occurred while attempting to perform setup: %s', err.stack || err.message);
                 return self.formError(self.ls.get(ERROR_KEYS[results.length]), '/setup', cb);
