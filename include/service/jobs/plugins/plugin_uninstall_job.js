@@ -169,7 +169,7 @@ PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
             };
             var dao = new pb.DAO();
             dao.delete(where, 'plugin', function(err, result) {
-                callback(error, !util.isError(err));
+                callback(err, !util.isError(err));
             });
         },
 
