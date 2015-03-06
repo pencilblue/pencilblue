@@ -44,21 +44,41 @@ module.exports = function(pb) {
             }
 
             self.article = results.article;
-            var tabs   = self.getTabs();
+            if(!self.article.author) {
+              self.article.author = self.session.authentication.user._id.toString();
+            }
 
-            self.setPageName(self.article[pb.DAO.getIdField()] ? self.article.headline : self.ls.get('NEW_ARTICLE'));
-            self.ts.registerLocal('angular_script', '');
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
-            self.ts.load('admin/content/articles/article_form', function(err, data) {
-                self.onTemplateRetrieved('' + data, function(err, data) {
-                    var result = '' + data;
-                    self.checkForFormRefill(result, function(newResult) {
-                        result = newResult;
-                        cb({content: result});
-                    });
-                });
-            });
+            if(self.session.authentication.user.admin >= pb.SecurityService.ACCESS_EDITOR) {
+              pb.users.getWriterOrEditorSelectList(self.article.author, true, function(err, availableAuthors) {
+                if(availableAuthors && availableAuthors.length > 1) {
+                  results.availableAuthors = availableAuthors;
+                }
+                self.finishRender(results, cb);
+              });
+              return;
+            }
+
+            self.finishRender(results, cb);
         });
+    };
+
+    ArticleForm.prototype.finishRender = function(results, cb) {
+      var self = this;
+
+      var tabs = self.getTabs();
+
+      self.setPageName(self.article[pb.DAO.getIdField()] ? self.article.headline : self.ls.get('NEW_ARTICLE'));
+      self.ts.registerLocal('angular_script', '');
+      self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
+      self.ts.load('admin/content/articles/article_form', function(err, data) {
+          self.onTemplateRetrieved('' + data, function(err, data) {
+              var result = '' + data;
+              self.checkForFormRefill(result, function(newResult) {
+                  result = newResult;
+                  cb({content: result});
+              });
+          });
+      });
     };
 
     ArticleForm.prototype.onTemplateRetrieved = function(template, cb) {
@@ -116,6 +136,9 @@ module.exports = function(pb) {
             media: data.media,
             article: data.article
         };
+        if(data.availableAuthors) {
+          objects.availableAuthors = data.availableAuthors;
+        }
         return pb.ClientJs.getAngularObjects(objects);
     };
 

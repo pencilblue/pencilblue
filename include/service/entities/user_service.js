@@ -16,7 +16,7 @@
 */
 
 //dependencies
-var async = require('async'); 
+var async = require('async');
 var util  = require('../../util.js');
 
 module.exports = function UserServiceModule(pb) {
@@ -97,7 +97,7 @@ module.exports = function UserServiceModule(pb) {
         var dao = new pb.DAO();
         dao.q('user', opts, function(err, authors) {
             if (util.isError(err)) {
-                return cb(err);   
+                return cb(err);
             }
 
             //convert results into searchable hash
@@ -138,14 +138,15 @@ module.exports = function UserServiceModule(pb) {
     };
 
     /**
-     * Retrieves a select list (id/name) of available system editors
-     * @method getEditorSelectList
+     * Retrieves a select list (id/name) of available system writers or editors
+     * @method getWriterOrEditorSelectList
      * @param {String} currId The Id to be excluded from the list.
+     * @param {Boolean} getWriters Whether to retrieve all writers or just editors.
      * @param {Function} cb A callback that takes two parameters.  The first is an
      * error, if exists, the second is an array of objects that represent the
      * editor select list.
      */
-    UserService.prototype.getEditorSelectList = function(currId, cb) {
+    UserService.prototype.getWriterOrEditorSelectList = function(currId, getWriters, cb) {
         var self = this;
 
         var opts = {
@@ -156,7 +157,7 @@ module.exports = function UserServiceModule(pb) {
             },
             where: {
                 admin: {
-                    $gt: pb.SecurityService.ACCESS_WRITER
+                    $gte: getWriters ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_EDITOR
                 }
             }
         };
