@@ -321,13 +321,13 @@ module.exports = function RequestHandlerModule(pb) {
             if (piece.indexOf(':') == 0) {
                 var fieldName = piece.substring(1);
                 pathVars[fieldName] = i + 1;
-                pattern += '/[A-Za-z0-9_\-]+';
+                pattern += '\/[^/]+';
             }
             else {
                 if (piece.indexOf('*') >= 0) {
                     piece = piece.replace(/\*/g, '.*');
                 }
-                pattern += '/'+piece;
+                pattern += '\/'+piece;
             }
         }
         pattern += '[/]{0,1}$';
