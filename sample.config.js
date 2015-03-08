@@ -13,7 +13,9 @@ module.exports = {
     "siteName": "My PencilBlue Site",
     "siteRoot": "http://127.0.0.1:8080",
     "sitePort": 8080,
-    "log_level": "info",
+    "logging": {
+        "level": "info"
+    },
     "db": {
         "type":"mongo",
         "servers": [
@@ -46,5 +48,13 @@ module.exports = {
     },
     "session": {
         "storage": "mongo"
+    },
+    "media": {
+        "provider": "mongo",
+        "max_upload_size": 6 * 1024 * 1024
+    },
+    "cluster": {
+        "workers": "auto",
+        "self_managed": true
     }
 };

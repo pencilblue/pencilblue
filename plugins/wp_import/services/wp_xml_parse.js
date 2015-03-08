@@ -23,7 +23,7 @@ var domain  = require('domain');
 module.exports = function WPXMLParseServiceModule(pb) {
     
     //pb dependencies
-    var util = pb.util;
+    var util           = pb.util;
     var xml2js         = pb.PluginService.require('wp_import', 'xml2js');
     var BaseController = pb.BaseController;
 
@@ -33,6 +33,16 @@ module.exports = function WPXMLParseServiceModule(pb) {
      * @constructor
      */
     function WPXMLParseService() {}
+    
+    /**
+     * Counter used to help create a random values for required fields when no 
+     * value is present
+     * @private
+     * @static
+     * @property DEFAULT_COUNTER
+     * @type {Integer}
+     */
+    var DEFAULT_COUNTER = 0;
 
     /**
      * @static
@@ -316,14 +326,15 @@ module.exports = function WPXMLParseServiceModule(pb) {
                         }
 
                         //construct the page descriptor
+                        var title = BaseController.sanitize(rawPage.title[0]) || WPXMLParseService.uniqueStrVal('Page');
                         var pagedoc = {
                             url: pageName,
-                            headline: BaseController.sanitize(rawPage.title[0]),
+                            headline: title,
                             publish_date: new Date(rawPage['wp:post_date'][0]),
                             page_layout: BaseController.sanitize(updatedContent, BaseController.getContentSanitizationRules()),
                             page_topics: pageTopics,
                             page_media: pageMedia,
-                            seo_title: BaseController.sanitize(rawPage.title[0]),
+                            seo_title: title,
                             author: defaultUserId
                         }
                         var newPage = pb.DocumentCreator.create('page', pagedoc);
@@ -402,15 +413,16 @@ module.exports = function WPXMLParseServiceModule(pb) {
                         }
 
                         //construct the article descriptor
+                        var title = BaseController.sanitize(rawArticle.title[0]) || WPXMLParseService.uniqueStrVal('Article');
                         var articleDoc = {
                             url: articleName,
-                            headline: BaseController.sanitize(rawArticle.title[0]),
+                            headline: title,
                             publish_date: new Date(rawArticle['wp:post_date'][0]),
                             article_layout: BaseController.sanitize(updatedContent, BaseController.getContentSanitizationRules()),
                             article_topics: articleTopics,
                             article_sections: [],
                             article_media: articleMedia,
-                            seo_title: BaseController.sanitize(rawArticle.title[0]),
+                            seo_title: title,
                             author: author
                         };
                         var newArticle = pb.DocumentCreator.create('article', articleDoc);
@@ -640,6 +652,10 @@ module.exports = function WPXMLParseServiceModule(pb) {
         mediaService.setContentStream(stream, originalFilename, function(err, result) {
             cb(err, result ? result.mediaPath : null);
         });
+    };
+    
+    WPXMLParseService.uniqueStrVal = function(prefix) {
+        return prefix + '-' + (DEFAULT_COUNTER++) + '-' + (new Date()).getTime();
     };
 
     //exports
