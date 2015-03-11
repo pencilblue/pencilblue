@@ -16,12 +16,12 @@
 */
 
 //dependencies
-var fs    = require('fs');
-var http  = require('http');
-var https = require('https');
-var async = require('async');
-var npm   = require('npm');
-var util  = require('./include/util.js');
+var fs          = require('fs');
+var http        = require('http');
+var https       = require('https');
+var async       = require('async');
+var npm         = require('npm');
+var util        = require('./include/util.js');
 var HtmlEncoder = require('htmlencode');
 
 
