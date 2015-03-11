@@ -146,7 +146,7 @@ module.exports = function UserServiceModule(pb) {
      * error, if exists, the second is an array of objects that represent the
      * editor select list.
      */
-    UserService.prototype.getEditorSelectList(currId, cb) {
+    UserService.prototype.getEditorSelectList = function(currId, cb) {
         pb.log.warn('UserService: getEditorSelectList is deprecated. Use getWriterOrEditorSelectList instead');
         this.getWriterOrEditorSelectList(currId, cb);
     };
