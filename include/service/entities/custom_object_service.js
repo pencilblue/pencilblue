@@ -663,6 +663,13 @@ CustomObjectService.prototype.validate = function(custObj, custObjType, cb) {
                 errors.push(CustomObjectService.err('name', 'The name cannot be empty'));
                 return callback(null);
             }
+            
+            //test for HTML
+            var sanitized = pb.BaseController.sanitize(custObj.name);
+            if (sanitized !== custObj.name) {
+                errors.push(CustomObjectService.err('name', 'The name cannot contain HTML'));
+                return callback(null);
+            }
 
             //test uniqueness of name
             var where = {
@@ -754,6 +761,13 @@ CustomObjectService.prototype.validateType = function(custObjType, cb) {
         function(callback) {
             if (!pb.validation.isNonEmptyStr(custObjType.name)) {
                 errors.push(CustomObjectService.err('name', 'The name cannot be empty'));
+                return callback(null);
+            }
+            
+            //test for HTML
+            var sanitized = pb.BaseController.sanitize(custObjType.name);
+            if (sanitized !== custObjType.name) {
+                errors.push(CustomObjectService.err('name', 'The name cannot contain HTML'));
                 return callback(null);
             }
 
@@ -1079,12 +1093,25 @@ CustomObjectService.formatRawForType = function(post, custObjType) {
         }
         else if(custObjType.fields[key].field_type == CHILD_OBJECTS_TYPE) {
             if(pb.utils.isString(post[key])) {
+                
+                //strips out any non ID strings.  
+                //TODO This should really move to validation.
                 post[key] = post[key].split(',');
+                for (var i = post[key].length - 1; i >= 0; i--) {
+                    if (!pb.validation.isIdStr(post[key][i], true)) {
+                        post[key].splice(i, 1);
+                    }
+                }
             }
         }
         else if (custObjType.fields[key].field_type == PEER_OBJECT_TYPE) {
             //do nothing because it can only been a string ID.  Validation 
             //should verify this before persistence. 
+        }
+        else if (pb.utils.isString(post[key])){
+            
+            //when nothing else matches and we just have a string. We should sanitize it
+            post[key] = pb.BaseController.sanitize(post[key]);
         }
     }
     post.type = custObjType[pb.DAO.getIdField()].toString();

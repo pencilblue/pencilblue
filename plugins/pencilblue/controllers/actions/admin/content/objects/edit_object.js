@@ -75,12 +75,10 @@ EditObject.prototype.render = function(cb) {
                     return;
                 }
                 else if(util.isArray(result) && result.length > 0) {
-
-                    cb({
+                    return cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'), result)
                     });
-                    return;
                 }
 
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObj.name + ' ' + self.ls.get('EDITED'))});
