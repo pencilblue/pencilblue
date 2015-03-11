@@ -1,6 +1,9 @@
 angular.module('parseDate', [])
 .filter('parsableDate', function() {
     return function(input) {
+        if(typeof input === 'undefined') {
+          return '';
+        }
         var csv = input.split('-').join(',')
                        .split(' ').join(',')
                        .split(':').join(',');

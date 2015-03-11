@@ -42,9 +42,8 @@ module.exports = function(pb) {
         };
         var emailService = new pb.EmailService();
         emailService.sendFromLayout(options, function(err, response) {
-            if(err) {
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, JSON.stringify(err))});
-                return;
+            if (util.isError(err)) {
+                return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, JSON.stringify(err))});
             }
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'email successfully sent')});
         });

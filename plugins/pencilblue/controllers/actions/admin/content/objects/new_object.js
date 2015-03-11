@@ -44,11 +44,10 @@ module.exports = function(pb) {
         var service = new pb.CustomObjectService();
         service.loadTypeById(vars.type_id, function(err, customObjectType) {
             if(util.isError(err) || !util.isObject(customObjectType)) {
-                cb({
+                return cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                 });
-                return;
             }
 
             self.customObjectType = customObjectType;
@@ -61,18 +60,16 @@ module.exports = function(pb) {
             //validate and persist the object
             service.save(customObjectDocument, customObjectType, function(err, result) {
                 if(util.isError(err)) {
-                    cb({
+                    return cb({
                         code: 500,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
                     });
-                    return;
                 }
                 else if(util.isArray(result) && result.length > 0) {
-                    cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    return cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'), result)
                     });
-                    return;
                 }
 
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObjectDocument.name + ' ' + self.ls.get('CREATED'), result)});
