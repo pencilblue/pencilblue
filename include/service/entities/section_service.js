@@ -565,16 +565,17 @@ SectionService.formatUrl = function(navItem) {
 	if (pb.utils.isString(navItem.link)) {
 		navItem.url = navItem.link;
 	}
+	else if (navItem.type === 'article' || navItem.type === 'page') {
+		if(navItem.url){
+			navItem.url = pb.UrlService.urlJoin('/'+navItem.type, navItem.url);
+		} else {
+			navItem.url = pb.UrlService.urlJoin('/'+navItem.type, navItem.item);
+		}
+	}
 	else if(navItem.url)
     {
 		navItem.url = pb.UrlService.urlJoin('/section', navItem.url);
     }
-	else if (navItem.type === 'article') {
-		navItem.url = pb.UrlService.urlJoin('/article', navItem.item);
-	}
-	else if (navItem.type === 'page') {
-		navItem.url = pb.UrlService.urlJoin('/page', navItem.item);
-	}
 	else {
 		navItem.url = '#';
 	}
