@@ -20,7 +20,7 @@ var ObjectID = require('mongodb').ObjectID;
 var util     = require('../util.js');
 
 module.exports = function DAOModule(pb) {
-    
+
     /**
      * Controlls the data model
      *
@@ -95,7 +95,7 @@ module.exports = function DAOModule(pb) {
      * @param {Function} cb         Callback function
      */
     DAO.prototype.loadById = function(id, collection, opts, cb){
-        this.loadByValues(DAO.getIdWhere(id), collection, opts, cb);	
+        this.loadByValues(DAO.getIdWhere(id), collection, opts, cb);
     };
 
     /**
@@ -131,7 +131,7 @@ module.exports = function DAOModule(pb) {
         if (!util.isObject(opts)) {
             opts = { };
         }
-        
+
         var options = {
             where: where,
             select: opts.select || DAO.PROJECT_ALL,
@@ -214,21 +214,21 @@ module.exports = function DAOModule(pb) {
      * @method q
      * @param  {String} collection The type of object to search for
      * @param  {Object} [options] The options for the query
-     * @param {Object} [options.where={}] The conditions under which results are 
+     * @param {Object} [options.where={}] The conditions under which results are
      * returned
      * @param  {Object} [options.select] Selection type object
      * @param  {Array} [options.order]  Order by array (MongoDB syntax)
      * @param  {Integer} [options.limit] Number of documents to retrieve
      * @param  {Integer} [options.offset] Start index of retrieval
-     * @param {Function} [options.handler] A function that takes two paramters.  
-     * The first, the Cursor object that contains the results of the query.  The 
-     * second is a callback that takes two parameters.  An error if occurred and by 
-     * default, the documents returned by the query.  Custom handlers may provide 
-     * whatever value it wishes including the cursor if it wishes to handle the 
+     * @param {Function} [options.handler] A function that takes two paramters.
+     * The first, the Cursor object that contains the results of the query.  The
+     * second is a callback that takes two parameters.  An error if occurred and by
+     * default, the documents returned by the query.  Custom handlers may provide
+     * whatever value it wishes including the cursor if it wishes to handle the
      * results itself.
-     * @param {Function} cb A callback function that takes two parameters.  The 
-     * first, an error, if occurred and the second is the result provided by the 
-     * handler.  By default it provides an array of objects that represent the 
+     * @param {Function} cb A callback function that takes two parameters.  The
+     * first, an error, if occurred and the second is the result provided by the
+     * handler.  By default it provides an array of objects that represent the
      * items returned by the query.
      */
     DAO.prototype.q = function(collection, options, cb) {
@@ -237,7 +237,7 @@ module.exports = function DAOModule(pb) {
             options = {};
         }
         else if (!util.isObject(options)) {
-            return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT')); 
+            return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
         }
 
         //execute the query
@@ -254,7 +254,7 @@ module.exports = function DAOModule(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             //handle cursor
             var handler = util.isFunction(options.handler) ? options.handler : self.toArrayCursorHandler;
             handler(cursor, function(err, docs) {
@@ -314,7 +314,7 @@ module.exports = function DAOModule(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             //assemble the query
             var cursor = db.collection(options.entityType)
                 .find(where, select)
@@ -348,7 +348,7 @@ module.exports = function DAOModule(pb) {
             cb(null, cursor);
         });
     };
-    
+
     /**
      * Retrieves a refernce to the DB with active connection
      * @method getDb
@@ -363,7 +363,7 @@ module.exports = function DAOModule(pb) {
      * @method save
      * @param {Object} dbObj The system object to persist
      * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#save
-     * @param {Function} cb A callback that takes two parameters.  The first, an 
+     * @param {Function} cb A callback that takes two parameters.  The first, an
      * error, if occurred.  The second is the result of the persistence operation.
      */
     DAO.prototype.save = function(dbObj, options, cb) {
@@ -375,7 +375,7 @@ module.exports = function DAOModule(pb) {
             return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
         }
         if (!util.isObject(dbObj)) {
-            return cb(new Error('The dbObj parameter must be an object'));   
+            return cb(new Error('The dbObj parameter must be an object'));
         }
 
         //log interaction
@@ -399,22 +399,22 @@ module.exports = function DAOModule(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             //execute persistence operation
             db.collection(dbObj.object_type).save(dbObj, options, cb);
         });
     };
 
     /**
-     * Provides a mechanism to save an array of objects all from the same 
-     * collection.  The function handles updates and inserts.  The difference is 
-     * determined by the truth value of the ID field of each object.  
+     * Provides a mechanism to save an array of objects all from the same
+     * collection.  The function handles updates and inserts.  The difference is
+     * determined by the truth value of the ID field of each object.
      * @method saveBatch
      * @param {Array} objArray The array of objects to persist
      * @param {String} collection The collection to persist the objects to
-     * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#initializeunorderedbulkop 
-     * @param {Function} cb A callback that takes two arguments.  The first is an 
-     * error, if occurred. The second is the second parameter of the callback 
+     * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#initializeunorderedbulkop
+     * @param {Function} cb A callback that takes two arguments.  The first is an
+     * error, if occurred. The second is the second parameter of the callback
      * described here: http://mongodb.github.io/node-mongodb-native/api-generated/unordered.html#execute
      */
     DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
@@ -428,7 +428,7 @@ module.exports = function DAOModule(pb) {
             return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
         }
         if (!util.isArray(objArray)) {
-            return cb(new Error('The objArray parameter must be an Array'));   
+            return cb(new Error('The objArray parameter must be an Array'));
         }
         else if (!util.isString(collection)) {
             return cb(new Error('COLLECTION_MUST_BE_STR'));
@@ -439,7 +439,7 @@ module.exports = function DAOModule(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             //initialize the batch operation
             var col = db.collection(collection);
             var batch = col.initializeUnorderedBulkOp(options);
@@ -450,7 +450,7 @@ module.exports = function DAOModule(pb) {
                 item.object_type = collection;
                 DAO.updateChangeHistory(item);
                 if (item[DAO.getIdField()]) {
-                    batch.update(item);   
+                    batch.update(item);
                 }
                 else {
                     batch.insert(item);
@@ -484,7 +484,7 @@ module.exports = function DAOModule(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             //execute update
             db.collection(collection).update(query, updates, options, cb);
         });
@@ -496,8 +496,8 @@ module.exports = function DAOModule(pb) {
      * @method deleteById
      * @param {String|ObjectID} oid The Id of the object to remove
      * @param {String} collection The collection the object is in
-     * @param {Function} [cb] A callback that takes two parameters.  The first is 
-     * an error, if occurred.  The second is the number of records deleted by the 
+     * @param {Function} [cb] A callback that takes two parameters.  The first is
+     * an error, if occurred.  The second is the number of records deleted by the
      * execution of the command.
      * @return {Promise} Promise object iff a callback is not provided
      */
@@ -517,8 +517,8 @@ module.exports = function DAOModule(pb) {
      * @param {Object} where Key value pair object
      * @param {String} collection The collection to search in
      * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#remove
-     * @param {Function} cb A callback that provides two parameter. The first is an 
-     * error, if occurred.  The second is the number of records that were removed 
+     * @param {Function} cb A callback that provides two parameter. The first is an
+     * error, if occurred.  The second is the number of records that were removed
      * from persistence.
      */
     DAO.prototype.delete = function(where, collection, options, cb) {
@@ -545,8 +545,8 @@ module.exports = function DAOModule(pb) {
 
         //execute delete command
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) { 
-                return cb(err); 
+            if (util.isError(err)) {
+                return cb(err);
             }
             db.collection(collection).remove(where, options, cb);
         });
@@ -567,8 +567,8 @@ module.exports = function DAOModule(pb) {
 
         //execute command
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) { 
-                return cb(err); 
+            if (util.isError(err)) {
+                return cb(err);
             }
             db.command(command, cb);
         });
@@ -601,8 +601,8 @@ module.exports = function DAOModule(pb) {
 
         //execute command
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) { 
-                return cb(err); 
+            if (util.isError(err)) {
+                return cb(err);
             }
             db.collection(collection).ensureIndex(spec, options, cb);
         });
@@ -612,18 +612,18 @@ module.exports = function DAOModule(pb) {
      * Determines if a collection exists in the DB
      * @method entityExists
      * @param {String} entity The name of the collection
-     * @param {Function} cb A callback that takes two parameters. The first, an 
-     * error, if occurred. The second is a boolean where TRUE means the entity 
+     * @param {Function} cb A callback that takes two parameters. The first, an
+     * error, if occurred. The second is a boolean where TRUE means the entity
      * exists, FALSE if not.
      */
     DAO.prototype.entityExists = function(entity, cb) {
         var options = {
             namesOnly: true
         };
-        
+
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) { 
-                return cb(err); 
+            if (util.isError(err)) {
+                return cb(err);
             }
             db.collectionNames(entity, options, function(err, results) {
                 cb(err, util.isArray(results) && results.length === 1);
@@ -635,9 +635,9 @@ module.exports = function DAOModule(pb) {
      * Creates a collection in the DB
      * @method createEntity
      * @param {String} entityName
-     * @param {Object} [options] The options for the collection. See 
+     * @param {Object} [options] The options for the collection. See
      * http://mongodb.github.io/node-mongodb-native/api-generated/db.html#createcollection
-     * @param {Function} cb A callback that takes two parameters. The first, an 
+     * @param {Function} cb A callback that takes two parameters. The first, an
      * Error, if occurred. The second is the result of the creation command.
      */
     DAO.prototype.createEntity = function(entityName, options, cb) {
@@ -650,8 +650,8 @@ module.exports = function DAOModule(pb) {
         }
 
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) { 
-                return cb(err); 
+            if (util.isError(err)) {
+                return cb(err);
             }
             db.createCollection(entityName, options, cb);
         });
@@ -763,7 +763,7 @@ module.exports = function DAOModule(pb) {
         pb.log.warn('DAO: getNotIDField is deprecated. Use getNotIdField instead');
         return DAO.getNotIdWhere(oid);
     };
-    
+
     /**
      * Creates a basic where clause based on not equalling the specified Id
      * @static
@@ -789,7 +789,7 @@ module.exports = function DAOModule(pb) {
         pb.log.warn('DAO: getNotIDField is deprecated. Use getNotIdField instead');
         return DAO.getNotIdField(oid);
     };
-    
+
     /**
      * Creates a where clause that indicates to select where the '_id' field does
      * not equal the specified value.
@@ -809,11 +809,11 @@ module.exports = function DAOModule(pb) {
      * @param {String} oid Object Id String
      * @return {Object}    ObjectID object
      */
-    DAO.getObjectId = function(oid) {
+    DAO.getObjectID = function(oid) {
         pb.log.warn('DAO: getObjectID is deprecated. Use getObjectId instead');
         return DAO.getObjectId(oid);
     };
-    
+
     /**
      * Creates an MongoDB ObjectID object
      * @static
@@ -892,7 +892,7 @@ module.exports = function DAOModule(pb) {
     DAO.areIdsEqual = function(id1, id2) {
         return id1.toString() === id2.toString();
     };
-    
+
     //exports
     return DAO;
 }

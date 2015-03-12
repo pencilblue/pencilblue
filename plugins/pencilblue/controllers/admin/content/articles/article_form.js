@@ -45,7 +45,7 @@ module.exports = function(pb) {
 
             self.article = results.article;
             if(!self.article.author) {
-              self.article.author = self.session.authentication.user._id.toString();
+              self.article.author = self.session.authentication.user[pb.DAO.getIdField()].toString();
             }
 
             if(self.session.authentication.user.admin >= pb.SecurityService.ACCESS_EDITOR) {
