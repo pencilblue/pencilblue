@@ -46,8 +46,8 @@ module.exports = function(pb) {
             }
             else if(util.isArray(result) && result.length > 0) {
                 cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'), result)
                 });
                 return;
             }

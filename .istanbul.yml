@@ -1,6 +1,6 @@
 instrumentation:
     include-all-sources: true
-    excludes: ['controllers/**', 'log/**', 'public/**', 'plugins/**']
+    excludes: ['controllers/**', 'log/**', 'public/**', 'plugins/**', 'sample.config.js']
 reporting:
     - lcov
     - html

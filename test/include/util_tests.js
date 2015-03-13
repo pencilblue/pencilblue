@@ -6,9 +6,9 @@ var path   = require('path');
 var fs     = require('fs');
 var util   = require('../../include/util.js');
 
-describe('util', function() {
+describe('Util', function() {
     
-    describe('util.clone', function() {
+    describe('Util.clone', function() {
         
         it('should provide a deep copy of the object', function() {
             
@@ -49,7 +49,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.deepMerge', function() {
+    describe('Util.deepMerge', function() {
         
         it('should add the properties of a into b', function() {
             var a = {
@@ -86,7 +86,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.ane', function() {
+    describe('Util.ane', function() {
         
         it('should throw when an error is present', function() {
             
@@ -101,7 +101,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.initArray', function() {
+    describe('Util.initArray', function() {
         
         it('should initialize each element with the specified value', function() {
             
@@ -122,7 +122,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.escapeRegexp', function() {
+    describe('Util.escapeRegexp', function() {
         
         it('should return a string that escapes special characters', function() {
             
@@ -140,7 +140,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.merge', function() {
+    describe('Util.merge', function() {
         
         it('should shallow add the properties of a into b', function() {
             var a = {
@@ -166,7 +166,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.union', function() {
+    describe('Util.union', function() {
         
         it('should ensure the union of properties from a and b where b is the tie breaker', function() {
             var a = {
@@ -192,7 +192,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.getTasks', function() {
+    describe('Util.getTasks', function() {
         
         it('should return a set of async tasks do not cause concurrency issues', function(done) {
             
@@ -211,7 +211,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.wrapTask', function() {
+    describe('Util.wrapTask', function() {
         
         it('should wrap a task in an anonymous function and fire the function with the specified context', function(done) {
             
@@ -237,7 +237,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.forEach', function() {
+    describe('Util.forEach', function() {
         
         it('should iterate over each item in the array', function() {
             
@@ -272,7 +272,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.arrayToHash', function() {
+    describe('Util.arrayToHash', function() {
         
         it('should return null when a non-array is provided', function() {
             should.strictEqual(null, util.arrayToHash('not an array'));
@@ -315,7 +315,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.arrayToObj', function() {
+    describe('Util.arrayToObj', function() {
         
         it('should return null when a non-array is provided', function() {
             should.strictEqual(null, util.arrayToObj('not an array'));
@@ -377,7 +377,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.objArrayToHash', function() {
+    describe('Util.objArrayToHash', function() {
         
         it('should return null when an invalid array is provided', function() {
             should.strictEqual(null, util.objArrayToHash('hello world', 'key'));
@@ -399,7 +399,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.hashToArray', function() {
+    describe('Util.hashToArray', function() {
         
         it('should return null when a non-object is provided', function() {
             should.strictEqual(null, util.arrayToObj(78.8));
@@ -437,7 +437,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.invertHash', function() {
+    describe('Util.invertHash', function() {
         
         it('should return null when a non-object is passed', function() {
             should.strictEqual(null, util.invertHash(78.8));
@@ -457,7 +457,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.copyArray', function() {
+    describe('Util.copyArray', function() {
         
         it('should return null when a non-array is passed', function() {
             should.strictEqual(null, util.copyArray(78.8));
@@ -473,7 +473,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.arrayPushAll', function() {
+    describe('Util.arrayPushAll', function() {
         
         it('should return null when a non-array "from" parameter is passed', function() {
             should.strictEqual(false, util.arrayPushAll(67, []));
@@ -503,7 +503,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.uniqueId', function() {
+    describe('Util.uniqueId', function() {
         
         it('should return a unique string of characters, length 36', function() {
             var result = util.uniqueId();
@@ -512,7 +512,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.isObject', function() {
+    describe('Util.isObject', function() {
         
         it('should return false when passed null', function() {
             var result = util.isObject(null);
@@ -560,7 +560,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.isString', function() {
+    describe('Util.isString', function() {
         
         it('should return false when passed null', function() {
             var result = util.isString(null);
@@ -608,7 +608,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.isFunction', function() {
+    describe('Util.isFunction', function() {
         
         it('should return false when passed null', function() {
             var result = util.isFunction(null);
@@ -656,7 +656,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.isNullOrUndefined', function() {
+    describe('Util.isNullOrUndefined', function() {
         
         it('should return true when passed null', function() {
             var result = util.isNullOrUndefined(null);
@@ -704,7 +704,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.isNullOrUndefined', function() {
+    describe('Util.isNullOrUndefined', function() {
         
         it('should return false when passed null', function() {
             var result = util.isBoolean(null);
@@ -757,7 +757,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.getDirectories', function() {
+    describe('Util.getDirectories', function() {
         
         it('should throw an error when passed a null path', function() {
             
@@ -795,7 +795,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.getFiles', function() {
+    describe('Util.getFiles', function() {
         
         it('should throw an error when passed a null path', function() {
             
@@ -876,7 +876,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.mkdirs', function() {
+    describe('Util.mkdirs', function() {
         
         it('should callback with an error when passed a null path', function(done) {
             
@@ -908,7 +908,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.mkdirsSync', function() {
+    describe('Util.mkdirsSync', function() {
         
         it('should throw an error when passed a null path', function() {
             
@@ -928,7 +928,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.getExtension', function() {
+    describe('Util.getExtension', function() {
         
         it('should return null when passed a null path', function() {
             
@@ -964,7 +964,7 @@ describe('util', function() {
         });
     });
     
-    describe('util.inherits', function() {
+    describe('Util.inherits', function() {
         
         var staticFuncFor1 = function(){};
         function Type1(){}

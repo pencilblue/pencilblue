@@ -32,11 +32,10 @@ module.exports = function(pb) {
         this.getJSONPostParams(function(err, post) {
             var message = self.hasRequiredParams(post, self.getRequiredFields());
             if(message) {
-                cb({
+                return cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
                 });
-                return;
             }
 
             var options = {
@@ -46,11 +45,10 @@ module.exports = function(pb) {
             };
             pb.email.sendFromLayout(options, function(err, response) {
                 if(err) {
-                    cb({
+                    return cb({
                         code: 500,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, JSON.stringify(err))
                     });
-                    return;
                 }
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'email successfully sent')});
             });

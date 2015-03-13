@@ -1,4 +1,4 @@
-[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue)
+[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue) [![Coverage Status](https://coveralls.io/repos/pencilblue/pencilblue/badge.svg?branch=story%2F447)](https://coveralls.io/r/pencilblue/pencilblue?branch=story%2F447) [![Build Status](https://travis-ci.org/pencilblue/pencilblue.svg?branch=0.4.0)](https://travis-ci.org/pencilblue/pencilblue)
 
 [PencilBlue](http://pencilblue.org)
 =====

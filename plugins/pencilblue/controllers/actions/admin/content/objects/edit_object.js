@@ -44,21 +44,19 @@ module.exports = function(pb) {
         var service = new pb.CustomObjectService();
         service.loadById(vars.id, function(err, custObj) {
             if(util.isError(err) || !util.isObject(custObj)) {
-                cb({
+                return cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                 });
-                return;
             }
 
             //load the type definition
             service.loadTypeById(vars.type_id, function(err, custObjType) {
                 if(util.isError(err) || !util.isObject(custObjType)) {
-                    cb({
+                    return cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                     });
-                    return
                 }
 
                 self.customObjectType = custObjType;
@@ -71,19 +69,16 @@ module.exports = function(pb) {
                 //validate and persist
                 service.save(custObj, custObjType, function(err, result) {
                     if(util.isError(err)) {
-                        cb({
+                        return cb({
                             code: 500,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
                         });
-                        return;
                     }
                     else if(util.isArray(result) && result.length > 0) {
-
-                        cb({
+                        return cb({
                             code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'), result)
                         });
-                        return;
                     }
 
                     cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObj.name + ' ' + self.ls.get('EDITED'))});
@@ -91,17 +86,6 @@ module.exports = function(pb) {
             });
         });
     };
-
-    //EditObject.prototype.getSanitizationRules = function() {
-    //    var sanitizationRules = {};
-    //    for(var key in self.customObjectType.fields) {
-    //        if(customObjectType.fields[key].field_type === 'wysiwyg') {
-    //            sanitizationRules[key] = pb.BaseController.getContentSanitizationRules();
-    //        }
-    //    }
-    //
-    //    return sanitizationRules;
-    //};
 
     //exports
     return EditObject;

@@ -622,7 +622,7 @@ module.exports = function CustomObjectServiceModule(pb) {
      */
     CustomObjectService.prototype.loadTypeBy = function(where, cb) {
         if (!pb.validation.isObj(where, true) || pb.validation.isEmpty(where)) {
-            throw new Error("The where parameter must be provided in order to load a custom object type");
+            return cb(Error("The where parameter must be provided in order to load a custom object type"));
         }
 
         var dao = new pb.DAO();
@@ -665,6 +665,13 @@ module.exports = function CustomObjectServiceModule(pb) {
             function(callback) {
                 if (!pb.validation.isNonEmptyStr(custObj.name, true)) {
                     errors.push(CustomObjectService.err('name', 'The name cannot be empty'));
+                    return callback(null);
+                }
+                
+                //test for HTML
+                var sanitized = pb.BaseController.sanitize(custObj.name);
+                if (sanitized !== custObj.name) {
+                    errors.push(CustomObjectService.err('name', 'The name cannot contain HTML'));
                     return callback(null);
                 }
 
@@ -758,6 +765,13 @@ module.exports = function CustomObjectServiceModule(pb) {
             function(callback) {
                 if (!pb.validation.isNonEmptyStr(custObjType.name)) {
                     errors.push(CustomObjectService.err('name', 'The name cannot be empty'));
+                    return callback(null);
+                }
+
+                //test for HTML
+                var sanitized = pb.BaseController.sanitize(custObjType.name);
+                if (sanitized !== custObjType.name) {
+                    errors.push(CustomObjectService.err('name', 'The name cannot contain HTML'));
                     return callback(null);
                 }
 
@@ -1082,13 +1096,26 @@ module.exports = function CustomObjectServiceModule(pb) {
                 post[key] = pb.BaseController.sanitize(post[key], pb.BaseController.getContentSanitizationRules());
             }
             else if(custObjType.fields[key].field_type == CHILD_OBJECTS_TYPE) {
-                if(util.isString(post[key])) {
+                if(pb.utils.isString(post[key])) {
+
+                    //strips out any non ID strings.  
+                    //TODO This should really move to validation.
                     post[key] = post[key].split(',');
+                    for (var i = post[key].length - 1; i >= 0; i--) {
+                        if (!pb.validation.isIdStr(post[key][i], true)) {
+                            post[key].splice(i, 1);
+                        }
+                    }
                 }
             }
             else if (custObjType.fields[key].field_type == PEER_OBJECT_TYPE) {
                 //do nothing because it can only been a string ID.  Validation 
                 //should verify this before persistence. 
+            }
+            else if (pb.utils.isString(post[key])){
+
+                //when nothing else matches and we just have a string. We should sanitize it
+                post[key] = pb.BaseController.sanitize(post[key]);
             }
         }
         post.type = custObjType[pb.DAO.getIdField()].toString();
