@@ -120,10 +120,11 @@ module.exports = function(pb) {
     SecurityService.ADMIN_LEVEL = 'admin_level';
 
     /**
-     * Retrieves the localized names of access levels
+     * Retrieves the localized names of access levels as an array
      *
      * @method getRoleNames
-     * @param {Object} ls The localization service
+     * @param {Localization} ls The localization service
+     * @return {Array}
      */
     SecurityService.getRoleNames = function(ls) {
         var map = SecurityService.getRoleToDisplayNameMap(ls);
@@ -131,24 +132,24 @@ module.exports = function(pb) {
     };
 
     /**
-     *
+     * Provides a hash of the default roles to their translated display name
      * @static
      * @method getRoleToDisplayNameMap
      * @param {Localization} ls
      * @return {Object}
      */
     SecurityService.getRoleToDisplayNameMap = function(ls) {
-        if (util.isFunction(ls.get)) {
-            return {
-                'ACCESS_USER': ls.get('ACCESS_USER'),
-                'ACCESS_WRITER': ls.get('ACCESS_WRITER'),
-                'ACCESS_EDITOR': ls.get('ACCESS_EDITOR'),
-                'ACCESS_MANAGING_EDITOR': ls.get('ACCESS_MANAGING_EDITOR'),
-                'ACCESS_ADMINISTRATOR': ls.get('ACCESS_ADMINISTRATOR'),
-            };
+        if (util.isNullOrUndefined(ls)) {
+            throw new Error('The localization parameter cannot be null');
         }
-        // Return an empty object instead of null, so things won't break after return
-        return {};
+        
+        return {
+            'ACCESS_USER': ls.get('ACCESS_USER'),
+            'ACCESS_WRITER': ls.get('ACCESS_WRITER'),
+            'ACCESS_EDITOR': ls.get('ACCESS_EDITOR'),
+            'ACCESS_MANAGING_EDITOR': ls.get('ACCESS_MANAGING_EDITOR'),
+            'ACCESS_ADMINISTRATOR': ls.get('ACCESS_ADMINISTRATOR'),
+        };
     };
 
     /**
