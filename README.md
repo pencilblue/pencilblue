@@ -3,9 +3,7 @@
 [PencilBlue](http://pencilblue.org)
 =====
 
-### Full featured online publishing and CMS for Node.js
-
-#### [v0.3.0 Now Available](https://pencilblue.org/article/pencilblue-0-3-0-available-141124)
+### A full featured Node.js CMS and blogging platform (plugins, server cluster management, data-driven pages)
 
 First and foremost:  If at any point you have questions, comments or concerns you can find us hanging out on twitter [@getpencilblue](https://twitter.com/GetPencilBlue) and on our [subreddit](http://www.reddit.com/domain/pencilblue.org/).  We're always happy to help and pull requests (plugin or core) are always welcome.  
 

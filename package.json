@@ -12,7 +12,7 @@
     }
   ],
   "name": "pencilblue",
-  "description": "Full stack online publishing and CMS for Node.js",
+  "description": "A full featured Node.js CMS and blogging platform (plugins, server cluster management, data-driven pages)",
   "keywords": [
     "cms",
     "website",

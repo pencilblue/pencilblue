@@ -1216,7 +1216,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             var sortedObjects    = [];
             for(var i = 0; i < customObjectSort.length; i++) {
                 for(var j = 0; j < custObjects.length; j++) {
-                    if(custObjects[j][idField].equals(pb.DAO.getObjectID(customObjectSort[i]))) {
+                    if(custObjects[j][idField].equals(pb.DAO.getObjectId(customObjectSort[i]))) {
                         sortedObjects.push(custObjects[j]);
                         custObjects.splice(j, 1);
                         break;

@@ -19,7 +19,7 @@
 var util = require('./util.js');
 
 module.exports = function AdminNavigationModule(pb) {
-    
+
     //PB dependencies
     var SecurityService = pb.SecurityService;
 
@@ -42,7 +42,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @type {Array}
      */
     AdminNavigation.additions = [];
-    
+
     /**
      *
      * @private
@@ -51,7 +51,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @type {Object}
      */
     AdminNavigation.childrenAdditions = {};
-    
+
     /**
      *
      * @private
@@ -179,14 +179,41 @@ module.exports = function AdminNavigationModule(pb) {
                     access: SecurityService.ACCESS_MANAGING_EDITOR
                 },
                 {
-                    divider: true,
-                    id: 'logout',
-                    title: 'LOGOUT',
-                    icon: 'power-off',
-                    href: '/actions/logout',
-                    access: SecurityService.ACCESS_WRITER
+                    id: 'content_settings',
+                    title: 'CONTENT',
+                    icon: 'quote-right',
+                    href: '/admin/site_settings/content',
+                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                },
+                {
+                    id: 'email_settings',
+                    title: 'EMAIL',
+                    icon: 'envelope',
+                    href: '/admin/site_settings/email',
+                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                },
+                {
+                    id: 'library_settings',
+                    title: 'LIBRARIES',
+                    icon: 'book',
+                    href: '/admin/site_settings/libraries',
+                    access: SecurityService.ACCESS_MANAGING_EDITOR
                 }
             ]
+        },
+        {
+            id: 'view_site',
+            title: 'VIEW_SITE',
+            icon: 'desktop',
+            href: '/',
+            access: SecurityService.ACCESS_WRITER
+        },
+        {
+            id: 'logout',
+            title: 'LOGOUT',
+            icon: 'power-off',
+            href: '/actions/logout',
+            access: SecurityService.ACCESS_WRITER
         }
     ]);
 
@@ -245,12 +272,12 @@ module.exports = function AdminNavigationModule(pb) {
         if (ids.length === 0) {
             return navigation;
         }
-        
+
         //convert to hash to create quick lookup
         var lookup = util.arrayToHash(navigation, function(navigation, i) {
             return navigation[i].id;
         });
-        
+
         //add additions
         Object.keys(childrenAdditions).forEach(function(id) {
             var children = childrenAdditions[id];
@@ -260,7 +287,7 @@ module.exports = function AdminNavigationModule(pb) {
             if (!nav) {
                 return;
             }
-            
+
 
             if (!util.isArray(nav.children)) {
                 navigation[i].children = [];

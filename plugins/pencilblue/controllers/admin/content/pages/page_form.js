@@ -19,10 +19,10 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for creating and editing pages
      */
@@ -44,18 +44,38 @@ module.exports = function(pb) {
             }
 
             self.page = results.page;
-            var tabs = self.getTabs();
+            if(!self.page.author) {
+              self.page.author = self.session.authentication.user._id.toString();
+            }
 
-            self.setPageName(self.page[pb.DAO.getIdField()] ? self.page.headline : self.ls.get('NEW_PAGE'));
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
-            self.ts.load('admin/content/pages/page_form', function(err, data) {
-                var result = data;
-                self.checkForFormRefill(result, function(newResult) {
-                    result = newResult;
-                    cb({content: result});
-                });
-            });
+            if(self.session.authentication.user.admin >= pb.SecurityService.ACCESS_EDITOR) {
+              pb.users.getWriterOrEditorSelectList(self.page.author, true, function(err, availableAuthors) {
+                if(availableAuthors && availableAuthors.length > 1) {
+                  results.availableAuthors = availableAuthors;
+                }
+                self.finishRender(results, cb);
+              });
+              return;
+            }
+
+            self.finishRender(results, cb);
         });
+    };
+
+    PageFormController.prototype.finishRender = function(results, cb) {
+      var self = this;
+
+      var tabs = self.getTabs();
+
+      self.setPageName(self.page[pb.DAO.getIdField()] ? self.page.headline : self.ls.get('NEW_PAGE'));
+      self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
+      self.ts.load('admin/content/pages/page_form', function(err, data) {
+          var result = data;
+          self.checkForFormRefill(result, function(newResult) {
+              result = newResult;
+              cb({content: result});
+          });
+      });
     };
 
     /**
@@ -102,6 +122,9 @@ module.exports = function(pb) {
             media: data.media,
             page: data.page
         };
+        if(data.availableAuthors) {
+          objects.availableAuthors = data.availableAuthors;
+        }
         return pb.ClientJs.getAngularObjects(objects);
     };
 

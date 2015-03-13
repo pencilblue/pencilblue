@@ -46,12 +46,12 @@
                         <div class="panel-heading">
                             <a data-toggle="collapse" data-parent="#nav_accordion" href="#{{navItem.id}}_collapse" ng-if="navItem.dropdown">
                                 <div class="panel-title">
-                                    <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
+                                    <i class="fa fa-fw fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
                                 </div>
                             </a>
                             <a href="{{navItem.href}}" ng-if="!navItem.dropdown">
                                 <div class="panel-title">
-                                    <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
+                                    <i class="fa fa-fw fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
                                 </div>
                             </a>
                         </div>
@@ -59,7 +59,7 @@
                             <ul class="nav nav-pills nav-stacked">
                                 <li class="{{childItem.active}}" ng-repeat="childItem in navItem.children track by childItem.id" ng-cloak>
                                     <a href="{{childItem.href}}">
-                                        <i class="fa fa-{{childItem.icon}}"></i>&nbsp;{{childItem.title}}
+                                        <i class="fa fa-fw fa-{{childItem.icon}}"></i>&nbsp;{{childItem.title}}
                                     </a>
                                 </li>
                             </ul>
@@ -69,12 +69,12 @@
                         <div class="panel-heading">
                             <a data-toggle="collapse" data-parent="#nav_accordion" href="#{{navItem.id}}_collapse" ng-if="navItem.dropdown">
                                 <div class="panel-title">
-                                    <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
+                                    <i class="fa fa-fw fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
                                 </div>
                             </a>
                             <a href="{{navItem.href}}" ng-if="!navItem.dropdown">
                                 <div class="panel-title">
-                                    <i class="fa fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
+                                    <i class="fa fa-fw fa-{{navItem.icon}}"></i>&nbsp;{{navItem.title}}
                                 </div>
                             </a>
                         </div>
@@ -82,7 +82,7 @@
                             <ul class="nav nav-pills nav-stacked">
                                 <li class="{{childItem.active}}" ng-repeat="childItem in navItem.children track by childItem.id" ng-cloak>
                                     <a href="{{childItem.href}}">
-                                        <i class="fa fa-{{childItem.icon}}"></i>&nbsp;{{childItem.title}}
+                                        <i class="fa fa-fw fa-{{childItem.icon}}"></i>&nbsp;{{childItem.title}}
                                     </a>
                                 </li>
                             </ul>

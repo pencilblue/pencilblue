@@ -19,7 +19,7 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
     var SectionService = pb.SectionService;
@@ -74,7 +74,7 @@ module.exports = function(pb) {
 
             //get editors
             editors: function(callback) {
-                pb.users.getEditorSelectList(self.session.authentication.user_id, callback);
+                pb.users.getWriterOrEditorSelectList(self.session.authentication.user_id, false, callback);
             },
 
             //get parents

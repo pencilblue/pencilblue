@@ -29,6 +29,10 @@
                             <option ng-value="template.theme_uid + '|' + template.file" ng-repeat="template in templates" ng-bind="template.theme_name + ': ' + template.name" ng-selected="page.template === (template.theme_uid + '|' + template.file)"></option>
                         </select>
                     </div>
+                    <div class="form-group" ng-if="availableAuthors.length">
+                        <label>^loc_AUTHOR^</label>
+                        <select class="form-control" ng-model="page.author" ng-options="availableAuthor._id as availableAuthor.name for availableAuthor in availableAuthors"></select>
+                    </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.headline)}">
                         <label>^loc_HEADLINE^</label>
                         <input type="text" name="headline" class="form-control" ng-model="page.headline" required></input>

@@ -39,7 +39,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.ACCESS_USER = 0;
-    
+
     /**
      *
      * @static
@@ -48,7 +48,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.ACCESS_WRITER = 1;
-    
+
     /**
      *
      * @static
@@ -57,7 +57,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.ACCESS_EDITOR = 2;
-    
+
     /**
      *
      * @static
@@ -66,7 +66,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.ACCESS_MANAGING_EDITOR = 3;
-    
+
     /**
      *
      * @static
@@ -100,7 +100,7 @@ module.exports = function(pb) {
     ROLE_VAL_TO_NAME[SecurityService.ACCESS_EDITOR]          = 'ACCESS_EDITOR';
     ROLE_VAL_TO_NAME[SecurityService.ACCESS_MANAGING_EDITOR] = 'ACCESS_MANAGING_EDITOR';
     ROLE_VAL_TO_NAME[SecurityService.ACCESS_ADMINISTRATOR]   = 'ACCESS_ADMINISTRATOR';
-    
+
     /**
      *
      * @static
@@ -109,7 +109,7 @@ module.exports = function(pb) {
      * @type {Integer}
      */
     SecurityService.AUTHENTICATED = 'authenticated';
-    
+
     /**
      *
      * @static
@@ -120,10 +120,11 @@ module.exports = function(pb) {
     SecurityService.ADMIN_LEVEL = 'admin_level';
 
     /**
-     * Retrieves the localized names of access levels
+     * Retrieves the localized names of access levels as an array
      *
      * @method getRoleNames
-     * @param {Object} ls The localization service
+     * @param {Localization} ls The localization service
+     * @return {Array}
      */
     SecurityService.getRoleNames = function(ls) {
         var map = SecurityService.getRoleToDisplayNameMap(ls);
@@ -131,23 +132,24 @@ module.exports = function(pb) {
     };
 
     /**
-     * 
+     * Provides a hash of the default roles to their translated display name
      * @static
      * @method getRoleToDisplayNameMap
      * @param {Localization} ls
      * @return {Object}
      */
     SecurityService.getRoleToDisplayNameMap = function(ls) {
-        if (util.isFunction(ls)) {
-            return {
-                'ACCESS_USER': ls.get('ACCESS_USER'),
-                'ACCESS_WRITER': ls.get('ACCESS_WRITER'),
-                'ACCESS_EDITOR': ls.get('ACCESS_EDITOR'),
-                'ACCESS_MANAGING_EDITOR': ls.get('ACCESS_MANAGING_EDITOR'),
-                'ACCESS_ADMINISTRATOR': ls.get('ACCESS_ADMINISTRATOR'),
-            };
+        if (util.isNullOrUndefined(ls)) {
+            throw new Error('The localization parameter cannot be null');
         }
-        return null;
+        
+        return {
+            'ACCESS_USER': ls.get('ACCESS_USER'),
+            'ACCESS_WRITER': ls.get('ACCESS_WRITER'),
+            'ACCESS_EDITOR': ls.get('ACCESS_EDITOR'),
+            'ACCESS_MANAGING_EDITOR': ls.get('ACCESS_MANAGING_EDITOR'),
+            'ACCESS_ADMINISTRATOR': ls.get('ACCESS_ADMINISTRATOR'),
+        };
     };
 
     /**
@@ -268,6 +270,6 @@ module.exports = function(pb) {
         }
         return password.join('');
     };
-    
+
     return SecurityService;
 };

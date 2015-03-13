@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Edits an article
      */
@@ -55,7 +55,9 @@ module.exports = function(pb) {
                 }
 
                 //TODO should we keep track of contributors (users who edit)?
-                post.author = article.author;
+                if(self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR || !post.author) {
+                  post.author = article.author;
+                }
                 post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
                 pb.DocumentCreator.update(post, article, ['meta_keywords']);
 

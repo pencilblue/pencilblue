@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Creates a new article
      */
@@ -30,7 +30,10 @@ module.exports = function(pb) {
         var self = this;
 
         this.getJSONPostParams(function(err, post) {
-            post.author       = self.session.authentication.user_id;
+            if(self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR || !post.author) {
+              post.author = self.session.authentication.user[pb.DAO.getIdField()];
+            }
+
             post.publish_date = new Date(parseInt(post.publish_date));
             delete post[pb.DAO.getIdField()];
 

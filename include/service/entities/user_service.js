@@ -16,7 +16,7 @@
 */
 
 //dependencies
-var async = require('async'); 
+var async = require('async');
 var util  = require('../../util.js');
 
 module.exports = function UserServiceModule(pb) {
@@ -97,7 +97,7 @@ module.exports = function UserServiceModule(pb) {
         var dao = new pb.DAO();
         dao.q('user', opts, function(err, authors) {
             if (util.isError(err)) {
-                return cb(err);   
+                return cb(err);
             }
 
             //convert results into searchable hash
@@ -136,9 +136,10 @@ module.exports = function UserServiceModule(pb) {
 
         return adminOptions;
     };
-
+    
     /**
      * Retrieves a select list (id/name) of available system editors
+     * @deprecated since 0.4.0
      * @method getEditorSelectList
      * @param {String} currId The Id to be excluded from the list.
      * @param {Function} cb A callback that takes two parameters.  The first is an
@@ -146,21 +147,39 @@ module.exports = function UserServiceModule(pb) {
      * editor select list.
      */
     UserService.prototype.getEditorSelectList = function(currId, cb) {
+        pb.log.warn('UserService: getEditorSelectList is deprecated. Use getWriterOrEditorSelectList instead');
+        this.getWriterOrEditorSelectList(currId, cb);
+    };
+
+    /**
+     * Retrieves a select list (id/name) of available system writers or editors
+     * @method getWriterOrEditorSelectList
+     * @param {String} currId The Id to be excluded from the list.
+     * @param {Boolean} [getWriters=false] Whether to retrieve all writers or just editors.
+     * @param {Function} cb A callback that takes two parameters.  The first is an
+     * error, if exists, the second is an array of objects that represent the
+     * editor select list.
+     */
+    UserService.prototype.getWriterOrEditorSelectList = function(currId, getWriters, cb) {
+        if (util.isFunction(getWriters)) {
+            cb = getWriters;
+            getWriters = false;
+        }
+        
         var self = this;
 
         var opts = {
             select: {
-                _id: 1,
                 first_name: 1,
                 last_name: 1
             },
             where: {
                 admin: {
-                    $gt: pb.SecurityService.ACCESS_WRITER
+                    $gte: getWriters ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_EDITOR
                 }
             }
         };
-        var dao     = new pb.DAO();
+        var dao = new pb.DAO();
         dao.q('user', opts, function(err, data){
             if (util.isError(err)) {
                 return cb(err, null);

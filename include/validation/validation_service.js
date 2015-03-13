@@ -111,7 +111,7 @@ module.exports = function ValidationModule(pb) {
             return true;
         }
 
-        var id = pb.DAO.getObjectID(val);
+        var id = pb.DAO.getObjectId(val);
         return id instanceof ObjectID;
     };
 

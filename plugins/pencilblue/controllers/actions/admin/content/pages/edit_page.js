@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Edits a page
      * @cclass EditPagePostController
@@ -57,7 +57,9 @@ module.exports = function(pb) {
                     return;
                 }
 
-                post.author = page.author;
+                if(self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR || !post.author) {
+                  post.author = page.author;
+                }
                 post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
                 pb.DocumentCreator.update(post, page, ['meta_keywords']);
 
