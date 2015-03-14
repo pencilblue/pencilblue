@@ -127,8 +127,8 @@ var GLOBAL_CALLBACKS = {
  * @property unregisteredFlagHandler
  * @type {Function}
  */
-TemplateService.unregisteredFlagHandler = function(flag) {
-    return '^'+flag+'^';
+TemplateService.unregisteredFlagHandler = function(flag, cb) {
+    cb(null, '^'+flag+'^');
 };
 
 /**
@@ -378,20 +378,19 @@ TemplateService.prototype.processFlag = function(flag, cb) {
 			return;
 		}
 		else {
-            //the flag was not registered.  Hand it off to a handler for any 
-            //catch-all processing.
-            
-            
+
 			//log result
 			if (pb.log.isSilly()) {
 				pb.log.silly("TemplateService: Failed to process flag [%s]", flag);
 			}
             
+            //the flag was not registered.  Hand it off to a handler for any 
+            //catch-all processing.
             if (pb.utils.isFunction(self.unregisteredFlagHandler)) {
-                cb(null, self.unregisteredFlagHandler(flag));
+                self.unregisteredFlagHandler(flag, cb);
             }
             else {
-			     cb(null, TemplateService.unregisteredFlagHandler(flag));
+                TemplateService.unregisteredFlagHandler(flag, cb);
             }
 		}
 	};
