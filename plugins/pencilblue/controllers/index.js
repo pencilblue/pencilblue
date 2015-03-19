@@ -276,14 +276,12 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
     ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
     ats.registerLocal('comments', function(flag, cb) {
         if (isPage || !contentSettings.allow_comments) {
-           cb(null, '');
-           return;
+           return (null, '');
         }
 
-		if (!content.allow_comments) {
-			cb(null, '');
-			return;
-		}
+	if (!content.allow_comments) {
+	   return cb(null, '');
+	}
 
         self.renderComments(content, ats, function(err, comments) {
             cb(err, new pb.TemplateValue(comments, false));
