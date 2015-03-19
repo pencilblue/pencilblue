@@ -275,12 +275,8 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
     ats.registerLocal('author_position', content.author_position ? content.author_position : '');
     ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
     ats.registerLocal('comments', function(flag, cb) {
-        if (isPage || !contentSettings.allow_comments) {
-           return (null, '');
-        }
-
-	if (!content.allow_comments) {
-	   return cb(null, '');
+        if (isPage || !contentSettings.allow_comments || !content.allow_comments) {
+	  return cb(null, '');
 	}
 
         self.renderComments(content, ats, function(err, comments) {
