@@ -49,6 +49,13 @@
 						<div class="form_error" ng-if="!isFieldValid(articleForm.publish_date)">^loc_REQUIRED_FIELD^</div>
 					</div>
 					<div class="form-group">
+					    <label>^loc_ALLOW_COMMENTS^?</label><br/>
+					    <div class="btn-group">
+					        <button type="button" class="btn btn-default" ng-class="{'active': article.allow_comments}" ng-click="setCommentState(true)">^loc_YES^</button>
+					        <button type="button" class="btn btn-default" ng-class="{'active': !article.allow_comments}" ng-click="setCommentState(false)">^loc_NO^</button>
+					    </div>
+					</div>
+					<div class="form-group">
 						<label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
 						<div id="article_wysiwyg">
 							^wysiwyg^

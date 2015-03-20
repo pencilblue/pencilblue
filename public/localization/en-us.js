@@ -300,7 +300,8 @@ var loc =
         INACTIVE_SECTIONS: 'Drag unassociated sections here',
         PUBLISHED: 'Published',
         UNPUBLISHED: 'Unpublished',
-        DRAFT: 'Draft'
+        DRAFT: 'Draft',
+        ALLOW_COMMENTS: 'Allow comments'
     },
     wysiwyg: {
         NORMAL_TEXT: 'Normal text',
