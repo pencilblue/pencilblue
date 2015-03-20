@@ -301,7 +301,7 @@ var loc =
         PUBLISHED: 'Published',
         UNPUBLISHED: 'Unpublished',
         DRAFT: 'Draft',
-        ALLOW_COMMENTS: 'Allow comments?'
+        ALLOW_COMMENTS: 'Allow comments'
     },
     wysiwyg: {
         NORMAL_TEXT: 'Normal text',
