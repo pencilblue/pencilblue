@@ -495,36 +495,52 @@ SectionService.prototype.validateNavItemEditor = function(editor, cb) {
 };
 
 SectionService.prototype.save = function(navItem, options, cb) {
+    var self = this;
     if (pb.utils.isFunction(options)) {
         cb      = options;
         options = {};
     }
+    this.setTypeUrl(navItem,function(navItem){
+		//validate
+		self.validate(navItem, function(err, validationErrors) {
+		    if (util.isError(err)) {
+		        return cb(err);
+		    }
+		    else if (validationErrors.length > 0) {
+		        return cb(null, validationErrors);
+		    }
 
-    //validate
-    var self = this;
-    self.validate(navItem, function(err, validationErrors) {
-        if (util.isError(err)) {
-            return cb(err);
-        }
-        else if (validationErrors.length > 0) {
-            return cb(null, validationErrors);
-        }
+		    //persist the changes
+		    var dao = new pb.DAO();
+		    dao.save(navItem, function(err, data) {
+		        if(util.isError(err)) {
+		            return cb(err);
+		        }
 
-        //persist the changes
-        var dao = new pb.DAO();
-        dao.save(navItem, function(err, data) {
-            if(util.isError(err)) {
-                return cb(err);
-            }
+		        //update the navigation map
+		        self.updateNavMap(navItem, function() {
 
-            //update the navigation map
-            self.updateNavMap(navItem, function() {
-
-                //ok, now we can delete the orhphans if they exist
-                self.deleteChildren(navItem[pb.DAO.getIdField()], cb);
-            });
-        });
+		            //ok, now we can delete the orhphans if they exist
+		            self.deleteChildren(navItem[pb.DAO.getIdField()], cb);
+		        });
+		    });
+		});
     });
+    
+};
+
+SectionService.prototype.setTypeUrl = function(navItem,cb){
+   	var dao = new pb.DAO();
+    if(navItem.type === 'page' || navItem.type === 'article'){
+		dao.loadById(navItem.item,navItem.type,function(err,Content){
+			if(Content.url){
+				navItem.url = Content.url;
+			}
+			return cb(navItem);
+		});
+	} else {
+		return cb(navItem);	
+	}
 };
 
 SectionService.getSectionData = function(uid, navItems, currUrl) {
@@ -549,16 +565,17 @@ SectionService.formatUrl = function(navItem) {
 	if (pb.utils.isString(navItem.link)) {
 		navItem.url = navItem.link;
 	}
+	else if (navItem.type === 'article' || navItem.type === 'page') {
+		if(navItem.url){
+			navItem.url = pb.UrlService.urlJoin('/'+navItem.type, navItem.url);
+		} else {
+			navItem.url = pb.UrlService.urlJoin('/'+navItem.type, navItem.item);
+		}
+	}
 	else if(navItem.url)
     {
 		navItem.url = pb.UrlService.urlJoin('/section', navItem.url);
     }
-	else if (navItem.type === 'article') {
-		navItem.url = pb.UrlService.urlJoin('/article', navItem.item);
-	}
-	else if (navItem.type === 'page') {
-		navItem.url = pb.UrlService.urlJoin('/page', navItem.item);
-	}
 	else {
 		navItem.url = '#';
 	}
