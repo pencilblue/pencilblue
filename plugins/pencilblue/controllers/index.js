@@ -275,7 +275,7 @@ Index.prototype.renderContent = function(content, contentSettings, themeSettings
     ats.registerLocal('author_position', content.author_position ? content.author_position : '');
     ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
     ats.registerLocal('comments', function(flag, cb) {
-        if (isPage || !contentSettings.allow_comments || !content.allow_comments) {
+        if (isPage || !contentSettings.allow_comments || content.allow_comments === false) {
 	  return cb(null, '');
 	}
 
