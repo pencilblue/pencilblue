@@ -580,7 +580,7 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.routeSupportsMethod = function(themeRoutes, method) {
         method = method.toUpperCase();
-        return themeRoutes[method] !== undefined;
+        return !util.isNullOrUndefined(themeRoutes[method]);
     };
 
     /**
@@ -593,7 +593,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Boolean}
      */
     RequestHandler.routeSupportsTheme = function(route, theme, method) {
-        return route.themes[theme] !== undefined && RequestHandler.routeSupportsMethod(route.themes[theme], method);
+        return !util.isNullOrUndefined(route.themes[theme]) && RequestHandler.routeSupportsMethod(route.themes[theme], method);
     };
 
     /**
