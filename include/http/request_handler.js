@@ -75,6 +75,15 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.storage = [];
     RequestHandler.index   = {};
+    
+    /**
+     * The internal storage of static routes after they are validated and processed.
+     * @private
+     * @static
+     * @property staticRoutes
+     * @type {Object}
+     */
+    RequestHandler.staticRoutes = {};
 
     /**
      * The list of routes provided by the pencilblue plugin.  These routes are 
@@ -239,11 +248,15 @@ module.exports = function RequestHandlerModule(pb) {
         var patternObj = RequestHandler.getRoutePattern(descriptor.path);
         var pathVars   = patternObj.pathVars;
         var pattern    = patternObj.pattern;
+        var isStatic   = Object.keys(pathVars).length === 0;
 
         //insert it
         var isNew = false;
         var routeDescriptor = null;
-        if (RequestHandler.index[pattern] !== undefined) {
+        if (isStatic && !util.isNullOrUndefined(RequestHandler.staticRoutes[descriptor.path])) {
+            routeDescriptor = RequestHandler.staticRoutes[descriptor.path];
+        }
+        else if (!isStatic && !util.isNullOrUndefined(RequestHandler.index[pattern])) {
 
             //exists so find it
             for (var i = 0; i < RequestHandler.storage.length; i++) {
@@ -276,11 +289,17 @@ module.exports = function RequestHandlerModule(pb) {
        //know that the controller is good.
         if (isNew) {
             //set them in storage
-            RequestHandler.index[pattern] = RequestHandler.storage.length;
-            RequestHandler.storage.push(routeDescriptor);
+            if (isStatic) {
+                RequestHandler.staticRoutes[descriptor.path] = routeDescriptor;
+                pb.log.debug('RequestHander: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
+            }
+            else {
+                RequestHandler.index[pattern] = RequestHandler.storage.length;
+                RequestHandler.storage.push(routeDescriptor);
+                pb.log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
+            }
         }
                                                                
-        pb.log.debug("RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]", theme, descriptor.method, descriptor.path, pattern);
         return true;
     };
 
@@ -552,14 +571,26 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Object} The route object or NULL if the path does not match any route
      */
     RequestHandler.prototype.getRoute = function(path) {
+        
+        //check static routes first.  It must be an exact match including 
+        //casing and any ending slash.
+        var isSilly = pb.log.isSilly();
+        var route   = RequestHandler.staticRoutes[path];
+        if (!util.isNullOrUndefined(route)) {
+            if (isSilly) {
+                pb.log.silly('RequestHandler: Found static route [%s]', path);
+            }
+            return route;
+        }
 
-        var route = null;
+        //now do the hard work.  Iterate over the available patterns until a 
+        //pattern is found.
         for (var i = 0; i < RequestHandler.storage.length; i++) {
 
             var curr   = RequestHandler.storage[i];
             var result = curr.expression.test(path);
 
-            if (pb.log.isSilly()) {
+            if (isSilly) {
                 pb.log.silly('RequestHandler: Comparing Path [%s] to Pattern [%s] Result [%s]', path, curr.pattern, result);
             }
             if (result) {
@@ -567,7 +598,10 @@ module.exports = function RequestHandlerModule(pb) {
                 break;
             }
         }
-        return route;
+        
+        //ensures we return null when route is not found for backward 
+        //compatibility.
+        return route || null;
     };
 
     /**
