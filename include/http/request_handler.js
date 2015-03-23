@@ -248,7 +248,7 @@ module.exports = function RequestHandlerModule(pb) {
         var patternObj = RequestHandler.getRoutePattern(descriptor.path);
         var pathVars   = patternObj.pathVars;
         var pattern    = patternObj.pattern;
-        var isStatic   = Object.keys(pathVars).length === 0;
+        var isStatic   = Object.keys(pathVars).length === 0 && !patternObj.hasWildcard;
 
         //insert it
         var isNew = false;
@@ -331,9 +331,10 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //construct the pattern & extract path variables
-        var pathVars = {};
-        var pattern = '^';
-        var pathPieces = path.split('/');
+        var pathVars    = {};
+        var pattern     = '^';
+        var hasWildcard = false;
+        var pathPieces  = path.split('/');
         for (var i = 0; i < pathPieces.length; i++) {
             var piece = pathPieces[i];
 
@@ -345,6 +346,8 @@ module.exports = function RequestHandlerModule(pb) {
             else {
                 if (piece.indexOf('*') >= 0) {
                     piece = piece.replace(/\*/g, '.*');
+                    
+                    hasWildcard = true;
                 }
                 pattern += '\/'+piece;
             }
@@ -354,7 +357,8 @@ module.exports = function RequestHandlerModule(pb) {
         return {
             path: path,
             pattern: pattern,
-            pathVars: pathVars
+            pathVars: pathVars,
+            hasWildcard: hasWildcard
         };
     };
 
