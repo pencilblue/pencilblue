@@ -18,18 +18,23 @@
 //dependencies
 var Cookies = require('cookies');
 
-module.exports = function LogoutModule(pb) {
+module.exports = function(pb) {
     
     //pb dependencies
-    var util = pb.util;
+    var util            = pb.util;
+    var BaseController  = pb.BaseController;
+    var SecurityService = pb.SecurityService;
     
     /**
      * Logs a user out of the system
+     * @class LogoutController
+     * @constructor
+     * @extends {BaseController}
      */
-    function Logout(){}
-    util.inherits(Logout, pb.BaseController);
+    function LogoutController(){}
+    util.inherits(LogoutController, BaseController);
 
-    Logout.prototype.render = function(cb) {
+    LogoutController.prototype.render = function(cb) {
         var self = this;
         pb.session.end(this.session, function(err, result){
 
@@ -41,10 +46,39 @@ module.exports = function LogoutModule(pb) {
             cookies.set(pb.SessionHandler.COOKIE_NAME, null, cookie);
 
             //send redirect
-            self.redirect('/', cb);
+            self.redirect(self.getRedirect(), cb);
         });
+    };
+    
+    /**
+     * Determines how to redirect the user once the session is destroyed.  If 
+     * the user has elevated privileges he/she is redirected to the admin login.  
+     * If it is a regular user they are redirected back to the referring URL.  
+     * Finally, if niether of those hold true they are redirected back to the 
+     * home page.
+     * @method getRedirect
+     * @return {String} The URL string to redirect to
+     */
+    LogoutController.prototype.getRedirect = function() {
+        
+        //admins always go back to admin login.  Looking at the referer would 
+        //be a security risk because once logged back in the user would be 
+        //automatically redirected right back to where the previous session 
+        //left off.
+        if (SecurityService.isAuthorized(this.session, { admin_level: SecurityService.ACCESS_WRITER })) {
+            return '/admin/login';
+        }
+        
+        //check for a valid referer
+        var redirect = this.req.headers.referer;
+        if (!util.isNullOrUndefined(redirect)) {
+            return redirect;
+        }
+        
+        //when all else fails, go to the home page
+        return '/';
     };
 
     //exports
-    return Logout;
+    return LogoutController;
 };
