@@ -19,7 +19,7 @@
 var formidable = require('formidable');
 var util       = require('../../util.js');
 
-module.exports = function BodyParsersModule(pb) {
+module.exports = function(/*pb*/) {
     
     /**
      * Provides function to construct the structure needed to display the navigation
@@ -28,7 +28,7 @@ module.exports = function BodyParsersModule(pb) {
      * @class BaseBodyParser
      * @constructor
      */
-    function BaseBodyParser() {};
+    function BaseBodyParser() {}
 
     /**
      * Attempts to retrieve the payload body as a string
@@ -86,9 +86,9 @@ module.exports = function BodyParsersModule(pb) {
 
         //parse the form out and let us know when its done
         form.parse(req, function(err, fields, files) {
-            for(var key in files) {
-                fields[key] = files[key];
-            }
+            util.forEach(files, function(val, key) {
+                fields[key] = val;
+            });
             cb(err, fields);
         });
     };
