@@ -397,7 +397,7 @@ module.exports = function(pb) {
 
                 //the flag was not registered.  Hand it off to a handler for any 
                 //catch-all processing.
-                if (pb.utils.isFunction(self.unregisteredFlagHandler)) {
+                if (util.isFunction(self.unregisteredFlagHandler)) {
                     self.unregisteredFlagHandler(flag, cb);
                 }
                 else {

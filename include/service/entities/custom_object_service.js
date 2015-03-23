@@ -1096,7 +1096,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 post[key] = pb.BaseController.sanitize(post[key], pb.BaseController.getContentSanitizationRules());
             }
             else if(custObjType.fields[key].field_type == CHILD_OBJECTS_TYPE) {
-                if(pb.utils.isString(post[key])) {
+                if(util.isString(post[key])) {
 
                     //strips out any non ID strings.  
                     //TODO This should really move to validation.
@@ -1112,7 +1112,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 //do nothing because it can only been a string ID.  Validation 
                 //should verify this before persistence. 
             }
-            else if (pb.utils.isString(post[key])){
+            else if (util.isString(post[key])){
 
                 //when nothing else matches and we just have a string. We should sanitize it
                 post[key] = pb.BaseController.sanitize(post[key]);
