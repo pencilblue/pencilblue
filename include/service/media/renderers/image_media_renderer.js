@@ -43,6 +43,9 @@ var TYPE = 'image';
  * @type {Object}
  */
 var SUPPORTED = Object.freeze({
+    gif: {
+        mime: 'image/gif'
+    },
     jpg: {
         mime: 'image/jpg'
     },
