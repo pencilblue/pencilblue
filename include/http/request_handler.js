@@ -469,6 +469,8 @@ module.exports = function RequestHandlerModule(pb) {
             tff: 'application/octet-stream',
             eot: 'application/vnd.ms-fontobject',
             woff: 'application/x-font-woff',
+            otf: 'font/opentype',
+            ttf: 'font/truetype',
             html: 'text/html'
         };
         var index = resourcePath.lastIndexOf('.');

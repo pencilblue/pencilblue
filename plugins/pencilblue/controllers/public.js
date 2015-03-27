@@ -56,7 +56,9 @@ module.exports = function PluginPublicContentControllerModule(pb) {
 
         //serve up the content
         var resourcePath = path.join(pluginPublicDir, postPluginPath);
-        this.reqHandler.servePublicContent(resourcePath);
+        
+        //remove qsvars before loading files
+        this.reqHandler.servePublicContent(resourcePath.split('?')[0]);
     };
 
     //exports
