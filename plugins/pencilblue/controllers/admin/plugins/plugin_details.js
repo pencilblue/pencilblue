@@ -138,7 +138,7 @@ module.exports = function(pb) {
                 name: 'manage',
                 title: data.details.name,
                 icon: 'chevron-left',
-                href: '/admin/plugins/'
+                href: '/admin/plugins'
             }
         ];
     };
