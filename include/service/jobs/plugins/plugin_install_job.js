@@ -191,7 +191,7 @@ module.exports = function PluginInstallJobModule(pb) {
             function(callback) {
 
                 var mainModule = pb.PluginService.loadMainModule(pluginUid, details.main_module.path);
-                if (mainModule !== null && typeof mainModule.onInstall === 'function') {
+                if (!util.isNullOrUndefined(mainModule) && util.isFunction(mainModule.onInstall)) {
                     self.log("Executing %s 'onInstall' function", details.uid);
                     mainModule.onInstall(callback);
                 }

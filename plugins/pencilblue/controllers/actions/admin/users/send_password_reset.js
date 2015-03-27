@@ -53,7 +53,7 @@ module.exports = function(pb) {
                     passwordReset = pb.DocumentCreator.create('password_reset', {user_id: user[pb.DAO.getIdField()].toString()});
                 }
 
-                passwordReset.verification_code = util.uniqueId().toString();
+                passwordReset.verification_code = util.uniqueId();
 
                 dao.save(passwordReset, function(err, result) {
                     if(util.isError(err)) {

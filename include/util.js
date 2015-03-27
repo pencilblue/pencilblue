@@ -497,7 +497,13 @@ Util.getDirectories = function(dirPath, cb) {
 
 				var fullPath = path.join(dirPath, files[index]);
 				fs.stat(fullPath, function(err, stat) {
-					if (stat.isDirectory()) {
+                    if (util.isError(err)) {
+                        return cb(err);
+                    }
+                    if (Util.isNullOrUndefined(stat)) {
+                        console.log('WARN: Util: unstatable file encountered: %s', fullPath);
+                    }
+					else if (stat.isDirectory()) {
 						dirs.push(fullPath);
 					}
 					callback(err);

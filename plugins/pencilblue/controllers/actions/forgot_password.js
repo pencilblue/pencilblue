@@ -83,7 +83,7 @@ module.exports = function ForgotPasswordControllerModule(pb) {
                     if(!passwordReset) {
                         passwordReset = pb.DocumentCreator.create('password_reset', {user_id: userIdStr});
                     }
-                    passwordReset.verification_code = util.uniqueId().toString();
+                    passwordReset.verification_code = util.uniqueId();
 
                     //persist reset entry
                     dao.save(passwordReset, function(err, result) {

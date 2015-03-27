@@ -1878,7 +1878,7 @@ module.exports = function PluginServiceModule(pb) {
      * @return {Boolean} TRUE if the path is valid, FALSE if not
      */
     PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
-        return PluginService.loadMainModule(pluginDirName, mmPath) !== null;
+        return !util.isNullOrUndefined(PluginService.loadMainModule(pluginDirName, mmPath));
     };
 
     /**
