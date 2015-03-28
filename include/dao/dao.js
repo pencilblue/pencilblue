@@ -310,6 +310,7 @@ module.exports = function DAOModule(pb) {
         var offset     = options.offset ? options.offset : 0;
 
         //get reference to the db
+        var self = this;
         this.getDb(function(err, db) {
             if (util.isError(err)) {
                 return cb(err);
@@ -333,7 +334,7 @@ module.exports = function DAOModule(pb) {
             //log the result
             if(pb.config.db.query_logging){
                 var query = "DAO: SELECT %j FROM %s.%s WHERE %j";
-                var args = [select, this.dbName, entityType, where];
+                var args = [select, self.dbName, entityType, where];
                 if (typeof orderBy !== 'undefined') {
                     query += " ORDER BY %j";
                     args.push(orderBy);

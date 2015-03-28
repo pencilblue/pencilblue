@@ -232,7 +232,7 @@ module.exports = function JobRunnerModule(pb) {
      * @param {String} [status]
      */
     JobRunner.prototype.onUpdate = function(progressIncrement, status) {
-        this.log('Updating job [%s:%s] by %s percent with status: %s', this.getId(), this.name, Math.floor(progressIncrement), status);
+        this.log('Updating job [%s:%s] by %s percent with status: %s', this.getId(), this.name, Math.floor(progressIncrement), status ? status : '');
 
         var query   = pb.DAO.getIdWhere(this.getId());
         var updates = {};

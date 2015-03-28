@@ -171,7 +171,7 @@ module.exports = function PluginUninstallJobModule(pb) {
                 };
                 var dao = new pb.DAO();
                 dao.delete(where, 'plugin', function(err, result) {
-                    callback(error, !util.isError(err));
+                    callback(err, !util.isError(err));
                 });
             },
 
@@ -183,8 +183,7 @@ module.exports = function PluginUninstallJobModule(pb) {
                 //are uninstalling
                 pb.settings.get('active_theme', function(err, activeTheme) {
                     if (util.isError(err)) {
-                        callback(err, false);
-                        return;
+                        return callback(err, false);
                     }
 
                     //check if we need to reset the active theme

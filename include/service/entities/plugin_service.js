@@ -472,13 +472,15 @@ module.exports = function PluginServiceModule(pb) {
      * plugin does exist null is provided.
      */
     PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
-        var where = {};
-        if (pb.validation.isId(pluginIdentifier)) {
-            where[pb.DAO.getIdField()] = pluginIdentifier;
-        }
-        else {
-            where.uid = pluginIdentifier;
-        }
+        var where = {
+            $or: [
+                {},
+                {
+                    uid: pluginIdentifier
+                }
+            ]
+        };
+        where['$or'][0][pb.DAO.getIdField()] = pluginIdentifier;
         var dao = new pb.DAO();
         dao.loadByValues(where, PLUGIN_COLL, cb);
     };
@@ -546,15 +548,13 @@ module.exports = function PluginServiceModule(pb) {
         var pluginName = details.uid;
         this.getPlugin(pluginName, function(err, plugin) {
             if (util.isError(err) || !plugin) {
-                cb(err ? err : new Error("The plugin "+pluginName+"is not installed"), false);
-                return;
+                return cb(err ? err : new Error("The plugin "+pluginName+" is not installed"), false);
             }
 
             //remove any existing settings
             self.pluginSettingsService.purge(pluginName, function (err, result) {
                 if (util.isError(err) || !result) {
-                    cb(err, false);
-                    return;
+                    return cb(err, false);
                 }
 
                 //build the object to persist
