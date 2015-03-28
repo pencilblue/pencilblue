@@ -1,4 +1,4 @@
-[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue) [![Coverage Status](https://coveralls.io/repos/pencilblue/pencilblue/badge.svg?branch=master)](https://coveralls.io/r/pencilblue/pencilblue?branch=master) [![Build Status](https://travis-ci.org/pencilblue/pencilblue.svg?branch=master)](https://travis-ci.org/pencilblue/pencilblue)
+[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue) [![Coverage Status](https://coveralls.io/repos/pencilblue/pencilblue/badge.svg?branch=master)](https://coveralls.io/r/pencilblue/pencilblue?branch=master) [![Build Status](https://travis-ci.org/pencilblue/pencilblue.svg?branch=master)](https://travis-ci.org/pencilblue/pencilblue) [![Code Climate](https://codeclimate.com/github/pencilblue/pencilblue/badges/gpa.svg)](https://codeclimate.com/github/pencilblue/pencilblue)
 
 [PencilBlue](http://pencilblue.org)
 =====
