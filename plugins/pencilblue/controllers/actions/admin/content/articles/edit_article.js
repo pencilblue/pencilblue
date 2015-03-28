@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,83 +15,88 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Edits an article
- */
+module.exports = function(pb) {
 
-function EditArticle(){}
+    //pb dependencies
+    var util = pb.util;
 
-//inheritance
-util.inherits(EditArticle, pb.BaseController);
+    /**
+     * Edits an article
+     */
+    function EditArticle(){}
+    util.inherits(EditArticle, pb.BaseController);
 
-EditArticle.prototype.render = function(cb) {
-	var self = this;
-	var vars = this.pathVars;
+    EditArticle.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-	this.getJSONPostParams(function(err, post) {
-	    post.publish_date = new Date(parseInt(post.publish_date));
-		post.id = vars.id;
-		delete post._id;
+        this.getJSONPostParams(function(err, post) {
+            post.publish_date = new Date(parseInt(post.publish_date));
+            post.id = vars.id;
+            delete post[pb.DAO.getIdField()];
 
-	    var message = self.hasRequiredParams(post, self.getRequiredFields());
-	    if (message) {
-			cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-			});
-	        return;
-	    }
+            var message = self.hasRequiredParams(post, self.getRequiredFields());
+            if (message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
+                return;
+            }
 
-	    var dao = new pb.DAO();
-	    dao.loadById(post.id, 'article', function(err, article) {
-	        if(util.isError(err) || article === null) {
-				cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
-				});
-	            return;
-	        }
+            var dao = new pb.DAO();
+            dao.loadById(post.id, 'article', function(err, article) {
+                if(util.isError(err) || article === null) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
+                    });
+                    return;
+                }
 
-	        //TODO should we keep track of contributors (users who edit)?
-	        post.author = article.author;
-	        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
-	        pb.DocumentCreator.update(post, article, ['meta_keywords']);
+                //TODO should we keep track of contributors (users who edit)?
+                if(self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR || !post.author) {
+                  post.author = article.author;
+                }
+                post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
+                pb.DocumentCreator.update(post, article, ['meta_keywords']);
 
-	        pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
-	            if(error !== null || exists || article.url.indexOf('/admin') === 0) {
-					cb({
-						code: 400,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
-					});
-	                return;
-	            }
+                pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
+                    if(error !== null || exists || article.url.indexOf('/admin') === 0) {
+                        cb({
+                            code: 400,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+                        });
+                        return;
+                    }
 
-	            dao.save(article, function(err, result) {
-	                if(util.isError(err)) {
-	                    return cb({
-							code: 500,
-							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-						});
-	                }
+                    dao.save(article, function(err, result) {
+                        if(util.isError(err)) {
+                            return cb({
+                                code: 500,
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                            });
+                        }
 
-					post.last_modified = new Date();
-					cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('EDITED'), post)});
-	            });
-	        });
-	    });
-	});
-};
-
-EditArticle.prototype.getRequiredFields = function() {
-	return ['url', 'headline', 'article_layout', 'id'];
-};
-
-
-EditArticle.prototype.getSanitizationRules = function() {
-    return {
-        article_layout: pb.BaseController.getContentSanitizationRules()
+                        post.last_modified = new Date();
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('EDITED'), post)});
+                    });
+                });
+            });
+        });
     };
-};
 
-//exports
-module.exports = EditArticle;
+    EditArticle.prototype.getRequiredFields = function() {
+        return ['url', 'headline', 'article_layout', 'id'];
+    };
+
+
+    EditArticle.prototype.getSanitizationRules = function() {
+        return {
+            article_layout: pb.BaseController.getContentSanitizationRules()
+        };
+    };
+
+    //exports
+    return EditArticle;
+};

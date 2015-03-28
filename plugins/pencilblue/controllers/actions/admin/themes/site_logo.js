@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014  PencilBlue, LLC
+	Copyright (C) 2015  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -15,43 +15,45 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-* Saves the site's logo
-*/
 
-function SiteLogo() {}
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util         = pb.util;
+    var MediaService = pb.MediaService;
+    
+    /**
+     * Saves the site's logo
+     */
+    function SiteLogo() {}
+    util.inherits(SiteLogo, pb.BaseController);
 
-//dependencies
-var MediaService = pb.MediaService;
+    SiteLogo.prototype.render = function(cb) {
+        self = this;
 
-//inheritance
-util.inherits(SiteLogo, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
+            if (!pb.validation.validateNonEmptyStr(post.site_logo, true)) {
+                cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SITE_LOGO_UPLOAD_FAILURE'))
+                });
+                return;
+            }
 
-SiteLogo.prototype.render = function(cb) {
-	self = this;
+            pb.settings.set('site_logo', post.site_logo, function(err, result) {
+                if (util.isError(err)) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SITE_LOGO_UPLOAD_FAILURE'))
+                    });
+                    return;
+                }
 
-	this.getJSONPostParams(function(err, post) {
-		if (!pb.validation.validateNonEmptyStr(post.site_logo, true)) {
-			cb({
-				code: 500,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SITE_LOGO_UPLOAD_FAILURE'))
-			});
-			return;
-		}
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_LOGO_UPLOAD_SUCCESS'))});
+            });
+        });
+    };
 
-		pb.settings.set('site_logo', post.site_logo, function(err, result) {
-			if (util.isError(err)) {
-				cb({
-					code: 500,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SITE_LOGO_UPLOAD_FAILURE'))
-				});
-				return;
-			}
-
-			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_LOGO_UPLOAD_SUCCESS'))});
-		});
-	});
+    //exports
+    return SiteLogo;
 };
-
-//exports
-module.exports = SiteLogo;

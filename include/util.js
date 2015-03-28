@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,7 +16,13 @@
 */
 
 //dependencies
+var os     = require('os');
+var util   = require('util');
+var async  = require('async');
 var extend = require('node.extend');
+var fs     = require('fs');
+var path   = require('path');
+var uuid   = require('node-uuid');
 
 /**
  * Provides a set of utility functions used throughout the code base
@@ -25,7 +31,7 @@ var extend = require('node.extend');
  * @class Util
  * @constructor
  */
-function Util(){};
+function Util(){}
 
 /**
  * Clones an object by serializing it and then re-parsing it.
@@ -111,9 +117,9 @@ Util.escapeRegExp = function(str) {
  * @param {Object} to
  */
 Util.merge = function(from, to) {
-	for (var prop in from) {
-		to[prop] = from[prop];
-	}
+    Util.forEach(from, function(val, propName/*, */) {
+        to[propName] = val;
+    });
 };
 
 /**
@@ -140,13 +146,13 @@ Util.union = function(a, b) {
  * @example
  * <code>
  * var items = ['apple', 'orange'];
- * var tasks = pb.utils.getTasks(items, function(items, i) {
+ * var tasks = util.getTasks(items, function(items, i) {
  *     return function(callback) {
  *         console.log(items[i]);
  *         callback(null, null);
  *     };
  * });
- * async.series(tasks, pb.utils.cb);
+ * async.series(tasks, util.cb);
  * <code>
  */
 Util.getTasks = function (iterable, getTaskFunction) {
@@ -155,6 +161,52 @@ Util.getTasks = function (iterable, getTaskFunction) {
 		tasks.push(getTaskFunction(iterable, i));
 	}
 	return tasks;
+};
+
+/**
+ * Wraps a function in an anonymous function.  The wrapper function will call 
+ * the wrapped function with the provided context.  This comes in handy when 
+ * creating your own task arrays in conjunction with the async function when a 
+ * prototype function needs to be called with a specific context.
+ * @static
+ * @method wrapTask
+ * @return {Function}
+ */
+Util.wrapTask = function(context, func) {
+    return function(callback) {
+        func.call(context, callback);
+    };
+};
+
+/**
+ * Provides an implementation of for each that accepts an array or object.
+ * @static
+ * @method forEach
+ * @param {Object|Array} iterable
+ * @param {Function} handler A function that accepts 4 parameters.  The value 
+ * of the current property or index.  The current index (property name if object).  The iterable.  
+ * Finally, the numerical index if the iterable is an object.
+ */
+Util.forEach = function(iterable, handler) {
+    
+    var internalHandler = handler;
+    var internalIterable = iterable;
+    if (util.isArray(iterable)) {
+        //no-op but we have to type check here first because an array is an object
+    }
+    else if (Util.isObject(iterable)) {
+        
+        internalIterable = Object.getOwnPropertyNames(iterable);
+        internalHandler = function(propName, i) {
+            handler(iterable[propName], propName, iterable, i);
+        };
+    }
+    else {
+        return false;
+    };
+    
+    //execute native foreach on interable
+    internalIterable.forEach(internalHandler);
 };
 
 /**
@@ -170,10 +222,13 @@ Util.arrayToHash = function(array, defaultVal) {
 		return null;
 	}
 
-	defaultVal = defaultVal || true;
+    //set the default value
+    if (Util.isNullOrUndefined(defaultVal)) {
+        defaultVal = true;
+    }
 	var hash = {};
 	for(var i = 0; i < array.length; i++) {
-		if (typeof defaultVal === 'function') {
+		if (Util.isFunction(defaultVal)) {
 			hash[defaultVal(array, i)] = array[i];
 		}
 		else {
@@ -218,7 +273,7 @@ Util.arrayToObj = function(array, keyFieldOrTransform, valFieldOrTransform) {
     
     var valIsString = Util.isString(valFieldOrTransform);
     var valIsFunc   = Util.isFunction(valFieldOrTransform);
-    if (!Util.isString(valFieldOrTransform) && !Util.isFunction(valFieldOrTransform)) {
+    if (!valIsString && !valIsFunc) {
         valFieldOrTransform = null;
     }
     
@@ -228,7 +283,6 @@ Util.arrayToObj = function(array, keyFieldOrTransform, valFieldOrTransform) {
         var item = array[i];
         var key  = keyIsString ? item[keyFieldOrTransform] : keyFieldOrTransform(array, i);
         
-        var val;
         if (valIsString) {
             obj[key] = item[valFieldOrTransform];
         }
@@ -336,10 +390,11 @@ Util.copyArray = function(array) {
  * @method arrayPushAll
  * @param {Array} from
  * @param {Array} to
+ * @return {Boolean} FALSE when the parameters are not Arrays
  */
 Util.arrayPushAll = function(from, to) {
 	if (!util.isArray(from) || !util.isArray(to)) {
-		return;
+		return false;
 	}
 
 	for (var i = 0; i < from.length; i++) {
@@ -353,7 +408,7 @@ Util.arrayPushAll = function(from, to) {
  * @static
  * @method cb
  */
-Util.cb = function(err, result){
+Util.cb = function(/*err, result*/){
 	//do nothing
 };
 
@@ -361,10 +416,10 @@ Util.cb = function(err, result){
  * Creates a unique Id
  * @static
  * @method uniqueId
- * @return {ObjectID} Unique Id Object
+ * @return {String} Unique Id Object
  */
 Util.uniqueId = function(){
-	return new ObjectID();
+	return uuid.v4();
 };
 
 /**
@@ -375,7 +430,7 @@ Util.uniqueId = function(){
  * @return {Boolean}
  */
 Util.isObject = function(value) {
-	return value != undefined && value != null && typeof value === 'object';
+	return !Util.isNullOrUndefined(value) && typeof value === 'object';
 };
 
 /**
@@ -386,7 +441,7 @@ Util.isObject = function(value) {
  * @return {Boolean}
  */
 Util.isString = function(value) {
-	return value != undefined && value != null && typeof value === 'string';
+	return !Util.isNullOrUndefined(value) && typeof value === 'string';
 };
 
 /**
@@ -397,7 +452,18 @@ Util.isString = function(value) {
  * @return {Boolean}
  */
 Util.isFunction = function(value) {
-	return value != undefined && value != null && typeof value === 'function';
+	return !Util.isNullOrUndefined(value) && typeof value === 'function';
+};
+
+/**
+ * Tests if a value is NULL or undefined
+ * @static
+ * @method isNullOrUndefined
+ * @param {*} value
+ * @return {Boolean}
+ */
+Util.isNullOrUndefined = function(value) {
+    return value === null || typeof value === 'undefined';
 };
 
 /**
@@ -409,7 +475,7 @@ Util.isFunction = function(value) {
  */
 Util.isBoolean = function(value) {
     return value === true || value === false;
-}
+};
 
 /**
  * Retrieves the subdirectories of a path
@@ -423,26 +489,28 @@ Util.getDirectories = function(dirPath, cb) {
 	var dirs = [];
 	fs.readdir(dirPath, function(err, files) {
 		if (util.isError(err)) {
-			cb(err, null);
-			return;
+			return cb(err);
 		}
 
-		var tasks = pb.utils.getTasks(files, function(files, index) {
+		var tasks = Util.getTasks(files, function(files, index) {
 			return function(callback) {
 
 				var fullPath = path.join(dirPath, files[index]);
 				fs.stat(fullPath, function(err, stat) {
-					if (util.isError(err)) {
-						pb.log.error("Failed to get stats on file ["+fullPath+"]: "+err);
-					}
+                    if (util.isError(err)) {
+                        return cb(err);
+                    }
+                    if (Util.isNullOrUndefined(stat)) {
+                        console.log('WARN: Util: unstatable file encountered: %s', fullPath);
+                    }
 					else if (stat.isDirectory()) {
 						dirs.push(fullPath);
 					}
-					callback(err, null);
+					callback(err);
 				});
 			};
 		});
-		async.parallel(tasks, function(err, results) {
+		async.parallel(tasks, function(err/*, results*/) {
 			cb(err, dirs);
 		});
 	});
@@ -470,7 +538,7 @@ Util.getFiles = function(dirPath, options, cb) {
         cb      = options;
         options = {
             recursive: false,
-            filter: function(fullPath, stat) { return true; }
+            filter: function(/*fullPath, stat*/) { return true; }
         };
     }
     
@@ -494,7 +562,6 @@ Util.getFiles = function(dirPath, options, cb) {
                 var fullPath = q.shift();
 				fs.stat(fullPath, function(err, stat) {
 					if (util.isError(err)) {
-						pb.log.error("Failed to get stats on file DP=[%s] FILE=[%s] AP=[%s]: %s", dirPath, item, fullPath, err.stack);
                         return callback(err);
 					}
 					
@@ -534,32 +601,144 @@ Util.getFiles = function(dirPath, options, cb) {
     });
 };
 
+/* Asynchronously makes the specified directory structure.
+ * @static
+ * @method mkdirsSync
+ * @param {String} absoluteDirPath The absolute path of the directory structure 
+ * to be created
+ * @param {Boolean} isFileName When true the value after the last file 
+ * separator is treated as a file.  This means that a directory with that value 
+ * will not be created.
+ * @param {Function} cb A callback that provides an error, if occurred
+ */
+Util.mkdirs = function(absoluteDirPath, isFileName, cb) {
+    if (Util.isFunction(isFileName)) {
+        cb = isFileName;
+        isFileName = false;
+    }
+    
+    if (!Util.isString(absoluteDirPath)) {
+        return cb(new Error('absoluteDirPath must be a valid file path'));
+    }
+    
+    var pieces = absoluteDirPath.split(path.sep);
+    
+    var curr      = '';
+    var isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
+    var tasks     = Util.getTasks(pieces, function(pieces, i) {
+        return function(callback) {
+            
+            //we need to skip the first one bc it will probably be empty and we 
+            //want to skip the last one because it will probably be the file 
+            //name not a directory.
+            var p = pieces[i];
+            if (p.length === 0 || (isFileName && i >= pieces.length - 1)) {
+                return callback();   
+            }
+            
+            curr += (isWindows && i === 0 ? '' : path.sep) + p;
+            fs.exists(curr, function(exists) {
+                if (exists) {
+                    return callback();
+                }
+                fs.mkdir(curr, callback);
+            });
+        };
+    });
+    async.series(tasks, function(err, results){
+        cb(err);
+    });
+};
+
+/**
+ * Synchronously makes the specified directory structure.
+ * @static
+ * @method mkdirsSync
+ * @param {String} absoluteDirPath The absolute path of the directory structure 
+ * to be created
+ * @param {Boolean} isFileName When true the value after the last file 
+ * separator is treated as a file.  This means that a directory with that value 
+ * will not be created.
+ */
+Util.mkdirsSync = function(absoluteDirPath, isFileName) {
+    if (!Util.isString(absoluteDirPath)) {
+        throw new Error('absoluteDirPath must be a valid file path');
+    }
+    
+    var pieces    = absoluteDirPath.split(path.sep);
+    var curr      = '';
+    var isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
+    pieces.forEach(function(p, i) {
+            
+        //we need to skip the first one bc it will probably be empty and we 
+        //want to skip the last one because it will probably be the file 
+        //name not a directory.
+        if (p.length === 0 || (isFileName && i >= pieces.length - 1)) {
+            return;   
+        }
+
+        curr += (isWindows && i === 0 ? '' : path.sep) + p;
+        if (!fs.existsSync(curr)) {
+            fs.mkdirSync(curr);
+        }
+    });
+};
+
 /**
  * Retrieves the extension off of the end of a string that represents a URI to 
  * a resource
  * @static
  * @method getExtension
- * @param {String} path URI to the resource
+ * @param {String} filePath URI to the resource
  * @param {Object} [options]
  * @param {Boolean} [options.lower=false] When TRUE the extension will be returned as lower case
+ * @param {String} [options.sep] The file path separator used in the path.  Defaults to the OS default.
  * @return {String} The value after the last '.' character
  */
-Util.getExtension = function(path, options) {
-    if (!pb.validation.isNonEmptyStr(path, true)) {
+Util.getExtension = function(filePath, options) {
+    if (!Util.isString(filePath) || filePath.length <= 0) {
         return null;
     }
+    if (!Util.isObject(options)) {
+        options = {};
+    }
+    
+    //do to the end of the path
+    var pathPartIndex = filePath.lastIndexOf(options.sep || path.sep) || 0;
+    filePath = filePath.substr(pathPartIndex);
     
     var ext = null;
-    var index = path.lastIndexOf('.');
+    var index = filePath.lastIndexOf('.');
     if (index >= 0) {
-        ext = path.substring(index + 1);
+        ext = filePath.substring(index + 1);
         
         //apply options
-        if (options && options.lower) {
+        if (options.lower) {
             ext = ext.toLowerCase();
         }
     }
     return ext;
+};
+
+//inherit from node's version of 'util'.  We can't use node's "util.inherits"
+//function because util is an object and not a prototype.
+Util.merge(util, Util);
+
+/**
+ * Overrides the basic inherit functionality to include static functions and 
+ * properties of prototypes
+ * @static
+ * @method inherits
+ * @param {Function} Type1
+ * @param {Function} Type2
+ */
+Util.inherits = function(Type1, Type2) {
+    if (Util.isNullOrUndefined(Type1) || Util.isNullOrUndefined(Type2)) {
+        throw new Error('The type parameters must be objects or prototypes');
+    }
+    
+    util.inherits(Type1, Type2);
+    Util.merge(Type2, Type1);
 };
 
 /**

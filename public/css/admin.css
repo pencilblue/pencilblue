@@ -242,12 +242,12 @@ form .error
 
 #nav_accordion .panel-title
 {
-    padding: .75em 1.125em;
+    padding: .75em;
 }
 
 #nav_accordion .nav-pills li a
 {
-    padding-left: 3em;
+    padding-left: 2em;
 }
 
 .nav-stacked>li+li

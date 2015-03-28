@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,57 +15,63 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * 404 error
- * @class NotFoundController
- * @constructor
- * @extends BaseController
- */
-function NotFoundController(){}
-
 //dependencies
-var TopMenu = require(path.join(DOCUMENT_ROOT, '/include/theme/top_menu'));
+var path = require('path');
 
-//inheritance
-util.inherits(NotFoundController, pb.BaseController);
+module.exports = function NotFoundControllerModule(pb) {
+    
+    //pb dependencies
+    var util    = pb.util;
+    var TopMenu = pb.TopMenuService;
 
-/**
- * @see BaseController.render
- * @method render
- * @param {Function} cb
- */
-NotFoundController.prototype.render = function(cb) {
-	var self = this;
+    /**
+     * 404 error
+     * @class NotFoundController
+     * @constructor
+     * @extends BaseController
+     */
+    function NotFoundController(){}
+    util.inherits(NotFoundController, pb.BaseController);
 
-	this.setPageName('404');
-    pb.content.getSettings(function(err, contentSettings) {
-        
-        var options = {
-            currUrl: self.req.url
-        };
-        TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
-            TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
+    /**
+     * @see BaseController.render
+     * @method render
+     * @param {Function} cb
+     */
+    NotFoundController.prototype.render = function(cb) {
+        var self = this;
 
-                //load template
-                self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
-                self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));
-                self.ts.load('error/404', function(err, data) {
-                    var result = '' + data;
+        this.setPageName('404');
+        var contentService = new pb.ContentService();
+        contentService.getSettings(function(err, contentSettings) {
 
-                    result = result.concat(pb.js.getAngularController(
-                    {
-                        navigation: navigation,
-                        contentSettings: contentSettings,
-                        loggedIn: pb.security.isAuthenticated(self.session),
-                        accountButtons: accountButtons
-                    }));
+            var options = {
+                currUrl: self.req.url
+            };
+            TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
+                TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
 
-                    cb({content: result, code: 404, content_type: 'text/html'});
+                    //load template
+                    self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
+                    self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));
+                    self.ts.load('error/404', function(err, data) {
+                        var result = '' + data;
+
+                        result = result.concat(pb.ClientJs.getAngularController(
+                        {
+                            navigation: navigation,
+                            contentSettings: contentSettings,
+                            loggedIn: pb.security.isAuthenticated(self.session),
+                            accountButtons: accountButtons
+                        }));
+
+                        cb({content: result, code: 404, content_type: 'text/html'});
+                    });
                 });
             });
         });
-    });
-};
+    };
 
-//exports
-module.exports = NotFoundController;
+    //exports
+    return NotFoundController;
+};

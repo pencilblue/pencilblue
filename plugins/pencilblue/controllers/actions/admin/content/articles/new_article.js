@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,67 +15,73 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Creates a new article
- */
+module.exports = function(pb) {
 
-function NewArticlePostController(){}
+    //pb dependencies
+    var util = pb.util;
 
-//inheritance
-util.inherits(NewArticlePostController, pb.BaseController);
+    /**
+     * Creates a new article
+     */
+    function NewArticlePostController(){}
+    util.inherits(NewArticlePostController, pb.BaseController);
 
-NewArticlePostController.prototype.render = function(cb) {
-	var self = this;
+    NewArticlePostController.prototype.render = function(cb) {
+        var self = this;
 
-	this.getJSONPostParams(function(err, post) {
-		post.author       = self.session.authentication.user_id;
-		post.publish_date = new Date(parseInt(post.publish_date));
-		delete post._id;
+        this.getJSONPostParams(function(err, post) {
+            if(self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR || !post.author) {
+              post.author = self.session.authentication.user[pb.DAO.getIdField()];
+            }
 
-		var message = self.hasRequiredParams(post, self.getRequiredFields());
-		if (message) {
-			cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-			});
-			return;
-		}
+            post.publish_date = new Date(parseInt(post.publish_date));
+            delete post[pb.DAO.getIdField()];
 
-	    post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
-	    var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords']);
-	    pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {
-	        if(util.isError(err) || !isSafe)  {
-				cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
-				});
-	            return;
-	        }
+            var message = self.hasRequiredParams(post, self.getRequiredFields());
+            if (message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
+                return;
+            }
 
-	        var dao = new pb.DAO();
-	        dao.save(articleDocument, function(err, result) {
-	            if(util.isError(err))  {
-					return cb({
-						code: 400,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
-					});
-	            }
+            post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
+            var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords']);
+            pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {
+                if(util.isError(err) || !isSafe)  {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+                    });
+                    return;
+                }
 
-				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, articleDocument.headline + ' ' + self.ls.get('CREATED'), result)});
-	        });
-	    });
-	});
-};
+                var dao = new pb.DAO();
+                dao.save(articleDocument, function(err, result) {
+                    if(util.isError(err))  {
+                        return cb({
+                            code: 400,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+                        });
+                    }
 
-NewArticlePostController.prototype.getRequiredFields = function() {
-	return ['url', 'headline', 'article_layout'];
-};
-
-NewArticlePostController.prototype.getSanitizationRules = function() {
-    return {
-        article_layout: pb.BaseController.getContentSanitizationRules()
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, articleDocument.headline + ' ' + self.ls.get('CREATED'), result)});
+                });
+            });
+        });
     };
-};
 
-//exports
-module.exports = NewArticlePostController;
+    NewArticlePostController.prototype.getRequiredFields = function() {
+        return ['url', 'headline', 'article_layout'];
+    };
+
+    NewArticlePostController.prototype.getSanitizationRules = function() {
+        return {
+            article_layout: pb.BaseController.getContentSanitizationRules()
+        };
+    };
+
+    //exports
+    return NewArticlePostController;
+};

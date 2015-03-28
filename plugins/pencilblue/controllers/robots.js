@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014  PencilBlue, LLC
+	Copyright (C) 2015  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -15,28 +15,31 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-* Robots.txt file
-*/
+module.exports = function SiteMapModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Robots.txt file
+     */
+    function RobotsTxt(){}
+    util.inherits(RobotsTxt, pb.BaseController);
 
-function RobotsTxt(){}
+    RobotsTxt.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(RobotsTxt, pb.BaseController);
+        this.ts.load('robots', function(err, content) {
+            var data = {
+                content: content,
+                headers: {
+                    'Access-Control-Allow-Origin': '*'
+                }
+            };
+            cb(data);
+        });
+    };
 
-RobotsTxt.prototype.render = function(cb) {
-	var self = this;
-
-	this.ts.load('robots', function(err, content) {
-		var data = {
-			content: content,
-			headers: {
-				'Access-Control-Allow-Origin': '*'
-			}
-		};
-		cb(data);
-	});
+    //exports
+    return RobotsTxt;
 };
-
-//exports
-module.exports = RobotsTxt;

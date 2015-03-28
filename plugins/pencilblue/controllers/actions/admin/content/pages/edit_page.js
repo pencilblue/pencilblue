@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,86 +15,92 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Edits a page
- * @cclass EditPagePostController
- * @constructor
- * @extends FormController
- */
-function EditPagePostController(){}
+module.exports = function(pb) {
 
-//inheritance
-util.inherits(EditPagePostController, pb.BaseController);
+    //pb dependencies
+    var util = pb.util;
 
-EditPagePostController.prototype.render = function(cb) {
-	var self = this;
-	var vars = this.pathVars;
+    /**
+     * Edits a page
+     * @cclass EditPagePostController
+     * @constructor
+     * @extends FormController
+     */
+    function EditPagePostController(){}
+    util.inherits(EditPagePostController, pb.BaseController);
 
-	this.getJSONPostParams(function(err, post) {
-	    post.publish_date = new Date(parseInt(post.publish_date));
-		post.id = vars.id;
-		delete post._id;
+    EditPagePostController.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-		var message = self.hasRequiredParams(post, self.getRequiredParams());
-	    if(message) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-			});
-	        return;
-	    }
+        this.getJSONPostParams(function(err, post) {
+            post.publish_date = new Date(parseInt(post.publish_date));
+            post.id = vars.id;
+            delete post[pb.DAO.getIdField()];
 
-	    var dao = new pb.DAO();
-	    dao.loadById(post.id, 'page', function(err, page) {
-	        if(util.isError(err) || page === null) {
-	            cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
-				});
-	            return;
-	        }
+            var message = self.hasRequiredParams(post, self.getRequiredParams());
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
+                return;
+            }
 
-	        post.author = page.author;
-	        post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
-	        pb.DocumentCreator.update(post, page, ['meta_keywords']);
+            var dao = new pb.DAO();
+            dao.loadById(post.id, 'page', function(err, page) {
+                if(util.isError(err) || page === null) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
+                    });
+                    return;
+                }
 
-	        self.setFormFieldValues(post);
+                if(self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR || !post.author) {
+                  post.author = page.author;
+                }
+                post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
+                pb.DocumentCreator.update(post, page, ['meta_keywords']);
 
-	        pb.RequestHandler.urlExists(page.url, post.id, function(err, exists) {
-	            if(util.isError(err) || exists) {
-	                cb({
-						code: 400,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
-					});
-	                return;
-	            }
+                self.setFormFieldValues(post);
 
-	            dao.save(page, function(err, result) {
-	                if(util.isError(err)) {
-                        pb.log.error(err.stack);
-	                    return cb({
-							code: 500,
-							content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-						});
-	                }
+                pb.RequestHandler.urlExists(page.url, post.id, function(err, exists) {
+                    if(util.isError(err) || exists) {
+                        cb({
+                            code: 400,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+                        });
+                        return;
+                    }
 
-					post.last_modified = new Date();
-					cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('EDITED'), post)});
-	            });
-	        });
-	    });
-	});
-};
+                    dao.save(page, function(err, result) {
+                        if(util.isError(err)) {
+                            pb.log.error(err.stack);
+                            return cb({
+                                code: 500,
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                            });
+                        }
 
-EditPagePostController.prototype.getRequiredParams = function() {
-	return ['url', 'headline', 'page_layout', 'id'];
-};
-
-EditPagePostController.prototype.getSanitizationRules = function() {
-    return {
-        page_layout: pb.BaseController.getContentSanitizationRules()
+                        post.last_modified = new Date();
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('EDITED'), post)});
+                    });
+                });
+            });
+        });
     };
-};
 
-//exports
-module.exports = EditPagePostController;
+    EditPagePostController.prototype.getRequiredParams = function() {
+        return ['url', 'headline', 'page_layout', 'id'];
+    };
+
+    EditPagePostController.prototype.getSanitizationRules = function() {
+        return {
+            page_layout: pb.BaseController.getContentSanitizationRules()
+        };
+    };
+
+    //exports
+    return EditPagePostController;
+};

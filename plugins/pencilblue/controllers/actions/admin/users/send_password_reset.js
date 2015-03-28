@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,62 +15,65 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Sends a password reset email
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Sends a password reset email
+     */
+    function SendPasswordReset(){}
+    util.inherits(SendPasswordReset, pb.FormController);
 
-function SendPasswordReset(){}
+    SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-//inheritance
-util.inherits(SendPasswordReset, pb.FormController);
-
-SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
-	var self = this;
-	var vars = this.pathVars;
-
-	var message = this.hasRequiredParams(vars, ['id']);
-	if(message) {
-        self.formError(message, '/admin/users', cb);
-        return;
-    }
-
-	var dao = new pb.DAO();
-	dao.loadById(vars.id, 'user', function(err, user) {
-        if(util.isError(err) || user === null) {
-            self.formError(self.ls.get('ERROR_SAVING'), '/admin/users', cb);
+        var message = this.hasRequiredParams(vars, ['id']);
+        if(message) {
+            self.formError(message, '/admin/users', cb);
             return;
         }
 
-        dao.loadByValue('user_id', vars.id, 'password_reset', function(err, passwordReset) {
-        	if(util.isError(err)) {
-                self.formError(self.ls.get('NOT_REGISTERED'), '/admin/users/' + vars.id, cb);
+        var dao = new pb.DAO();
+        dao.loadById(vars.id, 'user', function(err, user) {
+            if(util.isError(err) || user === null) {
+                self.formError(self.ls.get('ERROR_SAVING'), '/admin/users', cb);
                 return;
             }
 
-            if(!passwordReset) {
-                passwordReset = pb.DocumentCreator.create('password_reset', {user_id: user._id.toString()});
-            }
-
-            passwordReset.verification_code = pb.utils.uniqueId().toString();
-
-            dao.save(passwordReset, function(err, result) {
+            dao.loadByValue('user_id', vars.id, 'password_reset', function(err, passwordReset) {
                 if(util.isError(err)) {
-                    return self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/' + vars.id, cb);
+                    self.formError(self.ls.get('NOT_REGISTERED'), '/admin/users/' + vars.id, cb);
+                    return;
                 }
 
-                //send the user an email
-                pb.users.sendPasswordResetEmail(user, passwordReset, function(err, response) {
-                    if (util.isError(err)) {
-                        return self.formError(self.ls.get(err.message), '/admin/users/' + vars.id, cb);
+                if(!passwordReset) {
+                    passwordReset = pb.DocumentCreator.create('password_reset', {user_id: user[pb.DAO.getIdField()].toString()});
+                }
+
+                passwordReset.verification_code = util.uniqueId();
+
+                dao.save(passwordReset, function(err, result) {
+                    if(util.isError(err)) {
+                        return self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/' + vars.id, cb);
                     }
 
-                    self.session.success = self.ls.get('VERIFICATION_SENT') + ' ' + user.email;
-                    self.redirect('/admin/users/' + vars.id, cb);
+                    //send the user an email
+                    pb.users.sendPasswordResetEmail(user, passwordReset, function(err, response) {
+                        if (util.isError(err)) {
+                            return self.formError(self.ls.get(err.message), '/admin/users/' + vars.id, cb);
+                        }
+
+                        self.session.success = self.ls.get('VERIFICATION_SENT') + ' ' + user.email;
+                        self.redirect('/admin/users/' + vars.id, cb);
+                    });
                 });
             });
         });
-    });
-};
+    };
 
-//exports
-module.exports = SendPasswordReset;
+    //exports
+    return SendPasswordReset;
+};

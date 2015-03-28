@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,9 +16,13 @@
 */
 
 //dependencies
+var fs      = require('fs');
+var path    = require('path');
 var cluster = require('cluster');
 var process = require('process');
-var utils   = require('./util.js');
+var util    = require('./util.js');
+var process = require('process');
+var winston = require('winston');
 
 /**
  * Default configuration.  The settings here should be overriden by taking the
@@ -29,19 +33,96 @@ var utils   = require('./util.js');
  * 2) Override the properties as desired.
  * 3) Add any custom properties you wish to provide for your specific purposes.
  */
+function Configuration(){}
 
-// Don't change this setting
-global.DOCUMENT_ROOT = __dirname.substr(0, __dirname.indexOf(path.sep+'include'));
-global.EXTERNAL_ROOT = path.join(path.sep, 'etc', 'pencilblue');
+/**
+ * 
+ * @static
+ * @readonly
+ * @property DOCUMENT_ROOT
+ * @type {String}
+ */
+Configuration.DOCUMENT_ROOT = __dirname.substr(0, __dirname.indexOf(path.sep+'include'));
 
-global.LOG_LEVEL = 'info';
-global.LOG_DIR   = path.join(DOCUMENT_ROOT, 'log');
-global.LOG_FILE  = path.join(LOG_DIR, 'pencilblue.log');
+/**
+ * 
+ * @static
+ * @readonly
+ * @property EXTERNAL_ROOT
+ * @type {String}
+ */
+Configuration.EXTERNAL_ROOT = path.join(path.sep, 'etc', 'pencilblue');
 
+/**
+ * Ascending index value
+ * @private
+ * @static
+ * @readonly
+ * @property ASC
+ * @type {Integer}
+ */
 var ASC  = 1;
+
+/**
+ * Descending index value
+ * @private
+ * @static
+ * @readonly
+ * @property DESC
+ * @type {Integer}
+ */
 var DESC = -1;
 
-var config = {
+/**
+ * The default logging directory absolute file path
+ * @private
+ * @static
+ * @readonly
+ * @property LOG_DIR
+ * @type {String}
+ */
+var LOG_DIR = path.join(Configuration.DOCUMENT_ROOT, 'log');
+
+/**
+ * The default logging file absolute path
+ * @private
+ * @static
+ * @readonly
+ * @property LOG_FILESC
+ * @type {String}
+ */
+var LOG_FILE = path.join(LOG_DIR, 'pencilblue.log');
+
+/**
+ * The configuration module overrides file name 
+ * @private
+ * @static
+ * @readonly
+ * @property CONFIG_MODULE_NAME
+ * @type {String}
+ */
+var CONFIG_MODULE_NAME  = 'config.js';
+
+/**
+ * The default list of absolute file paths to try when loading the configuration
+ * @private
+ * @static
+ * @readonly
+ * @property OVERRIDE_FILE_PATHS
+ * @type {Array}
+ */
+var OVERRIDE_FILE_PATHS = [
+    path.join(Configuration.DOCUMENT_ROOT, CONFIG_MODULE_NAME),
+    path.join(Configuration.EXTERNAL_ROOT, CONFIG_MODULE_NAME),
+];
+
+/**
+ * @private
+ * @static
+ * @readonly
+ * @property BASE_CONFIG
+ */
+var BASE_CONFIG = {
 
     //The name of the site.
 	siteName: 'pencilblue',
@@ -50,8 +131,7 @@ var config = {
     //the siteIP
 	siteRoot: 'http://localhost:8080',
 
-    //The hostname or IP address represented by the entire site.  Should match
-    //your domain name if in production use.
+    //The hostname or IP address that the web server instance will bind to
 	siteIP:   '0.0.0.0',
 
     //The primary port to listen for traffic on.  Some environment such as
@@ -60,7 +140,7 @@ var config = {
 	sitePort: process.env.port || process.env.PORT || 8080,
 
     //the absolute file path to the directory where installation lives
-	docRoot:  DOCUMENT_ROOT,
+	docRoot:  Configuration.DOCUMENT_ROOT,
 
     //provides a configuration for connecting to persistent storage.  The
     //default configuration is meant for mongodb.
@@ -400,8 +480,16 @@ var config = {
 		timeout: 2000000
 	},
 
-    //The global log level: silly, debug, info, warn, error
-	log_level: LOG_LEVEL,
+    //The logging settings.  The level property specifies at what level to log.  
+    //It can be of any of the following: silly, debug, info, warn, error.  The 
+    //file property specifes the absolute file path where the log file should 
+    //be written.  If no value is provided the file transport will not be 
+    //configured.
+    logging: {
+        
+        level: "info",
+        file: LOG_FILE
+    },
 
     //System settings always have the persistent storage layer on.  Optionally,
     //the cache and/or memory can be used.  It is not recommended to use memory
@@ -543,17 +631,19 @@ var config = {
         //The maximum size of media files that can be uploaded to the server in 
         //bytes
         max_upload_size: 2 * 1024 * 1024
-    }
+    },
+    
+    //Pulls in the package.json file for PB and extracts the version so it is 
+    //available in the configuration.
+    version: require(path.join(Configuration.DOCUMENT_ROOT, 'package.json')).version
 };
 
-var CONFIG_FILE_NAME    = 'config.json';
-var CONFIG_MODULE_NAME  = 'config.js';
-var OVERRIDE_FILE_PATHS = [
-    path.join(DOCUMENT_ROOT, CONFIG_FILE_NAME),
-    path.join(EXTERNAL_ROOT, CONFIG_FILE_NAME),
-    path.join(DOCUMENT_ROOT, CONFIG_MODULE_NAME),
-    path.join(EXTERNAL_ROOT, CONFIG_MODULE_NAME),
-];
+/** 
+ * Retrieve the base configuration
+ */
+Configuration.getBaseConfig = function() {
+    return util.clone(BASE_CONFIG);
+};
 
 /**
  * Loads an external configuration.
@@ -561,70 +651,68 @@ var OVERRIDE_FILE_PATHS = [
  * this function after the server starts may cause unintended behavior across
  * the system.
  */
-var loadConfiguration = function() {
-
-    // If no log file exists, we should create one
-    if (!fs.existsSync(LOG_FILE)) {
-        if (!fs.existsSync(LOG_DIR)) {
-            fs.mkdirSync(LOG_DIR);
-        }
-        console.log('SystemStartup: Creating log file [%s]', LOG_FILE);
-        fs.writeFileSync(LOG_FILE, '');
+Configuration.load = function(filePaths) {
+    if (util.isString(filePaths)) {
+        filePaths = [filePaths];
+    }
+    else if (!filePaths) {
+        filePaths = OVERRIDE_FILE_PATHS;
     }
 
     //find the override file, if exists
     var override       = {};
     var overrideFile   = null;
     var overridesFound = false;
-    for (var i = 0; i < OVERRIDE_FILE_PATHS.length; i++) {
+    for (var i = 0; i < filePaths.length; i++) {
 
-    	overrideFile = OVERRIDE_FILE_PATHS[i];
+    	overrideFile = filePaths[i];
     	if (fs.existsSync(overrideFile)) {
 
             try{
-              override       = require(overrideFile);
-              overridesFound = true;
-              break;
+                override       = require(overrideFile);
+                overridesFound = true;
+                break;
             }
             catch(e){
-              console.log('SystemStartup: Failed to parse configuration file [%s]: %s', overrideFile, e.stack);
+                console.log('SystemStartup: Failed to parse configuration file [%s]: %s', overrideFile, e.stack);
             }
-    	}
-    	else {
-    		console.log('SystemStartup: No configuration file [%s] found.', overrideFile);
     	}
     }
 
     //log result
-    var message = overridesFound ? 'Override file ['+overrideFile+'] will be applied.' : 'No overrides are available, skipping to defaults';
-    console.log('SystemStartup: %s', message);
+    var message;
+    if (overridesFound) {
+        message = util.format('Override file [%s] will be applied.', overrideFile);
+    }
+    else {
+        message = 'No overrides are available, skipping to defaults after searching the following files:';
+        filePaths.forEach(function(filePath) {
+            message += util.format('\n* %s', filePath);
+        });
+    }
+    console.log(message);
 
     //perform any overrides
-    config = utils.deepMerge(override, config);
+    return Configuration.mergeWithBase(override);
+};
 
-    //setup logging
-    if (!config.logging) {
-        config.logging = {
-            transports: [
-                 new (winston.transports.Console)({ level: config.log_level, timestamp: true, label: cluster.worker ? cluster.worker.id : 'M'}),
-                 new (winston.transports.File)({ filename: LOG_FILE, level: config.log_level, timestamp: true })
-           ]
-        };
-    }
+/**
+ * 
+ * @static
+ * @method mergeWithBase
+ */
+Configuration.mergeWithBase = function(overrides) {
+    
+    //merge in all overrides with the base configuration
+    var config = util.deepMerge(overrides, Configuration.getBaseConfig());
 
     //special check to ensure that there is no ending slash on the site root
     if (config.siteRoot.lastIndexOf('/') === (config.siteRoot.length - 1)) {
         config.siteRoot = config.siteRoot.substring(0, config.siteRoot.length - 1);
     }
-
-    //ensure that the version is provided
-    var packageInfo = require(path.join(DOCUMENT_ROOT, 'package.json'));
-    config.version = packageInfo.version;
     
 	return config;
 };
 
 //export configuration
-var config               = loadConfiguration();
-config.loadConfiguration = loadConfiguration;
-module.exports           = Object.freeze(config);
+module.exports = Configuration;

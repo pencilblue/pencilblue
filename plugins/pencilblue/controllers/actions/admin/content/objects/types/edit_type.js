@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,64 +15,67 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Edits an object type
- * @class EditObjectType
- * @constructor
- * @extends FormController
- */
-function EditObjectType(){}
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Edits an object type
+     * @class EditObjectType
+     * @constructor
+     * @extends FormController
+     */
+    function EditObjectType(){}
+    util.inherits(EditObjectType, pb.BaseController);
 
-//inheritance
-util.inherits(EditObjectType, pb.BaseController);
+    EditObjectType.prototype.render = function(cb) {
+        var self    = this;
+        var vars    = this.pathVars;
 
-EditObjectType.prototype.render = function(cb) {
-    var self    = this;
-    var vars    = this.pathVars;
-
-    if(!vars.id) {
-        return cb({
-            code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-        });
-    }
-
-    var service = new pb.CustomObjectService();
-    service.loadTypeById(vars.id, function(err, custObjType) {
-        if(util.isError(err) || !pb.utils.isObject(custObjType)) {
+        if(!vars.id) {
             return cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
             });
         }
 
-        //TODO modify this approach to check for protected properties and allow 
-        //others.  Right now this will not allow additional fields if template 
-        //is overriden.
-        var post = self.body;
-        custObjType.name = post.name;
-        custObjType.fields = post.fields;
-        custObjType.fields.name = {field_type: 'text'};
-
-        service.saveType(custObjType, function(err, result) {
-            if(util.isError(err)) {
-                cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                });
-                return;
-            }
-            else if(util.isArray(result) && result.length > 0) {
+        var service = new pb.CustomObjectService();
+        service.loadTypeById(vars.id, function(err, custObjType) {
+            if(util.isError(err) || !util.isObject(custObjType)) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'), result)
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                 });
             }
 
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObjType.name + ' ' + self.ls.get('EDITED'))});
-        });
-    });
-};
+            //TODO modify this approach to check for protected properties and allow 
+            //others.  Right now this will not allow additional fields if template 
+            //is overriden.
+            var post = self.body;
+            custObjType.name = post.name;
+            custObjType.fields = post.fields;
+            custObjType.fields.name = {field_type: 'text'};
 
-//exports
-module.exports = EditObjectType;
+            service.saveType(custObjType, function(err, result) {
+                if(util.isError(err)) {
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    });
+                }
+                else if(util.isArray(result) && result.length > 0) {
+                    return cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'), result)
+                    });
+                }
+
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObjType.name + ' ' + self.ls.get('EDITED'))});
+            });
+        });
+    };
+
+    //exports
+    return EditObjectType;
+};

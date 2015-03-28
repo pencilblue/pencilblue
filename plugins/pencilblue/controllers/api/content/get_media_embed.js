@@ -15,69 +15,73 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Retrieve a media embed for use in an editor
- * @class GetMediaEmbedApiController
- * @constructor
- * @extends BaseController
- */
-function GetMediaEmbedApiController(){}
-
-//inheritance
-util.inherits(GetMediaEmbedApiController, pb.BaseController);
-
-/**
- * Renders the media for embeding in the editor view
- * @method 
- */
-GetMediaEmbedApiController.prototype.render = function(cb) {
-    var self = this;
-    var get = this.query;
-
-    //validation
-    if(!pb.validation.isIdStr(get.id, true)) {
-        return cb({
-            status: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'invalid media Id')
-        });
-        return;
-    }
-
-    //parse additional info
-    var flag = pb.MediaService.parseMediaFlag(get.tag);
-    if (!flag) {
-        flag = {
-            cleanFlag: '',
-            style: {}
-        };
-    }
-    flag.style.position = flag.style.position || 'left';
+module.exports = function(pb) {
     
-    var options = {
-        view: 'editor',
-        style: {
-            "max-height": (flag.style.maxHeight || '')
-        }
-    };
-    var ms = new pb.MediaService();
-    ms.renderById(get.id, options, function(err, html) {
-        if (util.isError(err)) {
-            return this.reqHandler.serveError(err);
-        }
-        else if (!html) {
-            return cb({
-                code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, this.ls.get('UNSUPPORTED_MEDIA'))
-            });
-        }
-        
-        var containerStyleStr = pb.MediaService.getStyleForPosition(flag.style.position) || '';
-        html = '<div id="media_preview_' + get.id + '" class="media_preview" media-tag="'+ flag.cleanFlag + '" style="' + containerStyleStr + '">' + html + '</div>';
-        cb({
-            content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', html)
-        });
-    });
-};
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Retrieve a media embed for use in an editor
+     * @class GetMediaEmbedApiController
+     * @constructor
+     * @extends BaseController
+     */
+    function GetMediaEmbedApiController(){}
+    util.inherits(GetMediaEmbedApiController, pb.BaseController);
 
-//exports
-module.exports = GetMediaEmbedApiController;
+    /**
+     * Renders the media for embeding in the editor view
+     * @method 
+     */
+    GetMediaEmbedApiController.prototype.render = function(cb) {
+        var self = this;
+        var get = this.query;
+
+        //validation
+        if(!pb.validation.isIdStr(get.id, true)) {
+            return cb({
+                status: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'invalid media Id')
+            });
+            return;
+        }
+
+        //parse additional info
+        var flag = pb.MediaService.parseMediaFlag(get.tag);
+        if (!flag) {
+            flag = {
+                cleanFlag: '',
+                style: {}
+            };
+        }
+        flag.style.position = flag.style.position || 'left';
+
+        var options = {
+            view: 'editor',
+            style: {
+                "max-height": (flag.style.maxHeight || '')
+            }
+        };
+        var ms = new pb.MediaService();
+        ms.renderById(get.id, options, function(err, html) {
+            if (util.isError(err)) {
+                return this.reqHandler.serveError(err);
+            }
+            else if (!html) {
+                return cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, this.ls.get('UNSUPPORTED_MEDIA'))
+                });
+            }
+
+            var containerStyleStr = pb.MediaService.getStyleForPosition(flag.style.position) || '';
+            html = '<div id="media_preview_' + get.id + '" class="media_preview" media-tag="'+ flag.cleanFlag + '" style="' + containerStyleStr + '">' + html + '</div>';
+            cb({
+                content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', html)
+            });
+        });
+    };
+
+    //exports
+    return GetMediaEmbedApiController;
+};

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,33 +15,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Checks to see if the proposed username is available
- */
+module.exports = function UsernameAvailableModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Checks to see if the proposed username is available
+     */
+    function UsernameAvailable(){}
+    util.inherits(UsernameAvailable, pb.BaseController);
 
-function UsernameAvailable(){}
+    UsernameAvailable.prototype.render = function(cb) {
+        var get  = this.query;
 
-//inheritance
-util.inherits(UsernameAvailable, pb.BaseController);
-
-UsernameAvailable.prototype.render = function(cb) {
-	var get  = this.query;
-
-	var message = this.hasRequiredParams(get, ['username']);
-    if(message) {
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'username missing from request')});
-        return;
-    }
-
-    pb.users.isUserNameOrEmailTaken(get.username, '', null, function(error, isTaken) {
-        if(isTaken) {
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.username + ' is not available', false)});
+        var message = this.hasRequiredParams(get, ['username']);
+        if(message) {
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'username missing from request')});
             return;
         }
 
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.username + ' is available', true)});
-    });
-};
+        pb.users.isUserNameOrEmailTaken(get.username, '', null, function(error, isTaken) {
+            if(isTaken) {
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.username + ' is not available', false)});
+                return;
+            }
 
-//exports
-module.exports = UsernameAvailable;
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.username + ' is available', true)});
+        });
+    };
+
+    //exports
+    return UsernameAvailable;
+};

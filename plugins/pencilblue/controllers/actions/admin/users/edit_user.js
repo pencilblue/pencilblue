@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,78 +15,81 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Edits a user
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Edits a user
+     */
+    function EditUser(){}
+    util.inherits(EditUser, pb.BaseController);
 
-function EditUser(){}
+    EditUser.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-//inheritance
-util.inherits(EditUser, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
+            var message = self.hasRequiredParams(post, self.getRequiredFields());
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                });
+                return;
+            }
 
-EditUser.prototype.render = function(cb) {
-	var self = this;
-	var vars = this.pathVars;
+            if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+                });
+                return;
+            }
 
-	this.getJSONPostParams(function(err, post) {
-	    var message = self.hasRequiredParams(post, self.getRequiredFields());
-	    if(message) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-			});
-	        return;
-	    }
+            var dao = new pb.DAO();
+            dao.loadById(vars.id, 'user', function(err, user) {
+                if(util.isError(err) || user === null) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    });
+                    return;
+                }
 
-	    if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
-			cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
-			});
-			return;
-	    }
+                delete post[pb.DAO.getIdField()];
+                pb.DocumentCreator.update(post, user);
 
-	    var dao = new pb.DAO();
-	    dao.loadById(vars.id, 'user', function(err, user) {
-	        if(util.isError(err) || user === null) {
-	            cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-				});
-	            return;
-	        }
+                pb.users.isUserNameOrEmailTaken(user.username, user.email, vars.id, function(err, isTaken) {
+                    if(util.isError(err) || isTaken) {
+                        cb({
+                            code: 400,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
+                        });
+                        return;
+                    }
 
-			delete post._id;
-	        pb.DocumentCreator.update(post, user);
+                    dao.save(user, function(err, result) {
+                        if(util.isError(err)) {
+                            cb({
+                                code: 500,
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                            });
+                            return;
+                        }
 
-	        pb.users.isUserNameOrEmailTaken(user.username, user.email, vars.id, function(err, isTaken) {
-	            if(util.isError(err) || isTaken) {
-					cb({
-						code: 400,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
-					});
-	                return;
-	            }
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_EDITED'))});
+                    });
+                });
+            });
+        });
+    };
 
-	            dao.save(user, function(err, result) {
-	                if(util.isError(err)) {
-	                    cb({
-							code: 500,
-							content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-						});
-	                    return;
-	                }
+    EditUser.prototype.getRequiredFields = function() {
+        return ['username', 'email', 'admin'];
+    };
 
-					cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_EDITED'))});
-	            });
-	        });
-	    });
-	});
-};
-
-EditUser.prototype.getRequiredFields = function() {
-	return ['username', 'email', 'admin'];
-};
-
-//exports
-module.exports = EditUser;
+    //exports
+    return EditUser;
+}

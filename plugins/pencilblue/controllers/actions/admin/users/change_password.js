@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,86 +15,90 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Changes a user's password
- */
+module.exports = function ChangePasswordModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    var BaseController = pb.BaseController;
+    
+    /**
+     * Changes a user's password
+     */
+    function ChangePassword(){}
+    util.inherits(ChangePassword, BaseController);
 
-function ChangePassword(){}
+    ChangePassword.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-//inheritance
-util.inherits(ChangePassword, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
+            var message = self.hasRequiredParams(post, self.getRequiredFields());
+            if(message) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                });
+                return;
+            }
 
-ChangePassword.prototype.render = function(cb) {
-	var self = this;
-	var vars = this.pathVars;
+            if(self.session.authentication.user_id != vars.id) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+                });
+                return;
+            }
 
-	this.getJSONPostParams(function(err, post) {
-	    var message = self.hasRequiredParams(post, self.getRequiredFields());
-	    if(message) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-			});
-	        return;
-	    }
+            if(post.new_password != post.confirm_password) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('PASSWORD_MISMATCH'))
+                });
+                return;
+            }
 
-	    if(self.session.authentication.user_id != vars.id) {
-	        cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
-			});
-	        return;
-	    }
+            var dao = new pb.DAO();
+            dao.loadById(vars.id, 'user', function(err, user) {
+                if(util.isError(err) || user === null) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    });
+                    return;
+                }
 
-	    if(post.new_password != post.confirm_password) {
-			cb({
-				code: 400,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('PASSWORD_MISMATCH'))
-			});
-	        return;
-	    }
+                pb.DocumentCreator.update(post, user);
 
-	    var dao = new pb.DAO();
-	    dao.loadById(vars.id, 'user', function(err, user) {
-	        if(util.isError(err) || user === null) {
-	            cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-				});
-	            return;
-	        }
+                if(user.password != user.current_password) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_PASSWORD'))
+                    });
+                    return;
+                }
 
-	        pb.DocumentCreator.update(post, user);
+                user.password = user.new_password;
+                delete user.new_password;
+                delete user.current_password;
 
-	        if(user.password != user.current_password) {
-				cb({
-					code: 400,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_PASSWORD'))
-				});
-	            return;
-	        }
+                dao.save(user, function(err, result) {
+                    if(util.isError(err)) {
+                        return cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        });
+                    }
 
-	        user.password = user.new_password;
-	        delete user.new_password;
-	        delete user.current_password;
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('PASSWORD_CHANGED'))});
+                });
+            });
+        });
+    };
 
-	        dao.save(user, function(err, result) {
-	            if(util.isError(err)) {
-	                return cb({
-						code: 500,
-						content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-					});
-	            }
+    ChangePassword.prototype.getRequiredFields = function() {
+        return ['current_password', 'new_password', 'confirm_password'];
+    };
 
-				cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('PASSWORD_CHANGED'))});
-	        });
-	    });
-	});
+    //exports
+    return ChangePassword;
 };
-
-ChangePassword.prototype.getRequiredFields = function() {
-	return ['current_password', 'new_password', 'confirm_password'];
-};
-
-//exports
-module.exports = ChangePassword;

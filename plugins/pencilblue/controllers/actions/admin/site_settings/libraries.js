@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,45 +15,48 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Saves the site's content settings
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Saves the site's content settings
+     */
+    function Libraries(){}
+    util.inherits(Libraries, pb.BaseController);
 
-function Libraries(){}
+    Libraries.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(Libraries, pb.BaseController);
-
-Libraries.prototype.render = function(cb) {
-    var self = this;
-
-    this.getJSONPostParams(function(err, post) {
-        var message = self.hasRequiredParams(post, ['jquery', 'angular']);
-        if(message) {
-            cb({
-                code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-            });
-            return;
-        }
-
-        pb.settings.set('libraries_settings', post, function(data) {
-            if(util.isError(data)) {
+        this.getJSONPostParams(function(err, post) {
+            var message = self.hasRequiredParams(post, ['jquery', 'angular']);
+            if(message) {
                 cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
                 });
                 return;
             }
 
-            for(var key in post) {
-                pb.TemplateService.registerGlobal(key + '_src', post[key]);
-            }
+            pb.settings.set('libraries_settings', post, function(data) {
+                if(util.isError(data)) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                    });
+                    return;
+                }
 
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('LIBRARY_SETTINGS') + ' ' +  self.ls.get('EDITED') + '. ' + self.ls.get('LIBRARY_CLUSTER'))});
+                for(var key in post) {
+                    pb.TemplateService.registerGlobal(key + '_src', post[key]);
+                }
+
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('LIBRARY_SETTINGS') + ' ' +  self.ls.get('EDITED') + '. ' + self.ls.get('LIBRARY_CLUSTER'))});
+            });
         });
-    });
-};
+    };
 
-//exports
-module.exports = Libraries;
+    //exports
+    return Libraries;
+};

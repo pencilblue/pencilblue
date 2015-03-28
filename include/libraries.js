@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,67 +15,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Service for library settings retrieval
- *
- * @module Services
- * @class LibrariesService
- * @constructor
- */
-function LibrariesService(){}
+//dependencies
+var util = require('./util.js');
 
-/**
- * Retrieves the library settings
- *
- * @method getSettings
- * @param {Function} cb Callback function
- */
-LibrariesService.getSettings = function(cb){
-    pb.settings.get('libraries_settings', function(err, settings){
-        if(settings === null) {
-            settings = LibrariesService.getCDNDefaults();
-            pb.settings.set('libraries_settings', settings, pb.utils.cb);
-        }
-        else {
-            // Replace any missing libraries with CDN defaults
-            var newSettings = LibrariesService.getCDNDefaults();
-            pb.utils.merge(settings, newSettings);
-            settings = newSettings;
-        }
-        cb(err, settings);
-    });
-};
+module.exports = function LibrariesServiceModule(pb) {
 
-/**
- * Loads the libraries settings into template service globals. Called on system
- * startup
- *
- * @method init
- * @param  {Function} cb Callback function
- */
-LibrariesService.init = function(cb) {
-    LibrariesService.getSettings(function(err, settings) {
-        if(util.isError(err)) {
-            cb(err);
-            return;
-        }
-
-        for(var key in settings) {
-            pb.TemplateService.registerGlobal(key + '_src', settings[key]);
-        }
-
-        cb(null, true);
-    });
-};
-
-/**
- * Retrieves the default library settings for CDNs
- *
- * @method getCDNDefaults
- * @return {Object} CDN defaults
- */
-LibrariesService.getCDNDefaults = function() {
-    return {
+    /**
+     * Service for library settings retrieval
+     *
+     * @module Services
+     * @class LibrariesService
+     * @constructor
+     */
+    function LibrariesService(){}
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property LIBRARIES_SETTINGS_REF
+     * @type {String}
+     */
+    var LIBRARIES_SETTINGS_REF = 'libraries_settings';
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property CDN_DEFAULTS
+     * @type {Object}
+     */
+    var CDN_DEFAULTS = Object.freeze({
         jquery: '//code.jquery.com/jquery-1.11.1.min.js',
         jquery_ui_js: '//code.jquery.com/ui/1.10.4/jquery-ui.min.js',
         jquery_ui_css: '//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css',
@@ -102,45 +74,106 @@ LibrariesService.getCDNDefaults = function() {
         ng_sortable_css: '/css/lib/ng-sortable/ng-sortable.min.css',
         ng_sortable_style_css: '/css/lib/ng-sortable/ng-sortable.style.min.css',
         ng_sortable_js: '/js/lib/ng-sortable/ng-sortable.min.js'
-    };
-};
+    });
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property BOWER_DEFAULTS
+     * @type {Object}
+     */
+    var BOWER_DEFAULTS = Object.freeze({
+            jquery: '/bower_components/jquery/dist/jquery.min.js',
+            jquery_ui_js: '/bower_components/jqueryui/jquery-ui.min.js',
+            jquery_ui_css: '/bower_components/jqueryui/themes/ui-lightness/jquery-ui.min.css',
+            jquery_ui_touch_punch: '/bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min.js',
+            jquery_file_upload_js: '/bower_components/jquery-file-upload/js/jquery.fileupload.js',
+            jquery_file_upload_css: '/bower_components/jquery-file-upload/css/jquery.fileupload.css',
+            jquery_iframe_transport: '/bower_components/jquery.iframe-transport/jquery.iframe-transport.js',
+            jquery_datetime_picker_js: '/bower_components/datetimepicker/jquery.datetimepicker.js',
+            jquery_datetime_picker_css: '/bower_components/datetimepicker/jquery.datetimepicker.css',
+            jquery_validate: '/bower_components/jquery.validation/dist/jquery.validate.min.js',
+            bootstrap_js: '/bower_components/bootstrap/dist/js/bootstrap.min.js',
+            bootstrap_css: '/bower_components/bootstrap/dist/css/bootstrap.min.css',
+            font_awesome: '/bower_components/fontawesome/css/font-awesome.min.css',
+            angular: '/bower_components/angular/angular.min.js',
+            angular_route: '/bower_components/angular-route/angular-route.min.js',
+            angular_sanitize: '/bower_components/angular-sanitize/angular-sanitize.min.js',
+            spin: '/bower_components/jquery.spinjs/libs/spin/spin.js',
+            jquery_spin: '/bower_components/jquery.spinjs/dist/jquery.spin.min.js',
+            he: '/bower_components/he/he.js',
+            to_markdown: '/bower_components/to-markdown/src/to-markdown.js',
+            markdown: '/bower_components/markdown/lib/markdown.js',
+            angular_upload: '/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload.min.js',
+            angular_upload_shim: '/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload-shim.min.js',
+            ng_sortable_css: '/bower_components/ng-sortable/dist/ng-sortable.min.css',
+            ng_sortable_style_css: '/bower_components/ng-sortable/dist/ng-sortable.style.min.css',
+            ng_sortable_js: '/bower_components/ng-sortable/dist/ng-sortable.min.js'
+        });
 
-/**
- * Retrieves the default library settings for Bower
- *
- * @method getBowerDefaults
- * @return {Object} Bower defaults
- */
-LibrariesService.getBowerDefaults = function() {
-    return {
-        jquery: '/bower_components/jquery/dist/jquery.min.js',
-        jquery_ui_js: '/bower_components/jqueryui/jquery-ui.min.js',
-        jquery_ui_css: '/bower_components/jqueryui/themes/ui-lightness/jquery-ui.min.css',
-        jquery_ui_touch_punch: '/bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min.js',
-        jquery_file_upload_js: '/bower_components/jquery-file-upload/js/jquery.fileupload.js',
-        jquery_file_upload_css: '/bower_components/jquery-file-upload/css/jquery.fileupload.css',
-        jquery_iframe_transport: '/bower_components/jquery.iframe-transport/jquery.iframe-transport.js',
-        jquery_datetime_picker_js: '/bower_components/datetimepicker/jquery.datetimepicker.js',
-        jquery_datetime_picker_css: '/bower_components/datetimepicker/jquery.datetimepicker.css',
-        jquery_validate: '/bower_components/jquery.validation/dist/jquery.validate.min.js',
-        bootstrap_js: '/bower_components/bootstrap/dist/js/bootstrap.min.js',
-        bootstrap_css: '/bower_components/bootstrap/dist/css/bootstrap.min.css',
-        font_awesome: '/bower_components/fontawesome/css/font-awesome.min.css',
-        angular: '/bower_components/angular/angular.min.js',
-        angular_route: '/bower_components/angular-route/angular-route.min.js',
-        angular_sanitize: '/bower_components/angular-sanitize/angular-sanitize.min.js',
-        spin: '/bower_components/jquery.spinjs/libs/spin/spin.js',
-        jquery_spin: '/bower_components/jquery.spinjs/dist/jquery.spin.min.js',
-        he: '/bower_components/he/he.js',
-        to_markdown: '/bower_components/to-markdown/src/to-markdown.js',
-        markdown: '/bower_components/markdown/lib/markdown.js',
-        angular_upload: '/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload.min.js',
-        angular_upload_shim: '/bower_components/danialfarid-angular-file-upload/dist/angular-file-upload-shim.min.js',
-        ng_sortable_css: '/bower_components/ng-sortable/dist/ng-sortable.min.css',
-        ng_sortable_style_css: '/bower_components/ng-sortable/dist/ng-sortable.style.min.css',
-        ng_sortable_js: '/bower_components/ng-sortable/dist/ng-sortable.min.js'
-    };
-};
+    /**
+     * Retrieves the library settings
+     *
+     * @method getSettings
+     * @param {Function} cb Callback function
+     */
+    LibrariesService.prototype.getSettings = function(cb){
+        pb.settings.get(LIBRARIES_SETTINGS_REF, function(err, settings){
+            if (settings) {
+                return cb(err, settings);
+            }
 
-//exports
-module.exports.LibrariesService = LibrariesService;
+            //set default settings if they don't exist
+            settings = LibrariesService.getCDNDefaults();
+            pb.settings.set(LIBRARIES_SETTINGS_REF, settings, function(err, result) {
+                cb(err, settings);
+            });
+        });
+    };
+
+    /**
+     * Loads the libraries settings into template service globals. Called on system
+     * startup
+     *
+     * @method init
+     * @param  {Function} cb Callback function
+     */
+    LibrariesService.init = function(cb) {
+        var instance = new LibrariesService();
+        instance.getSettings(function(err, settings) {
+            if(util.isError(err)) {
+                return cb(err);
+            }
+
+            Object.keys(settings).forEach(function(key) {
+                pb.TemplateService.registerGlobal(key + '_src', settings[key]);
+            });
+            cb(null, true);
+        });
+    };
+
+    /**
+     * Retrieves the default library settings for CDNs
+     *
+     * @method getCDNDefaults
+     * @return {Object} CDN defaults
+     */
+    LibrariesService.getCDNDefaults = function() {
+        return util.clone(CDN_DEFAULTS);
+    };
+
+    /**
+     * Retrieves the default library settings for Bower
+     *
+     * @method getBowerDefaults
+     * @return {Object} Bower defaults
+     */
+    LibrariesService.getBowerDefaults = function() {
+        return util.clone(BOWER_DEFAULTS);
+    };
+
+    //exports
+    return LibrariesService;
+};

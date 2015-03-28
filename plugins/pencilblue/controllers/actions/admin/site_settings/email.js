@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,38 +15,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Saves the site's email settings
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Saves the site's email settings
+     */
+    function Email(){}
+    util.inherits(Email, pb.BaseController);
 
-function Email(){}
+    Email.prototype.render = function(cb) {
+        var self = this;
 
-//inheritance
-util.inherits(Email, pb.BaseController);
+        this.getJSONPostParams(function(err, post) {
+            pb.settings.set('email_settings', post, function(data) {
+                if(util.isError(data)) {
+                    cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                    });
+                    return;
+                }
 
-Email.prototype.render = function(cb) {
-	var self = this;
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('EMAIL_SETTINGS') + ' ' +  self.ls.get('EDITED'))});
+            });
+        });
+    };
 
-    this.getJSONPostParams(function(err, post) {
-	    pb.settings.set('email_settings', post, function(data) {
-	        if(util.isError(data)) {
-	            cb({
-					code: 500,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-				});
-	            return;
-	        }
+    Email.prototype.getSanitizationRules = function() {
+        return {
+            verification_content: pb.BaseController.getContentSanitizationRules()
+        };
+    };
 
-			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('EMAIL_SETTINGS') + ' ' +  self.ls.get('EDITED'))});
-	    });
-	});
+    //exports
+    return Email;
 };
-
-Email.prototype.getSanitizationRules = function() {
-	return {
-		verification_content: pb.BaseController.getContentSanitizationRules()
-	};
-};
-
-//exports
-module.exports = Email;

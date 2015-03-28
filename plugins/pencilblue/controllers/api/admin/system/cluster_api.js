@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,49 +15,51 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Controller to properly route and handle remote calls to interact with
- * the cluster
- * @class ClusterApiController
- * @constructor
- */
-function ClusterApiController() {};
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util                = pb.util;
+    var BaseController      = pb.BaseController;
+    var ApiActionController = pb.ApiActionController;
+    var UrlService          = pb.UrlService;
+    
+    /**
+     * Controller to properly route and handle remote calls to interact with
+     * the cluster
+     * @class ClusterApiController
+     * @constructor
+     */
+    function ClusterApiController() {};
+    util.inherits(ClusterApiController, ApiActionController);
 
-//dependencies
-var BaseController      = pb.BaseController;
-var ApiActionController = pb.ApiActionController;
-var UrlService          = pb.UrlService;
+    //constants
+    var ACTIONS = {
+        refresh: false,
+    };
 
-//inheritance
-util.inherits(ClusterApiController, ApiActionController);
+    /**
+     * Provides the hash of all actions supported by this controller
+     * @method getActions
+     * @return {Object} Hash of acceptable actions
+     */
+    ClusterApiController.prototype.getActions = function() {
+        return ACTIONS;
+    };
 
-//constants
-var ACTIONS = {
-	refresh: false,
+    /**
+     * Causes the service registration storage to flush all status updates.  An API
+     * object is returned to the client that specifies the correct amount of time to
+     * wait before the service registry is updated again by all nodes.
+     * @method refresh
+     * @param {Function} cb
+     */
+    ClusterApiController.prototype.refresh = function(cb) {
+        pb.ServerRegistration.getInstance().flush(function(err, result) {
+            var content = BaseController.apiResponse(BaseController.API_SUCCESS, 'The wait time in seconds', {wait: pb.config.registry.update_interval});
+            cb({content: content});
+        });
+    };
+
+    //exports
+    return ClusterApiController;
 };
-
-/**
- * Provides the hash of all actions supported by this controller
- * @method getActions
- * @return {Object} Hash of acceptable actions
- */
-ClusterApiController.prototype.getActions = function() {
-	return ACTIONS;
-};
-
-/**
- * Causes the service registration storage to flush all status updates.  An API
- * object is returned to the client that specifies the correct amount of time to
- * wait before the service registry is updated again by all nodes.
- * @method refresh
- * @param {Function} cb
- */
-ClusterApiController.prototype.refresh = function(cb) {
-    pb.ServerRegistration.flush(function(err, result) {
-        var content = BaseController.apiResponse(BaseController.API_SUCCESS, 'The wait time in seconds', {wait: pb.config.registry.update_interval});
-        cb({content: content});
-    });
-};
-
-//exports
-module.exports = ClusterApiController;

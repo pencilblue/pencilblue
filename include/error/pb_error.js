@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,49 +15,54 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Specialized application error that knows what status code to return
- *
- * @module ErrorSuccess
- * @class PBError
- * @constructor
- * @main ErrorSuccess
- * @param {String} message    The error message
- * @param {Number} httpStatus The header code for the error
- */
-function PBError(message, httpStatus) {
-	this.message         = message ? message : '';
-	this.httpStatus      = httpStatus ? httpStatus : 500;
-	this.localizationKey = null;
-	this.source          = null;
+//dependencies
+var util = require('../util.js');
+
+module.exports = function PBErrorModule(pb) {
+
+    /**
+     * Specialized application error that knows what status code to return
+     *
+     * @module ErrorSuccess
+     * @class PBError
+     * @constructor
+     * @main ErrorSuccess
+     * @param {String} message    The error message
+     * @param {Number} httpStatus The header code for the error
+     */
+    function PBError(message, httpStatus) {
+        this.message         = message ? message : '';
+        this.httpStatus      = httpStatus ? httpStatus : 500;
+        this.localizationKey = null;
+        this.source          = null;
+    };
+
+    //setup inheritance
+    util.inherits(PBError, Error);
+
+    /**
+     * Sets the localization key for the error
+     *
+     * @method setLocalizationKey
+     * @param {String} key The localization key
+     * @return {object}    The PBError object
+     */
+    PBError.prototype.setLocalizatonKey = function(key){
+        this.localizationKey = key;
+        return this;
+    };
+
+    /**
+     * Sets the source for the error
+     *
+     * @method setSource
+     * @param {Object} err The error source
+     * @return {object}    The PBError object
+     */
+    PBError.prototype.setSource = function(err){
+        this.source = err;
+        return this;
+    };
+
+    return PBError;
 };
-
-//setup inheritance
-util.inherits(PBError, Error);
-
-/**
- * Sets the localization key for the error
- *
- * @method setLocalizationKey
- * @param {String} key The localization key
- * @return {object}    The PBError object
- */
-PBError.prototype.setLocalizatonKey = function(key){
-	this.localizationKey = key;
-	return this;
-};
-
-/**
- * Sets the source for the error
- *
- * @method setSource
- * @param {Object} err The error source
- * @return {object}    The PBError object
- */
-PBError.prototype.setSource = function(err){
-	this.source = err;
-	return this;
-};
-
-//exports
-module.exports.PBError = PBError;

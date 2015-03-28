@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,69 +16,75 @@
 */
 
 //dependencies
-var wpXMLParse = pb.plugins.getService('wp_xml_parse', 'wp_import');
+var fs         = require('fs');
+var formidable = require('formidable');
 
-/**
- * @class ImportWP
- * @constructor
- * @extends BaseController
- */
-function ImportWP(){}
+module.exports = function ImportWPActionControllerModule(pb) {
+    
+    //pb dependencies
+    var util       = pb.util;
+    var wpXMLParse = pb.PluginService.getService('wp_xml_parse', 'wp_import');
 
-//inheritance
-util.inherits(ImportWP, pb.BaseController);
+    /**
+     * @class ImportWPActionController
+     * @constructor
+     * @extends BaseController
+     */
+    function ImportWPActionController(){}
+    util.inherits(ImportWPActionController, pb.BaseController);
 
-/**
- * @see BaseController#render
- * @method render
- * @param {Function} cb
- */
-ImportWP.prototype.render = function(cb) {
-    var self  = this;
-    var files = [];
+    /**
+     * @see BaseController#render
+     * @method render
+     * @param {Function} cb
+     */
+    ImportWPActionController.prototype.render = function(cb) {
+        var self  = this;
+        var files = [];
 
-    var form = new formidable.IncomingForm();
-    form.on('file', function(field, file) {
-        files.push(file);
-    });
-    form.on('error', function(err) {
-        self.session.error = 'loc_NO_FILE';
-        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_FILE'))});
-    });
-    form.parse(this.req, function() {
+        var form = new formidable.IncomingForm();
+        form.on('file', function(field, file) {
+            files.push(file);
+        });
+        form.on('error', function(err) {
+            self.session.error = 'loc_NO_FILE';
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_FILE'))});
+        });
+        form.parse(this.req, function() {
 
-        fs.readFile(files[0].path, function(err, data) {
-            if(util.isError(err)) {
-                self.session.error = 'NO_FILE';
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_FILE'))});
-                return;
-            }
-
-            wpXMLParse.parse(data.toString(), self.session.authentication.user_id, function(err, users) {
-                if(err) {
-                    self.session.error = err.stack;
-                    return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))});
+            fs.readFile(files[0].path, function(err, data) {
+                if(util.isError(err)) {
+                    self.session.error = 'NO_FILE';
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_FILE'))});
+                    return;
                 }
 
-                self.session.importedUsers = users;
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('WP_IMPORT_SUCCESS'))});
+                wpXMLParse.parse(data.toString(), self.session.authentication.user_id, function(err, users) {
+                    if(err) {
+                        self.session.error = err.stack;
+                        return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))});
+                    }
+
+                    self.session.importedUsers = users;
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('WP_IMPORT_SUCCESS'))});
+                });
             });
         });
-    });
-};
+    };
 
-ImportWP.getRoutes = function(cb) {
-    var routes = [
-        {
-            method: 'post',
-            path: '/actions/admin/plugins/wp_import/settings/import',
-            auth_required: true,
-            access_level: ACCESS_MANAGING_EDITOR,
-            content_type: 'text/html'
-        }
-    ];
-    cb(null, routes);
-};
+    ImportWPActionController.getRoutes = function(cb) {
+        var routes = [
+            {
+                method: 'post',
+                path: '/actions/admin/plugins/wp_import/settings/import',
+                auth_required: true,
+                access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
+                content_type: 'text/html'
+            }
+        ];
+        cb(null, routes);
+    };
 
-//exports
-module.exports = ImportWP;
+    //exports
+    return ImportWPActionController;
+};

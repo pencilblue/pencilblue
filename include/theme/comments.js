@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,60 +15,65 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//dependencies
+var util = require('../util.js');
+
 /**
  * Theme content services
  *
  * @module Services
  * @submodule Theme
  */
+module.exports = function CommentServiceModule(pb) {
+    
+    /**
+     * Retrieves comment information
+     *
+     * @module Services
+     * @submodule Theme
+     * @class CommentService
+     * @constructor
+     */
+    function CommentService(){}
 
-/**
- * Retrieves comment information
- *
- * @module Services
- * @submodule Theme
- * @class CommentService
- * @constructor
- */
-function CommentService(){}
+    /**
+     * Retrieves the template for comments
+     *
+     * @method getCommentsTemplates
+     * @param {Object} contentSettings The content settings to use with retrieval
+     * @param {Function} output        Callback function
+     */
+    CommentService.getCommentsTemplates = function(contentSettings, output) {
+        var self = this;
 
-/**
- * Retrieves the template for comments
- *
- * @method getCommentsTemplates
- * @param {Object} contentSettings The content settings to use with retrieval
- * @param {Function} output        Callback function
- */
-CommentService.getCommentsTemplates = function(contentSettings, output) {
-    var self = this;
+        if(!contentSettings.allow_comments) {
+            output('');
+            return;
+        }
 
-    if(!contentSettings.allow_comments) {
-        output('');
-        return;
-    }
-
-    //TODO move this out of here.
-    var ts = new pb.TemplateService();
-    ts.load('elements/comments', function(err, commentsContainer) {
-        ts.load('elements/comments/comment', function(err, comment) {
-            output({commentsContainer: commentsContainer, comment: comment});
+        //TODO move this out of here.
+        var ts = new pb.TemplateService();
+        ts.load('elements/comments', function(err, commentsContainer) {
+            ts.load('elements/comments/comment', function(err, comment) {
+                output({commentsContainer: commentsContainer, comment: comment});
+            });
         });
-    });
-};
+    };
 
-/**
- * Retrieves the necessary user information for a commenter
- *
- * @method getCommentingUser
- * @param {Object} user A user object
- */
-CommentService.getCommentingUser = function(user) {
-    return {
-    	photo: user.photo,
-    	name: pb.users.getFormattedName(user),
-    	position: user.position
-	};
-};
+    /**
+     * Retrieves the necessary user information for a commenter
+     *
+     * @method getCommentingUser
+     * @param {Object} user A user object
+     */
+    CommentService.getCommentingUser = function(user) {
+        return {
+            photo: user.photo,
+            name: pb.users.getFormattedName(user),
+            position: user.position
+        };
+    };
 
-//exports
-module.exports = CommentService;
+    //exports
+    return CommentService;
+};

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,57 +15,60 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Deletes a page
- */
+module.exports = function(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    
+    /**
+     * Deletes a page
+     */
+    function DeletePage(){}
+    util.inherits(DeletePage, pb.BaseController);
 
-function DeletePage(){}
+    DeletePage.prototype.render = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
 
-//inheritance
-util.inherits(DeletePage, pb.BaseController);
-
-DeletePage.prototype.render = function(cb) {
-	var self = this;
-	var vars = this.pathVars;
-
-    var message = this.hasRequiredParams(vars, ['id']);
-    if (message) {
-        cb({
-			code: 400,
-			content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-		});
-		return;
-    }
-
-    var dao = new pb.DAO();
-    dao.loadById(vars.id, 'page', function(err, page) {
-        if (util.isError(err)) {
-            return cb({
-				code: 500,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, err.stack)
-			});
-        }
-        else if(!page) {
+        var message = this.hasRequiredParams(vars, ['id']);
+        if (message) {
             cb({
-				code: 404,
-				content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
-			});
-			return;
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+            });
+            return;
         }
 
-        //remove from persistence
-        dao.deleteById(vars.id, 'page', function(err, pagesDeleted) {
-            if(util.isError(err) || pagesDeleted <= 0) {
+        var dao = new pb.DAO();
+        dao.loadById(vars.id, 'page', function(err, page) {
+            if (util.isError(err)) {
                 return cb({
-					code: 500,
-					content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
-				});
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, err.stack)
+                });
+            }
+            else if(!page) {
+                cb({
+                    code: 404,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                });
+                return;
             }
 
-			cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('DELETED'))});
-        });
-    });
-};
+            //remove from persistence
+            dao.deleteById(vars.id, 'page', function(err, pagesDeleted) {
+                if(util.isError(err) || pagesDeleted <= 0) {
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                    });
+                }
 
-//exports
-module.exports = DeletePage;
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('DELETED'))});
+            });
+        });
+    };
+
+    //exports
+    return DeletePage;
+};

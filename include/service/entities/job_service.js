@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2014  PencilBlue, LLC
+    Copyright (C) 2015  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,52 +15,57 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Provides the ability to interact with jobs that have already been created.
- * @class JobService
- * @constructor
- */
-function JobService(){
-    this.type = 'job_run';
-}
+var util = require('../../util.js');
 
-/**
- * Retrieves the log entries for the specified job from the start date up until
- * the current time.
- * @method getLogs
- * @param {String} jid The job ID
- * @param {Date} startingDate The lower bound on the "created" field of the log
- * entry
- * @param {Function} cb A callback that takes two parameters: cb(Error, Array)
- */
-JobService.prototype.getLogs = function(jid, startingDate, cb) {
-    if (pb.utils.isFunction(startingDate)) {
-        cb           = startingDate;
-        startingDate = new Date(0);
+module.exports = function JobServiceModule(pb) {
+
+    /**
+     * Provides the ability to interact with jobs that have already been created.
+     * @class JobService
+     * @constructor
+     */
+    function JobService(){
+        this.type = 'job_run';
     }
-    
-    var where = {
-        job_id: jid,
-        created: {$gte: startingDate}
+
+    /**
+     * Retrieves the log entries for the specified job from the start date up until
+     * the current time.
+     * @method getLogs
+     * @param {String} jid The job ID
+     * @param {Date} startingDate The lower bound on the "created" field of the log
+     * entry
+     * @param {Function} cb A callback that takes two parameters: cb(Error, Array)
+     */
+    JobService.prototype.getLogs = function(jid, startingDate, cb) {
+        if (util.isFunction(startingDate)) {
+            cb           = startingDate;
+            startingDate = new Date(0);
+        }
+
+        var where = {
+            job_id: jid,
+            created: {$gte: startingDate}
+        };
+        var orderBy = [
+            ['created', pb.DAO.ASC]
+        ];
+
+        var dao = new pb.DAO();
+        dao.q('job_log', {where: where, select: pb.DAO.SELECT_ALL, order: orderBy}, cb);
     };
-    var orderBy = [
-        ['created', pb.DAO.ASC]
-    ];
 
-    var dao = new pb.DAO();
-    dao.q('job_log', {where: where, select: pb.DAO.SELECT_ALL, order: orderBy}, cb);
+    /**
+     * Retrieves the job descriptor by ID
+     * @method loadById
+     * @param {String} jid The job's ID
+     * @param {Function} cb A callback that takes two parameters: cb(Error, Object)
+     */
+    JobService.prototype.loadById = function(jid, cb) {
+        var dao = new pb.DAO();
+        dao.loadById(jid, this.type, cb);
+    };
+
+    //exports
+    return JobService;
 };
-
-/**
- * Retrieves the job descriptor by ID
- * @method loadById
- * @param {String} jid The job's ID
- * @param {Function} cb A callback that takes two parameters: cb(Error, Object)
- */
-JobService.prototype.loadById = function(jid, cb) {
-    var dao = new pb.DAO();
-    dao.loadById(jid, this.type, cb);
-};
-
-//exports
-module.exports = JobService;
