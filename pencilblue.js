@@ -187,16 +187,16 @@ function PencilBlue(config){
                     cert: fs.readFileSync(pb.config.server.ssl.cert),
                     ca: fs.readFileSync(pb.config.server.ssl.chain)
                 };
-                pb.server = https.createServer(options, this.onHttpConnect);
+                pb.server = https.createServer(options, util.wrapTask(this, this.onHttpConnect));
 
                 //create an http server that redirects to SSL site
-                pb.handOffServer = http.createServer(this.onHttpConnectForHandoff);
+                pb.handOffServer = http.createServer(util.wrapTask(this, this.onHttpConnectForHandoff));
                 pb.handOffServer.listen(pb.config.server.ssl.handoff_port, function() {
                     pb.log.info('PencilBlue: Handoff HTTP server running on port: %d', pb.config.server.ssl.handoff_port);
                 });
             }
             else {
-                pb.server = http.createServer(this.onHttpConnect);
+                pb.server = http.createServer(util.wrapTask(this, this.onHttpConnect));
             }
 
             //start the server
