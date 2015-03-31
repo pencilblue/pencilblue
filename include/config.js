@@ -633,6 +633,13 @@ var BASE_CONFIG = {
         max_upload_size: 2 * 1024 * 1024
     },
     
+    //Contains all of the configuration for localization and internationalization. 
+    localization: {
+        
+        //The default locale is the fallback when localization fails for the user's desired language.
+        defaultLocale: 'en_US'
+    },
+    
     //Pulls in the package.json file for PB and extracts the version so it is 
     //available in the configuration.
     version: require(path.join(Configuration.DOCUMENT_ROOT, 'package.json')).version

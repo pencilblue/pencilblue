@@ -157,7 +157,17 @@ module.exports = function LocalizationModule(pb) {
         }
 
         if (val === null) {
-            val = key;
+            
+            var defaultLocale = Localization.getDefaultLocale();
+            if (this.language.toLowerCase() === defaultLocale.toLowerCase()) {
+                return val = key;
+            }
+            else {
+                //TODO keep going down available languages
+                //fall back to default language
+                var localization = new Localization(defaultLocale);
+                return localization.get.apply(localization, arguments);
+            }
         }
         else if (arguments.length > 1){
             arguments[0] = val;
@@ -321,6 +331,19 @@ module.exports = function LocalizationModule(pb) {
             localeObj.generic[key] = value;
         }
         return true;
+    };
+       
+    /**
+     * Retrieves the default locale for the instance.  It first inspects the 
+     * Configuration property localization.defaultLocale.  As a last resort it 
+     * will fall back to english. The locale is expected to be of the form: 
+     * [language code]_[country code]
+     * @static
+     * @method getDefaultLocale
+     * @return {String} The default locale
+     */
+    Localization.getDefaultLocale = function() {
+        return pb.config.localization.defaultLocale || 'en_us';
     };
     
     return Localization;
