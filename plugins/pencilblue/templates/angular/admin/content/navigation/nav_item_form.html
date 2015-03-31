@@ -27,7 +27,7 @@
             var saveObject = $scope.getSaveObject();
             $scope.saving = true;
 
-            $http.post('/actions/admin/content/navigation/' + ($scope.navItem._id ? $scope.navItem._id : ''), saveObject)
+            $http.post('/actions/admin/content/navigation' + ($scope.navItem._id ? '/' + $scope.navItem._id : ''), saveObject)
             .success(function(result) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
