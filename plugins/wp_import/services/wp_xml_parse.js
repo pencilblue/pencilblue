@@ -349,7 +349,10 @@ module.exports = function WPXMLParseServiceModule(pb) {
         var articleTasks = util.getTasks(rawArticles, function(rawArticles, index) {
             return function(callback) {
                 var rawArticle = rawArticles[index];
-                var articleName = rawArticle['wp:post_name'][0];
+                var articleName = rawArticle['wp:post_name'][0] || rawArticle.title[0];
+                if (util.isNullOrUndefined(articleName) || articleName === '') {
+                    articleName = WPXMLParseService.uniqueStrVal('article');
+                };
 
                 //output progress
                 pb.log.debug('WPXMLParseService: Processing %s "%s"', 'article', articleName);
