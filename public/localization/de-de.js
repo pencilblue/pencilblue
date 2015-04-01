@@ -313,7 +313,8 @@ var loc = {
         INACTIVE_SECTIONS: 'Entfernen Sie Sektionen, indem Sie sie hierhin ziehen.',
         PUBLISHED: 'Veröffentlicht',
         UNPUBLISHED: 'Unveröffentlicht',
-        DRAFT: 'Entwurf'
+        DRAFT: 'Entwurf',
+        INSERT_READ_MORE: 'Legen Sie eine Pause mehr lesen'
     },
     wysiwyg: {
         NORMAL_TEXT: 'Normaler Text',
