@@ -276,7 +276,7 @@ function addLayoutMedia(wysId)
         }
         mediaOptionsChecked++;
     });
-    
+
     if(mediaOptionsChecked >= $('#layout_media_options input').length) {
         var mediaFormat = getMediaFormat(wysId);
 
@@ -354,14 +354,13 @@ function getWYSIWYGLayout(wysId, cb) {
 
     $('#temp_editable .media_preview').each(function()
     {
-        var innerHTML = $(this).html();
+        var mediaTags = ['^' + $(this).attr('media-tag') + '^'];
+        var subTags = $(this).find('[media-tag]');
+        for(var j = 0; j < subTags.length; j++) {
+          mediaTags.push('^' + $(subTags[j]).attr('media-tag') + '^')
+        }
 
-        if(innerHTML.indexOf('<img') === -1 && innerHTML.indexOf('<iframe') === -1 && innerHTML.indexOf('<video') === -1) {
-            $(this).replaceWith('<div>' + innerHTML + '</div>');
-        }
-        else {
-            $(this).replaceWith('^' + $(this).attr('media-tag') + '^');
-        }
+        $(this).replaceWith(mediaTags.concat(''));
 
         i++;
 
