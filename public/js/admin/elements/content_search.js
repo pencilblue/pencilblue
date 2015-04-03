@@ -20,7 +20,7 @@ $(document).ready(function() {
     input.autocomplete({
         source: function( request, response ) {
             $.ajax({
-                url: "/api/content/search/",
+                url: "/api/content/search",
                 dataType: "json",
                 data: {
                    type: angular.element('#content_type').scope().navItem.type,
