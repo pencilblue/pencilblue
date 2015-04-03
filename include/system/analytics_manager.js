@@ -39,6 +39,16 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @type {Object}
      */
     var PROVIDER_HOOKS = {};
+  
+    /**
+     * Stores the template tags where providers will be registered by template service
+     * @private
+     * @static
+     * @readonly
+     * @property TEMPLATE_TAGS
+     * @type {Object}
+     */
+    var TEMPLATE_TAGS = {};
 
     /**
      * Takes the provided request and session then checks with each of the 
@@ -49,7 +59,9 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @param {Object} session The current user session
      * @param {Localization} ls An instance of the Localization service
      * @param {Function} cb A callback that provides two parameters.  An error, if 
-     * occurred, and a TemplateValue representing the HTML snippets for the analytic 
+     * occurred, and an Array of objects each with two attributes as strings, "tag" template 
+     * tag name for the template service to register the HTML snippet
+     * and "snippet" that represents the HTML snippet for the analytic 
      * providers.
      */ 
     AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
@@ -63,7 +75,7 @@ module.exports = function AnalyticsManagerModule(pb) {
                     pb.log.warn("AnalyticsManager: Rendering for provider [%s] timed out", keys[i]);
 
                     th = null;
-                    callback(null, '');
+                    callback(null, {tag:'', snippet:''});
                 }, 25);
 
                 var d = domain.create();
@@ -79,7 +91,11 @@ module.exports = function AnalyticsManagerModule(pb) {
 
                             //the error is left out on purpose.  It is logged above 
                             //and we want all other providers to have a chance.
-                            callback(null, result);
+                            var snippetResult = {
+                              tag:TEMPLATE_TAGS[keys[i]], 
+                              snippet:result
+                            };
+                            callback(null, snippetResult);
                         }
                     });
                 });
@@ -89,13 +105,13 @@ module.exports = function AnalyticsManagerModule(pb) {
                         clearTimeout(th);
                         th = null;
 
-                        callback(null, '');
+                        callback(null, {tag:'', snippet:''});
                     }
                 });
             };
         });
         async.parallel(tasks, function(err, results) {
-            cb(err, new pb.TemplateValue(results.join(''), false));
+            cb(err, results);
         });
     };
 
@@ -112,14 +128,16 @@ module.exports = function AnalyticsManagerModule(pb) {
      * instance of Localization.  The last is a callback that should be called with 
      * two parameters.  The first is an error, if occurred and the second is raw 
      * HTML string that represents the snippet to be executed by the analytics 
-     * plugin. 
+     * plugin.
+     * @param {String} optional name of template tag where the template service to register your snippet 
      */
-    AnalyticsManager.registerProvider = function(name, onPageRendering) {
+    AnalyticsManager.registerProvider = function(name, onPageRendering, templateTag) {
         if (!pb.validation.validateNonEmptyStr(name) || AnalyticsManager.isRegistered(name) || !util.isFunction(onPageRendering)) {
             return false;
         }
 
         PROVIDER_HOOKS[name] = onPageRendering;
+        TEMPLATE_TAGS[name] = templateTag || "analytics";
         return true;
     };
     
@@ -135,6 +153,7 @@ module.exports = function AnalyticsManagerModule(pb) {
             return false;
         }
         delete PROVIDER_HOOKS[name];
+        delete TEMPLATE_TAGS[name];
         return true;
     };
 

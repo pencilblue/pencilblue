@@ -115,8 +115,10 @@ module.exports = function BaseControllerModule(pb) {
         this.templateService.registerLocal('localization_script', function(flag, cb) {
             self.requiresClientLocalizationCallback(flag, cb);
         });
-        this.templateService.registerLocal('analytics', function(flag, cb) {
-            pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
+        pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, function(err, results){
+          results.forEach(function(result){
+            self.templateService.registerLocal(result.tag, new pb.TemplateValue(result.snippet, false));
+          });
         });
         this.templateService.registerLocal('wysiwyg', function(flag, cb) {
             var wysiwygId = util.uniqueId();
