@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = function ArticleModule(pb) {
+module.exports = function PreviewModule(pb) {
     
     //pb dependencies
     var util  = pb.util;
