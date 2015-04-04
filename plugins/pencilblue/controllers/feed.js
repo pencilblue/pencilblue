@@ -20,7 +20,7 @@ var path           = require('path');
 var HtmlEncoder    = require('htmlencode');
 var async          = require('async');
 
-module.exports = function PreviewModule(pb) {
+module.exports = function FeedModule(pb) {
     
     //pb dependencies
     var util           = pb.util;
