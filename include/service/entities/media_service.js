@@ -881,7 +881,7 @@ module.exports = function MediaServiceModule(pb) {
         for(var i = 0; i < paths.length; i++) {
             try{
                 var ProviderType = require(paths[i])(pb);
-                INSTANCE = new ProviderType();
+                instance = new ProviderType();
                 break;
             }
             catch(e){
