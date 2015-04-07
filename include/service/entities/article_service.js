@@ -251,8 +251,15 @@ module.exports = function ArticleServiceModule(pb) {
                 );
             }
 
-            // No need to cutoff article if there's only 1
-            if(articleCount > 1 && contentSettings.auto_break_articles) {
+            if(article.article_layout.indexOf('^read_more^') > -1) {
+              if(articleCount > 1) {
+                article.article_layout = article.article_layout.substr(0, article.article_layout.indexOf('^read_more^')) + ' <a href="' + pb.config.siteRoot + '/article/' + article.url + '">' + contentSettings.read_more_text + '...</a>';
+              }
+              else {
+                article.article_layout = article.article_layout.split('^read_more^').join('');
+              }
+            }
+            else if(articleCount > 1 && contentSettings.auto_break_articles) {
                 var breakString = '<br>';
                 var tempLayout;
 
