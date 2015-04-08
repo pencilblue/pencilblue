@@ -204,6 +204,15 @@ module.exports = function RandomTextViewControllerModule(pb) {
             });
         });
     };
+    
+    /**
+     * A sample redirect endpoint
+     * @method redirectToHomepage
+     * @params {Function} cb
+     */
+    RandomTextViewController.prototype.redirectToHomePage = function(cb) {
+        this.redirect('/', cb);
+    };
 
     /**
      * Provides the routes that are to be handled by an instance of this prototype.  
@@ -250,6 +259,11 @@ module.exports = function RandomTextViewControllerModule(pb) {
                 //specifies the controller prototype instance function that will be 
                 //called to handle the incoming request.  Defaults to "render"
                 handler: "getRandomText"
+            },
+            {
+                method: 'get',
+                path: '/sample/redirect/home',
+                handler: 'redirectToHomePage'
             },
     //		{ //Use the setup below to override the home page when your plugin is set as the active theme
     //	    	method: 'get',
