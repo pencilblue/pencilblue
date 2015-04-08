@@ -626,7 +626,10 @@ module.exports = function WPXMLParseServiceModule(pb) {
     };
 
     WPXMLParseService.downloadMediaContent = function(srcString, cb) {
-
+        if (util.isNullOrUndefined(srcString) || srcString.indexOf('http') !== 0) {
+            return cb(new Error('Invalid protocol on URI: '+srcString));
+        }
+        
         //only load the modules into memory if we really have to.  Footprint isn't 
         //much but it all adds up
         var ht = srcString.indexOf('https://') >= 0 ? require('https') : require('http');
