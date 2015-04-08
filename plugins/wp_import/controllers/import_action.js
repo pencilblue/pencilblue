@@ -60,7 +60,7 @@ module.exports = function ImportWPActionControllerModule(pb) {
                 }
 
                 wpXMLParse.parse(data.toString(), self.session.authentication.user_id, function(err, users) {
-                    if(err) {
+                    if(util.isError(err)) {
                         self.session.error = err.stack;
                         return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))});
                     }
