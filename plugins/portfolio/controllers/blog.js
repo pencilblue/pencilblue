@@ -23,9 +23,9 @@ module.exports = function BlogModule(pb) {
     //pb dependencies
     var util           = pb.util;
     var PluginService  = pb.PluginService;
-    var TopMenu        = require(pb.config.docRoot + '/include/theme/top_menu');
-    var Comments       = require(pb.config.docRoot + '/include/theme/comments');
-    var ArticleService = require(pb.config.docRoot + '/include/service/entities/article_service').ArticleService;
+    var TopMenu        = require(pb.config.docRoot + '/include/theme/top_menu')(pb);
+    var Comments       = require(pb.config.docRoot + '/include/theme/comments')(pb);
+    var ArticleService = require(pb.config.docRoot + '/include/service/entities/article_service')(pb).ArticleService;
 
     /**
      * Blog page of the pencilblue theme

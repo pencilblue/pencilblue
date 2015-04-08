@@ -300,7 +300,8 @@ var loc =
         INACTIVE_SECTIONS: 'Trage aici sectiunile care nu sunt asociate',
         PUBLISHED: 'Publicat',
         UNPUBLISHED: 'Nepublicat',
-        DRAFT: 'Draft'
+        DRAFT: 'Draft',
+        INSERT_READ_MORE: 'Introduceți o pauză mai citit'
     },
     wysiwyg: {
         NORMAL_TEXT: 'Text normal',

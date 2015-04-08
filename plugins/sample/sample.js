@@ -31,7 +31,7 @@ module.exports = function SamplePluginModule(pb) {
      */
     SamplePlugin.onUninstall = function(cb) {
         // Remove "sample" nav during uninstall
-            pb.AdminNavigation.remove("sample");
+        pb.AdminNavigation.remove("sample");
         cb(null, true);
     };
 
@@ -59,9 +59,9 @@ module.exports = function SamplePluginModule(pb) {
             children: [
                 {
                     id: "sample_1",
-                    title: "Sample Child 1",
+                    title: "Random Text",
                     icon: "cog",
-                    href: "/admin/sample/1",
+                    href: "/sample/random/text",
                     access: pb.SecurityService.ACCESS_USER
                 }
             ]
@@ -79,9 +79,9 @@ module.exports = function SamplePluginModule(pb) {
         // Add a child to the top level node "sample"
         pb.AdminNavigation.addChild("sample", {
             id: "sample_3",
-            title: "Sample Child 3",
+            title: "Redirect Home",
             icon: "cog",
-            href: "/admin/sample/3",
+            href: "/sample/redirect/home",
             access: pb.SecurityService.ACCESS_USER
         });
 

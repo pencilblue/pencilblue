@@ -309,7 +309,8 @@ var loc =
         INACTIVE_SECTIONS: 'Przeciągnij tutaj niezwiązane sekcje',
         PUBLISHED: 'Opublikowany',
         UNPUBLISHED: 'Nieopublikowany',
-        DRAFT: 'Projekt'
+        DRAFT: 'Projekt',
+        INSERT_READ_MORE: 'Włóż czytaj więcej przerwę'
     },
     wysiwyg: {
         NORMAL_TEXT: 'Normalny tekst',
