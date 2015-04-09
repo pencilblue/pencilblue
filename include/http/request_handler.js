@@ -75,7 +75,8 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.storage = [];
     RequestHandler.index   = {};
-    
+    RequestHandler.sites = {};
+
     /**
      * The internal storage of static routes after they are validated and processed.
      * @private
@@ -135,6 +136,14 @@ module.exports = function RequestHandlerModule(pb) {
         return {
             redirect: location
         };
+    };
+
+    RequestHandler.loadSite = function(site) {
+        RequestHandler.sites[site.hostname] = site.uid;
+    };
+
+    RequestHandler.unloadSite = function(site) {
+        RequestHandler.sites[site.hostname] = undefined;
     };
 
     /**
@@ -550,6 +559,9 @@ module.exports = function RequestHandlerModule(pb) {
 
         //set the session
         this.session = session;
+
+        //set the site
+        var site = RequestHandler.sites[this.url.hostname];
 
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
