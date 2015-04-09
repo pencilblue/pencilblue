@@ -221,6 +221,7 @@ var loc =
         SETTINGS: 'Settings',
         VIEW_SITE: 'View site',
         SITE_SETTINGS: 'Site settings',
+        MANAGE_SITES: 'Manage Sites',
         SITE_LOGO: 'Site logo',
         AUTHOR: 'Author',
         ACCOUNT: 'Account',
@@ -424,6 +425,11 @@ var loc =
         CONFIRM_VERIFY: 'Are you sure you want to verify',
         VERIFY: 'Verify',
         VERIFIED: 'was verified'
+    },
+    sites: {
+        EXISTING_HOSTNAME: 'That hostname is already in use',
+        EXISTING_DISPLAYNAME: 'There is already a site with that displayname',
+        SITE_CREATED: 'The site was successfully created'
     },
     plugins:
     {

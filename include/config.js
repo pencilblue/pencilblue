@@ -142,6 +142,9 @@ var BASE_CONFIG = {
     //the absolute file path to the directory where installation lives
 	docRoot:  Configuration.DOCUMENT_ROOT,
 
+    //enables/disables multiple sites in a single pencilblue instance (multitenancy)
+    multisite: false,
+
     //provides a configuration for connecting to persistent storage.  The
     //default configuration is meant for mongodb.
 	db: {
