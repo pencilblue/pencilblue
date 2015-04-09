@@ -494,7 +494,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 //currently, mongo cannot do case-insensitive sorts.  We do it manually
                 //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
                 custObjTypes.sort(function(a, b) {
-                    var x = a.name.toLowerCase();
+                    var x = a.name ? a.name.toLowerCase() : null;
                     var y = b.name.toLowerCase();
 
                     return ((x < y) ? -1 : ((x > y) ? 1 : 0));
