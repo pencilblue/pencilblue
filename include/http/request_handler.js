@@ -143,7 +143,7 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     RequestHandler.unloadSite = function(site) {
-        RequestHandler.sites[site.hostname] = undefined;
+        delete RequestHandler.sites[site.hostname];
     };
 
     /**
