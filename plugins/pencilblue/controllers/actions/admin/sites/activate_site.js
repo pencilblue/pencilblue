@@ -29,6 +29,7 @@ module.exports = function(pb) {
                     return self.formError(self.ls.get('ERROR_SAVING'), '/admin/sites/' + vars.id, cb);
                 }
 
+                pb.RequestHandler.loadSite(site);
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_ACTIVATED'), result)});
             });
         });
