@@ -99,5 +99,18 @@ module.exports = function SiteServiceModule(pb) {
         async.series(tasks, cb);
     };
 
+    SiteService.prototype.initSites = function(cb) {
+        this.getActiveSites(function(err, results) {            
+            if(err) {
+                cb(err);
+            } else {
+                util.forEach(results, function(site) {
+                    pb.RequestHandler.loadSite(site);
+                })
+                cb(err,true);
+            }
+        });
+    };
+
     return SiteService;
 };
