@@ -352,16 +352,42 @@ function associateMedia(wysId)
 }
 
 function getWYSIWYGLayout(wysId, cb) {
+    var self = this;
+
     if(!$('#temp_editable').position()){
         $('body').append('<div id="temp_editable" style="display:none"></div>');
     }
     $('#temp_editable').html($('#wysiwyg_' + wysId + ' .layout_editable').html());
 
+    this.convertReadMore = function() {
+      var s = 0;
+      var readMoreCount = $('#temp_editable .read_more_break').length;
+
+      if(readMoreCount === 0) {
+        cb($('#temp_editable').html());
+        return;
+      }
+
+      $('#temp_editable .read_more_break').each(function() {
+          if(s === 0) {
+            $(this).replaceWith('^read_more^');
+          }
+          else {
+            $(this).replaceWith('');
+          }
+
+          s++;
+          if(s >= readMoreCount) {
+            cb($('#temp_editable').html());
+          }
+      });
+    };
+
     var i = 0;
     var mediaCount = $('#temp_editable .media_preview').length;
     if(mediaCount === 0)
     {
-        cb($('#temp_editable').html());
+        this.convertReadMore();
         return;
     }
 
@@ -378,21 +404,7 @@ function getWYSIWYGLayout(wysId, cb) {
         i++;
 
         if(i >= mediaCount){
-            var s = 0;
-            var readMoreCount = $('#temp_editable .read_more_break').length;
-            $('#temp_editable .read_more_break').each(function() {
-                if(s === 0) {
-                  $(this).replaceWith('^read_more^');
-                }
-                else {
-                  $(this).replaceWith('');
-                }
-
-                s++;
-                if(s >= readMoreCount) {
-                  cb($('#temp_editable').html());
-                }
-            });
+          self.convertReadMore();
         }
     });
 }
