@@ -233,7 +233,14 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     }
 
                     //we're all good.  we can persist now
-                    dao.save(topic, callback);
+                    dao.save(topic, function(err, result) {
+                        if (util.isError(err)) {
+                            return callback(err);
+                        }
+
+                        pb.log.debug('WPXMLParseService: Created topic [%s]', topic.name);
+                        callback(null, topic);
+                    });
                 });
             };
         });
