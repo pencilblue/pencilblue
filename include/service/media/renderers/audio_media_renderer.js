@@ -126,7 +126,7 @@ module.exports = function AudioMediaRendererModule(pb) {
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
     AudioMediaRenderer.isSupported = function(urlStr) {
-        var ext = util.getExtension(urlStr, {lower: true});
+        var ext = util.getExtension(urlStr, {lower: true, sep: '/'});
         return SUPPORTED[ext] ? true : false;
     };
 
