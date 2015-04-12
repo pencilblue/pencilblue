@@ -705,8 +705,9 @@ Util.getExtension = function(filePath, options) {
     
     //do to the end of the path
     var pathPartIndex = filePath.lastIndexOf(options.sep || path.sep) || 0;
-    if (pathPartIndex > -1)
-    	filePath = filePath.substr(pathPartIndex);
+    if (pathPartIndex > -1) {
+			filePath = filePath.substr(pathPartIndex);
+		}
     
     var ext = null;
     var index = filePath.lastIndexOf('.');
