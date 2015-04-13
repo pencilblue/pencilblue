@@ -31,7 +31,7 @@ module.exports = function(pb) {
          * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new PluginService();
+        this.pluginService = new pb.PluginService();
     }
     util.inherits(ThemeSettings, PluginSettings);
 
