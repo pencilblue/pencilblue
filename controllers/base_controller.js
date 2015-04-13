@@ -19,6 +19,7 @@
 var url       = require('url');
 var Sanitizer = require('sanitize-html');
 var util      = require('../include/util.js');
+var async     = require('async');
 
 module.exports = function BaseControllerModule(pb) {
     
@@ -115,11 +116,6 @@ module.exports = function BaseControllerModule(pb) {
         this.templateService.registerLocal('localization_script', function(flag, cb) {
             self.requiresClientLocalizationCallback(flag, cb);
         });
-        pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, function(err, results){
-          results.forEach(function(result){
-            self.templateService.registerLocal(result.tag, new pb.TemplateValue(result.snippet, false));
-          });
-        });
         this.templateService.registerLocal('wysiwyg', function(flag, cb) {
             var wysiwygId = util.uniqueId();
 
@@ -127,7 +123,15 @@ module.exports = function BaseControllerModule(pb) {
             self.templateService.load('admin/elements/wysiwyg', function(err, data) {
                 cb(err, new pb.TemplateValue(data, false));
             });
-        });
+        });      
+        var analyticsTags = pb.AnalyticsManager.getTemplateTags();
+        if(analyticsTags.length > 0){
+          analyticsTags.forEach(function(result){
+            self.templateService.registerLocal(result.templateTag, function(flag, cb){
+              pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, result.providerName, cb);
+            });
+          });
+        }
         this.ts = this.templateService;
 
         cb();
