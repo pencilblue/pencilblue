@@ -40,10 +40,14 @@ module.exports = function MemoryEntityServiceModule(pb) {
         this.timers     = {};
         this.timeout    = options.timeout || 0;
         this.changeHandler = MemoryEntityService.createChangeHandler(this);
+        this.site       = options.site || 'global';
 
         //register change handler
         pb.CommandService.getInstance().registerForType(MemoryEntityService.getOnChangeType(this.objType), this.changeHandler);
     }
+
+
+    var GLOBAL_PREFIX = 'global';
 
     /**
      * The type string that describes the storage medium for the service
@@ -63,26 +67,56 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @param  {Function} cb  Callback function
      */
     MemoryEntityService.prototype.get = function(key, cb){
+        var value = null;
+        if(this.site) {
+            value = getSiteValue(this, key, this.site);
+        }
+        if(value == null && this.site !== GLOBAL_PREFIX) {
+            value = getGlobalValue(this, key);
+        }
+        cb(null, value);
+    };
+
+    function getSiteValue(self, key, site)
+    {
         var rawVal = null;
-        if (this.storage.hasOwnProperty(key)) {
-            rawVal = this.storage[key];
+        if (self.storage.hasOwnProperty(site) && self.storage[site].hasOwnProperty(key)) {
+            rawVal = self.storage[site][key];
         }
 
         //value not found
         if (rawVal == null) {
-            cb(null, null);
-            return;
+            return null;
         }
 
+        return getCorrectValueField(rawVal, self.ValueField);
+    }
+
+    function getGlobalValue(self, key)
+    {
+        var rawVal = null;
+        if (self.storage.hasOwnProperty(GLOBAL_PREFIX) && self.storage[GLOBAL_PREFIX].hasOwnProperty(key)) {
+            rawVal = self.storage[GLOBAL_PREFIX][key];
+        }
+
+        //value not found
+        if (rawVal == null) {
+            return null;
+        }
+
+        return getCorrectValueField(rawVal, self.ValueField);
+    }
+
+    function getCorrectValueField(rawVal, valueField) {
         var value = null;
-        if (this.valueField == null) {
+        if (valueField == null) {
             value = rawVal;
         }
         else {
-            value = rawVal[this.valueField];
+            value = rawVal[valueField];
         }
-        cb(null, value);
-    };
+        return value;
+    }
 
     /**
      * Set a value in memory.  Triggers a command to be sent to the cluster to 
@@ -112,8 +146,11 @@ module.exports = function MemoryEntityServiceModule(pb) {
      */
     MemoryEntityService.prototype._set = function(key, value, cb) {
         var rawValue = null;
-        if (this.storage.hasOwnProperty(key)) {
-            rawValue = this.storage[key];
+        if(!this.site) {
+            this.site = GLOBAL_PREFIX;
+        }
+        if (this.storage.hasOwnProperty(this.site) && this.storage[this.site].hasOwnProperty(key)) {
+            rawValue = this.storage[this.site][key];
             if (this.valueField == null) {
                 rawValue = value;
             }
@@ -131,7 +168,8 @@ module.exports = function MemoryEntityServiceModule(pb) {
             rawValue[this.keyField]   = key;
             rawValue[this.valueField] = value;
         }
-        this.storage[key] = rawValue;
+        this.storage[this.site] = {};
+        this.storage[this.site][key] = rawValue;
 
         //check for existing timeout
         this.setKeyExpiration(key);
@@ -148,6 +186,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         var command = {
             key: key,
             value: value,
+            site: this.site,
             ignoreme: true
         };
         pb.CommandService.getInstance()
@@ -173,7 +212,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
 
         //now set the timeout if configured to do so
         var self = this;
-        this.timers[key] = setTimeout(function() {
+        this.timers[this.site][key] = setTimeout(function() {
             self.purge(key, util.cb)
         }, this.timeout);
     };
@@ -186,9 +225,9 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @param  {Function} cb  Callback function
      */
     MemoryEntityService.prototype.purge = function(key, cb) {
-        var exists = this.storage.hasOwnProperty(key);
+        var exists = this.storage.hasOwnProperty(this.site) && this.storage[this.site].hasOwnProperty(key);
         if(exists) {
-            delete this.storage[key];
+            delete this.storage[this.site][key];
         }
         cb(null, exists);
     };
@@ -202,8 +241,10 @@ module.exports = function MemoryEntityServiceModule(pb) {
         this.storage = null;
 
         var self = this;
-        Object.keys(this.timers).forEach(function(key) {
-            clearTimeout(self.timers[key]);
+        Object.keys(this.timers).forEach(function(site) {
+            Object.keys(this.timers[site]).forEach(function(key){
+                clearTimeout(self.timers[key]);
+            });
         });
         this.timers = null;
 
@@ -232,7 +273,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
      */
     MemoryEntityService.createChangeHandler = function(memoryEntityService) {
         return function(command) {
-            memoryEntityService._set(command.key, command.value, util.cb);
+            memoryEntityService._set(command.key, command.value, command.site, util.cb);
         };
     };
 

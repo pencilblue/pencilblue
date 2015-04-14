@@ -240,19 +240,19 @@ var BASE_CONFIG = {
             //plugin settings
             {
                 collection: 'plugin_settings',
-                spec: {plugin_uid: ASC},
+                spec: {plugin_uid: ASC, site: ASC},
                 options: {unique: true}
             },
             {
                 collection: 'plugin_settings',
-                spec: {plugin_id: ASC},
+                spec: {plugin_id: ASC, site: ASC},
                 options: {unique: true}
             },
 
             //settings
             {
                 collection: 'setting',
-                spec: {key: ASC},
+                spec: {key: ASC, site: ASC},
                 options: {unique: true}
             },
 
@@ -271,7 +271,7 @@ var BASE_CONFIG = {
             //plugin
             {
                 collection: 'plugin',
-                spec: {uid: ASC},
+                spec: {uid: ASC, site: ASC},
                 options: {unique: true}
             },
             {

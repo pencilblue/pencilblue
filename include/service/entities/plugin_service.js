@@ -41,9 +41,7 @@ module.exports = function PluginServiceModule(pb) {
         //construct settings services
         var caching = pb.config.plugins.caching;
 
-
-        if(pb.config.multisite && siteUID)
-        {
+        if(pb.config.multisite && siteUID) {
             this.site = siteUID;
         } else {
             this.site = 'global';
