@@ -27,6 +27,8 @@ var util    = require('../../util.js');
 
 module.exports = function PluginServiceModule(pb) {
 
+    var GLOBAL_PREFIX = 'global';
+
     /**
      * PluginService - Provides functions for interacting with plugins.
      * Install/uninstall, setting retrieval, plugin retrieval, etc.
@@ -44,7 +46,7 @@ module.exports = function PluginServiceModule(pb) {
         if(pb.config.multisite && siteUID) {
             this.site = siteUID;
         } else {
-            this.site = 'global';
+            this.site = GLOBAL_PREFIX;
         }
 
         /**
@@ -92,6 +94,15 @@ module.exports = function PluginServiceModule(pb) {
      */
     var ACTIVE_PLUGINS = {};
 
+    function getThemeForSite(theme, site) {
+        if (ACTIVE_PLUGINS[this.site] && ACTIVE_PLUGINS[this.site][theme]) {
+            return ACTIVE_PLUGINS[this.site][theme];
+        } else if (ACTIVE_PLUGINS[GLOBAL_PREFIX] && ACTIVE_PLUGINS[GLOBAL_PREFIX][theme]) {
+            return ACTIVE_PLUGINS[GLOBAL_PREFIX][theme];
+        }
+        return null;
+    }
+
     /**
      * The name of the collection where plugin descriptors are stored
      * @private
@@ -108,11 +119,12 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(Error, URL_PATH_TO_ICON)
      */
     PluginService.prototype.getActiveIcon = function(cb) {
-        pb.settings.get('active_theme', function(err, theme) {
-            if (ACTIVE_PLUGINS[theme] && ACTIVE_PLUGINS[theme].icon) {
-                cb(err, ACTIVE_PLUGINS[theme].icon);
-            }
-            else {
+        var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.site);
+        settings.get('active_theme', function(err, theme) {
+            var active_theme = getThemeForSite(this.site, theme);
+            if(active_theme && active_theme.icon) {
+                cb(err, active_theme.icon);
+            } else {
                 cb(err, '/favicon.ico');
             }
         });
