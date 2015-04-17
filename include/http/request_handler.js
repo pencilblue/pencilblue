@@ -168,12 +168,17 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} theme The plugin/theme uid
      * @return {Integer} The number of routes removed
      */
-    RequestHandler.unregisterThemeRoutes = function(theme) {
+    RequestHandler.unregisterThemeRoutes = function(theme, site) {
+        //resolve the site
+        if(!site)
+        {
+            site = GLOBAL_PREFIX;
+        }
 
         var routesRemoved = 0;
         for (var i = 0; i < RequestHandler.storage.length; i++) {
             var path   = RequestHandler.storage[i].path;
-            var result = RequestHandler.unregisterRoute(path, theme);
+            var result = RequestHandler.unregisterRoute(path, theme, site);
             if (result) {
                 routesRemoved++;
             }

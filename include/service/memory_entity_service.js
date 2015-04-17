@@ -41,6 +41,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         this.timeout    = options.timeout || 0;
         this.changeHandler = MemoryEntityService.createChangeHandler(this);
         this.site       = options.site || 'global';
+        this.onlyThisSite = options.onlyThisSite ? true : false;
 
         //register change handler
         pb.CommandService.getInstance().registerForType(MemoryEntityService.getOnChangeType(this.objType), this.changeHandler);
@@ -71,7 +72,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         if(this.site) {
             value = getSiteValue(this, key, this.site);
         }
-        if(value == null && this.site !== GLOBAL_PREFIX) {
+        if(value == null && this.site !== GLOBAL_PREFIX && !this.onlyThisSite) {
             value = getGlobalValue(this, key);
         }
         cb(null, value);
@@ -94,17 +95,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
 
     function getGlobalValue(self, key)
     {
-        var rawVal = null;
-        if (self.storage.hasOwnProperty(GLOBAL_PREFIX) && self.storage[GLOBAL_PREFIX].hasOwnProperty(key)) {
-            rawVal = self.storage[GLOBAL_PREFIX][key];
-        }
-
-        //value not found
-        if (rawVal == null) {
-            return null;
-        }
-
-        return getCorrectValueField(rawVal, self.ValueField);
+        return getSiteValue(self, key, GLOBAL_PREFIX);
     }
 
     function getCorrectValueField(rawVal, valueField) {

@@ -186,6 +186,9 @@ module.exports = function PB(config) {
         }
     });
 
+    //create plugin setting service 
+    pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'))(pb);
+
     //media renderers
     pb.media = {
         renderers: {

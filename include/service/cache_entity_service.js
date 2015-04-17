@@ -35,12 +35,13 @@ module.exports = function CacheEntityServiceModule(pb) {
      * @param {String} valueField
      * @param {String} keyField
      */
-    function CacheEntityService(objType, valueField, keyField, site){
+    function CacheEntityService(objType, valueField, keyField, site, onlyThisSite){
         this.type       = 'Cache';
         this.objType    = objType;
         this.keyField   = keyField;
         this.valueField = valueField ? valueField : null;
         this.site = site || GLOBAL_PREFIX;
+        this.onlyThisSite = onlyThisSite ? true : false;
     }
 
     var GLOBAL_PREFIX = 'global';
@@ -62,22 +63,26 @@ module.exports = function CacheEntityServiceModule(pb) {
             }
 
             //site specific value doesn't exist in cache
-            if (result == null && self.site !== GLOBAL_PREFIX) {
-                pb.cache.get(keyValue(key, GLOBAL_PREFIX), function(err, result){
-                    if (util.isError(err)) {
-                        cb(err, null);
-                        return;
-                    }
+            if (result == null) {
+                if(self.site !== GLOBAL_PREFIX && !self.onlyThisSite) {
+                    pb.cache.get(keyValue(key, GLOBAL_PREFIX), function(err, result){
+                        if (util.isError(err)) {
+                            cb(err, null);
+                            return;
+                        }
 
-                    //value doesn't exist in cache
-                    if (result == null) {
-                        cb(null, null);
-                        return;
-                    }
+                        //value doesn't exist in cache
+                        if (result == null) {
+                            cb(null, null);
+                            return;
+                        }
 
-                    //make call back
-                    cb(null, getRightFieldFromValue(result, self.valueField));
-                });
+                        //make call back
+                        cb(null, getRightFieldFromValue(result, self.valueField));
+                    });
+                } else {
+                    cb(null, null);
+                }
                 return;
             }
 

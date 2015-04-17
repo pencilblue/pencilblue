@@ -135,18 +135,26 @@ module.exports = function DAOModule(pb) {
     };
 
     DAO.prototype.loadByValueForOneSite = function(key, val, site, collection, opts, cb) {
-        var where = {};
-        where[key] = val;
-        where[SITE_COLL] = site;
-        this.loadByValues(where, collection, opts, cb);  
+        if(!site || site === GLOBAL_PREFIX) {
+            this.loadByValueFromGlobal(key,val,collection,opts,cb);
+        } else {
+            var where = {};
+            where[key] = val;
+            where[SITE_COLL] = site;
+            this.loadByValues(where, collection, opts, cb);  
+        }
     };
 
     DAO.prototype.loadByValueFromGlobal = function(key, val, collection, opts, cb) {
         var where = {};
+        var hasNoSite = {};
+        hasNoSite[SITE_COLL] = { $exists : false };
+        var siteIsGlobal = {};
+        siteIsGlobal[SITE_COLL] = GLOBAL_PREFIX;
         where[key] = val;
         where['$or'] = [
-             { SITE_COLL: { $exists : false }},
-             { SITE_COLL: GLOBAL_PREFIX }
+             hasNoSite,
+             siteIsGlobal
         ];    
         this.loadByValues(where, collection, opts, cb);  
     }
@@ -175,6 +183,7 @@ module.exports = function DAOModule(pb) {
             order: opts.order || DAO.NATURAL_ORDER,
             limit: 1
         };
+
         this.q(collection, options, function(err, result){
            cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
         });
