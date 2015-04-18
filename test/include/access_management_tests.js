@@ -9,7 +9,10 @@ describe('SecurityService', function() {
     var SecurityService = null;
     before('Initialize the Environment with the default configuration', function() {
         
-        pb = new Lib(Configuration.getBaseConfig());
+        var config = Configuration.getBaseConfig();
+        
+        console.log('Initializing PB lib with base configuration');
+        pb = new Lib(config);
         SecurityService = pb.SecurityService;
     });
     
