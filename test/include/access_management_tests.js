@@ -8,11 +8,12 @@ describe('SecurityService', function() {
     var pb = null;
     var SecurityService = null;
     before('Initialize the Environment with the default configuration', function(next) {
-        var start = (new Date()).getTime();
-        var config = Configuration.getBaseConfig();
         
-        console.log('Initializing PB lib with base configuration');
-        pb = new Lib(config);
+        //travis gets slow so we bump the timeout just a little here to get around the BS
+        this.timeout(10000);
+        var start = (new Date()).getTime();
+        
+        pb = new Lib(Configuration.getBaseConfig());
         SecurityService = pb.SecurityService;
         
         console.log('Completed in %sms', (new Date()).getTime() - start);
