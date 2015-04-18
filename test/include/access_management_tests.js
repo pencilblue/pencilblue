@@ -7,13 +7,16 @@ describe('SecurityService', function() {
     
     var pb = null;
     var SecurityService = null;
-    before('Initialize the Environment with the default configuration', function() {
-        
+    before('Initialize the Environment with the default configuration', function(next) {
+        var start = (new Date()).getTime();
         var config = Configuration.getBaseConfig();
         
         console.log('Initializing PB lib with base configuration');
         pb = new Lib(config);
         SecurityService = pb.SecurityService;
+        
+        console.log('Completed in %ms', (new Date()).getTime() - start);
+        next();
     });
     
     describe('SecurityService.getRoleToDisplayNameMap', function() {
