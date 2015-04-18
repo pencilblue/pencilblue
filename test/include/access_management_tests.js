@@ -15,7 +15,7 @@ describe('SecurityService', function() {
         pb = new Lib(config);
         SecurityService = pb.SecurityService;
         
-        console.log('Completed in %ms', (new Date()).getTime() - start);
+        console.log('Completed in %sms', (new Date()).getTime() - start);
         next();
     });
     
