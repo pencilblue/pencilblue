@@ -44,18 +44,15 @@ module.exports = function PB(config) {
     pb.log    = require(path.join(config.docRoot, '/include/utils/logging.js'))(config);
     
     //setup the System instance
-    console.log('Initializing System prototype(s)...');
     pb.System = require(path.join(config.docRoot, 'include/system/system.js'));
     pb.system = new pb.System(pb);
 
     //configure cache
-    console.log('Initializing Cache prototype(s)...');
     var CacheModule = require(path.join(config.docRoot, '/include/dao/cache.js'));
     pb.CacheFactory = CacheModule(pb).CacheFactory;
     pb.cache        = pb.CacheFactory.getInstance();
 
     //configure the DB manager
-    console.log('Initializing DB prototype(s)...');
     pb.DBManager = require(config.docRoot+'/include/dao/db_manager')(pb);
     pb.dbm       = new pb.DBManager();
 
@@ -63,19 +60,16 @@ module.exports = function PB(config) {
     pb.DAO = require(config.docRoot+'/include/dao/dao')(pb);
 
     //setup validation services
-    console.log('Initializing Validation prototype(s)...');
     var ValidationModule = require(path.join(config.docRoot, '/include/validation/validation_service.js'));
     pb.ValidationService = ValidationModule(pb);
     pb.validation        = pb.ValidationService;
 
     //setup the session handler
-    console.log('Initializing Session prototype(s)...');
     var SessionModule = require(path.join(config.docRoot, '/include/session/session.js'));
     pb.SessionHandler = SessionModule(pb);
     pb.session        = new pb.SessionHandler(pb.SessionHandler.getSessionStoreInstance());
 
     //setup object services
-    console.log('Initializing Object Service prototype(s)...');
     pb.SimpleLayeredService         = require(path.join(config.docRoot, '/include/service/simple_layered_service.js'))(pb);
     pb.MemoryEntityService          = require(path.join(config.docRoot, '/include/service/memory_entity_service.js'))(pb);
     pb.CacheEntityService           = require(path.join(config.docRoot, '/include/service/cache_entity_service.js'))(pb);
@@ -87,13 +81,11 @@ module.exports = function PB(config) {
     pb.CustomObjectService          = require(path.join(config.docRoot, 'include/service/entities/custom_object_service.js'))(pb);
 
     //setup template service
-    console.log('Initializing Template Service prototype(s)...');
     var TemplateModule = require(config.docRoot+'/include/service/entities/template_service.js')(pb);
     pb.TemplateService = TemplateModule.TemplateService;
     pb.TemplateValue   = TemplateModule.TemplateValue;
 
     //setup security
-    console.log('Initializing Security prototype(s)...');
     pb.SecurityService                = require(path.join(config.docRoot, '/include/access_management.js'))(pb);
     pb.security                       = pb.SecurityService;
     var Authentication                = require(path.join(config.docRoot, '/include/security/authentication'))(pb);
@@ -105,7 +97,6 @@ module.exports = function PB(config) {
     pb.users       = new pb.UserService();
 
     //setup request handling
-    console.log('Initializing System prototype(s)...');
     var BodyParsers        = require(path.join(config.docRoot, 'include/http/parsers'))(pb);
     pb.BaseBodyParser      = BodyParsers.BaseBodyParser;
     pb.JsonBodyParser      = BodyParsers.JsonBodyParser;
@@ -118,33 +109,27 @@ module.exports = function PB(config) {
     pb.RequestHandler      = require(path.join(config.docRoot, '/include/http/request_handler.js'))(pb);
 
     //setup errors
-    console.log('Initializing Error prototype(s)...');
     pb.PBError    = require(path.join(config.docRoot, '/include/error/pb_error.js'))(pb);
     pb.ErrorsOverTime = require(path.join(config.docRoot, '/include/error/errors_over_time.js'))(pb);
 
     //setup localization
-    console.log('Initializing Localization prototype(s)...');
     pb.Localization = require(path.join(config.docRoot, '/include/localization.js'))(pb);
 
     //server registration
-    console.log('Initializing Server Registration Providers prototype(s)...');
     pb.MongoRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/mongo_registration_provider.js'))(pb);
     pb.RedisRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/redis_registration_provider.js'))(pb);
     pb.ServerRegistration        = require(path.join(config.docRoot, '/include/system/server_registration.js'))(pb);
 
     //command service
-    console.log('Initializing Command Service prototype(s)...');
     pb.RedisCommandBroker = require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js'))(pb);
     pb.MongoCommandBroker = require(path.join(config.docRoot, '/include/system/command/mongo_command_broker.js'))(pb);
     pb.CommandService     = require(path.join(config.docRoot, '/include/system/command/command_service.js'))(pb);
 
     //setup settings service
-    console.log('Initializing Settings prototype(s)...');
     pb.SettingServiceFactory = require(path.join(config.docRoot, '/include/system/settings.js'))(pb);
     pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
 
     //Jobs
-    console.log('Initializing Job prototype(s)...');
     pb.JobRunner             = require(path.join(config.docRoot, '/include/service/jobs/job_runner.js'))(pb);
     pb.AsyncJobRunner        = require(path.join(config.docRoot, '/include/service/jobs/async_job_runner'))(pb);
     pb.ClusterJobRunner      = require(path.join(config.docRoot, '/include/service/jobs/cluster_job_runner'))(pb);
@@ -156,11 +141,9 @@ module.exports = function PB(config) {
     pb.PluginInstallJob      = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_install_job.js'))(pb);
 
     //Email settings and functions
-    console.log('Initializing Email prototype(s)...');
     pb.EmailService = require(path.join(config.docRoot, '/include/email'))(pb);
 
     //system requires
-    console.log('Initializing Document prototype(s)...');
     pb.DocumentCreator = require(config.docRoot+'/include/model/create_document.js')(pb);	// Document creation
     pb.ContentService  = require(path.join(config.docRoot, '/include/content'))(pb); // Content settings and functions
     Object.defineProperty(pb, 'content', {
@@ -191,7 +174,6 @@ module.exports = function PB(config) {
     pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
 
     //create plugin service
-    console.log('Initializing Plugin prototype(s)...');
     pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);
     Object.defineProperty(pb, 'plugins', {
         get: function() {
@@ -201,7 +183,6 @@ module.exports = function PB(config) {
     });
 
     //media renderers
-    console.log('Initializing Media prototype(s)...');
     pb.media = {
         renderers: {
             BaseMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/base_media_renderer.js'))(pb),
@@ -228,7 +209,6 @@ module.exports = function PB(config) {
     pb.MediaService = require(path.join(config.docRoot, '/include/service/entities/media_service.js'))(pb);
 
     //content services
-    console.log('Initializing Content prototype(s)...');
     pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js')(pb);
     pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js')(pb);
     
