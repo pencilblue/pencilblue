@@ -39,11 +39,10 @@ module.exports = function(pb) {
 
             var message = self.hasRequiredParams(post, self.getRequiredFields());
             if (message) {
-                cb({
+                return cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
                 });
-                return;
             }
 
             post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
