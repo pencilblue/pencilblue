@@ -5,6 +5,7 @@
 	.controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window, validationService) {
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
+		^tmp_angular=admin=elements=is_wysiwyg_valid^
 
 		$scope.urlAvailable = null;
 
@@ -17,7 +18,7 @@
 		$scope.setCommentState = function(state) {
 		    $scope.article.allow_comments = state;
 		};
-		
+
 		$scope.setPublishDateToNow = function() {
 			$scope.article.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');
 		};
