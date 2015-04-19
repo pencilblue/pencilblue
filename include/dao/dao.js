@@ -360,12 +360,14 @@ module.exports = function DAOModule(pb) {
     };
 
     /**
-     * Replaces an existing document with the specified DB Object
+     * Inserts or replaces an existing document with the specified DB Object. 
+     * An insert is distinguished from an update based the presence of the _id 
+     * field.
      * @method save
      * @param {Object} dbObj The system object to persist
      * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#save
      * @param {Function} cb A callback that takes two parameters.  The first, an
-     * error, if occurred.  The second is the result of the persistence operation.
+     * error, if occurred.  The second is the object that was persisted
      */
     DAO.prototype.save = function(dbObj, options, cb) {
         if (util.isFunction(options)) {
@@ -402,7 +404,9 @@ module.exports = function DAOModule(pb) {
             }
 
             //execute persistence operation
-            db.collection(dbObj.object_type).save(dbObj, options, cb);
+            db.collection(dbObj.object_type).save(dbObj, options, function(err/*, writeOpResult*/) {
+                cb(err, dbObj);
+            });
         });
     };
 
@@ -471,6 +475,7 @@ module.exports = function DAOModule(pb) {
      * @param {Boolean} [options.upsert=false] Inserts the object is not found
      * @param {Boolean} [options.multi=false] Updates multiple records if the query
      * finds more than 1
+     * @param {Function} cb
      */
     DAO.prototype.updateFields = function(collection, query, updates, options, cb) {
         if (util.isFunction(options)) {
@@ -606,6 +611,49 @@ module.exports = function DAOModule(pb) {
                 return cb(err);
             }
             db.collection(collection).ensureIndex(spec, options, cb);
+        });
+    };
+    
+    /**
+     * Retrieves indexes for the specified collection
+     * @method indexInfo
+     * @param {String} collection
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     */
+    DAO.prototype.indexInfo = function(collection, options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+        pb.dbm.getDb(this.dbName, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            db.indexInformation(collection, options, cb);
+        });
+    };
+    
+    /**
+     * Drops the specified index from the given collection
+     * @method dropIndex
+     * @param {String} collection
+     * @param {String} indexName
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     */
+    DAO.prototype.dropIndex = function(collection, indexName, options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+        
+        pb.dbm.getDb(this.dbName, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            db.collection(collection).dropIndex(indexName, options, cb);
         });
     };
 

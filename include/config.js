@@ -640,6 +640,19 @@ var BASE_CONFIG = {
         defaultLocale: 'en_US'
     },
     
+    //The locking service provides a common mechanism for processes to reserve 
+    //access to resources during critical operations.  When the locks exist, 
+    //other PB instances will not hinder the other process from completing its 
+    //task.  
+    locks: {
+        
+        //By default, the cache will be used as the store for the locks
+        provider: 'redis',
+        
+        //The default amount of time that a lock will be persisted in seconds.
+        timeout: 30
+    },
+    
     //Pulls in the package.json file for PB and extracts the version so it is 
     //available in the configuration.
     version: require(path.join(Configuration.DOCUMENT_ROOT, 'package.json')).version
