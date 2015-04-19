@@ -3,14 +3,18 @@
 		require: 'ngModel',
 		link: function(scope, element, attrs, modelCtrl) {
 			modelCtrl.$parsers.push(function (inputValue) {
-			var transformedInput = inputValue.replace(/[^a-zA-Z0-9_-]/g, '');
-			if (transformedInput!=inputValue) {
-				modelCtrl.$setViewValue(transformedInput);
-				modelCtrl.$render();
-			}
+				if(!inputValue.length) {
+					return inputValue;
+				}
 
-			return transformedInput;
-		});
+				var transformedInput = inputValue.replace(/[^a-zA-Z0-9_-]/g, '');
+				if (transformedInput!=inputValue) {
+					modelCtrl.$setViewValue(transformedInput);
+					modelCtrl.$render();
+				}
+
+				return transformedInput;
+			});
 		}
 	};
 });

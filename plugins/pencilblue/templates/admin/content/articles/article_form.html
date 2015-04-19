@@ -59,11 +59,12 @@
 					        <button type="button" class="btn btn-default" ng-class="{'active': !article.allow_comments}" ng-click="setCommentState(false)">^loc_NO^</button>
 					    </div>
 					</div>
-					<div class="form-group">
+					<div class="form-group" ng-class="{'has-error': !isWysiwygValid('#article_wysiwyg')}">
 						<label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
 						<div id="article_wysiwyg">
 							^wysiwyg^
 						</div>
+						<div class="form_error" ng-if="!isWysiwygValid('#article_wysiwyg')" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
 					</div>
 				</div>
 				<div class="tab-pane" id="media">
@@ -122,7 +123,7 @@
 					</ul>
 				</div>
 				<div class="spacer"></div>
-				<label id="draft_info" ng-if="article.draft">^loc_DRAFT_SAVED^ <span id="draft_time">{{article.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
+				<label id="draft_info" ng-if="article.draft && article._id">^loc_DRAFT_SAVED^ <span id="draft_time">{{article.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
 			</div>
 		</fieldset>
 	</form>
