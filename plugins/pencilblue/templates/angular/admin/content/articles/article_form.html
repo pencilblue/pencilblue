@@ -17,7 +17,7 @@
 		$scope.setCommentState = function(state) {
 		    $scope.article.allow_comments = state;
 		};
-		
+
 		$scope.setPublishDateToNow = function() {
 			$scope.article.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');
 		};
@@ -63,6 +63,11 @@
 					.success(function(result) {
 						$scope.successMessage = result.message;
 						$scope.saving = false;
+
+						if(!result.data._id) {
+							$window.location = '/admin/content/articles';
+							return;
+						}
 						$window.location = '/admin/content/articles/' + result.data._id.toString();
 					})
 					.error(function(error, status) {

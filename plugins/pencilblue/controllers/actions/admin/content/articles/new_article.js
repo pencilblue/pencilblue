@@ -61,7 +61,7 @@ module.exports = function(pb) {
                 dao.save(articleDocument, function(err, result) {
                     if(util.isError(err))  {
                         return cb({
-                            code: 400,
+                            code: 500,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
                         });
                     }
