@@ -44,6 +44,9 @@ module.exports = function PluginServiceModule(pb) {
         } else {
             this.site = GLOBAL_PREFIX;
         }
+
+        this._pluginRepository = pb.PluginRepository;
+
     }
 
     //constants
@@ -384,7 +387,7 @@ module.exports = function PluginServiceModule(pb) {
      * TRUE if the plugin is installed, FALSE if not.
      */
     PluginService.prototype.isInstalled = function(pluginIdentifier, cb) {
-        this.getPlugin(pluginIdentifier, function(err, plugin) {
+        this.getPluginBySite(pluginIdentifier, function(err, plugin) {
             cb(err, plugin ? true : false);
         });
     };
@@ -399,51 +402,11 @@ module.exports = function PluginServiceModule(pb) {
      * plugin does exist null is provided.
      */
     PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
-        var where = {
-            $or: [
-                {},
-                {
-                    uid: pluginIdentifier
-                }
-            ]
-        };
-        where['$or'][0][pb.DAO.getIdField()] = pluginIdentifier;
-        var dao = new pb.DAO();
-        dao.loadByValues(where, PLUGIN_COLL, cb);
+        _pluginRepository.loadPluginAvailableToThisSite(pluginIdentifier, this.site, cb);
     };
 
-    PluginService.prototype.getPluginBySite = function(pluginIdentifier, site, cb) {
-        var hasCorrectIdentifier = { $or: [
-            {},
-            {
-                uid: pluginIdentifier
-            }
-        ]};
-        hasCorrectIdentifier['$or'][0][pb.DAO.getIdField()] = pluginIdentifier;
-
-        var belongsToThisSite = {};
-        if(!site || site === GLOBAL_PREFIX) {
-            var hasNoSite = {};
-            hasNoSite[SITE_COLL] = { $exists : false};
-
-            var siteIsGlobal = {};
-            siteIsGlobal[SITE_COLL] = GLOBAL_PREFIX;
-
-            belongsToThisSite = { $or: [
-                hasNoSite,
-                siteIsGlobal
-            ]};
-        } else {
-            belongsToThisSite = {};
-            belongsToThisSite[SITE_COLL] = site;
-        }
-
-        var where = {
-            $and: [ hasCorrectIdentifier, belongsToThisSite]
-        };
-
-        var dao = new pb.DAO();
-        dao.loadByValues(where, PLUGIN_COLL, cb);
+    PluginService.prototype.getPluginBySite = function(pluginIdentifier, cb) {
+        _pluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
     }
 
     /**
@@ -452,9 +415,12 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb Provides two parameters: Error, Array
      */
     PluginService.prototype.getPluginsWithThemes = function(cb) {
-        var dao = new pb.DAO();
-        dao.q(PLUGIN_COLL, {where: {theme: {$exists: true}}}, cb);
+        _pluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
     };
+
+    PluginService.prototype.getPluginsWithThemesBySite = function(cb) {
+        _pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
+    }
 
     /**
      * Convenience function to generate a service to handle settings for a plugin.
@@ -507,13 +473,15 @@ module.exports = function PluginServiceModule(pb) {
         }
 
         var perms = {};
-        for(var pluginUid in ACTIVE_PLUGINS) {
-            var permissions = ACTIVE_PLUGINS[pluginUid].permissions;
-            if (permissions) {
+        for(var site in ACTIVE_PLUGINS) {
+            for(var pluginUid in ACTIVE_PLUGINS[site]) {
+                var permissions = ACTIVE_PLUGINS[site][pluginUid].permissions;
+                if (permissions) {
 
-                var permsAtLevel = permissions[role];
-                if (permsAtLevel) {
-                    util.merge(permsAtLevel, perms);
+                    var permsAtLevel = permissions[role];
+                    if (permsAtLevel) {
+                        util.merge(permsAtLevel, perms);
+                    }
                 }
             }
         }
@@ -529,8 +497,10 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.getActivePluginPublicDir = function(pluginUid) {
         var publicPath = null;
-        if (ACTIVE_PLUGINS[pluginUid]) {
-            publicPath = ACTIVE_PLUGINS[pluginUid].public_dir;
+        for(var site in ACTIVE_PLUGINS) {
+            if (ACTIVE_PLUGINS[site][pluginUid]) {
+                publicPath = ACTIVE_PLUGINS[site][pluginUid].public_dir;
+            }
         }
         return publicPath;
     };

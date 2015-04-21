@@ -124,7 +124,7 @@ module.exports = function PluginSettingServiceModule(pb) {
         }
 
         //retrieve the settings to modify
-        this.getSettings(pluginName, function(err, settings) {
+        this.getSettingsBySite(pluginName, function(err, settings) {
             if (util.isError(err) || !settings) {
                 cb(err, false);
                 return;
@@ -204,7 +204,7 @@ module.exports = function PluginSettingServiceModule(pb) {
         }
 
         //retrieve the settings to modify
-        this.getThemeSettings(pluginName, function(err, settings) {
+        this.getThemeSettingsBySite(pluginName, function(err, settings) {
             if (util.isError(err) || !settings) {
                 cb(err, false);
                 return;
@@ -348,7 +348,7 @@ module.exports = function PluginSettingServiceModule(pb) {
 
         //retrieve plugin to prove it exists (plus we need the id)
         var pluginName = details.uid;
-        this.pluginService.getPlugin(pluginName, function(err, plugin) {
+        this.pluginService.getPluginBySite(pluginName, function(err, plugin) {
             if (util.isError(err) || !plugin) {
                 return cb(err ? err : new Error("The plugin "+pluginName+" is not installed"), false);
             }
@@ -399,7 +399,7 @@ module.exports = function PluginSettingServiceModule(pb) {
         }
 
         //retrieve plugin to prove it exists (plus we need the id)
-        this.pluginService.getPlugin(pluginName, function(err, plugin) {
+        this.pluginService.getPluginBySite(pluginName, function(err, plugin) {
             if (util.isError(err) || !plugin) {
                 cb(err, false);
                 return;

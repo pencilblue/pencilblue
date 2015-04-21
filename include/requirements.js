@@ -188,6 +188,7 @@ module.exports = function PB(config) {
 
     //create plugin setting service 
     pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'))(pb);
+    pb.PluginRepository = require(path.join(config.docRoot, '/include/repository/plugin_repository.js'))(pb);
 
     //media renderers
     pb.media = {
