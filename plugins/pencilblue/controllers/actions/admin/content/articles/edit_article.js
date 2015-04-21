@@ -62,7 +62,9 @@ module.exports = function(pb) {
                 pb.DocumentCreator.update(post, article, ['meta_keywords']);
 
                 pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
-                    if(error !== null || exists || article.url.indexOf('/admin') === 0) {
+                    var testError = (error !== null && typeof error !== 'undefined');
+                    
+                    if( testError || exists || article.url.indexOf('/admin') === 0) {
                         cb({
                             code: 400,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))

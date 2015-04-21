@@ -21,7 +21,7 @@ var HtmlEncoder    = require('htmlencode');
 var async          = require('async');
 
 module.exports = function FeedModule(pb) {
-    
+
     //pb dependencies
     var util           = pb.util;
     var ArticleService = pb.ArticleService;
@@ -49,7 +49,7 @@ module.exports = function FeedModule(pb) {
             var dao   = new pb.DAO();
             dao.q('article', opts, function(err, articles) {
                 if (util.isError(err)) {
-                    return cb(err);   
+                    return cb(err);
                 }
 
                 pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
@@ -61,29 +61,39 @@ module.exports = function FeedModule(pb) {
                         self.getMedia(articles, function(err, articlesWithMedia) {
                             articles = articlesWithMedia;
 
+                            var contentService = new pb.ContentService();
+                            contentService.getSettings(function(err, contentSettings) {
 
-
-                            var tasks = util.getTasks(articles, function(articles, i) {
-                                return function(callback) {
-
-                                    self.ts.registerLocal('url', '/article/' + articles[i].url);
-                                    self.ts.registerLocal('title', articles[i].headline);
-                                    self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
-                                    self.ts.registerLocal('author', articles[i].author_name);
-                                    self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
-                                    self.ts.registerLocal('content', new pb.TemplateValue(articles[i].article_layout, false));
-                                    self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
-                                        var categories = '';
-                                        for(var j = 0; j < articles[i].section_names.length; j++) {
-                                            categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
+                                var tasks = util.getTasks(articles, function(articles, i) {
+                                    return function(callback) {
+                                        if(articles[i].article_layout.indexOf('^read_more^') > -1) {
+                                          articles[i].article_layout = articles[i].article_layout.substr(0, articles[i].article_layout.indexOf('^read_more^')) + ' <a href="' + pb.config.siteRoot + '/article/' + articles[i].url + '">' + contentSettings.read_more_text + '...</a>';
                                         }
-                                        onFlagProccessed(null, new pb.TemplateValue(categories, false));
-                                    });
-                                    self.ts.load('xml_feeds/rss/item', callback);
-                                };
-                            });
-                            async.series(tasks, function(err, results) {
-                                cb(err, new pb.TemplateValue(results.join(''), false));
+
+                                        var mediaLoader = new MediaLoader();
+                                        mediaLoader.start(articles[i].article_layout, function(err, newLayout) {
+                                            articles[i].article_layout = newLayout;
+
+                                            self.ts.registerLocal('url', '/article/' + articles[i].url);
+                                            self.ts.registerLocal('title', articles[i].headline);
+                                            self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
+                                            self.ts.registerLocal('author', articles[i].author_name);
+                                            self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
+                                            self.ts.registerLocal('content', new pb.TemplateValue(articles[i].article_layout, false));
+                                            self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
+                                                var categories = '';
+                                                for(var j = 0; j < articles[i].section_names.length; j++) {
+                                                    categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
+                                                }
+                                                onFlagProccessed(null, new pb.TemplateValue(categories, false));
+                                            });
+                                            self.ts.load('xml_feeds/rss/item', callback);
+                                        });
+                                    };
+                                });
+                                async.series(tasks, function(err, results) {
+                                    cb(err, new pb.TemplateValue(results.join(''), false));
+                                });
                             });
                         });
                     });
@@ -130,7 +140,7 @@ module.exports = function FeedModule(pb) {
         var dao = new pb.DAO();
         dao.q('section', opts, function(err, sections) {
             if (util.isError(err)) {
-                return cb(err, sections);   
+                return cb(err, sections);
             }
 
             for(var i = 0; i < articles.length; i++) {

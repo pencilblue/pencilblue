@@ -63,6 +63,15 @@ module.exports = function PB(config) {
     var ValidationModule = require(path.join(config.docRoot, '/include/validation/validation_service.js'));
     pb.ValidationService = ValidationModule(pb);
     pb.validation        = pb.ValidationService;
+    
+    //lock services
+    pb.locks = {
+        providers: {
+            CacheLockProvider: require(path.join(config.docRoot, '/include/service/locks/providers/cache_lock_provider.js'))(pb),
+            DbLockProvider: require(path.join(config.docRoot, '/include/service/locks/providers/db_lock_provider.js'))(pb)
+        }
+    };
+    pb.LockService = require(path.join(config.docRoot, '/include/service/locks/lock_service.js'))(pb);
 
     //setup the session handler
     var SessionModule = require(path.join(config.docRoot, '/include/session/session.js'));

@@ -233,7 +233,14 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     }
 
                     //we're all good.  we can persist now
-                    dao.save(topic, callback);
+                    dao.save(topic, function(err, result) {
+                        if (util.isError(err)) {
+                            return callback(err);
+                        }
+
+                        pb.log.debug('WPXMLParseService: Created topic [%s]', topic.name);
+                        callback(null, topic);
+                    });
                 });
             };
         });
@@ -349,7 +356,10 @@ module.exports = function WPXMLParseServiceModule(pb) {
         var articleTasks = util.getTasks(rawArticles, function(rawArticles, index) {
             return function(callback) {
                 var rawArticle = rawArticles[index];
-                var articleName = rawArticle['wp:post_name'][0];
+                var articleName = rawArticle['wp:post_name'][0] || rawArticle.title[0];
+                if (util.isNullOrUndefined(articleName) || articleName === '') {
+                    articleName = WPXMLParseService.uniqueStrVal('article');
+                };
 
                 //output progress
                 pb.log.debug('WPXMLParseService: Processing %s "%s"', 'article', articleName);
@@ -623,7 +633,10 @@ module.exports = function WPXMLParseServiceModule(pb) {
     };
 
     WPXMLParseService.downloadMediaContent = function(srcString, cb) {
-
+        if (util.isNullOrUndefined(srcString) || srcString.indexOf('http') !== 0) {
+            return cb(new Error('Invalid protocol on URI: '+srcString));
+        }
+        
         //only load the modules into memory if we really have to.  Footprint isn't 
         //much but it all adds up
         var ht = srcString.indexOf('https://') >= 0 ? require('https') : require('http');

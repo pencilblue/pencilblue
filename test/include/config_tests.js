@@ -2,7 +2,6 @@
 //depedencies
 var should        = require('should');
 var Configuration = require('../../include/config.js');
-var Lib           = require('../../lib');
 
 describe('Configuration', function() {
     
@@ -10,15 +9,8 @@ describe('Configuration', function() {
         
         it('should provide a valid base configuration', function() {
             
-            //it takes a few seconds to load the prototypes based on the 
-            //configuration so we modify the timeout to ensure that small build 
-            //runners complete the test in a timely manner
-            this.timeout(3000);
-            
             var config = Configuration.getBaseConfig();
             config.should.be.type('object');
-            
-            var pb = new Lib(config);
         });
     });
     

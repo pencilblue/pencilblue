@@ -414,6 +414,13 @@ form .error
     outline: none;
 }
 
+.layout_editable .read_more_break {
+    border: none;
+    border-top: 1px dashed #333333;
+    color: #333333;
+    text-align: center;
+}
+
 .layout_code, .layout_markdown
 {
     background-color: #333333;

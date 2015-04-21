@@ -45,16 +45,21 @@ module.exports = function(pb) {
             var mediaDocument = pb.DocumentCreator.create('media', post);
             var mediaService = new pb.MediaService();
             mediaService.save(mediaDocument, function(err, result) {
-                if(util.isError(err) || util.isArray(result)) {
-                    cb({
+                if(util.isError(err)) {
+                    return cb({
                         code: 500,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
                     });
-                    return;
                 }
-
-                result.icon = pb.MediaService.getMediaIcon(result.media_type);
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, result.name + ' ' + self.ls.get('ADDED'), result)});
+                else if (util.isArray(result)) {
+                    return cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'), result)
+                    });
+                }
+                
+                mediaDocument.icon = pb.MediaService.getMediaIcon(mediaDocument.media_type);
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, mediaDocument.name + ' ' + self.ls.get('ADDED'), mediaDocument)});
             });
         });
     };

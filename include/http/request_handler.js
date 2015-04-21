@@ -1179,7 +1179,7 @@ module.exports = function RequestHandlerModule(pb) {
             return function (callback) {
                 var where = {url: url};
                 if (id) {
-                    where[pb.DAO.getIdField()] = pb.DAO.getNotIDField(id);
+                    where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(id);
                 }
                 dao.count(collection, where, function(err, count) {
                     if(util.isError(err) || count > 0) {

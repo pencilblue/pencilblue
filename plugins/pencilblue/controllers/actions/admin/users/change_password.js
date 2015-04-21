@@ -16,11 +16,11 @@
 */
 
 module.exports = function ChangePasswordModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
     var BaseController = pb.BaseController;
-    
+
     /**
      * Changes a user's password
      */
@@ -67,9 +67,7 @@ module.exports = function ChangePasswordModule(pb) {
                     return;
                 }
 
-                pb.DocumentCreator.update(post, user);
-
-                if(user.password != user.current_password) {
+                if(user.password != pb.security.encrypt(post.current_password)) {
                     cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_PASSWORD'))
@@ -77,7 +75,8 @@ module.exports = function ChangePasswordModule(pb) {
                     return;
                 }
 
-                user.password = user.new_password;
+                user.password = pb.security.encrypt(post.new_password);
+                pb.DocumentCreator.update(post, user);
                 delete user.new_password;
                 delete user.current_password;
 

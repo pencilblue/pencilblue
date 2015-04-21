@@ -44,6 +44,7 @@ function initWYSIWYG() {
 
     $('.wysiwyg').each(function() {
         var wysId = $(this).attr('id').split('wysiwyg_').join('');
+        loadReadMoreBreak(wysId);
         loadLayoutMediaPreviews(wysId);
     });
 }
@@ -242,6 +243,18 @@ function addLayoutLink(wysId)
     $('#wysiwyg_modal_' + wysId).modal('hide');
 }
 
+function insertReadMore(wysId)
+{
+  toolbarAction(wysId, 'inserthtml', '<hr class="read_more_break"></hr>');
+}
+
+function loadReadMoreBreak(wysId) {
+  var layout = $('#wysiwyg_' + wysId + ' .layout_editable').html();
+  layout = layout.split('^read_more^').join('<hr class="read_more_break"></hr>');
+
+  $('#wysiwyg_' + wysId + ' .layout_editable').html(layout);
+}
+
 function getLayoutMediaOptions(wysId)
 {
     var activeMedia = getActiveMedia();//$('#active_media .media_item');
@@ -339,16 +352,42 @@ function associateMedia(wysId)
 }
 
 function getWYSIWYGLayout(wysId, cb) {
+    var self = this;
+
     if(!$('#temp_editable').position()){
         $('body').append('<div id="temp_editable" style="display:none"></div>');
     }
     $('#temp_editable').html($('#wysiwyg_' + wysId + ' .layout_editable').html());
 
+    this.convertReadMore = function() {
+      var s = 0;
+      var readMoreCount = $('#temp_editable .read_more_break').length;
+
+      if(readMoreCount === 0) {
+        cb($('#temp_editable').html());
+        return;
+      }
+
+      $('#temp_editable .read_more_break').each(function() {
+          if(s === 0) {
+            $(this).replaceWith('^read_more^');
+          }
+          else {
+            $(this).replaceWith('');
+          }
+
+          s++;
+          if(s >= readMoreCount) {
+            cb($('#temp_editable').html());
+          }
+      });
+    };
+
     var i = 0;
     var mediaCount = $('#temp_editable .media_preview').length;
     if(mediaCount === 0)
     {
-        cb($('#temp_editable').html());
+        this.convertReadMore();
         return;
     }
 
@@ -364,9 +403,8 @@ function getWYSIWYGLayout(wysId, cb) {
 
         i++;
 
-        if(i >= mediaCount)
-        {
-            cb($('#temp_editable').html());
+        if(i >= mediaCount){
+          self.convertReadMore();
         }
     });
 }

@@ -307,7 +307,8 @@ var loc =
         PUBLISHED: 'Published',
         UNPUBLISHED: 'Unpublished',
         DRAFT: 'Draft',
-        ALLOW_COMMENTS: 'Allow comments'
+        ALLOW_COMMENTS: 'Allow comments',
+        INSERT_READ_MORE: 'Insert a read more break',
     },
     wysiwyg: {
         NORMAL_TEXT: 'Normal text',

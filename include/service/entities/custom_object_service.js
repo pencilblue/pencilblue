@@ -763,7 +763,7 @@ module.exports = function CustomObjectServiceModule(pb) {
 
             //validate the name
             function(callback) {
-                if (!pb.validation.isNonEmptyStr(custObjType.name)) {
+                if (!pb.validation.isNonEmptyStr(custObjType.name, true)) {
                     errors.push(CustomObjectService.err('name', 'The name cannot be empty'));
                     return callback(null);
                 }
