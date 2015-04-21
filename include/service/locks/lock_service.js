@@ -99,8 +99,11 @@ module.exports = function(pb) {
      * provider can be loaded.
      */
     LockService.loadProvider = function() {
-        if (pb.config.locks.provider === 'redis') {
-            return new pb.locks.providers.CacheLockProvider(pb.config.locks.timeout);
+        if (pb.config.locks.provider === 'cache') {
+            return new pb.locks.providers.CacheLockProvider();
+        }
+        else if (pb.config.locks.provider === 'db') {
+            return new pb.locks.providers.DbLockProvider();
         }
         
         var instance = null;

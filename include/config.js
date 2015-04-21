@@ -459,6 +459,18 @@ var BASE_CONFIG = {
                 collection: 'page',
                 spec: {created: ASC},
                 options: {}
+            },
+            
+            //lock
+            {
+                collection: 'lock',
+                spec: {name: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'lock',
+                spec: {timeout: ASC},
+                options: {expireAfterSeconds: 0}
             }
         ]
 	},
@@ -646,8 +658,11 @@ var BASE_CONFIG = {
     //task.  
     locks: {
         
-        //By default, the cache will be used as the store for the locks
-        provider: 'redis',
+        //By default, the db will be used as the store for the locks.  Another 
+        //out of the box provider is 'cache'.  It leverages the cache as a 
+        //store.  Custom implementations are also acceptable.  The relative 
+        //path from the installation root to the module should be provided.
+        provider: 'db',
         
         //The default amount of time that a lock will be persisted in seconds.
         timeout: 30
