@@ -741,7 +741,7 @@ module.exports = function PluginServiceModule(pb) {
 
         var name  = util.format('UNINSTALL_PLUGIN_%s', pluginUid);
         var jobId = options.jobId;
-        var site = options.site;
+        var site = this.site;
         var job = new pb.PluginUninstallJob();
         job.init(name, jobId);
         job.setPluginUid(pluginUid);
@@ -778,7 +778,7 @@ module.exports = function PluginServiceModule(pb) {
         var job  = new pb.PluginInstallJob();
         job.init(name);
         job.setRunAsInitiator(true);
-        job.setSite(site);
+        job.setSite(this.site);
         job.setPluginUid(pluginDirName);
         job.run(cb);
         return job.getId();
@@ -1996,8 +1996,7 @@ module.exports = function PluginServiceModule(pb) {
 
         var options = {
             forCluster: false,
-            jobId: command.jobId,
-            site: command.site
+            jobId: command.jobId
         }
         
         var pluginService = new PluginService(command.site);
