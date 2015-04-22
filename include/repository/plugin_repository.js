@@ -80,17 +80,50 @@ module.exports = function PluginRepositoryModule(pb) {
         });
 	};
 
-	publicAPI.loadPluginsWithTheseIds = function(pluginIDs, site, cb) {
-		
+	publicAPI.loadIncludedPluginsOwnedByThisSite = function(pluginIDs, site, cb) {
+		var idIsInTheList = getIdsInListQuery(pluginIDs);
+		var belongsToThisSite = getBelongsToSiteQuery(site);
+		var where = {
+			$and: [idIsInTheList, belongsToThisSite]
+		}
+		var opts = {
+            select: pb.DAO.SELECT_ALL,
+            where: where,
+            order: {created: pb.DAO.ASC}
+        };
+        var dao   = new pb.DAO();
+        dao.q(PLUGIN_COLL, opts, cb);
 	};
 
-	publicAPI.loadPluginsWithoutTheseIds = function(pluginIDs, site, cb) {
-
+	publicAPI.loadPluginsNotIncludedOwnedByThisSite = function(pluginIDs, site, cb) {
+		var idIsNotInTheList = getIdsNotInListQuery(pluginIDs);
+		var belongsToThisSite = getBelongsToSiteQuery(site);
+		var where = {
+			$and: [idIsNotInTheList, belongsToThisSite]
+		}
+		var opts = {
+            select: pb.DAO.SELECT_ALL,
+            where: where,
+            order: {created: pb.DAO.ASC}
+        };
+        var dao   = new pb.DAO();
+        dao.q(PLUGIN_COLL, opts, cb);
 	};
 
 	publicAPI.loadPluginsAcrossAllSites = function(cb) {
-
+		var dao   = new pb.DAO();
+        dao.q(PLUGIN_COLL, cb);
 	};
+
+	function getIdsNotInListQuery(pluginIDs) {
+		var idIsInTheList = {uid: {'$nin': pluginIDs}};
+		return idIsInTheList;
+	}
+
+	function getIdsInListQuery(pluginIDs) {
+		var idIsInTheList = {uid: {'$in': pluginIDs}};
+		return idIsInTheList;
+	}
 
 	function getHasThemeQuery() {
 		var hasATheme = {theme: {$exists: true}};
@@ -158,4 +191,6 @@ module.exports = function PluginRepositoryModule(pb) {
 		}
 		return false;
 	}
+
+	return publicAPI;
 };

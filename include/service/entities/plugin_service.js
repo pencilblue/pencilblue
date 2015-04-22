@@ -402,11 +402,11 @@ module.exports = function PluginServiceModule(pb) {
      * plugin does exist null is provided.
      */
     PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
-        _pluginRepository.loadPluginAvailableToThisSite(pluginIdentifier, this.site, cb);
+        this._pluginRepository.loadPluginAvailableToThisSite(pluginIdentifier, this.site, cb);
     };
 
     PluginService.prototype.getPluginBySite = function(pluginIdentifier, cb) {
-        _pluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
+        this._pluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
     }
 
     /**
@@ -415,11 +415,11 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb Provides two parameters: Error, Array
      */
     PluginService.prototype.getPluginsWithThemes = function(cb) {
-        _pluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
+        this._pluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
     };
 
     PluginService.prototype.getPluginsWithThemesBySite = function(cb) {
-        _pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
+        this._pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
     }
 
     /**
@@ -559,14 +559,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
     PluginService.prototype.getActivePlugins = function(cb) {
-
-        var opts = {
-            select: pb.DAO.SELECT_ALL,
-            where: {uid: {'$in': this.getActivePluginNames()}},
-            order: {created: pb.DAO.ASC}
-        };
-        var dao   = new pb.DAO();
-        dao.q(PLUGIN_COLL, opts, cb);
+        this._pluginRepository.loadIncludedPluginsOwnedByThisSite(this.getActivePluginNames(), this.site, cb);
     };
 
     /**
@@ -599,13 +592,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
     PluginService.prototype.getInactivePlugins = function(cb) {
-        var opts = {
-            select: pb.DAO.SELECT_ALL,
-            where: {uid: {'$nin': this.getActivePluginNames()}},
-            order: {created: pb.DAO.ASC}
-        };
-        var dao = new pb.DAO();
-        dao.q(PLUGIN_COLL, opts, cb);
+        this._pluginRepository.loadPluginsNotIncludedOwnedByThisSite(this.getActivePluginNames(), this.site, cb);
     };
 
     /**
@@ -791,6 +778,7 @@ module.exports = function PluginServiceModule(pb) {
         var job  = new pb.PluginInstallJob();
         job.init(name);
         job.setRunAsInitiator(true);
+        job.setSite(site);
         job.setPluginUid(pluginDirName);
         job.run(cb);
         return job.getId();
@@ -805,8 +793,7 @@ module.exports = function PluginServiceModule(pb) {
         pb.log.debug('PluginService: Beginning plugin initilization...');
 
         var self = this;
-        var dao  = new pb.DAO();
-        dao.q(PLUGIN_COLL, function(err, plugins) {
+        self._pluginRepository.loadPluginsAcrossAllSites(function(err, plugins) {
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -879,6 +866,7 @@ module.exports = function PluginServiceModule(pb) {
         pb.log.debug("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
 
         var details = null;
+        var site = plugin.site || GLOBAL_PREFIX;
         var tasks   = [
 
             //load the details file
@@ -974,7 +962,7 @@ module.exports = function PluginServiceModule(pb) {
                      return cb(new Error('Failed to load main module for plugin '+plugin.uid));
                  }
                  
-                 ACTIVE_PLUGINS[self.site][details.uid] = {
+                 ACTIVE_PLUGINS[plugin.site][details.uid] = {
                      main_module: mainModule,
                      public_dir: PluginService.getPublicPath(plugin.dirName),
                      permissions: map,
@@ -983,7 +971,7 @@ module.exports = function PluginServiceModule(pb) {
 
                  //set icon url (if exists)
                  if (details.icon) {
-                     ACTIVE_PLUGINS[self.site][details.uid].icon = PluginService.genPublicPath(details.uid, details.icon);
+                     ACTIVE_PLUGINS[site][details.uid].icon = PluginService.genPublicPath(details.uid, details.icon);
                  }
                  process.nextTick(function() {callback(null, true);});
              },
@@ -992,7 +980,7 @@ module.exports = function PluginServiceModule(pb) {
              function(callback) {
                  pb.log.debug('PluginService:[INIT] Attempting to call onStartup function for %s.', details.uid);
 
-                var mainModule = ACTIVE_PLUGINS[details.uid].main_module;
+                var mainModule = ACTIVE_PLUGINS[site][details.uid].main_module;
                 if (util.isFunction(mainModule.onStartup)) {
 
                     var timeoutProtect = setTimeout(function() {
@@ -1045,14 +1033,14 @@ module.exports = function PluginServiceModule(pb) {
                          pb.log.debug("PluginService[INIT]: No services were found for %s", details.uid);
                          services = {};
                      }
-                     ACTIVE_PLUGINS[details.uid].services = services;
+                     ACTIVE_PLUGINS[site][details.uid].services = services;
                      callback(null, !util.isError(err));
                  });
              },
 
              //process routes
              function(callback) {
-                 PluginService.loadControllers(path.join(PLUGINS_DIR, plugin.dirName), details.uid, callback);
+                 PluginService.loadControllers(path.join(PLUGINS_DIR, plugin.dirName), details.uid, site, callback);
              },
 
              //process localization
@@ -1327,10 +1315,10 @@ module.exports = function PluginServiceModule(pb) {
      * @param {String} pluginUid The unique plugin identifier
      * @return {Object} Service prototype
      */
-    PluginService.prototype.getService = function(serviceName, pluginUid) {
+    PluginService.prototype.getService = function(serviceName, pluginUid, site) {
         pb.log.warn('PluginService: Instance function getService is deprecated. Use pb.PluginService.getService intead');
         try{
-            return PluginService.getService(serviceName, pluginUid);
+            return PluginService.getService(serviceName, pluginUid, site);
         }
         catch(e) {
             //for backward compatibility until the function is removed
@@ -1349,10 +1337,17 @@ module.exports = function PluginServiceModule(pb) {
      * @param {String} pluginUid The unique plugin identifier
      * @return {Object} Service prototype
      */
-    PluginService.getService = function(serviceName, pluginUid) {
-        if (ACTIVE_PLUGINS[pluginUid]) {
-            if (ACTIVE_PLUGINS[pluginUid].services && ACTIVE_PLUGINS[pluginUid].services[serviceName]) {
-                return ACTIVE_PLUGINS[pluginUid].services[serviceName];
+    PluginService.getService = function(serviceName, pluginUid, site) {
+        if(!site) {
+            site = GLOBAL_PREFIX;
+        }
+        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
+            if (ACTIVE_PLUGINS[site][pluginUid].services && ACTIVE_PLUGINS[site][pluginUid].services[serviceName]) {
+                return ACTIVE_PLUGINS[site][pluginUid].services[serviceName];
+            }
+        } else if (ACTIVE_PLUGINS[GLOBAL_PREFIX] && ACTIVE_PLUGINS[GLOBAL_PREFIX][pluginUid]) {
+            if (ACTIVE_PLUGINS[GLOBAL_PREFIX][pluginUid].services && ACTIVE_PLUGINS[GLOBAL_PREFIX][pluginUid].services[serviceName]) {
+                return ACTIVE_PLUGINS[GLOBAL_PREFIX][pluginUid].services[serviceName];
             }
         }
         throw new Error('Either plugin ['+pluginUid+'] or the service ['+serviceName+'] does not exist');
@@ -1867,7 +1862,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param {String} pluginUid The unique identifier for the plugin
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
-    PluginService.loadControllers = function(pathToPlugin, pluginUid, cb) {
+    PluginService.loadControllers = function(pathToPlugin, pluginUid, site, cb) {
         var controllersDir = path.join(pathToPlugin, 'controllers');
 
         var options = {
@@ -1888,7 +1883,7 @@ module.exports = function PluginServiceModule(pb) {
                 return function(callback) {
 
                     var pathToController = files[index];
-                    PluginService.loadController(pathToController, pluginUid, function(err, service) {
+                    PluginService.loadController(pathToController, pluginUid, site, function(err, service) {
                         if (util.isError(err)) {
                             pb.log.warn('PluginService: Failed to load controller at [%s]: %s', pathToController, err.stack);
                         }
@@ -1911,7 +1906,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param {String} pluginUid The unique identifier for the plugin
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
-    PluginService.loadController = function(pathToController, pluginUid, cb) {
+    PluginService.loadController = function(pathToController, pluginUid, site, cb) {
         try {
 
             //load the controller type
@@ -1937,7 +1932,7 @@ module.exports = function PluginServiceModule(pb) {
                 for(var i = 0; i < routes.length; i++) {
                     var route        = routes[i];
                     route.controller = pathToController;
-                    var result       = pb.RequestHandler.registerRoute(route, pluginUid);
+                    var result       = pb.RequestHandler.registerRoute(route, pluginUid, site);
 
                     //verify registration
                     if (!result) {
