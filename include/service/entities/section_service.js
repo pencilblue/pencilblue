@@ -292,7 +292,7 @@ module.exports = function SectionServiceModule(pb) {
         cb = cb || currItem;
 
         var where = {
-            type: 'container',
+            type: 'container'
         };
         if (currItem && !util.isFunction(currItem)) {
             where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(currItem);
@@ -305,7 +305,7 @@ module.exports = function SectionServiceModule(pb) {
             },
             where: where,
             order: [
-                ['name', pb.DAO.ASC]
+                {'name': pb.DAO.ASC}
             ]
         };
         var dao = new pb.DAO();

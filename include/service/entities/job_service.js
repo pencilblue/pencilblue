@@ -48,7 +48,7 @@ module.exports = function JobServiceModule(pb) {
             created: {$gte: startingDate}
         };
         var orderBy = [
-            ['created', pb.DAO.ASC]
+            {'created': pb.DAO.ASC}
         ];
 
         var dao = new pb.DAO();

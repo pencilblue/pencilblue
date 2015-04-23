@@ -322,8 +322,8 @@ module.exports = function DAOModule(pb) {
                 .skip(offset);
 
             //apply sort order
-            if (options.orderBy) {
-                cursor.sort(options.orderBy);
+            if (options.order) {
+                cursor.sort(options.order);
             }
 
             //apply maximum number of results to return
@@ -335,13 +335,13 @@ module.exports = function DAOModule(pb) {
             if(pb.config.db.query_logging){
                 var query = "DAO: SELECT %j FROM %s.%s WHERE %j";
                 var args = [select, self.dbName, entityType, where];
-                if (typeof orderBy !== 'undefined') {
+                if (typeof options.order !== 'undefined') {
                     query += " ORDER BY %j";
-                    args.push(orderBy);
+                    args.push(options.order);
                 }
-                if (typeof limit !== 'undefined') {
+                if (typeof options.limit !== 'undefined') {
                     query += " LIMIT %d, OFFSET %d";
-                    args.push(limit, offset);
+                    args.push(options.limit, offset);
                 }
                 args.unshift(query);
                 pb.log.info(util.format.apply(util, args));

@@ -136,7 +136,7 @@ module.exports = function ArticleServiceModule(pb) {
             order = options.order;
         }
         else {
-            order = [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]];
+            order = [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}];
         }
 
         //build out select

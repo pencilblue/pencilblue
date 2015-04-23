@@ -485,7 +485,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             where: pb.DAO.ANYWHERE,
             select: pb.DAO.PROJECT_ALL,
             order: [
-                [NAME_FIELD, pb.DAO.ASC]
+                {NAME_FIELD: pb.DAO.ASC}
             ]
         };
         var dao  = new pb.DAO();
