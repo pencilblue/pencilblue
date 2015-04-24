@@ -132,11 +132,11 @@ module.exports = function ArticleServiceModule(pb) {
 
         //build out the ordering
         var order;
-        if (util.isArray(options.order)) {
+        if (util.isObject(options.order)) {
             order = options.order;
         }
         else {
-            order = [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}];
+            order = {'publish_date': pb.DAO.DESC, 'created': pb.DAO.DESC};
         }
 
         //build out select

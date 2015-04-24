@@ -47,9 +47,7 @@ module.exports = function JobServiceModule(pb) {
             job_id: jid,
             created: {$gte: startingDate}
         };
-        var orderBy = [
-            {'created': pb.DAO.ASC}
-        ];
+        var orderBy = {'created': pb.DAO.ASC};
 
         var dao = new pb.DAO();
         dao.q('job_log', {where: where, select: pb.DAO.SELECT_ALL, order: orderBy}, cb);
