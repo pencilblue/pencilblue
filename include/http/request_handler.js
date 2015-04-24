@@ -41,6 +41,7 @@ module.exports = function RequestHandlerModule(pb) {
         this.req       = req;
         this.resp      = resp;
         this.url       = url.parse(req.url, true);
+        this.hostname  = req.headers.host;
     }
 
     /**
@@ -593,7 +594,7 @@ module.exports = function RequestHandlerModule(pb) {
         this.session = session;
 
         //set the site -- how do we handle improper sites here?
-        this.site = RequestHandler.sites[this.url.hostname] || GLOBAL_PREFIX;
+        this.site = RequestHandler.sites[this.hostname] || GLOBAL_PREFIX;
 
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
