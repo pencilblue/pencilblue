@@ -28,7 +28,7 @@ var HtmlEncoder = require('htmlencode');
 /**
  * The main driver file for PencilBlue.  Provides the function necessary to
  * start up the master and/or child processes.  In addition, it is responsible
- * for ensuring that all system services are avaialble by requiring the
+ * for ensuring that all system services are available by requiring the
  * "requirements.js" file.
  * @class PencilBlue
  * @constructor
@@ -73,7 +73,7 @@ function PencilBlue(config){
     };
     
     /**
-     * Ensures that any log messages by the NPM module are fowarded as output 
+     * Ensures that any log messages by the NPM module are forwarded as output
      * to the system logs
      * @static
      * @method initLogWrappers
