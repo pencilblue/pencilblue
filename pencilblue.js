@@ -73,7 +73,7 @@ function PencilBlue(config){
     };
     
     /**
-     * Ensures that any log messages by the NPM module are fowarded as output 
+     * Ensures that any log messages by the NPM module are forwarded as output
      * to the system logs
      * @static
      * @method initLogWrappers
