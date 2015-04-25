@@ -95,6 +95,16 @@ module.exports = function PluginServiceModule(pb) {
      * @type {String}
      */
     var PLUGIN_COLL = 'plugin';
+    
+    /**
+     * The maximum number of retries to acquire 
+     * @private
+     * @static
+     * @readonly
+     * @property MAX_DEPENDENCY_LOCK_RETRY_CNT
+     * @type {Integer}
+     */
+    var MAX_DEPENDENCY_LOCK_RETRY_CNT = 45;
 
     /**
      * Retrieves the path to the active fav icon.
@@ -1244,12 +1254,26 @@ module.exports = function PluginServiceModule(pb) {
         var hasDependencies = true;
         var tasks = util.getTasks(Object.keys(plugin.dependencies), function(keys, i) {
             return function(callback) {
-                var modulePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'node_modules', keys[i]);
+                
+                //verify that the module exists and its package definition is available
+                var packagePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'node_modules', keys[i], 'package.json');
+                var modulePath = packagePath;
                 fs.exists(modulePath, function(exists) {
                     if (!exists) {
-
-                        hasDependencies = false;
                         pb.log.warn('PluginService: Plugin %s is missing dependency %s', plugin.name, keys[i]);
+                        
+                        hasDependencies = false;
+                        return callback(null, false);
+                    }
+                    
+                    //ensure that the version expression specified by the 
+                    //dependency is satisfied by that provided by the package.json
+                    var package = require(packagePath);
+                    var isSatisfied = semver.satisfies(package.version, plugin.dependencies[keys[i]]);
+                    if (!isSatisfied) {
+                        
+                        hasDependencies = false;
+                        pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, package.version, keys[i]);
                     }
                     callback();
                 });
@@ -1275,51 +1299,39 @@ module.exports = function PluginServiceModule(pb) {
 
         //verify parameters
         if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
-            cb(new Error('The plugin directory name and the dependencies are required'));
-            return;
+            return cb(new Error('The plugin directory name and the dependencies are required'));
         }
 
         //verify that another process isn't trying to install dependencies on the server
-        var self     = this;
-        var didLock  = false;
-        var depFound = false;
-        var key = pb.ServerRegistration.generateServerKey() + ':' + pluginDirName + ':dependency:install';
+        var self        = this;
+        var didLock     = false;
+        var retryCount  = 0;
+        var key         = pb.ServerRegistration.generateServerKey() + ':' + pluginDirName + ':dependency:install';
+        var lockService = new pb.LockService();
         async.until(
             function() {
-                return didLock || depFound;
+                return didLock || retryCount >= MAX_DEPENDENCY_LOCK_RETRY_CNT;
             },
             function(callback) {
 
                 //try and acquire the lock
-                pb.cache.setnx(key, 'locked', function(err, reply) {
+                lockService.acquire(key, function(err, reply) {
                     if (util.isError(err)) {
                         return callback(err);   
                     }
                     else if (reply) {
-                        pb.cache.expire(key, 120 /*sec*/, function(err, result) {
-                            didLock = true;
-                            callback(err);
-                        });
-                        return;
+                        didLock = true;
+                        return callback();
                     }
 
                     //wait a second to see if anything changes
-                    pb.log.silly('PluginService: Failed to acquire dependency installation lock. Waiting for 1000ms.');
+                    retryCount++;
+                    pb.log.silly('PluginService: Failed to acquire dependency installation lock for the %s time. Waiting for 1000ms.', retryCount);
                     setTimeout(function() {
 
                         //now check to see if another process installed the 
-                        //dependencies.  If there is no plugin object then skip.  
-                        //When present then do a test to see if another process has 
-                        //already installed the dependencies on this server
-                        if (plugin === null) {
-                            return callback();
-                        }
-                        self.hasDependencies(plugin, function(err, hasDependencies) {
-                            if (hasDependencies) {
-                                depFound = true;
-                            }
-                            callback(err);
-                        });
+                        //dependencies.  If there is no plugin object then skip.
+                        callback();
                     }, 1000);
                 });
             },
@@ -1327,26 +1339,36 @@ module.exports = function PluginServiceModule(pb) {
 
                 //a callback function that allows for deleting the lock key
                 var onDone = function(err, result) {
-                    if (didLock) {
-                        pb.cache.del(key, util.cb);
+                    if (!didLock) {
+                        return cb(err, result);
                     }
-                    cb(err, result);
+                    lockService.release(key, function(error, didRelease) {
+                        cb(err || error, didRelease);
+                    });
                 };
 
                 //verify results
                 if (util.isError(err)) {
                     return onDone(err);
                 }
-                else if (depFound) {
+                else if (retryCount >= MAX_DEPENDENCY_LOCK_RETRY_CNT) {
 
-                    //when the dependencies have already been set we can move on and just return
-                    var result = util.initArray(Object.keys(dependencies).length, true);
-                    return onDone(null, result);
+                    pb.log.warn('PluginService: Reached maximum retry count trying to verify dependencies');
+                    return onDone(null, false);
                 }
 
-                //proceed to 
-                self._installPluginDependencies(pluginDirName, dependencies, function(err, result){
-                    onDone(err, result);
+                //proceed to check to see if all dependencies are there
+                self.hasDependencies(plugin, function(err, hasDependencies) {
+                    if (hasDependencies) {
+                        pb.log.silly('PluginService: Assuming another process installed dependencies because they were discovered. Skipping install');
+                        return onDone(err);
+                    }
+                    
+                    //dependencies are not available so install them while we have the lock
+                    pb.log.silly('PluginService: Installing dependencies for %s.', pluginDirName);
+                    self._installPluginDependencies(pluginDirName, dependencies, function(err, result){
+                        onDone(err, result);
+                    });
                 });
             }
         );
