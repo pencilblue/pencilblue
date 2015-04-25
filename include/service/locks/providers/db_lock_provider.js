@@ -74,7 +74,7 @@ module.exports = function(pb) {
         };
         var dao = new pb.DAO();
         dao.save(lock, function(err, result) {
-            if (util.isError(err)) {console.log(err);
+            if (util.isError(err)) {
                 
                 //when unique constraint error occurs send no error.  It means 
                 //the lock exists
