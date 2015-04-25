@@ -37,6 +37,7 @@ var loc =
         SAVE: 'Save',
         SAVE_DRAFT: 'Save draft',
         DRAFT_SAVED: 'Draft saved',
+        LAST_SAVED: 'Last saved',
         PREVIEW: 'Preview',
         CANCEL: 'Cancel',
         EDIT: 'Edit',

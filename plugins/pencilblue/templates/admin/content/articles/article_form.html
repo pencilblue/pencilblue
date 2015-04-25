@@ -123,7 +123,11 @@
 					</ul>
 				</div>
 				<div class="spacer"></div>
-				<label id="draft_info" ng-if="article.draft && article._id">^loc_DRAFT_SAVED^ <span id="draft_time">{{article.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
+				<label id="draft_info" ng-if="article._id">
+					<span ng-if="article.draft">^loc_DRAFT_SAVED^</span>
+					<span ng-if="!article.draft">^loc_LAST_SAVED^</span>&nbsp;
+					<span id="draft_time">{{article.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
+				</label>
 			</div>
 		</fieldset>
 	</form>
