@@ -144,6 +144,8 @@ function showLayoutView(wysId, type) {
     $('#wysiwyg_' + wysId + ' .layout_markdown').hide();
 
     $('#wysiwyg_' + wysId + ' .layout_' + type).show();
+
+    $('#wysiwyg_' + wysId + ' .editable_button').prop('disabled', type !== 'editable');
 }
 
 function onLayoutEditableChanged(wysId) {
