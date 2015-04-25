@@ -293,7 +293,8 @@ module.exports = function DAOModule(pb) {
      * @param {String} entityType The collection to query
      * @param {Object} [where={}] The where clause
      * @param {Object} [select={}] The fields to project
-     * @param {Array} [orderBy] The ordering
+     * @param {Array} [order] The ordering
+     * @param {Array} [orderBy] The ordering. Parameter orderBy is deprecated, use order instead.
      * @param {Integer} [limit] The maximum number of results to return
      * @param {Integer} [offset] The number of results to skip before returning results.
      * @return {Cursor} The MongoDB cursor that provides the results of the query
