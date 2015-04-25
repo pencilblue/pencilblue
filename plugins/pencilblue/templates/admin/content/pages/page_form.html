@@ -8,7 +8,7 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="content">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.url)}">
-                        <label>^loc_ARTICLE_URL^</label>
+                        <label>^loc_PAGE_URL^</label>
                         <div class="input-group">
                             <span class="input-group-addon">/page/</span>
                             <input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" url-safe required></input>
@@ -113,7 +113,11 @@
                     </ul>
                 </div>
                 <div class="spacer"></div>
-                <label id="draft_info" ng-if="page.draft">^loc_DRAFT_SAVED^ <span id="draft_time">{{page.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
+                <label id="draft_info" ng-if="page._id">
+                  <span ng-if="page.draft">^loc_DRAFT_SAVED^</span>
+                  <span ng-if="!page.draft">^loc_LAST_SAVED^</span>&nbsp;
+                  <span id="draft_time">{{page.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
+                </label>
             </div>
             <div class="additions" style="display: none"></div>
         </fieldset>

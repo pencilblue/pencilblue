@@ -46,6 +46,7 @@ var loc =
         SAVE: 'Zapisz',
         SAVE_DRAFT: 'Zapisz projekt',
         DRAFT_SAVED: 'Projekt zapisany',
+        LAST_SAVED: 'Ostatnio zapisany',
         PREVIEW: 'Podgląd',
         CANCEL: 'Anuluj',
         EDIT: 'Edytuj',
