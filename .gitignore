@@ -19,7 +19,6 @@ plugins/*
 !plugins/wp_import/**
 **/node_modules
 **/node_modules/**
-config.js
 config.json
 **/.DS_Store
 **/dump.rdb
