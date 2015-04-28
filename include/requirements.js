@@ -105,6 +105,10 @@ module.exports = function PB(config) {
     pb.UserService = require(path.join(config.docRoot, '/include/service/entities/user_service.js'))(pb);
     pb.users       = new pb.UserService();
 
+    //setup site service
+    pb.SiteService = require(path.join(config.docRoot, '/include/service/entities/site_service.js'))(pb);
+    pb.sites = new pb.SiteService();
+
     //setup request handling
     var BodyParsers        = require(path.join(config.docRoot, 'include/http/parsers'))(pb);
     pb.BaseBodyParser      = BodyParsers.BaseBodyParser;
@@ -190,6 +194,10 @@ module.exports = function PB(config) {
             return new pb.PluginService();
         }
     });
+
+    //create plugin setting service 
+    pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'))(pb);
+    pb.PluginRepository = require(path.join(config.docRoot, '/include/repository/plugin_repository.js'))(pb);
 
     //media renderers
     pb.media = {

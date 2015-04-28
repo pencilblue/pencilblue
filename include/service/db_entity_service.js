@@ -31,13 +31,17 @@ module.exports = function DbEntityServiceModule(pb) {
      * @param {String} valueField
      * @param {String} keyField
      */
-    function DbEntityService(objType, valueField, keyField){
+    function DbEntityService(objType, valueField, keyField, site, onlyThisSite){
         this.type       = 'DB';
         this.objType    = objType;
         this.keyField   = keyField;
         this.valueField = valueField ? valueField : null;
+        this.site       = site || GLOBAL_PREFIX;
+        this.onlyThisSite       = onlyThisSite ? true : false;
     }
 
+    var GLOBAL_PREFIX = 'global';
+    var SITE_COLL = 'site';
     /**
      * Retrieve a value from the database
      *
@@ -51,7 +55,7 @@ module.exports = function DbEntityServiceModule(pb) {
         where[this.keyField] = key;
 
         var self = this;
-        dao.loadByValue(this.keyField, key, this.objType, function(err, entity){
+        var callback = function(err, entity){
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -66,7 +70,12 @@ module.exports = function DbEntityServiceModule(pb) {
 
             //callback with the result
             cb(null, val);
-        });
+        };
+        if(this.onlyThisSite) {
+            dao.loadByValueForOneSite(this.keyField, key, this.site, this.objType, callback);
+        } else {
+            dao.loadByValueAvailableToSite(this.keyField, key, this.site, this.objType, callback);
+        }
     };
 
     /**
@@ -83,7 +92,7 @@ module.exports = function DbEntityServiceModule(pb) {
         where[this.keyField] = key;
 
         var self = this;
-        dao.loadByValue(this.keyField, key, this.objType, function(err, result){
+        dao.loadByValueForOneSite(this.keyField, key, this.site, this.objType, function(err, result){
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -109,7 +118,7 @@ module.exports = function DbEntityServiceModule(pb) {
             }
 
             //set into cache
-            dao.save(val, cb);
+            dao.saveToSite(val, self.site, cb);
         });
     };
 
@@ -124,6 +133,21 @@ module.exports = function DbEntityServiceModule(pb) {
         var dao              = new pb.DAO();
         var where            = {};
         where[this.keyField] = key;
+        
+        var hasNoSite = {};
+        hasNoSite[SITE_COLL] = { $exists : false};
+
+        var siteIsGlobal = {};
+        siteIsGlobal[SITE_COLL] = GLOBAL_PREFIX;
+
+        if(!this.site || this.site === GLOBAL_PREFIX) {
+            where['$or'] = [
+                hasNoSite,
+                siteIsGlobal
+            ];
+        } else {
+            where[SITE_COLL] = this.site;
+        }
         dao.delete(where, this.objType, cb);
     };
     

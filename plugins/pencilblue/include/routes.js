@@ -794,6 +794,14 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'plugins', 'plugin_api.js'),
             content_type: 'application/json'
         },
+        {
+            method: 'post',
+            path: "/api/plugins/:action/:id/:site",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'plugins', 'plugin_api.js'),
+            content_type: 'application/json'
+        },
 
         // THEMES
         {
@@ -997,6 +1005,35 @@ module.exports = function Routes(pb){
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'localization_controller.js'),
             content_type: 'text/javascript'
+        },
+        {
+            method: 'get',
+            path: "/admin/sites",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/site",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'new_site.js')
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/site/activate/:id",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'activate_site.js')
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/site/deactivate/:id",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'deactivate_site.js')
         }
     ];
 };

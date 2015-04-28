@@ -85,6 +85,9 @@ module.exports = function DAOModule(pb) {
      */
     DAO.DESC = -1;
 
+    var GLOBAL_PREFIX = 'global';
+    var SITE_COLL = 'site';
+
     /**
      * Retrieves an object by ID
      *
@@ -114,6 +117,48 @@ module.exports = function DAOModule(pb) {
         this.loadByValues(where, collection, opts, cb);
     };
 
+    DAO.prototype.loadByValueAvailableToSite = function(key, val, site, collection, opts, cb) {
+        var self = this;
+        this.loadByValueForOneSite(key, val, site, collection, opts, function(err, result) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+
+            //ensure setting exists
+            if (!result){
+                self.loadByValueFromGlobal(key, val, collection, opts, cb);
+                return;
+            } else {
+                cb(null, result);
+            }
+        });
+    };
+
+    DAO.prototype.loadByValueForOneSite = function(key, val, site, collection, opts, cb) {
+        if(!site || site === GLOBAL_PREFIX) {
+            this.loadByValueFromGlobal(key,val,collection,opts,cb);
+        } else {
+            var where = {};
+            where[key] = val;
+            where[SITE_COLL] = site;
+            this.loadByValues(where, collection, opts, cb);  
+        }
+    };
+
+    DAO.prototype.loadByValueFromGlobal = function(key, val, collection, opts, cb) {
+        var where = {};
+        var hasNoSite = {};
+        hasNoSite[SITE_COLL] = { $exists : false };
+        var siteIsGlobal = {};
+        siteIsGlobal[SITE_COLL] = GLOBAL_PREFIX;
+        where[key] = val;
+        where['$or'] = [
+             hasNoSite,
+             siteIsGlobal
+        ];    
+        this.loadByValues(where, collection, opts, cb);  
+    }
+
     /**
      * Retrieves object matching several key value pairs
      *
@@ -138,6 +183,7 @@ module.exports = function DAOModule(pb) {
             order: opts.order || DAO.NATURAL_ORDER,
             limit: 1
         };
+
         this.q(collection, options, function(err, result){
            cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
         });
@@ -410,6 +456,11 @@ module.exports = function DAOModule(pb) {
                 cb(err, dbObj);
             });
         });
+    };
+
+    DAO.prototype.saveToSite = function(dbObj, site, options, cb) {
+        dbObj[SITE_COLL] = site || GLOBAL_PREFIX;
+        this.save(dbObj, options, cb);
     };
 
     /**
