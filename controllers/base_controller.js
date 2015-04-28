@@ -102,6 +102,7 @@ module.exports = function BaseControllerModule(pb) {
         this.pathVars            = props.path_vars;
         this.query               = props.query;
         this.pageName            = '';
+        this.site                = props.site;
 
         var self = this;
         this.templateService     = new pb.TemplateService(this.localizationService);

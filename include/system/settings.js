@@ -44,7 +44,7 @@ module.exports = function SettingsModule(pb) {
      * @param {Boolean} useCache
      * @return {SimpleLayeredService}
      */
-    SettingServiceFactory.getService = function(useMemory, useCache) {
+    SettingServiceFactory.getService = function(useMemory, useCache, site) {
         var objType    = 'setting';
         var keyField   = 'key';
         var valueField = 'value';
@@ -56,18 +56,19 @@ module.exports = function SettingsModule(pb) {
                 objType: objType,
                 valueField: valueField,
                 keyField: keyField,
-                timeout: pb.config.settings.memory_timeout
+                timeout: pb.config.settings.memory_timeout,
+                site: site
             };
             services.push(new pb.MemoryEntityService(options));
         }
 
         //add cache service
         if (useCache) {
-            services.push(new pb.CacheEntityService(objType, valueField, keyField));
+            services.push(new pb.CacheEntityService(objType, valueField, keyField, site));
         }
 
         //always add db service
-        services.push(new pb.DBEntityService(objType, valueField, keyField));
+        services.push(new pb.DBEntityService(objType, valueField, keyField, site));
 
         return new pb.SimpleLayeredService(services, 'SettingService' + count++);
     };

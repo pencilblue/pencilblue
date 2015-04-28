@@ -61,14 +61,23 @@ module.exports = function(pb) {
             };
             dao.delete(where, 'section', function(err, result) {
                 if(util.isError(err) || result < 1) {
-                    cb({
+                    return cb({
                         code: 500,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
                     });
-                    return;
                 }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, section.name + ' ' + self.ls.get('DELETED'))});
+                //update the section map
+                self.updateNavMap(vars.id, function(err, result) {
+                    if(util.isError(err)) {
+                        return cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                        });
+                    }
+                    
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, section.name + ' ' + self.ls.get('DELETED'))});
+                });
             });
         });
     };

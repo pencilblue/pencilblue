@@ -142,6 +142,9 @@ var BASE_CONFIG = {
     //the absolute file path to the directory where installation lives
 	docRoot:  Configuration.DOCUMENT_ROOT,
 
+    //enables/disables multiple sites in a single pencilblue instance (multitenancy)
+    multisite: false,
+
     //provides a configuration for connecting to persistent storage.  The
     //default configuration is meant for mongodb.
 	db: {
@@ -237,19 +240,19 @@ var BASE_CONFIG = {
             //plugin settings
             {
                 collection: 'plugin_settings',
-                spec: {plugin_uid: ASC},
+                spec: {plugin_uid: ASC, site: ASC},
                 options: {unique: true}
             },
             {
                 collection: 'plugin_settings',
-                spec: {plugin_id: ASC},
+                spec: {plugin_id: ASC, site: ASC},
                 options: {unique: true}
             },
 
             //settings
             {
                 collection: 'setting',
-                spec: {key: ASC},
+                spec: {key: ASC, site: ASC},
                 options: {unique: true}
             },
 
@@ -268,7 +271,7 @@ var BASE_CONFIG = {
             //plugin
             {
                 collection: 'plugin',
-                spec: {uid: ASC},
+                spec: {uid: ASC, site: ASC},
                 options: {unique: true}
             },
             {
@@ -459,6 +462,18 @@ var BASE_CONFIG = {
                 collection: 'page',
                 spec: {created: ASC},
                 options: {}
+            },
+            
+            //lock
+            {
+                collection: 'lock',
+                spec: {name: ASC},
+                options: {unique: true}
+            },
+            {
+                collection: 'lock',
+                spec: {timeout: ASC},
+                options: {expireAfterSeconds: 0}
             }
         ]
 	},
@@ -638,6 +653,22 @@ var BASE_CONFIG = {
         
         //The default locale is the fallback when localization fails for the user's desired language.
         defaultLocale: 'en_US'
+    },
+    
+    //The locking service provides a common mechanism for processes to reserve 
+    //access to resources during critical operations.  When the locks exist, 
+    //other PB instances will not hinder the other process from completing its 
+    //task.  
+    locks: {
+        
+        //By default, the db will be used as the store for the locks.  Another 
+        //out of the box provider is 'cache'.  It leverages the cache as a 
+        //store.  Custom implementations are also acceptable.  The relative 
+        //path from the installation root to the module should be provided.
+        provider: 'db',
+        
+        //The default amount of time that a lock will be persisted in seconds.
+        timeout: 30
     },
     
     //Pulls in the package.json file for PB and extracts the version so it is 

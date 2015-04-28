@@ -85,6 +85,9 @@ module.exports = function DAOModule(pb) {
      */
     DAO.DESC = -1;
 
+    var GLOBAL_PREFIX = 'global';
+    var SITE_COLL = 'site';
+
     /**
      * Retrieves an object by ID
      *
@@ -114,6 +117,48 @@ module.exports = function DAOModule(pb) {
         this.loadByValues(where, collection, opts, cb);
     };
 
+    DAO.prototype.loadByValueAvailableToSite = function(key, val, site, collection, opts, cb) {
+        var self = this;
+        this.loadByValueForOneSite(key, val, site, collection, opts, function(err, result) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+
+            //ensure setting exists
+            if (!result){
+                self.loadByValueFromGlobal(key, val, collection, opts, cb);
+                return;
+            } else {
+                cb(null, result);
+            }
+        });
+    };
+
+    DAO.prototype.loadByValueForOneSite = function(key, val, site, collection, opts, cb) {
+        if(!site || site === GLOBAL_PREFIX) {
+            this.loadByValueFromGlobal(key,val,collection,opts,cb);
+        } else {
+            var where = {};
+            where[key] = val;
+            where[SITE_COLL] = site;
+            this.loadByValues(where, collection, opts, cb);  
+        }
+    };
+
+    DAO.prototype.loadByValueFromGlobal = function(key, val, collection, opts, cb) {
+        var where = {};
+        var hasNoSite = {};
+        hasNoSite[SITE_COLL] = { $exists : false };
+        var siteIsGlobal = {};
+        siteIsGlobal[SITE_COLL] = GLOBAL_PREFIX;
+        where[key] = val;
+        where['$or'] = [
+             hasNoSite,
+             siteIsGlobal
+        ];    
+        this.loadByValues(where, collection, opts, cb);  
+    }
+
     /**
      * Retrieves object matching several key value pairs
      *
@@ -138,6 +183,7 @@ module.exports = function DAOModule(pb) {
             order: opts.order || DAO.NATURAL_ORDER,
             limit: 1
         };
+
         this.q(collection, options, function(err, result){
            cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
         });
@@ -360,12 +406,14 @@ module.exports = function DAOModule(pb) {
     };
 
     /**
-     * Replaces an existing document with the specified DB Object
+     * Inserts or replaces an existing document with the specified DB Object. 
+     * An insert is distinguished from an update based the presence of the _id 
+     * field.
      * @method save
      * @param {Object} dbObj The system object to persist
      * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#save
      * @param {Function} cb A callback that takes two parameters.  The first, an
-     * error, if occurred.  The second is the result of the persistence operation.
+     * error, if occurred.  The second is the object that was persisted
      */
     DAO.prototype.save = function(dbObj, options, cb) {
         if (util.isFunction(options)) {
@@ -402,8 +450,15 @@ module.exports = function DAOModule(pb) {
             }
 
             //execute persistence operation
-            db.collection(dbObj.object_type).save(dbObj, options, cb);
+            db.collection(dbObj.object_type).save(dbObj, options, function(err/*, writeOpResult*/) {
+                cb(err, dbObj);
+            });
         });
+    };
+
+    DAO.prototype.saveToSite = function(dbObj, site, options, cb) {
+        dbObj[SITE_COLL] = site || GLOBAL_PREFIX;
+        this.save(dbObj, options, cb);
     };
 
     /**
@@ -471,6 +526,7 @@ module.exports = function DAOModule(pb) {
      * @param {Boolean} [options.upsert=false] Inserts the object is not found
      * @param {Boolean} [options.multi=false] Updates multiple records if the query
      * finds more than 1
+     * @param {Function} cb
      */
     DAO.prototype.updateFields = function(collection, query, updates, options, cb) {
         if (util.isFunction(options)) {
@@ -606,6 +662,49 @@ module.exports = function DAOModule(pb) {
                 return cb(err);
             }
             db.collection(collection).ensureIndex(spec, options, cb);
+        });
+    };
+    
+    /**
+     * Retrieves indexes for the specified collection
+     * @method indexInfo
+     * @param {String} collection
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     */
+    DAO.prototype.indexInfo = function(collection, options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+        pb.dbm.getDb(this.dbName, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            db.indexInformation(collection, options, cb);
+        });
+    };
+    
+    /**
+     * Drops the specified index from the given collection
+     * @method dropIndex
+     * @param {String} collection
+     * @param {String} indexName
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     */
+    DAO.prototype.dropIndex = function(collection, indexName, options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+        
+        pb.dbm.getDb(this.dbName, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            db.collection(collection).dropIndex(indexName, options, cb);
         });
     };
 

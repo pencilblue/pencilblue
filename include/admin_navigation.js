@@ -217,6 +217,16 @@ module.exports = function AdminNavigationModule(pb) {
         }
     ]);
 
+    var MULTISITE_NAV = Object.freeze([
+        {
+            id: 'site_entity',
+            title: 'MANAGE_SITES',
+            icon: 'cogs',
+            href: '/admin/sites',
+            access: SecurityService.ACCESS_ADMINISTRATOR
+
+        }
+    ]);
     /**
      *
      * @private
@@ -226,6 +236,10 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function getDefaultNavigation() {
         return util.clone(DEFAULT_NAV);
+    }
+
+    function getMultiSiteNavigation() {
+        return util.clone(MULTISITE_NAV);
     }
 
     /**
@@ -262,10 +276,14 @@ module.exports = function AdminNavigationModule(pb) {
         var navigation = [];
         var defaultNavigation = getDefaultNavigation();
         var additions = getAdditions();
+        var multiSiteAdditions = getMultiSiteNavigation();
         var childrenAdditions = getChildrenAdditions();
 
         util.arrayPushAll(defaultNavigation, navigation);
         util.arrayPushAll(additions, navigation);
+        if(pb.config.multisite) {
+            util.arrayPushAll(multiSiteAdditions, navigation);
+        }
 
         //retrieve the nav items to iterate over
         var ids = Object.keys(childrenAdditions);

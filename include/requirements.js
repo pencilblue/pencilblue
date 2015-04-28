@@ -63,6 +63,15 @@ module.exports = function PB(config) {
     var ValidationModule = require(path.join(config.docRoot, '/include/validation/validation_service.js'));
     pb.ValidationService = ValidationModule(pb);
     pb.validation        = pb.ValidationService;
+    
+    //lock services
+    pb.locks = {
+        providers: {
+            CacheLockProvider: require(path.join(config.docRoot, '/include/service/locks/providers/cache_lock_provider.js'))(pb),
+            DbLockProvider: require(path.join(config.docRoot, '/include/service/locks/providers/db_lock_provider.js'))(pb)
+        }
+    };
+    pb.LockService = require(path.join(config.docRoot, '/include/service/locks/lock_service.js'))(pb);
 
     //setup the session handler
     var SessionModule = require(path.join(config.docRoot, '/include/session/session.js'));
@@ -95,6 +104,10 @@ module.exports = function PB(config) {
     //setup user service
     pb.UserService = require(path.join(config.docRoot, '/include/service/entities/user_service.js'))(pb);
     pb.users       = new pb.UserService();
+
+    //setup site service
+    pb.SiteService = require(path.join(config.docRoot, '/include/service/entities/site_service.js'))(pb);
+    pb.sites = new pb.SiteService();
 
     //setup request handling
     var BodyParsers        = require(path.join(config.docRoot, 'include/http/parsers'))(pb);
@@ -181,6 +194,10 @@ module.exports = function PB(config) {
             return new pb.PluginService();
         }
     });
+
+    //create plugin setting service 
+    pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'))(pb);
+    pb.PluginRepository = require(path.join(config.docRoot, '/include/repository/plugin_repository.js'))(pb);
 
     //media renderers
     pb.media = {
