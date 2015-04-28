@@ -11,7 +11,7 @@
 				settingsObject[$scope.settings[i].name] = $scope.settings[i].value;
 			}
 
-			$http.post('/admin/plugins/' + $scope.pluginUID + '/settings', settingsObject)
+			$http.post('/admin/' + $scope.type + '/' + $scope.pluginUID + '/settings', settingsObject)
 			.success(function(result) {
 				$scope.successMessage = result.message;
 				$scope.saving = false;

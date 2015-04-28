@@ -8,7 +8,7 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="content">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.url)}">
-                        <label>^loc_ARTICLE_URL^</label>
+                        <label>^loc_PAGE_URL^</label>
                         <div class="input-group">
                             <span class="input-group-addon">/page/</span>
                             <input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" url-safe required></input>
@@ -52,11 +52,12 @@
                         </div>
                         <div class="form_error" ng-if="!isFieldValid(pageForm.publish_date)">^loc_REQUIRED_FIELD^</div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" ng-class="{'has-error': !isWysiwygValid('#page_wysiwyg')}">
                         <label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
                         <div id="page_wysiwyg">
                             ^wysiwyg^
                         </div>
+                        <div class="form_error" ng-if="!isWysiwygValid('#page_wysiwyg')" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <div class="tab-pane" id="media">
@@ -112,7 +113,11 @@
                     </ul>
                 </div>
                 <div class="spacer"></div>
-                <label id="draft_info" ng-if="page.draft">^loc_DRAFT_SAVED^ <span id="draft_time">{{page.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
+                <label id="draft_info" ng-if="page._id">
+                  <span ng-if="page.draft">^loc_DRAFT_SAVED^</span>
+                  <span ng-if="!page.draft">^loc_LAST_SAVED^</span>&nbsp;
+                  <span id="draft_time">{{page.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
+                </label>
             </div>
             <div class="additions" style="display: none"></div>
         </fieldset>

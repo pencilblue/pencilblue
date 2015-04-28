@@ -96,24 +96,13 @@ module.exports = function MongoRegistrationProviderModule(pb) {
 
         //ensure an index exists.  According to the MongoDB documentation ensure
         //index cannot modify a TTL value once it is created.  Therefore, we have
-        //to ensure that the index exists and then send the collection modification
-        //command to change the TTL value.
-        var dao = new pb.DAO();
-        dao.ensureIndex(procedure, function(err, result) {
-            pb.log.silly('MongoRegistrationProvider: Attempted to ensure TTL index. RESULT=[%s] ERROR=[%s]', util.inspect(result), err ? err.message : 'NONE');
-
-             var command = {
-                collMod: pb.config.registry.key,
-                index: {
-                    keyPattern: {last_modified:1},
-                    expireAfterSeconds: expiry
-                }
-            };
-            dao.command(command, function(err, result) {
-                pb.log.silly('MongoRegistrationProvider: Attempted to modify the TTL index. RESULT=[%s] ERROR=[%s]', util.inspect(result), err ? err.message : 'NONE');
-                cb(err, result);
-            });
-        });
+        //to ensure that the index exists and then verify that the expiry matches.  
+        //When it doesn't match we must create a system lock, drop the index, and 
+        //recreate it.  Due to the permissions levels of some mongo hosting 
+        //providers the collMod command cannot be used.
+        var TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js')(pb);
+        var helper = new TTLIndexHelper();
+        helper.ensureIndex(procedure, cb);
     };
 
     /**

@@ -50,6 +50,7 @@ var loc = {
         SAVE: 'Speichern',
         SAVE_DRAFT: 'Entwurf speichern',
         DRAFT_SAVED: 'Entwurd gespeichert',
+        LAST_SAVED: 'Zuletzt gespeichert',
         PREVIEW: 'Vorschau',
         CANCEL: 'Abbruch',
         EDIT: 'Bearbeiten',

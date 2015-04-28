@@ -246,11 +246,13 @@ module.exports = function SectionServiceModule(pb) {
                 var formattedSections = [];
                 for(var i = 0; i < sectionMap.length; i++) {
                     var section    = SectionService.getSectionData(sectionMap[i].uid, sections, currUrl);
-
-                    if(sectionMap[i].children.length == 0) {
-                        if(section) {
-                            formattedSections.push(section);
-                        }
+                    if (util.isNullOrUndefined(section)) {
+                        pb.log.error('SectionService: The navigation map is out of sync.  Root [%s] could not be found.', sectionMap[i].uid);
+                        continue;
+                    }
+                    
+                    if(sectionMap[i].children.length === 0) {
+                        formattedSections.push(section);
                     }
                     else {
                         if(section) {
@@ -259,6 +261,10 @@ module.exports = function SectionServiceModule(pb) {
                             section.children = [];
                             for(var j = 0; j < sectionMap[i].children.length; j++) {
                                 var child = SectionService.getSectionData(sectionMap[i].children[j].uid, sections, currUrl);
+                                if (util.isNullOrUndefined(child)) {
+                                    pb.log.error('SectionService: The navigation map is out of sync.  Child [%s] could not be found.', sectionMap[i].children[j].uid);
+                                    continue;
+                                }
 
                                 //when the child is active so is the parent.
                                 if (child.active) {
@@ -286,10 +292,10 @@ module.exports = function SectionServiceModule(pb) {
         cb = cb || currItem;
 
         var where = {
-            type: 'container',
+            type: 'container'
         };
         if (currItem && !util.isFunction(currItem)) {
-            where[pb.DAO.getIdField()] = pb.DAO.getNotIDField(currItem);
+            where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(currItem);
         }
 
         var opts = {
@@ -298,9 +304,7 @@ module.exports = function SectionServiceModule(pb) {
                 name: 1
             },
             where: where,
-            order: [
-                ['name', pb.DAO.ASC]
-            ]
+            order: {'name': pb.DAO.ASC}
         };
         var dao = new pb.DAO();
         dao.q('section', opts, cb);

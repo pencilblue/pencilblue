@@ -16,7 +16,8 @@
 */
 
 //dependencies
-var util = require('../../util.js');
+var util  = require('../../util.js');
+var async = require('async');
 
 module.exports = function MongoSessionStoreModule(pb) {
 
@@ -38,6 +39,16 @@ module.exports = function MongoSessionStoreModule(pb) {
      * @type {String}
      */
     var SESSION_COLLECTION_NAME = 'session';
+    
+    /**
+     * The cache lock key used when the index is needed to be modified
+     * @private
+     * @static
+     * @readonly
+     * @property INDEX_MOD_LOCK_KEY
+     * @type {String}
+     */
+    var INDEX_MOD_LOCK_KEY = 'MONGO_SESSION_STORE_INDEX_MOD_LOCK';
 
     /**
      * Responsible for retrieving the session for persistent storage.
@@ -103,6 +114,7 @@ module.exports = function MongoSessionStoreModule(pb) {
      * @method start
      */
     MongoSessionStore.prototype.start = function(cb){
+        var self = this;
         
         //prepare index values
         var expiry    = Math.floor(pb.config.session.timeout / util.TIME.MILLIS_PER_SEC);
@@ -111,28 +123,18 @@ module.exports = function MongoSessionStoreModule(pb) {
             spec: { timeout: 1 },
             options: { expireAfterSeconds: expiry }
         }
-
+        
         //ensure an index exists.  According to the MongoDB documentation ensure
         //index cannot modify a TTL value once it is created.  Therefore, we have
-        //to ensure that the index exists and then send the collection modification
-        //command to change the TTL value.
-        var dao = new pb.DAO();
-        dao.ensureIndex(procedure, function(err, result) {
-            pb.log.silly('MongoRegistrationProvider: Attempted to ensure TTL index. RESULT=[%s] ERROR=[%s]', util.inspect(result), err ? err.message : 'NONE');
-             var command = {
-                collMod: SESSION_COLLECTION_NAME,
-                index: {
-                    keyPattern: procedure.spec,
-                    expireAfterSeconds: expiry
-                }
-            };
-            dao.command(command, function(err, result) {
-                pb.log.silly('MongoRegistrationProvider: Attempted to modify the TTL index. RESULT=[%s] ERROR=[%s]', util.inspect(result), err ? err.message : 'NONE');
-                cb(err, result);
-            });
-        });
+        //to ensure that the index exists and then verify that the expiry matches.  
+        //When it doesn't match we must create a system lock, drop the index, and 
+        //recreate it.  Due to the permissions levels of some mongo hosting 
+        //providers the collMod command cannot be used.
+        var TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js')(pb);
+        var helper = new TTLIndexHelper();
+        helper.ensureIndex(procedure, cb);
     };
-
+    
     /**
      * Constructs a query to find a session in Mongo
      *

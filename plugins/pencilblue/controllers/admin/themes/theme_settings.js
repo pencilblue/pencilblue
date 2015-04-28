@@ -18,11 +18,14 @@
 module.exports = function(pb) {
     
     //pb dependencies
-    var util = pb.util;
-    var PluginSettings = require('../plugins/plugin_settings.js')(pb);
+    var util                         = pb.util;
+    var PluginSettingsFormController = require('../plugins/plugin_settings.js')(pb);
     
     /**
      * Interface for changing a theme's settings
+     * @class ThemeSettings
+     * @constructor
+     * @extends PluginSettingsFormController
      */
     function ThemeSettings() {
         
@@ -33,18 +36,36 @@ module.exports = function(pb) {
          */
         this.pluginService = new pb.PluginService();
     }
-    util.inherits(ThemeSettings, PluginSettings);
+    util.inherits(ThemeSettings, PluginSettingsFormController);
 
+    /**
+     *
+     * @method getSettings
+     * @param {String} uid
+     * @param {Function} cb
+     */
     ThemeSettings.prototype.getSettings = function(uid, cb) {
         this.pluginService.getThemeSettings(uid, cb);
     };
 
+    /**
+     *
+     * @method setSettings
+     * @param {Object} settings
+     * @param {String} uid
+     * @param {Function} cb
+     */
     ThemeSettings.prototype.setSettings = function(settings, uid, cb) {
         this.pluginService.setThemeSettings(settings, uid, cb);
     };
-
-    PluginSettings.prototype.getBackUrl = function() {
-        return '/admin/themes/';
+    
+    /**
+     *
+     * @method getType
+     * @return {String}
+     */
+    ThemeSettings.prototype.getType = function() {
+        return 'themes';
     };
 
     //exports
