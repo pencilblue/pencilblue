@@ -5,6 +5,7 @@ public/media/
 public/docs/
 public/bower_components/
 log/
+coverage/
 out
 plugins/*
 !plugins/pencilblue
