@@ -90,7 +90,7 @@ var healthChecksRemaining = 10;
 function healthCheck(){
     var elb = new AWS.ELB();
     setTimeout(function(){
-        elb.describeInstanceHealth({LoadBalancerName: 'pencilblue-test'}, function(err, data){ 
+        elb.describeInstanceHealth({LoadBalancerName: env.AWS_ELB_NAME}, function(err, data){
             if (err){
                 console.log(err, err.stack); // an error occurred
             }
