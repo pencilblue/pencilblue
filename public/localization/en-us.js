@@ -431,7 +431,11 @@ var loc =
     sites: {
         EXISTING_HOSTNAME: 'That hostname is already in use',
         EXISTING_DISPLAYNAME: 'There is already a site with that displayname',
-        SITE_CREATED: 'The site was successfully created'
+        SITE_CREATED: 'The site was successfully created',
+        ERROR_ACTIVATING: 'There was an error activating',
+        ERROR_DEACTIVATING: 'There was an error deactivating',
+        SITE_ACTIVATED: 'Site activated',
+        SITE_DEACTIVATED: 'Site deactivated'
     },
     plugins:
     {
