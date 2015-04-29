@@ -81,6 +81,9 @@ module.exports = function PluginRepositoryModule(pb) {
 	};
 
 	publicAPI.loadIncludedPluginsOwnedByThisSite = function(pluginIDs, site, cb) {
+		if(!pluginIDs || !pluginIDs.length) {
+			pluginIDs = [];
+		}
 		var idIsInTheList = getIdsInListQuery(pluginIDs);
 		var belongsToThisSite = getBelongsToSiteQuery(site);
 		var where = {
@@ -96,6 +99,9 @@ module.exports = function PluginRepositoryModule(pb) {
 	};
 
 	publicAPI.loadPluginsNotIncludedOwnedByThisSite = function(pluginIDs, site, cb) {
+		if(!pluginIDs || !pluginIDs.length) {
+			pluginIDs = [];
+		}
 		var idIsNotInTheList = getIdsNotInListQuery(pluginIDs);
 		var belongsToThisSite = getBelongsToSiteQuery(site);
 		var where = {
@@ -158,6 +164,7 @@ module.exports = function PluginRepositoryModule(pb) {
             belongsToThisSite = {};
             belongsToThisSite[SITE_FIELD] = site;
         }
+        return belongsToThisSite;
 	}
 
 	function mergeSitePluginsWithGlobalPlugins(sitePlugins, globalPlugins) {
