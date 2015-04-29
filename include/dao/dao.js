@@ -85,8 +85,8 @@ module.exports = function DAOModule(pb) {
      */
     DAO.DESC = -1;
 
-    var GLOBAL_PREFIX = 'global';
-    var SITE_COLL = 'site';
+    var GLOBAL_SITE = 'global';
+    var SITE_FIELD = 'site';
 
     /**
      * Retrieves an object by ID
@@ -135,12 +135,12 @@ module.exports = function DAOModule(pb) {
     };
 
     DAO.prototype.loadByValueForOneSite = function(key, val, site, collection, opts, cb) {
-        if(!site || site === GLOBAL_PREFIX) {
+        if(!site || site === GLOBAL_SITE) {
             this.loadByValueFromGlobal(key,val,collection,opts,cb);
         } else {
             var where = {};
             where[key] = val;
-            where[SITE_COLL] = site;
+            where[SITE_FIELD] = site;
             this.loadByValues(where, collection, opts, cb);  
         }
     };
@@ -148,9 +148,9 @@ module.exports = function DAOModule(pb) {
     DAO.prototype.loadByValueFromGlobal = function(key, val, collection, opts, cb) {
         var where = {};
         var hasNoSite = {};
-        hasNoSite[SITE_COLL] = { $exists : false };
+        hasNoSite[SITE_FIELD] = { $exists : false };
         var siteIsGlobal = {};
-        siteIsGlobal[SITE_COLL] = GLOBAL_PREFIX;
+        siteIsGlobal[SITE_FIELD] = GLOBAL_SITE;
         where[key] = val;
         where['$or'] = [
              hasNoSite,
@@ -459,7 +459,7 @@ module.exports = function DAOModule(pb) {
     };
 
     DAO.prototype.saveToSite = function(dbObj, site, options, cb) {
-        dbObj[SITE_COLL] = site || GLOBAL_PREFIX;
+        dbObj[SITE_FIELD] = site || GLOBAL_SITE;
         this.save(dbObj, options, cb);
     };
 

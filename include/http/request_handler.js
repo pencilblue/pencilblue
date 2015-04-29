@@ -77,7 +77,7 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.storage = [];
     RequestHandler.index   = {};
     RequestHandler.sites = {};
-    var GLOBAL_PREFIX = 'global';
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
     /**
      * The internal storage of static routes after they are validated and processed.
      * @private
@@ -175,7 +175,7 @@ module.exports = function RequestHandlerModule(pb) {
         //resolve the site
         if(!site)
         {
-            site = GLOBAL_PREFIX;
+            site = GLOBAL_SITE;
         }
 
         var routesRemoved = 0;
@@ -201,7 +201,7 @@ module.exports = function RequestHandlerModule(pb) {
         //resolve the site
         if(!site)
         {
-            site = GLOBAL_PREFIX;
+            site = GLOBAL_SITE;
         }
 
 
@@ -263,7 +263,7 @@ module.exports = function RequestHandlerModule(pb) {
         //resolve empty site to global
         if(!site)
         {
-            site = GLOBAL_PREFIX;
+            site = GLOBAL_SITE;
         }
 
         //validate route
@@ -596,7 +596,7 @@ module.exports = function RequestHandlerModule(pb) {
         this.session = session;
 
         //set the site -- how do we handle improper sites here?
-        this.site = RequestHandler.sites[this.hostname] || GLOBAL_PREFIX;
+        this.site = RequestHandler.sites[this.hostname] || GLOBAL_SITE;
 
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
@@ -631,7 +631,7 @@ module.exports = function RequestHandlerModule(pb) {
         var isSilly = pb.log.isSilly();
         var route   = RequestHandler.staticRoutes[path];
         if (!util.isNullOrUndefined(route)) {
-            if(route.themes[this.site] || route.themes[GLOBAL_PREFIX]) {
+            if(route.themes[this.site] || route.themes[GLOBAL_SITE]) {
                 if (isSilly) {
                     pb.log.silly('RequestHandler: Found static route [%s]', path);
                 }
@@ -650,7 +650,7 @@ module.exports = function RequestHandlerModule(pb) {
                 pb.log.silly('RequestHandler: Comparing Path [%s] to Pattern [%s] Result [%s]', path, curr.pattern, result);
             }
             if (result) {
-                if(curr.themes[this.site] || curr.themes[GLOBAL_PREFIX]) {
+                if(curr.themes[this.site] || curr.themes[GLOBAL_SITE]) {
                     return curr;
                 }
                 break;
@@ -692,7 +692,7 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     RequestHandler.routeSupportsGlobalTheme = function(route, theme, method) {
-        return RequestHandler.routeSupportsSiteTheme(route, theme, method, GLOBAL_PREFIX);
+        return RequestHandler.routeSupportsSiteTheme(route, theme, method, GLOBAL_SITE);
     };
 
     /**
@@ -724,7 +724,7 @@ module.exports = function RequestHandlerModule(pb) {
                 } else if (RequestHandler.routeSupportsGlobalTheme(route, themesToCheck[j], methods[i])) {
                     obj.theme  = themesToCheck[j];
                     obj.method = methods[i];
-                    obj.site   = GLOBAL_PREFIX;
+                    obj.site   = GLOBAL_SITE;
                 }
             }
         }

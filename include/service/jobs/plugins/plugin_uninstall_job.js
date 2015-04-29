@@ -57,7 +57,7 @@ module.exports = function PluginUninstallJobModule(pb) {
     PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND = 'uninstall_plugin';
 
     var GLOBAL_PREFIX = 'global';
-    var SITE_COLL = 'site';
+    var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
     /**
      * Retrieves the tasks needed to contact each process in the cluster to
@@ -175,10 +175,10 @@ module.exports = function PluginUninstallJobModule(pb) {
                 };
 
                 var hasNoSite = {};
-                hasNoSite[SITE_COLL] = { $exists : false};
+                hasNoSite[SITE_FIELD] = { $exists : false};
 
                 var siteIsGlobal = {};
-                siteIsGlobal[SITE_COLL] = GLOBAL_PREFIX;
+                siteIsGlobal[SITE_FIELD] = GLOBAL_PREFIX;
 
                 if(!site || site === GLOBAL_PREFIX) {
                     where['$or'] = [
@@ -186,7 +186,7 @@ module.exports = function PluginUninstallJobModule(pb) {
                         siteIsGlobal
                     ];
                 } else {
-                    where[SITE_COLL] = site;
+                    where[SITE_FIELD] = site;
                 }
 
                 var dao = new pb.DAO();

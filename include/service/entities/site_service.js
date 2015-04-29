@@ -3,7 +3,6 @@ var util  = require('../../util.js');
 
 module.exports = function SiteServiceModule(pb) {
 
-    var SITE_COLL = 'site'
 
     /**
      * Service for performing site specific operations.
@@ -14,6 +13,11 @@ module.exports = function SiteServiceModule(pb) {
      * @constructor
      */
     function SiteService(){}
+
+    SiteService.GLOBAL_SITE = 'global';
+    SiteService.SITE_FIELD = 'site';
+    SiteService.SITE_COLLECTION = 'site';
+    var SITE_COLL = SiteService.SITE_COLLECTION;
 
     SiteService.prototype.getActiveSites = function(cb) {
         var dao = new pb.DAO();
