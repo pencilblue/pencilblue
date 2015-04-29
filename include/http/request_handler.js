@@ -144,7 +144,9 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     RequestHandler.unloadSite = function(site) {
-        delete RequestHandler.sites[site.hostname];
+        if(RequestHandler.sites[site.hostname]) {
+            delete RequestHandler.sites[site.hostname];
+        }
     };
 
     /**
