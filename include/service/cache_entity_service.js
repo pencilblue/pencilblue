@@ -40,11 +40,11 @@ module.exports = function CacheEntityServiceModule(pb) {
         this.objType    = objType;
         this.keyField   = keyField;
         this.valueField = valueField ? valueField : null;
-        this.site = site || GLOBAL_PREFIX;
+        this.site = site || GLOBAL_SITE;
         this.onlyThisSite = onlyThisSite ? true : false;
     }
 
-    var GLOBAL_PREFIX = 'global';
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * Retrieve a value from the cache
@@ -64,8 +64,8 @@ module.exports = function CacheEntityServiceModule(pb) {
 
             //site specific value doesn't exist in cache
             if (result == null) {
-                if(self.site !== GLOBAL_PREFIX && !self.onlyThisSite) {
-                    pb.cache.get(keyValue(key, GLOBAL_PREFIX), function(err, result){
+                if(self.site !== GLOBAL_SITE && !self.onlyThisSite) {
+                    pb.cache.get(keyValue(key, GLOBAL_SITE), function(err, result){
                         if (util.isError(err)) {
                             cb(err, null);
                             return;

@@ -3,8 +3,8 @@ var async = require('async');
 module.exports = function PluginRepositoryModule(pb) {
 
 	var PLUGIN_COLL = 'plugin'
-	var GLOBAL_PREFIX = 'global';
-	var SITE_COLL = 'site';
+	var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+	var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
 	var publicAPI = {};
 
@@ -12,7 +12,7 @@ module.exports = function PluginRepositoryModule(pb) {
 		var dao = new pb.DAO();
 		var hasATheme = getHasThemeQuery();
 		var belongsToSite = getBelongsToSiteQuery(site);
-		var belongsToGlobal = getBelongsToSiteQuery(GLOBAL_PREFIX);
+		var belongsToGlobal = getBelongsToSiteQuery(GLOBAL_SITE);
 		var siteWhere = {
 			$and: [ hasATheme, belongsToSite ]
 		};
@@ -69,8 +69,8 @@ module.exports = function PluginRepositoryModule(pb) {
             }
 
             if(!plugin) {
-                if(site && site !== GLOBAL_PREFIX) {
-                    loadPluginOwnedByThisSite(pluginID, GLOBAL_PREFIX, cb);
+                if(site && site !== GLOBAL_SITE) {
+                    loadPluginOwnedByThisSite(pluginID, GLOBAL_SITE, cb);
                     return;
                 }
                 cb(err, null);
@@ -143,12 +143,12 @@ module.exports = function PluginRepositoryModule(pb) {
 
 	function getBelongsToSiteQuery(site) {
 		var belongsToThisSite = {};
-        if(!site || site === GLOBAL_PREFIX) {
+        if(!site || site === GLOBAL_SITE) {
             var hasNoSite = {};
-            hasNoSite[SITE_COLL] = { $exists : false};
+            hasNoSite[SITE_FIELD] = { $exists : false};
 
             var siteIsGlobal = {};
-            siteIsGlobal[SITE_COLL] = GLOBAL_PREFIX;
+            siteIsGlobal[SITE_FIELD] = GLOBAL_SITE;
 
             belongsToThisSite = { $or: [
                 hasNoSite,
@@ -156,7 +156,7 @@ module.exports = function PluginRepositoryModule(pb) {
             ]};
         } else {
             belongsToThisSite = {};
-            belongsToThisSite[SITE_COLL] = site;
+            belongsToThisSite[SITE_FIELD] = site;
         }
 	}
 

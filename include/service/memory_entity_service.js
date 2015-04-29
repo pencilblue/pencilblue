@@ -48,7 +48,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
     }
 
 
-    var GLOBAL_PREFIX = 'global';
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * The type string that describes the storage medium for the service
@@ -72,7 +72,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         if(this.site) {
             value = getSiteValue(this, key, this.site);
         }
-        if(value == null && this.site !== GLOBAL_PREFIX && !this.onlyThisSite) {
+        if(value == null && this.site !== GLOBAL_SITE && !this.onlyThisSite) {
             value = getGlobalValue(this, key);
         }
         cb(null, value);
@@ -95,7 +95,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
 
     function getGlobalValue(self, key)
     {
-        return getSiteValue(self, key, GLOBAL_PREFIX);
+        return getSiteValue(self, key, GLOBAL_SITE);
     }
 
     function getCorrectValueField(rawVal, valueField) {
@@ -138,7 +138,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
     MemoryEntityService.prototype._set = function(key, value, cb) {
         var rawValue = null;
         if(!this.site) {
-            this.site = GLOBAL_PREFIX;
+            this.site = GLOBAL_SITE;
         }
         if (this.storage.hasOwnProperty(this.site) && this.storage[this.site].hasOwnProperty(key)) {
             rawValue = this.storage[this.site][key];

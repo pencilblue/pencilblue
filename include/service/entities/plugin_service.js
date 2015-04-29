@@ -27,8 +27,7 @@ var util    = require('../../util.js');
 
 module.exports = function PluginServiceModule(pb) {
 
-    var GLOBAL_PREFIX = 'global';
-    var SITE_COLL = 'site';
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
     /**
      * PluginService - Provides functions for interacting with plugins.
      * Install/uninstall, setting retrieval, plugin retrieval, etc.
@@ -42,7 +41,7 @@ module.exports = function PluginServiceModule(pb) {
         if(pb.config.multisite && siteUID) {
             this.site = siteUID;
         } else {
-            this.site = GLOBAL_PREFIX;
+            this.site = GLOBAL_SITE;
         }
 
         this._pluginRepository = pb.PluginRepository;
@@ -82,8 +81,8 @@ module.exports = function PluginServiceModule(pb) {
     function getPluginForSite(theme, site) {
         if (ACTIVE_PLUGINS[this.site] && ACTIVE_PLUGINS[this.site][theme]) {
             return ACTIVE_PLUGINS[this.site][theme];
-        } else if (ACTIVE_PLUGINS[GLOBAL_PREFIX] && ACTIVE_PLUGINS[GLOBAL_PREFIX][theme]) {
-            return ACTIVE_PLUGINS[GLOBAL_PREFIX][theme];
+        } else if (ACTIVE_PLUGINS[GLOBAL_SITE] && ACTIVE_PLUGINS[GLOBAL_SITE][theme]) {
+            return ACTIVE_PLUGINS[GLOBAL_SITE][theme];
         }
         return null;
     }
@@ -139,7 +138,7 @@ module.exports = function PluginServiceModule(pb) {
         }
 
         if(!site) {
-            site = GLOBAL_PREFIX;
+            site = GLOBAL_SITE;
         }
 
         if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
@@ -158,7 +157,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.getActiveMainModule = function(pluginUid, site) {
         if(!site) {
-            site = GLOBAL_PREFIX;
+            site = GLOBAL_SITE;
         }
         return (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) ? ACTIVE_PLUGINS[site][pluginUid].main_module : null;
     };
@@ -171,8 +170,8 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.getActivePluginNames = function() {
         var globalPlugins = [];
-        if(ACTIVE_PLUGINS[GLOBAL_PREFIX]) {
-            globalPlugins = Object.keys(ACTIVE_PLUGINS[GLOBAL_PREFIX]);
+        if(ACTIVE_PLUGINS[GLOBAL_SITE]) {
+            globalPlugins = Object.keys(ACTIVE_PLUGINS[GLOBAL_SITE]);
         }
         var sitePlugins = [];
         if(ACTIVE_PLUGINS[this.site]) {
@@ -524,7 +523,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.isActivePlugin = function(uid, site) {
         if(!site) {
-            site = GLOBAL_PREFIX;
+            site = GLOBAL_SITE;
         }
         var plugin = getPluginForSite(uid, site);
         if(plugin) {
@@ -537,7 +536,7 @@ module.exports = function PluginServiceModule(pb) {
 
     PluginService.isPluginActiveBySite = function(uid, site) {
         if(!site) {
-            site = GLOBAL_PREFIX;
+            site = GLOBAL_SITE;
         }
         if(ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][uid]) {
             return true;
@@ -876,7 +875,7 @@ module.exports = function PluginServiceModule(pb) {
         pb.log.debug("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
 
         var details = null;
-        var site = plugin.site || GLOBAL_PREFIX;
+        var site = plugin.site || GLOBAL_SITE;
         var tasks   = [
 
             //load the details file
@@ -1361,15 +1360,15 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.getService = function(serviceName, pluginUid, site) {
         if(!site) {
-            site = GLOBAL_PREFIX;
+            site = GLOBAL_SITE;
         }
         if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
             if (ACTIVE_PLUGINS[site][pluginUid].services && ACTIVE_PLUGINS[site][pluginUid].services[serviceName]) {
                 return ACTIVE_PLUGINS[site][pluginUid].services[serviceName];
             }
-        } else if (ACTIVE_PLUGINS[GLOBAL_PREFIX] && ACTIVE_PLUGINS[GLOBAL_PREFIX][pluginUid]) {
-            if (ACTIVE_PLUGINS[GLOBAL_PREFIX][pluginUid].services && ACTIVE_PLUGINS[GLOBAL_PREFIX][pluginUid].services[serviceName]) {
-                return ACTIVE_PLUGINS[GLOBAL_PREFIX][pluginUid].services[serviceName];
+        } else if (ACTIVE_PLUGINS[GLOBAL_SITE] && ACTIVE_PLUGINS[GLOBAL_SITE][pluginUid]) {
+            if (ACTIVE_PLUGINS[GLOBAL_SITE][pluginUid].services && ACTIVE_PLUGINS[GLOBAL_SITE][pluginUid].services[serviceName]) {
+                return ACTIVE_PLUGINS[GLOBAL_SITE][pluginUid].services[serviceName];
             }
         }
         throw new Error('Either plugin ['+pluginUid+'] or the service ['+serviceName+'] does not exist');

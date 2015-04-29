@@ -20,7 +20,7 @@ var async = require('async');
 var util  = require('../../../util.js');
 
 module.exports = function PluginInstallJobModule(pb) {
-    var GLOBAL_PREFIX = 'global';
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * A system job that coordinates the uninstall of a plugin across the cluster.
@@ -172,7 +172,7 @@ module.exports = function PluginInstallJobModule(pb) {
                  clone.dirName = pluginUid;
 
                  var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
-                 pluginDescriptor.site = site || GLOBAL_PREFIX;
+                 pluginDescriptor.site = site || GLOBAL_SITE;
                  self.dao.save(pluginDescriptor, callback);
              },
 

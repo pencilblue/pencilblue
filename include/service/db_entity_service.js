@@ -36,12 +36,12 @@ module.exports = function DbEntityServiceModule(pb) {
         this.objType    = objType;
         this.keyField   = keyField;
         this.valueField = valueField ? valueField : null;
-        this.site       = site || GLOBAL_PREFIX;
+        this.site       = site || GLOBAL_SITE;
         this.onlyThisSite       = onlyThisSite ? true : false;
     }
 
-    var GLOBAL_PREFIX = 'global';
-    var SITE_COLL = 'site';
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+    var SITE_FIELD = pb.SiteService.SITE_FIELD;
     /**
      * Retrieve a value from the database
      *
@@ -135,18 +135,18 @@ module.exports = function DbEntityServiceModule(pb) {
         where[this.keyField] = key;
         
         var hasNoSite = {};
-        hasNoSite[SITE_COLL] = { $exists : false};
+        hasNoSite[SITE_FIELD] = { $exists : false};
 
         var siteIsGlobal = {};
-        siteIsGlobal[SITE_COLL] = GLOBAL_PREFIX;
+        siteIsGlobal[SITE_FIELD] = GLOBAL_SITE;
 
-        if(!this.site || this.site === GLOBAL_PREFIX) {
+        if(!this.site || this.site === GLOBAL_SITE) {
             where['$or'] = [
                 hasNoSite,
                 siteIsGlobal
             ];
         } else {
-            where[SITE_COLL] = this.site;
+            where[SITE_FIELD] = this.site;
         }
         dao.delete(where, this.objType, cb);
     };
