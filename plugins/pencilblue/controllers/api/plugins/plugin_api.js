@@ -27,7 +27,7 @@ module.exports = function(pb) {
     var PluginService  = pb.PluginService;
     var RequestHandler = pb.RequestHandler;
 
-    var GLOBAL_PREFIX = 'global';
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * Controller to properly route and handle remote calls to interact with
@@ -74,7 +74,7 @@ module.exports = function(pb) {
     PluginApiController.prototype.render = function(cb) {
         var action     = this.pathVars.action;
         var identifier = this.pathVars.id;
-        this.site       = this.pathVars.site || GLOBAL_PREFIX;
+        this.site       = this.pathVars.site || GLOBAL_SITE;
         this.pluginService = new pb.PluginService(this.site);
 
         //validate action

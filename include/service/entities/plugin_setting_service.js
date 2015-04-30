@@ -3,7 +3,7 @@ var util = require('../../util.js');
 
 module.exports = function PluginSettingServiceModule(pb) {
 
-	var GLOBAL_PREFIX = 'global';
+	var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
 	function PluginSettingService(siteUID){
 		//construct settings services
@@ -12,7 +12,7 @@ module.exports = function PluginSettingServiceModule(pb) {
         if(pb.config.multisite && siteUID) {
             this.site = siteUID;
         } else {
-            this.site = GLOBAL_PREFIX;
+            this.site = GLOBAL_SITE;
         }
 
         this.pluginService = new pb.PluginService(this.site);

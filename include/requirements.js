@@ -78,6 +78,10 @@ module.exports = function PB(config) {
     pb.SessionHandler = SessionModule(pb);
     pb.session        = new pb.SessionHandler(pb.SessionHandler.getSessionStoreInstance());
 
+    //setup site service
+    pb.SiteService = require(path.join(config.docRoot, '/include/service/entities/site_service.js'))(pb);
+    pb.sites = new pb.SiteService();
+
     //setup object services
     pb.SimpleLayeredService         = require(path.join(config.docRoot, '/include/service/simple_layered_service.js'))(pb);
     pb.MemoryEntityService          = require(path.join(config.docRoot, '/include/service/memory_entity_service.js'))(pb);
@@ -104,10 +108,6 @@ module.exports = function PB(config) {
     //setup user service
     pb.UserService = require(path.join(config.docRoot, '/include/service/entities/user_service.js'))(pb);
     pb.users       = new pb.UserService();
-
-    //setup site service
-    pb.SiteService = require(path.join(config.docRoot, '/include/service/entities/site_service.js'))(pb);
-    pb.sites = new pb.SiteService();
 
     //setup request handling
     var BodyParsers        = require(path.join(config.docRoot, 'include/http/parsers'))(pb);
@@ -152,6 +152,9 @@ module.exports = function PB(config) {
     pb.PluginDependenciesJob = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_dependencies_job.js'))(pb);
     pb.PluginInitializeJob   = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_initialize_job.js'))(pb);
     pb.PluginInstallJob      = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_install_job.js'))(pb);
+    pb.SiteJobRunner         = require(path.join(config.docRoot, '/include/service/jobs/sites/site_job_runner.js'))(pb);
+    pb.SiteActivateJob       = require(path.join(config.docRoot, '/include/service/jobs/sites/site_activate_job.js'))(pb);
+    pb.SiteDeactivateJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_deactivate_job.js'))(pb);
 
     //Email settings and functions
     pb.EmailService = require(path.join(config.docRoot, '/include/email'))(pb);

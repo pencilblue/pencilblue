@@ -134,6 +134,8 @@ function PencilBlue(config){
      */
     this.initSites = function(cb)
     {
+        pb.SiteService.init();
+
         var siteService = new pb.SiteService();
         siteService.initSites(cb);
     }
