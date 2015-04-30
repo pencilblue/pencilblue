@@ -51,7 +51,7 @@ module.exports = function PluginRepositoryModule(pb) {
 
 	publicAPI.loadPluginOwnedByThisSite = function(pluginID, site, cb) {
 		var hasCorrectIdentifier = getCorrectIdQuery(pluginID);
-        var belongsToSite = getBelongsToSiteQuery(site);
+        var belongsToThisSite = getBelongsToSiteQuery(site);
 
         var where = {
             $and: [ hasCorrectIdentifier, belongsToThisSite]
