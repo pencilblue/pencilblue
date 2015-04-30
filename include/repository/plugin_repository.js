@@ -3,7 +3,7 @@ var util    = require('../util.js');
 
 module.exports = function PluginRepositoryModule(pb) {
 
-	var PLUGIN_COLL = 'plugin'
+	var PLUGIN_COLL = 'plugin';
 	var GLOBAL_PREFIX = 'global';
 	var SITE_COLL = 'site';
 
@@ -89,7 +89,7 @@ module.exports = function PluginRepositoryModule(pb) {
 		var belongsToThisSite = getBelongsToSiteQuery(site);
 		var where = {
 			$and: [idIsInTheList, belongsToThisSite]
-		}
+		};
 		var opts = {
             select: pb.DAO.SELECT_ALL,
             where: where,
@@ -107,7 +107,7 @@ module.exports = function PluginRepositoryModule(pb) {
 		var belongsToThisSite = getBelongsToSiteQuery(site);
 		var where = {
 			$and: [idIsNotInTheList, belongsToThisSite]
-		}
+		};
 		var opts = {
             select: pb.DAO.SELECT_ALL,
             where: where,
