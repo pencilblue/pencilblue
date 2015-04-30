@@ -380,6 +380,16 @@ module.exports = function PluginServiceModule(pb) {
         settingService.resetThemeSettings(details, cb);
     };
 
+    PluginService.prototype.purgePluginSettings = function(pluginUid, cb) {
+        settingService = getPluginSettingService(this);
+        settingService.purgePluginSettings(pluginUid, cb);
+    };
+
+    PluginService.prototype.purgeThemeSettings = function(pluginUid, cb) {
+        settingService = getPluginSettingService(this);
+        settingService.purgeThemeSettings(pluginUid, cb);
+    }
+
     function getPluginSettingService(self) {
         if(!self.pluginSettingService) {
             self.pluginSettingService = new pb.PluginSettingService(self.site);
@@ -971,7 +981,9 @@ module.exports = function PluginServiceModule(pb) {
                  if (!mainModule) {
                      return cb(new Error('Failed to load main module for plugin '+plugin.uid));
                  }
-                 
+                 if(!ACTIVE_PLUGINS[plugin.site]) {
+                    ACTIVE_PLUGINS[plugin.site] = {};
+                 }
                  ACTIVE_PLUGINS[plugin.site][details.uid] = {
                      main_module: mainModule,
                      public_dir: PluginService.getPublicPath(plugin.dirName),

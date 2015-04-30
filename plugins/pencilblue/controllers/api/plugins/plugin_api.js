@@ -95,7 +95,7 @@ module.exports = function(pb) {
             return;
         }
         //route to handler
-        this[action](identifier, site, cb);
+        this[action](identifier, cb);
     };
 
     /**

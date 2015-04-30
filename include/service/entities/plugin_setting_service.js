@@ -1,3 +1,6 @@
+var util = require('../../util.js');
+
+
 module.exports = function PluginSettingServiceModule(pb) {
 
 	var GLOBAL_PREFIX = 'global';
@@ -429,6 +432,15 @@ module.exports = function PluginSettingServiceModule(pb) {
             });
         });
     };
+
+    PluginSettingService.prototype.purgePluginSettings = function(pluginUid, cb) {
+        this.pluginSettingsService.purge(pluginUid, cb);
+    };
+
+    PluginSettingService.prototype.purgeThemeSettings = function(pluginUid, cb) {
+        this.themeSettingsService.purge(pluginUid, cb);
+    };
+
 
     /**
      * Convenience function to generate a service to handle settings for a plugin.
