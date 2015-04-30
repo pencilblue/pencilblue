@@ -1,4 +1,5 @@
 var async = require('async');
+var util    = require('../util.js');
 
 module.exports = function PluginRepositoryModule(pb) {
 
@@ -17,7 +18,7 @@ module.exports = function PluginRepositoryModule(pb) {
 			$and: [ hasATheme, belongsToSite ]
 		};
 		var globalWhere = {
-			$and: [ hasATheme, belongsToSite ]
+			$and: [ hasATheme, belongsToGlobal ]
 		};
 		var tasks = {
 			sitePlugins: function(callback) {
@@ -62,7 +63,7 @@ module.exports = function PluginRepositoryModule(pb) {
 	};
 
 	publicAPI.loadPluginAvailableToThisSite = function(pluginID, site, cb) {
-		loadPluginOwnedByThisSite(pluginID, site, function(err, plugin){
+		publicAPI.loadPluginOwnedByThisSite(pluginID, site, function(err, plugin){
             if (util.isError(err)) {
                 cb(err, null);
                 return;
@@ -70,7 +71,7 @@ module.exports = function PluginRepositoryModule(pb) {
 
             if(!plugin) {
                 if(site && site !== GLOBAL_PREFIX) {
-                    loadPluginOwnedByThisSite(pluginID, GLOBAL_PREFIX, cb);
+                    publicAPI.loadPluginOwnedByThisSite(pluginID, GLOBAL_PREFIX, cb);
                     return;
                 }
                 cb(err, null);
