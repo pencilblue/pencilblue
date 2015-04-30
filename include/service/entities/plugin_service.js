@@ -211,7 +211,7 @@ module.exports = function PluginServiceModule(pb) {
      * installed.
      */
     PluginService.prototype.getSetting = function(settingName, pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.getSetting(settingName, pluginName, cb);
     };
 
@@ -224,7 +224,7 @@ module.exports = function PluginServiceModule(pb) {
      * Null is provided in the event that the plugin is not installed.
      */
     PluginService.prototype.getSettings = function(pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.getSettings(pluginName, cb);
     };
 
@@ -242,7 +242,7 @@ module.exports = function PluginServiceModule(pb) {
      * exists, and a hash of of the plugin's settings' names/values.
      */
     PluginService.prototype.getSettingsKV = function(pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.getSettingsKV(pluginName, cb);
     };
 
@@ -257,7 +257,7 @@ module.exports = function PluginServiceModule(pb) {
      * TRUE if the setting was persisted successfully, FALSE if not.
      */
     PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.setSetting(name, value, pluginName, cb);
     };
 
@@ -271,7 +271,7 @@ module.exports = function PluginServiceModule(pb) {
      * TRUE if the settings were persisted successfully, FALSE if not.
      */
     PluginService.prototype.setSettings = function(settings, pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.setSettings(settings, pluginName, cb);
     };
 
@@ -286,7 +286,7 @@ module.exports = function PluginServiceModule(pb) {
      * TRUE if the setting was persisted successfully, FALSE if not.
      */
     PluginService.prototype.setThemeSetting = function(name, value, pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.setThemeSetting(name, value, pluginName, cb);
     };
 
@@ -300,7 +300,7 @@ module.exports = function PluginServiceModule(pb) {
      * TRUE if the settings were persisted successfully, FALSE if not.
      */
     PluginService.prototype.setThemeSettings = function(settings, pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.setThemeSettings(settings, pluginName, cb);
     };
 
@@ -313,7 +313,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param cb A callback that provides two parameters: cb(error, settingValue)
      */
     PluginService.prototype.getThemeSetting = function(settingName, pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.getThemeSetting(settingName, pluginName, cb);
     };
 
@@ -325,7 +325,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param cb A callback that provides two parameters: cb(err, settingsObject)
      */
     PluginService.prototype.getThemeSettings = function(pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.getThemeSettings(pluginName, cb);
     };
 
@@ -343,7 +343,7 @@ module.exports = function PluginServiceModule(pb) {
      * exists, and a hash of of the plugin's settings' names/values.
      */
     PluginService.prototype.getThemeSettingsKV = function(pluginName, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.getThemeSettingsKV(pluginName, cb);
     };
 
@@ -359,7 +359,7 @@ module.exports = function PluginServiceModule(pb) {
      * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
      */
     PluginService.prototype.resetSettings = function(details, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.resetSettings(details, cb);
     };
 
@@ -375,17 +375,17 @@ module.exports = function PluginServiceModule(pb) {
      * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
      */
     PluginService.prototype.resetThemeSettings = function(details, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.resetThemeSettings(details, cb);
     };
 
     PluginService.prototype.purgePluginSettings = function(pluginUid, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.purgePluginSettings(pluginUid, cb);
     };
 
     PluginService.prototype.purgeThemeSettings = function(pluginUid, cb) {
-        settingService = getPluginSettingService(this);
+        var settingService = getPluginSettingService(this);
         settingService.purgeThemeSettings(pluginUid, cb);
     }
 
