@@ -17,8 +17,8 @@
 					successCb = $scope.onInstallOrUninstallComplete;
 					break;
 			}
-
-			$http.post("/api/plugins/" + actionType + "/" + encodeURIComponent(plugin.uid))
+			var prefix = $scope.siteUid ? "/api/" + $scope.siteUid : "/api";
+			$http.post(prefix +"/plugins/" + actionType + "/" + encodeURIComponent(plugin.uid))
 			.success(function(result) {
 				successCb(result);
 			})
