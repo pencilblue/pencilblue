@@ -1,0 +1,303 @@
+/*
+    Copyright (C) 2015  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//dependencies
+var util              = require('../util.js');
+var AsyncEventEmitter = require('async-eventemitter');
+
+module.exports = function(pb) {
+    
+    //pb Dependencies
+    var events = new AsyncEventEmitter();
+    var DAO    = new pb.DAO();
+    
+    /**
+     *
+     * @class BaseObjectService
+     * @constructor
+     * @param {Object} context
+     * @param {String} context.type
+     */
+    function BaseObjectService(context){
+        //TODO figure out what the context needs
+        
+        //error checking
+        if (!util.isObject(context)) {
+            throw new Error('The context parameter must be an object');
+        }
+        else if (!util.isString(context.type)) {
+            throw new Error('The context.type parameter must be a string');
+        }
+        
+        /**
+         *
+         * @property type
+         * @type {String}
+         */
+        this.type = context.type;
+        
+        /**
+         *
+         * @property dao
+         * @type {DAO}
+         */
+        this.dao = new DAO();
+    }
+    util.inherits(BaseObjectService, events);
+    
+    var MAX_RESULTS = 250;
+    
+    BaseObjectService.prototype.getAll = function(options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        
+        var self = this;
+        var opts = {
+            select: options.select,
+            where: options.where,
+            order: options.order,
+            limit: Math.min(options.limit, MAX_RESULTS),
+            offset: options.offset
+        };
+        this.dao.q(this.type, opts, function(err, results) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            var context = {
+                service: self,
+                data: results
+            };
+            BaseObjectService.trigger(self.type + '.' + 'getAll', context, function(err) {
+                cb(err, results);
+            });
+        });
+    };
+    
+    BaseObjectService.prototype.count = function(options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        
+        this.dao.count(this.type, options.where, cb);
+    };
+    
+    BaseObjectService.prototype.getAllWithCount = function(options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        
+        var tasks = {
+            
+            data: util.wrapTask(this, this.getAll, [options]),
+            
+            total: util.wrapTask(this, this.count, [options])
+        };
+        async.parallel(tasks, function(err, pageDetails) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            pageDetails.count = pageDetails.data.length;
+            pageDetails.offset = options.offset || 0;
+            pageDetails.limit = Math.min(options.limit, MAX_RESULTS);
+            cb(null, pageDetails);
+        });
+    };
+    
+    BaseObjectService.prototype.get = function(id, options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        
+        var self = this;
+        this.dao.loadById(id, this.type, options, function(err, obj) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            var context = {
+                service: self,
+                data: obj
+            };
+            BaseObjectService.trigger(self.type + '.' + 'get', context, function(err) {
+                cb(err, obj);
+            }); 
+        });
+    };
+    
+    BaseObjectService.prototype.getSingle = function(options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        options.limit = 1;
+        
+        this.getAll(options, function(err, results) {
+            cb(err, util.isArray(results) && results.length ? results[0] : null);
+        });
+    };
+    
+    BaseObjectService.prototype.save = function(dto, options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        
+        //basic error checking
+        if (util.isNullOrUndefined(dto)) {
+            return cb(new Error('The dto parameter cannnot be null'));
+        }
+        
+        //do any object formatting that should be done before validation
+        var self    = this;
+        var context = {
+            service: self,
+            data: dto
+        };
+        BaseObjectService.trigger(self.type + '.' + 'format', context, function(err) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            //detect if we are doing an update or insert.  On update retrieve 
+            //the obj and call the merge event handlers
+            self._retrieveOnUpdateAndMerge(dto, function(err, obj) {
+                if (util.isError(err) || util.isNullOrUndefined(obj)) {
+                    return cb(err, obj);
+                }
+
+                //remove the dto from context and set the obj as the data to focus on
+                context.data = obj;
+                
+                //perform all validations
+                BaseObjectService.trigger(self.type + '.' + 'validate', context, function(err, results) {
+                    if (util.isError(err)) {
+                        return cb(err);
+                    }
+
+                    //check for validation errors
+                    results = BaseObjectService.consolidateValidationResults(results);
+                    if (results.length) {
+                        return cb(new pb.ValidationError('Validation Error', results));
+                    }
+                    
+                    //do any pre-save stuff
+                    BaseObjectService.trigger(self.type + '.' + 'beforeSave', context, function(err) {
+                        if (util.isError(err)) {
+                            return cb(err);
+                        }
+                    
+                        //persist the object
+                        self.dao.save(dto, options, function(err, result) {
+                            if (util.isError(err)) {
+                                return cb(err);
+                            }
+                            
+                            //do any pre-save stuff
+                            BaseObjectService.trigger(self.type + '.' + 'afterSave', context, function(err) {
+                                cb(err, obj);
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    };
+    
+    BaseObjectService.prototype._retrieveOnUpdateAndMerge = function(dto, cb) {
+        var id = dto[DAO.getIdField()];
+        if (!id) {
+            return cb(null, dto);
+        }
+        
+        //we skip the call to "this.get" so that:
+        //1) we speed things up
+        //2) plugins can't tamper with the object before any merge operations
+        var self = this;
+        this.dao.loadById(id, this.type, function(err, obj) {
+            if (util.isError(err) || util.isNullOrUndefined(obj)) {
+                return cb(err, obj);
+            }
+            
+            var context = {
+                service: self,
+                data: dto,
+                object: obj
+            }
+            BaseObjectService.trigger(self.type + '.' + 'merge', context, function(err) {
+                cb(err, obj);
+            });
+        });
+    };
+    
+    BaseObjectService.prototype.deleteById = function(id, options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }        
+        options.where = DAO.getIdWhere(id);
+            
+        this.deleteSingle(options, cb);
+    };
+    
+    BaseObjectService.prototype.deleteSingle = function(options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        
+        //TODO get single, beforeDelete, delete, afterDelete
+        
+//        var self    = this;
+//        var context = {
+//            service: self,
+//            data: dto
+//        };
+//        BaseObjectService.trigger(self.type + '.' + 'format', context, function(err) {
+//            if (util.isError(err)) {
+//                return cb(err);
+//            }
+    };
+    
+    BaseObjectService.consolidateValidationResults = function(results) {
+        if (!util.isArray(results)) {
+            return null;
+        }
+        
+        var validationErrors = [];
+        results.forEach(function(result) {
+            if (!util.isArray(result)) {
+                return;
+            }
+            
+            result.forEach(function(validationError) {
+                if (!util.isObject(validationError)) {
+                    return;
+                }
+                validationErrors.push(validationError);
+            });
+        });
+    };
+    
+    return BaseObjectService;
+};
