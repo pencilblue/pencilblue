@@ -79,8 +79,8 @@ module.exports = function PluginServiceModule(pb) {
     var ACTIVE_PLUGINS = {};
 
     function getPluginForSite(theme, site) {
-        if (ACTIVE_PLUGINS[this.site] && ACTIVE_PLUGINS[this.site][theme]) {
-            return ACTIVE_PLUGINS[this.site][theme];
+        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][theme]) {
+            return ACTIVE_PLUGINS[site][theme];
         } else if (ACTIVE_PLUGINS[GLOBAL_SITE] && ACTIVE_PLUGINS[GLOBAL_SITE][theme]) {
             return ACTIVE_PLUGINS[GLOBAL_SITE][theme];
         }
@@ -115,7 +115,7 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.getActiveIcon = function(cb) {
         var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.site);
         settings.get('active_theme', function(err, theme) {
-            var active_theme = getPluginForSite(this.site, theme);
+            var active_theme = getPluginForSite(theme, this.site);
             if(active_theme && active_theme.icon) {
                 cb(err, active_theme.icon);
             } else {
