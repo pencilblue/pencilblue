@@ -23,7 +23,6 @@ module.exports = function(pb) {
     
     //pb Dependencies
     var events = new AsyncEventEmitter();
-    var DAO    = new pb.DAO();
     
     /**
      *
@@ -55,11 +54,28 @@ module.exports = function(pb) {
          * @property dao
          * @type {DAO}
          */
-        this.dao = new DAO();
+        this.dao = new pb.DAO();
     }
-    util.inherits(BaseObjectService, events);
     
     var MAX_RESULTS = 250;
+    
+    BaseObjectService.GET_ALL = "getAll";
+    
+    BaseObjectService.GET = "get";
+    
+    BaseObjectService.FORMAT = "format";
+    
+    BaseObjectService.MERGE = "merge";
+    
+    BaseObjectService.VALIDATE = "validate";
+    
+    BaseObjectService.BEFORE_SAVE = "beforeSave";
+    
+    BaseObjectService.AFTER_SAVE = "afterSave";
+    
+    BaseObjectService.BEFORE_DELETE = "beforeDelete";
+    
+    BaseObjectService.AFTER_DELETE = "afterDelete";
     
     BaseObjectService.prototype.getAll = function(options, cb) {
         if (util.isFunction(options)) {
@@ -84,7 +100,7 @@ module.exports = function(pb) {
                 service: self,
                 data: results
             };
-            BaseObjectService.trigger(self.type + '.' + 'getAll', context, function(err) {
+            events.emit(self.type + '.' + 'getAll', context, function(err) {
                 cb(err, results);
             });
         });
@@ -139,7 +155,7 @@ module.exports = function(pb) {
                 service: self,
                 data: obj
             };
-            BaseObjectService.trigger(self.type + '.' + 'get', context, function(err) {
+            events.emit(self.type + '.' + 'get', context, function(err) {
                 cb(err, obj);
             }); 
         });
@@ -174,7 +190,7 @@ module.exports = function(pb) {
             service: self,
             data: dto
         };
-        BaseObjectService.trigger(self.type + '.' + 'format', context, function(err) {
+        events.emit(self.type + '.' + 'format', context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -190,7 +206,7 @@ module.exports = function(pb) {
                 context.data = obj;
                 
                 //perform all validations
-                BaseObjectService.trigger(self.type + '.' + 'validate', context, function(err, results) {
+                events.emit(self.type + '.' + 'validate', context, function(err, results) {
                     if (util.isError(err)) {
                         return cb(err);
                     }
@@ -202,7 +218,7 @@ module.exports = function(pb) {
                     }
                     
                     //do any pre-save stuff
-                    BaseObjectService.trigger(self.type + '.' + 'beforeSave', context, function(err) {
+                    events.emit(self.type + '.' + 'beforeSave', context, function(err) {
                         if (util.isError(err)) {
                             return cb(err);
                         }
@@ -214,7 +230,7 @@ module.exports = function(pb) {
                             }
                             
                             //do any pre-save stuff
-                            BaseObjectService.trigger(self.type + '.' + 'afterSave', context, function(err) {
+                            events.emit(self.type + '.' + 'afterSave', context, function(err) {
                                 cb(err, obj);
                             });
                         });
@@ -225,7 +241,7 @@ module.exports = function(pb) {
     };
     
     BaseObjectService.prototype._retrieveOnUpdateAndMerge = function(dto, cb) {
-        var id = dto[DAO.getIdField()];
+        var id = dto[pb.DAO.getIdField()];
         if (!id) {
             return cb(null, dto);
         }
@@ -244,7 +260,7 @@ module.exports = function(pb) {
                 data: dto,
                 object: obj
             }
-            BaseObjectService.trigger(self.type + '.' + 'merge', context, function(err) {
+            events.emit(self.type + '.' + 'merge', context, function(err) {
                 cb(err, obj);
             });
         });
@@ -255,7 +271,7 @@ module.exports = function(pb) {
             cb      = options;
             options = {};
         }        
-        options.where = DAO.getIdWhere(id);
+        options.where = pb.DAO.getIdWhere(id);
             
         this.deleteSingle(options, cb);
     };
@@ -265,18 +281,41 @@ module.exports = function(pb) {
             cb      = options;
             options = {};
         }
-        
-        //TODO get single, beforeDelete, delete, afterDelete
-        
-//        var self    = this;
-//        var context = {
-//            service: self,
-//            data: dto
-//        };
-//        BaseObjectService.trigger(self.type + '.' + 'format', context, function(err) {
-//            if (util.isError(err)) {
-//                return cb(err);
-//            }
+
+        var self = this;
+        this.getSingle(options, function(err, obj) {
+            if (util.isError(err) || util.isNullOrUndefined(obj)) {
+                return cb(err, obj);
+            }
+            
+            var context = {
+                service: self,
+                data: obj
+            };
+            events.emit(self.type + '.' + 'beforeDelete', context, function(err) {
+                if (util.isError(err)) {
+                    return cb(err, null);
+                }
+                
+                self.dao.delete(options.where, self.type, options, function(err, result) {
+                    if (util.isError(err)) {
+                        return cb(err, obj);
+                    }
+                    
+                    events.emit(self.type + '.' + 'afterDelete', context, function(err) {
+                        cb(err, obj);
+                    });
+                });
+            });
+        });
+    };
+    
+    BaseObjectService.validationError = function(field, message, code) {
+        return {
+            field: field || null,
+            message: message || '',
+            code: code || null
+        };
     };
     
     BaseObjectService.consolidateValidationResults = function(results) {
@@ -297,6 +336,30 @@ module.exports = function(pb) {
                 validationErrors.push(validationError);
             });
         });
+    };
+    
+    BaseObjectService.on = function(event, listener) {
+        return events.on(event, listener);
+    };
+    
+    BaseObjectService.once = function(event, listener) {
+        return events.once(event, listener);
+    };
+    
+    BaseObjectService.removeListener = function(event, listener) {
+        return events.removeListener(event, listener);
+    };
+    
+    BaseObjectService.removeAllListeners = function(event) {
+        return events.removeAllListeners(event);
+    };
+    
+    BaseObjectService.setMaxListeners = function(n) {
+        return events.setMaxListeners(n);
+    };
+    
+    BaseObjectService.listeners = function(event) {
+        return events.listeners(event);
     };
     
     return BaseObjectService;

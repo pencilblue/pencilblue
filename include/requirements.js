@@ -227,5 +227,9 @@ module.exports = function PB(config) {
     pb.MediaLoader           = ArticleServiceModule.MediaLoader;
     pb.CommentService        = require(config.docRoot+'/include/theme/comments.js')(pb);
     
+    //object services
+    pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
+    pb.TopicService      = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
+    
     return pb;
 };

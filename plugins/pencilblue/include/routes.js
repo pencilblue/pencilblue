@@ -997,6 +997,28 @@ module.exports = function Routes(pb){
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'localization_controller.js'),
             content_type: 'text/javascript'
+        },
+        
+        //**********************API************************
+        
+        //topics
+        {
+            method: 'get',
+            path: "/api/content/topics/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js')
+        },
+        {
+            method: 'delete',
+            path: "/api/content/topics/:id",
+            handler: "delete",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js')
         }
     ];
 };
