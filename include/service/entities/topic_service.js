@@ -58,14 +58,27 @@ module.exports = function(pb) {
     
     TopicService.validate = function(context, cb) {
         var obj = context.data;
+        var errors = context.validationErrors;
         
-        var errors = [];
-        if (!pb.ValidationService.isNonEmptStr(obj.name, true)) {
+        if (!pb.ValidationService.isNonEmptyStr(obj.name, true)) {
             errors.push(BaseObjectService.validationError('name', 'Name is required'));
+            
+            //no need to check the DB.  Short circuit it here
+            return cb(null, errors);
         }
-        
+
         //TODO validate name is not taken
-        cb(null, errors);
+        var where = pb.DAO.getNotIDWhere(obj[pb.DAO.getIdField()]);
+        where.name = new RegExp('^' + util.escapeRegExp(obj.name) + '$', 'i');
+        context.service.dao.exists(TYPE, where, function(err, exists) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            else if (exists) {
+                errors.push(BaseObjectService.validationError('name', 'Name already exists'));
+            }
+            cb(null, errors);
+        });
     };
     
     //event Registries

@@ -203,17 +203,20 @@ module.exports = function(pb) {
                 }
 
                 //remove the dto from context and set the obj as the data to focus on
-                context.data = obj;
+                context.data             = obj;
+                context.isCreate         = util.isNullOrUndefined(obj[pb.DAO.getIdField()]);
+                context.isUpdate         = !context.isCreate;
+                context.validationErrors = [];
                 
                 //perform all validations
-                events.emit(self.type + '.' + 'validate', context, function(err, results) {
+                events.emit(self.type + '.' + 'validate', context, function(err) {
                     if (util.isError(err)) {
                         return cb(err);
                     }
 
                     //check for validation errors
-                    results = BaseObjectService.consolidateValidationResults(results);
-                    if (results.length) {
+                    var validationErrors = BaseObjectService.consolidateValidationResults(context.validationErrors);
+                    if (validationErrors.length) {
                         return cb(new pb.ValidationError('Validation Error', results));
                     }
                     
@@ -224,7 +227,8 @@ module.exports = function(pb) {
                         }
                     
                         //persist the object
-                        self.dao.save(dto, options, function(err, result) {
+                        options.object_type = self.type;//TODO figure out why topic name isn't persisting
+                        self.dao.save(obj, options, function(err, result) {
                             if (util.isError(err)) {
                                 return cb(err);
                             }
@@ -336,6 +340,8 @@ module.exports = function(pb) {
                 validationErrors.push(validationError);
             });
         });
+        
+        return validationErrors;
     };
     
     BaseObjectService.on = function(event, listener) {
