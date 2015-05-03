@@ -997,6 +997,14 @@ module.exports = function Routes(pb){
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'localization_controller.js'),
             content_type: 'text/javascript'
+        },
+        {
+          method: 'get',
+          path: "/admin/elements/wysiwyg",
+          access_level: pb.SecurityService.ACCESS_WRITER,
+          auth_required: true,
+          controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'elements', 'wysiwyg.js'),
+          content_type: 'text/javascript'
         }
     ];
 };

@@ -1,7 +1,8 @@
+<script type="text/javascript" src="/js/angular/directives/wysiwyg.js"></script>
 <script type="text/javascript" src="/js/angular/filters/parsable_date.js"></script>
 <script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
-	angular.module('pencilblueApp', ['inlineMedia', 'sectionSelect', 'topicSelect', 'parseDate', 'validation'])
+	angular.module('pencilblueApp', ['wysiwygElement', 'inlineMedia', 'sectionSelect', 'topicSelect', 'parseDate', 'validation'])
 	.controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window, validationService) {
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
