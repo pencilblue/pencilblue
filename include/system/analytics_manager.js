@@ -39,6 +39,16 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @type {Object}
      */
     var PROVIDER_HOOKS = {};
+  
+    /**
+     * Stores the template tags where providers will be registered by template service
+     * @private
+     * @static
+     * @readonly
+     * @property TEMPLATE_TAGS
+     * @type {Object}
+     */
+    var TEMPLATE_TAGS = {};
 
     /**
      * Takes the provided request and session then checks with each of the 
@@ -49,54 +59,57 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @param {Object} session The current user session
      * @param {Localization} ls An instance of the Localization service
      * @param {Function} cb A callback that provides two parameters.  An error, if 
-     * occurred, and a TemplateValue representing the HTML snippets for the analytic 
+     * occurred, and an Array of objects each with two attributes as strings, "tag" template 
+     * tag name for the template service to register the HTML snippet
+     * and "snippet" that represents the HTML snippet for the analytic 
      * providers.
      */ 
-    AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
-        var tasks = util.getTasks(Object.keys(PROVIDER_HOOKS), function(keys, i) {
-            return function(callback) {
-                if (pb.log.isSilly()) {
-                    pb.log.silly("AnalyticsManager: Rendering provider [%s] for URL [%s:%s]", keys[i], req.method, req.url);
-                }
+    AnalyticsManager.prototype.gatherData = function(req, session, ls, providerName, cb) {
+//        var tasks = util.getTasks(Object.keys(PROVIDER_HOOKS), function(keys, i) {
+//            return function(callback) {
+//                
+//            };
+//        });
+//        async.parallel(tasks, function(err, results) {
+//            cb(err, results);
+//        });
+      if (pb.log.isSilly()) {
+        pb.log.silly("AnalyticsManager: Rendering provider [%s] for URL [%s:%s]", keys[i], req.method, req.url);
+      }
 
-                var th = setTimeout(function() {
-                    pb.log.warn("AnalyticsManager: Rendering for provider [%s] timed out", keys[i]);
+      var th = setTimeout(function() {
+        pb.log.warn("AnalyticsManager: Rendering for provider [%s] timed out", keys[i]);
 
-                    th = null;
-                    callback(null, '');
-                }, 25);
+        th = null;
+        cb(null, new pb.TemplateValue('', false));
+      }, 25);
 
-                var d = domain.create();
-                d.run(function() {
-                    PROVIDER_HOOKS[keys[i]](req, session, ls, function(err, result) {
-                        if (util.isError(err)) {
-                            pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", keys[i], req.method, req.url, err.stack);
-                        }
+      var d = domain.create();
+      d.run(function() {
+        PROVIDER_HOOKS[providerName](req, session, ls, function(err, result) {
+          if (util.isError(err)) {
+            pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", keys[i], req.method, req.url, err.stack);
+          }
 
-                        if (th) {
-                            clearTimeout(th);
-                            th = null;
+          if (th) {
+            clearTimeout(th);
+            th = null;
 
-                            //the error is left out on purpose.  It is logged above 
-                            //and we want all other providers to have a chance.
-                            callback(null, result);
-                        }
-                    });
-                });
-                d.on('error', function(err) {
-                    pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", keys[i], req.method, req.url, err.stack);
-                    if (th) {
-                        clearTimeout(th);
-                        th = null;
-
-                        callback(null, '');
-                    }
-                });
-            };
+            //the error is left out on purpose.  It is logged above 
+            //and we want all other providers to have a chance.
+            cb(null, new pb.TemplateValue(result, false));
+          }
         });
-        async.parallel(tasks, function(err, results) {
-            cb(err, new pb.TemplateValue(results.join(''), false));
-        });
+      });
+      d.on('error', function(err) {
+        pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", keys[i], req.method, req.url, err.stack);
+        if (th) {
+          clearTimeout(th);
+          th = null;
+
+          cb(null, new pb.TemplateValue('', false));
+        }
+      });
     };
 
     /**
@@ -112,14 +125,16 @@ module.exports = function AnalyticsManagerModule(pb) {
      * instance of Localization.  The last is a callback that should be called with 
      * two parameters.  The first is an error, if occurred and the second is raw 
      * HTML string that represents the snippet to be executed by the analytics 
-     * plugin. 
+     * plugin.
+     * @param {String} optional name of template tag where the template service to register your snippet 
      */
-    AnalyticsManager.registerProvider = function(name, onPageRendering) {
+    AnalyticsManager.registerProvider = function(name, onPageRendering, templateTag) {
         if (!pb.validation.validateNonEmptyStr(name) || AnalyticsManager.isRegistered(name) || !util.isFunction(onPageRendering)) {
             return false;
         }
 
         PROVIDER_HOOKS[name] = onPageRendering;
+        TEMPLATE_TAGS[name] = templateTag || "analytics";
         return true;
     };
     
@@ -135,6 +150,7 @@ module.exports = function AnalyticsManagerModule(pb) {
             return false;
         }
         delete PROVIDER_HOOKS[name];
+        delete TEMPLATE_TAGS[name];
         return true;
     };
 
@@ -149,6 +165,22 @@ module.exports = function AnalyticsManagerModule(pb) {
     AnalyticsManager.isRegistered = function(name) {
         return !util.isNullOrUndefined(PROVIDER_HOOKS[name]);
     };
+  
+    /**
+     * Returns a list of provider names with their associated template tag name
+     * @static
+     * @method getTemplateTags
+     * @return {Array} of objects consisting of providerName and templateTag both as Strings.
+     */
+    AnalyticsManager.getTemplateTags = function(){   
+      var tags = Object.keys(TEMPLATE_TAGS).map(function(providerName){
+        return {
+          providerName: providerName,
+          templateTag: TEMPLATE_TAGS[providerName]
+        };
+      });
+      return tags;
+    };
 
     /**
      * Called when a page is rendering.  It creates a new instance of the analytics 
@@ -159,13 +191,14 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @param {Request} req
      * @param {Object} session
      * @param {Localization} ls
+     * @param {String} providerName
      * @param {Function} cb A callback that provides two parameters.  An error, if 
      * occurred, and a TemplateValue representing the HTML snippets for the analytic 
      * providers.
      */
-    AnalyticsManager.onPageRender = function(req, session, ls, cb) {
+    AnalyticsManager.onPageRender = function(req, session, ls, providerName, cb) {
         var managerInstance = new AnalyticsManager();
-        managerInstance.gatherData(req, session, ls, cb);
+        managerInstance.gatherData(req, session, ls, providerName, cb);
     };
 
     //exports
