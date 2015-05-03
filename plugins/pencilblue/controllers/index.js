@@ -20,7 +20,7 @@ var path  = require('path');
 var async = require('async');
 
 module.exports = function IndexModule(pb) {
-    
+
     //pb dependencies
     var util           = pb.util;
     var TopMenu        = pb.TopMenuService;
@@ -280,7 +280,7 @@ module.exports = function IndexModule(pb) {
         ats.registerLocal('author_position', content.author_position ? content.author_position : '');
         ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
         ats.registerLocal('comments', function(flag, cb) {
-            if (isPage || !contentSettings.allow_comments || !content.allow_comments === false) {
+            if (isPage || !contentSettings.allow_comments || !content.allow_comments) {
                 return cb(null, '');
             }
 
