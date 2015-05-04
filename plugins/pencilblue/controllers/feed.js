@@ -42,7 +42,7 @@ module.exports = function FeedModule(pb) {
 
             var opts = {
                 select: pb.DAO.PROJECT_ALL,
-                where: {publish_date: {$lte: new Date()}},
+                where: {publish_date: {$lte: new Date()}, draft: {$ne: 1}},
                 order: {publish_date: pb.DAO.DESC},
                 limit: 100
             };
