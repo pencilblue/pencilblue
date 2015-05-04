@@ -87,10 +87,10 @@ module.exports = function(pb) {
                 return;
             }
 
-            if (plugin && plugin.site === siteId) {
+            if (plugin) {
                 var obj = {
                     details: plugin,
-                    status:  self.ls.get(PluginService.isActivePlugin(plugin.uid) ? 'ACTIVE' : 'INACTIVE')
+                    status:  self.ls.get(PluginService.isActivePlugin(plugin.uid, siteId) ? 'ACTIVE' : 'INACTIVE')
                 };
                 cb(err, obj);
                 return;
