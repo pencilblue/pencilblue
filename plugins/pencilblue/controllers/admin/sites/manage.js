@@ -9,9 +9,6 @@ module.exports = function(pb) {
 
 	Manage.prototype.render = function(cb) {
 		var self = this;
-
-
-
 		var siteService = new pb.SiteService();
 		siteService.getSiteMap(function(err, map) {	
 			var angularObjects = pb.ClientJs.getAngularObjects({

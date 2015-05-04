@@ -19,7 +19,7 @@
                         <th></th>
                     </tr>
                     <tr class="active_site_row" ng-repeat="active in activeSites track by active.uid">
-                        <td><a ng-href="#" title="{{active.displayName}}" ng-bind="active.displayName"></a></td>
+                        <td><a ng-href="/admin/{{active.uid}}" title="{{active.displayName}}" ng-bind="active.displayName"></a></td>
                         <td ng-bind="active.hostname"></td>
                         <td ng-bind="active.created | date: 'yyyy-MM-dd HH:mm'"></td>
                         <td style="text-align: right">
@@ -45,7 +45,7 @@
                         <th></th>
                     </tr>
                     <tr class="inactive_site_row" ng-repeat="inactive in inactiveSites track by inactive.uid">
-                        <td><a ng-href="#" title="{{inactive.displayName}}" ng-bind="inactive.displayName"></a></td>
+                        <td><a ng-href="/admin/{{inactive.uid}}" title="{{inactive.displayName}}" ng-bind="inactive.displayName"></a></td>
                         <td ng-bind="inactive.hostname"></td>
                         <td ng-bind="inactive.created | date: 'yyyy-MM-dd HH:mm'"></td>
                         <td style="text-align: right">
