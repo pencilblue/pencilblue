@@ -80,7 +80,7 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function getDefaultNavigation(adminSiteId) {
         var adminPath = '/admin'
-        if(adminSiteId) {
+        if(adminSiteId && pb.config.multisite) {
             adminPath = '/admin/' + adminSiteId;
         }
         return util.clone(Object.freeze([
