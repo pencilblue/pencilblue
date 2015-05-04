@@ -60,6 +60,7 @@ function PencilBlue(config){
             util.wrapTask(this, this.initServer),
             this.initSessions,
             this.initPlugins,
+            this.initSites,
             this.initServerRegistration,
             this.initCommandService,
             this.initLibraries
@@ -127,6 +128,17 @@ function PencilBlue(config){
         var pluginService = new pb.PluginService();
         pluginService.initPlugins(cb);
     };
+
+    /**
+     *
+     */
+    this.initSites = function(cb)
+    {
+        pb.SiteService.init();
+
+        var siteService = new pb.SiteService();
+        siteService.initSites(cb);
+    }
 
     /**
      * Attempts to initialize a connection pool to the core database

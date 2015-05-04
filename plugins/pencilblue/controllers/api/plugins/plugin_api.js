@@ -27,6 +27,8 @@ module.exports = function(pb) {
     var PluginService  = pb.PluginService;
     var RequestHandler = pb.RequestHandler;
 
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+
     /**
      * Controller to properly route and handle remote calls to interact with
      * the PluginService
@@ -72,6 +74,8 @@ module.exports = function(pb) {
     PluginApiController.prototype.render = function(cb) {
         var action     = this.pathVars.action;
         var identifier = this.pathVars.id;
+        this.site       = this.pathVars.site || GLOBAL_SITE;
+        this.pluginService = new pb.PluginService(this.site);
 
         //validate action
         var errors = [];
@@ -134,7 +138,7 @@ module.exports = function(pb) {
 
             //load plugin
             function(callback) {
-                self.pluginService.getPlugin(uid, function(err, plugin) {
+                self.pluginService.getPluginBySite(uid, function(err, plugin) {
                     if (!plugin) {
                         callback(new Error(util.format(self.ls.get('PLUGIN_NOT_FOUND'), uid)), false);
                         return;
@@ -194,7 +198,7 @@ module.exports = function(pb) {
     PluginApiController.prototype.initialize = function(uid, cb) {
         var self = this;
 
-        this.pluginService.getPlugin(uid, function(err, plugin) {
+        this.pluginService.getPluginBySite(uid, function(err, plugin) {
             if (util.isError(err)) {
                 var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('INITIALIZATION_FAILED'), uid), [err.message]);
                 cb({content: content, code: 500});
@@ -224,7 +228,7 @@ module.exports = function(pb) {
         var self = this;
 
         //retrieve plugin
-        this.pluginService.getPlugin(uid, function(err, plugin) {
+        this.pluginService.getPluginBySite(uid, function(err, plugin) {
             if (uid !== RequestHandler.DEFAULT_THEME && util.isError(err)) {
                 var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('SET_THEME_FAILED'), uid), [err.message]);
                 cb({content: content, code: 500});
@@ -238,7 +242,8 @@ module.exports = function(pb) {
             }
 
             var theme = plugin ? plugin.uid : uid;
-            pb.settings.set('active_theme', theme, function(err, result) {
+            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.site);
+            settings.set('active_theme', theme, function(err, result) {
                 if (util.isError(err)) {
                     var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('SET_THEME_FAILED'), uid), [err.message]);
                     cb({content: content, code: 500});
