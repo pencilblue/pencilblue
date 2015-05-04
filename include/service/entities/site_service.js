@@ -50,7 +50,7 @@ module.exports = function SiteServiceModule(pb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, {select: pb.DAO.SELECT_ALL, where: {uid: uid} }, function(err, result) {
             var siteName = SiteService.GLOBAL_SITE;
-            if(result.length > 0) {
+            if(result && result.length > 0) {
                 siteName = result[0].displayName;
             }
             cb(siteName);
