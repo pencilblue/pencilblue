@@ -41,9 +41,10 @@ module.exports = function(pb) {
             var options = {
                 to: post.email,
                 subject: 'Test email from PencilBlue',
-                layout: 'This is a successful test email from the PencilBlue system.',
+                layout: 'This is a successful test email from the PencilBlue system.'
             };
-            pb.email.sendFromLayout(options, function(err, response) {
+            var emailService = new pb.EmailService();
+            emailService.sendFromLayout(options, function(err, response) {
                 if(err) {
                     return cb({
                         code: 500,
