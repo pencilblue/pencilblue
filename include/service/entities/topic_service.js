@@ -41,18 +41,11 @@ module.exports = function(pb) {
     TopicService.format = function(context, cb) {
         var dto = context.data;
         dto.name = pb.BaseController.sanitize(dto.name);
-        
         cb(null);
     };
     
     TopicService.merge = function(context, cb) {
-        if (!context.object) {
-            return cb(null);
-        }
-        
-        var dto = context.data;
-        context.object.name = dto.name;
-        
+        context.object.name = context.data.name;
         cb(null);
     };
     
@@ -61,13 +54,13 @@ module.exports = function(pb) {
         var errors = context.validationErrors;
         
         if (!pb.ValidationService.isNonEmptyStr(obj.name, true)) {
-            errors.push(BaseObjectService.validationError('name', 'Name is required'));
+            errors.push(BaseObjectService.validationFailure('name', 'Name is required'));
             
             //no need to check the DB.  Short circuit it here
             return cb(null, errors);
         }
 
-        //TODO validate name is not taken
+        //validate name is not taken
         var where = pb.DAO.getNotIDWhere(obj[pb.DAO.getIdField()]);
         where.name = new RegExp('^' + util.escapeRegExp(obj.name) + '$', 'i');
         context.service.dao.exists(TYPE, where, function(err, exists) {
@@ -75,7 +68,7 @@ module.exports = function(pb) {
                 return cb(err);
             }
             else if (exists) {
-                errors.push(BaseObjectService.validationError('name', 'Name already exists'));
+                errors.push(BaseObjectService.validationFailure('name', 'Name already exists'));
             }
             cb(null, errors);
         });

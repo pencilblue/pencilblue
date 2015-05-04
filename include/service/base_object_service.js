@@ -217,7 +217,7 @@ module.exports = function(pb) {
                     //check for validation errors
                     var validationErrors = BaseObjectService.consolidateValidationResults(context.validationErrors);
                     if (validationErrors.length) {
-                        return cb(new pb.ValidationError('Validation Error', results));
+                        return cb(BaseObjectService.validationError(validationErrors));
                     }
                     
                     //do any pre-save stuff
@@ -227,7 +227,7 @@ module.exports = function(pb) {
                         }
                     
                         //persist the object
-                        options.object_type = self.type;//TODO figure out why topic name isn't persisting
+                        options.object_type = self.type;
                         self.dao.save(obj, options, function(err, result) {
                             if (util.isError(err)) {
                                 return cb(err);
@@ -245,16 +245,13 @@ module.exports = function(pb) {
     };
     
     BaseObjectService.prototype._retrieveOnUpdateAndMerge = function(dto, cb) {
-        var id = dto[pb.DAO.getIdField()];
-        if (!id) {
-            return cb(null, dto);
-        }
         
-        //we skip the call to "this.get" so that:
-        //1) we speed things up
-        //2) plugins can't tamper with the object before any merge operations
-        var self = this;
-        this.dao.loadById(id, this.type, function(err, obj) {
+        //function used as callback handler so we can simplify if/else logic
+        var self     = this;
+        var id       = dto[pb.DAO.getIdField()];
+        var isUpdate = id ? true : false;
+        var isCreate = !isUpdate;
+        var onObjectRetrieved = function(err, obj) {
             if (util.isError(err) || util.isNullOrUndefined(obj)) {
                 return cb(err, obj);
             }
@@ -262,12 +259,24 @@ module.exports = function(pb) {
             var context = {
                 service: self,
                 data: dto,
-                object: obj
+                object: obj,
+                isUpdate: isUpdate,
+                isCreate: isCreate
             }
             events.emit(self.type + '.' + 'merge', context, function(err) {
                 cb(err, obj);
             });
-        });
+        };
+        
+        //when we are doing an update load the object
+        if (id) {
+            this.dao.loadById(id, this.type, onObjectRetrieved);
+        }
+        else {
+            
+            //we are creating a new object so pass it along
+            onObjectRetrieved(null, {});
+        }
     };
     
     BaseObjectService.prototype.deleteById = function(id, options, cb) {
@@ -314,7 +323,7 @@ module.exports = function(pb) {
         });
     };
     
-    BaseObjectService.validationError = function(field, message, code) {
+    BaseObjectService.validationFailure = function(field, message, code) {
         return {
             field: field || null,
             message: message || '',
@@ -327,21 +336,23 @@ module.exports = function(pb) {
             return null;
         }
         
+        //filter out any malformed validation results from plugins
         var validationErrors = [];
-        results.forEach(function(result) {
-            if (!util.isArray(result)) {
+        results.forEach(function(validationError) {
+            if (!util.isObject(validationError)) {
                 return;
             }
-            
-            result.forEach(function(validationError) {
-                if (!util.isObject(validationError)) {
-                    return;
-                }
-                validationErrors.push(validationError);
-            });
+            validationErrors.push(validationError);
         });
         
         return validationErrors;
+    };
+    
+    BaseObjectService.validationError = function(validationFailures) {
+        var error = new Error('Validation Failure');
+        error.code = 400;
+        error.validationErrors = validationFailures;
+        return error;
     };
     
     BaseObjectService.on = function(event, listener) {

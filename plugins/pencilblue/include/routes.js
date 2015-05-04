@@ -1027,7 +1027,8 @@ module.exports = function Routes(pb){
             content_type: 'application/json',
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js')
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js'),
+            request_body: ['application/json']
         },
         {
             method: 'put',
@@ -1036,7 +1037,8 @@ module.exports = function Routes(pb){
             content_type: 'application/json',
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js')
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js'),
+            request_body: ['application/json']
         }
     ];
 };
