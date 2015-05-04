@@ -38,8 +38,8 @@ module.exports = function(pb) {
     ManagePlugins.prototype.render = function(cb) {
         var self = this;
 
-        var site = pb.SiteService.getCurrentSite(self.pathVars);
-        var prefix = pb.SiteService.getCurrentSitePrefix(self.pathVars);
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+        var prefix = pb.SiteService.getCurrentSitePrefix(site);
 
         //get the data
         var pluginService = new pb.PluginService(site);

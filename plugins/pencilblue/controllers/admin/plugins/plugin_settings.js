@@ -109,7 +109,7 @@ module.exports = function(pb) {
                     settings: clone,
                     pluginUID: uid,
                     type: data.settingType,
-                    sitePrefix: self.getSitePrefix()
+                    sitePrefix: self.getSitePrefix(self.getSite())
                 });
 
                 //render page
@@ -339,11 +339,11 @@ module.exports = function(pb) {
     };
 
     PluginSettingsFormController.prototype.getSite = function () {
-        return pb.SiteService.getCurrentSite(this.pathVars);
+        return pb.SiteService.getCurrentSite(this.pathVars.siteid);
     };
 
-    PluginSettingsFormController.prototype.getSitePrefix = function getSitePrefix() {
-        return pb.SiteService.getCurrentSitePrefix(this.pathVars);
+    PluginSettingsFormController.prototype.getSitePrefix = function getSitePrefix(site) {
+        return pb.SiteService.getCurrentSitePrefix(site);
     };     
 
     //register admin sub-nav

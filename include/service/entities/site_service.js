@@ -251,22 +251,28 @@ module.exports = function SiteServiceModule(pb) {
     /**
      * Central place to get the current site
      *
-     * @param pathVars
-     * @returns {string} empty string if multisite is not enabled; SiteService.GLOBAL_SITE if not specified, or siteid otherwise
+     * @param siteid
+     * @returns {string} SiteService.GLOBAL_SITE if not specified, or siteid otherwise
      */
-    SiteService.getCurrentSite = function(pathVars) {
-        return pb.config.multisite ?
-          (pathVars.siteid || SiteService.GLOBAL_SITE)
-          : '';
+    SiteService.getCurrentSite = function (siteid) {
+        return siteid || SiteService.GLOBAL_SITE;
     };
 
     /**
-     * Gets the current site prefix based on pathVars; this is equivalent to getCurrentSite with a leading slash if site exists, or empty string if not
-     * @param pathVars
+     * Gets the current site prefix based on site (the return value of getCurrentSite)
+     * this is used as an url fragment, and equal to slash + site if multisite is on, or empty if it's off;
+     * used for '/admin' + prefix so controllers (both node and angular) can generate urls conforming to
+     * multitenant and single tenant setups
+     * @param site
      */
-    SiteService.getCurrentSitePrefix = function(pathVars) {
-        var site = SiteService.getCurrentSite(pathVars);
-        return site ? '/' + site : '';
+    SiteService.getCurrentSitePrefix = function (site) {
+        if (!pb.config.multisite) {
+            return '';
+        }
+        if (!site) {
+            throw new Error("Site is empty in getCurrentSitePrefix when it never should be");
+        }
+        return '/' + site;
     };
 
     return SiteService;
