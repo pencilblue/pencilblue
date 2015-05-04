@@ -508,15 +508,7 @@ module.exports = function Routes(pb){
         },
         {
             method: 'post',
-            path: "/api/plugins/:action/:id",
-            auth_required: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'plugins', 'plugin_api.js'),
-            content_type: 'application/json'
-        },
-        {
-            method: 'post',
-            path: "/api/plugins/:action/:id/:site",
+            path: "/api/:siteid/plugins/:action/:id/",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'plugins', 'plugin_api.js'),
