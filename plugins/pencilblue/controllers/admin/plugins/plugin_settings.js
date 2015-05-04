@@ -339,7 +339,7 @@ module.exports = function(pb) {
     };
 
     PluginSettingsFormController.prototype.getSite = function () {
-        return this.pathVars.site;
+        return this.pathVars.siteid;
     };
 
     //register admin sub-nav

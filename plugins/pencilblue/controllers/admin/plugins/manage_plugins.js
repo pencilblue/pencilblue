@@ -38,7 +38,7 @@ module.exports = function(pb) {
     ManagePlugins.prototype.render = function(cb) {
         var self = this;
 
-        var site = self.pathVars.site;
+        var site = self.pathVars.siteid;
 
         //get the data
         var pluginService = new pb.PluginService(site);
