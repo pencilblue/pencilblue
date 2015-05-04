@@ -41,12 +41,16 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
 
+    PluginSettingsFormController.prototype.initialzePluginService = function initialzePluginService() {
+        this.pluginService = new pb.PluginService(this.getSite());
+    }; 
     
     PluginSettingsFormController.prototype.get = function(cb) {
         var self = this;console.log(this.constructor.name);
+        self.initialzePluginService();
 
         var uid = this.pathVars.id;
-        this.pluginService.getPlugin(uid, function(err, plugin) {
+        this.pluginService.getPluginBySite(uid, function(err, plugin) {
             if (util.isError(err)) {
                 throw err;
             }
@@ -104,7 +108,8 @@ module.exports = function(pb) {
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                     settings: clone,
                     pluginUID: uid,
-                    type: data.settingType
+                    type: data.settingType,
+                    siteUid: self.getSite()
                 });
 
                 //render page
@@ -121,6 +126,7 @@ module.exports = function(pb) {
         var self = this;console.log(this.constructor.name);
         var post = this.body;
 
+        self.initialzePluginService();
         //retrieve settings
         var uid = this.pathVars.id;
         self.getSettings(uid, function(err, settings) {console.log(settings);
@@ -330,6 +336,10 @@ module.exports = function(pb) {
             return Number(value);
         }
         return null;
+    };
+
+    PluginSettingsFormController.prototype.getSite = function () {
+        return this.pathVars.site;
     };
 
     //register admin sub-nav

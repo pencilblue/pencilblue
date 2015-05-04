@@ -785,8 +785,27 @@ module.exports = function Routes(pb){
             content_type: 'text/html'
         },
         {
+            method: 'get',
+            path: "/admin/:site/plugins/:id/settings",
+            handler: 'get',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'plugins', 'plugin_settings.js'),
+            content_type: 'text/html'
+        },
+        {
             method: 'post',
             path: "/admin/plugins/:id/settings",
+            handler: 'post',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'plugins', 'plugin_settings.js'),
+            content_type: 'application/json',
+            request_body: ['application/json']
+        },
+        {
+            method: 'post',
+            path: "/admin/:site/plugins/:id/settings",
             handler: 'post',
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,

@@ -3,6 +3,12 @@
 	.controller('PencilBlueController', function($scope, $http, $window) {
 		^angular_objects^
 
+		$scope.getSiteAwarePrefix = function (prefix) {
+			return $scope.siteUid ? '/' + prefix + '/' + $scope.siteUid : '/' + prefix;
+		};
+
+		$scope.adminPrefix = $scope.getSiteAwarePrefix('admin');
+
 		$scope.pluginAction = function(actionType, plugin) {
 			$scope.actionPlugin = plugin;
 			$scope.actionType = actionType;
@@ -17,7 +23,7 @@
 					successCb = $scope.onInstallOrUninstallComplete;
 					break;
 			}
-			var prefix = $scope.siteUid ? "/api/" + $scope.siteUid : "/api";
+			var prefix = $scope.getSiteAwarePrefix('api');
 			$http.post(prefix +"/plugins/" + actionType + "/" + encodeURIComponent(plugin.uid))
 			.success(function(result) {
 				successCb(result);
