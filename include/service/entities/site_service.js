@@ -248,5 +248,25 @@ module.exports = function SiteServiceModule(pb) {
         commandService.registerForType('activate_site'  , SiteService.onDeactivateSiteCommandReceived);
     };
 
+    /**
+     * Central place to get the current site
+     *
+     * @param pathVars
+     * @returns {string} empty string if multisite is not enabled; SiteService.GLOBAL_SITE if not specified, or siteid otherwise
+     */
+    SiteService.getCurrentSite = function(pathVars) {
+        return pb.config.multisite ?
+          (pathVars.siteid || SiteService.GLOBAL_SITE)
+          : '';
+    };
+
+    /**
+     * Gets the current site prefix based on pathVars; this is equivalent to getCurrentSite with a leading slash
+     * @param pathVars
+     */
+    SiteService.getCurrentSitePrefix = function(pathVars) {
+        return '/' + SiteService.getCurrentSite(pathVars);
+    };
+
     return SiteService;
 };

@@ -41,13 +41,13 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
 
-    PluginSettingsFormController.prototype.initialzePluginService = function initialzePluginService() {
+    PluginSettingsFormController.prototype.initializePluginService = function initializePluginService() {
         this.pluginService = new pb.PluginService(this.getSite());
     }; 
     
     PluginSettingsFormController.prototype.get = function(cb) {
         var self = this;console.log(this.constructor.name);
-        self.initialzePluginService();
+        self.initializePluginService();
 
         var uid = this.pathVars.id;
         this.pluginService.getPluginBySite(uid, function(err, plugin) {
@@ -109,7 +109,7 @@ module.exports = function(pb) {
                     settings: clone,
                     pluginUID: uid,
                     type: data.settingType,
-                    siteUid: self.getSite()
+                    sitePrefix: self.getSitePrefix()
                 });
 
                 //render page
@@ -126,7 +126,7 @@ module.exports = function(pb) {
         var self = this;console.log(this.constructor.name);
         var post = this.body;
 
-        self.initialzePluginService();
+        self.initializePluginService();
         //retrieve settings
         var uid = this.pathVars.id;
         self.getSettings(uid, function(err, settings) {console.log(settings);
@@ -339,8 +339,12 @@ module.exports = function(pb) {
     };
 
     PluginSettingsFormController.prototype.getSite = function () {
-        return this.pathVars.siteid;
+        return pb.SiteService.getCurrentSite(this.pathVars);
     };
+
+    PluginSettingsFormController.prototype.getSitePrefix = function getSitePrefix() {
+        return pb.SiteService.getCurrentSitePrefix(this.pathVars);
+    };     
 
     //register admin sub-nav
     pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsFormController.geSubNavItems);
