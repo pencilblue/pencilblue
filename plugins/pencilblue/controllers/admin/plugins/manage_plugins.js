@@ -38,30 +38,32 @@ module.exports = function(pb) {
     ManagePlugins.prototype.render = function(cb) {
         var self = this;
 
-        var site = self.pathVars.site;
+        var siteid = self.pathVars.siteid;
 
         //get the data
-        var pluginService = new pb.PluginService(site);
+        var pluginService = new pb.PluginService(siteid);
         pluginService.getPluginMap(function(err, map) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
                 return;
             }
-
-            //setup angular
-            var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
-                installedPlugins: map.active,
-                inactivePlugins: map.inactive,
-                availablePlugins: map.available,
-                siteUid: site
-            });
-
-            //load the template
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
-                cb({content: result});
+            var siteService = new pb.SiteService();
+            siteService.getSiteNameByUid(siteid, function(siteName) {
+                //setup angular
+                var angularObjects = pb.ClientJs.getAngularObjects({
+                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
+                    installedPlugins: map.active,
+                    inactivePlugins: map.inactive,
+                    availablePlugins: map.available,
+                    siteUid: siteid,
+                    siteName: siteName
+                });
+                //load the template
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
+                    cb({content: result});
+                });
             });
         });
     };
