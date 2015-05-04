@@ -39,6 +39,8 @@ module.exports = function(pb) {
         var self = this;
 
         var siteid = self.pathVars.siteid;
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+        var prefix = pb.SiteService.getCurrentSitePrefix(site);
 
         //get the data
         var pluginService = new pb.PluginService(siteid);
@@ -56,6 +58,7 @@ module.exports = function(pb) {
                     installedPlugins: map.active,
                     inactivePlugins: map.inactive,
                     availablePlugins: map.available,
+                    sitePrefix: prefix,
                     siteUid: siteid,
                     siteName: siteName
                 });
