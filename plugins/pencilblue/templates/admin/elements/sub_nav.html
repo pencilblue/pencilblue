@@ -4,4 +4,9 @@
             <i class="fa fa-{{pill.icon}}"></i><span ng-if="pill.title.length > 0">&nbsp;</span><span ng-bind="pill.title"></span>
         </button>
     </a>
+    <a href="/admin/sites" ng-show="siteName" ng-cloak>
+        <button class="btn btn-info">
+            Selected Site: {{siteName}}
+        </button>
+    </a>
 </div>

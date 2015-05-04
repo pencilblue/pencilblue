@@ -46,6 +46,21 @@ module.exports = function SiteServiceModule(pb) {
         });
     };
 
+    SiteService.prototype.getSiteNameByUid = function(uid, cb) {
+        var dao = new pb.DAO();
+        dao.q(SITE_COLL, {select: pb.DAO.SELECT_ALL, where: {uid: uid} }, function(err, result) {
+            var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
+
+            if(pb.util.isError(err)) {
+                pb.log.error(err);
+            }else if(result && result.length > 0) {
+                siteName = result[0].displayName;
+            }
+
+            cb(siteName);
+        });
+    };
+
     /**
      * Checks to see if a proposed site display name or hostname is already in the system
      *
@@ -185,7 +200,7 @@ module.exports = function SiteServiceModule(pb) {
             } else {
                 util.forEach(results, function(site) {
                     pb.RequestHandler.loadSite(site);
-                })
+                });
                 cb(err,true);
             }
         });
