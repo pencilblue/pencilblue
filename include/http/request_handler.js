@@ -570,12 +570,26 @@ module.exports = function RequestHandlerModule(pb) {
             return false;
         }
 
-        var data = {
-            content: '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>'+(err ? err.stack : err)+'</pre></body></html>',
-            content_type: 'text/html',
-            code: 500
+        var self   = this;
+        var params = {
+            mime: this.themeRoute && this.themeRoute.content_type ? this.themeRoute.content_type : 'text/html',
+            error: err,
+            request: this.req,
+            localization: this.localization
         };
-        this.onRenderComplete(data);
+        pb.ErrorFormatters.formatForMime(params, function(err, result) {
+            if (util.isError(err)) {
+                pb.log.error('RequestHandler: An error occurred attempting to render an error: %s', err.stack);
+            }
+            
+            var data = {
+                content: result.content,
+                content_type: result.mime,
+                code: 500
+            };
+            self.onRenderComplete(data);
+        });
+        
         return true;
     };
 
@@ -741,7 +755,7 @@ module.exports = function RequestHandlerModule(pb) {
         var self = this;
 
         //check for unregistered route for theme
-        var rt = this.getRouteTheme(activeTheme, route);
+        var rt = this.routeTheme = this.getRouteTheme(activeTheme, route);
 
         if (pb.log.isSilly()) {
             pb.log.silly("RequestHandler: Settling on theme [%s] and method [%s] for URL=[%s:%s]", rt.theme, rt.method, this.req.method, this.url.href);
@@ -943,8 +957,11 @@ module.exports = function RequestHandlerModule(pb) {
         //public content doesn't require a session so in order to not error out we
         //check if the session exists first.
         if (this.session) {
+            var self = this;
             pb.session.close(this.session, function(err, result) {
-                //TODO handle any errors
+                if (util.isError(err)) {
+                    pb.log.warn('RequestHandler: Failed to close session [%s]', self.session.uid);
+                }
             });
         }
     };

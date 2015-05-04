@@ -115,11 +115,13 @@ Util.escapeRegExp = function(str) {
  * @method merge
  * @param {Object} from
  * @param {Object} to
+ * @return {Object} The 'to' variable
  */
 Util.merge = function(from, to) {
     Util.forEach(from, function(val, propName/*, */) {
         to[propName] = val;
     });
+    return to;
 };
 
 /**
