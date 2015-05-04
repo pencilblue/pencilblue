@@ -120,6 +120,7 @@ module.exports = function PB(config) {
     //setup errors
     pb.PBError    = require(path.join(config.docRoot, '/include/error/pb_error.js'))(pb);
     pb.ErrorsOverTime = require(path.join(config.docRoot, '/include/error/errors_over_time.js'))(pb);
+    pb.ErrorFormatters = require(path.join(config.docRoot, '/include/error/formatters/error_formatters.js'))(pb);
 
     //setup localization
     pb.Localization = require(path.join(config.docRoot, '/include/localization.js'))(pb);
