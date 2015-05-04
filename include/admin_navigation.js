@@ -56,167 +56,9 @@ module.exports = function AdminNavigationModule(pb) {
      *
      * @private
      * @static
-     * @readonly
-     * @property DEFAULT_NAV
-     * @type {Array}
+     * @property MULTISITE_NAV
+     * @returns {Array}
      */
-    var DEFAULT_NAV = Object.freeze([
-        {
-            id: 'content',
-            title: 'CONTENT',
-            icon: 'quote-right',
-            href: '#',
-            access: SecurityService.ACCESS_WRITER,
-            children: [
-                {
-                    id: 'navigation',
-                    title: 'NAVIGATION',
-                    icon: 'th-large',
-                    href: '/admin/content/navigation',
-                    access: SecurityService.ACCESS_EDITOR
-                },
-                {
-                    id: 'topics',
-                    title: 'TOPICS',
-                    icon: 'tags',
-                    href: '/admin/content/topics',
-                    access: SecurityService.ACCESS_EDITOR
-                },
-                {
-                    id: 'pages',
-                    title: 'PAGES',
-                    icon: 'file-o',
-                    href: '/admin/content/pages',
-                    access: SecurityService.ACCESS_EDITOR
-                },
-                {
-                    id: 'articles',
-                    title: 'ARTICLES',
-                    icon: 'files-o',
-                    href: '/admin/content/articles',
-                    access: SecurityService.ACCESS_WRITER
-                },
-                {
-                    id: 'media',
-                    title: 'MEDIA',
-                    icon: 'camera',
-                    href: '/admin/content/media',
-                    access: SecurityService.ACCESS_WRITER
-                },
-                {
-                    id: 'comments',
-                    title: 'COMMENTS',
-                    icon: 'comments',
-                    href: '/admin/content/comments',
-                    access: SecurityService.ACCESS_EDITOR
-                },
-                {
-                    id: 'custom_objects',
-                    title: 'CUSTOM_OBJECTS',
-                    icon: 'sitemap',
-                    href: '/admin/content/objects/types',
-                    access: SecurityService.ACCESS_EDITOR
-                }
-            ]
-        },
-        {
-            id: 'plugins',
-            title: 'PLUGINS',
-            icon: 'puzzle-piece',
-            href: '#',
-            access: SecurityService.ACCESS_ADMINISTRATOR,
-            children: [
-                {
-                    divider: true,
-                    id: 'manage',
-                    title: 'MANAGE',
-                    icon: 'upload',
-                    href: '/admin/plugins'
-                },
-                {
-                    id: 'themes',
-                    title: 'THEMES',
-                    icon: 'magic',
-                    href: '/admin/themes'
-                }
-            ]
-        },
-        {
-            id: 'users',
-            title: 'USERS',
-            icon: 'users',
-            href: '#',
-            access: SecurityService.ACCESS_EDITOR,
-            children: [
-                {
-                    id: 'manage',
-                    title: 'MANAGE',
-                    icon: 'users',
-                    href: '/admin/users',
-                    access: SecurityService.ACCESS_EDITOR
-                },
-                {
-                    id: 'permissions',
-                    title: 'PERMISSIONS',
-                    icon: 'lock',
-                    href: '/admin/users/permissions',
-                    access: SecurityService.ACCESS_ADMINISTRATOR
-                },
-            ]
-        },
-        {
-            id: 'settings',
-            title: 'SETTINGS',
-            icon: 'cogs',
-            href: '#',
-            access: SecurityService.ACCESS_WRITER,
-            children: [
-                {
-                    id: 'site_settings',
-                    title: 'SITE_SETTINGS',
-                    icon: 'cog',
-                    href: '/admin/site_settings',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
-                },
-                {
-                    id: 'content_settings',
-                    title: 'CONTENT',
-                    icon: 'quote-right',
-                    href: '/admin/site_settings/content',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
-                },
-                {
-                    id: 'email_settings',
-                    title: 'EMAIL',
-                    icon: 'envelope',
-                    href: '/admin/site_settings/email',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
-                },
-                {
-                    id: 'library_settings',
-                    title: 'LIBRARIES',
-                    icon: 'book',
-                    href: '/admin/site_settings/libraries',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
-                }
-            ]
-        },
-        {
-            id: 'view_site',
-            title: 'VIEW_SITE',
-            icon: 'desktop',
-            href: '/',
-            access: SecurityService.ACCESS_WRITER
-        },
-        {
-            id: 'logout',
-            title: 'LOGOUT',
-            icon: 'power-off',
-            href: '/actions/logout',
-            access: SecurityService.ACCESS_WRITER
-        }
-    ]);
-
     var MULTISITE_NAV = Object.freeze([
         {
             id: 'site_entity',
@@ -227,15 +69,176 @@ module.exports = function AdminNavigationModule(pb) {
 
         }
     ]);
+
     /**
      *
      * @private
      * @static
      * @method getDefaultNavigation
+     * @param  adminsiteId {String} uid of site
      * @returns {Array}
      */
-    function getDefaultNavigation() {
-        return util.clone(DEFAULT_NAV);
+    function getDefaultNavigation(adminSiteId) {
+        var adminPath = '/admin'
+        if(adminSiteId) {
+            adminPath = '/admin/' + adminSiteId;
+        }
+        return util.clone(Object.freeze([
+            {
+                id: 'content',
+                title: 'CONTENT',
+                icon: 'quote-right',
+                href: '#',
+                access: SecurityService.ACCESS_WRITER,
+                children: [
+                    {
+                        id: 'navigation',
+                        title: 'NAVIGATION',
+                        icon: 'th-large',
+                        href: adminPath + '/content/navigation',
+                        access: SecurityService.ACCESS_EDITOR
+                    },
+                    {
+                        id: 'topics',
+                        title: 'TOPICS',
+                        icon: 'tags',
+                        href: adminPath + '/content/topics',
+                        access: SecurityService.ACCESS_EDITOR
+                    },
+                    {
+                        id: 'pages',
+                        title: 'PAGES',
+                        icon: 'file-o',
+                        href: adminPath + '/content/pages',
+                        access: SecurityService.ACCESS_EDITOR
+                    },
+                    {
+                        id: 'articles',
+                        title: 'ARTICLES',
+                        icon: 'files-o',
+                        href: adminPath + '/content/articles',
+                        access: SecurityService.ACCESS_WRITER
+                    },
+                    {
+                        id: 'media',
+                        title: 'MEDIA',
+                        icon: 'camera',
+                        href: adminPath + '/content/media',
+                        access: SecurityService.ACCESS_WRITER
+                    },
+                    {
+                        id: 'comments',
+                        title: 'COMMENTS',
+                        icon: 'comments',
+                        href: adminPath + '/content/comments',
+                        access: SecurityService.ACCESS_EDITOR
+                    },
+                    {
+                        id: 'custom_objects',
+                        title: 'CUSTOM_OBJECTS',
+                        icon: 'sitemap',
+                        href: adminPath + '/content/objects/types',
+                        access: SecurityService.ACCESS_EDITOR
+                    }
+                ]
+            },
+            {
+                id: 'plugins',
+                title: 'PLUGINS',
+                icon: 'puzzle-piece',
+                href: '#',
+                access: SecurityService.ACCESS_ADMINISTRATOR,
+                children: [
+                    {
+                        divider: true,
+                        id: 'manage',
+                        title: 'MANAGE',
+                        icon: 'upload',
+                        href: adminPath + '/plugins'
+                    },
+                    {
+                        id: 'themes',
+                        title: 'THEMES',
+                        icon: 'magic',
+                        href: adminPath + '/themes'
+                    }
+                ]
+            },
+            {
+                id: 'users',
+                title: 'USERS',
+                icon: 'users',
+                href: '#',
+                access: SecurityService.ACCESS_EDITOR,
+                children: [
+                    {
+                        id: 'manage',
+                        title: 'MANAGE',
+                        icon: 'users',
+                        href: '/admin/users',
+                        access: SecurityService.ACCESS_EDITOR
+                    },
+                    {
+                        id: 'permissions',
+                        title: 'PERMISSIONS',
+                        icon: 'lock',
+                        href: '/admin/users/permissions',
+                        access: SecurityService.ACCESS_ADMINISTRATOR
+                    },
+                ]
+            },
+            {
+                id: 'settings',
+                title: 'SETTINGS',
+                icon: 'cogs',
+                href: '#',
+                access: SecurityService.ACCESS_WRITER,
+                children: [
+                    {
+                        id: 'site_settings',
+                        title: 'SITE_SETTINGS',
+                        icon: 'cog',
+                        href: '/admin/site_settings',
+                        access: SecurityService.ACCESS_MANAGING_EDITOR
+                    },
+                    {
+                        id: 'content_settings',
+                        title: 'CONTENT',
+                        icon: 'quote-right',
+                        href: '/admin/site_settings/content',
+                        access: SecurityService.ACCESS_MANAGING_EDITOR
+                    },
+                    {
+                        id: 'email_settings',
+                        title: 'EMAIL',
+                        icon: 'envelope',
+                        href: '/admin/site_settings/email',
+                        access: SecurityService.ACCESS_MANAGING_EDITOR
+                    },
+                    {
+                        id: 'library_settings',
+                        title: 'LIBRARIES',
+                        icon: 'book',
+                        href: '/admin/site_settings/libraries',
+                        access: SecurityService.ACCESS_MANAGING_EDITOR
+                    }
+                ]
+            },
+            {
+                id: 'view_site',
+                title: 'VIEW_SITE',
+                icon: 'desktop',
+                href: '/',
+                access: SecurityService.ACCESS_WRITER
+            },
+            {
+                id: 'logout',
+                title: 'LOGOUT',
+                icon: 'power-off',
+                href: '/actions/logout',
+                access: SecurityService.ACCESS_WRITER
+            }
+        ]));
     }
 
     function getMultiSiteNavigation() {
@@ -271,12 +274,12 @@ module.exports = function AdminNavigationModule(pb) {
      * @method buildNavigation
      * @returns {Array}
      */
-    function buildNavigation() {
+    function buildNavigation(session) {
         var i;
         var navigation = [];
-        var defaultNavigation = getDefaultNavigation();
-        var additions = getAdditions();
         var multiSiteAdditions = getMultiSiteNavigation();
+        var defaultNavigation = getDefaultNavigation(session.adminSiteId);
+        var additions = getAdditions();
         var childrenAdditions = getChildrenAdditions();
 
         util.arrayPushAll(defaultNavigation, navigation);
@@ -383,7 +386,7 @@ module.exports = function AdminNavigationModule(pb) {
     AdminNavigation.get = function (session, activeMenuItems, ls) {
         var navigation = AdminNavigation.removeUnauthorized(
             session,
-            buildNavigation(),
+            buildNavigation(session),
             activeMenuItems
         );
 

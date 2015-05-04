@@ -37,9 +37,9 @@ module.exports = function(pb) {
 
     ManagePlugins.prototype.render = function(cb) {
         var self = this;
-
+        var adminSiteId = this.session.adminSiteId;
         //get the data
-        var pluginService = new pb.PluginService();
+        var pluginService = new pb.PluginService(adminSiteId);
         pluginService.getPluginMap(function(err, map) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
@@ -52,7 +52,8 @@ module.exports = function(pb) {
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
                 installedPlugins: map.active,
                 inactivePlugins: map.inactive,
-                availablePlugins: map.available
+                availablePlugins: map.available,
+                siteUid : adminSiteId
             });
 
             //load the template
