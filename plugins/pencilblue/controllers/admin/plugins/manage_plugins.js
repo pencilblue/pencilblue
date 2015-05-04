@@ -37,9 +37,11 @@ module.exports = function(pb) {
 
     ManagePlugins.prototype.render = function(cb) {
         var self = this;
-        var adminSiteId = this.session.adminSiteId;
+
+        var site = self.pathVars.site;
+
         //get the data
-        var pluginService = new pb.PluginService(adminSiteId);
+        var pluginService = new pb.PluginService(site);
         pluginService.getPluginMap(function(err, map) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
@@ -53,7 +55,7 @@ module.exports = function(pb) {
                 installedPlugins: map.active,
                 inactivePlugins: map.inactive,
                 availablePlugins: map.available,
-                siteUid : adminSiteId
+                siteUid: site
             });
 
             //load the template
