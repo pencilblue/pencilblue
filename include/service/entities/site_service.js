@@ -49,10 +49,14 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.getSiteNameByUid = function(uid, cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, {select: pb.DAO.SELECT_ALL, where: {uid: uid} }, function(err, result) {
-            var siteName = SiteService.GLOBAL_SITE;
-            if(result && result.length > 0) {
+            var siteName = '';
+
+            if(pb.util.isError(err)) {
+                pb.log.error(err);
+            }else if(result && result.length > 0) {
                 siteName = result[0].displayName;
             }
+            
             cb(siteName);
         });
     };
