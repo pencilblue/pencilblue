@@ -4,6 +4,7 @@ var util = require('../../util.js');
 module.exports = function PluginSettingServiceModule(pb) {
 
 	var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+    var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
 	function PluginSettingService(siteUID){
 		//construct settings services
@@ -367,8 +368,9 @@ module.exports = function PluginSettingServiceModule(pb) {
                     plugin_name: plugin.name,
                     plugin_uid: plugin.uid,
                     plugin_id: plugin[pb.DAO.getIdField()].toString(),
-                    settings: details.settings
+                    settings: details.settings,
                 };
+                baseDoc[SITE_FIELD] = self.site;
                 var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
 
                 //save it
