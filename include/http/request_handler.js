@@ -825,7 +825,9 @@ module.exports = function RequestHandlerModule(pb) {
             if (util.isError(err)) {
                 return self.serveError(err);
             }
-
+            if(pathVars.siteid) {
+                self.session.adminSiteId = pathVars.siteid;
+            }
             var props = {
                 request_handler: self,
                 request: self.req,

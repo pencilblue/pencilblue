@@ -17,10 +17,11 @@
 
 //dependencies
 var path = require('path');
+var multiSiteAdminRoutes = require('./multisite_admin_routes');
 
 //exports
 module.exports = function Routes(pb){
-    return [
+    var routes = [
         {
             method: 'get',
             path: '/media/*',
@@ -1036,4 +1037,8 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'deactivate_site.js')
         }
     ];
+    if(pb.config.multisite){
+        routes = routes.concat(multiSiteAdminRoutes(pb));
+    }
+    return routes;
 };
