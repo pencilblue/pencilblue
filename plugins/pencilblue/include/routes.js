@@ -17,10 +17,11 @@
 
 //dependencies
 var path = require('path');
+var multiSiteAdminRoutes = require('./multisite_admin_routes');
 
 //exports
 module.exports = function Routes(pb){
-    return [
+    var routes = [
         {
             method: 'get',
             path: '/media/*',
@@ -997,6 +998,39 @@ module.exports = function Routes(pb){
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'localization_controller.js'),
             content_type: 'text/javascript'
+        },
+        {
+            method: 'get',
+            path: "/admin/sites",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/site",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'new_site.js')
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/site/activate/:id",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'activate_site.js')
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/site/deactivate/:id",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'deactivate_site.js')
         }
     ];
+    if(pb.config.multisite){
+        routes = routes.concat(multiSiteAdminRoutes(pb));
+    }
+    return routes;
 };

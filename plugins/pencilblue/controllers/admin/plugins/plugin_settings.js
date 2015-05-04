@@ -41,12 +41,16 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
 
+    PluginSettingsFormController.prototype.initializePluginService = function initializePluginService() {
+        this.pluginService = new pb.PluginService(this.getSite());
+    }; 
     
     PluginSettingsFormController.prototype.get = function(cb) {
         var self = this;console.log(this.constructor.name);
+        self.initializePluginService();
 
         var uid = this.pathVars.id;
-        this.pluginService.getPlugin(uid, function(err, plugin) {
+        this.pluginService.getPluginBySite(uid, function(err, plugin) {
             if (util.isError(err)) {
                 throw err;
             }
@@ -96,7 +100,8 @@ module.exports = function(pb) {
                 //setup angular
                 var data = {
                     plugin: plugin,
-                    settingType: self.getType()
+                    settingType: self.getType(),
+                    sitePrefix: self.getSitePrefix(self.getSite())
                 };
                 var angularObjects = pb.ClientJs.getAngularObjects({
                     pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, data),
@@ -104,7 +109,8 @@ module.exports = function(pb) {
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                     settings: clone,
                     pluginUID: uid,
-                    type: data.settingType
+                    type: data.settingType,
+                    sitePrefix: data.sitePrefix
                 });
 
                 //render page
@@ -121,6 +127,7 @@ module.exports = function(pb) {
         var self = this;console.log(this.constructor.name);
         var post = this.body;
 
+        self.initializePluginService();
         //retrieve settings
         var uid = this.pathVars.id;
         self.getSettings(uid, function(err, settings) {console.log(settings);
@@ -222,17 +229,16 @@ module.exports = function(pb) {
     };
 
     /**
-     * @static
      * @method render
      *
      */
-    PluginSettingsFormController.geSubNavItems = function(key, ls, data) {
+    PluginSettingsFormController.getSubNavItems = function(key, ls, data) {
         return [
             {
                 name: 'manage_plugins',
                 title: data.plugin.name + ' ' + ls.get('SETTINGS'),
                 icon: 'chevron-left',
-                href: '/admin/' + data.settingType
+                href: '/admin' + data.sitePrefix + '/' + data.settingType
             }
         ];
     };
@@ -332,8 +338,16 @@ module.exports = function(pb) {
         return null;
     };
 
+    PluginSettingsFormController.prototype.getSite = function () {
+        return pb.SiteService.getCurrentSite(this.pathVars.siteid);
+    };
+
+    PluginSettingsFormController.prototype.getSitePrefix = function getSitePrefix(site) {
+        return pb.SiteService.getCurrentSitePrefix(site);
+    };     
+
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsFormController.geSubNavItems);
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsFormController.getSubNavItems);
 
     //exports
     return PluginSettingsFormController;

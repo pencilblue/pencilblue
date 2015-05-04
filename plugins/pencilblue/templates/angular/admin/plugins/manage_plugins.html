@@ -3,6 +3,8 @@
 	.controller('PencilBlueController', function($scope, $http, $window) {
 		^angular_objects^
 
+		$scope.adminPrefix = '/admin' + $scope.sitePrefix;
+
 		$scope.pluginAction = function(actionType, plugin) {
 			$scope.actionPlugin = plugin;
 			$scope.actionType = actionType;
@@ -17,8 +19,7 @@
 					successCb = $scope.onInstallOrUninstallComplete;
 					break;
 			}
-
-			$http.post("/api/plugins/" + actionType + "/" + encodeURIComponent(plugin.uid))
+			$http.post("/api" + $scope.sitePrefix +"/plugins/" + actionType + "/" + encodeURIComponent(plugin.uid))
 			.success(function(result) {
 				successCb(result);
 			})

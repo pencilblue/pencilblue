@@ -35,12 +35,16 @@ module.exports = function CacheEntityServiceModule(pb) {
      * @param {String} valueField
      * @param {String} keyField
      */
-    function CacheEntityService(objType, valueField, keyField){
+    function CacheEntityService(objType, valueField, keyField, site, onlyThisSite){
         this.type       = 'Cache';
         this.objType    = objType;
         this.keyField   = keyField;
         this.valueField = valueField ? valueField : null;
+        this.site = site || GLOBAL_SITE;
+        this.onlyThisSite = onlyThisSite ? true : false;
     }
+
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * Retrieve a value from the cache
@@ -52,29 +56,49 @@ module.exports = function CacheEntityServiceModule(pb) {
     CacheEntityService.prototype.get = function(key, cb){
 
         var self = this;
-        pb.cache.get(key, function(err, result){
+        pb.cache.get(keyValue(key, this.site), function(err, result){
             if (util.isError(err)) {
                 cb(err, null);
                 return;
             }
 
-            //value doesn't exist in cache
+            //site specific value doesn't exist in cache
             if (result == null) {
-                cb(null, null);
+                if(self.site !== GLOBAL_SITE && !self.onlyThisSite) {
+                    pb.cache.get(keyValue(key, GLOBAL_SITE), function(err, result){
+                        if (util.isError(err)) {
+                            cb(err, null);
+                            return;
+                        }
+
+                        //value doesn't exist in cache
+                        if (result == null) {
+                            cb(null, null);
+                            return;
+                        }
+
+                        //make call back
+                        cb(null, getRightFieldFromValue(result, self.valueField));
+                    });
+                } else {
+                    cb(null, null);
+                }
                 return;
             }
 
-            //value exists
-            var val = result;
-            if (self.valueField != null){
-                var rawVal = JSON.parse(result);
-                val        = rawVal[self.valueField];
-            }
-
             //make call back
-            cb(null, val);
+            cb(null, getRightFieldFromValue(result, self.valueField));
         });
     };
+
+    function getRightFieldFromValue(result, valueField) {
+        var val = result;
+        if (valueField != null){
+            var rawVal = JSON.parse(result);
+            val        = rawVal[valueField];
+        }
+        return val;
+    }
 
     /**
      * Set a value in the cache
@@ -86,7 +110,7 @@ module.exports = function CacheEntityServiceModule(pb) {
      */
     CacheEntityService.prototype.set = function(key, value, cb) {
         var self = this;
-        pb.cache.get(key, function(err, result){
+        pb.cache.get(keyValue(key, this.site), function(err, result){
             if (util.isError(err)) {
                 cb(err, null);
                 return;
@@ -117,6 +141,10 @@ module.exports = function CacheEntityServiceModule(pb) {
         });
     };
 
+    function keyValue(key, site) {
+        return site + '_' + key;
+    }
+
     /**
      * Purge the cache of a value
      *
@@ -125,7 +153,7 @@ module.exports = function CacheEntityServiceModule(pb) {
      * @param  {Function} cb  Callback function
      */
     CacheEntityService.prototype.purge = function(key, cb) {
-        pb.cache.del(key, cb);
+        pb.cache.del(keyValue(key, this.site), cb);
     };
     
     return CacheEntityService;
