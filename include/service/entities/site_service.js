@@ -261,11 +261,12 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
-     * Gets the current site prefix based on pathVars; this is equivalent to getCurrentSite with a leading slash
+     * Gets the current site prefix based on pathVars; this is equivalent to getCurrentSite with a leading slash if site exists, or empty string if not
      * @param pathVars
      */
     SiteService.getCurrentSitePrefix = function(pathVars) {
-        return '/' + SiteService.getCurrentSite(pathVars);
+        var site = SiteService.getCurrentSite(pathVars);
+        return site ? '/' + site : '';
     };
 
     return SiteService;
