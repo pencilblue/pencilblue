@@ -78,15 +78,16 @@ module.exports = function(pb) {
      */
     PluginDetailsViewController.prototype.getDetails = function(puid, cb) {
         var self = this;
+        var siteId = self.pathVars.siteid ? self.pathVars.siteid : pb.SiteService.GLOBAL_SITE;
 
-        var pluginService = new pb.PluginService();
-        pluginService.getPlugin(puid, function(err, plugin) {
+        var pluginService = new pb.PluginService(siteId);
+        pluginService.getPluginBySite(puid, function(err, plugin) {
             if (util.isError(err)) {
                 cb(err, plugin);
                 return;
             }
 
-            if (plugin) {
+            if (plugin && plugin.site === siteId) {
                 var obj = {
                     details: plugin,
                     status:  self.ls.get(PluginService.isActivePlugin(plugin.uid) ? 'ACTIVE' : 'INACTIVE')
