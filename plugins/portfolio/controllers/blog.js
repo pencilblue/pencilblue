@@ -19,7 +19,7 @@
 var async = require('async');
 
 module.exports = function BlogModule(pb) {
-    
+
     //pb dependencies
     var util           = pb.util;
     var PluginService  = pb.PluginService;
@@ -308,7 +308,7 @@ module.exports = function BlogModule(pb) {
         ats.registerLocal('author_position', content.author_position ? content.author_position : '');
         ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
         ats.registerLocal('comments', function(flag, cb) {
-           if (content.object_type === 'page' || !contentSettings.allow_comments) {
+           if (content.object_type === 'page' || !contentSettings.allow_comments || !content.allow_comments) {
                cb(null, '');
                return;
            }
