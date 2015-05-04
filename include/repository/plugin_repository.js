@@ -1,8 +1,9 @@
 var async = require('async');
+var util    = require('../util.js');
 
 module.exports = function PluginRepositoryModule(pb) {
 
-	var PLUGIN_COLL = 'plugin'
+	var PLUGIN_COLL = 'plugin';
 	var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 	var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
@@ -17,7 +18,7 @@ module.exports = function PluginRepositoryModule(pb) {
 			$and: [ hasATheme, belongsToSite ]
 		};
 		var globalWhere = {
-			$and: [ hasATheme, belongsToSite ]
+			$and: [ hasATheme, belongsToGlobal ]
 		};
 		var tasks = {
 			sitePlugins: function(callback) {
@@ -51,7 +52,7 @@ module.exports = function PluginRepositoryModule(pb) {
 
 	publicAPI.loadPluginOwnedByThisSite = function(pluginID, site, cb) {
 		var hasCorrectIdentifier = getCorrectIdQuery(pluginID);
-        var belongsToSite = getBelongsToSiteQuery(site);
+        var belongsToThisSite = getBelongsToSiteQuery(site);
 
         var where = {
             $and: [ hasCorrectIdentifier, belongsToThisSite]
@@ -62,7 +63,7 @@ module.exports = function PluginRepositoryModule(pb) {
 	};
 
 	publicAPI.loadPluginAvailableToThisSite = function(pluginID, site, cb) {
-		loadPluginOwnedByThisSite(pluginID, site, function(err, plugin){
+		publicAPI.loadPluginOwnedByThisSite(pluginID, site, function(err, plugin){
             if (util.isError(err)) {
                 cb(err, null);
                 return;
@@ -70,7 +71,7 @@ module.exports = function PluginRepositoryModule(pb) {
 
             if(!plugin) {
                 if(site && site !== GLOBAL_SITE) {
-                    loadPluginOwnedByThisSite(pluginID, GLOBAL_SITE, cb);
+                    publicAPI.loadPluginOwnedByThisSite(pluginID, GLOBAL_SITE, cb);
                     return;
                 }
                 cb(err, null);
@@ -88,7 +89,7 @@ module.exports = function PluginRepositoryModule(pb) {
 		var belongsToThisSite = getBelongsToSiteQuery(site);
 		var where = {
 			$and: [idIsInTheList, belongsToThisSite]
-		}
+		};
 		var opts = {
             select: pb.DAO.SELECT_ALL,
             where: where,
@@ -106,7 +107,7 @@ module.exports = function PluginRepositoryModule(pb) {
 		var belongsToThisSite = getBelongsToSiteQuery(site);
 		var where = {
 			$and: [idIsNotInTheList, belongsToThisSite]
-		}
+		};
 		var opts = {
             select: pb.DAO.SELECT_ALL,
             where: where,
