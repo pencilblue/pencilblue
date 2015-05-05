@@ -37,9 +37,14 @@ module.exports = function(pb) {
         var self = this;
         var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
-        pb.SiteService.error404IfSiteDoesNotExist(self.reqHandler, site, function () {   
-            //what happens if it doesnt?
-            self.onSiteValidated(site, cb);
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidated(site, cb);
+            }
+            else {
+                self.reqHandler.serve404();
+                return;
+            }
         });
     };
 

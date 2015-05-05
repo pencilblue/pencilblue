@@ -291,27 +291,20 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
-     * Serves a 404 if the site in question does not exist
-     * @method error404IfSiteDoesNotExist
-     * @param {RequestHandler} requestHandler
-     * @param {String} uid
-     * @param {Function} cb Called if site does exist
+     * Determines if a site exists matching siteUid
+     * @method siteExists
+     * @param {String} siteUid
+     * @param {Function} cb
      */
-    SiteService.error404IfSiteDoesNotExist = function(requestHandler, uid, cb) {
-        if (uid && !(uid === SiteService.GLOBAL_SITE)) {
+    SiteService.siteExists = function(siteUid, cb) {
+        if (pb.config.multisite && !(siteUid === SiteService.GLOBAL_SITE)) {
             var dao = new pb.DAO();
-            dao.exists(SITE_COLL, {uid: uid}, function (err, exists) {
-                if (!exists || util.isError(err)) {
-                    requestHandler.serve404();
-                    return;
-                }
-                else {
-                    cb();
-                }
+            dao.exists(SITE_COLL, {uid: siteUid}, function (err, exists) {
+                cb(err, exists);
             });
         }
         else {
-            cb();
+            cb(null, true);
         }
     };
 
