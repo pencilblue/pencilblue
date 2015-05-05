@@ -22,12 +22,12 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.getActiveSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {active: true} }, cb);
-    }
+    };
 
     SiteService.prototype.getInactiveSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, {where: {active: false}}, cb);
-    }
+    };
 
     SiteService.prototype.getSiteMap = function(cb) {
         var self  = this;
@@ -288,6 +288,31 @@ module.exports = function SiteServiceModule(pb) {
             throw new Error("Site is empty in getCurrentSitePrefix when it never should be");
         }
         return '/' + site;
+    };
+
+    /**
+     * Serves a 404 if the site in question does not exist
+     * @method error404IfSiteDoesNotExist
+     * @param {RequestHandler} requestHandler
+     * @param {String} uid
+     * @param {Function} cb Called if site does exist
+     */
+    SiteService.error404IfSiteDoesNotExist = function(requestHandler, uid, cb) {
+        if (uid && !(uid === SiteService.GLOBAL_SITE)) {
+            var dao = new pb.DAO();
+            dao.exists(SITE_COLL, {uid: uid}, function (err, exists) {
+                if (!exists || util.isError(err)) {
+                    requestHandler.serve404();
+                    return;
+                }
+                else {
+                    cb();
+                }
+            });
+        }
+        else {
+            cb();
+        }
     };
 
     return SiteService;
