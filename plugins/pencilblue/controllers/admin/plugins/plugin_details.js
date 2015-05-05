@@ -22,6 +22,8 @@ module.exports = function(pb) {
     var BaseController = pb.BaseController;
     var PluginService  = pb.PluginService;
     var LocalizationService = pb.LocalizationService;
+    var SiteService = pb.SiteService;
+
 
     /**
     * Interface for viewing plugin details
@@ -59,7 +61,8 @@ module.exports = function(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                 d: obj.details,
                 status: obj.status,
-                is_active: PluginService.isActivePlugin(obj.details.uid)
+                is_active: PluginService.isActivePlugin(obj.details.uid),
+                sitePrefix: SiteService.getCurrentSitePrefix(SiteService.getCurrentSite(self.pathVars.siteid))
             });
 
             //render page
@@ -78,7 +81,8 @@ module.exports = function(pb) {
      */
     PluginDetailsViewController.prototype.getDetails = function(puid, cb) {
         var self = this;
-        var siteId = self.pathVars.siteid ? self.pathVars.siteid : pb.SiteService.GLOBAL_SITE;
+        var siteId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+        var sitePrefix = SiteService.getCurrentSitePrefix(siteId);
 
         var pluginService = new pb.PluginService(siteId);
         pluginService.getPluginBySite(puid, function(err, plugin) {
@@ -90,7 +94,8 @@ module.exports = function(pb) {
             if (plugin) {
                 var obj = {
                     details: plugin,
-                    status:  self.ls.get(PluginService.isActivePlugin(plugin.uid, siteId) ? 'ACTIVE' : 'INACTIVE')
+                    status:  self.ls.get(PluginService.isActivePlugin(plugin.uid, siteId) ? 'ACTIVE' : 'INACTIVE'),
+                    sitePrefix: sitePrefix
                 };
                 cb(err, obj);
                 return;
@@ -101,7 +106,8 @@ module.exports = function(pb) {
             var detailsFile = PluginService.getDetailsPath(puid);
             PluginService.loadDetailsFile(detailsFile, function(err, details) {
                 var obj = {
-                    status: self.ls.get('ERRORED')
+                    status: self.ls.get('ERRORED'),
+                    sitePrefix: sitePrefix
                 };
                 if (util.isError(err)) {
                     obj.details = {
@@ -139,7 +145,7 @@ module.exports = function(pb) {
                 name: 'manage',
                 title: data.details.name,
                 icon: 'chevron-left',
-                href: '/admin/plugins'
+                href: '/admin' + data.sitePrefix + '/plugins'
             }
         ];
     };
