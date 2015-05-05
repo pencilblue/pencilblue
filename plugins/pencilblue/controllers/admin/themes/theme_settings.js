@@ -44,7 +44,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ThemeSettings.prototype.getSettings = function(uid, cb) {
-        this.pluginService.getThemeSettings(uid, cb);
+        this.pluginService.getThemeSettingsBySite(uid, cb);
     };
 
     /**
