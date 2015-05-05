@@ -35,7 +35,7 @@
                             <td><i class="fa fa-check" ng-if="t.uid === activeTheme"></i></td>
                             <td style="text-align: right">
                                 <div class="btn-group">
-                                    <a class="btn btn-sm btn-default" href="/admin{{sitePrefix}}/themes/{{t.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
+                                    <a class="btn btn-sm btn-default" ng-href="/admin{{sitePrefix}}/themes/{{t.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
                                     <button type="button" class="btn btn-sm btn-default" ng-click="pluginAction('reset_settings', t.uid)"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_RESET_SETTINGS^</button>
                                 </div>
                             </td>
