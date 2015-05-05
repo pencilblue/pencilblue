@@ -837,7 +837,7 @@ module.exports = function RequestHandlerModule(pb) {
                 path_vars: pathVars,
                 query: self.url.query,
                 body: body,
-                site: this.site
+                site: self.site
             };
             cInstance.init(props, function(){
                 self.onControllerInitialized(cInstance, themeRoute);
