@@ -45,7 +45,7 @@ module.exports = function(pb) {
             }
 
             //get active theme
-            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.site);
+            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.site);
             settings.get('active_theme', function(err, activeTheme) {
                 if (util.isError(err)) {
                     throw err;
