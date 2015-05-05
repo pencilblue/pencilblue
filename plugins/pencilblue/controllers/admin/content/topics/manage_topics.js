@@ -23,7 +23,15 @@ module.exports = function(pb) {
     /**
      * Interface for managing topics
      */
-    function ManageTopics() {}
+    function ManageTopics() {
+    
+        /**
+         * 
+         * @property service
+         * @type {TopicService}
+         */
+        this.service = new pb.TopicService();
+    }
     util.inherits(ManageTopics, pb.BaseController);
 
     var SUB_NAV_KEY = 'manage_topics';
@@ -31,12 +39,7 @@ module.exports = function(pb) {
     ManageTopics.prototype.render = function(cb) {
         var self = this;
 
-        var opts = {
-            select: pb.DAO.PROJECT_ALL,
-            where: pb.DAO.ANYWHERE
-        };
-        var dao  = new pb.DAO();
-        dao.q('topic', opts, function(err, topics) {
+        this.service.getAll(function(err, topics) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
             }
