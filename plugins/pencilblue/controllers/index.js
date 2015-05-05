@@ -249,7 +249,7 @@ module.exports = function IndexModule(pb) {
             service.findById(page, articleCallback);
         }
         else{
-            service.find({}, articleCallback);
+            service.find({site: this.site}, articleCallback);
         }
     };
 

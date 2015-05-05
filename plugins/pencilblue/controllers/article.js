@@ -41,7 +41,7 @@ module.exports = function ArticleModule(pb) {
             }
         }
         else {
-            where = {url: custUrl};
+            where = {url: custUrl, site: self.site};
         }
 
         // fall through to URL key
