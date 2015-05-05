@@ -31,10 +31,10 @@ module.exports = function(pb) {
 
     ManagePages.prototype.render = function(cb) {
         var self = this;
-
+        var siteid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
         var opts = {
             select: pb.DAO.PROJECT_ALL,
-            where: pb.DAO.ANYWHERE,
+            where: {site: siteid},
             order: {headline: pb.DAO.ASC}
         };
         var dao  = new pb.DAO();
@@ -43,7 +43,7 @@ module.exports = function(pb) {
                 return self.reqHandler.serveError(err);
             }
             else if(pages.length === 0) {
-                return self.redirect('/admin/content/pages/new', cb);
+                return self.redirect('/admin' + pb.SiteService.getCurrentSitePrefix(siteid) + '/content/pages/new', cb);
             }
 
             pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
