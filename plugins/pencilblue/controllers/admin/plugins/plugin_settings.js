@@ -100,7 +100,8 @@ module.exports = function(pb) {
                 //setup angular
                 var data = {
                     plugin: plugin,
-                    settingType: self.getType()
+                    settingType: self.getType(),
+                    sitePrefix: self.getSitePrefix(self.getSite())
                 };
                 var angularObjects = pb.ClientJs.getAngularObjects({
                     pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, data),
@@ -109,7 +110,7 @@ module.exports = function(pb) {
                     settings: clone,
                     pluginUID: uid,
                     type: data.settingType,
-                    sitePrefix: self.getSitePrefix(self.getSite())
+                    sitePrefix: data.sitePrefix
                 });
 
                 //render page
@@ -228,17 +229,16 @@ module.exports = function(pb) {
     };
 
     /**
-     * @static
      * @method render
      *
      */
-    PluginSettingsFormController.geSubNavItems = function(key, ls, data) {
+    PluginSettingsFormController.getSubNavItems = function(key, ls, data) {
         return [
             {
                 name: 'manage_plugins',
                 title: data.plugin.name + ' ' + ls.get('SETTINGS'),
                 icon: 'chevron-left',
-                href: '/admin/' + data.settingType
+                href: '/admin' + data.sitePrefix + '/' + data.settingType
             }
         ];
     };
@@ -347,7 +347,7 @@ module.exports = function(pb) {
     };     
 
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsFormController.geSubNavItems);
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsFormController.getSubNavItems);
 
     //exports
     return PluginSettingsFormController;
