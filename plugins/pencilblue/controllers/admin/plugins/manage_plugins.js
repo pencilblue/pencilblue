@@ -54,7 +54,7 @@ module.exports = function(pb) {
                 //setup angular
                 var angularObjects = pb.ClientJs.getAngularObjects({
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, { sitePrefix: prefix }),
                     installedPlugins: map.active,
                     inactivePlugins: map.inactive,
                     availablePlugins: map.available,
@@ -77,7 +77,7 @@ module.exports = function(pb) {
                 name: 'manage_plugins',
                 title: ls.get('MANAGE_PLUGINS'),
                 icon: 'refresh',
-                href: '/admin/plugins'
+                href: '/admin' + data.sitePrefix + '/plugins'
             }
         ];
     };
