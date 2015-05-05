@@ -17,6 +17,7 @@
 
 //dependencies
 var util              = require('../util.js');
+var async             = require('async');
 var AsyncEventEmitter = require('async-eventemitter');
 
 module.exports = function(pb) {

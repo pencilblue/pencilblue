@@ -26,6 +26,7 @@ module.exports = function(pb) {
      * 
      * @class TopicApiController
      * @constructor
+     * @extends BaseApiController
      */
     function TopicApiController(){
     
@@ -36,65 +37,7 @@ module.exports = function(pb) {
          */
         this.service = new TopicService();
     }
-    util.inherits(TopicApiController, pb.BaseController);
-
-    TopicApiController.prototype.get = function(cb) {
-        var id = this.pathVars.id;
-        this.service.get(id, this.handleGet(cb));
-    };
-                         
-    TopicApiController.prototype.handleGet = function(cb) {
-        var self = this;
-        return function(err, obj) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            else if (util.isNullOrUndefined(obj)) {
-                return self.reqHandler.serve404();    
-            }
-            
-            cb({
-                content: JSON.stringify(obj)
-            });
-        };
-    };
-    
-    TopicApiController.prototype.post = function(cb) {
-        var dto = this.body || {};
-        delete dto[pb.DAO.getIdField()];
-        this.service.save(dto, this.handleSave(cb));
-    };
-    
-    TopicApiController.prototype.put = function(cb) {
-        var dto = this.body || {};
-        this.service.save(dto, this.handleSave(cb));
-    };
-    
-    TopicApiController.prototype.handleSave = function(cb) {
-        return this.handleGet(cb);
-    };
-
-    TopicApiController.prototype.delete = function(cb) {
-        var id = this.pathVars.id;
-        this.service.deleteById(id, this.handleDelete(cb));
-    };
-    
-    TopicApiController.prototype.handleDelete = function(cb) {
-        var self = this;
-        return function(err, obj) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            else if (util.isNullOrUndefined(obj)) {
-                return self.reqHandler.serve404();    
-            }
-            
-            cb({
-                content: '',
-                code: 204
-            });
-        };
-    };
+    util.inherits(TopicApiController, pb.BaseApiController);
 
     //exports
     return TopicApiController;

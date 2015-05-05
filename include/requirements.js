@@ -111,6 +111,7 @@ module.exports = function PB(config) {
     pb.JsonBodyParser      = BodyParsers.JsonBodyParser;
     pb.FormBodyParser      = BodyParsers.FormBodyParser;
     pb.BaseController      = require(path.join(config.docRoot, '/controllers/base_controller.js'))(pb);
+    pb.BaseApiController   = require(path.join(config.docRoot, '/controllers/api/base_api_controller.js'))(pb);
     pb.ViewController      = require(path.join(config.docRoot, '/controllers/view_controller.js'))(pb);
     pb.FormController      = require(path.join(config.docRoot, '/controllers/form_controller.js'))(pb);
     pb.DeleteController    = require(path.join(config.docRoot, '/controllers/delete_controller.js'))(pb);

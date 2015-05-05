@@ -1012,6 +1012,15 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js')
         },
         {
+            method: 'get',
+            path: "/api/content/topics",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js')
+        },
+        {
             method: 'delete',
             path: "/api/content/topics/:id",
             handler: "delete",
