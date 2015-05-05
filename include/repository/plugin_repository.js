@@ -22,10 +22,10 @@ module.exports = function PluginRepositoryModule(pb) {
 		};
 		var tasks = {
 			sitePlugins: function(callback) {
-				dao.q(PLUGIN_COLL, siteWhere, callback);
+				dao.q(PLUGIN_COLL, {where: siteWhere}, callback);
 			},
 			globalPlugins: function(callback) {
-				dao.q(PLUGIN_COLL, globalWhere, callback);
+				dao.q(PLUGIN_COLL, {where: globalWhere}, callback);
 			}
 		};
 		async.parallel(tasks, function(err, results) {
