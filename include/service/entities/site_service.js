@@ -279,6 +279,7 @@ module.exports = function SiteServiceModule(pb) {
      * used for '/admin' + prefix so controllers (both node and angular) can generate urls conforming to
      * multitenant and single tenant setups
      * @param site
+     * @returns {string} /site if multisite is enabled, empty if not
      */
     SiteService.getCurrentSitePrefix = function (site) {
         if (!pb.config.multisite) {

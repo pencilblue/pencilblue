@@ -34,7 +34,6 @@ module.exports = function(pb) {
          * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new pb.PluginService();
     }
     util.inherits(ThemeSettings, PluginSettingsFormController);
 
@@ -45,7 +44,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ThemeSettings.prototype.getSettings = function(uid, cb) {
-        this.pluginService.getThemeSettings(uid, cb);
+        this.pluginService.getThemeSettingsBySite(uid, cb);
     };
 
     /**
