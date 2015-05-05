@@ -38,17 +38,45 @@ module.exports = function(pb) {
     }
     util.inherits(TopicService, BaseObjectService);
     
+    /**
+     * 
+     * @static
+     * @method 
+     * @param {Object} context
+     * @param {TopicService} service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
     TopicService.format = function(context, cb) {
         var dto = context.data;
         dto.name = pb.BaseController.sanitize(dto.name);
         cb(null);
     };
     
+    /**
+     * 
+     * @static
+     * @method 
+     * @param {Object} context
+     * @param {TopicService} service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
     TopicService.merge = function(context, cb) {
         context.object.name = context.data.name;
         cb(null);
     };
     
+    /**
+     * 
+     * @static
+     * @method validate
+     * @param {Object} context
+     * @param {Object} context.data The DTO that was provided for persistence
+     * @param {TopicService} context.service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
     TopicService.validate = function(context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
@@ -74,10 +102,11 @@ module.exports = function(pb) {
         });
     };
     
-    //event Registries
+    //Event Registries
     BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, TopicService.format);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, TopicService.merge);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, TopicService.validate);
     
+    //exports
     return TopicService;
 };

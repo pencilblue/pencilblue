@@ -174,7 +174,7 @@ module.exports = function(pb) {
             }
             
             cb({
-                content: JSON.stringify(obj)
+                content: obj
             });
         };
     };
@@ -196,7 +196,7 @@ module.exports = function(pb) {
             }
             
             cb({
-                content: JSON.stringify(obj),
+                content: obj,
                 code: isCreate ? 201: 200
             });
         };

@@ -939,7 +939,16 @@ module.exports = function RequestHandlerModule(pb) {
             }
             this.resp.setHeader('content-type', contentType);
             this.resp.writeHead(data.code);
-            this.resp.end(data.content);
+            
+            //write content
+            var content = data.content;
+            if (Buffer.isBuffer(content)) {
+                /* no op */
+            }
+            else if (util.isObject(data.content)) {
+                content = JSON.stringify(content);
+            }
+            this.resp.end(content);
         }
         catch(e) {
             pb.log.error('RequestHandler: '+e.stack);

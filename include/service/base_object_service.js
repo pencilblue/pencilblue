@@ -356,6 +356,15 @@ module.exports = function(pb) {
         return error;
     };
     
+    BaseObjectService.sanitize = function(valStr, config) {
+        return pb.BaseController.sanitize(valStr, config);
+    };
+    
+    BaseObjectService.getDate = function(dateStr) {
+        var val = Date.parse(dateStr);
+        return isNaN(val) ? null : new Date(val);
+    };
+    
     BaseObjectService.on = function(event, listener) {
         return events.on(event, listener);
     };
