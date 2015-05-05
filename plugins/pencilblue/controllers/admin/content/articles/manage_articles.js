@@ -32,8 +32,8 @@ module.exports = function(pb) {
     ManageArticles.prototype.render = function(cb) {
         var self = this;
         var dao  = new pb.DAO();
-
-        var where = {};
+        var siteid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+        var where = {site:siteid};
         if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: pb.SecurityService.ACCESS_EDITOR})) {
             where.author = this.session.authentication.user_id;
         }
@@ -49,7 +49,7 @@ module.exports = function(pb) {
                 return self.reqHandler.serveError(err);
             }
             else if (articles.length <= 0) {
-                return self.redirect('/admin/content/articles/new', cb);
+                return self.redirect('/admin' + pb.SiteService.getCurrentSitePrefix(siteid) + '/content/articles/new', cb);
             }
 
             pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {

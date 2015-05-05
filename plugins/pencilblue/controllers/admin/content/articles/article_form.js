@@ -86,6 +86,9 @@ module.exports = function(pb) {
     };
 
     ArticleForm.prototype.getAngularObjects = function(tabs, data) {
+        if(pb.config.multisite && !data.article.site) {
+            data.article.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
+        }
         if(data.article[pb.DAO.getIdField()]) {
             var media = [];
             var i, j;
