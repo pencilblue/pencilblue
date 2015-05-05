@@ -42,7 +42,8 @@ module.exports = function(pb) {
     var SUB_NAV_KEY = 'plugin_settings';
 
     PluginSettingsFormController.prototype.initializePluginService = function initializePluginService() {
-        this.pluginService = new pb.PluginService(this.getSite());
+        this.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
+        this.pluginService = new pb.PluginService(this.site);
     }; 
     
     PluginSettingsFormController.prototype.get = function(cb) {
@@ -97,11 +98,12 @@ module.exports = function(pb) {
                     }
                 ];
 
+                var prefix = pb.SiteService.getCurrentSitePrefix(self.site);
                 //setup angular
                 var data = {
                     plugin: plugin,
                     settingType: self.getType(),
-                    sitePrefix: self.getSitePrefix(self.getSite())
+                    sitePrefix: prefix
                 };
                 var angularObjects = pb.ClientJs.getAngularObjects({
                     pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, data),
@@ -110,7 +112,7 @@ module.exports = function(pb) {
                     settings: clone,
                     pluginUID: uid,
                     type: data.settingType,
-                    sitePrefix: data.sitePrefix
+                    sitePrefix: prefix
                 });
 
                 //render page
@@ -337,14 +339,6 @@ module.exports = function(pb) {
         }
         return null;
     };
-
-    PluginSettingsFormController.prototype.getSite = function () {
-        return pb.SiteService.getCurrentSite(this.pathVars.siteid);
-    };
-
-    PluginSettingsFormController.prototype.getSitePrefix = function getSitePrefix(site) {
-        return pb.SiteService.getCurrentSitePrefix(site);
-    };     
 
     //register admin sub-nav
     pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsFormController.getSubNavItems);
