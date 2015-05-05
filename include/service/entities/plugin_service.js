@@ -326,7 +326,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.getThemeSettings = function(pluginName, cb) {
         var settingService = getPluginSettingService(this);
-        settingService.getThemeSettings(pluginName, cb);
+        settingService.getThemeSettingsBySite(pluginName, cb);
     };
 
     /**

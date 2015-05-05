@@ -47,7 +47,7 @@ module.exports = function PluginRepositoryModule(pb) {
 		var where = {
 			$and: [ hasATheme, belongsToSite ]
 		};
-		dao.q(PLUGIN_COLL, where, cb);
+		dao.q(PLUGIN_COLL, {where: where}, cb);
 	};
 
 	publicAPI.loadPluginOwnedByThisSite = function(pluginID, site, cb) {
