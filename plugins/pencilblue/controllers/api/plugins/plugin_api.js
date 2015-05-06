@@ -43,9 +43,21 @@ module.exports = function(pb) {
          * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new PluginService();
     }
     util.inherits(PluginApiController, BaseController);
+
+    /**
+     * Overriding the default init to provide site info as well as a site-aware plugin service
+     *
+     * @param props
+     * @param cb
+     */
+    PluginApiController.prototype.init = function (props, cb) {
+        this.siteId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.pluginService = new PluginService(this.siteId);
+
+        BaseController.prototype.init.call(this, props, cb);
+    };
 
     //constants
     /**
@@ -74,8 +86,6 @@ module.exports = function(pb) {
     PluginApiController.prototype.render = function(cb) {
         var action     = this.pathVars.action;
         var identifier = this.pathVars.id;
-        this.site       = pb.SiteService.getCurrentSite(this.pathVars.siteid);
-        this.pluginService = new pb.PluginService(this.site);
 
         //validate action
         var errors = [];
@@ -242,7 +252,7 @@ module.exports = function(pb) {
             }
 
             var theme = plugin ? plugin.uid : uid;
-            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.site);
+            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.siteId, true);
             settings.set('active_theme', theme, function(err, result) {
                 if (util.isError(err)) {
                     var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('SET_THEME_FAILED'), uid), [err.message]);
