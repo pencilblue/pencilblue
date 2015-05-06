@@ -22,12 +22,12 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.getActiveSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {active: true} }, cb);
-    }
+    };
 
     SiteService.prototype.getInactiveSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, {where: {active: false}}, cb);
-    }
+    };
 
     SiteService.prototype.getSiteMap = function(cb) {
         var self  = this;
@@ -289,6 +289,24 @@ module.exports = function SiteServiceModule(pb) {
             throw new Error("Site is empty in getCurrentSitePrefix when it never should be");
         }
         return '/' + site;
+    };
+
+    /**
+     * Determines if a site exists matching siteUid
+     * @method siteExists
+     * @param {String} siteUid
+     * @param {Function} cb
+     */
+    SiteService.siteExists = function(siteUid, cb) {
+        if (pb.config.multisite && !(siteUid === SiteService.GLOBAL_SITE)) {
+            var dao = new pb.DAO();
+            dao.exists(SITE_COLL, {uid: siteUid}, function (err, exists) {
+                cb(err, exists);
+            });
+        }
+        else {
+            cb(null, true);
+        }
     };
 
     return SiteService;

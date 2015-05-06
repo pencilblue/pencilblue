@@ -14,20 +14,18 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util           = pb.util;
     var BaseController = pb.BaseController;
-    
+
     /**
      * Interface for managing plugins
      */
     function ManagePlugins(){}
-
-    //dependencies
-    var BaseController = pb.BaseController;
 
     //inheritance
     util.inherits(ManagePlugins, BaseController);
@@ -37,36 +35,53 @@ module.exports = function(pb) {
 
     ManagePlugins.prototype.render = function(cb) {
         var self = this;
-
-        var siteid = self.pathVars.siteid;
         var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidated(site, cb);
+            }
+            else {
+                self.reqHandler.serve404();
+                return;
+            }
+        });
+    };
+
+    ManagePlugins.prototype.onSiteValidated = function onSiteValidated(site, cb) {
+        var self = this;
         var prefix = pb.SiteService.getCurrentSitePrefix(site);
 
         //get the data
-        var pluginService = new pb.PluginService(siteid);
-        pluginService.getPluginMap(function(err, map) {
-            if (util.isError(err)) {
-                self.reqHandler.serveError(err);
-                return;
+        var tasks = {
+            pluginMap: function(callback) {
+                var pluginService = new pb.PluginService(site);
+                pluginService.getPluginMap(callback);
+            },
+            siteName: function(callback) {
+                var siteService = new pb.SiteService();
+                siteService.getSiteNameByUid(site, function(siteName) {
+                    callback(null, siteName);
+                });
             }
-            var siteService = new pb.SiteService();
-            siteService.getSiteNameByUid(siteid, function(siteName) {
-                //setup angular
-                var angularObjects = pb.ClientJs.getAngularObjects({
-                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, { sitePrefix: prefix }),
-                    installedPlugins: map.active,
-                    inactivePlugins: map.inactive,
-                    availablePlugins: map.available,
-                    sitePrefix: prefix,
-                    siteUid: siteid,
-                    siteName: siteName
-                });
-                //load the template
-                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-                self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
-                    cb({content: result});
-                });
+        };
+
+        async.parallel(tasks, function(err, results) {
+            //setup angular
+            var angularObjects = pb.ClientJs.getAngularObjects({
+                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, { sitePrefix: prefix }),
+                installedPlugins: results.pluginMap.active,
+                inactivePlugins: results.pluginMap.inactive,
+                availablePlugins: results.pluginMap.available,
+                sitePrefix: prefix,
+                siteUid: site,
+                siteName: results.siteName
+            });
+            //load the template
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+            self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
+                cb({content: result});
             });
         });
     };
