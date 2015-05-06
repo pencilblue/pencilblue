@@ -424,6 +424,7 @@ module.exports = function PluginSettingServiceModule(pb) {
                     plugin_id: plugin[pb.DAO.getIdField()].toString(),
                     settings: details.theme.settings
                 };
+                baseDoc[SITE_FIELD] = self.site;
                 var settings = pb.DocumentCreator.create('theme_settings', baseDoc);
 
                 //save it
@@ -484,14 +485,14 @@ module.exports = function PluginSettingServiceModule(pb) {
 
     function getAdminPluginSettingsService(self) {
     	if(!self.adminPluginSettingsService) {
-    		self.adminPluginSettingsService = genSettingsService('plugin_settings', this.caching.useMemory, this.caching.useCache, 'PluginSettingService', this.site, true);
+    		self.adminPluginSettingsService = genSettingsService('plugin_settings', self.caching.useMemory, self.caching.useCache, 'PluginSettingService', self.site, true);
     	}
     	return self.adminPluginSettingsService;
     }
 
     function getAdminThemeSettingsService(self) {
     	if(!self.adminThemeSettingsService) {
-    		self.adminThemeSettingsService = genSettingsService('theme_settings', this.caching.useMemory, this.caching.useCache, 'ThemeSettingService', this.site);
+    		self.adminThemeSettingsService = genSettingsService('theme_settings', self.caching.useMemory, self.caching.useCache, 'ThemeSettingService', self.site, true);
     	}
     	return self.adminThemeSettingsService;
     }

@@ -43,8 +43,10 @@ module.exports = function SettingsModule(pb) {
      * @param {Boolean} useMemory
      * @param {Boolean} useCache
      * @return {SimpleLayeredService}
+     * @param site {String} siteId
+     * @param onlyThisSite {Boolean} whether this service should only return setting specified by site
      */
-    SettingServiceFactory.getService = function(useMemory, useCache, site) {
+    SettingServiceFactory.getService = function(useMemory, useCache, site, onlyThisSite) {
         var objType    = 'setting';
         var keyField   = 'key';
         var valueField = 'value';
@@ -57,18 +59,19 @@ module.exports = function SettingsModule(pb) {
                 valueField: valueField,
                 keyField: keyField,
                 timeout: pb.config.settings.memory_timeout,
-                site: site
+                site: site,
+                onlyThisSite: onlyThisSite
             };
             services.push(new pb.MemoryEntityService(options));
         }
 
         //add cache service
         if (useCache) {
-            services.push(new pb.CacheEntityService(objType, valueField, keyField, site));
+            services.push(new pb.CacheEntityService(objType, valueField, keyField, site, onlyThisSite));
         }
 
         //always add db service
-        services.push(new pb.DBEntityService(objType, valueField, keyField, site));
+        services.push(new pb.DBEntityService(objType, valueField, keyField, site, onlyThisSite));
 
         return new pb.SimpleLayeredService(services, 'SettingService' + count++);
     };

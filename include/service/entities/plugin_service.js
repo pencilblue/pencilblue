@@ -330,6 +330,17 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
+     * Retrieves the theme settings for the specified plugin only for the site set in the current plugin service
+     *
+     * @param pluginName
+     * @param cb
+     */
+    PluginService.prototype.getThemeSettingsBySite = function (pluginName, cb) {
+        var settingService = getPluginSettingService(this);
+        settingService.getThemeSettingsBySite(pluginName, cb);
+    };
+
+    /**
      * Retrieves the theme settings for a plugin as hash of key/value pairs.  This 
      * differs from the getThemeSettings function because the getThemeSettings function 
      * provides the settings in their raw form as an array of objects containing 

@@ -36,14 +36,17 @@ module.exports = function(pb) {
         var self = this;
 
         //get plugs with themes
-        var pluginService = new pb.PluginService();
-        pluginService.getPluginsWithThemes(function(err, themes) {
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+        var sitePrefix = pb.SiteService.getCurrentSitePrefix(site);
+        var pluginService = new pb.PluginService(site);
+        pluginService.getPluginsWithThemesBySite(function (err, themes) {
             if (util.isError(err)) {
                 throw result;
             }
 
             //get active theme
-            pb.settings.get('active_theme', function(err, activeTheme) {
+            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, site, true);
+            settings.get('active_theme', function(err, activeTheme) {
                 if (util.isError(err)) {
                     throw err;
                 }
@@ -56,7 +59,7 @@ module.exports = function(pb) {
 
                 });
 
-                pb.settings.get('site_logo', function(err, logo) {
+                settings.get('site_logo', function(err, logo) {
                     if(util.isError(err)) {
                         pb.log.error("ManageThemes: Failed to retrieve site logo: "+err.stack);
                     }
@@ -71,15 +74,20 @@ module.exports = function(pb) {
                         }
                     }
 
+                    var subNavData = {
+                        sitePrefix: sitePrefix
+                    };
+
                     //setup angular
                     var angularObjects = pb.ClientJs.getAngularObjects({
                         navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes'], self.ls),
-                        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
+                        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, subNavData),
                         tabs: self.getTabs(),
                         themes: themes,
                         options: options,
                         siteLogo: siteLogo,
-                        activeTheme: activeTheme
+                        activeTheme: activeTheme,
+                        sitePrefix: sitePrefix
                     });
 
                     self.ts.registerLocal('image_title', '');
@@ -113,7 +121,7 @@ module.exports = function(pb) {
                 name: 'manage_themes',
                 title: ls.get('MANAGE_THEMES'),
                 icon: 'refresh',
-                href: '/admin/themes'
+                href: '/admin' + data.sitePrefix + '/themes'
             }
        ];
     };

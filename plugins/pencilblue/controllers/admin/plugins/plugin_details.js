@@ -16,12 +16,14 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
     var BaseController = pb.BaseController;
     var PluginService  = pb.PluginService;
     var LocalizationService = pb.LocalizationService;
+    var SiteService = pb.SiteService;
+
 
     /**
     * Interface for viewing plugin details
@@ -42,8 +44,30 @@ module.exports = function(pb) {
      */
     PluginDetailsViewController.prototype.render = function(cb) {
         var self = this;
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
-        this.getDetails(this.pathVars.id, function(err, obj) {
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidated(site, cb);
+            }
+            else {
+                self.reqHandler.serve404();
+                return;
+            }
+        });
+    };
+
+    /**
+     *
+     * @method onSiteValidated
+     * @param site
+     * @param cb
+     *
+     */
+    PluginDetailsViewController.prototype.onSiteValidated = function onSiteValidated(site, cb) {
+        var self = this;
+
+        this.getDetails(this.pathVars.id, site, function(err, obj) {
             if (util.isError(err)) {
                 throw err;
             }
@@ -59,7 +83,8 @@ module.exports = function(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                 d: obj.details,
                 status: obj.status,
-                is_active: PluginService.isActivePlugin(obj.details.uid)
+                is_active: PluginService.isActivePlugin(obj.details.uid),
+                sitePrefix: SiteService.getCurrentSitePrefix(SiteService.getCurrentSite(self.pathVars.siteid))
             });
 
             //render page
@@ -76,11 +101,11 @@ module.exports = function(pb) {
      * @method getDetails
      *
      */
-    PluginDetailsViewController.prototype.getDetails = function(puid, cb) {
+    PluginDetailsViewController.prototype.getDetails = function(puid, site, cb) {
         var self = this;
-        var siteId = self.pathVars.siteid ? self.pathVars.siteid : pb.SiteService.GLOBAL_SITE;
+        var sitePrefix = SiteService.getCurrentSitePrefix(site);
 
-        var pluginService = new pb.PluginService(siteId);
+        var pluginService = new pb.PluginService(site);
         pluginService.getPluginBySite(puid, function(err, plugin) {
             if (util.isError(err)) {
                 cb(err, plugin);
@@ -90,7 +115,8 @@ module.exports = function(pb) {
             if (plugin) {
                 var obj = {
                     details: plugin,
-                    status:  self.ls.get(PluginService.isActivePlugin(plugin.uid, siteId) ? 'ACTIVE' : 'INACTIVE')
+                    status:  self.ls.get(PluginService.isActivePlugin(plugin.uid, site) ? 'ACTIVE' : 'INACTIVE'),
+                    sitePrefix: sitePrefix
                 };
                 cb(err, obj);
                 return;
@@ -101,7 +127,8 @@ module.exports = function(pb) {
             var detailsFile = PluginService.getDetailsPath(puid);
             PluginService.loadDetailsFile(detailsFile, function(err, details) {
                 var obj = {
-                    status: self.ls.get('ERRORED')
+                    status: self.ls.get('ERRORED'),
+                    sitePrefix: sitePrefix
                 };
                 if (util.isError(err)) {
                     obj.details = {
@@ -139,7 +166,7 @@ module.exports = function(pb) {
                 name: 'manage',
                 title: data.details.name,
                 icon: 'chevron-left',
-                href: '/admin/plugins'
+                href: '/admin' + data.sitePrefix + '/plugins'
             }
         ];
     };
