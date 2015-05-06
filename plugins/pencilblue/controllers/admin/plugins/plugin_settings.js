@@ -47,9 +47,23 @@ module.exports = function(pb) {
     }; 
     
     PluginSettingsFormController.prototype.get = function(cb) {
-        var self = this;console.log(this.constructor.name);
-        self.initializePluginService();
+        var self = this;
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidatedGet(cb);
+                self.initializePluginService();
+            }
+            else {
+                self.reqHandler.serve404();
+            }
+        });
+    };
+
+    PluginSettingsFormController.prototype.onSiteValidatedGet = function (cb) {
+        var self = this;
+        console.log(this.constructor.name);
         var uid = this.pathVars.id;
         this.pluginService.getPluginBySite(uid, function(err, plugin) {
             if (util.isError(err)) {
@@ -126,7 +140,23 @@ module.exports = function(pb) {
     
     
     PluginSettingsFormController.prototype.post = function(cb) {
-        var self = this;console.log(this.constructor.name);
+        var self = this;
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidatedPost(cb);
+                self.initializePluginService();
+            }
+            else {
+                self.reqHandler.serve404();
+            }
+        });
+    };
+
+    PluginSettingsFormController.prototype.onSiteValidatedPost = function (cb) {
+        var self = this;
+        console.log(this.constructor.name);
         var post = this.body;
 
         self.initializePluginService();
