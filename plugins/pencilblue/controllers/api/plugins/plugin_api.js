@@ -46,19 +46,6 @@ module.exports = function(pb) {
     }
     util.inherits(PluginApiController, BaseController);
 
-    /**
-     * Overriding the default init to provide site info as well as a site-aware plugin service
-     *
-     * @param props
-     * @param cb
-     */
-    PluginApiController.prototype.init = function (props, cb) {
-        this.siteId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.pluginService = new PluginService(this.siteId);
-
-        BaseController.prototype.init.call(this, props, cb);
-    };
-
     //constants
     /**
      * The hash of actions that are available to execute for this controller. When
@@ -275,7 +262,7 @@ module.exports = function(pb) {
             }
 
             var theme = plugin ? plugin.uid : uid;
-            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.siteId, true);
+            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.site, true);
             settings.set('active_theme', theme, function(err, result) {
                 if (util.isError(err)) {
                     var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('SET_THEME_FAILED'), uid), [err.message]);
