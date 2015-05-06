@@ -36,6 +36,28 @@ module.exports = function AdminIndexControllerModule(pb) {
      */
     AdminIndexController.prototype.render = function(cb) {
         var self = this;
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidated(cb);
+            }
+            else {
+                self.reqHandler.serve404();
+                return;
+            }
+        });
+    };
+
+    /**
+     *
+     * @method onSiteValidated
+     * @param site
+     * @param cb
+     *
+     */
+    AdminIndexController.prototype.onSiteValidated = function onSiteValidated(cb) {
+        var self = this;
 
         //gather all the data
         this.gatherData(function(err, data) {
@@ -48,7 +70,7 @@ module.exports = function AdminIndexControllerModule(pb) {
                {
                    name: name,
                    count: data.articleCount,
-                   href: '/admin/content/articles',
+                   href: '/admin/content/articles'
                },
             ];
 

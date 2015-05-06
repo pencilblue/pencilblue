@@ -62,7 +62,7 @@ module.exports = function(pb) {
         uninstall: true,
         reset_settings: true,
         initialize: true,
-        set_theme: true,
+        set_theme: true
     };
 
     /**
@@ -72,10 +72,30 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     PluginApiController.prototype.render = function(cb) {
+        var self = this;
+        var site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
+
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidated(site, cb);
+            }
+            else {
+                self.reqHandler.serve404();
+                return;
+            }
+        });
+    };
+
+    /**
+     * Triggers after the site is validated
+     * @method onSiteValidated
+     * @param site
+     * @param cb
+     */
+    PluginApiController.prototype.onSiteValidated = function onSiteValidated(site, cb) {
         var action     = this.pathVars.action;
         var identifier = this.pathVars.id;
-        this.site       = pb.SiteService.getCurrentSite(this.pathVars.siteid);
-        this.pluginService = new pb.PluginService(this.site);
+        this.pluginService = new pb.PluginService(site);
 
         //validate action
         var errors = [];
