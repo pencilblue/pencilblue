@@ -35,7 +35,7 @@ module.exports = function ArticleModule(pb) {
         //check for object ID as the custom URL
         var where  = null;
         if(pb.validation.isIdStr(custUrl)) {
-            where = {_id: pb.DAO.getObjectID(custUrl)};
+            where = {_id: pb.DAO.getObjectID(custUrl), site: self.site};
             if (pb.log.isSilly()) {
                 pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
             }
@@ -46,9 +46,9 @@ module.exports = function ArticleModule(pb) {
 
         // fall through to URL key
         if (where === null) {
-            where = {url: custUrl};
+            where = {url: custUrl, site: self.site};
         }
-        
+
         //attempt to load object
         var dao = new pb.DAO();
         dao.loadByValues(where, 'article', function(err, article) {
@@ -58,7 +58,7 @@ module.exports = function ArticleModule(pb) {
                     return;
                 }
 
-                dao.loadByValues({url: custUrl}, 'article', function(err, article) {
+                dao.loadByValues({url: custUrl, site: self.site}, 'article', function(err, article) {
                     if (util.isError(err) || article == null) {
                         self.reqHandler.serve404();
                         return;
