@@ -34,9 +34,22 @@ module.exports = function(pb) {
 
     ManageThemes.prototype.render = function(cb) {
         var self = this;
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidated(site, cb);
+            }
+            else {
+                self.reqHandler.serve404();
+            }
+        });
+    };
+
+    ManageThemes.prototype.onSiteValidated = function (site, cb) {
+        var self = this;
 
         //get plugs with themes
-        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
         var sitePrefix = pb.SiteService.getCurrentSitePrefix(site);
         var pluginService = new pb.PluginService(site);
         pluginService.getPluginsWithThemesBySite(function (err, themes) {
