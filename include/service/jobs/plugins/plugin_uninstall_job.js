@@ -201,7 +201,7 @@ module.exports = function PluginUninstallJobModule(pb) {
 
                 //retrieve the plugin so we can see if the value matches what we
                 //are uninstalling
-                var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, site);
+                var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, site, true);
                 settings.get('active_theme', function(err, activeTheme) {
                     if (util.isError(err)) {
                         return callback(err, false);
