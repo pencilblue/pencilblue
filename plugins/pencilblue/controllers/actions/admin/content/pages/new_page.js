@@ -31,7 +31,7 @@ module.exports = function(pb) {
 
     NewPagePostController.prototype.render = function(cb) {
         var self = this;
-
+        var site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
         this.getJSONPostParams(function(err, post) {
             if(self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR || !post.author) {
               post.author = self.session.authentication.user[pb.DAO.getIdField()];
@@ -52,35 +52,25 @@ module.exports = function(pb) {
             post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
             var pageDocument = pb.DocumentCreator.create('page', post, ['meta_keywords']);
             var dao          = new pb.DAO();
-            dao.count('page', {url: pageDocument.url}, function(err, count) {
-                if(util.isError(err) || count > 0) {
+            pb.RequestHandler.urlExists(pageDocument.url, post.id, pageDocument.site, function(err, exists) {
+                if(util.isError(err) || exists) {
                     cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
                     });
                     return;
                 }
-
-                dao.count('article', {url: pageDocument.url}, function(err, count) {
-                    if(util.isError(err) || count > 0) {
+                dao.save(pageDocument, function(err, result) {
+                    if(util.isError(err)) {
+                        pb.log.error(err);
                         cb({
-                            code: 400,
+                            code: 500,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
                         });
                         return;
                     }
 
-                    dao.save(pageDocument, function(err, result) {
-                        if(util.isError(err)) {
-                            cb({
-                                code: 500,
-                                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
-                            });
-                            return;
-                        }
-
-                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, pageDocument.headline + ' ' + self.ls.get('CREATED'), result)});
-                    });
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, pageDocument.headline + ' ' + self.ls.get('CREATED'), result)});
                 });
             });
         });

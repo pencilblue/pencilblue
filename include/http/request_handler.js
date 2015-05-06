@@ -1195,11 +1195,18 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} url
      * @param {
      */
-    RequestHandler.urlExists = function(url, id, cb) {
+    RequestHandler.urlExists = function(url, id, site, cb) {
         var dao = new pb.DAO();
+        if(typeof site === 'function') {
+            cb = site;
+            site = undefined;
+        }
         var getTask = function(collection) {
             return function (callback) {
                 var where = {url: url};
+                if(site) {
+                    where.site = site;
+                }
                 if (id) {
                     where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(id);
                 }

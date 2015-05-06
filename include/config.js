@@ -356,12 +356,12 @@ var BASE_CONFIG = {
             //article
             {
                 collection: 'article',
-                spec: {url: ASC},
+                spec: {url: ASC, site: ASC},
                 options: {unique: true}
             },
             {
                 collection: 'article',
-                spec: {headline: ASC},
+                spec: {headline: ASC, site: ASC},
                 options: {unique: true}
             },
             {
@@ -420,12 +420,12 @@ var BASE_CONFIG = {
             //page
             {
                 collection: 'page',
-                spec: {url: ASC},
+                spec: {url: ASC, site: ASC},
                 options: {unique: true}
             },
             {
                 collection: 'page',
-                spec: {headline: ASC},
+                spec: {headline: ASC, site: ASC},
                 options: {unique: true}
             },
             {
