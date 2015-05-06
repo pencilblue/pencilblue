@@ -57,7 +57,7 @@ module.exports = function(pb) {
                 var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: siteid}),
                     articles: articles
                 });
 
@@ -90,16 +90,20 @@ module.exports = function(pb) {
     };
 
     ManageArticles.getSubNavItems = function(key, ls, data) {
+        var adminPrefix = '/admin';
+        if(data.site) {
+            adminPrefix += pb.SiteService.getCurrentSitePrefix(data.site);
+        }
         return [{
             name: 'manage_articles',
             title: ls.get('MANAGE_ARTICLES'),
             icon: 'refresh',
-            href: '/admin/content/articles'
+            href: adminPrefix + '/content/articles'
         }, {
             name: 'new_article',
             title: '',
             icon: 'plus',
-            href: '/admin/content/articles/new'
+            href: adminPrefix + '/content/articles/new'
         }];
     };
 

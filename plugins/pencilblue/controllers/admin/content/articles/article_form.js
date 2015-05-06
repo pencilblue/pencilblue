@@ -146,16 +146,20 @@ module.exports = function(pb) {
     };
 
     ArticleForm.getSubNavItems = function(key, ls, data) {
+        var adminPrefix = '/admin';
+        if(data.article.site) {
+            adminPrefix += pb.SiteService.getCurrentSitePrefix(data.article.site);
+        }
         return [{
             name: 'manage_articles',
             title: data.article[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.article.headline : ls.get('NEW_ARTICLE'),
             icon: 'chevron-left',
-            href: '/admin/content/articles'
+            href: adminPrefix + '/content/articles'
         }, {
             name: 'new_article',
             title: '',
             icon: 'plus',
-            href: '/admin/content/articles/new'
+            href: adminPrefix + '/content/articles/new'
         }];
     };
 
