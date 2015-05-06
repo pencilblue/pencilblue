@@ -32,8 +32,8 @@ module.exports = function(pb) {
     ManageArticles.prototype.render = function(cb) {
         var self = this;
         var dao  = new pb.DAO();
-
-        var where = {};
+        var siteid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+        var where = {site:siteid};
         if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: pb.SecurityService.ACCESS_EDITOR})) {
             where.author = this.session.authentication.user_id;
         }
@@ -49,7 +49,7 @@ module.exports = function(pb) {
                 return self.reqHandler.serveError(err);
             }
             else if (articles.length <= 0) {
-                return self.redirect('/admin/content/articles/new', cb);
+                return self.redirect('/admin' + pb.SiteService.getCurrentSitePrefix(siteid) + '/content/articles/new', cb);
             }
 
             pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
@@ -57,7 +57,7 @@ module.exports = function(pb) {
                 var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: siteid}),
                     articles: articles
                 });
 
@@ -90,16 +90,20 @@ module.exports = function(pb) {
     };
 
     ManageArticles.getSubNavItems = function(key, ls, data) {
+        var adminPrefix = '/admin';
+        if(data.site) {
+            adminPrefix += pb.SiteService.getCurrentSitePrefix(data.site);
+        }
         return [{
             name: 'manage_articles',
             title: ls.get('MANAGE_ARTICLES'),
             icon: 'refresh',
-            href: '/admin/content/articles'
+            href: adminPrefix + '/content/articles'
         }, {
             name: 'new_article',
             title: '',
             icon: 'plus',
-            href: '/admin/content/articles/new'
+            href: adminPrefix + '/content/articles/new'
         }];
     };
 

@@ -84,6 +84,9 @@ module.exports = function(pb) {
      *
      */
     PageFormController.prototype.getAngularObjects = function(tabs, data) {
+        if(pb.config.multisite && !data.page.site) {
+            data.page.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
+        }
         if(data.page[pb.DAO.getIdField()]) {
             var media = [];
             var i, j;
@@ -134,16 +137,20 @@ module.exports = function(pb) {
      *
      */
     PageFormController.getSubNavItems = function(key, ls, data) {
+        var adminPrefix = '/admin';
+        if(data.page.site) {
+            adminPrefix += pb.SiteService.getCurrentSitePrefix(data.page.site);
+        }
         return [{
             name: 'manage_pages',
             title: data.page[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.page.headline : ls.get('NEW_PAGE'),
             icon: 'chevron-left',
-            href: '/admin/content/pages'
+            href: adminPrefix + '/content/pages'
         }, {
             name: 'new_page',
             title: '',
             icon: 'plus',
-            href: '/admin/content/pages/new'
+            href: adminPrefix + '/content/pages/new'
         }];
     };
 

@@ -49,7 +49,7 @@ module.exports = function PageModule(pb) {
             }
         }
         else {
-            where = {url: custUrl};
+            where = {url: custUrl, site: self.site};
         }
 
         var dao = new pb.DAO();

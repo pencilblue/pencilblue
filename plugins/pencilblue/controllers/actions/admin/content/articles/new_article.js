@@ -47,7 +47,7 @@ module.exports = function(pb) {
 
             post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
             var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords']);
-            pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, function(err, isSafe) {
+            pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, articleDocument.site, function(err, isSafe) {
                 if(util.isError(err) || !isSafe)  {
                     cb({
                         code: 400,

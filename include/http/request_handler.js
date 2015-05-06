@@ -837,7 +837,7 @@ module.exports = function RequestHandlerModule(pb) {
                 path_vars: pathVars,
                 query: self.url.query,
                 body: body,
-                site: this.site
+                site: self.site
             };
             cInstance.init(props, function(){
                 self.onControllerInitialized(cInstance, themeRoute);
@@ -1195,11 +1195,18 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} url
      * @param {
      */
-    RequestHandler.urlExists = function(url, id, cb) {
+    RequestHandler.urlExists = function(url, id, site, cb) {
         var dao = new pb.DAO();
+        if(typeof site === 'function') {
+            cb = site;
+            site = undefined;
+        }
         var getTask = function(collection) {
             return function (callback) {
                 var where = {url: url};
+                if(site) {
+                    where.site = site;
+                }
                 if (id) {
                     where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(id);
                 }
@@ -1246,12 +1253,16 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} id
      * @param {Function} cb
      */
-    RequestHandler.isSystemSafeURL = function(url, id, cb) {
+    RequestHandler.isSystemSafeURL = function(url, id, site, cb) {
+        if(typeof site === 'function') {
+            cb = site;
+            site = undefined;
+        }
         if (url == null || RequestHandler.isAdminURL(url)) {
             cb(null, false);
             return;
         }
-        RequestHandler.urlExists(url, id, function(err, exists){
+        RequestHandler.urlExists(url, id, site, function(err, exists){
             cb(err, !exists);
         });
     };
