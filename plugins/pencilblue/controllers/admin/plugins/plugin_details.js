@@ -16,7 +16,7 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
     var BaseController = pb.BaseController;
@@ -44,8 +44,30 @@ module.exports = function(pb) {
      */
     PluginDetailsViewController.prototype.render = function(cb) {
         var self = this;
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
-        this.getDetails(this.pathVars.id, function(err, obj) {
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidated(site, cb);
+            }
+            else {
+                self.reqHandler.serve404();
+                return;
+            }
+        });
+    };
+
+    /**
+     *
+     * @method onSiteValidated
+     * @param site
+     * @param cb
+     *
+     */
+    PluginDetailsViewController.prototype.onSiteValidated = function onSiteValidated(site, cb) {
+        var self = this;
+
+        this.getDetails(this.pathVars.id, site, function(err, obj) {
             if (util.isError(err)) {
                 throw err;
             }
@@ -79,12 +101,11 @@ module.exports = function(pb) {
      * @method getDetails
      *
      */
-    PluginDetailsViewController.prototype.getDetails = function(puid, cb) {
+    PluginDetailsViewController.prototype.getDetails = function(puid, site, cb) {
         var self = this;
-        var siteId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-        var sitePrefix = SiteService.getCurrentSitePrefix(siteId);
+        var sitePrefix = SiteService.getCurrentSitePrefix(site);
 
-        var pluginService = new pb.PluginService(siteId);
+        var pluginService = new pb.PluginService(site);
         pluginService.getPluginBySite(puid, function(err, plugin) {
             if (util.isError(err)) {
                 cb(err, plugin);
@@ -94,7 +115,7 @@ module.exports = function(pb) {
             if (plugin) {
                 var obj = {
                     details: plugin,
-                    status:  self.ls.get(PluginService.isActivePlugin(plugin.uid, siteId) ? 'ACTIVE' : 'INACTIVE'),
+                    status:  self.ls.get(PluginService.isActivePlugin(plugin.uid, site) ? 'ACTIVE' : 'INACTIVE'),
                     sitePrefix: sitePrefix
                 };
                 cb(err, obj);
