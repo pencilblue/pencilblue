@@ -1253,12 +1253,16 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} id
      * @param {Function} cb
      */
-    RequestHandler.isSystemSafeURL = function(url, id, cb) {
+    RequestHandler.isSystemSafeURL = function(url, id, site, cb) {
+        if(typeof site === 'function') {
+            cb = site;
+            site = undefined;
+        }
         if (url == null || RequestHandler.isAdminURL(url)) {
             cb(null, false);
             return;
         }
-        RequestHandler.urlExists(url, id, function(err, exists){
+        RequestHandler.urlExists(url, id, site, function(err, exists){
             cb(err, !exists);
         });
     };
