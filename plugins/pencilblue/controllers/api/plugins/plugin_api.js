@@ -73,11 +73,11 @@ module.exports = function(pb) {
      */
     PluginApiController.prototype.render = function(cb) {
         var self = this;
-        this.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
+        var site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
 
-        pb.SiteService.siteExists(this.site, function (err, siteExists) {
+        pb.SiteService.siteExists(site, function (err, siteExists) {
             if (siteExists) {
-                self.onSiteValidated(this.site, cb);
+                self.onSiteValidated(site, cb);
             }
             else {
                 self.reqHandler.serve404();
@@ -95,7 +95,7 @@ module.exports = function(pb) {
     PluginApiController.prototype.onSiteValidated = function onSiteValidated(site, cb) {
         var action     = this.pathVars.action;
         var identifier = this.pathVars.id;
-        this.pluginService = new pb.PluginService(this.site);
+        this.pluginService = new pb.PluginService(site);
 
         //validate action
         var errors = [];
