@@ -52,8 +52,8 @@ module.exports = function(pb) {
 
         pb.SiteService.siteExists(site, function (err, siteExists) {
             if (siteExists) {
-                self.onSiteValidatedGet(cb);
                 self.initializePluginService();
+                self.onSiteValidatedGet(cb);
             }
             else {
                 self.reqHandler.serve404();
@@ -145,8 +145,8 @@ module.exports = function(pb) {
 
         pb.SiteService.siteExists(site, function (err, siteExists) {
             if (siteExists) {
-                self.onSiteValidatedPost(cb);
                 self.initializePluginService();
+                self.onSiteValidatedPost(cb);
             }
             else {
                 self.reqHandler.serve404();
