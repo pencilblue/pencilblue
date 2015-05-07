@@ -69,13 +69,15 @@ module.exports = function(pb) {
 
       self.setPageName(self.article[pb.DAO.getIdField()] ? self.article.headline : self.ls.get('NEW_ARTICLE'));
       self.ts.registerLocal('angular_script', '');
-      self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
-      self.ts.load('admin/content/articles/article_form', function(err, data) {
-          self.onTemplateRetrieved('' + data, function(err, data) {
-              var result = '' + data;
-              self.checkForFormRefill(result, function(newResult) {
-                  result = newResult;
-                  cb({content: result});
+      self.getAngularObjects(tabs, results, function(angularObjects) {
+          self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+          self.ts.load('admin/content/articles/article_form', function(err, data) {
+              self.onTemplateRetrieved('' + data, function(err, data) {
+                  var result = '' + data;
+                  self.checkForFormRefill(result, function(newResult) {
+                      result = newResult;
+                      cb({content: result});
+                  });
               });
           });
       });
@@ -85,7 +87,8 @@ module.exports = function(pb) {
         cb(null, template);
     };
 
-    ArticleForm.prototype.getAngularObjects = function(tabs, data) {
+    ArticleForm.prototype.getAngularObjects = function(tabs, data, cb) {
+        var self = this;
         if(pb.config.multisite && !data.article.site) {
             data.article.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
         }
@@ -129,20 +132,22 @@ module.exports = function(pb) {
             data.article.article_topics = topics;
         }
 
-        var objects = {
-            navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
-            pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), data),
-            tabs: tabs,
-            templates: data.templates,
-            sections: data.sections,
-            topics: data.topics,
-            media: data.media,
-            article: data.article
-        };
-        if(data.availableAuthors) {
-          objects.availableAuthors = data.availableAuthors;
-        }
-        return pb.ClientJs.getAngularObjects(objects);
+        pb.AdminSubnavService.getWithSite(data.article.site, this.getActivePill(), this.ls, this.getActivePill(), function(pills) {
+            var objects = {
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
+                pills: pills,
+                tabs: tabs,
+                templates: data.templates,
+                sections: data.sections,
+                topics: data.topics,
+                media: data.media,
+                article: data.article
+            };
+            if(data.availableAuthors) {
+                objects.availableAuthors = data.availableAuthors;
+            }
+            cb(pb.ClientJs.getAngularObjects(objects));
+        }, data);
     };
 
     ArticleForm.getSubNavItems = function(key, ls, data) {

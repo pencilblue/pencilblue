@@ -129,6 +129,25 @@ module.exports = function AdminSubnavServiceModule(pb) {
         return navItems;
     };
 
+    AdminSubnavService.getWithSite = function(site, key, ls, activePill, cb, data) {
+        if(!data) { data = {site: site } }
+        else if(!data.site) { data.site = site; }
+
+        new pb.SiteService().getSiteNameByUid(site, function(siteName) {
+            var pills = [];
+            if (siteName) {
+                pills.push({
+                    name: 'selected_site',
+                    title: siteName,
+                    icon: 'sitemap',
+                    href: '/admin/sites'
+                });
+            }
+            pills = pills.concat(AdminSubnavService.get(key, ls, activePill, data));
+            cb(pills);
+        });
+    };
+
     //exports
     return AdminSubnavService;
 };
