@@ -129,23 +129,39 @@ module.exports = function AdminSubnavServiceModule(pb) {
         return navItems;
     };
 
-    AdminSubnavService.getWithSite = function(site, key, ls, activePill, cb, data) {
-        if(!data) { data = {site: site } }
-        else if(!data.site) { data.site = site; }
-
-        new pb.SiteService().getSiteNameByUid(site, function(siteName) {
-            var pills = [];
-            if (siteName) {
-                pills.push({
-                    name: 'selected_site',
-                    title: siteName,
-                    icon: 'sitemap',
-                    href: '/admin/sites'
-                });
+    /**
+     * Retrieves the sub-nav items with selcted site
+     * @static
+     * @method getWithSite
+     * @param  {String} key        The key to retrieve
+     * @param  {Object} ls         The localization object
+     * @param  {String} activePill The name of the active sub-nav pill
+     * @param  {Object} [data]     Data object to send to the callback function (Must include field named "site")
+     * @param {Function} cb        Yields resulting subnav items
+     */
+    AdminSubnavService.getWithSite = function(key, ls, activePill, data, cb) {
+        var standardPills = AdminSubnavService.get(key, ls, activePill, data);
+        if(pb.config.multisite) {
+            if(!data || !data.site) {
+                throw new Error('Data must include a field named "site"');
             }
-            pills = pills.concat(AdminSubnavService.get(key, ls, activePill, data));
-            cb(pills);
-        });
+            new pb.SiteService().getSiteNameByUid(data.site, function(siteName) {
+                var pills = [];
+                if (siteName) {
+                    pills.push({
+                        name: 'selected_site',
+                        title: siteName,
+                        icon: 'sitemap',
+                        href: '/admin/sites'
+                    });
+                }
+                pills = pills.concat(standardPills);
+                cb(pills);
+            });
+        }
+        else {
+            cb(standardPills);
+        }
     };
 
     //exports

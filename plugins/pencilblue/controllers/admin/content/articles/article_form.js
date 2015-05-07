@@ -131,8 +131,8 @@ module.exports = function(pb) {
             }
             data.article.article_topics = topics;
         }
-
-        pb.AdminSubnavService.getWithSite(data.article.site, this.getActivePill(), this.ls, this.getActivePill(), function(pills) {
+        data.site = data.article.site;
+        pb.AdminSubnavService.getWithSite(this.getActivePill(), this.ls, this.getActivePill(), data, function(pills) {
             var objects = {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
                 pills: pills,
@@ -147,7 +147,7 @@ module.exports = function(pb) {
                 objects.availableAuthors = data.availableAuthors;
             }
             cb(pb.ClientJs.getAngularObjects(objects));
-        }, data);
+        });
     };
 
     ArticleForm.getSubNavItems = function(key, ls, data) {

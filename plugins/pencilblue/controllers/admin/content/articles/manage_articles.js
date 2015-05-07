@@ -84,9 +84,9 @@ module.exports = function(pb) {
         return articles;
     };
 
-    ManageArticles.prototype.getAngularObjects = function(siteid, articles, cb) {
+    ManageArticles.prototype.getAngularObjects = function(site, articles, cb) {
         var self = this;
-        pb.AdminSubnavService.getWithSite(siteid, SUB_NAV_KEY, self.ls, SUB_NAV_KEY, function(pills) {
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: site}, function(pills) {
             var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
