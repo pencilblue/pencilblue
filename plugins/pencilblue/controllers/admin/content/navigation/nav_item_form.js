@@ -33,6 +33,13 @@ module.exports = function(pb) {
     }
     util.inherits(NavItemFormController, pb.BaseController);
 
+    NavItemFormController.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.navService = new pb.SectionService(this.pathSiteUId, true);
+        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
+        pb.BaseController.prototype.init.call(this, props, cb);
+    };
+
     //statics
     var SUB_NAV_KEY = 'nav_item_form';
 
@@ -54,7 +61,12 @@ module.exports = function(pb) {
             var contentSearchValue = self.navItem.contentSearchValue ? self.navItem.contentSearchValue.toString() : '';
             delete self.navItem.contentSearchValue;
 
-            data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
+            var navData = {
+                item: self.navItem,
+                sitePrefix: self.sitePrefix
+            };
+            data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
+            data.sitePrefix = self.sitePrefix;
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
@@ -147,13 +159,14 @@ module.exports = function(pb) {
     };
 
     NavItemFormController.getSubNavItems = function(key, ls, data) {
-        var pills = SectionService.getPillNavOptions();
+        var item = data.item;
+        var pills = SectionService.getPillNavOptions(null, data.sitePrefix);
         pills.unshift(
         {
             name: 'manage_nav_items',
-            title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_NAV_ITEM'),
+            title: item[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + item.name : ls.get('NEW_NAV_ITEM'),
             icon: 'chevron-left',
-            href: '/admin/content/navigation'
+            href: '/admin' + data.sitePrefix + '/content/navigation'
         });
         return pills;
     };

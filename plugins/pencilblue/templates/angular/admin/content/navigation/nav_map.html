@@ -36,7 +36,7 @@
             }
 
             $scope.saving = true;
-            $http.post('/actions/admin/content/navigation/map', {map: navMap})
+            $http.post('/actions/admin' + $scope.sitePrefix + '/content/navigation/map', {map: navMap})
             .success(function(result) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
