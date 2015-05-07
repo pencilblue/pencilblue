@@ -33,6 +33,7 @@ module.exports = function SectionServiceModule(pb) {
         this.site = pb.SiteService.getCurrentSite(site);
         this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, onlyThisSite);
         this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.site);
+        this.queryService = new pb.SiteQueryService(this.site, onlyThisSite);
     }
 
     /**
@@ -245,12 +246,7 @@ module.exports = function SectionServiceModule(pb) {
             }
 
             //retrieve sections
-            var dao = new pb.DAO();
-            var options = {
-                where: {}
-            };
-            options.where[pb.SiteService.SITE_FIELD] = self.site;
-            dao.q('section', options, function(err, sections) {
+            self.queryService.q('section', function(err, sections) {
                 if (util.isError(err)) {
                     return cb(err, []);
                 }
@@ -451,9 +447,7 @@ module.exports = function SectionServiceModule(pb) {
         var where = {
             name: navItem.name,
         };
-        where[pb.SiteService.SITE_FIELD] = this.site;
-        var dao = new pb.DAO();
-        dao.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
+        this.queryService.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
             var error = null;
             if (!unique) {
                 error = {field: 'name', message: 'The provided name is not unique'};
@@ -659,9 +653,7 @@ module.exports = function SectionServiceModule(pb) {
             }
 
             //persist the changes
-            var dao = new pb.DAO();
-            navItem[pb.SiteService.SITE_FIELD] = self.site;
-            dao.save(navItem, function(err, data) {
+            self.queryService.save(navItem, function(err, data) {
                 if(util.isError(err)) {
                     return cb(err);
                 }
