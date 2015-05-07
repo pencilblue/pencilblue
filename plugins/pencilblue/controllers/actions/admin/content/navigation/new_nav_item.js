@@ -26,6 +26,12 @@ module.exports = function(pb) {
     function NewNavItem(){}
     util.inherits(NewNavItem, pb.BaseController);
 
+    NewNavItem.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.navService = new pb.SectionService(this.pathSiteUId, true);
+        pb.BaseController.prototype.init.call(this, cb);
+    };
+
     NewNavItem.prototype.render = function(cb){
         var self = this;
 
@@ -39,11 +45,10 @@ module.exports = function(pb) {
             }
 
             //strip unneeded properties
-            pb.SectionService.trimForType(navItem);
+            self.navService.trimForType(navItem);
 
             //validate
-            var navService = new pb.SectionService();
-            navService.save(navItem, function(err, result) {
+            self.navService.save(navItem, function(err, result) {
                 if(util.isError(err)) {
                     cb({
                         code: 500,
@@ -67,8 +72,7 @@ module.exports = function(pb) {
     };
 
     NewNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {
-        var service = new pb.SectionService();
-        service.updateNavMap(navItem, cb);
+        self.navService.updateNavMap(navItem, cb);
     };
 
     NewNavItem.getHtmlErrorMsg = function(validationErrors) {
