@@ -41,18 +41,18 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
 
-    PluginSettingsFormController.prototype.initializePluginService = function initializePluginService() {
-        this.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
-        this.pluginService = new pb.PluginService(this.site);
-    }; 
+    PluginSettingsFormController.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.pluginService = new pb.PluginService(this.pathSiteUId);
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+    };
     
     PluginSettingsFormController.prototype.get = function(cb) {
         var self = this;
-        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
-        pb.SiteService.siteExists(site, function (err, siteExists) {
+        pb.SiteService.siteExists(self.pathSiteUId, function (err, siteExists) {
             if (siteExists) {
-                self.initializePluginService();
                 self.onSiteValidatedGet(cb);
             }
             else {
@@ -112,7 +112,7 @@ module.exports = function(pb) {
                     }
                 ];
 
-                var prefix = pb.SiteService.getCurrentSitePrefix(self.site);
+                var prefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
                 //setup angular
                 var data = {
                     plugin: plugin,
@@ -141,11 +141,9 @@ module.exports = function(pb) {
     
     PluginSettingsFormController.prototype.post = function(cb) {
         var self = this;
-        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
-        pb.SiteService.siteExists(site, function (err, siteExists) {
+        pb.SiteService.siteExists(self.pathSiteUId, function (err, siteExists) {
             if (siteExists) {
-                self.initializePluginService();
                 self.onSiteValidatedPost(cb);
             }
             else {
@@ -159,7 +157,6 @@ module.exports = function(pb) {
         console.log(this.constructor.name);
         var post = this.body;
 
-        self.initializePluginService();
         //retrieve settings
         var uid = this.pathVars.id;
         self.getSettings(uid, function(err, settings) {console.log(settings);
