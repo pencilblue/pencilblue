@@ -47,19 +47,14 @@ module.exports = function(pb) {
             }
 
             pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-                var angularObjects = pb.ClientJs.getAngularObjects(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_pages', {site: siteid}),
-                    pages: self.getPageStatuses(pagesWithAuthor)
-                });
-
-                var title = self.ls.get('MANAGE_PAGES');
-                self.setPageName(title);
-                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-                self.ts.load('admin/content/pages/manage_pages', function(err, data) {
-                    var result = '' + data;
-                    cb({content: result});
+                self.getAngularObjects(siteid, pagesWithAuthor, function(angularObjects) {
+                    var title = self.ls.get('MANAGE_PAGES');
+                    self.setPageName(title);
+                    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                    self.ts.load('admin/content/pages/manage_pages', function(err, data) {
+                        var result = '' + data;
+                        cb({content: result});
+                    });
                 });
             });
         });
@@ -80,6 +75,19 @@ module.exports = function(pb) {
         }
 
         return pages;
+    };
+
+    ManagePages.prototype.getAngularObjects = function(site, pagesWithAuthor, cb) {
+        var self = this;
+        pb.AdminSubnavService.getWithSite(site, SUB_NAV_KEY, self.ls, 'manage_pages', function(pills) {
+            var angularObjects = pb.ClientJs.getAngularObjects({
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
+                pills: pills,
+                pages: self.getPageStatuses(pagesWithAuthor)
+            });
+            cb(angularObjects);
+        });
+
     };
 
     ManagePages.getSubNavItems = function(key, ls, data) {
