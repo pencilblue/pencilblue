@@ -26,7 +26,11 @@ module.exports = function(pb) {
     var events = new AsyncEventEmitter();
     
     /**
-     *
+     * Provides functionality to perform CRUD operations on collections.  It 
+     * also allows for plugins to register for events in order to interact with 
+     * objects as they are being processed.  This makes it possible to add, 
+     * remove, or modify fields before they are passed to the entity that 
+     * triggered the operation.
      * @class BaseObjectService
      * @constructor
      * @param {Object} context
@@ -44,40 +48,143 @@ module.exports = function(pb) {
         }
         
         /**
-         *
+         * Represents the name of the collection to interact with
          * @property type
          * @type {String}
          */
         this.type = context.type;
         
         /**
-         *
+         * An instance of DAO to be used to interact with the persitence layer
          * @property dao
          * @type {DAO}
          */
         this.dao = new pb.DAO();
     }
     
+    /**
+     * The maximum allowed number of results allowed to be returned when using 
+     * the paging wrapper
+     * @private
+     * @static
+     * @readonly
+     * @property MAX_RESULTS
+     * @type {Integer}
+     */
     var MAX_RESULTS = 250;
     
+    /**
+     * The event that is triggered when querying for one or more resources
+     * @private
+     * @static
+     * @readonly
+     * @property GET_ALL
+     * @type {String}
+     */
     BaseObjectService.GET_ALL = "getAll";
     
+    /**
+     * The event that is triggered when retrieving a resource by ID
+     * @private
+     * @static
+     * @readonly
+     * @property GET_ALL
+     * @type {String}
+     */
     BaseObjectService.GET = "get";
     
+    /**
+     * The event that is triggered when a DTO is passed to the save function
+     * @private
+     * @static
+     * @readonly
+     * @property FORMAT
+     * @type {String}
+     */
     BaseObjectService.FORMAT = "format";
     
+    /**
+     * The event that is triggered when a DTO is passed to the save function 
+     * and after the format event has completed
+     * @private
+     * @static
+     * @readonly
+     * @property MERGE
+     * @type {String}
+     */
     BaseObjectService.MERGE = "merge";
     
+    /**
+     * The event that is triggered when a DTO is passed to the save function
+     * and after the merge event has completed
+     * @private
+     * @static
+     * @readonly
+     * @property VALIDATE
+     * @type {String}
+     */
     BaseObjectService.VALIDATE = "validate";
     
+    /**
+     * The event that is triggered when a DTO is passed to the save function
+     * and aftr the validate event has completed.  When validation failures 
+     * occur this event will not fire.
+     * @private
+     * @static
+     * @readonly
+     * @property BEFORE_SAVE
+     * @type {String}
+     */
     BaseObjectService.BEFORE_SAVE = "beforeSave";
     
+    /**
+     * The event that is triggered when a DTO is passed to the save function
+     * and after the save operation has completed successfully.
+     * @private
+     * @static
+     * @readonly
+     * @property AFTER_SAVE
+     * @type {String}
+     */
     BaseObjectService.AFTER_SAVE = "afterSave";
     
+    /**
+     * The event that is triggered when the delete function is called.
+     * @private
+     * @static
+     * @readonly
+     * @property BEFORE_DELETE
+     * @type {String}
+     */
     BaseObjectService.BEFORE_DELETE = "beforeDelete";
     
+    /**
+     * The event that is triggered when the delete function is called and after
+     * the delete operation has completed successfully.
+     * @private
+     * @static
+     * @readonly
+     * @property AFTER_DELETE
+     * @type {String}
+     */
     BaseObjectService.AFTER_DELETE = "afterDelete";
     
+    /**
+     * Executes a query for resources against the persistence layer. The 
+     * function will callback with an array of results.  The function will 
+     * trigger the "getAll" event.  Also note that there is hard limit on the 
+     * number of results the returned.
+     * @method getAll
+     * @param {Object} [options]
+     * @param {Object} [options.select]
+     * @param {Object} [options.where]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.limit]
+     * @param {Integer} [options.offset]
+     * @param {Function} cb A callback that takes two parameters.  The first is 
+     * an error, if occurred. The second is an array representing the results 
+     * of the query.
+     */
     BaseObjectService.prototype.getAll = function(options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
@@ -107,6 +214,16 @@ module.exports = function(pb) {
         });
     };
     
+    /**
+     * Executes a count of resources against the persistence layer. The 
+     * function will callback with an array of results.  
+     * @method count
+     * @param {Object} [options]
+     * @param {Object} [options.where]
+     * @param {Function} cb A callback that takes two parameters.  The first is 
+     * an error, if occurred. The second is the number of results that match 
+     * the specified query
+     */
     BaseObjectService.prototype.count = function(options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
@@ -116,6 +233,22 @@ module.exports = function(pb) {
         this.dao.count(this.type, options.where, cb);
     };
     
+    /**
+     * Executes a query for resources against the persistence layer. The 
+     * function will callback with an object that contains a total count and an 
+     * array of results.  The function will trigger the "getAll" event.  Also 
+     * note that there is hard limit on the number of results the returned.
+     * @method getAll
+     * @param {Object} [options]
+     * @param {Object} [options.select]
+     * @param {Object} [options.where]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.limit]
+     * @param {Integer} [options.offset]
+     * @param {Function} cb A callback that takes two parameters.  The first is 
+     * an error, if occurred. The second is an object representing the results 
+     * of the query.
+     */
     BaseObjectService.prototype.getAllWithCount = function(options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
@@ -140,6 +273,15 @@ module.exports = function(pb) {
         });
     };
     
+    /**
+     * Retrieves a resource by ID. The function will callback with the object 
+     * that was found or NULL if no object could be found. The function will 
+     * trigger the "get" event.  
+     * @method getAll
+     * @param {Object} [options]
+     * @param {Function} cb A callback that takes two parameters.  The first is 
+     * an error, if occurred. The second is the object with the specified ID
+     */
     BaseObjectService.prototype.get = function(id, options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
@@ -162,6 +304,19 @@ module.exports = function(pb) {
         });
     };
     
+    /**
+     * Retrieves a single resource by the specified query. The function will 
+     * callback with the object that was found or NULL if no object could be 
+     * found. The function will trigger the "getAll" event.  
+     * @method getAll
+     * @param {Object} [options]
+     * @param {Object} [options.select]
+     * @param {Object} [options.where]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.offset]
+     * @param {Function} cb A callback that takes two parameters.  The first is 
+     * an error, if occurred. The second is the object that matches the specified query
+     */
     BaseObjectService.prototype.getSingle = function(options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
@@ -174,6 +329,25 @@ module.exports = function(pb) {
         });
     };
     
+    /**
+     * Attempts to persist the DTO.  The function executes a series of events:
+     * 1) The format event is fired
+     * 2) When an ID is provided the object is retrieved from the database otherwise a new object is created.
+     * 3) The merge event is triggered
+     * 4) The validate event is triggered. If validation errors are detected the process halts and the function calls back with an error.
+     * 5) The beforeSave event is triggered
+     * 6) The object is persisted
+     * 7) The afterSave event is triggered
+     * 
+     * @method getAll
+     * @param {Object} [options]
+     * @param {Object} [options.select]
+     * @param {Object} [options.where]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.offset]
+     * @param {Function} cb A callback that takes two parameters.  The first is 
+     * an error, if occurred. The second is the object that matches the specified query
+     */
     BaseObjectService.prototype.save = function(dto, options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
@@ -245,6 +419,16 @@ module.exports = function(pb) {
         });
     };
     
+    /**
+     * When an ID is available in the DTO the function attempts to retrieve the 
+     * existing object.  If it is not available a new object is created.  The 
+     * merge event is then called.  After the merge is complete the callback is 
+     * executed with the merged object.
+     * @private
+     * @method _retrieveOnUpdateAndMerge
+     * @param {Object} dto
+     * @param {Function} cb
+     */
     BaseObjectService.prototype._retrieveOnUpdateAndMerge = function(dto, cb) {
         
         //function used as callback handler so we can simplify if/else logic
@@ -324,6 +508,14 @@ module.exports = function(pb) {
         });
     };
     
+    /**
+     * Creates a properly formed validation failure
+     * @static
+     * @method validationFailure
+     * @param {String} field
+     * @param {String} message
+     * @param {String} [code]
+     */
     BaseObjectService.validationFailure = function(field, message, code) {
         return {
             field: field || null,
@@ -332,6 +524,14 @@ module.exports = function(pb) {
         };
     };
     
+    /**
+     * Inspects the raw set of validation results to ensure that plugins that 
+     * don't follow proper procedure have their results excluded.
+     * @static
+     * @method consolidateValidationResults
+     * @param {Array} results
+     * @return {Array}
+     */
     BaseObjectService.consolidateValidationResults = function(results) {
         if (!util.isArray(results)) {
             return null;
@@ -349,6 +549,13 @@ module.exports = function(pb) {
         return validationErrors;
     };
     
+    /**
+     * Creates a new Error representative of a validation error
+     * @static
+     * @method validationError
+     * @param {Array} validationFailures
+     * @return {Error}
+     */
     BaseObjectService.validationError = function(validationFailures) {
         var error = new Error('Validation Failure');
         error.code = 400;
