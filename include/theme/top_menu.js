@@ -43,7 +43,7 @@ module.exports = function TopMenuServiceModule(pb) {
      * @param {Localization} localizationService An instance of Localization to
      * translate default items
      * @param {Object} [options] An optional argument to provide more flexibility
-     * to the menu construction.
+     * to the menu construction. (pass in site: siteUId to select the proper tenant)
      * @param {String} [options.currUrl] The current request URL.
      * @param {Function} cb Callback function that takes three parameters. The
      * first are the theme's settings, the second is the navigation structure, and
@@ -60,16 +60,19 @@ module.exports = function TopMenuServiceModule(pb) {
             throw new Error('The options parameter must be an object');
         }
 
+        var siteUId = pb.SiteService.getCurrentSite(options.site);
+
         var getTopMenu = function(session, localizationService, options, cb) {
             var tasks = {
                 themeSettings: function(callback) {
-                    pb.settings.get('site_logo', function(err, logo) {
+                    var settingService = pb.SettingServiceFactory.getService(siteUId);
+                    settingService.get('site_logo', function(err, logo) {
                         callback(null, {site_logo: logo});
                     });
                 },
 
                 formattedSections: function(callback) {
-                    var sectionService = new SectionService();
+                    var sectionService = new SectionService(siteUId);
                     sectionService.getFormattedSections(localizationService, options.currUrl, function(err, formattedSections) {
                         callback(null, formattedSections);
                     });
