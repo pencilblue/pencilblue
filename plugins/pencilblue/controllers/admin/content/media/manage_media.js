@@ -31,7 +31,7 @@ module.exports = function(pb) {
 
     ManageMedia.prototype.render = function(cb) {
         var self = this;
-
+        var siteid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
         var options = {
             select: {
                 name: 1,
@@ -40,43 +40,56 @@ module.exports = function(pb) {
                 media_type: 1,
                 location: 1
             },
+            where : {site: siteid},
             order: {created: pb.DAO.DESC},
             format_media: true
         };
         var mservice = new pb.MediaService();
         mservice.get(options, function(err, mediaData) {
             if(util.isError(mediaData) || mediaData.length === 0) {
-                self.redirect('/admin/content/media/new', cb);
+                self.redirect('/admin' + pb.SiteService.getCurrentSitePrefix(siteid) + '/content/media/new', cb);
                 return;
             }
 
-            var angularObjects = pb.ClientJs.getAngularObjects(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_media'),
-                media: pb.MediaService.formatMedia(mediaData)
-            });
-
-            var title = self.ls.get('MANAGE_MEDIA');
-            self.setPageName(title);
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/content/media/manage_media', function(err, result) {
-               cb({content: result});
+            self.getAngularObjects(siteid, mediaData, function(angularObjects) {
+                var title = self.ls.get('MANAGE_MEDIA');
+                self.setPageName(title);
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/media/manage_media', function(err, result) {
+                    cb({content: result});
+                });
             });
         });
     };
 
+    ManageMedia.prototype.getAngularObjects = function(site, mediaData, cb) {
+        var self = this;
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: site}, function(pills) {
+            var angularObjects = pb.ClientJs.getAngularObjects(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
+                    pills: pills,
+                    media: pb.MediaService.formatMedia(mediaData)
+                });
+            cb(angularObjects);
+        });
+    };
+
     ManageMedia.getSubNavItems = function(key, ls, data) {
+        var adminPrefix = '/admin'
+        if(data.site) {
+            adminPrefix += '/' + data.site;
+        }
         return [{
             name: 'manage_media',
             title: ls.get('MANAGE_MEDIA'),
             icon: 'refresh',
-            href: '/admin/content/media'
+            href: adminPrefix + '/content/media'
         }, {
             name: 'new_media',
             title: '',
             icon: 'plus',
-            href: '/admin/content/media/new'
+            href: adminPrefix + '/content/media/new'
         }];
     };
 

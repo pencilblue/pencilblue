@@ -53,16 +53,24 @@ module.exports = function(pb) {
 
             self.media = data.media;
             data.media.media_topics = self.getMediaTopics(data);
-            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.media);
-            var angularObjects = pb.ClientJs.getAngularObjects(data);
-
-            self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.get('NEW_MEDIA'));
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/content/media/media_form', function(err, result) {
-                cb({content: result});
+            self.getAngularObjects(data, function(angularObjects) {
+                self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.get('NEW_MEDIA'));
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/media/media_form', function(err, result) {
+                    cb({content: result});
+                });
             });
         });
         return;
+    };
+
+    MediaForm.prototype.getAngularObjects = function(data, cb) {
+        var self = this;
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, data.media, {site: data.media.site}, function(pills) {
+            data.pills = pills;
+            cb(pb.ClientJs.getAngularObjects(data));
+        });
+
     };
 
     MediaForm.prototype.gatherData = function(vars, cb) {
@@ -101,7 +109,10 @@ module.exports = function(pb) {
 
             media: function(callback) {
                 if(!vars.id) {
-                    return callback(null, {media_topics: []});
+                    return callback(null, {
+                        media_topics: [],
+                        site: vars.siteid
+                    });
                 }
 
                 var mservice = new pb.MediaService();
@@ -131,16 +142,20 @@ module.exports = function(pb) {
     };
 
     MediaForm.getSubNavItems = function(key, ls, data) {
+        var adminPrefix = '/admin'
+        if(data.site) {
+            adminPrefix += '/' + data.site;
+        }
         return [{
             name: 'manage_media',
             title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_MEDIA'),
             icon: 'chevron-left',
-            href: '/admin/content/media'
+            href: adminPrefix + '/content/media'
         }, {
             name: 'new_media',
             title: '',
             icon: 'plus',
-            href: '/admin/content/media/new'
+            href: adminPrefix + '/content/media/new'
         }];
     };
 
