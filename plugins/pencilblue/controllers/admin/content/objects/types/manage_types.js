@@ -34,13 +34,14 @@ module.exports = function(pb) {
 
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
+        var sitePathUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
         var service = new pb.CustomObjectService();
         service.findTypes(function(err, custObjTypes) {
 
             //none to manage
             if(custObjTypes.length === 0) {
-                self.redirect('/admin/content/objects/types/new', cb);
+                self.redirect('/admin' + pb.SiteService.getCurrentSitePrefix(sitePathUid) + '/content/objects/types/new', cb);
                 return;
             }
 
