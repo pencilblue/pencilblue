@@ -63,7 +63,7 @@ module.exports = function AdminNavigationModule(pb) {
         {
             id: 'site_entity',
             title: 'MANAGE_SITES',
-            icon: 'cogs',
+            icon: 'sitemap',
             href: '/admin/sites',
             access: SecurityService.ACCESS_ADMINISTRATOR
 
