@@ -32,6 +32,14 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'type_form';
 
+    TypeForm.prototype.init = function (props, cb) {
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+
+        this.pathSiteUid = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUid);
+    };
+
     TypeForm.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
@@ -46,13 +54,18 @@ module.exports = function(pb) {
             }
 
             self.objectType = data.objectType;
-            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.objectType);
-            var angularObjects = pb.ClientJs.getAngularObjects(data);
+            self.objectType.site = self.pathSiteUid;
+            self.objectType.pathSitePrefix = self.pathSitePrefix;
 
-            self.setPageName(self.objectType[pb.DAO.getIdField()] ? self.objectType.name : self.ls.get('NEW_OBJECT'));
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/content/objects/types/type_form', function(err, result) {
-                cb({content: result});
+            pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.objectType, function(pills) {
+                data.pills = pills;
+                var angularObjects = pb.ClientJs.getAngularObjects(data);
+
+                self.setPageName(self.objectType[pb.DAO.getIdField()] ? self.objectType.name : self.ls.get('NEW_OBJECT'));
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/objects/types/type_form', function(err, result) {
+                    cb({content: result});
+                });
             });
         });
     };
@@ -109,16 +122,18 @@ module.exports = function(pb) {
     };
 
     TypeForm.getSubNavItems = function(key, ls, data) {
+        var self = this;
+
         return [{
             name: SUB_NAV_KEY,
             title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_OBJECT_TYPE'),
             icon: 'chevron-left',
-            href: '/admin/content/objects/types'
+            href: '/admin' + data.pathSitePrefix + '/content/objects/types'
         }, {
             name: 'new_object_type',
             title: '',
             icon: 'plus',
-            href: '/admin/content/objects/types/new'
+            href: '/admin' + data.pathSitePrefix + '/content/objects/types/new'
         }];
     };
 

@@ -32,16 +32,23 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'manage_object_types';
 
+    ManageObjectTypes.prototype.init = function (props, cb) {
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+
+        this.pathSiteUid = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUid);
+    };
+
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
-        var sitePathUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
         var service = new pb.CustomObjectService();
         service.findTypes(function(err, custObjTypes) {
 
             //none to manage
             if(custObjTypes.length === 0) {
-                self.redirect('/admin' + pb.SiteService.getCurrentSitePrefix(sitePathUid) + '/content/objects/types/new', cb);
+                self.redirect('/admin' + self.pathSitePrefix + '/content/objects/types/new', cb);
                 return;
             }
 
@@ -67,16 +74,18 @@ module.exports = function(pb) {
 
 
     ManageObjectTypes.getSubNavItems = function(key, ls, data) {
+        var self = this;
+
         return [{
             name: SUB_NAV_KEY,
             title: ls.get('MANAGE_OBJECT_TYPES'),
             icon: 'refresh',
-            href: '/admin/content/objects/types'
+            href: '/admin' + self.pathSitePrefix + '/content/objects/types'
         }, {
             name: 'new_object_type',
             title: '',
             icon: 'plus',
-            href: '/admin/content/objects/types/new'
+            href: '/admin' + self.pathSitePrefix + '/content/objects/types/new'
         }];
     };
 

@@ -130,7 +130,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
     };
 
     /**
-     * Retrieves the sub-nav items with selcted site
+     * Retrieves the sub-nav items with selected site
      * @static
      * @method getWithSite
      * @param  {String} key        The key to retrieve
