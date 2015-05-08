@@ -1,6 +1,6 @@
 (function() {
   angular.module('wysiwygElement', [])
-  .directive('wysiwyg', function($sce) {
+  .directive('wysiwyg', function($sce, $document) {
     return {
       restrict: 'AE',
       replace: true,
@@ -19,8 +19,14 @@
           scope.wysiwyg.currentView = view;
         };
 
+        scope.formatAction = function(action, arguments) {
+          console.log(action);
+
+          $document[0].execCommand(action, false, arguments);
+        }
+
         scope.$watch('wysiwyg.layout', function(newVal, oldVal) {
-          if(scope.wysiwyg.currentView === 'markdown') {
+          if(scope.wysiwyg.currentView !== 'layout') {
             return;
           }
 
@@ -30,9 +36,20 @@
         });
 
         scope.$watch('wysiwyg.markdown', function(newVal, oldVal) {
+          if(scope.wysiwyg.currentView !== 'markdown') {
+            return;
+          }
+
           if(newVal !== oldVal) {
             scope.wysiwyg.layout = markdown.toHTML(newVal);
           }
+        });
+
+        var editableDiv = angular.element(element).find('[contenteditable]');
+        var range = rangy.createRange();
+        editableDiv.on('mouseup', function(event) {
+          range.selectNodeContents(editableDiv[0]);
+          console.log(rangy.getSelection());
         });
       }
     };
