@@ -38,6 +38,9 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   function modifyLoadWhere(site, where) {
     if (pb.config.multisite) {
+      if (Object.isFrozen(where)) {
+        where = _.clone(where);
+      }
       if (site === pb.SiteService.GLOBAL_SITE) {
         var siteDoesNotExist = {}, siteEqualToSpecified = {};
         siteDoesNotExist[SITE_FIELD] = {$exists: false};
@@ -60,8 +63,8 @@ module.exports = function SiteQueryServiceModule(pb) {
         target = _.clone(options);
       }
       target.where = target.where || {};
-
-
+      target.where = modifyLoadWhere(site, target.where);
+      return target;
     }
     // else do nothing
     return options;
@@ -69,10 +72,10 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   function addToOr(whereClause, conditions) {
     if ('$or' in whereClause) {
-      var orClause = whereClause['$or'];
+      var orClause = whereClause.$or;
       orClause.push.apply(orClause, conditions);
     } else {
-      whereClause['$or'] = conditions;
+      whereClause.$or = conditions;
     }
   }
 
@@ -121,7 +124,7 @@ module.exports = function SiteQueryServiceModule(pb) {
    */
   SiteQueryService.prototype.unique = function (collection, where, exclusionId, callback) {
     where = modifyLoadWhere(this.siteUId, where);
-    dao.q(collection, where, exclusionId, callback);
+    dao.unique(collection, where, exclusionId, callback);
   };
 
   /**

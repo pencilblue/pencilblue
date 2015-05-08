@@ -445,7 +445,7 @@ module.exports = function SectionServiceModule(pb) {
         }
 
         var where = {
-            name: navItem.name,
+            name: navItem.name
         };
         this.queryService.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
             var error = null;
@@ -766,6 +766,8 @@ module.exports = function SectionServiceModule(pb) {
 
         return VALID_TYPES[type] === true;
     };
+
+
 
     //exports
     return SectionService;
