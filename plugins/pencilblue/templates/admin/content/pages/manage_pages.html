@@ -7,7 +7,7 @@
         <table class="table table-responsive table-condensed">
             ^tmp_admin=elements=table_headers^
             <tr ng-repeat="page in pages track by page._id">
-                <td><a ng-href="/admin/content/pages/{{page._id}}" ng-bind="page.headline"></a></td>
+                <td><a ng-href="/admin{{ sitePrefix }}/content/pages/{{page._id}}" ng-bind="page.headline"></a></td>
                 <td ng-bind="page.status"></td>
                 <td ng-bind="page.url"></td>
                 <td ng-bind="page.author_name"></td>

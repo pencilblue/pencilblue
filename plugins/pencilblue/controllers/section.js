@@ -27,12 +27,20 @@ module.exports = function SectionModule(pb) {
     function Section(){}
     util.inherits(Section, Index);
 
+    Section.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteUId = pb.SiteService.getCurrentSite(self.site);
+            self.navService = new pb.SectionService(self.pathSiteUId);
+            self.queryService = new pb.SiteQueryService(self.siteUId);
+            cb();
+        });
+    };
 
     Section.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
-        var dao     = new pb.DAO();
-        dao.loadByValue('url', custUrl, 'section', function(err, section) {
+        self.queryService.loadByValue('url', custUrl, 'section', function(err, section) {
             if (util.isError(err) || section == null) {
                 self.reqHandler.serve404();
                 return;

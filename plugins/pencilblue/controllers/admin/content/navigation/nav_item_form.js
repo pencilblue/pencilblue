@@ -33,6 +33,29 @@ module.exports = function(pb) {
     }
     util.inherits(NavItemFormController, pb.BaseController);
 
+    NavItemFormController.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.navService = new pb.SectionService(self.pathSiteUId, true);
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     //statics
     var SUB_NAV_KEY = 'nav_item_form';
 
@@ -54,7 +77,14 @@ module.exports = function(pb) {
             var contentSearchValue = self.navItem.contentSearchValue ? self.navItem.contentSearchValue.toString() : '';
             delete self.navItem.contentSearchValue;
 
-            data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
+            var navData = {
+                item: self.navItem,
+                sitePrefix: self.sitePrefix
+            };
+            var pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
+            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+            data.sitePrefix = self.sitePrefix;
+            data.site = self.pathSiteUId;
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
@@ -147,13 +177,14 @@ module.exports = function(pb) {
     };
 
     NavItemFormController.getSubNavItems = function(key, ls, data) {
-        var pills = SectionService.getPillNavOptions();
+        var item = data.item;
+        var pills = SectionService.getPillNavOptions(null, data.sitePrefix);
         pills.unshift(
         {
             name: 'manage_nav_items',
-            title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_NAV_ITEM'),
+            title: item[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + item.name : ls.get('NEW_NAV_ITEM'),
             icon: 'chevron-left',
-            href: '/admin/content/navigation'
+            href: '/admin' + data.sitePrefix + '/content/navigation'
         });
         return pills;
     };
