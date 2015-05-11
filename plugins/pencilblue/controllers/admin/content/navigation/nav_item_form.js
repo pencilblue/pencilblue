@@ -34,10 +34,15 @@ module.exports = function(pb) {
     util.inherits(NavItemFormController, pb.BaseController);
 
     NavItemFormController.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.navService = new pb.SectionService(this.pathSiteUId, true);
-        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
-        pb.BaseController.prototype.init.call(this, props, cb);
+        var self = this;
+        self.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        self.navService = new pb.SectionService(self.pathSiteUId, true);
+        self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+        var siteService = new pb.SiteService();
+        siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+            self.siteName = siteName;
+            pb.BaseController.prototype.init.call(self, props, cb);
+        });
     };
 
     //statics
@@ -65,7 +70,8 @@ module.exports = function(pb) {
                 item: self.navItem,
                 sitePrefix: self.sitePrefix
             };
-            data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
+            var pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
+            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
             data.sitePrefix = self.sitePrefix;
             data.site = self.pathSiteUId;
             var angularObjects = pb.ClientJs.getAngularObjects(data);

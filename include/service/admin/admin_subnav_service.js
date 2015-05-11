@@ -130,6 +130,29 @@ module.exports = function AdminSubnavServiceModule(pb) {
     };
 
     /**
+     * Add a site name pill to existing pills
+     *
+     * @static
+     * @method addSiteToPills
+     * @param {Array} standardPills list of pills
+     * @param {String} siteName name of the site to add to the pill
+     * @returns {Array} a list of pills with site name added
+     */
+    AdminSubnavService.addSiteToPills = function (standardPills, siteName) {
+        var pills = [];
+        if (siteName && pb.config.multisite) {
+            pills.push({
+                name: 'selected_site',
+                title: siteName,
+                icon: 'sitemap',
+                href: '/admin/sites'
+            });
+        }
+        pills = pills.concat(standardPills);
+        return pills;
+    };
+
+    /**
      * Retrieves the sub-nav items with selcted site
      * @static
      * @method getWithSite
@@ -146,16 +169,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
                 throw new Error('Data must include a field named "site"');
             }
             new pb.SiteService().getSiteNameByUid(data.site, function(siteName) {
-                var pills = [];
-                if (siteName) {
-                    pills.push({
-                        name: 'selected_site',
-                        title: siteName,
-                        icon: 'sitemap',
-                        href: '/admin/sites'
-                    });
-                }
-                pills = pills.concat(standardPills);
+                var pills = AdminSubnavService.addSiteToPills(standardPills, siteName);
                 cb(pills);
             });
         }

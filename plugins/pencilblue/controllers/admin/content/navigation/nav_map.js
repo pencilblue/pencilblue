@@ -29,10 +29,17 @@ module.exports = function(pb) {
     util.inherits(NavigationMap, pb.BaseController);
 
     NavigationMap.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.navService = new pb.SectionService(this.pathSiteUId, true);
-        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
-        pb.BaseController.prototype.init.call(this, props, cb);
+        var self = this;
+        self.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        self.navService = new pb.SectionService(self.pathSiteUId, true);
+        self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+        self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+        self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
+        var siteService = new pb.SiteService();
+        siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+            self.siteName = siteName;
+            pb.BaseController.prototype.init.call(self, props, cb);
+        });
     };
 
     //statics
@@ -42,11 +49,9 @@ module.exports = function(pb) {
         var self = this;
 
         var opts = {
-            where: {}
+            where: pb.DAO.ANYWHERE
         };
-        opts.where[SiteService.SITE_FIELD] = self.pathSiteUId;
-        var dao  = new pb.DAO();
-        dao.q('section', opts, function(err, sections) {
+        self.queryService.q('section', opts, function (err, sections) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
@@ -56,16 +61,17 @@ module.exports = function(pb) {
                 return self.redirect('/admin' + self.sitePrefix + '/content/navigation/new', cb);
             }
 
-            pb.settings.get('section_map', function(err, sectionMap) {
+            self.settings.get('section_map', function (err, sectionMap) {
                 if(sectionMap === null) {
                     self.redirect('/admin' + self.sitePrefix + '/content/navigation/new', cb);
                     return;
                 }
 
+                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix});
                 var angularObjects = pb.ClientJs.getAngularObjects(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
-                        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix}),
+                        pills: pb.AdminSubnavService.addSiteToPills(pills, self.siteName),
                         navItems: NavigationMap.getOrderedItems(sections, sectionMap),
                         icons: {
                             container: 'inbox',
