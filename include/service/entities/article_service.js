@@ -34,8 +34,28 @@ module.exports = function ArticleServiceModule(pb) {
      *
      */
     function ArticleService(){
-        this.object_type = 'article';
+        this.object_type = ARTICLE_TYPE;
     }
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property ARTICLE_TYPE
+     * @type {String}
+     */
+    var ARTICLE_TYPE = 'article'
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property PAGE_TYPE
+     * @type {String}
+     */
+    var PAGE_TYPE = 'page';
 
     /**
      * Rerieves the content type
@@ -226,7 +246,7 @@ module.exports = function ArticleServiceModule(pb) {
     ArticleService.prototype.processArticleForDisplay = function(article, articleCount, authors, contentSettings, cb) {
         var self = this;
 
-        if (this.getContentType() === 'article') {
+        if (this.getContentType() === ARTICLE_TYPE) {
             if(contentSettings.display_bylines) {
 
                 for(var j = 0; j < authors.length; j++) {
@@ -322,12 +342,18 @@ module.exports = function ArticleServiceModule(pb) {
             article.layout = newLayout;
             delete article.article_layout;
 
-            if (self.getContentType() === 'article') {
+            if (self.getContentType() === ARTICLE_TYPE && ArticleService.allowComments(contentSettings, article)) {
 
-                var where = {article: article[pb.DAO.getIdField()].toString()};
-                var order = {created: pb.DAO.ASC};
+                var opts = {
+                    where: {
+                        article: article[pb.DAO.getIdField()].toString()
+                    },
+                    order: {
+                        created: pb.DAO.ASC
+                    }
+                };
                 var dao   = new pb.DAO();
-                dao.q('comment', {where: where, select: pb.DAO.PROJECT_ALL, order: order}, function(err, comments) {
+                dao.q('comment', opts, function(err, comments) {
                     if(util.isError(err) || comments.length == 0) {
                         return cb(null, null);
                     }
@@ -565,6 +591,20 @@ module.exports = function ArticleServiceModule(pb) {
                 cb(meta.keywords, meta.description, meta.title, meta.thumbnail);
             });
         })(cb);
+    };
+    
+    /**
+     * Provided the content descriptor and the content settings object the 
+     * function indicates if comments should be allowed within the given 
+     * context of the content.
+     * @param {Object} contentSettings The settings object retrieved from the 
+     * content service
+     * @param {Object} content The page or article that should or should not 
+     * have associated comments.
+     * @return {Boolean}
+     */
+    ArticleService.allowComments = function(contentSettings, content) {
+        return contentSettings.allow_comments && content.allow_comments;
     };
 
     /**
