@@ -29,6 +29,13 @@ module.exports = function(pb) {
     function ArticleForm(){}
     util.inherits(ArticleForm, pb.BaseController);
 
+    ArticleForm.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.queryService = new pb.SiteQueryService(this.pathSiteUId);
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+    };
+
     ArticleForm.prototype.render = function(cb) {
         var self  = this;
         var vars = this.pathVars;
@@ -188,10 +195,7 @@ module.exports = function(pb) {
                     },
                     order: {name: pb.DAO.ASC}
                 };
-                var where = {
-                    type: {$in: ['container', 'section']}
-                };
-                dao.q('section', opts, callback);
+                self.queryService.q('section', opts, callback);
             },
 
             topics: function(callback) {
@@ -200,7 +204,7 @@ module.exports = function(pb) {
                     where: pb.DAO.ANYWHERE,
                     order: {name: pb.DAO.ASC}
                 };
-                dao.q('topic', opts, callback);
+                self.queryService.q('topic', opts, callback);
             },
 
             media: function(callback) {

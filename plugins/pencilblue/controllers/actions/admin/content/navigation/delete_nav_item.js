@@ -26,6 +26,29 @@ module.exports = function(pb) {
     function DeleteNavItem(){}
     util.inherits(DeleteNavItem, pb.BaseController);
 
+    DeleteNavItem.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.navService = new pb.SectionService(self.pathSiteUId, true);
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     DeleteNavItem.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
@@ -83,8 +106,7 @@ module.exports = function(pb) {
     };
 
     DeleteNavItem.prototype.updateNavMap = function(removeID, cb) {
-        var service = new pb.SectionService();
-        service.removeFromSectionMap(removeID, cb);
+        this.navService.removeFromSectionMap(removeID, cb);
     };
 
     //exports

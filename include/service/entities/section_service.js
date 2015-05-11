@@ -26,8 +26,15 @@ module.exports = function SectionServiceModule(pb) {
      * Service for managing the site's navigation
      * @class SectionService
      * @constructor
+     * @param {String} site uid
+     * @param {Boolean} onlyThisSite should section service only return value set specifically by site rather than defaulting to global
      */
-    function SectionService(){}
+    function SectionService(site, onlyThisSite) {
+        this.site = pb.SiteService.getCurrentSite(site);
+        this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, onlyThisSite);
+        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.site);
+        this.queryService = new pb.SiteQueryService(this.site, onlyThisSite);
+    }
 
     /**
      *
@@ -52,13 +59,13 @@ module.exports = function SectionServiceModule(pb) {
      * @param {String} activePill
      * @return {Array}
      */
-    SectionService.getPillNavOptions = function(activePill) {
+    SectionService.getPillNavOptions = function(activePill, sitePrefix) {
         return [
             {
                 name: 'new_nav_item',
                 title: '',
                 icon: 'plus',
-                href: '/admin/content/navigation/new'
+                href: '/admin' + sitePrefix + '/content/navigation/new'
             }
         ];
     };
@@ -71,6 +78,8 @@ module.exports = function SectionServiceModule(pb) {
      * @param {Function} cb
      */
     SectionService.prototype.removeFromSectionMap = function(section, sectionMap, cb) {
+        var self = this;
+
         if (!cb) {
             cb         = sectionMap;
             sectionMap = null;
@@ -88,12 +97,11 @@ module.exports = function SectionServiceModule(pb) {
                 callback(null, sectionMap);
             }
             else {
-                pb.settings.get('section_map', callback);
+                self.settings.get('section_map', callback);
             }
         };
 
         //retrieve map
-        var self = this;
         getSectionMap(sectionMap, function(err, sectionMap) {
             if (util.isError(err)) {
                 cb(err, false);
@@ -109,7 +117,7 @@ module.exports = function SectionServiceModule(pb) {
 
             //when the section map was not provided persist it back
             if (sectionMapWasNull) {
-                pb.settings.set('section_map', sectionMap, function(err, result) {
+                self.settings.set('section_map', sectionMap, function(err, result) {
                     cb(err, orphans);
                 });
             }
@@ -168,7 +176,7 @@ module.exports = function SectionServiceModule(pb) {
 
         //retrieve the section map
         var sid = section[pb.DAO.getIdField()].toString();
-        pb.settings.get('section_map', function(err, sectionMap) {
+        self.settings.get('section_map', function(err, sectionMap) {
             if (util.isError(err)) {
                 cb(err, false);
                 return;
@@ -198,7 +206,7 @@ module.exports = function SectionServiceModule(pb) {
                 }
             }
 
-            pb.settings.set('section_map', sectionMap, cb);
+            self.settings.set('section_map', sectionMap, cb);
         });
     };
 
@@ -225,20 +233,20 @@ module.exports = function SectionServiceModule(pb) {
      * @param {Function} cb
      */
     SectionService.prototype.getFormattedSections = function(localizationService, currUrl, cb) {
+        var self = this;
         if (util.isFunction(currUrl)) {
             cb      = currUrl;
             currUrl = null;
         }
 
-        pb.settings.get('section_map', function(err, sectionMap) {
+        self.settings.get('section_map', function(err, sectionMap) {
             if (util.isError(err) || sectionMap == null) {
                 cb(err, []);
                 return;
             }
 
             //retrieve sections
-            var dao = new pb.DAO();
-            dao.q('section', function(err, sections) {
+            self.queryService.q('section', function(err, sections) {
                 if (util.isError(err)) {
                     return cb(err, []);
                 }
@@ -439,8 +447,7 @@ module.exports = function SectionServiceModule(pb) {
         var where = {
             name: navItem.name
         };
-        var dao = new pb.DAO();
-        dao.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
+        this.queryService.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
             var error = null;
             if (!unique) {
                 error = {field: 'name', message: 'The provided name is not unique'};
@@ -502,7 +509,8 @@ module.exports = function SectionServiceModule(pb) {
                 var params = {
                     type: 'section', 
                     id: navItem[pb.DAO.getIdField()], 
-                    url: navItem.url
+                    url: navItem.url,
+                    site: self.site
                 };
                 var urlService = new pb.UrlService();
                 urlService.existsForType(params, function(err, exists) {
@@ -645,8 +653,7 @@ module.exports = function SectionServiceModule(pb) {
             }
 
             //persist the changes
-            var dao = new pb.DAO();
-            dao.save(navItem, function(err, data) {
+            self.queryService.save(navItem, function(err, data) {
                 if(util.isError(err)) {
                     return cb(err);
                 }
@@ -759,6 +766,8 @@ module.exports = function SectionServiceModule(pb) {
 
         return VALID_TYPES[type] === true;
     };
+
+
 
     //exports
     return SectionService;

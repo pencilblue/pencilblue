@@ -267,6 +267,11 @@ var BASE_CONFIG = {
                 spec: {created: ASC},
                 options: {}
             },
+            {
+                collection: 'section',
+                spec: {name: ASC, site: ASC},
+                options: {unique: true}
+            },
 
             //plugin
             {

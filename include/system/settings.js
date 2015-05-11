@@ -37,6 +37,18 @@ module.exports = function SettingsModule(pb) {
     var count = 1;
 
     /**
+     * Creates a new instance of settings service with specified site, using the memory and cache settings of pb config
+     *
+     * @static
+     * @method getServiceBySite
+     * @param {String} site
+     * @param {Boolean} onlyThisSite
+     */
+    SettingServiceFactory.getServiceBySite = function (site, onlyThisSite) {
+        return SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, site, onlyThisSite);
+    };
+
+    /**
      * Creates a new instance of the settings service
      * @static
      * @method getService

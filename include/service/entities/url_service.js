@@ -71,6 +71,7 @@ module.exports = function UrlServiceModule(pb) {
         var url  = params.url;
         var type = params.type;
         var id   = params.id;
+        var site = params.site;
 
         //validate required params
         if (!url || !type) {
@@ -91,6 +92,9 @@ module.exports = function UrlServiceModule(pb) {
         var where = {
             url: new RegExp(pattern, 'g')
         };
+        if (site !== undefined) {
+            where[pb.SiteService.SITE_FIELD] = site;
+        }
         var dao = new pb.DAO();
         dao.unique(type, where, id, function(err, isUnique) {
             cb(err, !isUnique);
