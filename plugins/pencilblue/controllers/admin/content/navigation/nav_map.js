@@ -30,18 +30,24 @@ module.exports = function(pb) {
 
     NavigationMap.prototype.init = function (props, cb) {
         var self = this;
-        self.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        self.navService = new pb.SectionService(self.pathSiteUId, true);
-        self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-        self.queryService = new pb.SiteQueryService(self.pathSiteUId);
-        self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
-        var siteService = new pb.SiteService();
-        siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-            self.siteName = siteName;
-            pb.BaseController.prototype.init.call(self, props, cb);
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.navService = new pb.SectionService(self.pathSiteUId, true);
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
         });
     };
-
     //statics
     var SUB_NAV_KEY = 'navigation_map';
 
