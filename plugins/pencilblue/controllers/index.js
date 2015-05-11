@@ -378,7 +378,8 @@ module.exports = function IndexModule(pb) {
 
     Index.prototype.getNavigation = function(cb) {
         var options = {
-            currUrl: this.req.url
+            currUrl: this.req.url,
+            site: this.site
         };
         TopMenu.getTopMenu(this.session, this.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {

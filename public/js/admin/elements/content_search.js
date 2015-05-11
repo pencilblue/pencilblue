@@ -19,12 +19,16 @@ $(document).ready(function() {
     var input = $('#content_search');
     input.autocomplete({
         source: function( request, response ) {
+            var $scope = angular.element('#content_type').scope();
+            var site = $scope.site;
+
             $.ajax({
                 url: "/api/content/search",
                 dataType: "json",
                 data: {
-                   type: angular.element('#content_type').scope().navItem.type,
+                   type: $scope.navItem.type,
                    q: $('#content_search').val(),
+                   site: site
                 },
                 success: function( data ) {
                     response( $.map( data.data, function( item ) {

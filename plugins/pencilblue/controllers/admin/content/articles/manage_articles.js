@@ -26,14 +26,20 @@ module.exports = function(pb) {
     function ManageArticles(){}
     util.inherits(ManageArticles, pb.BaseController);
 
+    ManageArticles.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.queryService = new pb.SiteQueryService(this.pathSiteUId);
+        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+    };
+
     //statics
     var SUB_NAV_KEY = 'manage_articles';
 
     ManageArticles.prototype.render = function(cb) {
         var self = this;
-        var dao  = new pb.DAO();
-        var siteid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-        var where = {site:siteid};
+        var where = {};
         if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: pb.SecurityService.ACCESS_EDITOR})) {
             where.author = this.session.authentication.user_id;
         }
@@ -44,7 +50,7 @@ module.exports = function(pb) {
             order: {publish_date: pb.DAO.ASC},
 
         };
-        dao.q('article', opts, function(err, articles) {
+        self.queryService.q('article', opts, function(err, articles) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
@@ -54,7 +60,7 @@ module.exports = function(pb) {
 
             pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
                 articles = self.getArticleStatuses(articlesWithAuthorNames);
-                self.getAngularObjects(siteid, articles, function (angularObjects) {
+                self.getAngularObjects(self.pathSiteUId, articles, function (angularObjects) {
                     var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
                     self.setPageName(manageArticlesStr);
                     self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
@@ -91,7 +97,8 @@ module.exports = function(pb) {
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
                     pills: pills,
-                    articles: articles
+                    articles: articles,
+                    sitePrefix: self.sitePrefix
                 });
             cb(angularObjects);
         });

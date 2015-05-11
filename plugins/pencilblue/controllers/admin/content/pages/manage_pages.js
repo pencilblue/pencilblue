@@ -26,19 +26,26 @@ module.exports = function(pb) {
     function ManagePages(){}
     util.inherits(ManagePages, pb.BaseController);
 
+    ManagePages.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.queryService = new pb.SiteQueryService(this.pathSiteUId);
+        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+    };
+
     //statics
     var SUB_NAV_KEY = 'manage_pages';
 
     ManagePages.prototype.render = function(cb) {
         var self = this;
-        var siteid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+
         var opts = {
             select: pb.DAO.PROJECT_ALL,
-            where: {site: siteid},
+            where: pb.DAO.ANYWHERE,
             order: {headline: pb.DAO.ASC}
         };
-        var dao  = new pb.DAO();
-        dao.q('page', opts, function(err, pages) {
+        self.queryService.q('page', opts, function(err, pages) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
@@ -47,7 +54,7 @@ module.exports = function(pb) {
             }
 
             pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-                self.getAngularObjects(siteid, pagesWithAuthor, function(angularObjects) {
+                self.getAngularObjects(self.pathSiteUId, pagesWithAuthor, function(angularObjects) {
                     var title = self.ls.get('MANAGE_PAGES');
                     self.setPageName(title);
                     self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
@@ -83,7 +90,8 @@ module.exports = function(pb) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                 pills: pills,
-                pages: self.getPageStatuses(pagesWithAuthor)
+                pages: self.getPageStatuses(pagesWithAuthor),
+                sitePrefix: self.sitePrefix
             });
             cb(angularObjects);
         });
