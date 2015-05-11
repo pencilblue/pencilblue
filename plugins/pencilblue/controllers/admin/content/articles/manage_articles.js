@@ -54,19 +54,14 @@ module.exports = function(pb) {
 
             pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
                 articles = self.getArticleStatuses(articlesWithAuthorNames);
-                var angularObjects = pb.ClientJs.getAngularObjects(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: siteid}),
-                    articles: articles
-                });
-
-                var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
-                self.setPageName(manageArticlesStr);
-                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-                self.ts.load('admin/content/articles/manage_articles',  function(err, data) {
-                    var result = '' + data;
-                    cb({content: result});
+                self.getAngularObjects(siteid, articles, function (angularObjects) {
+                    var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
+                    self.setPageName(manageArticlesStr);
+                    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                    self.ts.load('admin/content/articles/manage_articles', function (err, data) {
+                        var result = '' + data;
+                        cb({content: result});
+                    });
                 });
             });
         });
@@ -87,6 +82,19 @@ module.exports = function(pb) {
         }
 
         return articles;
+    };
+
+    ManageArticles.prototype.getAngularObjects = function(site, articles, cb) {
+        var self = this;
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: site}, function(pills) {
+            var angularObjects = pb.ClientJs.getAngularObjects(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
+                    pills: pills,
+                    articles: articles
+                });
+            cb(angularObjects);
+        });
     };
 
     ManageArticles.getSubNavItems = function(key, ls, data) {
