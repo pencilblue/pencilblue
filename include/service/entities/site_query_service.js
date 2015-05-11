@@ -73,9 +73,19 @@ module.exports = function SiteQueryServiceModule(pb) {
   function addToOr(whereClause, conditions) {
     if ('$or' in whereClause) {
       var orClause = whereClause.$or;
-      orClause.push.apply(orClause, conditions);
+      addToAnd(whereClause, [{$or: orClause}, {$or: conditions}]);
+      delete whereClause.$or;
     } else {
       whereClause.$or = conditions;
+    }
+  }
+
+  function addToAnd(whereClause, conditions) {
+    if ('$and' in whereClause) {
+      var andClause = whereClause.$and;
+      andClause.push.apply(andClause, conditions);
+    } else {
+      whereClause.$and = conditions;
     }
   }
 

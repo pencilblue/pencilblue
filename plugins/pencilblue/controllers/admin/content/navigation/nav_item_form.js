@@ -67,6 +67,7 @@ module.exports = function(pb) {
             };
             data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
             data.sitePrefix = self.sitePrefix;
+            data.site = self.pathSiteUId;
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
