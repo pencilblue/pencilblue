@@ -30,7 +30,7 @@ module.exports = function(pb) {
     util.inherits(ArticleForm, pb.BaseController);
 
     ArticleForm.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteuid);
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
         this.queryService = new pb.SiteQueryService(this.pathSiteUId);
 
         pb.BaseController.prototype.init.call(this, props, cb);
