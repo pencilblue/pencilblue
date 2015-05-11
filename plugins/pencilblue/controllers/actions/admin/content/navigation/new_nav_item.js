@@ -27,9 +27,26 @@ module.exports = function(pb) {
     util.inherits(NewNavItem, pb.BaseController);
 
     NewNavItem.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.navService = new pb.SectionService(this.pathSiteUId, true);
-        pb.BaseController.prototype.init.call(this, props, cb);
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.navService = new pb.SectionService(self.pathSiteUId, true);
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
     };
 
     NewNavItem.prototype.render = function(cb){

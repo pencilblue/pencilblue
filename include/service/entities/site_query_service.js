@@ -149,6 +149,23 @@ module.exports = function SiteQueryServiceModule(pb) {
     dao.save(dbObj, options, callback);
   };
 
+  /**
+   * Wrapper for DAO.loadByValue; Retrieves objects matching a key value pair
+   *
+   * @method loadByValue
+   * @param {String}   key        The key to search for
+   * @param {*}        value      The value to search for
+   * @param {String}   collection The collection to search in
+   * @param {Object}   options    Key value pair object to exclude the retrival of data
+   * @param {Function} callback   Callback function
+   */
+  SiteQueryService.prototype.loadByValue = function (key, value, collection, options, callback) {
+    var where = {};
+    where[key] = value;
+    where = modifyLoadWhere(this.siteUId, where);
+    dao.loadByValues(where, collection, options, callback);
+  };
+
   function modifySave(site, objectToSave) {
     if (pb.config.multisite && !(SITE_FIELD in objectToSave)) {
       objectToSave[SITE_FIELD] = site;
