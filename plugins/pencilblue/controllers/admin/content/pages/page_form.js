@@ -204,7 +204,7 @@ module.exports = function(pb) {
 
             media: function(callback) {
                 var mservice = new pb.MediaService();
-                mservice.get(callback);
+                mservice.getBySite(vars.siteid, callback);
             },
 
             page: function(callback) {
