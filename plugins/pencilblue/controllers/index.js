@@ -45,7 +45,9 @@ module.exports = function IndexModule(pb) {
         var contentService = new pb.ContentService();
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
-                ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle, metaThumbnail) {
+                
+                var articleService = new pb.ArticleService();
+                articleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle, metaThumbnail) {
                     self.ts.registerLocal('meta_keywords', metaKeywords);
                     self.ts.registerLocal('meta_desc', data.section.description || metaDescription);
                     self.ts.registerLocal('meta_title', data.section.name || metaTitle);
@@ -280,7 +282,7 @@ module.exports = function IndexModule(pb) {
         ats.registerLocal('author_position', content.author_position ? content.author_position : '');
         ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
         ats.registerLocal('comments', function(flag, cb) {
-            if (isPage || !contentSettings.allow_comments || !content.allow_comments) {
+            if (isPage || !pb.ArticleService.allowComments(contentSettings, content)) {
                 return cb(null, '');
             }
 
