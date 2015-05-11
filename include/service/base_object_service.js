@@ -191,12 +191,17 @@ module.exports = function(pb) {
             options = {};
         }
         
+        //set a reasonable limit
+        //TODO evaluate if this should be at the service level or controller 
+        //level
+        var limit = util.isNullOrUndefined(options.limit) ? MAX_RESULTS : Math.min(options.limit, MAX_RESULTS);
+        
         var self = this;
         var opts = {
             select: options.select,
             where: options.where,
             order: options.order,
-            limit: Math.min(options.limit, MAX_RESULTS),
+            limit: limit,
             offset: options.offset
         };
         this.dao.q(this.type, opts, function(err, results) {

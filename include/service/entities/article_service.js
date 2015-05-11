@@ -435,88 +435,136 @@ module.exports = function ArticleServiceModule(pb) {
             });
         });
     };
+    
+    /**
+     * Retrieves the SEO metadata for the specified content.  
+     * @method getMetaInfo
+     * @param {Object} article The article to retrieve information for
+     * @param {Function} cb A callback that takes two parameters.  The first is 
+     * an Error, if occurred.  The second is an object that contains 4 
+     * properties: 
+     * title - the SEO title, 
+     * description - the SEO description, 
+     * keywords - an array of SEO keywords that describe the content, 
+     * thumbnail - a URI path to the thumbnail image 
+     */
+    ArticleService.prototype.getMetaInfo = function(article, cb) {
+        if (util.isNullOrUndefined(article)) {
+            return cb(new Error('The article parameter cannot be null'));
+        }
+        
+        //compile the tasks necessary to gather the meta info
+        var tasks = {
+            
+            //figure out SEO title
+            title: function(callback) {
+                var title;
+                if (pb.ValidationService.isNonEmptyStr(article.seo_title, true)) {
+                    title = article.seo_title;
+                }
+                else {
+                    title = article.headline;
+                }
+                callback(null, title);
+            },
+            
+            //figure out the description by taking the explicit meta 
+            //description or stripping all HTML formatting from the body and 
+            //using it.
+            description: function(callback) {
+                var description = '';
+                if(util.isString(article.meta_desc)) {
+                    description = article.meta_desc;
+                }
+                else if(pb.ValidationService.isNonEmptyStr(article.layout, true)) {
+                    description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
+                }
+                callback(null, description);
+            },
+            
+            keywords: function(callback) {
+                
+                var keywords  = util.arrayToHash(article.meta_keywords || []);
+                var topics    = article.article_topics || article.page_topics;
+                if (!util.isArray(topics) || topics.length <= 0) {
+                    return callback(null, Object.keys(keywords));
+                }
+                
+                //we know there are topics we need to retrieve them to set the 
+                //meta keywords
+                var opts = {
+                    select: {
+                        name: 1
+                    },
+                    where: pb.DAO.getIdInWhere(article.article_topics || article.page_topics)
+                };
+                var topicService = new pb.TopicService();
+                topicService.getAll(opts, function(err, topics) {
+                    if (util.isError(err)) {
+                        return callback(err);
+                    }
+
+                    //add to the key word hash.  It is ok if we overwrite an existing 
+                    //value since it is a hash. We just want a unique set.
+                    topics.forEach(function(topic) {
+                        keywords[topic.name] = true;
+                    });
+                    
+                    callback(null, Object.keys(keywords));
+                });
+            },
+            
+            thumbnail: function(callback) {
+                
+                //no media so skip
+                if (!pb.ValidationService.isNonEmptyStr(article.thumbnail, true)) {
+                    return callback(null, '');
+                }
+                
+                //media should exists so go get it
+                var mOpts = {
+                    select: {
+                        location: 1
+                    },
+                    where: pb.DAO.getIdWhere(article.thumbnail)
+                };
+                var mediaService = new pb.MediaService();
+                mediaService.get(mOpts, function(err, media) {
+                    callback(err, util.isNullOrUndefined(media) ? '' : media.location);
+                });
+            }
+        };
+        async.parallel(tasks, cb);
+    };
 
     /**
      * Retrieves the meta info for an article or page
-     *
+     * @deprecated Since 0.4.1
      * @method getMetaInfo
      * @param {Object}   article An article or page object
      * @param {Function} cb      Callback function
      */
-    ArticleService.getMetaInfo = function(article, cb)
-    {
-        if(typeof article === 'undefined')
-        {
-            cb('', '', '');
-            return;
+    ArticleService.getMetaInfo = function(article, cb) {
+        if(util.isNullOrUndefined(article)) {
+            return cb('', '', '');
         }
-
-        var keywords = article.meta_keywords || [];
-        var topics = article.article_topics || article.page_topics || [];
-        var thumbnail = '';
-        var instance = this;
-        var dao = new pb.DAO();
-
-        this.loadTopic = function(index)
-        {
-            if(index >= topics.length)
-            {
-                var description = '';
-                if(article.meta_desc)
-                {
-                    description = article.meta_desc;
-                }
-                else if(article.layout)
-                {
-                    description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
+        
+        //log deprecation
+        pb.log.warn('ArticleService: ArticleService.getMetaInfo is deprecated and will be removed 0.5.0.  Use the prototype function getMetaInfo instead');
+        
+        //all wrapped up to ensure we can be multi-threaded here for backwards 
+        //compatibility
+        (function(cb) {
+            
+            var articleService = new ArticleService();
+            articleService.getMetaInfo(article, function(err, meta) {
+                if (util.isError(err)) {
+                    return cb('', '', '');
                 }
 
-                cb(keywords.join(','), description, (article.seo_title) ? article.seo_title : article.headline, thumbnail);
-                return;
-            }
-
-            dao.loadById(topics[index], 'topic', function(err, topic) {
-                if(util.isError(err) || !topic) {
-                    pb.log.error('ArticleService: Failed to load topic. %s', err.stack);
-
-                    index++;
-                    instance.loadTopic(index);
-                    return;
-                }
-
-                var topicName = topic.name;
-                var keywordMatch = false;
-
-                for(var i = 0; i < keywords.length; i++) {
-                    if(topicName == keywords[i]) {
-                        keywordMatch = true;
-                        break;
-                    }
-                }
-
-                if(!keywordMatch)
-                {
-                    keywords.push(topicName);
-                }
-                index++;
-                instance.loadTopic(index);
+                cb(meta.keywords, meta.description, meta.title, meta.thumbnail);
             });
-        };
-
-        if(!article.thumbnail || !article.thumbnail.length) {
-            this.loadTopic(0);
-        }
-        else {
-            dao.loadById(article.thumbnail, 'media', function(err, media) {
-                if(util.isError(err) || !media) {
-                    instance.loadTopic(0);
-                    return;
-                }
-
-                thumbnail = media.location;
-                instance.loadTopic(0);
-            });
-        }
+        })(cb);
     };
 
     /**
