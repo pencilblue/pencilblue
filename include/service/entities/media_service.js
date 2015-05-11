@@ -210,6 +210,22 @@ module.exports = function MediaServiceModule(pb) {
     };
 
     /**
+     * Queries for media descriptors by site
+     * @method getBySite
+     * @param {String} site
+     * @param {Function} cb
+     */
+
+    MediaService.prototype.getBySite = function(site, cb) {
+        var options = {
+            format_media: true,
+            where: {site: site},
+            order: {name:1}
+        };
+        this.get(options, cb);
+    };
+
+    /**
      *
      * @method getContentByPath
      * @param {String} mediaPath
