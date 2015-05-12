@@ -32,7 +32,8 @@ module.exports = function MediaServiceModule(pb) {
      * @class MediaService
      * @constructor
      */
-    function MediaService(provider){
+    function MediaService(provider, site){
+        this.site = site;
         if (util.isNullOrUndefined(provider)) {
             provider = MediaService.loadMediaProvider();
         }
@@ -160,7 +161,7 @@ module.exports = function MediaServiceModule(pb) {
         }
 
         //ensure the media name is unique
-        var where = { name: media.name };
+        var where = { name: media.name, site: this.site };
         var dao   = new pb.DAO();
         dao.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
             if(util.isError(err)) {

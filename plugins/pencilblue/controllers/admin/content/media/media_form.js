@@ -34,6 +34,13 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'media_form';
 
+    MediaForm.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+    };
+
     /**
     * @method render
     * @param {Function} cb
@@ -68,6 +75,7 @@ module.exports = function(pb) {
         var self = this;
         pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, data.media, {site: data.media.site}, function(pills) {
             data.pills = pills;
+            data.sitePrefix = self.sitePrefix;
             cb(pb.ClientJs.getAngularObjects(data));
         });
 
@@ -111,7 +119,7 @@ module.exports = function(pb) {
                 if(!vars.id) {
                     return callback(null, {
                         media_topics: [],
-                        site: vars.siteid
+                        site: self.pathSiteUId
                     });
                 }
 
