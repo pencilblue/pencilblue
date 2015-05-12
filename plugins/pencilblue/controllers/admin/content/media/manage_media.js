@@ -53,7 +53,7 @@ module.exports = function(pb) {
         var mservice = new pb.MediaService();
         mservice.get(options, function(err, mediaData) {
             if(util.isError(mediaData) || mediaData.length === 0) {
-                self.redirect('/admin' + self.adminPrefix + '/content/media/new', cb);
+                self.redirect('/admin' + self.sitePrefix + '/content/media/new', cb);
                 return;
             }
 
