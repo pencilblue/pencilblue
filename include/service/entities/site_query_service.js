@@ -167,7 +167,7 @@ module.exports = function SiteQueryServiceModule(pb) {
   };
 
   /**
-   * Wrapper for DAO.loadById; loads an object by its id, but its site must also match the query service's site
+   * Proxy for DAO.loadById; loads an object by its id, but its site must also match the query service's site
    *
    * @method loadById
    * @param {String}   id         The unique id of the object
