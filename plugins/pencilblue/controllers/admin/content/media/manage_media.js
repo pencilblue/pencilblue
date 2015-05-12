@@ -29,9 +29,15 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'manage_media';
 
+    ManageMedia.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+    };
+
     ManageMedia.prototype.render = function(cb) {
         var self = this;
-        var siteid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
         var options = {
             select: {
                 name: 1,
@@ -40,18 +46,18 @@ module.exports = function(pb) {
                 media_type: 1,
                 location: 1
             },
-            where : {site: siteid},
+            where : {site: self.pathSiteUId},
             order: {created: pb.DAO.DESC},
             format_media: true
         };
         var mservice = new pb.MediaService();
         mservice.get(options, function(err, mediaData) {
             if(util.isError(mediaData) || mediaData.length === 0) {
-                self.redirect('/admin' + pb.SiteService.getCurrentSitePrefix(siteid) + '/content/media/new', cb);
+                self.redirect('/admin' + self.adminPrefix + '/content/media/new', cb);
                 return;
             }
 
-            self.getAngularObjects(siteid, mediaData, function(angularObjects) {
+            self.getAngularObjects(mediaData, function(angularObjects) {
                 var title = self.ls.get('MANAGE_MEDIA');
                 self.setPageName(title);
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
@@ -62,14 +68,15 @@ module.exports = function(pb) {
         });
     };
 
-    ManageMedia.prototype.getAngularObjects = function(site, mediaData, cb) {
+    ManageMedia.prototype.getAngularObjects = function(mediaData, cb) {
         var self = this;
-        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: site}, function(pills) {
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: self.pathSiteUId}, function(pills) {
             var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
                     pills: pills,
-                    media: pb.MediaService.formatMedia(mediaData)
+                    media: pb.MediaService.formatMedia(mediaData),
+                    sitePrefix: self.sitePrefix
                 });
             cb(angularObjects);
         });
