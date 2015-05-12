@@ -300,8 +300,8 @@ var BASE_CONFIG = {
             },
             {
                 collection: 'media',
-                spec: {name: ASC},
-                options: {}//TODO make unique once validation is in place
+                spec: {name: ASC, site: ASC},
+                options: {unique: true}
             },
             {
                 collection: 'media',
