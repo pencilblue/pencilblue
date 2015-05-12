@@ -40,6 +40,7 @@ module.exports = function(pb) {
     ContentSearchController.prototype.render = function(cb) {
         var type   = this.query.type;
         var search = this.query.q;
+        var querySite = this.query.site;
 
         //perform validation
         var errors = ContentSearchController.validate(type, search);
@@ -65,8 +66,8 @@ module.exports = function(pb) {
             order: pb.DAO.NATURAL_ORDER,
             limit: MAX_RESULTS
         };
-        var dao = new pb.DAO();
-        dao.q(type, opts, function(err, items) {
+        var queryService = new pb.SiteQueryService(querySite);
+        queryService.q(type, opts, function(err, items) {
             if (util.isError(err)) {
                 var content = BaseController.apiResponse(BaseController.API_FAILURE, '', '');
                 return cb({content: content, code: 500});

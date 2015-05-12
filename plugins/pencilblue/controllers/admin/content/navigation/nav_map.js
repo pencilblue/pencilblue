@@ -20,13 +20,36 @@ module.exports = function(pb) {
     //pb dependencies
     var util           = pb.util;
     var SectionService = pb.SectionService;
-    
+    var SiteService    = pb.SiteService;
+
     /**
      * Interface for editing the navigation
      */
     function NavigationMap(){}
     util.inherits(NavigationMap, pb.BaseController);
 
+    NavigationMap.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.navService = new pb.SectionService(self.pathSiteUId, true);
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
     //statics
     var SUB_NAV_KEY = 'navigation_map';
 
@@ -36,27 +59,27 @@ module.exports = function(pb) {
         var opts = {
             where: pb.DAO.ANYWHERE
         };
-        var dao  = new pb.DAO();
-        dao.q('section', opts, function(err, sections) {
+        self.queryService.q('section', opts, function (err, sections) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
             else if(sections.length === 0) {
 
                 //when no sections exist redirect to create page
-                return self.redirect('/admin/content/navigation/new', cb);
+                return self.redirect('/admin' + self.sitePrefix + '/content/navigation/new', cb);
             }
 
-            pb.settings.get('section_map', function(err, sectionMap) {
+            self.settings.get('section_map', function (err, sectionMap) {
                 if(sectionMap === null) {
-                    self.redirect('/admin/content/navigation/new', cb);
+                    self.redirect('/admin' + self.sitePrefix + '/content/navigation/new', cb);
                     return;
                 }
 
+                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix});
                 var angularObjects = pb.ClientJs.getAngularObjects(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
-                        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                        pills: pb.AdminSubnavService.addSiteToPills(pills, self.siteName),
                         navItems: NavigationMap.getOrderedItems(sections, sectionMap),
                         icons: {
                             container: 'inbox',
@@ -64,7 +87,8 @@ module.exports = function(pb) {
                             article: 'files-o',
                             page: 'file-o',
                             link: 'link'
-                        }
+                        },
+                        sitePrefix: self.sitePrefix
                     }
                 );
 
@@ -118,13 +142,13 @@ module.exports = function(pb) {
     };
 
     NavigationMap.getSubNavItems = function(key, ls, data) {
-        var pills = SectionService.getPillNavOptions();
+        var pills = SectionService.getPillNavOptions(null, data.sitePrefix);
         pills.unshift(
         {
             name: SUB_NAV_KEY,
             title: ls.get('NAV_MAP'),
             icon: 'refresh',
-            href: '/admin/content/navigation'
+            href: '/admin' + data.sitePrefix + '/content/navigation'
         });
         return pills;
     };
