@@ -26,6 +26,27 @@ module.exports = function(pb) {
     function ManageTopics() {}
     util.inherits(ManageTopics, pb.BaseController);
 
+    ManageTopics.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     var SUB_NAV_KEY = 'manage_topics';
 
     ManageTopics.prototype.render = function(cb) {
@@ -35,15 +56,14 @@ module.exports = function(pb) {
             select: pb.DAO.PROJECT_ALL,
             where: pb.DAO.ANYWHERE
         };
-        var dao  = new pb.DAO();
-        dao.q('topic', opts, function(err, topics) {
+        self.queryService.q('topic', opts, function (err, topics) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
             }
             else if(topics.length === 0) {
 
                 //none to manage
-                return self.redirect('/admin/content/topics/new', cb);
+                return self.redirect('/admin' + self.sitePrefix + '/content/topics/new', cb);
             }
 
             //currently, mongo cannot do case-insensitive sorts.  We do it manually
@@ -55,11 +75,13 @@ module.exports = function(pb) {
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
             });
 
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix});
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-                topics: topics
+                pills: pb.AdminSubnavService.addSiteToPills(pills, self.siteName),
+                topics: topics,
+                sitePrefix: self.sitePrefix
             });
 
             self.setPageName(self.ls.get('MANAGE_TOPICS'));
@@ -72,21 +94,22 @@ module.exports = function(pb) {
     };
 
     ManageTopics.getSubNavItems = function(key, ls, data) {
+        var prefix = data.sitePrefix;
         return [{
             name: SUB_NAV_KEY,
             title: ls.get('MANAGE_TOPICS'),
             icon: 'refresh',
-            href: '/admin/content/topics'
+            href: '/admin' + prefix + '/content/topics'
         }, {
             name: 'import_topics',
             title: '',
             icon: 'upload',
-            href: '/admin/content/topics/import'
+            href: '/admin' + prefix + '/content/topics/import'
         }, {
             name: 'new_topic',
             title: '',
             icon: 'plus',
-            href: '/admin/content/topics/new'
+            href: '/admin' + prefix + '/content/topics/new'
         }];
     };
 

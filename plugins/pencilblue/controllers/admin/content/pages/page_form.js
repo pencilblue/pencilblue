@@ -29,6 +29,27 @@ module.exports = function(pb) {
     function PageFormController(){}
     util.inherits(PageFormController, pb.BaseController);
 
+    PageFormController.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     PageFormController.prototype.render = function(cb) {
         var self  = this;
         var vars = this.pathVars;
@@ -190,7 +211,7 @@ module.exports = function(pb) {
                     },
                     order: {name: pb.DAO.ASC}
                 };
-                dao.q('section', opts, callback);
+                self.queryService.q('section', opts, callback);
             },
 
             topics: function(callback) {
@@ -199,7 +220,7 @@ module.exports = function(pb) {
                     where: pb.DAO.ANYWHERE,
                     order: {name: pb.DAO.ASC}
                 };
-                dao.q('topic', opts, callback);
+                self.queryService.q('topic', opts, callback);
             },
 
             media: function(callback) {

@@ -413,7 +413,7 @@ var BASE_CONFIG = {
             //topic
             {
                 collection: 'topic',
-                spec: {name: ASC},
+                spec: {name: ASC, site: ASC},
                 options: {unique: true}
             },
             {

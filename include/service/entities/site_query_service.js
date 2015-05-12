@@ -180,6 +180,19 @@ module.exports = function SiteQueryServiceModule(pb) {
     dao.loadByValues(where, collection, options, callback);
   };
 
+  /**
+   * Wrapper for DAO.count; Gets the count of objects matching criteria
+   *
+   * @method count
+   * @param  {String}   entityType The type of object to search for
+   * @param  {Object}   where      Key value pair object
+   * @param  {Function} callback         Callback function
+   */
+  SiteQueryService.prototype.count = function (entityType, where, callback) {
+    where = modifyLoadWhere(this.siteUId, where);
+    dao.count(entityType, where, callback);
+  };
+
   function modifySave(site, objectToSave) {
     if (pb.config.multisite && !(SITE_FIELD in objectToSave)) {
       objectToSave[SITE_FIELD] = site;

@@ -33,6 +33,27 @@ module.exports = function(pb) {
     function ImportTopics(){}
     util.inherits(ImportTopics, pb.BaseController);
 
+    ImportTopics.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     ImportTopics.prototype.render = function(cb) {
         var self  = this;
         var files = [];
@@ -66,19 +87,18 @@ module.exports = function(pb) {
 
     ImportTopics.prototype.saveTopics = function(topics, cb) {
         var content = {completed: false};
-
+        var self = this;
         //create tasks
-        var dao = new pb.DAO();
         var tasks = util.getTasks(topics, function(topicArry, index) {
             return function(callback) {
 
-                dao.count('topic', {name: topicArry[index].trim()}, function(err, count){
+                self.queryService.count('topic', {name: topicArry[index].trim()}, function(err, count){
                     if (count > 0) {
                         return callback(null, true);
                     }
 
                     var topicDocument = pb.DocumentCreator.create('topic', {name: topicArry[index].trim()});
-                    dao.save(topicDocument, callback);
+                    self.queryService.save(topicDocument, callback);
                 });
 
             };

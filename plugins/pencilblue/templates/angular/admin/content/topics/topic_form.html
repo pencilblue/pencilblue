@@ -14,7 +14,7 @@
 
             $scope.saving = true;
 
-            var postURL = '/actions/admin/content/topics';
+            var postURL = '/actions/admin' + $scope.sitePrefix + '/content/topics';
             if($scope.topic._id) {
                 postURL += '/' + $scope.topic._id;
             }
