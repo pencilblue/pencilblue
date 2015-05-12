@@ -166,6 +166,20 @@ module.exports = function SiteQueryServiceModule(pb) {
     dao.loadByValues(where, collection, options, callback);
   };
 
+  /**
+   * Proxy for DAO.loadById; loads an object by its id, but its site must also match the query service's site
+   *
+   * @method loadById
+   * @param {String}   id         The unique id of the object
+   * @param {String}   collection The collection the object is in
+   * @param {Object}   options    Key value pair object to exclude the retrival of data
+   * @param {Function} callback   Callback function
+   */
+  SiteQueryService.prototype.loadById = function (id, collection, options, callback) {
+    var where = modifyLoadWhere(this.siteUId, pb.DAO.getIdWhere(id));
+    dao.loadByValues(where, collection, options, callback);
+  };
+
   function modifySave(site, objectToSave) {
     if (pb.config.multisite && !(SITE_FIELD in objectToSave)) {
       objectToSave[SITE_FIELD] = site;
