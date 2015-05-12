@@ -223,14 +223,15 @@ module.exports = function PB(config) {
     pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js')(pb);
     pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js')(pb);
     
+    //object services
+    pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
+    pb.TopicService      = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
+    pb.ArticleServiceV2  = require(path.join(config.docRoot, '/include/service/entities/content/article_service_v2.js'))(pb);
+    
     var ArticleServiceModule = require(path.join(config.docRoot, '/include/service/entities/article_service.js'))(pb);
     pb.ArticleService        = ArticleServiceModule.ArticleService;
     pb.MediaLoader           = ArticleServiceModule.MediaLoader;
     pb.CommentService        = require(config.docRoot+'/include/theme/comments.js')(pb);
-    
-    //object services
-    pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
-    pb.TopicService      = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
     
     return pb;
 };
