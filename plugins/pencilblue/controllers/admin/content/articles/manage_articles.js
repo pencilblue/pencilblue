@@ -55,7 +55,7 @@ module.exports = function(pb) {
                 return self.reqHandler.serveError(err);
             }
             else if (articles.length <= 0) {
-                return self.redirect('/admin' + pb.SiteService.getCurrentSitePrefix(siteid) + '/content/articles/new', cb);
+                return self.redirect('/admin' + self.sitePrefix + '/content/articles/new', cb);
             }
 
             pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
