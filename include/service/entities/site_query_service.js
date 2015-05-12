@@ -176,7 +176,7 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {Function} callback   Callback function
    */
   SiteQueryService.prototype.loadById = function (id, collection, options, callback) {
-    var where = modifyLoadWhere(this.siteUId, DAO.getIdWhere(id));
+    var where = modifyLoadWhere(this.siteUId, pb.DAO.getIdWhere(id));
     dao.loadByValues(where, collection, options, callback);
   };
 
