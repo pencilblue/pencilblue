@@ -88,8 +88,13 @@ module.exports = function(pb) {
      */
     PageFormController.prototype.getAngularObjects = function(tabs, data, cb) {
         var self = this;
-        if(pb.config.multisite && !data.page.site) {
-            data.page.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
+        if(pb.config.multisite) {
+            if(!data.site) {
+                data.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
+            }
+            if(!data.page.site) {
+                data.page.site = data.site;
+            }
         }
         if(data.page[pb.DAO.getIdField()]) {
             var media = [];
@@ -118,7 +123,6 @@ module.exports = function(pb) {
             }
             data.page.page_topics = topics;
         }
-        data.site = data.page.site;
         pb.AdminSubnavService.getWithSite(this.getActivePill(), this.ls, this.getActivePill(), data, function(pills) {
             var objects = {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
@@ -128,7 +132,8 @@ module.exports = function(pb) {
                 sections: data.sections,
                 topics: data.topics,
                 media: data.media,
-                page: data.page
+                page: data.page,
+                site: data.site
             };
             if(data.availableAuthors) {
                 objects.availableAuthors = data.availableAuthors;
