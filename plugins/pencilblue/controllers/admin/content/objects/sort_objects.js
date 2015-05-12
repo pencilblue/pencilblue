@@ -32,6 +32,27 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'sort_custom_objects';
 
+    SortObjects.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function() {
+            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     SortObjects.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
@@ -55,16 +76,20 @@ module.exports = function(pb) {
 
                 //none to manage
                 if(customObjects.length === 0) {
-                    self.redirect('/admin/content/objects/' + vars.type_id + '/new', cb);
+                    self.redirect('/admin' + self.pathSitePrefix + '/content/objects/' + vars.type_id + '/new', cb);
                     return;
                 }
+
+                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: objectType, pathSitePrefix: self.pathSitePrefix});
+                pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
 
                 var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType),
+                    pills: pills,
                     customObjects: customObjects,
-                    objectType: objectType
+                    objectType: objectType,
+                    pathSitePrefix: self.pathSitePrefix
                 });
 
                 self.setPageName(self.ls.get('SORT') + ' ' + objectType.name);
@@ -79,14 +104,14 @@ module.exports = function(pb) {
     SortObjects.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_objects',
-            title: ls.get('SORT') + ' ' + data.name + ' ' + ls.get('OBJECTS'),
+            title: ls.get('SORT') + ' ' + data.objectType.name + ' ' + ls.get('OBJECTS'),
             icon: 'chevron-left',
-            href: '/admin/content/objects/' + data[pb.DAO.getIdField()]
+            href: '/admin' + data.pathSitePrefix + '/content/objects/' + data.objectType[pb.DAO.getIdField()]
         }, {
             name: 'new_object',
             title: '',
             icon: 'plus',
-            href: '/admin/content/objects/' + data[pb.DAO.getIdField()] + '/new'
+            href: '/admin' + data.pathSitePrefix + '/content/objects/' + data.objectType[pb.DAO.getIdField()] + '/new'
         }];
     };
 

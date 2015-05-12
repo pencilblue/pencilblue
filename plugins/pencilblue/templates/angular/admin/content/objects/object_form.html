@@ -111,7 +111,7 @@
                     saveObject[wysiwygContent[i].name] = wysiwygContent[i].content;
                 }
 
-                var postURL = '/actions/admin/content/objects/' + $scope.objectType._id
+                var postURL = '/actions/admin' + $scope.pathSitePrefix + '/content/objects/' + $scope.objectType._id;
                 if($scope.customObject._id) {
                     postURL += '/' + $scope.customObject._id;
                 }
@@ -124,7 +124,7 @@
                     $scope.saving = false;
 
                     if(result.data) {
-                        $window.location = '/admin/content/objects/' + $scope.objectType._id + '/' + result.data._id.toString();
+                        $window.location = '/admin' + $scope.pathSitePrefix + '/content/objects/' + $scope.objectType._id + '/' + result.data._id.toString();
                     }
                 })
                 .error(function(error, status) {

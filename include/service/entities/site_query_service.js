@@ -124,6 +124,19 @@ module.exports = function SiteQueryServiceModule(pb) {
   }
 
   /**
+   * Wrapper for site-aware DAO.exists. Determines if an object exists matching criteria with the specified site.
+   *
+   * @method exists
+   * @param  {String}   collection The collection to search in
+   * @param  {Object}   where      Key value pair object
+   * @param  {Function} cb         Callback function
+   */
+  SiteQueryService.prototype.exists = function(collection, where, cb) {
+    where = modifyLoadWhere(this.siteUId, where);
+    dao.exists(collection, where, cb)
+  };
+
+  /**
    * Wrapper for site-aware DAO.unique, determine if the document matching the query is unique within specified site
    * Only searches within specified site.
    *
