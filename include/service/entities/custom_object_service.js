@@ -460,8 +460,7 @@ module.exports = function CustomObjectServiceModule(pb) {
         options.where.type = typeStr;
 
         var self = this;
-        var dao  = new pb.DAO();
-        dao.q(CustomObjectService.CUST_OBJ_COLL, options, function(err, custObjs) {
+        self.siteQueryService.q(CustomObjectService.CUST_OBJ_COLL, options, function(err, custObjs) {
             if (util.isArray(custObjs)) {
 
                 var tasks = util.getTasks(custObjs, function(custObjs, i) {
@@ -583,8 +582,7 @@ module.exports = function CustomObjectServiceModule(pb) {
         }
 
         var self = this;
-        var dao  = new pb.DAO();
-        dao.loadByValues(where, CustomObjectService.CUST_OBJ_COLL, function(err, custObj) {
+        self.siteQueryService.loadByValues(where, CustomObjectService.CUST_OBJ_COLL, function(err, custObj) {
             if (util.isObject(custObj)) {
                 return self.fetchChildren(custObj, options, type, cb);
             }
@@ -626,8 +624,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             return cb(Error("The where parameter must be provided in order to load a custom object type"));
         }
 
-        var dao = new pb.DAO();
-        dao.loadByValues(where, CustomObjectService.CUST_OBJ_TYPE_COLL, cb);
+        this.siteQueryService.loadByValues(where, CustomObjectService.CUST_OBJ_TYPE_COLL, cb);
     };
 
     /**
@@ -901,7 +898,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             }
 
             var dao = new pb.DAO();
-            dao.save(custObj, cb);
+            self.siteQueryService.save(custObj, cb);
         });
     };
 

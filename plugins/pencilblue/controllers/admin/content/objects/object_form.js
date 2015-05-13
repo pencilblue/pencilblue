@@ -119,7 +119,7 @@ module.exports = function(pb) {
 
     ObjectFormController.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService();
+        var cos = new pb.CustomObjectService(self.pathSiteUid);
 
         var tasks = {
             tabs: function(callback) {
@@ -150,6 +150,10 @@ module.exports = function(pb) {
                         return;
                     }
 
+                    if (!util.isObject(objectType)) {
+                        return self.reqHandler.serve404();
+                    }
+
                     self.loadFieldOptions(cos, objectType, callback);
                 });
             },
@@ -170,7 +174,7 @@ module.exports = function(pb) {
         var self         = this;
         var keys         = Object.keys(objectType.fields);
         var custObjTypes = {};
-        var dao          = new pb.DAO();
+        var siteQueryService = new pb.SiteQueryService();
         var userService  = new pb.UserService();
 
         //wrapper function to load cust object type
@@ -228,7 +232,7 @@ module.exports = function(pb) {
                         last_name: 1
                     }
                 };
-                dao.q(objectType.fields[key].object_type, query, function(err, availableObjects) {
+                siteQueryService.q(objectType.fields[key].object_type, query, function(err, availableObjects) {
                     if (util.isError(err)) {
                         return callback(err);
                     }
@@ -239,7 +243,7 @@ module.exports = function(pb) {
                         var descriptor = {
                             name: availableObjects[i].name || availableObjects[i].headline || userService.getFormattedName(availableObjects[i])
                         };
-                        descriptor[pb.DAO.getIdField()] = availableObjects[i][pb.DAO.getIdField()]
+                        descriptor[pb.DAO.getIdField()] = availableObjects[i][pb.DAO.getIdField()];
                         objectsInfo.push(descriptor);
                     }
 

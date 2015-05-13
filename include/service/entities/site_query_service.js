@@ -163,7 +163,7 @@ module.exports = function SiteQueryServiceModule(pb) {
   };
 
   /**
-   * Wrapper for DAO.loadByValue; Retrieves objects matching a key value pair
+   * Proxy for DAO.loadByValue; Retrieves objects matching a key value pair
    *
    * @method loadByValue
    * @param {String}   key        The key to search for
@@ -175,8 +175,21 @@ module.exports = function SiteQueryServiceModule(pb) {
   SiteQueryService.prototype.loadByValue = function (key, value, collection, options, callback) {
     var where = {};
     where[key] = value;
+    this.loadByValues(where, collection, options, callback);
+  };
+
+  /**
+   * Wrapper for DAO.loadByValues. Retrieves object matching several key value pairs
+   *
+   * @method loadByValues
+   * @param {Object}   where      Key value pair object
+   * @param {String}   collection The collection to search in
+   * @param {Object}   Key value pair object to exclude the retrieval of data
+   * @param {Function} cb         Callback function
+   */
+  SiteQueryService.prototype.loadByValues = function(where, collection, opts, cb) {
     where = modifyLoadWhere(this.siteUId, where);
-    dao.loadByValues(where, collection, options, callback);
+    dao.loadByValues(where, collection, opts, cb);
   };
 
   /**

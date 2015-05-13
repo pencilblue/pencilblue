@@ -82,7 +82,7 @@ module.exports = function(pb) {
 
     TypeForm.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService();
+        var cos = new pb.CustomObjectService(self.pathSiteUid);
 
         var tasks = {
             tabs: function(callback) {
