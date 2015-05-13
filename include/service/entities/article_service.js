@@ -664,7 +664,7 @@ module.exports = function ArticleServiceModule(pb) {
                 return cb(err);
             }
             else if (!data) {
-                pb.log.warn("ArticleService: Content contains reference to missing media [%s].", flag.id);
+                pb.log.warn("MediaLoader: Content contains reference to missing media [%s].", flag.id);
                 return cb(null, layout.replace(flag.flag, ''));
             }
 

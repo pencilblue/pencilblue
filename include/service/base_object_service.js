@@ -19,6 +19,7 @@
 var util              = require('../util.js');
 var async             = require('async');
 var AsyncEventEmitter = require('async-eventemitter');
+var Sanitizer         = require('sanitize-html');
 
 module.exports = function(pb) {
     
@@ -568,8 +569,66 @@ module.exports = function(pb) {
         return error;
     };
     
-    BaseObjectService.sanitize = function(valStr, config) {
-        return pb.BaseController.sanitize(valStr, config);
+    /**
+     * Strips HTML formatting from a string value
+     * @static
+     * @method sanitize
+     * @param {String} value
+     * @param {Object} [config]
+     */
+    BaseObjectService.sanitize = function(value, config) {
+        if (!value) {
+            return value;
+        }
+        else if (!util.isObject(config)) {
+            config = BaseObjectService.getDefaultSanitizationRules();
+        }
+        return Sanitizer(value, config);
+    };
+    
+    /**
+     * The sanitization rules that apply to Pages and Articles
+     * @static
+     * @method getContentSanitizationRules
+     */
+    BaseObjectService.getContentSanitizationRules = function() {
+        return {
+            allowedTags: [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u', 'span' ],
+            allowedAttributes: {
+                a: [ 'href', 'name', 'target', 'class', 'align'],
+                img: [ 'src', 'class', 'align'],
+                p: ['align', 'class'],
+                h1: ['style', 'class', 'align'],
+                h2: ['style', 'class', 'align'],
+                h3: ['style', 'class', 'align'],
+                h4: ['style', 'class', 'align'],
+                h5: ['style', 'class', 'align'],
+                h6: ['style', 'class', 'align'],
+                div: ['style', 'class', 'align'],
+                span: ['style', 'class', 'align'],
+                table: ['style', 'class', 'align'],
+                tr: ['style', 'class', 'align'],
+                th: ['style', 'class', 'align'],
+                td: ['style', 'class', 'align'],
+            },
+
+            // Lots of these won't come up by default because we don't allow them
+            selfClosing: [ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' ],
+
+            // URL schemes we permit
+            allowedSchemes: [ 'http', 'https', 'ftp', 'mailto' ]
+        };
+    };
+
+    /**
+     * @static
+     * @method getDefaultSanitizationRules
+     */
+    BaseObjectService .getDefaultSanitizationRules = function() {
+        return {
+            allowedTags: [],
+            allowedAttributes: {}
+        };
     };
     
     BaseObjectService.getDate = function(dateStr) {

@@ -21,6 +21,8 @@ var util  = require('../../../util.js');
 module.exports = function(pb) {
     
     //pb dependencies
+    var DAO               = pb.DAO;
+    var ContentService    = pb.ContentService;
     var BaseObjectService = pb.BaseObjectService;
     var ValidationService = pb.ValidationService;
 
@@ -51,6 +53,65 @@ module.exports = function(pb) {
      */
     var TYPE = 'article';
     
+    ArticleServiceV2.prototype.render = function(articles, cb) {
+        if (!util.isArray(articles)) {
+            return cb(new Error('articles parameter must be an array'));
+        }
+        
+        var tasks = util.getTasks(articles, function(articles, i) {
+            return function(callback) {
+                
+                //TODO before render
+                
+                //render the 
+                var renderer = new pb.ArticleRenderer();
+                renderer.render(articles[i], context, callback);
+                
+                //
+            };
+        });
+        async.parallel(tasks, cb);
+    };
+    
+    ArticleServiceV2.prototype.gatherDataForRender = function(articles, cb) {
+        if (!util.isArray(articles)) {
+            return cb(new Error('articles parameter must be an array'));
+        }
+        
+        var tasks = {
+            
+            articleCount: function(callback) {
+                cb(null, articles.length);
+            },
+            
+            authors: function(callback) {
+                
+                var opts = {
+                    where: DAO.getIdInWhere(articles, 'author')
+                };
+                var dao = new pb.DAO();
+                dao.q('user', opts, function(err, authors) {
+                    
+                    var authorHash = {};
+                    if (util.isArray(authors)) {
+                        
+                        authorHash = util.arrayToHash(authors, function(author) {
+                            return author[DAO.getIdField()] + '';
+                        });
+                    }
+                    cb(err, authorHash);
+                });
+            },
+            
+            contentSettings: function(callback) {
+                
+                var contentService = new pb.ContentService();
+                contentService.getSettings(callback);
+            }
+        };
+        async.parallel(tasks, cb);
+    };
+    
     /**
      * 
      * @static
@@ -64,7 +125,7 @@ module.exports = function(pb) {
         var dto = context.data;
         dto.headline = BaseObjectService.sanitize(dto.headline);
         dto.subheading = BaseObjectService.sanitize(dto.subheading);
-        dto.article_layout = BaseObjectService.sanitize(dto.article_layout, pb.BaseController.getContentSanitizationRules());
+        dto.article_layout = BaseObjectService.sanitize(dto.article_layout, BaseObjectService.getContentSanitizationRules());
         dto.focus_keyword = BaseObjectService.sanitize(dto.focus_keyword);
         dto.seo_title = BaseObjectService.sanitize(dto.seo_title);
         dto.meta_desc = BaseObjectService.sanitize(dto.meta_desc);

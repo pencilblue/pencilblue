@@ -168,6 +168,10 @@ module.exports = function UrlServiceModule(pb) {
     UrlService.isFullyQualifiedUrl = function(urlStr) {
         return util.isString(urlStr) && urlStr.indexOf('http') === 0;
     };
+    
+    UrlService.createSystemUrl = function(path) {
+        return UrlService.urlJoin(pb.config.siteRoot, path);
+    };
 
     //exports
     return UrlService;
