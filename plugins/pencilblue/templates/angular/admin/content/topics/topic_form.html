@@ -14,12 +14,14 @@
 
             $scope.saving = true;
 
-            var postURL = '/actions/admin/content/topics';
+            var url = '/api/content/topics';
+            var action = 'post';
             if($scope.topic._id) {
-                postURL += '/' + $scope.topic._id;
+                url += '/' + $scope.topic._id;
+                action = 'put';
             }
 
-            $http.post(postURL, {name: $scope.topic.name})
+            $http[action](url, {name: $scope.topic.name})
             .success(function(result) {
                 $scope.successMessage = result.message;
                 if(!$scope.topic._id) {
