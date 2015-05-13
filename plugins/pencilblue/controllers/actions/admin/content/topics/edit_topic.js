@@ -26,6 +26,27 @@ module.exports = function(pb) {
     function NewTopic(){}
     util.inherits(NewTopic, pb.BaseController);
 
+    NewTopic.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     NewTopic.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
@@ -61,7 +82,7 @@ module.exports = function(pb) {
 
                 pb.DocumentCreator.update(post, topic);
 
-                dao.loadByValue('name', topic.name, 'topic', function(err, testTopic) {
+                self.queryService.loadByValue('name', topic.name, 'topic', function(err, testTopic) {
                     if(testTopic && !testTopic[pb.DAO.getIdField()].equals(topic[pb.DAO.getIdField()])) {
                         cb({
                             code: 400,
@@ -70,7 +91,7 @@ module.exports = function(pb) {
                         return;
                     }
 
-                    dao.save(topic, function(err, result) {
+                    self.queryService.save(topic, function(err, result) {
                         if(util.isError(err)) {
                             return cb({
                                 code: 500,

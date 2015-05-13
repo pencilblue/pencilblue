@@ -184,12 +184,12 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @method loadByValues
    * @param {Object}   where      Key value pair object
    * @param {String}   collection The collection to search in
-   * @param {Object}   Key value pair object to exclude the retrieval of data
-   * @param {Function} cb         Callback function
+   * @param {Object}   options    Key value pair object to exclude the retrieval of data
+   * @param {Function} callback   Callback function
    */
-  SiteQueryService.prototype.loadByValues = function(where, collection, opts, cb) {
+  SiteQueryService.prototype.loadByValues = function(where, collection, options, callback) {
     where = modifyLoadWhere(this.siteUId, where);
-    dao.loadByValues(where, collection, opts, cb);
+    dao.loadByValues(where, collection, options, callback);
   };
 
   /**
@@ -202,8 +202,20 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {Function} callback   Callback function
    */
   SiteQueryService.prototype.loadById = function (id, collection, options, callback) {
-    var where = modifyLoadWhere(this.siteUId, pb.DAO.getIdWhere(id));
-    dao.loadByValues(where, collection, options, callback);
+    this.loadByValues(pb.DAO.getIdWhere(id), collection, options, callback);
+  };
+
+  /**
+   * Wrapper for DAO.count; Gets the count of objects matching criteria
+   *
+   * @method count
+   * @param  {String}   entityType The type of object to search for
+   * @param  {Object}   where      Key value pair object
+   * @param  {Function} callback         Callback function
+   */
+  SiteQueryService.prototype.count = function (entityType, where, callback) {
+    where = modifyLoadWhere(this.siteUId, where);
+    dao.count(entityType, where, callback);
   };
 
   function modifySave(site, objectToSave) {

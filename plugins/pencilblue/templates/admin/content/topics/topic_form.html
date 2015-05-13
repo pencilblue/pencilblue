@@ -13,7 +13,7 @@
                         <div class="form_error" ng-if="!isFieldValid(topicForm.name)">^loc_REQUIRED_FIELD^</div>
                     </div>
                 </div>
-                <a class="btn btn-default" href="/admin/content/topics">
+                <a class="btn btn-default" ng-href="/admin{{ sitePrefix }}/content/topics">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
                 </a>
                 ^tmp_admin=elements=save_button^
