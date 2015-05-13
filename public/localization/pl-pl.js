@@ -316,6 +316,7 @@ var loc =
     wysiwyg: {
         NORMAL_TEXT: 'Normalny tekst',
         QUOTE: 'Cytat',
+        PRE: 'Code',
         HEADING_1: 'Nagłowek 1',
         HEADING_2: 'Nagłowek 2',
         HEADING_3: 'Nagłowek 3',

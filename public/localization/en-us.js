@@ -313,6 +313,7 @@ var loc =
     wysiwyg: {
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',
+        PRE: 'Code',
         HEADING_1: 'Heading 1',
         HEADING_2: 'Heading 2',
         HEADING_3: 'Heading 3',

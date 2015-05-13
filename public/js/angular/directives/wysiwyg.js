@@ -15,20 +15,77 @@
           markdown: toMarkdown(scope.layout ? scope.layout.toString() : '')
         };
 
+        scope.availableElements = [{
+          name: loc.wysiwyg.NORMAL_TEXT,
+          type: 'p'
+        }, {
+          name: loc.wysiwyg.QUOTE,
+          type: 'blockquote'
+        }, {
+          name: loc.wysiwyg.PRE,
+          type: 'pre'
+        }, {
+          name: loc.wysiwyg.HEADING_1,
+          type: 'h1'
+        }, {
+          name: loc.wysiwyg.HEADING_2,
+          type: 'h2'
+        }, {
+          name: loc.wysiwyg.HEADING_3,
+          type: 'h3'
+        }, {
+          name: loc.wysiwyg.HEADING_4,
+          type: 'h4'
+        }, {
+          name: loc.wysiwyg.HEADING_5,
+          type: 'h5'
+        }, {
+          name: loc.wysiwyg.HEADING_6,
+          type: 'h6'
+        }];
+
         scope.setLayoutView = function(view) {
           scope.wysiwyg.currentView = view;
         };
 
+        scope.setElement = function(type) {
+          scope.formatAction('formatblock', type);
+          scope.getCurrentElement();
+        };
+
+        scope.getCurrentElement = function() {
+          var block = $document[0].queryCommandValue('formatblock');
+
+          for(var i = 0; i < scope.availableElements.length; i++) {
+            if(scope.availableElements[i].type === block) {
+              return scope.availableElements[i];
+            }
+          }
+
+          return scope.availableElements[0];
+        }
+
         scope.formatAction = function(action, arguments) {
-          console.log(action);
+          if(scope.wysiwyg.currentView !== 'editable') {
+            return;
+          }
 
           $document[0].execCommand(action, false, arguments);
+        };
+
+        scope.isFormatActive = function(type) {
+          return $document[0].queryCommandState(type)
         }
 
         scope.$watch('wysiwyg.layout', function(newVal, oldVal) {
-          if(scope.wysiwyg.currentView !== 'layout') {
+          if(scope.wysiwyg.currentView !== 'editable') {
             return;
           }
+
+          // Remove crappy line-height spans in Chrome
+          editableDiv.find('span').each(function() {
+            angular.element(this).css('line-height', '');
+          });
 
           if(newVal !== oldVal) {
             scope.wysiwyg.markdown = toMarkdown(newVal);
@@ -48,8 +105,14 @@
         var editableDiv = angular.element(element).find('[contenteditable]');
         var range = rangy.createRange();
         editableDiv.on('mouseup', function(event) {
+          if(!scope.wysiwyg.layout.length) {
+            scope.setElement(loc.wysiwyg.NORMAL_TEXT, 'p');
+          }
+
+          scope.$apply();
+
           range.selectNodeContents(editableDiv[0]);
-          console.log(rangy.getSelection());
+          scope.editableRange = rangy.getSelection();
         });
       }
     };
