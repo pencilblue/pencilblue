@@ -50,7 +50,6 @@
 
         scope.setElement = function(type) {
           scope.formatAction('formatblock', type);
-          scope.getCurrentElement();
         };
 
         scope.getCurrentElement = function() {
@@ -62,6 +61,7 @@
             }
           }
 
+          scope.setElement('p');
           return scope.availableElements[0];
         }
 
