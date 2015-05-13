@@ -21,7 +21,6 @@ var path    = require('path');
 var cluster = require('cluster');
 var process = require('process');
 var util    = require('./util.js');
-var process = require('process');
 var winston = require('winston');
 
 /**
@@ -113,7 +112,7 @@ var CONFIG_MODULE_NAME  = 'config.js';
  */
 var OVERRIDE_FILE_PATHS = [
     path.join(Configuration.DOCUMENT_ROOT, CONFIG_MODULE_NAME),
-    path.join(Configuration.EXTERNAL_ROOT, CONFIG_MODULE_NAME),
+    path.join(Configuration.EXTERNAL_ROOT, CONFIG_MODULE_NAME)
 ];
 
 /**
@@ -337,7 +336,7 @@ var BASE_CONFIG = {
             //custom object type
             {
                 collection: 'custom_object_type',
-                spec: {name: ASC},
+                spec: {name: ASC, site: ASC},
                 options: {unique: true}
             },
             {
@@ -489,7 +488,7 @@ var BASE_CONFIG = {
 	cache: {
 		fake: true,
 		host: "localhost",
-		port: 6379,
+		port: 6379
         //auth_pass: "password here"
 	},
 
@@ -522,7 +521,7 @@ var BASE_CONFIG = {
         //The timeout specifies how long in milliseconds a setting will exist 
         //in memory before being flushed.  A value of 0 indicates that the 
         //values will not be purged from memory once expired.
-        memory_timeout: 0,
+        memory_timeout: 0
 	},
 
     //The template engine can take advantage of caching so that they are not
@@ -536,7 +535,7 @@ var BASE_CONFIG = {
         //The timeout specifies how long in milliseconds a setting will exist 
         //in memory before being flushed.  A value of 0 indicates that the 
         //values will not be purged from memory once expired.
-        memory_timeout: 0,
+        memory_timeout: 0
 	},
 
     //Plugins can also take advantage of the caching.  This prevents a DB call
@@ -549,7 +548,7 @@ var BASE_CONFIG = {
             //The timeout specifies how long in milliseconds a setting will exist 
             //in memory before being flushed.  A value of 0 indicates that the 
             //values will not be purged from memory once expired.
-            memory_timeout: 0,
+            memory_timeout: 0
 		}
 	},
 

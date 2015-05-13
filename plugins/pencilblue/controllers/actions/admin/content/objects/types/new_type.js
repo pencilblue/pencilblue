@@ -29,13 +29,29 @@ module.exports = function(pb) {
     function NewObjectTypeActionController(){}
     util.inherits(NewObjectTypeActionController, pb.BaseController);
 
+    NewObjectTypeActionController.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function() {
+            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    cb();
+                }
+            });
+        });
+    };
+
     NewObjectTypeActionController.prototype.render = function(cb) {
         var self = this;
 
         var post = self.body;
         post.fields.name = {field_type: 'text'};
 
-        var service = new pb.CustomObjectService();
+        var service = new pb.CustomObjectService(self.pathSiteUid);
         service.saveType(post, function(err, result) {
             if(util.isError(err)) {
                 return cb({
