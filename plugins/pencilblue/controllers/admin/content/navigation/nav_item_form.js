@@ -109,8 +109,7 @@ module.exports = function(pb) {
 
             //get parents
             parents: function(callback) {
-                var sectionService = new pb.SectionService();
-                sectionService.getParentSelectList(self.pathVars.id, function(err, parents) {
+                self.navService.getParentSelectList(self.pathVars.id, function(err, parents) {
                     if(util.isError(err)) {
                         callback(err, parents);
                         return;
@@ -151,15 +150,14 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.loadById(vars.id, 'section', function(err, navItem) {
+                self.navService.loadById(vars.id, 'section', function(err, navItem) {
                     if(!navItem.item) {
                         callback(err, navItem);
                         return;
                     }
 
                     //TODO modify such that only the needed field of "headline" is returned.
-                    dao.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
+                    self.navService.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
                         if(articleOrPage) {
                             navItem.contentSearchValue = articleOrPage.headline;
                         }

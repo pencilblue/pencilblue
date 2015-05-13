@@ -132,13 +132,13 @@
 			}
 			mediaObject.media_topics = topics;
 
-			mediaService.saveMedia(mediaObject)
+			mediaService.saveMedia(mediaObject, $scope.sitePrefix)
 			.then(function(result) {
 				$scope.saving = false;
 				$scope.successMessage = result.message;
 
 				if(result.data._id) {
-					$window.location = '/admin/content/media/' + result.data._id;
+					$window.location = '/admin' + $scope.sitePrefix + '/content/media/' + result.data._id;
 				}
 			},
 			function(result, status) {
