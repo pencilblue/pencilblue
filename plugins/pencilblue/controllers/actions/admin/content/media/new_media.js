@@ -29,6 +29,14 @@ module.exports = function(pb) {
     function NewMediaApiController(){}
     util.inherits(NewMediaApiController, pb.BaseController);
 
+    NewMediaApiController.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+    };
+
+
     NewMediaApiController.prototype.render = function(cb) {
         var self = this;
 
@@ -43,7 +51,7 @@ module.exports = function(pb) {
             }
 
             var mediaDocument = pb.DocumentCreator.create('media', post);
-            var mediaService = new pb.MediaService();
+            var mediaService = new pb.MediaService(null, self.pathSiteUId);
             mediaService.save(mediaDocument, function(err, result) {
                 if(util.isError(err)) {
                     return cb({

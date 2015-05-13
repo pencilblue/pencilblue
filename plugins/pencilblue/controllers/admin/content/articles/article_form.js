@@ -110,8 +110,13 @@ module.exports = function(pb) {
 
     ArticleForm.prototype.getAngularObjects = function(tabs, data, cb) {
         var self = this;
-        if(pb.config.multisite && !data.article.site) {
-            data.article.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
+        if(pb.config.multisite) {
+            if(!data.site) {
+                data.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
+            }
+            if(!data.article.site) {
+                data.article.site = data.site;
+            }
         }
         if(data.article[pb.DAO.getIdField()]) {
             var media = [];
@@ -162,7 +167,8 @@ module.exports = function(pb) {
                 sections: data.sections,
                 topics: data.topics,
                 media: data.media,
-                article: data.article
+                article: data.article,
+                site: data.site
             };
             if(data.availableAuthors) {
                 objects.availableAuthors = data.availableAuthors;
@@ -223,7 +229,7 @@ module.exports = function(pb) {
 
             media: function(callback) {
                 var mservice = new pb.MediaService();
-                mservice.get(callback);
+                mservice.getBySite(vars.siteid, callback);
             },
 
             article: function(callback) {

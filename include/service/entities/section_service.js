@@ -314,8 +314,7 @@ module.exports = function SectionServiceModule(pb) {
             where: where,
             order: {'name': pb.DAO.ASC}
         };
-        var dao = new pb.DAO();
-        dao.q('section', opts, cb);
+        this.queryService.q('section', opts, cb);
     };
 
     /**

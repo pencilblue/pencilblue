@@ -32,15 +32,36 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'manage_object_types';
 
+    ManageObjectTypes.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function() {
+            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
 
-        var service = new pb.CustomObjectService();
+        var service = new pb.CustomObjectService(self.pathSiteUid);
         service.findTypes(function(err, custObjTypes) {
 
             //none to manage
             if(custObjTypes.length === 0) {
-                self.redirect('/admin/content/objects/types/new', cb);
+                self.redirect('/admin' + self.pathSitePrefix + '/content/objects/types/new', cb);
                 return;
             }
 
@@ -48,11 +69,16 @@ module.exports = function(pb) {
             pb.CustomObjectService.setFieldTypesUsed(custObjTypes, self.ls);
 
             //build out the angular controller
+            var data = {};
+            data.pathSitePrefix = self.pathSitePrefix;
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data);
+            pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_object_types'),
-                objectTypes: custObjTypes
+                pills: pills,
+                objectTypes: custObjTypes,
+                pathSitePrefix: self.pathSitePrefix
             });
 
             self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
@@ -70,12 +96,12 @@ module.exports = function(pb) {
             name: SUB_NAV_KEY,
             title: ls.get('MANAGE_OBJECT_TYPES'),
             icon: 'refresh',
-            href: '/admin/content/objects/types'
+            href: '/admin' + data.pathSitePrefix + '/content/objects/types'
         }, {
             name: 'new_object_type',
             title: '',
             icon: 'plus',
-            href: '/admin/content/objects/types/new'
+            href: '/admin' + data.pathSitePrefix + '/content/objects/types/new'
         }];
     };
 
