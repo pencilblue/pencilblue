@@ -86,7 +86,8 @@ module.exports = function DBManagerModule(pb) {
 
                 self.authenticate(pb.config.db.authentication, db, function(err, didAuthenticate) {
                     if (util.isError(err)) {
-                        return cb(err);
+                        var message = err.name + ': ' + err.message;
+                        return cb(new Error(message));
                     }
                     else if (didAuthenticate !== true && didAuthenticate !== null) {
                         return cb(new Error("Failed to authenticate to db "+name+": "+util.inspect(didAuthenticate)));
@@ -102,7 +103,7 @@ module.exports = function DBManagerModule(pb) {
         };
 
         /**
-         *
+         * 
          * @method authenticate
          * @param {Object} auth
          * @param {Db} db
