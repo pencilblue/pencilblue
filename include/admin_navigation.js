@@ -198,7 +198,7 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'site_settings',
                         title: 'SITE_SETTINGS',
                         icon: 'cog',
-                        href: '/admin/site_settings',
+                        href: adminPath + '/site_settings',
                         access: SecurityService.ACCESS_MANAGING_EDITOR
                     },
                     {
@@ -219,8 +219,8 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'library_settings',
                         title: 'LIBRARIES',
                         icon: 'book',
-                        href: '/admin/site_settings/libraries',
-                        access: SecurityService.ACCESS_MANAGING_EDITOR
+                        href: '/admin/'+ pb.SiteService.GLOBAL_SITE +'/site_settings/libraries',
+                        access: SecurityService.ACCESS_ADMINISTRATOR
                     }
                 ]
             },

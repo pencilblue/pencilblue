@@ -119,7 +119,7 @@ module.exports = function(pb) {
 
     ObjectFormController.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService(self.pathSiteUid);
+        var cos = new pb.CustomObjectService(self.pathSiteUid, true);
 
         var tasks = {
             tabs: function(callback) {
