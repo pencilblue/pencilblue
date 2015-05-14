@@ -45,6 +45,24 @@ module.exports = function(pb) {
     
     /**
      * 
+     * @static
+     * @readonly
+     * @property BEFORE_RENDER
+     * @type {String}
+     */
+    ArticleServiceV2.BEFORE_RENDER = 'beforeRender';
+    
+    /**
+     * 
+     * @static
+     * @readonly
+     * @property AFTER_RENDER
+     * @type {String}
+     */
+    ArticleServiceV2.AFTER_RENDER = 'afterRender';
+    
+    /**
+     * 
      * @private
      * @static
      * @readonly
@@ -58,21 +76,52 @@ module.exports = function(pb) {
             return cb(new Error('articles parameter must be an array'));
         }
         
-        var tasks = util.getTasks(articles, function(articles, i) {
-            return function(callback) {
-                
-                //TODO before render
-                
-                //render the 
-                var renderer = new pb.ArticleRenderer();
-                renderer.render(articles[i], context, callback);
-                
-                //
-            };
+        var self  = this;
+        this.gatherDataForRender(articles, function(err, context) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            //create tasks for each article
+            var tasks = util.getTasks(articles, function(articles, i) {
+                return function(callback) {
+
+                    //setup individual article context
+                    var articleContext = {
+                        service: self,
+                        data: articles[i]
+                    };
+                    util.merge(context, articleContext);
+                    
+                    //create tasks for each article
+                    var subTasks = [
+
+                        //before render
+                        util.wrapTask(self, self._emit, [ArticleServiceV2.BEFORE_RENDER, context]),
+
+                        //perform render
+                        function(callback) {
+
+                            var renderer = new pb.ArticleRenderer();
+                            renderer.render(articles[i], context, callback);
+                        },
+
+                        //after render
+                        util.wrapTask(self, self._emit, [ArticleServiceV2.AFTER_RENDER, context])
+                    ];
+                    async.series(subTasks, callback);
+                };
+            });
+            async.parallel(tasks, cb);
         });
-        async.parallel(tasks, cb);
     };
     
+    /**
+     *
+     * @method gatherDataForRender
+     * @param {Array} articles
+     * @param {Function} cb
+     */
     ArticleServiceV2.prototype.gatherDataForRender = function(articles, cb) {
         if (!util.isArray(articles)) {
             return cb(new Error('articles parameter must be an array'));
