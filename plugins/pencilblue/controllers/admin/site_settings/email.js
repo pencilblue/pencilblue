@@ -19,6 +19,7 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var SiteService = pb.SiteService;
     
     /**
      * Interface for the site's email settings
@@ -54,11 +55,13 @@ module.exports = function(pb) {
 
         var emailService = new pb.EmailService();
         emailService.getSettings(function(err, emailSettings) {
+            var sitePrefix = SiteService.getCurrentSitePrefix(SiteService.getCurrentSite(self.pathVars.siteid));
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email'),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email', { sitePrefix: sitePrefix }),
                 tabs: tabs,
-                emailSettings: emailSettings
+                emailSettings: emailSettings,
+                sitePrefix: sitePrefix
             });
 
             self.setPageName(self.ls.get('EMAIL'));
@@ -74,17 +77,17 @@ module.exports = function(pb) {
             name: 'configuration',
             title: ls.get('EMAIL'),
             icon: 'chevron-left',
-            href: '/admin/site_settings'
+            href: '/admin' + data.sitePrefix + '/site_settings'
         }, {
             name: 'content',
             title: ls.get('CONTENT'),
             icon: 'quote-right',
-            href: '/admin/site_settings/content'
+            href: '/admin' + data.sitePrefix + '/site_settings/content'
         }, {
             name: 'libraries',
             title: ls.get('LIBRARIES'),
             icon: 'book',
-            href: '/admin/site_settings/libraries'
+            href: '/admin' + data.sitePrefix + '/site_settings/libraries'
         }];
     };
 
