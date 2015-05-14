@@ -29,6 +29,15 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'libraries_settings';
 
+    Libraries.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.sitePrefix = pb.SiteService.getCurrentSitePrefix(pb.SiteService.GLOBAL_SITE);
+            self.siteName = pb.SiteService.GLOBAL_SITE;
+            cb();
+        });
+    };
+
     Libraries.prototype.render = function(cb) {
         var self = this;
 
@@ -51,7 +60,7 @@ module.exports = function(pb) {
         librariesService.getSettings(function(err, librarySettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'libraries'),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'libraries', {sitePrefix: self.sitePrefix, siteName:self.siteName}),
                 tabs: tabs,
                 librarySettings: librarySettings,
                 cdnDefaults: pb.LibrariesService.getCDNDefaults(),
@@ -68,22 +77,31 @@ module.exports = function(pb) {
 
 
     Libraries.getSubNavItems = function(key, ls, data) {
-        return [{
+        var prefix = '/admin';
+        if(data && data.sitePrefix) {
+            prefix += data.sitePrefix;
+        }
+        var pills = [{
             name: 'configuration',
             title: ls.get('LIBRARIES'),
             icon: 'chevron-left',
-            href: '/admin/site_settings'
+            href: prefix + '/site_settings'
         }, {
             name: 'content',
             title: ls.get('CONTENT'),
             icon: 'quote-right',
-            href: '/admin/site_settings/content'
+            href: prefix + '/site_settings/content'
         }, {
             name: 'email',
             title: ls.get('EMAIL'),
             icon: 'envelope',
-            href: '/admin/site_settings/email'
+            href: prefix + '/site_settings/email'
         }];
+        if(data && data.siteName) {
+            return pb.AdminSubnavService.addSiteToPills(pills, data.siteName);
+        }
+
+        return pills;
     };
 
     //register admin sub-nav
