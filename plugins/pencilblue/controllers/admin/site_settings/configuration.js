@@ -89,19 +89,11 @@ module.exports = function(pb) {
 
     Configuration.getSubNavItems = function(key, ls, data) {
         var prefix = '/admin';
-        var pills = [];
-        if(data && data.sitePrefix){
+        if(data && data.sitePrefix) {
             prefix += data.sitePrefix;
         }
-        if(data && data.siteName) {
-            pills.push({
-                name: 'selected_site',
-                title: data.siteName,
-                icon: 'sitemap',
-                href: '/admin/sites'
-            });
-        }
-        pills = pills.concat([{
+
+        var pills = [{
             name: 'configuration',
             title: ls.get('CONFIGURATION'),
             icon: 'refresh',
@@ -116,7 +108,7 @@ module.exports = function(pb) {
             title: ls.get('EMAIL'),
             icon: 'envelope',
             href: prefix + '/site_settings/email'
-        }]);
+        }];
 
         if(data && data.site === pb.SiteService.GLOBAL_SITE) {
             pills.push({
@@ -127,6 +119,10 @@ module.exports = function(pb) {
             });
         }
 
+        if(data && data.siteName) {
+            return pb.AdminSubnavService.addSiteToPills(pills, data.siteName);
+        }
+        
         return pills;
     };
 
