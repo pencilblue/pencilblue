@@ -42,12 +42,10 @@ module.exports = function(pb) {
                     self.reqHandler.serve404();
                 }
                 else {
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
                     self.siteObj = site;
                     cb();
                 }
-            });
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-
             });
         });
     };
@@ -76,7 +74,7 @@ module.exports = function(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration'),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration', {sitePrefix: self.sitePrefix, site: self.pathSiteUId, siteName: self.siteObj.displayName}),
                 config: config
             });
 
@@ -89,27 +87,42 @@ module.exports = function(pb) {
     };
 
     Configuration.getSubNavItems = function(key, ls, data) {
-        return [{
+        var prefix = '/admin';
+        var pills = [];
+        if(data && data.sitePrefix){
+            prefix += data.sitePrefix;
+        }
+        if(data && data.siteName) {
+            pills.push({
+                name: 'selected_site',
+                title: data.siteName,
+                icon: 'sitemap',
+                href: '/admin/sites'
+            });
+        }
+        pills = pills.concat([{
             name: 'configuration',
             title: ls.get('CONFIGURATION'),
             icon: 'refresh',
-            href: '/admin/site_settings'
+            href: prefix + '/site_settings'
         }, {
             name: 'content',
             title: ls.get('CONTENT'),
             icon: 'quote-right',
-            href: '/admin/site_settings/content'
+            href: prefix + '/site_settings/content'
         }, {
             name: 'email',
             title: ls.get('EMAIL'),
             icon: 'envelope',
-            href: '/admin/site_settings/email'
+            href: prefix + '/site_settings/email'
         }, {
             name: 'libraries',
             title: ls.get('LIBRARIES'),
             icon: 'book',
-            href: '/admin/site_settings/libraries'
-        }];
+            href: prefix + '/site_settings/libraries'
+        }]);
+
+        return pills;
     };
 
     //register admin sub-nav
