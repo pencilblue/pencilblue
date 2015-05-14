@@ -476,7 +476,17 @@ module.exports = function ArticleServiceModule(pb) {
      */
     ArticleService.prototype.getMetaInfo = function(article, cb) {
         if (util.isNullOrUndefined(article)) {
-            return cb(new Error('The article parameter cannot be null'));
+            return cb(
+                new Error('The article parameter cannot be null'),
+                
+                //provided for backward compatibility
+                {
+                    title: '',
+                    description: '',
+                    thumbnail: '',
+                    keywords: []
+                }
+            );
         }
         
         //compile the tasks necessary to gather the meta info
