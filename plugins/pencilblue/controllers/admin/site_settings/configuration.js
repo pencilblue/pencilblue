@@ -44,6 +44,7 @@ module.exports = function(pb) {
                 else {
                     self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
                     self.siteObj = site;
+                    self.siteName = site.uid === pb.SiteService.GLOBAL_SITE ? site.uid : site.displayName;
                     cb();
                 }
             });
@@ -74,7 +75,7 @@ module.exports = function(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration', {sitePrefix: self.sitePrefix, site: self.pathSiteUId, siteName: self.siteObj.displayName}),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration', {sitePrefix: self.sitePrefix, site: self.pathSiteUId, siteName: self.siteName}),
                 config: config
             });
 
@@ -115,12 +116,16 @@ module.exports = function(pb) {
             title: ls.get('EMAIL'),
             icon: 'envelope',
             href: prefix + '/site_settings/email'
-        }, {
-            name: 'libraries',
-            title: ls.get('LIBRARIES'),
-            icon: 'book',
-            href: prefix + '/site_settings/libraries'
         }]);
+
+        if(data && data.site === pb.SiteService.GLOBAL_SITE) {
+            pills.push({
+                name: 'libraries',
+                title: ls.get('LIBRARIES'),
+                icon: 'book',
+                href: prefix + '/site_settings/libraries'
+            });
+        }
 
         return pills;
     };
