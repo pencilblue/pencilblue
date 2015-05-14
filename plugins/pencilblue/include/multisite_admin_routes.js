@@ -549,6 +549,56 @@ module.exports = function Routes(pb){
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'themes', 'site_logo.js')
+        },
+
+        //SITE SETTINGS
+        {
+            method: 'get',
+            path: "/admin/:siteid/site_settings",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'configuration.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/:siteid/site_settings",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'configuration.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin/:siteid/site_settings/content",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'content.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/:siteid/site_settings/content",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'content.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin/:siteid/site_settings/email",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'email.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/:siteid/site_settings/email",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'email.js'),
+            content_type: 'text/html'
         }
     ];
 };
