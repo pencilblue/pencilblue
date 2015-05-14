@@ -28,6 +28,27 @@ module.exports = function(pb) {
     function ManageComments() {}
     util.inherits(ManageComments, pb.BaseController);
 
+    ManageComments.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     /**
      *
      * @private
@@ -52,20 +73,20 @@ module.exports = function(pb) {
             order: {created: -1},
             limit: 500
         };
-        var dao  = new pb.DAO();
-        dao.q('comment', opts, function(err, comments) {
+        self.queryService.q('comment', opts, function(err, comments) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
 
             //retrieve the content settings or defaults if they have not yet been configured
-            var contentService = new pb.ContentService();
+            var contentService = new pb.ContentService(self.pathSiteUId);
             contentService.getSettings(function(err, contentSettings) {
                 //TODO handle error
 
                 //retrieve any details
-                self.getCommentDetails(comments, dao, function(commentsWithDetails) {
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
+                self.getCommentDetails(comments, function(commentsWithDetails) {
+                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {prefix: self.sitePrefix});
+                    pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
                     var angularObjects = pb.ClientJs.getAngularObjects({
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
                         pills: pills,
@@ -91,7 +112,7 @@ module.exports = function(pb) {
      * @param {DAO} dao
      * @param {Function} cb
      */
-    ManageComments.prototype.getCommentDetails = function(comments, dao, cb) {
+    ManageComments.prototype.getCommentDetails = function(comments, cb) {
         var self = this;
 
         if(comments.length === 0) {
@@ -100,12 +121,12 @@ module.exports = function(pb) {
         }
 
         this.getCommentingUser = function(index) {
-            dao.loadById(comments[index].commenter, 'user', function(err, user) {
+            self.queryService.loadById(comments[index].commenter, 'user', function(err, user) {
                 if(!util.isError(err) && user !== null) {
                     comments[index].user_name = user.first_name + ' ' + user.last_name;
                 }
 
-                dao.loadById(comments[index].article, 'article', function(err, article) {
+                self.queryService.loadById(comments[index].article, 'article', function(err, article) {
                     if(!util.isError(err) && article !== null) {
                         comments[index].article_url = article.url;
                         comments[index].article_headline = article.headline;
@@ -138,7 +159,7 @@ module.exports = function(pb) {
             name: SUB_NAV_KEY,
             title: ls.get('MANAGE_COMMENTS'),
             icon: 'refresh',
-            href: '/admin/content/comments'
+            href: '/admin' + data.prefix + '/content/comments'
         }];
     };
 
