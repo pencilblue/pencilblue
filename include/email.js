@@ -28,7 +28,13 @@ module.exports = function EmailServiceModule(pb) {
      * @class EmailService
      * @constructor
      */
-    function EmailService(){}
+    function EmailService(siteUID) {
+        if(pb.config.multisite && siteUID) {
+            this.site = siteUID;
+        } else {
+            this.site = pb.SiteService.GLOBAL_SITE;
+        }
+    }
 
     /** 
      *
@@ -155,7 +161,8 @@ module.exports = function EmailServiceModule(pb) {
      */
     EmailService.prototype.getSettings = function(cb) {
         var self = this;
-        pb.settings.get('email_settings', function(err, settings) {
+        var settingsService = pb.SettingServiceFactory.getServiceBySite(pb.SiteService.getCurrentSite(self.site), true);
+        settingsService.get('email_settings', function(err, settings) {
             cb(err, util.isError(err) || !settings ? EmailService.getDefaultSettings() : settings);
         });
     };

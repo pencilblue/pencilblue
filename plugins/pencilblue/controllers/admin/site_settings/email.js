@@ -53,7 +53,7 @@ module.exports = function(pb) {
             }
         ];
 
-        var emailService = new pb.EmailService();
+        var emailService = new pb.EmailService(self.pathVars.siteid);
         emailService.getSettings(function(err, emailSettings) {
             var sitePrefix = SiteService.getCurrentSitePrefix(SiteService.getCurrentSite(self.pathVars.siteid));
             var angularObjects = pb.ClientJs.getAngularObjects({

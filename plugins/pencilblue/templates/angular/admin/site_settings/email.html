@@ -37,7 +37,7 @@
             getWYSIWYGLayout(wysId, function(layout) {
                 $scope.emailSettings.verification_content = layout;
 
-                $http.post('/actions' + $scope.sitePrefix + '/admin/site_settings/email', $scope.emailSettings)
+                $http.post('/actions/admin'+ $scope.sitePrefix +'/site_settings/email', $scope.emailSettings)
                 .success(function(result) {
                     $scope.successMessage = result.message;
                     $scope.saving = false;
