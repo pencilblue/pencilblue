@@ -28,12 +28,12 @@ module.exports = function CustomObjectServiceModule(pb) {
      * @class CustomObjectService
      * @constructor
      */
-    function CustomObjectService(pathSiteUid) {
+    function CustomObjectService(siteUid, onlyThisSite) {
         this.typesCache = {};
         this.typesNametoId = {};
 
-        this.site = pb.SiteService.getCurrentSite(pathSiteUid);
-        this.siteQueryService = new pb.SiteQueryService(this.site);
+        this.site = pb.SiteService.getCurrentSite(siteUid);
+        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
     }
 
     //statics

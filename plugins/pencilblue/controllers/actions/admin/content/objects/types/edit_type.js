@@ -56,7 +56,7 @@ module.exports = function(pb) {
             });
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUid);
+        var service = new pb.CustomObjectService(self.pathSiteUid, true);
         service.loadTypeById(vars.id, function(err, custObjType) {
             if(util.isError(err) || !util.isObject(custObjType)) {
                 return cb({

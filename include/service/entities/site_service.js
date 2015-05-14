@@ -19,6 +19,21 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.SITE_COLLECTION = 'site';
     var SITE_COLL = SiteService.SITE_COLLECTION;
 
+    SiteService.prototype.getByUid = function(uid, cb) {
+        if(uid === SiteService.GLOBAL_SITE) {
+            cb(null, {
+                displayName:pb.config.siteName,
+                hostname: pb.config.siteRoot,
+                uid: SiteService.GLOBAL_SITE
+            });
+        }
+        else {
+            var dao = new pb.DAO();
+            var where = {uid: uid};
+            dao.loadByValues(where, SITE_COLL, cb);
+        }
+    };
+
     SiteService.prototype.getActiveSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {active: true} }, cb);

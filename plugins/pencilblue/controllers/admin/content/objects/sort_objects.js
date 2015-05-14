@@ -60,7 +60,7 @@ module.exports = function(pb) {
             return this.reqHandler.serve404();
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUid);
+        var service = new pb.CustomObjectService(self.pathSiteUid, true);
         service.loadTypeById(vars.type_id, function(err, objectType) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
