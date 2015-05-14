@@ -198,7 +198,7 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'site_settings',
                         title: 'SITE_SETTINGS',
                         icon: 'cog',
-                        href: '/admin/site_settings',
+                        href: adminPath + '/site_settings',
                         access: SecurityService.ACCESS_MANAGING_EDITOR
                     },
                     {
