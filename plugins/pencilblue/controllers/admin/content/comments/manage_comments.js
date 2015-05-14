@@ -40,8 +40,9 @@ module.exports = function(pb) {
                     self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
                     self.queryService = new pb.SiteQueryService(self.pathSiteUId);
                     var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
+                    siteService.getByUid(self.pathSiteUId, function (err, objSite) {
+                        self.siteName = objSite.displayName;
+                        self.siteRoot = objSite.hostname;
                         cb();
                     });
                 }
@@ -92,7 +93,8 @@ module.exports = function(pb) {
                         pills: pills,
                         comments: commentsWithDetails,
                         allowComments: contentSettings.allow_comments,
-                        sitePrefix: self.sitePrefix
+                        sitePrefix: self.sitePrefix,
+                        siteRoot: self.siteRoot
                     });
 
                     //load the template
