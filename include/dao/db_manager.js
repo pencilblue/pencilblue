@@ -80,7 +80,8 @@ module.exports = function DBManagerModule(pb) {
             var self = this;
             mongo.connect(dbURL, options, function(err, db){
                 if (err) {
-                    return cb(err);
+                    var message = err.name + ': ' + err.message + ' - ' + dbURL + '\nIs your instance running?';
+                    return cb(new Error(message));
                 }
 
                 self.authenticate(pb.config.db.authentication, db, function(err, didAuthenticate) {
