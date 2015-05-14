@@ -561,14 +561,6 @@ module.exports = function Routes(pb){
             content_type: 'text/html'
         },
         {
-            method: 'post',
-            path: "/actions/admin/:siteid/site_settings",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
-            auth_required: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'configuration.js'),
-            content_type: 'text/html'
-        },
-        {
             method: 'get',
             path: "/admin/:siteid/site_settings/content",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
@@ -598,6 +590,14 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'email.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin/"+ pb.SiteService.GLOBAL_SITE + "/site_settings/libraries",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'libraries.js'),
             content_type: 'text/html'
         }
     ];
