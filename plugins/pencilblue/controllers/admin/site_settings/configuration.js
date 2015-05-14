@@ -44,7 +44,8 @@ module.exports = function(pb) {
                 else {
                     self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
                     self.siteObj = site;
-                    self.siteName = site.uid === pb.SiteService.GLOBAL_SITE ? site.uid : site.displayName;
+                    self.isGlobalSite = site.uid === pb.SiteService.GLOBAL_SITE;
+                    self.siteName = self.isGlobalSite ? site.uid : site.displayName;
                     cb();
                 }
             });
@@ -76,7 +77,8 @@ module.exports = function(pb) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration', {sitePrefix: self.sitePrefix, site: self.pathSiteUId, siteName: self.siteName}),
-                config: config
+                config: config,
+                isGlobalSite: self.isGlobalSite
             });
 
             self.setPageName(self.ls.get('CONFIGURATION'));
