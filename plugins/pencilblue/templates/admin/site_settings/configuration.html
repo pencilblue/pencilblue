@@ -52,7 +52,7 @@
                 </tr>
             </table>
         </div>
-        <button type="submit" class="btn btn-primary" ng-disabled="saving">
+        <button type="submit" class="btn btn-primary" ng-disabled="saving || !isGlobalSite">
             <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_APPLY_SETTINGS^
         </button>
     </form>
