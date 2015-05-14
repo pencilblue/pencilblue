@@ -95,7 +95,9 @@ module.exports = function SiteQueryServiceModule(pb) {
           callback(err, cursor);
         } else {
           cursor.count(function (countError, count) {
-            if (count) {
+            if (util.isError(countError)) {
+              callback(countError);
+            } else if (count) {
               callback(err, cursor);
             } else {
               delegate(GLOBAL_SITE, callback);
