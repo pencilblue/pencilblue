@@ -91,7 +91,8 @@ module.exports = function(pb) {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
                         pills: pills,
                         comments: commentsWithDetails,
-                        allowComments: contentSettings.allow_comments
+                        allowComments: contentSettings.allow_comments,
+                        sitePrefix: self.sitePrefix
                     });
 
                     //load the template

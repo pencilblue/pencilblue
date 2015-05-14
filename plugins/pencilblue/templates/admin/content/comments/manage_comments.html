@@ -10,7 +10,7 @@
         <table id="comments_table" class="table table-responsive table-condensed">
             ^tmp_admin=elements=table_headers^
             <tr class="comment_row" ng-repeat="comment in comments track by comment._id" ng-if="!comment.hidden && !comment.paginated">
-                <td><a ng-href="/admin/users/{{comment.commenter}}" ng-bind="comment.user_name"></a></td>
+                <td><a ng-href="/admin{{sitePrefix}}/users/{{comment.commenter}}" ng-bind="comment.user_name"></a></td>
                 <td><a ng-href="/article/{{comment.article_url}}" ng-bind="comment.article_headline"></a></td>
                 <td ng-bind="comment.content"></td>
                 <td ng-bind="comment.created | date: 'yyyy-MM-dd HH:mm'"></td>
