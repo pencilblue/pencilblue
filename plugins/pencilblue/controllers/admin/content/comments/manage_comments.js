@@ -110,7 +110,6 @@ module.exports = function(pb) {
      *
      * @method getCommentDetails
      * @param {Array} comments
-     * @param {DAO} dao
      * @param {Function} cb
      */
     ManageComments.prototype.getCommentDetails = function(comments, cb) {
