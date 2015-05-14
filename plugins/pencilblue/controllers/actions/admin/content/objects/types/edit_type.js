@@ -29,6 +29,22 @@ module.exports = function(pb) {
     function EditObjectType(){}
     util.inherits(EditObjectType, pb.BaseController);
 
+    EditObjectType.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function() {
+            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    cb();
+                }
+            });
+        });
+    };
+
     EditObjectType.prototype.render = function(cb) {
         var self    = this;
         var vars    = this.pathVars;
@@ -40,7 +56,7 @@ module.exports = function(pb) {
             });
         }
 
-        var service = new pb.CustomObjectService();
+        var service = new pb.CustomObjectService(self.pathSiteUid);
         service.loadTypeById(vars.id, function(err, custObjType) {
             if(util.isError(err) || !util.isObject(custObjType)) {
                 return cb({

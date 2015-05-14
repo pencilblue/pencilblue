@@ -26,6 +26,22 @@ module.exports = function(pb) {
     function DeleteObject(){}
     util.inherits(DeleteObject, pb.BaseController);
 
+    DeleteObject.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function() {
+            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    cb();
+                }
+            });
+        });
+    };
+
     DeleteObject.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
@@ -42,7 +58,7 @@ module.exports = function(pb) {
             return;
         }
 
-        var cos = new pb.CustomObjectService();
+        var cos = new pb.CustomObjectService(self.pathSiteUid);
         cos.loadById(vars.id, function(err, customObject) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);

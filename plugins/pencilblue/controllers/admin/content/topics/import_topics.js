@@ -26,6 +26,27 @@ module.exports = function(pb) {
     function ImportTopics(){}
     util.inherits(ImportTopics, pb.BaseController);
 
+    ImportTopics.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     //statics
     var SUB_NAV_KEY = 'import_topics';
 
@@ -42,11 +63,13 @@ module.exports = function(pb) {
             }
         ];
 
+        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics', {sitePrefix: self.sitePrefix});
         var angularObjects = pb.ClientJs.getAngularObjects(
         {
             navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics'),
-            tabs: tabs
+            pills: pb.AdminSubnavService.addSiteToPills(pills, self.siteName),
+            tabs: tabs,
+            sitePrefix: self.sitePrefix
         });
 
         this.setPageName(this.ls.get('IMPORT_TOPICS'));
@@ -57,21 +80,22 @@ module.exports = function(pb) {
     };
 
     ImportTopics.getSubNavItems = function(key, ls, data) {
+        var prefix = data.sitePrefix;
         return [{
             name: 'manage_topics',
             title: ls.get('IMPORT_TOPICS'),
             icon: 'chevron-left',
-            href: '/admin/content/topics'
+            href: '/admin' + prefix + '/content/topics'
         }, {
             name: 'import_topics',
             title: '',
             icon: 'upload',
-            href: '/admin/content/topics/import'
+            href: '/admin' + prefix + '/content/topics/import'
         }, {
             name: 'new_topic',
             title: '',
             icon: 'plus',
-            href: '/admin/content/topics/new'
+            href: '/admin' + prefix + '/content/topics/new'
         }];
     };
 

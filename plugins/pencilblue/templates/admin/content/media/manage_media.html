@@ -12,7 +12,7 @@
                         <i class="fa fa-{{mediaItem.icon}} fa-lg" style="float: right; margin-right: .5em;"></i>
                     </a>
                 </td>
-                <td><a class="media_name" ng-href="/admin/content/media/{{mediaItem._id}}" ng-bind="mediaItem.name"></a></td>
+                <td><a class="media_name" ng-href="/admin{{ sitePrefix }}/content/media/{{mediaItem._id}}" ng-bind="mediaItem.name"></a></td>
                 <td ng-bind="mediaItem.caption"></td>
                 <td ng-bind="mediaItem.last_modified | date: 'yyyy-MM-dd HH:mm'"></td>
                 <td><a href="#" ng-click="confirmDelete(mediaItem)"><i class="fa fa-trash"></i></a></td>

@@ -30,6 +30,13 @@ module.exports = function(pb) {
     function EditMediaActionController(){}
     util.inherits(EditMediaActionController, pb.BaseController);
 
+    EditMediaActionController.prototype.init = function (props, cb) {
+        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
+
+        pb.BaseController.prototype.init.call(this, props, cb);
+    };
+
     /**
      *
      * @method onPostParamsRetrieved
@@ -50,7 +57,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            var mediaService = new pb.MediaService();
+            var mediaService = new pb.MediaService(null, self.pathSiteUId);
             mediaService.loadById(vars.id, function(err, media) {
                 if(util.isError(err) || media === null) {
                     cb({

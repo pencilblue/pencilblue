@@ -33,12 +33,33 @@ module.exports = function(pb) {
 
     var SUB_NAV_KEY = 'object_form';
 
+    ObjectFormController.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function() {
+            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     ObjectFormController.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
 
         if(!pb.validation.isIdStr(vars.type_id, true)) {
-            return self.redirect('/admin/content/objects/types', cb);
+            return self.redirect('/admin' + self.pathSitePrefix + '/content/objects/types', cb);
         }
 
         this.gatherData(vars, function(err, data) {
@@ -83,7 +104,9 @@ module.exports = function(pb) {
 
             self.objectType = data.objectType;
             self.customObject = data.customObject;
-            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject});
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject, pathSitePrefix: self.pathSitePrefix});
+            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.customObject[pb.DAO.getIdField()] ? self.customObject.name : self.ls.get('NEW') + ' ' + self.objectType.name + ' ' + self.ls.get('OBJECT'));
@@ -96,7 +119,7 @@ module.exports = function(pb) {
 
     ObjectFormController.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService();
+        var cos = new pb.CustomObjectService(self.pathSiteUid);
 
         var tasks = {
             tabs: function(callback) {
@@ -116,11 +139,19 @@ module.exports = function(pb) {
                 callback(null, pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls));
             },
 
+            pathSitePrefix: function(callback) {
+                callback(null, self.pathSitePrefix)
+            },
+
             objectType: function(callback) {
                 cos.loadTypeById(vars.type_id, function(err, objectType) {
                     if(util.isError(err)) {
                         callback(err, customObject);
                         return;
+                    }
+
+                    if (!util.isObject(objectType)) {
+                        return self.reqHandler.serve404();
                     }
 
                     self.loadFieldOptions(cos, objectType, callback);
@@ -143,7 +174,7 @@ module.exports = function(pb) {
         var self         = this;
         var keys         = Object.keys(objectType.fields);
         var custObjTypes = {};
-        var dao          = new pb.DAO();
+        var siteQueryService = new pb.SiteQueryService();
         var userService  = new pb.UserService();
 
         //wrapper function to load cust object type
@@ -201,7 +232,7 @@ module.exports = function(pb) {
                         last_name: 1
                     }
                 };
-                dao.q(objectType.fields[key].object_type, query, function(err, availableObjects) {
+                siteQueryService.q(objectType.fields[key].object_type, query, function(err, availableObjects) {
                     if (util.isError(err)) {
                         return callback(err);
                     }
@@ -212,7 +243,7 @@ module.exports = function(pb) {
                         var descriptor = {
                             name: availableObjects[i].name || availableObjects[i].headline || userService.getFormattedName(availableObjects[i])
                         };
-                        descriptor[pb.DAO.getIdField()] = availableObjects[i][pb.DAO.getIdField()]
+                        descriptor[pb.DAO.getIdField()] = availableObjects[i][pb.DAO.getIdField()];
                         objectsInfo.push(descriptor);
                     }
 
@@ -244,13 +275,13 @@ module.exports = function(pb) {
                 name: 'manage_objects',
                 title: data.customObject[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.customObject.name : ls.get('NEW') + ' ' + data.objectType.name + ' ' + ls.get('OBJECT'),
                 icon: 'chevron-left',
-                href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()]
+                href: '/admin' + data.pathSitePrefix + '/content/objects/' + data.objectType[pb.DAO.getIdField()]
             },
             {
                 name: 'new_object',
                 title: '',
                 icon: 'plus',
-                href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()] + '/new'
+                href: '/admin' + data.pathSitePrefix + '/content/objects/' + data.objectType[pb.DAO.getIdField()] + '/new'
             }
         ];
     };
