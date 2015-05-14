@@ -32,6 +32,26 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'site_configuration';
 
+    Configuration.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            var siteService = new pb.SiteService();
+            siteService.getByUid(self.pathSiteUId, function(err, site) {
+                if (!site) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.siteObj = site;
+                    cb();
+                }
+            });
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+
+            });
+        });
+    };
+
     Configuration.prototype.render = function(cb) {
         var self = this;
 
@@ -42,6 +62,8 @@ module.exports = function(pb) {
             }
 
             var config = {
+                siteName: self.siteObj.displayName,
+                siteRoot: self.siteObj.hostname,
                 documentRoot: pb.config.docRoot,
                 siteIP: pb.config.siteIP,
                 sitePort: pb.config.sitePort,
