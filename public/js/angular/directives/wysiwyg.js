@@ -1,6 +1,6 @@
 (function() {
   angular.module('wysiwygElement', [])
-  .directive('wysiwyg', function($sce, $document) {
+  .directive('wysiwyg', function($sce, $document, $window) {
     return {
       restrict: 'AE',
       replace: true,
@@ -77,6 +77,46 @@
           return $document[0].queryCommandState(type)
         }
 
+        scope.showInsertLinkModal = function() {
+          scope.layoutLink = {
+            newTab: true
+          };
+
+          scope.saveSelection();
+          angular.element(element).find('[insert-link-modal]').modal('show');
+        };
+
+        scope.testLayoutLink = function() {
+          $window.open(scope.layoutLink.url, '_blank');
+        };
+
+        scope.insertLayoutLink = function() {
+          angular.element(element).find('[insert-link-modal]').modal('hide');
+          scope.restoreSelection();
+
+          var link = '<a href="' + scope.layoutLink.url + '" ' + (scope.layoutLink.newTab ? 'target="_blank"' : '') + '>' + scope.layoutLink.text + '</a>';
+          scope.formatAction('inserthtml', link);
+        };
+
+        scope.insertReadMore = function() {
+          scope.restoreSelection();
+          scope.formatAction('inserthtml', '<hr class="read_more_break"></hr>');
+        }
+
+        scope.saveSelection = function() {
+          if(scope.editableSelection) {
+            rangy.removeMarkers(scope.editableSelection);
+          }
+          scope.editableSelection = rangy.saveSelection();
+        };
+
+        scope.restoreSelection = function() {
+          if(scope.editableSelection) {
+            rangy.restoreSelection(scope.editableSelection, true);
+            scope.editableSelection = null;
+          }
+        };
+
         scope.$watch('wysiwyg.layout', function(newVal, oldVal) {
           if(scope.wysiwyg.currentView !== 'editable') {
             return;
@@ -90,6 +130,8 @@
           if(newVal !== oldVal) {
             scope.wysiwyg.markdown = toMarkdown(newVal);
           }
+
+          scope.saveSelection();
         });
 
         scope.$watch('wysiwyg.markdown', function(newVal, oldVal) {
@@ -103,17 +145,16 @@
         });
 
         var editableDiv = angular.element(element).find('[contenteditable]');
-        var range = rangy.createRange();
         editableDiv.on('mouseup', function(event) {
           if(!scope.wysiwyg.layout.length) {
             scope.setElement(loc.wysiwyg.NORMAL_TEXT, 'p');
           }
 
+          scope.saveSelection();
           scope.$apply();
-
-          range.selectNodeContents(editableDiv[0]);
-          scope.editableRange = rangy.getSelection();
         });
+
+        rangy.init();
       }
     };
   })

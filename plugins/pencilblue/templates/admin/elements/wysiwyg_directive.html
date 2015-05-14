@@ -55,4 +55,40 @@
     <textarea class="layout_code" ng-show="wysiwyg.currentView === 'html'" ng-model="wysiwyg.layout"></textarea>
     <textarea class="layout_markdown" ng-show="wysiwyg.currentView === 'markdown'" ng-model="wysiwyg.markdown"></textarea>
   </div>
+
+  <div class="modal fade" insert-link-modal>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span>^loc_ADD_LINK^</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>^loc_LINK_URL^</label>
+            <input type="text" class="form-control" ng-model="layoutLink.url"></input>
+          </div>
+          <div class="form-group">
+            <label>^loc_LINK_TEXT^</label>
+            <input type="text" class="form-control" ng-model="layoutLink.text"></input>
+          </div>
+          <div class="form-group">
+            <label>^loc_LINK_IN_TAB^</label><br/>
+            <div class="btn-group">
+              <button type="button" class="btn btn-default" ng-class="{'active': layoutLink.newTab}" ng-click="layoutLink.newTab = true">^loc_YES^</button>
+              <button type="button" class="btn btn-default" ng-class="{'active': !layoutLink.newTab}" ng-click="layoutLink.newTab = false">^loc_NO^</button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+          </button>
+          <button id="add_link_button" type="button" class="btn btn-success" ng-click="testLayoutLink()" ng-disabled="!layoutLink.url.length">
+            <i class="fa fa-eye"></i>&nbsp;^loc_TEST_LINK^
+          </button>
+          <button id="add_link_button" type="button" class="btn btn-primary" ng-click="insertLayoutLink()" ng-disabled="!layoutLink.url.length || !layoutLink.text.length">
+            <i class="fa fa-plus"></i>&nbsp;^loc_INSERT_LINK^
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
