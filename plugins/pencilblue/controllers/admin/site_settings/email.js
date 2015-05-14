@@ -30,9 +30,36 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'site_email_settings';
 
+
+    /**
+     *
+     * @method render
+     *
+     */
     Email.prototype.render = function(cb) {
         var self = this;
+        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
+        pb.SiteService.siteExists(site, function (err, siteExists) {
+            if (siteExists) {
+                self.onSiteValidated(site, cb);
+            }
+            else {
+                self.reqHandler.serve404();
+                return;
+            }
+        });
+    };
+
+    /**
+     *
+     * @method onSiteValidated
+     * @param site
+     * @param cb
+     *
+     */
+    Email.prototype.onSiteValidated = function onSiteValidated(site, cb) {
+        var self = this;
         var tabs =
         [
             {
