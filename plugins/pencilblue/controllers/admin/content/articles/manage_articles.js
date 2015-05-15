@@ -28,7 +28,7 @@ module.exports = function(pb) {
 
     ManageArticles.prototype.init = function (props, cb) {
         this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.queryService = new pb.SiteQueryService(this.pathSiteUId);
+        this.queryService = new pb.SiteQueryService(this.pathSiteUId, true);
         this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
 
         pb.BaseController.prototype.init.call(this, props, cb);

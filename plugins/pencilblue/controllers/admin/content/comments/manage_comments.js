@@ -38,7 +38,7 @@ module.exports = function(pb) {
                 }
                 else {
                     self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
                     var siteService = new pb.SiteService();
                     siteService.getByUid(self.pathSiteUId, function (err, objSite) {
                         self.siteName = objSite.displayName;
@@ -123,7 +123,7 @@ module.exports = function(pb) {
         }
 
         this.getCommentingUser = function(index) {
-            self.queryService.loadById(comments[index].commenter, 'user', function(err, user) {
+            self.queryService.__proto__.loadById(comments[index].commenter, 'user', function(err, user) {
                 if(!util.isError(err) && user !== null) {
                     comments[index].user_name = user.first_name + ' ' + user.last_name;
                 }
