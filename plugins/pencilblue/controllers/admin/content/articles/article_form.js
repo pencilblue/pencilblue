@@ -201,7 +201,6 @@ module.exports = function(pb) {
 
     ArticleForm.prototype.gatherData = function(vars, cb) {
         var self  = this;
-        var dao   = new pb.DAO();
         var tasks = {
             templates: function(callback) {
                 callback(null, pb.TemplateService.getAvailableContentTemplates());
@@ -239,7 +238,7 @@ module.exports = function(pb) {
                 }
 
                 //TODO call article service
-                dao.loadById(vars.id, 'article', callback);
+                self.queryService.loadById(vars.id, 'article', callback);
             }
         };
         async.parallelLimit(tasks, 2, cb);

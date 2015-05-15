@@ -151,7 +151,7 @@ module.exports = function(pb) {
                 }
 
                 self.queryService.loadById(vars.id, 'section', function(err, navItem) {
-                    if(!navItem.item) {
+                    if(!navItem || !navItem.item) {
                         callback(err, navItem);
                         return;
                     }

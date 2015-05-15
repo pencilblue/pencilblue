@@ -202,7 +202,6 @@ module.exports = function(pb) {
      */
     PageFormController.prototype.gatherData = function(vars, cb) {
         var self  = this;
-        var dao   = new pb.DAO();
         var tasks = {
             templates: function(callback) {
                 callback(null, pb.TemplateService.getAvailableContentTemplates());
@@ -239,7 +238,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                dao.loadById(vars.id, 'page', callback);
+                self.queryService.loadById(vars.id, 'page', callback);
             }
         };
         async.parallelLimit(tasks, 2, cb);

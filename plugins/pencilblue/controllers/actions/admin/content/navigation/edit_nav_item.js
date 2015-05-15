@@ -52,7 +52,6 @@ module.exports = function(pb) {
     EditNavItem.prototype.render = function(cb){
         var self = this;
         var vars = this.pathVars;
-        var dao = new pb.DAO();
 
         var message = this.hasRequiredParams(vars, ['id']);
         if (message) {
@@ -65,7 +64,7 @@ module.exports = function(pb) {
 
         this.getJSONPostParams(function(err, post) {
             //load object
-            dao.loadById(vars.id, 'section', function(err, navItem) {
+            self.queryService.loadById(vars.id, 'section', function(err, navItem) {
                 if(util.isError(err) || !util.isObject(navItem)) {
                     cb({
                         code: 400,
