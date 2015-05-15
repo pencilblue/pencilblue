@@ -39,7 +39,7 @@ module.exports = function(pb) {
                 }
                 else {
                     self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
                     var siteService = new pb.SiteService();
                     siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
                         self.siteName = siteName;
