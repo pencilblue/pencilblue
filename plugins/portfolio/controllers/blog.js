@@ -36,6 +36,22 @@ module.exports = function BlogModule(pb) {
     function Blog(){}
     util.inherits(Blog, pb.BaseController);
 
+    Blog.prototype.init = function(props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            var siteService = new pb.SiteService();
+            siteService.getByUid(self.site, function(err, site) {
+                if (!site) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.siteObj = site;
+                    cb();
+                }
+            });
+        });
+    };
+
     Blog.prototype.render = function(cb) {
         var self = this;
 
