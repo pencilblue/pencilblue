@@ -36,29 +36,31 @@ module.exports = function(pb) {
      * @method render
      *
      */
-    Email.prototype.render = function(cb) {
+    Email.prototype.init = function(props, cb) {
         var self = this;
-        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
-        pb.SiteService.siteExists(site, function (err, siteExists) {
-            if (siteExists) {
-                self.onSiteValidated(site, cb);
-            }
-            else {
-                self.reqHandler.serve404();
-                return;
-            }
+        pb.BaseController.prototype.init.call(this, props, function() {
+            self.pathSiteUId = SiteService.getCurrentSite(self.pathVars.siteid);
+            SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.sitePrefix = SiteService.getCurrentSitePrefix(self.pathSiteUId);
+                    cb();
+                }
+            });
         });
     };
 
     /**
      *
-     * @method onSiteValidated
+     * @method render
      * @param site
      * @param cb
      *
      */
-    Email.prototype.onSiteValidated = function onSiteValidated(site, cb) {
+    Email.prototype.render = function(cb) {
         var self = this;
         var tabs =
         [
@@ -82,13 +84,12 @@ module.exports = function(pb) {
 
         var emailService = new pb.EmailService(self.pathVars.siteid);
         emailService.getSettings(function(err, emailSettings) {
-            var sitePrefix = SiteService.getCurrentSitePrefix(SiteService.getCurrentSite(self.pathVars.siteid));
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email', { sitePrefix: sitePrefix }),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email', { sitePrefix: self.sitePrefix }),
                 tabs: tabs,
                 emailSettings: emailSettings,
-                sitePrefix: sitePrefix
+                sitePrefix: self.sitePrefix
             });
 
             self.setPageName(self.ls.get('EMAIL'));
@@ -100,22 +101,37 @@ module.exports = function(pb) {
     };
 
     Email.getSubNavItems = function(key, ls, data) {
-        return [{
+        var prefix = '/admin';
+        if(data && data.sitePrefix) {
+            prefix += data.sitePrefix;
+        }
+
+        var pills = [{
             name: 'configuration',
             title: ls.get('EMAIL'),
             icon: 'chevron-left',
-            href: '/admin' + data.sitePrefix + '/site_settings'
+            href: prefix + '/site_settings'
         }, {
             name: 'content',
             title: ls.get('CONTENT'),
             icon: 'quote-right',
-            href: '/admin' + data.sitePrefix + '/site_settings/content'
-        }, {
-            name: 'libraries',
-            title: ls.get('LIBRARIES'),
-            icon: 'book',
-            href: '/admin' + data.sitePrefix + '/site_settings/libraries'
+            href: prefix + '/site_settings/content'
         }];
+
+        if(data && data.site === SiteService.GLOBAL_SITE) {
+            pills.push({
+                name: 'libraries',
+                title: ls.get('LIBRARIES'),
+                icon: 'book',
+                href: prefix + '/site_settings/libraries'
+            });
+        }
+
+        if(data && data.siteName) {
+            return pb.AdminSubnavService.addSiteToPills(pills, data.siteName);
+        }
+
+        return pills;
     };
 
     //register admin sub-nav
