@@ -150,14 +150,14 @@ module.exports = function(pb) {
                     return;
                 }
 
-                self.navService.loadById(vars.id, 'section', function(err, navItem) {
+                self.queryService.loadById(vars.id, 'section', function(err, navItem) {
                     if(!navItem.item) {
                         callback(err, navItem);
                         return;
                     }
 
                     //TODO modify such that only the needed field of "headline" is returned.
-                    self.navService.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
+                    self.queryService.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
                         if(articleOrPage) {
                             navItem.contentSearchValue = articleOrPage.headline;
                         }
