@@ -42,10 +42,13 @@ module.exports = function SettingsModule(pb) {
      * @static
      * @method getServiceBySite
      * @param {String} site
-     * @param {Boolean} onlyThisSite
+     * @param {Boolean=} onlyThisSite
      */
     SettingServiceFactory.getServiceBySite = function (site, onlyThisSite) {
-        return SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, site, onlyThisSite);
+        if (pb.config.multisite) {
+            return SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, site, onlyThisSite);
+        }
+        return SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
     };
 
     /**
