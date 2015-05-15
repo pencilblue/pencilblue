@@ -94,7 +94,7 @@ var loc =
 		ACCESS_USER: 'User',
 		ACCESS_WRITER: 'Writer',
 		ACCESS_EDITOR: 'Editor',
-		ACCESS_MANAGING_EDITOR: 'Managing Edtor',
+		ACCESS_MANAGING_EDITOR: 'Managing Editor',
 		ACCESS_ADMINISTRATOR: 'Administrator',
 		UID: 'UID',
 		AUTHOR_INFORMATION: 'Author Information',
