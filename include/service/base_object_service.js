@@ -523,7 +523,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     BaseObjectService.prototype._emit = function(event, data, cb) {
-        events.emit(self.type + '.' + event, data, cb);
+        events.emit(this.type + '.' + event, data, cb);
     };
     
     /**

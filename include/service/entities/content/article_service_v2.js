@@ -17,6 +17,7 @@
 
 //dependencies
 var util  = require('../../../util.js');
+var async = require('async');
 
 module.exports = function(pb) {
     
@@ -180,17 +181,17 @@ module.exports = function(pb) {
                     var subTasks = [
 
                         //before render
-                        util.wrapTask(self, self._emit, [ArticleServiceV2.BEFORE_RENDER, context]),
+                        util.wrapTask(self, self._emit, [ArticleServiceV2.BEFORE_RENDER, articleContext]),
 
                         //perform render
                         function(callback) {
 
                             var renderer = new pb.ArticleRenderer();
-                            renderer.render(articles[i], context, callback);
+                            renderer.render(articles[i], articleContext, callback);
                         },
 
                         //after render
-                        util.wrapTask(self, self._emit, [ArticleServiceV2.AFTER_RENDER, context])
+                        util.wrapTask(self, self._emit, [ArticleServiceV2.AFTER_RENDER, articleContext])
                     ];
                     async.series(subTasks, callback);
                 };
@@ -215,7 +216,7 @@ module.exports = function(pb) {
         var tasks = {
             
             articleCount: function(callback) {
-                cb(null, articles.length);
+                callback(null, articles.length);
             },
             
             authors: function(callback) {
@@ -233,7 +234,7 @@ module.exports = function(pb) {
                             return author[DAO.getIdField()] + '';
                         });
                     }
-                    cb(err, authorHash);
+                    callback(err, authorHash);
                 });
             },
             

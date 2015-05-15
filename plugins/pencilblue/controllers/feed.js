@@ -23,14 +23,21 @@ var async          = require('async');
 module.exports = function FeedModule(pb) {
 
     //pb dependencies
-    var util           = pb.util;
-    var ArticleService = pb.ArticleService;
-    var MediaLoader    = pb.MediaLoader;
+    var util             = pb.util;
+    var ArticleServiceV2 = pb.ArticleServiceV2;
+    var MediaLoader      = pb.MediaLoader;
 
     /**
      * RSS Feed
      */
-    function ArticleFeed(){}
+    function ArticleFeed(){
+        
+        /**
+         *
+         *
+         */
+        this.service = new ArticleServiceV2();
+    }
     util.inherits(ArticleFeed, pb.BaseController);
 
     ArticleFeed.prototype.render = function(cb) {
@@ -41,13 +48,11 @@ module.exports = function FeedModule(pb) {
         this.ts.registerLocal('items', function(flag, cb){
 
             var opts = {
-                select: pb.DAO.PROJECT_ALL,
-                where: {publish_date: {$lte: new Date()}, draft: {$ne: 1}},
+                render: false,
                 order: {publish_date: pb.DAO.DESC},
                 limit: 100
             };
-            var dao   = new pb.DAO();
-            dao.q('article', opts, function(err, articles) {
+            self.service.getPublished(opts, function(err, articles) {
                 if (util.isError(err)) {
                     return cb(err);
                 }

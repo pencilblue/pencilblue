@@ -227,6 +227,7 @@ module.exports = function PB(config) {
     pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
     pb.TopicService      = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
     pb.ArticleServiceV2  = require(path.join(config.docRoot, '/include/service/entities/content/article_service_v2.js'))(pb);
+    pb.ArticleRenderer   = require(path.join(config.docRoot, '/include/service/entities/content/article_renderer.js'))(pb);
     
     var ArticleServiceModule = require(path.join(config.docRoot, '/include/service/entities/article_service.js'))(pb);
     pb.ArticleService        = ArticleServiceModule.ArticleService;

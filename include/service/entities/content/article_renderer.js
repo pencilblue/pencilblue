@@ -17,12 +17,31 @@
 
 //dependencies
 var util  = require('../../../util.js');
+var async = require('async');
 
 module.exports = function(pb) {
+    
+    //pb dependencies
+    var DAO = pb.DAO;
     
     function ArticleRenderer(context) {}
     
     ArticleRenderer.prototype.render = function(article, context, cb) {
+        if (!util.isObject(article)) {
+            return cb(new Error('article parameter must be a valid object'));
+        }
+        else if (!util.isObject(context)) {
+            return cb(new Error('context parameter must be a valid object'));
+        }
+        else if (!util.isObject(context.authors)) {
+            return cb(new Error('context.authors parameter must be a valid hash of users'));
+        }
+        else if (!util.isObject(context.contentSettings)) {
+            return cb(new Error('context.contentSettings parameter must be a valid hash of content settings'));
+        }
+        else if (isNaN(context.articleCount)) {
+            return cb(new Error('context.articleCount parameter must be a valid integer greater than 0'));
+        }
         
         this.formatBylines(article, context);
         this.formatTimestamp(article, context);
@@ -62,7 +81,7 @@ module.exports = function(pb) {
         if(context.contentSettings.display_timestamp ) {
             article.timestamp = pb.ContentService.getTimestampTextFromSettings(
                     article.publish_date,
-                    contentSettings
+                    context.contentSettings
             );
         }
     };
@@ -79,7 +98,6 @@ module.exports = function(pb) {
     };
     
     ArticleRenderer.prototype.formatMediaReferences = function(article, context, cb) {
-        
         article.layout  = article.article_layout;
         var mediaLoader = new pb.MediaLoader();
         mediaLoader.start(article.layout, function(err, newLayout) {
@@ -240,9 +258,9 @@ module.exports = function(pb) {
         
         if(context.articleCount > 1) {
             var beforeReadMore = article.article_layout.substr(0, article.article_layout.indexOf('^read_more^'));
-            var path = pb.UrlService.UrlJoin('/article/' + article.url);
+            var path = pb.UrlService.urlJoin('/article/' + article.url);
             var link = ' <a href="' + pb.UrlService.createSystemUrl(path) + '">';
-            article.article_layout = beforeReadMore + link + contentSettings.read_more_text</a>';
+            article.article_layout = beforeReadMore + link + context.contentSettings.read_more_text + '</a>';
         }
         else {
             article.article_layout = article.article_layout.split('^read_more^').join('');
