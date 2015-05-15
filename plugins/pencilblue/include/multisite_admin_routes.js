@@ -599,6 +599,13 @@ module.exports = function Routes(pb){
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'libraries.js'),
             content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin/:siteid/users/:id",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js'),
         }
     ];
 };

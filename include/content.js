@@ -26,7 +26,10 @@ module.exports = function ContentServiceModule(pb) {
      * @class ContentService
      * @constructor
      */
-    function ContentService(){}
+    function ContentService(site, onlyThisSite) {
+        this.siteUid = pb.SiteService.getCurrentSite(site);
+        this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid, onlyThisSite);
+    }
     
     /**
      *
@@ -72,14 +75,15 @@ module.exports = function ContentServiceModule(pb) {
      * @param {Function} cb Callback function
      */
     ContentService.prototype.getSettings = function(cb){
-        pb.settings.get(CONTENT_SETTINGS_REF, function(err, settings){
+        var self = this;
+        self.settingService.get(CONTENT_SETTINGS_REF, function(err, settings){
             if (settings) {
                 return cb(err, settings);
             }
 
             //set default settings if they don't exist
             settings = ContentService.getDefaultSettings();
-            pb.settings.set(CONTENT_SETTINGS_REF, settings, function(err, result) {
+            self.settingService.set(CONTENT_SETTINGS_REF, settings, function(err, result) {
                 cb(err, settings);
             });
         });
