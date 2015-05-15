@@ -18,27 +18,27 @@
 module.exports = function(pb) {
 
     //PB dependencies
-    var util            = pb.util;
-    var TopicService    = pb.TopicService;
-    var SecurityService = pb.SecurityService;
+    var util             = pb.util;
+    var ArticleServiceV2 = pb.ArticleServiceV2;
+    var SecurityService  = pb.SecurityService;
 
     /**
      * 
-     * @class TopicApiController
+     * @class ArticleApiController
      * @constructor
      * @extends BaseApiController
      */
-    function TopicApiController(){
+    function ArticleApiController(){
     
         /**
          * 
          * @property service
-         * @type {TopicService}
+         * @type {ArticleServiceV2}
          */
-        this.service = new TopicService();
+        this.service = new ArticleServiceV2();
     }
-    util.inherits(TopicApiController, pb.BaseApiController);
+    util.inherits(ArticleApiController, pb.BaseApiController);
 
     //exports
-    return TopicApiController;
+    return ArticleApiController;
 };

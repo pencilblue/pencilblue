@@ -33,7 +33,7 @@ module.exports = function(pb) {
      * @constructor
      * @extends BaseObjectService
      */
-    function ArticleServiceV2(){
+    function ArticleServiceV2(context){
         if (!util.isObject(context)) {
             context = {};
         }
@@ -70,6 +70,89 @@ module.exports = function(pb) {
      * @type {String}
      */
     var TYPE = 'article';
+    
+    ArticleServiceV2.prototype.getPublished = function(options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+        
+        //ensure a where clause exists
+        if (!util.isObject(options.where)) {
+            options.where = {};
+        }
+        
+        //add where clause to weed out drafts
+        options.where.draft = {
+            $in: [0, false]
+        };
+        options.where.publish_date = {
+            $lte: new Date()
+        };
+        
+        this.getAll(options, cb);
+    };
+    
+    ArticleServiceV2.prototype.getDrafts = function(options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+        
+        //ensure a where clause exists
+        if (!util.isObject(options.where)) {
+            options.where = {};
+        }
+        
+        //add where clause to weed out published articles
+        options.where.draft = {
+            $in: [1, true]
+        };
+        
+        this.getAll(options, cb);
+    };
+    
+    /**
+     * 
+     * @method get
+     * @param {String} id
+     * @param {object} options
+     * @param {Function} cb
+     */
+    ArticleServiceV2.prototype.get = function(id, options, cb) {
+        
+        var self = this;
+        var afterGet = function(err, article) {
+            if (util.isError(err) || article === null || !options || !options.render) {
+                return cb(err, article);
+            }
+            
+            //complete the rendering
+            self.render([article], function(err/*, articles*/) {
+                cb(err, article);
+            });
+        };
+        ArticleServiceV2.super_.prototype.get.apply(this, [id, options, afterGet]);
+    };
+    
+    /**
+     *
+     */
+    ArticleServiceV2.prototype.getAll = function(options, cb) {
+        
+        var self = this;
+        var afterGetAll = function(err, articles) {
+            if (util.isError(err) || articles === null || articles.length === 0 || !options || !options.render) {
+                return cb(err, articles);
+            }
+            
+            //complete the rendering
+            self.render(articles, function(err, articles) {
+                cb(err, articles);
+            });
+        };
+        ArticleServiceV2.super_.prototype.getAll.apply(this, [options, afterGetAll]);
+    };
     
     ArticleServiceV2.prototype.render = function(articles, cb) {
         if (!util.isArray(articles)) {
@@ -112,7 +195,9 @@ module.exports = function(pb) {
                     async.series(subTasks, callback);
                 };
             });
-            async.parallel(tasks, cb);
+            async.parallel(tasks, function(err, results) {
+                cb(err, articles);
+            });
         });
     };
     
@@ -178,6 +263,7 @@ module.exports = function(pb) {
         dto.focus_keyword = BaseObjectService.sanitize(dto.focus_keyword);
         dto.seo_title = BaseObjectService.sanitize(dto.seo_title);
         dto.meta_desc = BaseObjectService.sanitize(dto.meta_desc);
+        dto.url = BaseObjectService.sanitize(dto.url);
         dto.publish_date = BaseObjectService.getDate(dto.publish_date);
         
         if (util.isArray(dto.meta_keywords)) {
@@ -301,16 +387,16 @@ module.exports = function(pb) {
             });
         }
         
-        if (!ValidationService.isUrl(obj.url, true)) {
+        if (!ValidationService.isNonEmptyStr(obj.url, true)) {
             errors.push(BaseObjectService.validationFailure('url', 'An invalid URL slug was provided'));
         }
         
         if (!util.isNullOrUndefined(obj.template)) {
             
-            if (!ValidationService.isNonEmptyStr(obj.template, true)) {
-                errors.push(BaseObjectService.validationFailure('url', 'The template must take the form of [PLUGIN]|[TEMPLATE_NAME]'));
+            if (!ValidationService.isStr(obj.template, false)) {
+                errors.push(BaseObjectService.validationFailure('template', 'The template must take the form of [PLUGIN]|[TEMPLATE_NAME]'));
             }
-            else {
+            else if (obj.template.length > 0){
                 var parts = obj.template.split('|');
                 if (parts.length !== 2) {
                     errors.push(BaseObjectService.validationFailure('template', 'The template must take the form of [PLUGIN]|[TEMPLATE_NAME]'));

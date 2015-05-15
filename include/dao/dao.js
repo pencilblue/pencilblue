@@ -153,6 +153,7 @@ module.exports = function DAOModule(pb) {
      */
     DAO.prototype.count = function(entityType, where, cb) {
         var options = {
+            count: true,
             entityType: entityType,
             where: where
         };
@@ -335,8 +336,8 @@ module.exports = function DAOModule(pb) {
 
             //log the result
             if(pb.config.db.query_logging){
-                var query = "DAO: SELECT %j FROM %s.%s WHERE %j";
-                var args = [select, self.dbName, entityType, where];
+                var query = "DAO: %s %j FROM %s.%s WHERE %j";
+                var args = [options.count ? 'COUNT' : 'SELECT', select, self.dbName, entityType, where];
                 if (typeof orderBy !== 'undefined') {
                     query += " ORDER BY %j";
                     args.push(orderBy);

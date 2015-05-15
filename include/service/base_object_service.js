@@ -72,7 +72,7 @@ module.exports = function(pb) {
      * @property MAX_RESULTS
      * @type {Integer}
      */
-    var MAX_RESULTS = 250;
+    var MAX_RESULTS = 1000;
     
     /**
      * The event that is triggered when querying for one or more resources
@@ -512,6 +512,18 @@ module.exports = function(pb) {
                 });
             });
         });
+    };
+    
+    /**
+     *
+     * @private
+     * @method _emit
+     * @param {String} event
+     * @param {Object} data
+     * @param {Function} cb
+     */
+    BaseObjectService.prototype._emit = function(event, data, cb) {
+        events.emit(self.type + '.' + event, data, cb);
     };
     
     /**
