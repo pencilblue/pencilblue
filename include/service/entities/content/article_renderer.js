@@ -57,7 +57,7 @@ module.exports = function(pb) {
     };
     
     ArticleRenderer.prototype.formatBylines = function(article, context) {
-        
+
         var author = context.authors[article.author];
         if (util.isNullOrUndefined(author)) {
             pb.log.warn('ArticleRenderer: Failed to find author [%s] for article [%s]', article.author, article[DAO.getIdField()]);
@@ -89,7 +89,7 @@ module.exports = function(pb) {
     ArticleRenderer.prototype.formatLayout = function(article, context) {
         var contentSettings = context.contentSettings;
         
-        if(ArticleRenderer.containsReadMoreFlag) {
+        if(ArticleRenderer.containsReadMoreFlag(article)) {
             this.formatLayoutForReadMore(article, context);
         }
         else if(context.articleCount > 1 && contentSettings.auto_break_articles) {

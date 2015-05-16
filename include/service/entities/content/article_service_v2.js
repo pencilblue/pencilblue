@@ -85,7 +85,8 @@ module.exports = function(pb) {
         
         //add where clause to weed out drafts
         options.where.draft = {
-            $in: [0, false]
+            $ne: 1,
+            $ne: true
         };
         options.where.publish_date = {
             $lte: new Date()
@@ -230,8 +231,8 @@ module.exports = function(pb) {
                     var authorHash = {};
                     if (util.isArray(authors)) {
                         
-                        authorHash = util.arrayToHash(authors, function(author) {
-                            return author[DAO.getIdField()] + '';
+                        authorHash = util.arrayToHash(authors, function(authors, i) {
+                            return authors[i][DAO.getIdField()] + '';
                         });
                     }
                     callback(err, authorHash);
