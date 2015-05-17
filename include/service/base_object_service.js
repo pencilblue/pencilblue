@@ -171,6 +171,15 @@ module.exports = function(pb) {
     BaseObjectService.AFTER_DELETE = "afterDelete";
     
     /**
+     * Retrieves the object type supported by the service
+     * @method getType
+     * @return {String} The object type supported
+     */
+    BaseObjectService.prototype.getType = function() {
+        return this.type;
+    };
+    
+    /**
      * Executes a query for resources against the persistence layer. The 
      * function will callback with an array of results.  The function will 
      * trigger the "getAll" event.  Also note that there is hard limit on the 
