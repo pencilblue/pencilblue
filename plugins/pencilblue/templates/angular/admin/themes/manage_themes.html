@@ -54,7 +54,7 @@
         }
 
         $scope.saveSiteLogo = function() {
-            $http.post('/actions/admin/themes/site_logo', {site_logo: $scope.photoValue})
+            $http.post('/actions/admin' + $scope.sitePrefix + '/themes/site_logo', {site_logo: $scope.photoValue})
             .success(function(result) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;

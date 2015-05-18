@@ -105,7 +105,7 @@ module.exports = function BaseControllerModule(pb) {
         this.site                = props.site;
 
         var self = this;
-        this.templateService     = new pb.TemplateService(this.localizationService);
+        this.templateService     = new pb.TemplateService(this.localizationService, this.site);
         this.templateService.registerLocal('locale', this.ls.language);
         this.templateService.registerLocal('error_success', function(flag, cb) {
             self.displayErrorOrSuccessCallback(flag, cb);
