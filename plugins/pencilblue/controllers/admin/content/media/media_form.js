@@ -38,6 +38,7 @@ module.exports = function(pb) {
         this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
         this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
         this.queryService = new pb.SiteQueryService(this.pathSiteUId, true);
+        this.mediaService = new pb.MediaService(null, this.pathSiteUId, true);
 
         pb.BaseController.prototype.init.call(this, props, cb);
     };
@@ -69,7 +70,6 @@ module.exports = function(pb) {
                 });
             });
         });
-        return;
     };
 
     MediaForm.prototype.getAngularObjects = function(data, cb) {
@@ -123,8 +123,7 @@ module.exports = function(pb) {
                     });
                 }
 
-                var mservice = new pb.MediaService();
-                mservice.loadById(vars.id, callback);
+                self.mediaService.loadById(vars.id, callback);
             }
         };
         async.series(tasks, cb);
