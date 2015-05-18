@@ -104,7 +104,7 @@
 		$scope.getMediaPreview = function() {
 			$scope.mediaPreview = '<i class="fa fa-circle-o-notch fa-spin"></i>';
 
-			$http.get('/api/admin/content/media/get_preview?id=' + $scope.media._id)
+			$http.get('/api/admin' + $scope.sitePrefix + '/content/media/get_preview?id=' + $scope.media._id)
 			.success(function(result) {
 				$scope.mediaPreview = result.data;
 			})

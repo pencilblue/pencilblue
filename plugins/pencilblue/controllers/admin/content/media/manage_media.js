@@ -32,6 +32,7 @@ module.exports = function(pb) {
     ManageMedia.prototype.init = function (props, cb) {
         this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
         this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
+        this.mediaService = new pb.MediaService(null, this.pathSiteUId, true);
 
         pb.BaseController.prototype.init.call(this, props, cb);
     };
@@ -46,12 +47,10 @@ module.exports = function(pb) {
                 media_type: 1,
                 location: 1
             },
-            where : {site: self.pathSiteUId},
             order: {created: pb.DAO.DESC},
             format_media: true
         };
-        var mservice = new pb.MediaService();
-        mservice.get(options, function(err, mediaData) {
+        self.mediaService.get(options, function(err, mediaData) {
             if(util.isError(mediaData) || mediaData.length === 0) {
                 self.redirect('/admin' + self.sitePrefix + '/content/media/new', cb);
                 return;
