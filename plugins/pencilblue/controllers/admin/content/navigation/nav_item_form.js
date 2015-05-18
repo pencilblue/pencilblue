@@ -44,7 +44,7 @@ module.exports = function(pb) {
                 else {
                     self.navService = new pb.SectionService(self.pathSiteUId, true);
                     self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
                     self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
                     var siteService = new pb.SiteService();
                     siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
@@ -150,14 +150,14 @@ module.exports = function(pb) {
                     return;
                 }
 
-                self.navService.loadById(vars.id, 'section', function(err, navItem) {
+                self.queryService.loadById(vars.id, 'section', function(err, navItem) {
                     if(!navItem.item) {
                         callback(err, navItem);
                         return;
                     }
 
                     //TODO modify such that only the needed field of "headline" is returned.
-                    self.navService.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
+                    self.queryService.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
                         if(articleOrPage) {
                             navItem.contentSearchValue = articleOrPage.headline;
                         }
