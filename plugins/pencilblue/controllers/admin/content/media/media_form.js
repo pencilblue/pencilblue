@@ -29,19 +29,10 @@ module.exports = function(pb) {
      * @constructor
      */
     function MediaForm(){}
-    util.inherits(MediaForm, pb.BaseController);
+    util.inherits(MediaForm, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'media_form';
-
-    MediaForm.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
-        this.queryService = new pb.SiteQueryService(this.pathSiteUId, true);
-        this.mediaService = new pb.MediaService(null, this.pathSiteUId, true);
-
-        pb.BaseController.prototype.init.call(this, props, cb);
-    };
 
     /**
     * @method render
@@ -112,7 +103,7 @@ module.exports = function(pb) {
                     where: pb.DAO.ANYWHERE,
                     order: {name: pb.DAO.ASC}
                 };
-                self.queryService.q('topic', opts, callback);
+                self.siteQueryService.q('topic', opts, callback);
             },
 
             media: function(callback) {
@@ -123,7 +114,8 @@ module.exports = function(pb) {
                     });
                 }
 
-                self.mediaService.loadById(vars.id, callback);
+                var mediaService = new pb.MediaService(null, this.pathSiteUId, true);
+                mediaService.loadById(vars.id, callback);
             }
         };
         async.series(tasks, cb);
@@ -149,7 +141,7 @@ module.exports = function(pb) {
     };
 
     MediaForm.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin'
+        var adminPrefix = '/admin';
         if(data.site) {
             adminPrefix += '/' + data.site;
         }

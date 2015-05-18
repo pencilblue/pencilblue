@@ -33,7 +33,7 @@ module.exports = function SectionServiceModule(pb) {
         this.site = pb.SiteService.getCurrentSite(site);
         this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, onlyThisSite);
         this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.site);
-        this.queryService = new pb.SiteQueryService(this.site, onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
     }
 
     /**
@@ -53,11 +53,12 @@ module.exports = function SectionServiceModule(pb) {
     };
 
     /**
-     * 
+     *
      * @static
      * @method getPillNavOptions
      * @param {String} activePill
      * @return {Array}
+     * @param sitePrefix
      */
     SectionService.getPillNavOptions = function(activePill, sitePrefix) {
         return [
@@ -246,7 +247,7 @@ module.exports = function SectionServiceModule(pb) {
             }
 
             //retrieve sections
-            self.queryService.q('section', function(err, sections) {
+            self.siteQueryService.q('section', function(err, sections) {
                 if (util.isError(err)) {
                     return cb(err, []);
                 }
@@ -294,7 +295,7 @@ module.exports = function SectionServiceModule(pb) {
      *
      * @method getParentSelectList
      * @param {String|ObjectID} currItem
-     * @param {Function}
+     * @param {Function} cb
      */
     SectionService.prototype.getParentSelectList = function(currItem, cb) {
         cb = cb || currItem;
@@ -314,14 +315,14 @@ module.exports = function SectionServiceModule(pb) {
             where: where,
             order: {'name': pb.DAO.ASC}
         };
-        this.queryService.q('section', opts, cb);
+        this.siteQueryService.q('section', opts, cb);
     };
 
     /**
      *
      * @static
      * @method trimForType
-     * @param {Object}
+     * @param {Object} navItem
      */
     SectionService.trimForType = function(navItem) {
         if (navItem.type === 'container') {
@@ -353,7 +354,7 @@ module.exports = function SectionServiceModule(pb) {
     /**
      *
      * @method validate
-     * @param {Object}
+     * @param {Object} navItem
      * @param {Function} cb
      */
     SectionService.prototype.validate = function(navItem, cb) {
@@ -419,7 +420,7 @@ module.exports = function SectionServiceModule(pb) {
      *
      * @method validateLinkNavItem
      * @param {Object} navItem
-     * @param {Function}
+     * @param {Function} cb
      */
     SectionService.prototype.validateLinkNavItem = function(navItem, cb) {
         var errors = [];
@@ -446,7 +447,7 @@ module.exports = function SectionServiceModule(pb) {
         var where = {
             name: navItem.name
         };
-        this.queryService.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
+        this.siteQueryService.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
             var error = null;
             if (!unique) {
                 error = {field: 'name', message: 'The provided name is not unique'};
@@ -557,7 +558,6 @@ module.exports = function SectionServiceModule(pb) {
         if (!pb.validation.validateNonEmptyStr(parent, false)) {
             error = {field: 'parent', message: 'The parent must be a valid nav item container ID'};
             cb(null, error);
-            return;
         }
         else if (parent) {
 
@@ -652,7 +652,7 @@ module.exports = function SectionServiceModule(pb) {
             }
 
             //persist the changes
-            self.queryService.save(navItem, function(err, data) {
+            self.siteQueryService.save(navItem, function(err, data) {
                 if(util.isError(err)) {
                     return cb(err);
                 }
@@ -668,11 +668,12 @@ module.exports = function SectionServiceModule(pb) {
     };
 
     /**
-     * 
+     *
      * @static
      * @method getSectionData
-     * @param {String} editor
-     * @param {Function} cb
+     * @param {String} uid
+     * @param {Object} navItems
+     * @param {String} currUrl
      */
     SectionService.getSectionData = function(uid, navItems, currUrl) {
         var self = this;

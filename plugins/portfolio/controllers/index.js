@@ -38,9 +38,7 @@ module.exports = function IndexModule(pb) {
     Index.prototype.init = function (props, cb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteUId = pb.SiteService.getCurrentSite(self.site);
-            self.navService = new pb.SectionService(self.pathSiteUId);
-            self.queryService = new pb.SiteQueryService(self.siteUId);
+            self.siteQueryService = new pb.SiteQueryService(self.site);
             cb();
         });
     };
@@ -71,7 +69,7 @@ module.exports = function IndexModule(pb) {
         TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
                 
-                var pluginService = new pb.PluginService(self.site);
+                var pluginService = new PluginService(self.site);
                 pluginService.getSettings('portfolio', function(err, portfolioSettings) {
                     var homePageKeywords = '';
                     var homePageDescription = '';
@@ -106,7 +104,7 @@ module.exports = function IndexModule(pb) {
                         var opts = {
                             where: {settings_type: 'home_page'}
                         };
-                        self.queryService.q('portfolio_theme_settings', opts, function(err, settings) {
+                        self.siteQueryService.q('portfolio_theme_settings', opts, function(err, settings) {
                             if (util.isError(err)) {
                                 self.reqHandler.serveError(err);
                             }

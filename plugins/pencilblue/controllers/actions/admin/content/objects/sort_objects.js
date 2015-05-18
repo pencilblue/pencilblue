@@ -29,19 +29,7 @@ module.exports = function(pb) {
     util.inherits(SortObjectsActionController, pb.FormController);
 
     SortObjectsActionController.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    cb();
-                }
-            });
-        });
+        pb.BaseAdminController.overrideInit(this, props, cb);
     };
 
     SortObjectsActionController.prototype.render = function(cb) {
@@ -55,7 +43,7 @@ module.exports = function(pb) {
             });
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.loadTypeById(vars.type_id, function(err, customObjectType) {
             if(util.isError(err) || !util.isObject(customObjectType)) {
                 return cb({

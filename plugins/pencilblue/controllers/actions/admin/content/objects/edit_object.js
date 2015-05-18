@@ -27,23 +27,7 @@ module.exports = function(pb) {
      * @extends FormController
      */
     function EditObject(){}
-    util.inherits(EditObject, pb.BaseController);
-
-    EditObject.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    cb();
-                }
-            });
-        });
-    };
+    util.inherits(EditObject, pb.BaseAdminController);
 
     EditObject.prototype.render = function(cb) {
         var self = this;
@@ -57,7 +41,7 @@ module.exports = function(pb) {
             return;
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.loadById(vars.id, function(err, custObj) {
             if(util.isError(err) || !util.isObject(custObj)) {
                 return cb({

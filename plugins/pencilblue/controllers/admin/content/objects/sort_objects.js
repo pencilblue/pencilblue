@@ -27,31 +27,10 @@ module.exports = function(pb) {
      * @extends BaseController
      */
     function SortObjects() {}
-    util.inherits(SortObjects, pb.BaseController);
+    util.inherits(SortObjects, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'sort_custom_objects';
-
-    SortObjects.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
 
     SortObjects.prototype.render = function(cb) {
         var self = this;
@@ -60,7 +39,7 @@ module.exports = function(pb) {
             return this.reqHandler.serve404();
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.loadTypeById(vars.type_id, function(err, objectType) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);

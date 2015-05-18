@@ -24,18 +24,10 @@ module.exports = function(pb) {
      * Interface for managing media
      */
     function ManageMedia(){}
-    util.inherits(ManageMedia, pb.BaseController);
+    util.inherits(ManageMedia, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_media';
-
-    ManageMedia.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
-        this.mediaService = new pb.MediaService(null, this.pathSiteUId, true);
-
-        pb.BaseController.prototype.init.call(this, props, cb);
-    };
 
     ManageMedia.prototype.render = function(cb) {
         var self = this;
@@ -50,7 +42,8 @@ module.exports = function(pb) {
             order: {created: pb.DAO.DESC},
             format_media: true
         };
-        self.mediaService.get(options, function(err, mediaData) {
+        var mediaService = new pb.MediaService(null, self.pathSiteUId, true);
+        mediaService.get(options, function(err, mediaData) {
             if(util.isError(mediaData) || mediaData.length === 0) {
                 self.redirect('/admin' + self.sitePrefix + '/content/media/new', cb);
                 return;
@@ -82,7 +75,7 @@ module.exports = function(pb) {
     };
 
     ManageMedia.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin'
+        var adminPrefix = '/admin';
         if(data.site) {
             adminPrefix += '/' + data.site;
         }

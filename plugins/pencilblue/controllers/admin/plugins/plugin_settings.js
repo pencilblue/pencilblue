@@ -19,7 +19,6 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util           = pb.util;
-    var BaseController = pb.BaseController;
 
     /**
      * Interface for changing a plugin's settings
@@ -36,18 +35,19 @@ module.exports = function(pb) {
          */
         this.pluginService = new pb.PluginService();
     }
-    util.inherits(PluginSettingsFormController, BaseController);
+    util.inherits(PluginSettingsFormController, pb.BaseAdminController);
+
+    PluginSettingsFormController.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseAdminController.prototype.init.call(self, props, function () {
+            self.pluginService = new pb.PluginService(self.pathSiteUId);
+            cb();
+        });
+    };
 
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
 
-    PluginSettingsFormController.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.pluginService = new pb.PluginService(this.pathSiteUId);
-
-        pb.BaseController.prototype.init.call(this, props, cb);
-    };
-    
     PluginSettingsFormController.prototype.get = function(cb) {
         var self = this;
 

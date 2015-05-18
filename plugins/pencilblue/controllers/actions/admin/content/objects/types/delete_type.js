@@ -27,19 +27,7 @@ module.exports = function(pb) {
     util.inherits(DeleteObjectType, pb.FormController);
 
     DeleteObjectType.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    cb();
-                }
-            });
-        });
+        pb.BaseAdminController.overrideInit(this, props, cb);
     };
 
     DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
@@ -54,7 +42,7 @@ module.exports = function(pb) {
         }
 
         //ensure existence
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.loadTypeById(vars.id, function(err, objectType) {
             if(objectType === null) {
                 cb({

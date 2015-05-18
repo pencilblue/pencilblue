@@ -27,36 +27,15 @@ module.exports = function(pb) {
      * @extends BaseController
      */
     function ManageObjectTypes() {}
-    util.inherits(ManageObjectTypes, pb.BaseController);
+    util.inherits(ManageObjectTypes, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_object_types';
 
-    ManageObjectTypes.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
-
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
 
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.findTypes(function(err, custObjTypes) {
 
             //none to manage

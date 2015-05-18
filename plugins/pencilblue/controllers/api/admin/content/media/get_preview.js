@@ -27,17 +27,7 @@ module.exports = function(pb) {
      * @extends BaseController
      */
     function GetMediaPreviewApiController(){}
-    util.inherits(GetMediaPreviewApiController, pb.BaseController);
-
-    GetMediaPreviewApiController.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-            self.mediaService = new pb.MediaService(null, self.pathSiteUId, true);
-            cb();
-        });
-    };
+    util.inherits(GetMediaPreviewApiController, pb.BaseAdminController);
 
     /**
      * Renders the preview
@@ -60,19 +50,20 @@ module.exports = function(pb) {
         var options = {
             view: 'view'
         };
+        var mediaService = new pb.MediaService(null, self.pathSiteUId, true);
         if (get.id) {
-            self.mediaService.renderById(get.id, options, function(err, html) {
+            mediaService.renderById(get.id, options, function(err, html) {
                 self.renderComplete(err, html, cb);
             });
         }
         else if (get.location && get.type){
 
-            var options = {
+            var renderOptions = {
                 view: 'view',
                 location: get.location,
                 type: get.type
             };
-            self.mediaService.renderByLocation(options, function(err, html) {
+            mediaService.renderByLocation(renderOptions, function(err, html) {
                 self.renderComplete(err, html, cb);
             });
         }

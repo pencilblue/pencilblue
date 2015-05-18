@@ -24,28 +24,7 @@ module.exports = function(pb) {
      * Interface for importing topics from CSV
      */
     function ImportTopics(){}
-    util.inherits(ImportTopics, pb.BaseController);
-
-    ImportTopics.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(ImportTopics, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'import_topics';

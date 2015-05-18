@@ -27,19 +27,7 @@ module.exports = function(pb) {
     util.inherits(GetObjectTypeNameAvailable, pb.FormController);
 
     GetObjectTypeNameAvailable.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    cb();
-                }
-            });
-        });
+        pb.BaseAdminController.overrideInit(this, props, cb);
     };
 
     GetObjectTypeNameAvailable.prototype.render = function(cb) {
@@ -53,7 +41,7 @@ module.exports = function(pb) {
             });
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.typeExists(get.name, function(err, exists) {
             if (util.isError(err)) {
                 return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, err.stack, false)});

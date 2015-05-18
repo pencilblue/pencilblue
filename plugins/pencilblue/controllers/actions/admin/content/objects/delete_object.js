@@ -24,23 +24,7 @@ module.exports = function(pb) {
      * Deletes an object
      */
     function DeleteObject(){}
-    util.inherits(DeleteObject, pb.BaseController);
-
-    DeleteObject.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    cb();
-                }
-            });
-        });
-    };
+    util.inherits(DeleteObject, pb.BaseAdminController);
 
     DeleteObject.prototype.render = function(cb) {
         var self = this;
@@ -58,7 +42,7 @@ module.exports = function(pb) {
             return;
         }
 
-        var cos = new pb.CustomObjectService(self.pathSiteUid, true);
+        var cos = new pb.CustomObjectService(self.pathSiteUId, true);
         cos.loadById(vars.id, function(err, customObject) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);

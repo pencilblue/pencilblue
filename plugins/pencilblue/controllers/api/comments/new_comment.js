@@ -28,12 +28,7 @@ module.exports = function NewCommentModule(pb) {
     util.inherits(NewComment, pb.FormController);
 
     NewComment.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteUId = pb.SiteService.getCurrentSite(self.site);
-            self.queryService = new pb.SiteQueryService(self.siteUId);
-            cb();
-        });
+        pb.BaseAdminController.overrideInit(this, props, cb);
     };
 
     NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
@@ -52,7 +47,7 @@ module.exports = function NewCommentModule(pb) {
                 return;
             }
 
-            self.queryService.loadById(post.article, 'article', function(err, article) {
+            self.siteQueryService.loadById(post.article, 'article', function(err, article) {
                 if(util.isError(err) || article == null) {
                     cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'article does not exist'), code: 400});
                     return;
@@ -61,7 +56,7 @@ module.exports = function NewCommentModule(pb) {
                 var commentDocument       = pb.DocumentCreator.create('comment', post);
                 commentDocument.commenter = self.session.authentication.user_id;
 
-                self.queryService.save(commentDocument, function(err, data) {
+                self.siteQueryService.save(commentDocument, function(err, data) {
                     if (util.isError(err)) {
                         return cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'error saving'), code: 500});
                     }

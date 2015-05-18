@@ -24,19 +24,10 @@ module.exports = function(pb) {
      * Interface for the site's libraries settings
      */
     function Libraries(){}
-    util.inherits(Libraries, pb.BaseController);
+    util.inherits(Libraries, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'libraries_settings';
-
-    Libraries.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.sitePrefix = pb.SiteService.getCurrentSitePrefix(pb.SiteService.GLOBAL_SITE);
-            self.siteName = pb.SiteService.GLOBAL_SITE;
-            cb();
-        });
-    };
 
     Libraries.prototype.render = function(cb) {
         var self = this;

@@ -29,30 +29,9 @@ module.exports = function(pb) {
      * @constructor
      */
     function ObjectFormController() {}
-    util.inherits(ObjectFormController, pb.BaseController);
+    util.inherits(ObjectFormController, pb.BaseAdminController);
 
     var SUB_NAV_KEY = 'object_form';
-
-    ObjectFormController.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
 
     ObjectFormController.prototype.render = function(cb) {
         var self = this;
@@ -119,7 +98,7 @@ module.exports = function(pb) {
 
     ObjectFormController.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService(self.pathSiteUid, true);
+        var cos = new pb.CustomObjectService(self.pathSiteUId, true);
 
         var tasks = {
             tabs: function(callback) {
@@ -174,7 +153,6 @@ module.exports = function(pb) {
         var self         = this;
         var keys         = Object.keys(objectType.fields);
         var custObjTypes = {};
-        var siteQueryService = new pb.SiteQueryService();
         var userService  = new pb.UserService();
 
         //wrapper function to load cust object type
@@ -232,7 +210,7 @@ module.exports = function(pb) {
                         last_name: 1
                     }
                 };
-                siteQueryService.q(objectType.fields[key].object_type, query, function(err, availableObjects) {
+                self.siteQueryService.q(objectType.fields[key].object_type, query, function(err, availableObjects) {
                     if (util.isError(err)) {
                         return callback(err);
                     }
