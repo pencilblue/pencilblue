@@ -33,8 +33,10 @@ module.exports = function ArticleServiceModule(pb) {
      * @constructor
      *
      */
-    function ArticleService(){
+    function ArticleService(siteUid, onlyThisSite){
         this.object_type = 'article';
+        this.site = pb.SiteService.getCurrentSite(siteUid);
+        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
     }
 
     /**
@@ -161,8 +163,7 @@ module.exports = function ArticleServiceModule(pb) {
         }
 
         var self = this;
-        var dao  = new pb.DAO();
-        dao.q(this.getContentType(), {where: where, select: select, order: order, limit: limit, offset: offset}, function(err, articles) {
+        self.siteQueryService.q(this.getContentType(), {where: where, select: select, order: order, limit: limit, offset: offset}, function(err, articles) {
             if (util.isError(err)) {
                 return cb(err, []);
             }
@@ -173,7 +174,7 @@ module.exports = function ArticleServiceModule(pb) {
             //get authors
             self.getArticleAuthors(articles, function(err, authors) {
 
-                var contentService = new pb.ContentService();
+                var contentService = new pb.ContentService(self.site);
                 contentService.getSettings(function(err, contentSettings) {
 
                     var tasks = util.getTasks(articles, function(articles, i) {
