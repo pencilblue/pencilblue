@@ -29,6 +29,16 @@ module.exports = function(pb) {
     function GetMediaPreviewApiController(){}
     util.inherits(GetMediaPreviewApiController, pb.BaseController);
 
+    GetMediaPreviewApiController.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+            self.mediaService = new pb.MediaService(null, self.pathSiteUId, true);
+            cb();
+        });
+    };
+
     /**
      * Renders the preview
      * @method render
@@ -50,9 +60,8 @@ module.exports = function(pb) {
         var options = {
             view: 'view'
         };
-        var ms = new pb.MediaService();
         if (get.id) {
-            ms.renderById(get.id, options, function(err, html) {
+            self.mediaService.renderById(get.id, options, function(err, html) {
                 self.renderComplete(err, html, cb);
             });
         }
@@ -63,7 +72,7 @@ module.exports = function(pb) {
                 location: get.location,
                 type: get.type
             };
-            ms.renderByLocation(options, function(err, html) {
+            self.mediaService.renderByLocation(options, function(err, html) {
                 self.renderComplete(err, html, cb);
             });
         }

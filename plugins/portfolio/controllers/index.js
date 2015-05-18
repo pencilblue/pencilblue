@@ -35,6 +35,16 @@ module.exports = function IndexModule(pb) {
     function Index() {}
     util.inherits(Index, pb.BaseController);
 
+    Index.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteUId = pb.SiteService.getCurrentSite(self.site);
+            self.navService = new pb.SectionService(self.pathSiteUId);
+            self.queryService = new pb.SiteQueryService(self.siteUId);
+            cb();
+        });
+    };
+
     /**
     * This is the function that will be called by the system's RequestHandler.  It
     * will map the incoming route to the ones below and then instantiate this
@@ -55,12 +65,13 @@ module.exports = function IndexModule(pb) {
         };
 
         var options = {
-            currUrl: this.req.url
+            currUrl: this.req.url,
+            site: self.site
         };
         TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
                 
-                var pluginService = new pb.PluginService();
+                var pluginService = new pb.PluginService(self.site);
                 pluginService.getSettings('portfolio', function(err, portfolioSettings) {
                     var homePageKeywords = '';
                     var homePageDescription = '';
@@ -95,8 +106,7 @@ module.exports = function IndexModule(pb) {
                         var opts = {
                             where: {settings_type: 'home_page'}
                         };
-                        var dao = new pb.DAO();
-                        dao.q('portfolio_theme_settings', opts, function(err, settings) {
+                        self.queryService.q('portfolio_theme_settings', opts, function(err, settings) {
                             if (util.isError(err)) {
                                 self.reqHandler.serveError(err);
                             }
