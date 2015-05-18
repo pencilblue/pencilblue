@@ -228,8 +228,8 @@ module.exports = function(pb) {
             },
 
             media: function(callback) {
-                var mservice = new pb.MediaService();
-                mservice.getBySite(vars.siteid, callback);
+                var mservice = new pb.MediaService(null, vars.siteid, true);
+                mservice.get(callback);
             },
 
             page: function(callback) {

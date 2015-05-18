@@ -31,9 +31,14 @@ module.exports = function MediaServiceModule(pb) {
      * @submodule Entities
      * @class MediaService
      * @constructor
+     * @param provider
+     * @param site          Site uid to be used for this service
+     * @param onlyThisSite  Whether this service should only return media associated with specified site
+     *                      or fallback to global if not found in specified site
      */
-    function MediaService(provider, site){
-        this.site = site;
+    function MediaService(provider, site, onlyThisSite) {
+        this.site = pb.SiteService.getCurrentSite(site);
+        this.queryService = new pb.SiteQueryService(site, onlyThisSite);
         if (util.isNullOrUndefined(provider)) {
             provider = MediaService.loadMediaProvider();
         }
@@ -96,8 +101,7 @@ module.exports = function MediaServiceModule(pb) {
      * occurred and a media descriptor if found.
      */
     MediaService.prototype.loadById = function(mid, cb) {
-        var dao = new pb.DAO();
-        dao.loadById(mid.toString(), MediaService.COLL, cb);
+        this.queryService.loadById(mid.toString(), MediaService.COLL, cb);
     };
 
     /**
@@ -114,8 +118,7 @@ module.exports = function MediaServiceModule(pb) {
         }
 
         var self = this;
-        var dao  = new pb.DAO();
-        dao.deleteById(mid, MediaService.COLL, cb);
+        this.queryService.deleteById(mid, MediaService.COLL, cb);
     };
 
     /**
@@ -140,8 +143,7 @@ module.exports = function MediaServiceModule(pb) {
                 return cb(null, validationErrors);
             }
 
-            var dao = new pb.DAO();
-            dao.save(media, cb);
+            this.queryService.save(media, cb);
         });
     };
 
@@ -161,9 +163,8 @@ module.exports = function MediaServiceModule(pb) {
         }
 
         //ensure the media name is unique
-        var where = { name: media.name, site: this.site };
-        var dao   = new pb.DAO();
-        dao.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
+        var where = { name: media.name };
+        this.queryService.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
             if(util.isError(err)) {
                 return cb(err, errors);
             }
@@ -196,8 +197,7 @@ module.exports = function MediaServiceModule(pb) {
             };
         }
 
-        var dao  = new pb.DAO();
-        dao.q('media', options, function(err, media) {
+        this.queryService.q('media', options, function (err, media) {
             if (util.isError(err)) {
                 return cb(err, []);
             }
@@ -208,22 +208,6 @@ module.exports = function MediaServiceModule(pb) {
             }
             cb(null, media);
         });
-    };
-
-    /**
-     * Queries for media descriptors by site
-     * @method getBySite
-     * @param {String} site
-     * @param {Function} cb
-     */
-
-    MediaService.prototype.getBySite = function(site, cb) {
-        var options = {
-            format_media: true,
-            where: {site: site},
-            order: {name:1}
-        };
-        this.get(options, cb);
     };
 
     /**
@@ -487,8 +471,7 @@ module.exports = function MediaServiceModule(pb) {
     MediaService.prototype.renderById = function(id, options, cb) {
         var self = this;
 
-        var dao = new pb.DAO();
-        dao.loadById(id, MediaService.COLL, function(err, media) {
+        self.queryService.loadById(id, MediaService.COLL, function (err, media) {
             if (util.isError(err)) {
                 return cb(err);   
             }
