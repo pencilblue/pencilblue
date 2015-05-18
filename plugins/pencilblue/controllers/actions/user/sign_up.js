@@ -48,7 +48,7 @@ module.exports = function SignUpModule(pb) {
             return;
         }
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService(self.site);
         contentService.getSettings(function(err, contentSettings) {
             //TODO handle error
 
@@ -120,7 +120,7 @@ module.exports = function SignUpModule(pb) {
             },
             unverified_email: function(callback) {
                 dao.count('unverified_user', {email: user.email}, callback);
-            },
+            }
         };
         async.series(tasks, cb);
     };

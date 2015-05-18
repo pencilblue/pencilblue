@@ -61,7 +61,7 @@ module.exports = function FeedModule(pb) {
                         self.getMedia(articles, function(err, articlesWithMedia) {
                             articles = articlesWithMedia;
 
-                            var contentService = new pb.ContentService();
+                            var contentService = new pb.ContentService(self.site);
                             contentService.getSettings(function(err, contentSettings) {
 
                                 var tasks = util.getTasks(articles, function(articles, i) {
