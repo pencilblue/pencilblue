@@ -135,7 +135,7 @@ module.exports = function MediaServiceModule(pb) {
         }
 
         var self = this;
-        this.validate(media, function(err, validationErrors) {
+        self.validate(media, function(err, validationErrors) {
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -143,7 +143,7 @@ module.exports = function MediaServiceModule(pb) {
                 return cb(null, validationErrors);
             }
 
-            this.queryService.save(media, cb);
+            self.queryService.save(media, cb);
         });
     };
 
