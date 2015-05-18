@@ -28,8 +28,28 @@ module.exports = function(pb) {
     function SiteLogo() {}
     util.inherits(SiteLogo, pb.BaseController);
 
+    SiteLogo.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     SiteLogo.prototype.render = function(cb) {
-        self = this;
+        var self = this;
 
         this.getJSONPostParams(function(err, post) {
             if (!pb.validation.validateNonEmptyStr(post.site_logo, true)) {
@@ -40,7 +60,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            pb.settings.set('site_logo', post.site_logo, function(err, result) {
+            self.settings.set('site_logo', post.site_logo, function(err, result) {
                 if (util.isError(err)) {
                     cb({
                         code: 500,
