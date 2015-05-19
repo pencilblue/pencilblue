@@ -19,7 +19,7 @@ module.exports = function BlogFilterModule(pb) {
         var custUrl = this.pathVars.customUrl;
 
         var fieldToMatch = 'url';
-        self.objectType = 'section';
+        var objectType = 'section';
 
         if(self.req.url.indexOf('/preview/') > -1) {
             self.req.pencilblue_preview = this.pathVars.id;
@@ -34,14 +34,10 @@ module.exports = function BlogFilterModule(pb) {
             return;
         }
         else if(self.req.url.indexOf('/article/') > -1) {
-            self.objectType = 'article';
-            //self.processArticle(custUrl, cb);
-            //return;
+            objectType = 'article';
         }
         else if(self.req.url.indexOf('/page/') > -1) {
-            self.objectType = 'page';
-            self.processArticle(custUrl, cb);
-            return;
+            objectType = 'page';
         }
         else if(self.req.url.indexOf('/topic/') > -1) {
             self.req.pencilblue_topic = custUrl;
@@ -49,50 +45,36 @@ module.exports = function BlogFilterModule(pb) {
             return;
         }
 
-        this.queryService.loadByValue(fieldToMatch, custUrl, self.objectType, function(err, result) {
-            self.handleResult(err, result, cb);
-        });
-    };
+        this.queryService.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
+            if (util.isError(err) || result === null) {
+                if(pb.validation.isIdStr(self.pathVars.custUrl)) {
+                    this.queryService.loadById(self.pathVars.custUrl, objectType, function(err, result) {
+                        if (util.isError(err) || result === null || result.draft) {
+                            self.reqHandler.serve404();
+                            return;
+                        }
 
-    BlogFilter.prototype.processArticle = function(custUrl, cb) {
-        var self = this;
-        var articleService = new pb.ArticleService(self.site, pb.config.multisite);
-        articleService.setContentType(this.objectType);
-        articleService.findByUrl(custUrl, function(err, result) {
-            self.handleResult(err, result, cb);
-        });
-    };
+                        self.req['pencilblue_' + objectType] = result._id.toString();
+                        this.result = result;
+                        BlogFilter.super_.prototype.render.apply(self, [cb]);
+                    });
+                }
+                else {
+                    self.reqHandler.serve404();
+                }
 
-    BlogFilter.prototype.handleResult = function(err, result, cb) {
-        var self = this;
-        if (util.isError(err) || result === null) {
-            if(pb.validation.isIdStr(self.pathVars.custUrl)) {
-                this.queryService.loadById(self.pathVars.custUrl, self.objectType, function(err, result) {
-                    if (util.isError(err) || result === null || result.draft) {
-                        self.reqHandler.serve404();
-                        return;
-                    }
-
-                    self.req['pencilblue_' + self.objectType] = result._id.toString();
-                    this.result = result;
-                    BlogFilter.super_.prototype.render.apply(self, [cb]);
-                });
+                return;
             }
-            else {
+
+            if(result.draft) {
                 self.reqHandler.serve404();
+                return;
             }
 
-            return;
-        }
-
-        if(result.draft) {
-            self.reqHandler.serve404();
-            return;
-        }
-
-        self.req['pencilblue_' + self.objectType] = result._id.toString();
-        this.result = result;
-        BlogFilter.super_.prototype.render.apply(self, [cb]);
+            self.req['pencilblue_' + objectType] = result._id.toString();
+            this.result = result;
+            BlogFilter.super_.prototype.render.apply(self, [cb]);
+        });
     };
 
     BlogFilter.prototype.getPageTitle = function() {
