@@ -38,7 +38,7 @@ module.exports = function MediaServiceModule(pb) {
      */
     function MediaService(provider, site, onlyThisSite) {
         this.site = pb.SiteService.getCurrentSite(site);
-        this.siteQueryService = new pb.SiteQueryService(site, onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
         if (util.isNullOrUndefined(provider)) {
             provider = MediaService.loadMediaProvider();
         }

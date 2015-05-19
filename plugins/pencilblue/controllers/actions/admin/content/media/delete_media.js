@@ -24,10 +24,10 @@ module.exports = function(pb) {
      * Deletes media
      * @class DeleteMediaController
      * @constructor
-     * @extends FormController
+     * @extends AdminFormController
      */
     function DeleteMediaController(){}
-    util.inherits(DeleteMediaController, pb.FormController);
+    util.inherits(DeleteMediaController, pb.AdminFormController);
 
     //constants
     var MANAGE_MEDIA_PATH = '/admin/content/media/manage_media';
@@ -50,7 +50,7 @@ module.exports = function(pb) {
             return;
         }
 
-        var mservice = new pb.MediaService();
+        var mservice = new pb.MediaService(self.pathSiteUId);
         mservice.loadById(vars.id, function(err, mediaData) {
             if(util.isError(err) || !mediaData) {
                 cb({

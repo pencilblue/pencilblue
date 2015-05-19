@@ -34,7 +34,7 @@ module.exports = function(pb) {
         var self = this;
 
         //get plugs with themes
-        var pluginService = new pb.PluginService(site);
+        var pluginService = new pb.PluginService(self.site);
         pluginService.getPluginsWithThemesBySite(function (err, themes) {
             if (util.isError(err)) {
                 throw result;
@@ -76,7 +76,7 @@ module.exports = function(pb) {
                     //setup angular
                     var angularObjects = pb.ClientJs.getAngularObjects({
                         navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes'], self.ls),
-                        pills: self.getPills(SUB_NAV_KEY, self.ls, null, subNavData),
+                        pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, subNavData),
                         tabs: self.getTabs(),
                         themes: themes,
                         options: options,

@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Deletes a navigation item
      */
     function DeleteNavItem(){}
-    util.inherits(DeleteNavItem, pb.BaseController);
+    util.inherits(DeleteNavItem, pb.BaseAdminController);
 
     DeleteNavItem.prototype.render = function(cb) {
         var self = this;
