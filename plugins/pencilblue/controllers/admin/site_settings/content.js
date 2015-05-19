@@ -76,7 +76,8 @@ module.exports = function(pb) {
     };
 
     Content.getSubNavItems = function(key, ls, data) {
-        return [{
+
+        var subNavItems = [{
             name: 'configuration',
             title: ls.get('CONTENT'),
             icon: 'chevron-left',
@@ -86,12 +87,18 @@ module.exports = function(pb) {
             title: ls.get('EMAIL'),
             icon: 'envelope',
             href: '/admin' + data.pathSitePrefix + '/site_settings/email'
-        }, {
-            name: 'libraries',
-            title: ls.get('LIBRARIES'),
-            icon: 'book',
-            href: '/admin' + data.pathSitePrefix + '/site_settings/libraries'
         }];
+
+        if (data.pathSiteUid === pb.SiteService.GLOBAL_SITE) {
+            subNavItems.push({
+                name: 'libraries',
+                title: ls.get('LIBRARIES'),
+                icon: 'book',
+                href: '/admin' + data.pathSitePrefix + '/site_settings/libraries'
+            });
+        }
+
+        return subNavItems;
     };
 
     //register admin sub-nav
