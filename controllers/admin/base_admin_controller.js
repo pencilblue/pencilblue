@@ -38,22 +38,27 @@ module.exports = function BaseAdminControllerModule(pb) {
   BaseAdminController.prototype.init = function (props, cb) {
     var self = this;
     BaseController.prototype.init.call(self, props, function () {
-      self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-      var siteService = new pb.SiteService();
-      siteService.getByUid(self.pathSiteUId, function (err, siteInfo) {
-        if (err || !siteInfo) {
-          self.reqHandler.serve404();
-        } else {
-          self.sectionService = new pb.SectionService(self.pathSiteUId, true);
-          self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-          self.siteQueryService = new pb.SiteQueryService(self.pathSiteUId, true);
-          self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
-          self.siteObj = siteInfo;
-          self.isGlobalSite = pb.SiteService.isGlobal(siteInfo.uid);
-          self.siteName = self.isGlobalSite ? siteInfo.uid : siteInfo.displayName;
-          cb();
-        }
-      })
+      self.extendedInit(cb);
+    });
+  };
+
+  BaseAdminController.prototype.extendedInit = function(cb) {
+    var self = this;
+    self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+    var siteService = new pb.SiteService();
+    siteService.getByUid(self.pathSiteUId, function (err, siteInfo) {
+      if (err || !siteInfo) {
+        self.reqHandler.serve404();
+      } else {
+        self.sectionService = new pb.SectionService(self.pathSiteUId, true);
+        self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
+        self.siteQueryService = new pb.SiteQueryService(self.pathSiteUId, true);
+        self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
+        self.siteObj = siteInfo;
+        self.isGlobalSite = pb.SiteService.isGlobal(siteInfo.uid);
+        self.siteName = self.isGlobalSite ? siteInfo.uid : siteInfo.displayName;
+        cb();
+      }
     });
   };
 
