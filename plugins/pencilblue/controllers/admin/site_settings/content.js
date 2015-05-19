@@ -29,6 +29,27 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'content_settings';
 
+    Content.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function() {
+            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
+                    var siteService = new pb.SiteService();
+                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
+                        self.siteName = siteName;
+                        cb();
+                    });
+                }
+            });
+        });
+    };
+
     Content.prototype.render = function(cb) {
         var self = this;
 
@@ -57,13 +78,17 @@ module.exports = function(pb) {
             }
         ];
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService(this.pathSiteUid, true);
+        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content', { pathSiteUid: self.pathSiteUid, pathSitePrefix: self.pathSitePrefix });
+        pills = pb.AdminSubnavService.addSiteToPills(pills, this.siteName);
+
         contentService.getSettings(function(err, contentSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content'),
+                pills: pills,
                 tabs: tabs,
-                contentSettings: contentSettings
+                contentSettings: contentSettings,
+                pathSitePrefix: self.pathSitePrefix
             });
 
             self.setPageName(self.ls.get('CONTENT'));
@@ -75,22 +100,29 @@ module.exports = function(pb) {
     };
 
     Content.getSubNavItems = function(key, ls, data) {
-        return [{
+
+        var subNavItems = [{
             name: 'configuration',
             title: ls.get('CONTENT'),
             icon: 'chevron-left',
-            href: '/admin/site_settings'
+            href: '/admin' + data.pathSitePrefix + '/site_settings'
         }, {
             name: 'email',
             title: ls.get('EMAIL'),
             icon: 'envelope',
-            href: '/admin/site_settings/email'
-        }, {
-            name: 'libraries',
-            title: ls.get('LIBRARIES'),
-            icon: 'book',
-            href: '/admin/site_settings/libraries'
+            href: '/admin' + data.pathSitePrefix + '/site_settings/email'
         }];
+
+        if (data.pathSiteUid === pb.SiteService.GLOBAL_SITE) {
+            subNavItems.push({
+                name: 'libraries',
+                title: ls.get('LIBRARIES'),
+                icon: 'book',
+                href: '/admin' + data.pathSitePrefix + '/site_settings/libraries'
+            });
+        }
+
+        return subNavItems;
     };
 
     //register admin sub-nav

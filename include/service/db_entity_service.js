@@ -72,9 +72,9 @@ module.exports = function DbEntityServiceModule(pb) {
             cb(null, val);
         };
         if(this.onlyThisSite) {
-            dao.loadByValueForOneSite(this.keyField, key, this.site, this.objType, callback);
+            dao.loadByValueForOneSite(this.keyField, key, this.site, this.objType, null, callback);
         } else {
-            dao.loadByValueAvailableToSite(this.keyField, key, this.site, this.objType, callback);
+            dao.loadByValueAvailableToSite(this.keyField, key, this.site, this.objType, null, callback);
         }
     };
 

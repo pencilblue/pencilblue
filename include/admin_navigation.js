@@ -205,7 +205,7 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'content_settings',
                         title: 'CONTENT',
                         icon: 'quote-right',
-                        href: '/admin/site_settings/content',
+                        href: adminPath + '/site_settings/content',
                         access: SecurityService.ACCESS_MANAGING_EDITOR
                     },
                     {

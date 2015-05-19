@@ -108,8 +108,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.loadById(vars.id, 'topic', function(err, topic) {
+                self.queryService.loadById(vars.id, 'topic', function(err, topic) {
                     callback(err, topic);
                 });
             }

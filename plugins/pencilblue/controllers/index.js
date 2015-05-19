@@ -42,7 +42,7 @@ module.exports = function IndexModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService(self.site);
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
                 ArticleService.getMetaInfo(data.content[0], function(metaKeywords, metaDescription, metaTitle, metaThumbnail) {
@@ -220,7 +220,7 @@ module.exports = function IndexModule(pb) {
         var article = this.req.pencilblue_article || null;
         var page    = this.req.pencilblue_page    || null;
 
-        var service = new ArticleService();
+        var service = new ArticleService(this.site, true);
         if(this.req.pencilblue_preview) {
             if(this.req.pencilblue_preview == page || article) {
                 if(page) {

@@ -79,7 +79,7 @@ module.exports = function TopMenuServiceModule(pb) {
                 },
 
                 accountButtons: function(callback) {
-                    TopMenuService.getAccountButtons(session, localizationService, callback);
+                    TopMenuService.getAccountButtons(session, localizationService, options.site, callback);
                 }
             };
             async.parallel(tasks, function(err, result) {
@@ -95,10 +95,17 @@ module.exports = function TopMenuServiceModule(pb) {
      * @method getAccountButtons
      * @param {Object}   session
      * @param {Object}   ls      The localization service
+     * @param {String}   site    The current site
      * @param {Function} cb      Callback function
      */
-    TopMenuService.getAccountButtons = function(session, ls, cb) {
-        var contentService = new pb.ContentService();
+    TopMenuService.getAccountButtons = function(session, ls, site, cb) {
+
+        if (util.isFunction(site)) {
+            cb = site;
+            site = pb.siteService.GLOBAL_SITE;
+        }
+
+        var contentService = new pb.ContentService(site);
         contentService.getSettings(function(err, contentSettings) {
             if (util.isError(err)) {
                 return cb(err);
