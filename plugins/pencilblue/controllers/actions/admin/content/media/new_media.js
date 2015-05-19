@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Adds new media
      * @class NewMediaApiController
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function NewMediaApiController(){}
     util.inherits(NewMediaApiController, pb.BaseAdminController);

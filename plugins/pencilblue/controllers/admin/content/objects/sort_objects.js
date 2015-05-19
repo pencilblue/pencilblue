@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Interface for sorting objects
      * @class SortObjects
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function SortObjects() {}
     util.inherits(SortObjects, pb.BaseAdminController);

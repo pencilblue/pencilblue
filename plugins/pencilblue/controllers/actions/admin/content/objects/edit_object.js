@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Edits an object
      * @class EditObject
      * @constructor
-     * @extends FormController
+     * @extends BaseAdminController
      */
     function EditObject(){}
     util.inherits(EditObject, pb.BaseAdminController);

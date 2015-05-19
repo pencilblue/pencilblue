@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Interface for managing objects
      * @class ManageObjects
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function ManageObjects() {}
     util.inherits(ManageObjects, pb.BaseAdminController);

@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Interface for changing a plugin's settings
      * @class PluginSettingsFormController
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function PluginSettingsFormController(){
     

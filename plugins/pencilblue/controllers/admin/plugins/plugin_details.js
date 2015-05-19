@@ -26,7 +26,7 @@ module.exports = function(pb) {
     * Interface for viewing plugin details
     * @class PluginDetailsViewController
     * @constructor
-    * @extends BaseController
+    * @extends BaseAdminController
     */
     function PluginDetailsViewController(){}
     util.inherits(PluginDetailsViewController, pb.BaseAdminController);

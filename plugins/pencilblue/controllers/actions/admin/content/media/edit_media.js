@@ -23,7 +23,7 @@ module.exports = function(pb) {
     /**
      * Edits media
      * @class EditMediaActionController
-     * @extends FormController
+     * @extends BaseAdminController
      * @constructor
      */
     function EditMediaActionController(){}

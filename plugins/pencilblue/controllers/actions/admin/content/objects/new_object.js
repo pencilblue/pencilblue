@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Creates an object
      * @class NewObjectActionController
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function NewObjectActionController(){}
     util.inherits(NewObjectActionController, pb.BaseAdminController);
