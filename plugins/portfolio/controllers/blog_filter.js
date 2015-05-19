@@ -47,15 +47,15 @@ module.exports = function BlogFilterModule(pb) {
 
         this.siteQueryService.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
             if (util.isError(err) || result === null) {
-                if(pb.validation.isIdStr(self.pathVars.custUrl)) {
-                    this.siteQueryService.loadById(self.pathVars.custUrl, objectType, function(err, result) {
+                if(pb.validation.isIdStr(custUrl)) {
+                    self.siteQueryService.loadById(custUrl, objectType, function(err, result) {
                         if (util.isError(err) || result === null || result.draft) {
                             self.reqHandler.serve404();
                             return;
                         }
 
                         self.req['pencilblue_' + objectType] = result._id.toString();
-                        this.result = result;
+                        self.result = result;
                         BlogFilter.super_.prototype.render.apply(self, [cb]);
                     });
                 }
