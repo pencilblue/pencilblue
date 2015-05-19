@@ -38,17 +38,10 @@ module.exports = function BlogModule(pb) {
 
     Blog.prototype.init = function(props, cb) {
         var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            var siteService = new pb.SiteService();
-            siteService.getByUid(self.site, function(err, site) {
-                if (!site) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.siteObj = site;
-                    cb();
-                }
-            });
+        pb.BaseController.prototype.init.call(self, props, function () {var siteService = new pb.SiteService();
+            self.navService = new pb.SectionService(this.site);
+            self.queryService = new pb.SiteQueryService(this.site);
+            cb();
         });
     };
 
@@ -250,8 +243,7 @@ module.exports = function BlogModule(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.loadById(self.req.pencilblue_section, 'section', callback);
+                self.queryService.loadById(self.req.pencilblue_section, 'section', callback);
             }
         };
         async.parallel(tasks, cb);
@@ -264,7 +256,7 @@ module.exports = function BlogModule(pb) {
         var article = this.req.pencilblue_article || null;
         var page    = this.req.pencilblue_page    || null;
 
-        var service = new ArticleService();
+        var service = new ArticleService(this.site, pb.config.multisite);
         if(this.req.pencilblue_preview) {
             if(this.req.pencilblue_preview == page || article) {
                 if(page) {
@@ -403,11 +395,10 @@ module.exports = function BlogModule(pb) {
         else if(searchId = this.req.pencilblue_section || this.req.pencilblue_topic) {
 
             var objType = this.req.pencilblue_section ? 'section' : 'topic';
-            var dao     = new pb.DAO();
             if(this.req.pencilblue_topic) {
                 searchId = searchId.toString();
             }
-            dao.loadById(searchId, objType, function(err, obj) {
+            this.queryService.loadById(searchId, objType, function(err, obj) {
                 if(util.isError(err) || obj === null) {
                     cb(null, pb.config.siteName);
                     return;
@@ -423,7 +414,8 @@ module.exports = function BlogModule(pb) {
 
     Blog.prototype.getNavigation = function(cb) {
         var options = {
-            currUrl: this.req.url
+            currUrl: this.req.url,
+            site: this.site
         };
         TopMenu.getTopMenu(this.session, this.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
@@ -435,7 +427,7 @@ module.exports = function BlogModule(pb) {
     Blog.prototype.getSideNavigation = function(articles, cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService();
+        var pluginService = new pb.PluginService(this.site);
         pluginService.getSetting('show_side_navigation', 'portfolio', function(err, showSideNavigation) {
             if(!showSideNavigation) {
                 cb('', null);
@@ -473,15 +465,14 @@ module.exports = function BlogModule(pb) {
                 },
                 limit: 6
             };
-            var dao = new pb.DAO();
-            dao.q('article', opts, function(err, relatedArticles) {
+            self.queryService.q('article', opts, function(err, relatedArticles) {
                 if(relatedArticles.length === 0) {
 
                     opts = {
                         where: pb.DAO.ANYWHERE,
                         order: {name: 1}
                     };
-                    dao.q('topic', opts, function(err, topicObjects) {
+                    self.queryService.q('topic', opts, function(err, topicObjects) {
                         var articleTopics = [];
                         for(var i = 0; i < topics.length && articleTopics.length < 20; i++) {
                             for(var j = 0; j < topicObjects.length; j++) {
