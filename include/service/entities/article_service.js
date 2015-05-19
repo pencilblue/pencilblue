@@ -71,24 +71,6 @@ module.exports = function ArticleServiceModule(pb) {
     };
 
     /**
-     * Finds an article or page by Id
-     *
-     * @method findById
-     * @param {String}   url The article's url
-     * @param {Function} cb        Callback function
-     */
-    ArticleService.prototype.findByUrl = function(url, cb) {
-        this.find({url:url}, function(err, result) {
-            if(result && result.length > 0) {
-                cb(err, result[0]);
-            }
-            else {
-                cb(err, null);
-            }
-        });
-    };
-
-    /**
      * Finds articles by section
      *
      * @method findBySection
