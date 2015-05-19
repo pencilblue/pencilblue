@@ -50,8 +50,7 @@ module.exports = function(pb) {
                 inactivePlugins: map.inactive,
                 availablePlugins: map.available,
                 sitePrefix: prefix,
-                siteUid: self.pathSiteUId,
-                siteName: self.siteName
+                siteUid: self.pathSiteUId
             });
             //load the template
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
