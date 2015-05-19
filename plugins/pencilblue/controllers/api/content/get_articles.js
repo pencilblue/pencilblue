@@ -38,7 +38,7 @@ module.exports = function(pb) {
         var self = this;
         var get  = this.query;
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService(self.site);
         contentService.getSettings(function(err, contentSettings) {
 
             if(!get.limit || get.limit.length === 0)
@@ -58,7 +58,7 @@ module.exports = function(pb) {
                 self.processArticles(articles, cb);
             };
 
-            var service = new ArticleService();
+            var service = new ArticleService(self.site, true);
 
             if(get.section) {
                 service.findBySection(get.section, articleCallback);
@@ -75,7 +75,7 @@ module.exports = function(pb) {
     GetArticles.prototype.processArticles = function(articles, cb) {
         var self = this;
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService(self.site);
         contentService.getSettings(function(err, contentSettings) {
 
             var cnt   = 0;

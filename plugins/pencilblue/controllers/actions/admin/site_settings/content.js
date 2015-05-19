@@ -26,6 +26,23 @@ module.exports = function(pb) {
     function Content(){}
     util.inherits(Content, pb.BaseController);
 
+    Content.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function() {
+            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
+            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
+                if (!exists) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUid, true);
+                    cb();
+                }
+            });
+        });
+    };
+
     Content.prototype.render = function(cb) {
         var self = this;
 
@@ -39,7 +56,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            pb.settings.set('content_settings', post, function(data) {
+            self.settings.set('content_settings', post, function(data) {
                 if(util.isError(data)) {
                     cb({
                         code: 500,
