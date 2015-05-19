@@ -122,13 +122,8 @@ module.exports = function AdminSubnavServiceModule(pb) {
                     if (items[j] && items[j].name === activePill) {
                         items[j].active = 'active';
                     }
-                    if(items[j].href.indexOf(':siteid') > -1 ) {
-                        if(data.plugin && data.plugin.site) {
-                            items[j].href = items[j].href.replace(':siteid', data.plugin.site);
-                        }
-                        else {
-                            items[j].href = items[j].href.replace('/:siteid/', '/');
-                        }
+                    if(items[j].href.indexOf(':siteid') > -1 && data.plugin && data.plugin.site) {
+                        items[j].href = items[j].href.replace(':siteid', data.plugin.site);
                     }
                     navItems.push(items[j]);
                 }
