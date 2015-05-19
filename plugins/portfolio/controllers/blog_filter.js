@@ -72,7 +72,7 @@ module.exports = function BlogFilterModule(pb) {
             }
 
             self.req['pencilblue_' + objectType] = result._id.toString();
-            this.result = result;
+            self.result = result;
             BlogFilter.super_.prototype.render.apply(self, [cb]);
         });
     };
