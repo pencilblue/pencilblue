@@ -25,11 +25,7 @@ module.exports = function NewCommentModule(pb) {
      * Creates a new comment
      */
     function NewComment(){}
-    util.inherits(NewComment, pb.FormController);
-
-    NewComment.prototype.init = function (props, cb) {
-        pb.BaseAdminController.overrideInit(this, props, cb);
-    };
+    util.inherits(NewComment, pb.AdminFormController);
 
     NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;

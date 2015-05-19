@@ -30,10 +30,7 @@ module.exports = function BaseAdminControllerModule(pb) {
   util.inherits(BaseAdminController, BaseController);
 
   BaseAdminController.prototype.init = function (props, cb) {
-    BaseAdminController.overrideInit(this, props, cb);
-  };
-
-  BaseAdminController.overrideInit = function(self, props, cb) {
+    var self = this;
     BaseController.prototype.init.call(self, props, function () {
       self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
       var siteService = new pb.SiteService();

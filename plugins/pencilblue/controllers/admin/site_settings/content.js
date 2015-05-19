@@ -24,31 +24,10 @@ module.exports = function(pb) {
      * Interface for the site's content settings
      */
     function Content(){}
-    util.inherits(Content, pb.BaseController);
+    util.inherits(Content, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'content_settings';
-
-    Content.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
 
     Content.prototype.render = function(cb) {
         var self = this;

@@ -24,11 +24,7 @@ module.exports = function(pb) {
      * Checks to see if the proposed name for a custom object type is available
      */
     function GetObjectTypeNameAvailable(){}
-    util.inherits(GetObjectTypeNameAvailable, pb.FormController);
-
-    GetObjectTypeNameAvailable.prototype.init = function (props, cb) {
-        pb.BaseAdminController.overrideInit(this, props, cb);
-    };
+    util.inherits(GetObjectTypeNameAvailable, pb.AdminFormController);
 
     GetObjectTypeNameAvailable.prototype.render = function(cb) {
         var self = this;

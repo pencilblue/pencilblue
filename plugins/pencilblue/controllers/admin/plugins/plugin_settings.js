@@ -37,6 +37,12 @@ module.exports = function(pb) {
     }
     util.inherits(PluginSettingsFormController, pb.BaseAdminController);
 
+    /**
+     * Initialize controller and plugin service
+     * @override
+     * @param props
+     * @param cb
+     */
     PluginSettingsFormController.prototype.init = function (props, cb) {
         var self = this;
         pb.BaseAdminController.prototype.init.call(self, props, function () {

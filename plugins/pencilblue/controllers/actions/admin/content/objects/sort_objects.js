@@ -26,11 +26,7 @@ module.exports = function(pb) {
      * @constructor
      */
     function SortObjectsActionController(){}
-    util.inherits(SortObjectsActionController, pb.FormController);
-
-    SortObjectsActionController.prototype.init = function (props, cb) {
-        pb.BaseAdminController.overrideInit(this, props, cb);
-    };
+    util.inherits(SortObjectsActionController, pb.AdminFormController);
 
     SortObjectsActionController.prototype.render = function(cb) {
         var self = this;

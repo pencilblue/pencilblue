@@ -24,11 +24,7 @@ module.exports = function(pb) {
      *  Deletes an object type
      */
     function DeleteObjectType(){}
-    util.inherits(DeleteObjectType, pb.FormController);
-
-    DeleteObjectType.prototype.init = function (props, cb) {
-        pb.BaseAdminController.overrideInit(this, props, cb);
-    };
+    util.inherits(DeleteObjectType, pb.AdminFormController);
 
     DeleteObjectType.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
