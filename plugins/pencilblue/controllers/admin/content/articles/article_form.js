@@ -137,6 +137,8 @@ module.exports = function(pb) {
             topics: data.topics,
             media: data.media,
             article: data.article,
+            siteKey: pb.SiteService.SITE_FIELD,
+            site: self.pathSiteUId,
             sitePrefix: self.sitePrefix
         };
         if(data.availableAuthors) {

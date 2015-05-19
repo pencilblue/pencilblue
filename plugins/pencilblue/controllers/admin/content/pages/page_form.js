@@ -113,6 +113,7 @@ module.exports = function(pb) {
             data.page.page_topics = topics;
         }
 
+        data.sitePrefix = self.sitePrefix;
         var objects = {
             navigation: pb.AdminNavigation.get(this.session, ['content', 'pages'], this.ls),
             pills: self.getAdminPills(this.getActivePill(), this.ls, this.getActivePill(), data),
@@ -122,6 +123,8 @@ module.exports = function(pb) {
             topics: data.topics,
             media: data.media,
             page: data.page,
+            siteKey: pb.SiteService.SITE_FIELD,
+            site: self.pathSiteUId,
             sitePrefix: self.sitePrefix
         };
         if(data.availableAuthors) {
