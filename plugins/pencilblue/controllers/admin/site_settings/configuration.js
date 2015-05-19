@@ -56,7 +56,7 @@ module.exports = function(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration', {sitePrefix: self.sitePrefix, site: self.pathSiteUId, siteName: self.siteName}),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'configuration', {sitePrefix: self.sitePrefix, site: self.pathSiteUId, siteName: self.siteName}),
                 config: config,
                 isGlobalSite: self.isGlobalSite
             });
@@ -101,10 +101,6 @@ module.exports = function(pb) {
             });
         }
 
-        if(data && data.siteName) {
-            return pb.AdminSubnavService.addSiteToPills(pills, data.siteName);
-        }
-        
         return pills;
     };
 

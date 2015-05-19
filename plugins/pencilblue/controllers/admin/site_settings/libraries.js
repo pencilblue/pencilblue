@@ -51,7 +51,7 @@ module.exports = function(pb) {
         librariesService.getSettings(function(err, librarySettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'libraries', {sitePrefix: self.sitePrefix, siteName:self.siteName}),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'libraries', {sitePrefix: self.sitePrefix, siteName:self.siteName}),
                 tabs: tabs,
                 librarySettings: librarySettings,
                 cdnDefaults: pb.LibrariesService.getCDNDefaults(),
@@ -72,7 +72,7 @@ module.exports = function(pb) {
         if(data && data.sitePrefix) {
             prefix += data.sitePrefix;
         }
-        var pills = [{
+        return [{
             name: 'configuration',
             title: ls.get('LIBRARIES'),
             icon: 'chevron-left',
@@ -88,11 +88,6 @@ module.exports = function(pb) {
             icon: 'envelope',
             href: prefix + '/site_settings/email'
         }];
-        if(data && data.siteName) {
-            return pb.AdminSubnavService.addSiteToPills(pills, data.siteName);
-        }
-
-        return pills;
     };
 
     //register admin sub-nav
