@@ -90,7 +90,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
             return null;
         }
 
-        return getCorrectValueField(rawVal, self.ValueField);
+        return getCorrectValueField(rawVal, self.valueField);
     }
 
     function getGlobalValue(self, key)
