@@ -47,7 +47,7 @@ module.exports = function PortfolioModule(pb) {
                         name: 'home_page_settings',
                         title: 'Home page settings',
                         icon: 'home',
-                        href: '/admin/plugins/portfolio/settings/home_page'
+                        href: '/admin/:siteid/plugins/portfolio/settings/home_page'
                     }
                 ];
             }

@@ -117,6 +117,13 @@ module.exports = function HomePageSettingsModule(pb) {
                 auth_required: true,
                 access_level: pb.SecurityService.ACCESS_EDITOR,
                 content_type: 'text/html'
+            },
+            {
+                method: 'get',
+                path: '/admin/:siteid/plugins/portfolio/settings/home_page',
+                auth_required: true,
+                access_level: pb.SecurityService.ACCESS_EDITOR,
+                content_type: 'text/html'
             }
         ];
         cb(null, routes);
