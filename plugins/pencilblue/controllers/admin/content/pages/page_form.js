@@ -171,7 +171,7 @@ module.exports = function(pb) {
         var self  = this;
         var tasks = {
             templates: function(callback) {
-                callback(null, pb.TemplateService.getAvailableContentTemplates());
+                callback(null, pb.TemplateService.getAvailableContentTemplates(self.pathSiteUId));
             },
 
             sections: function(callback) {
