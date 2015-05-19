@@ -114,7 +114,7 @@ module.exports = function(pb) {
                     });
                 }
 
-                var mediaService = new pb.MediaService(null, this.pathSiteUId, true);
+                var mediaService = new pb.MediaService(null, self.pathSiteUId, true);
                 mediaService.loadById(vars.id, callback);
             }
         };
