@@ -68,15 +68,12 @@ module.exports = function(pb) {
       var tabs = self.getTabs();
 
       self.setPageName(self.page[pb.DAO.getIdField()] ? self.page.headline : self.ls.get('NEW_PAGE'));
-
-      self.getAngularObjects(tabs, results, function(angularObjects) {
-          self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-          self.ts.load('admin/content/pages/page_form', function(err, data) {
-              var result = data;
-              self.checkForFormRefill(result, function(newResult) {
-                  result = newResult;
-                  cb({content: result});
-              });
+      self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
+      self.ts.load('admin/content/pages/page_form', function(err, data) {
+          var result = data;
+          self.checkForFormRefill(result, function(newResult) {
+              result = newResult;
+              cb({content: result});
           });
       });
     };
@@ -86,16 +83,8 @@ module.exports = function(pb) {
      * @method getAngularObjects
      *
      */
-    PageFormController.prototype.getAngularObjects = function(tabs, data, cb) {
+    PageFormController.prototype.getAngularObjects = function(tabs, data) {
         var self = this;
-        if(pb.config.multisite) {
-            if(!data.site) {
-                data.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
-            }
-            if(!data.page.site) {
-                data.page.site = data.site;
-            }
-        }
         if(data.page[pb.DAO.getIdField()]) {
             var media = [];
             var i, j;
@@ -123,23 +112,22 @@ module.exports = function(pb) {
             }
             data.page.page_topics = topics;
         }
-        pb.AdminSubnavService.getWithSite(this.getActivePill(), this.ls, this.getActivePill(), data, function(pills) {
-            var objects = {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
-                pills: pills,
-                tabs: tabs,
-                templates: data.templates,
-                sections: data.sections,
-                topics: data.topics,
-                media: data.media,
-                page: data.page,
-                site: data.site
-            };
-            if(data.availableAuthors) {
-                objects.availableAuthors = data.availableAuthors;
-            }
-            cb(pb.ClientJs.getAngularObjects(objects));
-        });
+
+        var objects = {
+            navigation: pb.AdminNavigation.get(this.session, ['content', 'pages'], this.ls),
+            pills: self.getAdminPills(this.getActivePill(), this.ls, this.getActivePill(), data),
+            tabs: tabs,
+            templates: data.templates,
+            sections: data.sections,
+            topics: data.topics,
+            media: data.media,
+            page: data.page,
+            sitePrefix: self.sitePrefix
+        };
+        if(data.availableAuthors) {
+          objects.availableAuthors = data.availableAuthors;
+        }
+        return pb.ClientJs.getAngularObjects(objects);
     };
 
     /**
@@ -148,10 +136,7 @@ module.exports = function(pb) {
      *
      */
     PageFormController.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin';
-        if(data.page.site) {
-            adminPrefix += pb.SiteService.getCurrentSitePrefix(data.page.site);
-        }
+        var adminPrefix = '/admin' + data.sitePrefix;
         return [{
             name: 'manage_pages',
             title: data.page[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.page.headline : ls.get('NEW_PAGE'),
@@ -207,7 +192,7 @@ module.exports = function(pb) {
             },
 
             media: function(callback) {
-                var mservice = new pb.MediaService(null, vars.siteid, true);
+                var mservice = new pb.MediaService(null, self.pathSiteUId, true);
                 mservice.get(callback);
             },
 
