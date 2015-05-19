@@ -29,7 +29,6 @@ module.exports = function(pb) {
     * @extends BaseController
     */
     function PluginDetailsViewController(){}
-
     util.inherits(PluginDetailsViewController, pb.BaseAdminController);
 
     //statics
@@ -55,10 +54,8 @@ module.exports = function(pb) {
             }
 
             //angular data
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj);
-            pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
             var angularObjects = pb.ClientJs.getAngularObjects({
-                pills: pills,
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, obj),
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                 d: obj.details,
                 status: obj.status,

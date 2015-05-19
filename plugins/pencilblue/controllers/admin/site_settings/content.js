@@ -58,16 +58,13 @@ module.exports = function(pb) {
         ];
 
         var contentService = new pb.ContentService(this.pathSiteUid, true);
-        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content', { pathSitePrefix: self.pathSitePrefix });
-        pills = pb.AdminSubnavService.addSiteToPills(pills, this.siteName);
-
         contentService.getSettings(function(err, contentSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pills,
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'content', { pathSitePrefix: self.sitePrefix }),
                 tabs: tabs,
                 contentSettings: contentSettings,
-                pathSitePrefix: self.pathSitePrefix
+                pathSitePrefix: self.sitePrefix
             });
 
             self.setPageName(self.ls.get('CONTENT'));

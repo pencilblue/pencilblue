@@ -48,8 +48,7 @@ module.exports = function(pb) {
 
             self.topic = data.topic;
             data.sitePrefix = self.sitePrefix;
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data);
-            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, self.topic, data);
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.topic[pb.DAO.getIdField()] ? self.topic.name : self.ls.get('NEW_TOPIC'));

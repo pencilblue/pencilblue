@@ -58,8 +58,7 @@ module.exports = function(pb) {
                 item: self.navItem,
                 sitePrefix: self.sitePrefix
             };
-            var pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
-            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+            data.pills = self.getAdminPills(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
             data.sitePrefix = self.sitePrefix;
             data.site = self.pathSiteUId;
             var angularObjects = pb.ClientJs.getAngularObjects(data);

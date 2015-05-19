@@ -54,11 +54,10 @@ module.exports = function(pb) {
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
             });
 
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix});
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-                pills: pb.AdminSubnavService.addSiteToPills(pills, self.siteName),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix}),
                 topics: topics,
                 sitePrefix: self.sitePrefix
             });

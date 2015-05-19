@@ -55,20 +55,17 @@ module.exports = function(pb) {
 
                 //none to manage
                 if(customObjects.length === 0) {
-                    self.redirect('/admin' + self.pathSitePrefix + '/content/objects/' + vars.type_id + '/new', cb);
+                    self.redirect('/admin' + self.sitePrefix + '/content/objects/' + vars.type_id + '/new', cb);
                     return;
                 }
-
-                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: objectType, pathSitePrefix: self.pathSitePrefix});
-                pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
 
                 var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                    pills: pills,
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: objectType, pathSitePrefix: self.sitePrefix}),
                     customObjects: customObjects,
                     objectType: objectType,
-                    pathSitePrefix: self.pathSitePrefix
+                    pathSitePrefix: self.sitePrefix
                 });
 
                 self.setPageName(self.ls.get('SORT') + ' ' + objectType.name);

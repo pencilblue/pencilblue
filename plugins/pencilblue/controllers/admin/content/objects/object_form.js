@@ -38,7 +38,7 @@ module.exports = function(pb) {
         var vars = this.pathVars;
 
         if(!pb.validation.isIdStr(vars.type_id, true)) {
-            return self.redirect('/admin' + self.pathSitePrefix + '/content/objects/types', cb);
+            return self.redirect('/admin' + self.sitePrefix + '/content/objects/types', cb);
         }
 
         this.gatherData(vars, function(err, data) {
@@ -83,9 +83,7 @@ module.exports = function(pb) {
 
             self.objectType = data.objectType;
             self.customObject = data.customObject;
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject, pathSitePrefix: self.pathSitePrefix});
-            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
-
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject, pathSitePrefix: self.sitePrefix});
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.customObject[pb.DAO.getIdField()] ? self.customObject.name : self.ls.get('NEW') + ' ' + self.objectType.name + ' ' + self.ls.get('OBJECT'));
@@ -119,7 +117,7 @@ module.exports = function(pb) {
             },
 
             pathSitePrefix: function(callback) {
-                callback(null, self.pathSitePrefix)
+                callback(null, self.sitePrefix)
             },
 
             objectType: function(callback) {

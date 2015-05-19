@@ -43,11 +43,9 @@ module.exports = function(pb) {
 
             //setup angular
             var prefix = self.sitePrefix;
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, {sitePrefix: prefix});
-            pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                pills: pills,
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, {sitePrefix: prefix}),
                 installedPlugins: map.active,
                 inactivePlugins: map.inactive,
                 availablePlugins: map.available,

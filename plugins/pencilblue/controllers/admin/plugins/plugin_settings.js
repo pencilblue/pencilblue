@@ -111,10 +111,8 @@ module.exports = function(pb) {
                     settingType: self.getType(),
                     sitePrefix: self.sitePrefix
                 };
-              var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, data);
-                pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
                 var angularObjects = pb.ClientJs.getAngularObjects({
-                    pills: pills,
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, data),
                     tabs: tabs,
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                     settings: clone,

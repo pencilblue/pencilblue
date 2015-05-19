@@ -56,12 +56,12 @@ module.exports = function(pb) {
 
                 //none to manage
                 if(customObjects.length === 0) {
-                    return self.redirect(pb.UrlService.urlJoin('/admin' + self.pathSitePrefix + '/content/objects/', encodeURIComponent(vars.type_id), '/new'), cb);
+                    return self.redirect(pb.UrlService.urlJoin('/admin' + self.sitePrefix + '/content/objects/', encodeURIComponent(vars.type_id), '/new'), cb);
                 }
 
 
                 var data = {};
-                data.pathSitePrefix = self.pathSitePrefix;
+                data.pathSitePrefix = self.sitePrefix;
                 data.custObjType = custObjType;
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', data);
                 for(var i = 0; i < pills.length; i++) {
@@ -78,7 +78,7 @@ module.exports = function(pb) {
                     pills: pills,
                     customObjects: customObjects,
                     objectType: custObjType,
-                    pathSitePrefix: self.pathSitePrefix
+                    pathSitePrefix: self.sitePrefix
                 });
 
                 var title = self.ls.get('MANAGE') + ' ' + custObjType.name;

@@ -34,5 +34,7 @@ module.exports = function AdminFormControllerModule(pb) {
     BaseAdminController.prototype.init.call(this, props, cb);
   };
 
+  AdminFormController.prototype.getAdminPills = BaseAdminController.prototype.getAdminPills;
+
   return AdminFormController;
 };

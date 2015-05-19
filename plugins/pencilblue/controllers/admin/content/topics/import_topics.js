@@ -42,11 +42,10 @@ module.exports = function(pb) {
             }
         ];
 
-        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics', {sitePrefix: self.sitePrefix});
         var angularObjects = pb.ClientJs.getAngularObjects(
         {
             navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-            pills: pb.AdminSubnavService.addSiteToPills(pills, self.siteName),
+            pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'manage_topics', {sitePrefix: self.sitePrefix}),
             tabs: tabs,
             sitePrefix: self.sitePrefix
         });

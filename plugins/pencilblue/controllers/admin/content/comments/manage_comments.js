@@ -64,8 +64,7 @@ module.exports = function(pb) {
 
                 //retrieve any details
                 self.getCommentDetails(comments, function(commentsWithDetails) {
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {prefix: self.sitePrefix});
-                    pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+                    var pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {prefix: self.sitePrefix});
                     var angularObjects = pb.ClientJs.getAngularObjects({
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
                         pills: pills,

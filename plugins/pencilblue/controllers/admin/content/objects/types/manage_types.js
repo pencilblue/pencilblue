@@ -40,7 +40,7 @@ module.exports = function(pb) {
 
             //none to manage
             if(custObjTypes.length === 0) {
-                self.redirect('/admin' + self.pathSitePrefix + '/content/objects/types/new', cb);
+                self.redirect('/admin' + self.sitePrefix + '/content/objects/types/new', cb);
                 return;
             }
 
@@ -48,16 +48,13 @@ module.exports = function(pb) {
             pb.CustomObjectService.setFieldTypesUsed(custObjTypes, self.ls);
 
             //build out the angular controller
-            var data = {};
-            data.pathSitePrefix = self.pathSitePrefix;
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data);
-            pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+            var data = {pathSitePrefix: self.sitePrefix};
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                pills: pills,
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data),
                 objectTypes: custObjTypes,
-                pathSitePrefix: self.pathSitePrefix
+                pathSitePrefix: self.sitePrefix
             });
 
             self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
