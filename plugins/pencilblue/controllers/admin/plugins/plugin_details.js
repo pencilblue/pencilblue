@@ -54,6 +54,7 @@ module.exports = function(pb) {
             }
 
             //angular data
+            obj.sitePrefix = self.sitePrefix;
             var angularObjects = pb.ClientJs.getAngularObjects({
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, obj),
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
