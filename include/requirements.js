@@ -116,8 +116,10 @@ module.exports = function PB(config) {
     pb.JsonBodyParser      = BodyParsers.JsonBodyParser;
     pb.FormBodyParser      = BodyParsers.FormBodyParser;
     pb.BaseController      = require(path.join(config.docRoot, '/controllers/base_controller.js'))(pb);
+    pb.BaseAdminController = require(path.join(config.docRoot, '/controllers/admin/base_admin_controller.js'))(pb);
     pb.ViewController      = require(path.join(config.docRoot, '/controllers/view_controller.js'))(pb);
     pb.FormController      = require(path.join(config.docRoot, '/controllers/form_controller.js'))(pb);
+    pb.AdminFormController = require(path.join(config.docRoot, '/controllers/admin/admin_form_controller.js'))(pb);
     pb.DeleteController    = require(path.join(config.docRoot, '/controllers/delete_controller.js'))(pb);
     pb.ApiActionController = require(path.join(config.docRoot, '/controllers/api/api_action_controller.js'))(pb);
     pb.RequestHandler      = require(path.join(config.docRoot, '/include/http/request_handler.js'))(pb);
@@ -225,7 +227,7 @@ module.exports = function PB(config) {
     pb.media.renderers.SlideShareMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/slideshare_media_renderer.js'))(pb),
     pb.media.renderers.TrinketMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/trinket_media_renderer.js'))(pb),
     pb.media.renderers.StorifyMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/storify_media_renderer.js'))(pb),
-    pb.media.renderers.KickStarterMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/kickstarter_media_renderer.js'))(pb)
+    pb.media.renderers.KickStarterMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/kickstarter_media_renderer.js'))(pb);
     
     //providers and service
     pb.MediaService = require(path.join(config.docRoot, '/include/service/entities/media_service.js'))(pb);

@@ -26,29 +26,7 @@ module.exports = function(pb) {
      * @constructor
      */
     function ManageComments() {}
-    util.inherits(ManageComments, pb.BaseController);
-
-    ManageComments.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getByUid(self.pathSiteUId, function (err, objSite) {
-                        self.siteName = objSite.displayName;
-                        self.siteRoot = objSite.hostname;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(ManageComments, pb.BaseAdminController);
 
     /**
      *
@@ -74,7 +52,7 @@ module.exports = function(pb) {
             order: {created: -1},
             limit: 500
         };
-        self.queryService.q('comment', opts, function(err, comments) {
+        self.siteQueryService.q('comment', opts, function(err, comments) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
@@ -86,8 +64,7 @@ module.exports = function(pb) {
 
                 //retrieve any details
                 self.getCommentDetails(comments, function(commentsWithDetails) {
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {prefix: self.sitePrefix});
-                    pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+                    var pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {prefix: self.sitePrefix});
                     var angularObjects = pb.ClientJs.getAngularObjects({
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
                         pills: pills,
@@ -123,12 +100,12 @@ module.exports = function(pb) {
         }
 
         this.getCommentingUser = function(index) {
-            self.queryService.__proto__.loadById(comments[index].commenter, 'user', function(err, user) {
+            self.siteQueryService.__proto__.loadById(comments[index].commenter, 'user', function(err, user) {
                 if(!util.isError(err) && user !== null) {
                     comments[index].user_name = user.first_name + ' ' + user.last_name;
                 }
 
-                self.queryService.loadById(comments[index].article, 'article', function(err, article) {
+                self.siteQueryService.loadById(comments[index].article, 'article', function(err, article) {
                     if(!util.isError(err) && article !== null) {
                         comments[index].article_url = article.url;
                         comments[index].article_headline = article.headline;

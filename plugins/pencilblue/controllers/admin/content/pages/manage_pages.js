@@ -24,15 +24,7 @@ module.exports = function(pb) {
      * Interface for managing pages
      */
     function ManagePages(){}
-    util.inherits(ManagePages, pb.BaseController);
-
-    ManagePages.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.queryService = new pb.SiteQueryService(this.pathSiteUId, true);
-        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
-
-        pb.BaseController.prototype.init.call(this, props, cb);
-    };
+    util.inherits(ManagePages, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_pages';
@@ -45,7 +37,7 @@ module.exports = function(pb) {
             where: pb.DAO.ANYWHERE,
             order: {headline: pb.DAO.ASC}
         };
-        self.queryService.q('page', opts, function(err, pages) {
+        self.siteQueryService.q('page', opts, function(err, pages) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }

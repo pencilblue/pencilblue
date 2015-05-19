@@ -279,6 +279,15 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
+     * Returns true iff siteid given is global
+     * @param siteid
+     * @returns {boolean}
+     */
+    SiteService.isGlobal = function (siteid) {
+        return (!siteid || siteid === SiteService.GLOBAL_SITE);
+    };
+
+    /**
      * Central place to get the current site
      *
      * @param siteid

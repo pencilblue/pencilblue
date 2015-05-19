@@ -35,7 +35,7 @@ module.exports = function IndexModule(pb) {
     function Index() {}
     util.inherits(Index, pb.BaseController);
 
-    Index.prototype.init = function(props, cb) {
+    Index.prototype.init = function (props, cb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
             var siteService = new pb.SiteService();
@@ -45,8 +45,7 @@ module.exports = function IndexModule(pb) {
                 }
                 else {
                     self.siteObj = site;
-                    self.navService = new pb.SectionService(site.uid);
-                    self.queryService = new pb.SiteQueryService(site.uid);
+                    self.siteQueryService = new pb.SiteQueryService(site.uid);
                     cb();
                 }
             });
@@ -113,7 +112,7 @@ module.exports = function IndexModule(pb) {
                         var opts = {
                             where: {settings_type: 'home_page'}
                         };
-                        self.queryService.q('portfolio_theme_settings', opts, function(err, settings) {
+                        self.siteQueryService.q('portfolio_theme_settings', opts, function(err, settings) {
                             if (util.isError(err)) {
                                 self.reqHandler.serveError(err);
                             }

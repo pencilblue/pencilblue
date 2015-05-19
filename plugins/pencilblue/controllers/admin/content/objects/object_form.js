@@ -29,37 +29,16 @@ module.exports = function(pb) {
      * @constructor
      */
     function ObjectFormController() {}
-    util.inherits(ObjectFormController, pb.BaseController);
+    util.inherits(ObjectFormController, pb.BaseAdminController);
 
     var SUB_NAV_KEY = 'object_form';
-
-    ObjectFormController.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
 
     ObjectFormController.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
 
         if(!pb.validation.isIdStr(vars.type_id, true)) {
-            return self.redirect('/admin' + self.pathSitePrefix + '/content/objects/types', cb);
+            return self.redirect('/admin' + self.sitePrefix + '/content/objects/types', cb);
         }
 
         this.gatherData(vars, function(err, data) {
@@ -104,9 +83,7 @@ module.exports = function(pb) {
 
             self.objectType = data.objectType;
             self.customObject = data.customObject;
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject, pathSitePrefix: self.pathSitePrefix});
-            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
-
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject, pathSitePrefix: self.sitePrefix});
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.customObject[pb.DAO.getIdField()] ? self.customObject.name : self.ls.get('NEW') + ' ' + self.objectType.name + ' ' + self.ls.get('OBJECT'));
@@ -119,7 +96,7 @@ module.exports = function(pb) {
 
     ObjectFormController.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService(self.pathSiteUid, true);
+        var cos = new pb.CustomObjectService(self.pathSiteUId, true);
 
         var tasks = {
             tabs: function(callback) {
@@ -140,7 +117,7 @@ module.exports = function(pb) {
             },
 
             pathSitePrefix: function(callback) {
-                callback(null, self.pathSitePrefix)
+                callback(null, self.sitePrefix)
             },
 
             objectType: function(callback) {
@@ -174,7 +151,6 @@ module.exports = function(pb) {
         var self         = this;
         var keys         = Object.keys(objectType.fields);
         var custObjTypes = {};
-        var siteQueryService = new pb.SiteQueryService();
         var userService  = new pb.UserService();
 
         //wrapper function to load cust object type
@@ -232,7 +208,7 @@ module.exports = function(pb) {
                         last_name: 1
                     }
                 };
-                siteQueryService.q(objectType.fields[key].object_type, query, function(err, availableObjects) {
+                self.siteQueryService.q(objectType.fields[key].object_type, query, function(err, availableObjects) {
                     if (util.isError(err)) {
                         return callback(err);
                     }

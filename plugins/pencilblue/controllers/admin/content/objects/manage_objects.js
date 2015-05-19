@@ -24,31 +24,10 @@ module.exports = function(pb) {
      * Interface for managing objects
      * @class ManageObjects
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function ManageObjects() {}
-    util.inherits(ManageObjects, pb.BaseController);
-
-    ManageObjects.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(ManageObjects, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_custom_objects';
@@ -61,7 +40,7 @@ module.exports = function(pb) {
             return this.reqHandler.serve404();
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.loadTypeById(vars.type_id, function(err, custObjType) {
             if (util.isError(err)) {
                 return self.serveError(err);
@@ -77,12 +56,12 @@ module.exports = function(pb) {
 
                 //none to manage
                 if(customObjects.length === 0) {
-                    return self.redirect(pb.UrlService.urlJoin('/admin' + self.pathSitePrefix + '/content/objects/', encodeURIComponent(vars.type_id), '/new'), cb);
+                    return self.redirect(pb.UrlService.urlJoin('/admin' + self.sitePrefix + '/content/objects/', encodeURIComponent(vars.type_id), '/new'), cb);
                 }
 
 
                 var data = {};
-                data.pathSitePrefix = self.pathSitePrefix;
+                data.pathSitePrefix = self.sitePrefix;
                 data.custObjType = custObjType;
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', data);
                 for(var i = 0; i < pills.length; i++) {
@@ -99,7 +78,7 @@ module.exports = function(pb) {
                     pills: pills,
                     customObjects: customObjects,
                     objectType: custObjType,
-                    pathSitePrefix: self.pathSitePrefix
+                    pathSitePrefix: self.sitePrefix
                 });
 
                 var title = self.ls.get('MANAGE') + ' ' + custObjType.name;

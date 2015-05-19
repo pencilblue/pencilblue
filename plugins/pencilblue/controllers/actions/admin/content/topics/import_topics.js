@@ -31,28 +31,7 @@ module.exports = function(pb) {
      * @constructor
      */
     function ImportTopics(){}
-    util.inherits(ImportTopics, pb.BaseController);
-
-    ImportTopics.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(ImportTopics, pb.BaseAdminController);
 
     ImportTopics.prototype.render = function(cb) {
         var self  = this;
@@ -86,19 +65,18 @@ module.exports = function(pb) {
     };
 
     ImportTopics.prototype.saveTopics = function(topics, cb) {
-        var content = {completed: false};
         var self = this;
         //create tasks
         var tasks = util.getTasks(topics, function(topicArry, index) {
             return function(callback) {
 
-                self.queryService.count('topic', {name: topicArry[index].trim()}, function(err, count){
+                self.siteQueryService.count('topic', {name: topicArry[index].trim()}, function(err, count){
                     if (count > 0) {
                         return callback(null, true);
                     }
 
                     var topicDocument = pb.DocumentCreator.create('topic', {name: topicArry[index].trim()});
-                    self.queryService.save(topicDocument, callback);
+                    self.siteQueryService.save(topicDocument, callback);
                 });
 
             };

@@ -27,28 +27,7 @@ module.exports = function(pb) {
      * Interface for creating and editing articles
      */
     function ArticleForm(){}
-    util.inherits(ArticleForm, pb.BaseController);
-
-    ArticleForm.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(ArticleForm, pb.BaseAdminController);
 
     ArticleForm.prototype.render = function(cb) {
         var self  = this;
@@ -214,7 +193,7 @@ module.exports = function(pb) {
                     },
                     order: {name: pb.DAO.ASC}
                 };
-                self.queryService.q('section', opts, callback);
+                self.siteQueryService.q('section', opts, callback);
             },
 
             topics: function(callback) {
@@ -223,7 +202,7 @@ module.exports = function(pb) {
                     where: pb.DAO.ANYWHERE,
                     order: {name: pb.DAO.ASC}
                 };
-                self.queryService.q('topic', opts, callback);
+                self.siteQueryService.q('topic', opts, callback);
             },
 
             media: function(callback) {
@@ -238,7 +217,7 @@ module.exports = function(pb) {
                 }
 
                 //TODO call article service
-                self.queryService.loadById(vars.id, 'article', callback);
+                self.siteQueryService.loadById(vars.id, 'article', callback);
             }
         };
         async.parallelLimit(tasks, 2, cb);

@@ -24,34 +24,13 @@ module.exports = function(pb) {
      * Interface for sorting objects
      * @class SortObjects
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function SortObjects() {}
-    util.inherits(SortObjects, pb.BaseController);
+    util.inherits(SortObjects, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'sort_custom_objects';
-
-    SortObjects.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
 
     SortObjects.prototype.render = function(cb) {
         var self = this;
@@ -60,7 +39,7 @@ module.exports = function(pb) {
             return this.reqHandler.serve404();
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.loadTypeById(vars.type_id, function(err, objectType) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
@@ -76,20 +55,17 @@ module.exports = function(pb) {
 
                 //none to manage
                 if(customObjects.length === 0) {
-                    self.redirect('/admin' + self.pathSitePrefix + '/content/objects/' + vars.type_id + '/new', cb);
+                    self.redirect('/admin' + self.sitePrefix + '/content/objects/' + vars.type_id + '/new', cb);
                     return;
                 }
-
-                var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: objectType, pathSitePrefix: self.pathSitePrefix});
-                pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
 
                 var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                    pills: pills,
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: objectType, pathSitePrefix: self.sitePrefix}),
                     customObjects: customObjects,
                     objectType: objectType,
-                    pathSitePrefix: self.pathSitePrefix
+                    pathSitePrefix: self.sitePrefix
                 });
 
                 self.setPageName(self.ls.get('SORT') + ' ' + objectType.name);

@@ -24,26 +24,10 @@ module.exports = function(pb) {
      * Creates an object
      * @class NewObjectActionController
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function NewObjectActionController(){}
-    util.inherits(NewObjectActionController, pb.BaseController);
-
-    NewObjectActionController.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    cb();
-                }
-            });
-        });
-    };
+    util.inherits(NewObjectActionController, pb.BaseAdminController);
 
     NewObjectActionController.prototype.render = function(cb) {
         var self = this;
@@ -57,7 +41,7 @@ module.exports = function(pb) {
             return
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.loadTypeById(vars.type_id, function(err, customObjectType) {
             if(util.isError(err) || !util.isObject(customObjectType)) {
                 return cb({

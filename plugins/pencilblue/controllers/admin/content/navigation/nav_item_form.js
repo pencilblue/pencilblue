@@ -31,30 +31,7 @@ module.exports = function(pb) {
     function NavItemFormController(){
         this.navItem = null;
     }
-    util.inherits(NavItemFormController, pb.BaseController);
-
-    NavItemFormController.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.navService = new pb.SectionService(self.pathSiteUId, true);
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(NavItemFormController, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'nav_item_form';
@@ -81,8 +58,7 @@ module.exports = function(pb) {
                 item: self.navItem,
                 sitePrefix: self.sitePrefix
             };
-            var pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
-            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+            data.pills = self.getAdminPills(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
             data.sitePrefix = self.sitePrefix;
             data.site = self.pathSiteUId;
             var angularObjects = pb.ClientJs.getAngularObjects(data);
@@ -109,7 +85,7 @@ module.exports = function(pb) {
 
             //get parents
             parents: function(callback) {
-                self.navService.getParentSelectList(self.pathVars.id, function(err, parents) {
+                self.sectionService.getParentSelectList(self.pathVars.id, function(err, parents) {
                     if(util.isError(err)) {
                         callback(err, parents);
                         return;
@@ -150,14 +126,14 @@ module.exports = function(pb) {
                     return;
                 }
 
-                self.queryService.loadById(vars.id, 'section', function(err, navItem) {
+                self.siteQueryService.loadById(vars.id, 'section', function(err, navItem) {
                     if(!navItem || !navItem.item) {
                         callback(err, navItem);
                         return;
                     }
 
                     //TODO modify such that only the needed field of "headline" is returned.
-                    self.queryService.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
+                    self.siteQueryService.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
                         if(articleOrPage) {
                             navItem.contentSearchValue = articleOrPage.headline;
                         }

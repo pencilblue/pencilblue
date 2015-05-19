@@ -24,15 +24,7 @@ module.exports = function(pb) {
      * Interface for managing articles
      */
     function ManageArticles(){}
-    util.inherits(ManageArticles, pb.BaseController);
-
-    ManageArticles.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.queryService = new pb.SiteQueryService(this.pathSiteUId, true);
-        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
-
-        pb.BaseController.prototype.init.call(this, props, cb);
-    };
+    util.inherits(ManageArticles, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_articles';
@@ -50,7 +42,7 @@ module.exports = function(pb) {
             order: {publish_date: pb.DAO.ASC},
 
         };
-        self.queryService.q('article', opts, function(err, articles) {
+        self.siteQueryService.q('article', opts, function(err, articles) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }

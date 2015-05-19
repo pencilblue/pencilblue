@@ -24,28 +24,7 @@ module.exports = function(pb) {
      * Interface for importing topics from CSV
      */
     function ImportTopics(){}
-    util.inherits(ImportTopics, pb.BaseController);
-
-    ImportTopics.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(ImportTopics, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'import_topics';
@@ -63,11 +42,10 @@ module.exports = function(pb) {
             }
         ];
 
-        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics', {sitePrefix: self.sitePrefix});
         var angularObjects = pb.ClientJs.getAngularObjects(
         {
             navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-            pills: pb.AdminSubnavService.addSiteToPills(pills, self.siteName),
+            pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'manage_topics', {sitePrefix: self.sitePrefix}),
             tabs: tabs,
             sitePrefix: self.sitePrefix
         });

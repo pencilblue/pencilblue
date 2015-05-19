@@ -24,18 +24,10 @@ module.exports = function(pb) {
      * Adds new media
      * @class NewMediaApiController
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function NewMediaApiController(){}
-    util.inherits(NewMediaApiController, pb.BaseController);
-
-    NewMediaApiController.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
-
-        pb.BaseController.prototype.init.call(this, props, cb);
-    };
-
+    util.inherits(NewMediaApiController, pb.BaseAdminController);
 
     NewMediaApiController.prototype.render = function(cb) {
         var self = this;

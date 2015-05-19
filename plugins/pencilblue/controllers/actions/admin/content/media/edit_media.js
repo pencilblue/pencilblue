@@ -19,23 +19,15 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util         = pb.util;
-    var mediaService = pb.MediaService;
-    
+
     /**
      * Edits media
      * @class EditMediaActionController
-     * @extends FormController
+     * @extends BaseAdminController
      * @constructor
      */
     function EditMediaActionController(){}
-    util.inherits(EditMediaActionController, pb.BaseController);
-
-    EditMediaActionController.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
-
-        pb.BaseController.prototype.init.call(this, props, cb);
-    };
+    util.inherits(EditMediaActionController, pb.BaseAdminController);
 
     /**
      *
