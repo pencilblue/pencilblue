@@ -54,20 +54,7 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
 
-    PluginSettingsFormController.prototype.get = function(cb) {
-        var self = this;
-
-        pb.SiteService.siteExists(self.pathSiteUId, function (err, siteExists) {
-            if (siteExists) {
-                self.onSiteValidatedGet(cb);
-            }
-            else {
-                self.reqHandler.serve404();
-            }
-        });
-    };
-
-    PluginSettingsFormController.prototype.onSiteValidatedGet = function (cb) {
+    PluginSettingsFormController.prototype.get = function (cb) {
         var self = this;
         console.log(this.constructor.name);
         var uid = this.pathVars.id;
@@ -118,21 +105,22 @@ module.exports = function(pb) {
                     }
                 ];
 
-                var prefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
                 //setup angular
                 var data = {
                     plugin: plugin,
                     settingType: self.getType(),
-                    sitePrefix: prefix
+                    sitePrefix: self.sitePrefix
                 };
+              var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, data);
+                pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
                 var angularObjects = pb.ClientJs.getAngularObjects({
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, data),
+                    pills: pills,
                     tabs: tabs,
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                     settings: clone,
                     pluginUID: uid,
                     type: data.settingType,
-                    sitePrefix: prefix
+                    sitePrefix: self.sitePrefix
                 });
 
                 //render page
@@ -143,22 +131,8 @@ module.exports = function(pb) {
             });
         });
     };
-    
-    
-    PluginSettingsFormController.prototype.post = function(cb) {
-        var self = this;
 
-        pb.SiteService.siteExists(self.pathSiteUId, function (err, siteExists) {
-            if (siteExists) {
-                self.onSiteValidatedPost(cb);
-            }
-            else {
-                self.reqHandler.serve404();
-            }
-        });
-    };
-
-    PluginSettingsFormController.prototype.onSiteValidatedPost = function (cb) {
+    PluginSettingsFormController.prototype.post = function (cb) {
         var self = this;
         console.log(this.constructor.name);
         var post = this.body;

@@ -29,6 +29,12 @@ module.exports = function BaseAdminControllerModule(pb) {
   }
   util.inherits(BaseAdminController, BaseController);
 
+  /**
+   * Initializes the admin controller with site-related info
+   * @override
+   * @param props
+   * @param cb
+   */
   BaseAdminController.prototype.init = function (props, cb) {
     var self = this;
     BaseController.prototype.init.call(self, props, function () {
@@ -49,6 +55,19 @@ module.exports = function BaseAdminControllerModule(pb) {
         }
       })
     });
+  };
+
+  /**
+   * Centralized place to obtain the pills to be displayed on top of the admin controller
+   *
+   * @param navKey
+   * @param localizationService
+   * @param activePill
+   * @param data
+   */
+  BaseAdminController.prototype.getAdminPills = function (navKey, localizationService, activePill, data) {
+    var pills = pb.AdminSubnavService.get(navKey, localizationService, activePill, data);
+    return pb.AdminSubnavService.addSiteToPills(pills, this.siteName);
   };
 
   return BaseAdminController;

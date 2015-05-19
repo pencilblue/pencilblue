@@ -19,11 +19,8 @@ module.exports = function(pb) {
 
     //pb dependencies
     var util = pb.util;
-    var BaseController = pb.BaseController;
     var PluginService  = pb.PluginService;
     var LocalizationService = pb.LocalizationService;
-    var SiteService = pb.SiteService;
-
 
     /**
     * Interface for viewing plugin details
@@ -32,7 +29,8 @@ module.exports = function(pb) {
     * @extends BaseController
     */
     function PluginDetailsViewController(){}
-    util.inherits(PluginDetailsViewController, BaseController);
+
+    util.inherits(PluginDetailsViewController, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'plugin_details';
@@ -40,34 +38,13 @@ module.exports = function(pb) {
     /**
      *
      * @method render
-     *
-     */
-    PluginDetailsViewController.prototype.render = function(cb) {
-        var self = this;
-        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-
-        pb.SiteService.siteExists(site, function (err, siteExists) {
-            if (siteExists) {
-                self.onSiteValidated(site, cb);
-            }
-            else {
-                self.reqHandler.serve404();
-                return;
-            }
-        });
-    };
-
-    /**
-     *
-     * @method onSiteValidated
-     * @param site
      * @param cb
      *
      */
-    PluginDetailsViewController.prototype.onSiteValidated = function onSiteValidated(site, cb) {
+    PluginDetailsViewController.prototype.render = function (cb) {
         var self = this;
 
-        this.getDetails(this.pathVars.id, site, function(err, obj) {
+        this.getDetails(this.pathVars.id, function (err, obj) {
             if (util.isError(err)) {
                 throw err;
             }
@@ -78,13 +55,15 @@ module.exports = function(pb) {
             }
 
             //angular data
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj);
+            pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
             var angularObjects = pb.ClientJs.getAngularObjects({
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, obj),
+                pills: pills,
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                 d: obj.details,
                 status: obj.status,
                 is_active: PluginService.isActivePlugin(obj.details.uid),
-                sitePrefix: SiteService.getCurrentSitePrefix(SiteService.getCurrentSite(self.pathVars.siteid))
+                sitePrefix: self.sitePrefix
             });
 
             //render page
@@ -101,11 +80,10 @@ module.exports = function(pb) {
      * @method getDetails
      *
      */
-    PluginDetailsViewController.prototype.getDetails = function(puid, site, cb) {
+    PluginDetailsViewController.prototype.getDetails = function (puid, cb) {
         var self = this;
-        var sitePrefix = SiteService.getCurrentSitePrefix(site);
 
-        var pluginService = new pb.PluginService(site);
+        var pluginService = new pb.PluginService(self.pathSiteUId);
         pluginService.getPluginBySite(puid, function(err, plugin) {
             if (util.isError(err)) {
                 cb(err, plugin);
@@ -115,8 +93,7 @@ module.exports = function(pb) {
             if (plugin) {
                 var obj = {
                     details: plugin,
-                    status:  self.ls.get(PluginService.isActivePlugin(plugin.uid, site) ? 'ACTIVE' : 'INACTIVE'),
-                    sitePrefix: sitePrefix
+                    status: self.ls.get(PluginService.isActivePlugin(plugin.uid) ? 'ACTIVE' : 'INACTIVE')
                 };
                 cb(err, obj);
                 return;
@@ -127,8 +104,7 @@ module.exports = function(pb) {
             var detailsFile = PluginService.getDetailsPath(puid);
             PluginService.loadDetailsFile(detailsFile, function(err, details) {
                 var obj = {
-                    status: self.ls.get('ERRORED'),
-                    sitePrefix: sitePrefix
+                    status: self.ls.get('ERRORED')
                 };
                 if (util.isError(err)) {
                     obj.details = {

@@ -14,13 +14,11 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-var async = require('async');
 
 module.exports = function(pb) {
 
     //pb dependencies
     var util           = pb.util;
-    var BaseController = pb.BaseController;
 
     /**
      * Interface for managing plugins
@@ -28,55 +26,34 @@ module.exports = function(pb) {
     function ManagePlugins(){}
 
     //inheritance
-    util.inherits(ManagePlugins, BaseController);
+    util.inherits(ManagePlugins, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_plugins';
 
-    ManagePlugins.prototype.render = function(cb) {
+    ManagePlugins.prototype.render = function (cb) {
         var self = this;
-        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
 
-        pb.SiteService.siteExists(site, function (err, siteExists) {
-            if (siteExists) {
-                self.onSiteValidated(site, cb);
-            }
-            else {
-                self.reqHandler.serve404();
+        var pluginService = new pb.PluginService();
+        pluginService.getPluginMap(function (err, map) {
+            if (util.isError(err)) {
+                self.reqHandler.serveError(err);
                 return;
             }
-        });
-    };
 
-    ManagePlugins.prototype.onSiteValidated = function onSiteValidated(site, cb) {
-        var self = this;
-        var prefix = pb.SiteService.getCurrentSitePrefix(site);
-
-        //get the data
-        var tasks = {
-            pluginMap: function(callback) {
-                var pluginService = new pb.PluginService(site);
-                pluginService.getPluginMap(callback);
-            },
-            siteName: function(callback) {
-                var siteService = new pb.SiteService();
-                siteService.getSiteNameByUid(site, function(siteName) {
-                    callback(null, siteName);
-                });
-            }
-        };
-
-        async.parallel(tasks, function(err, results) {
             //setup angular
+            var prefix = self.sitePrefix;
+            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, {sitePrefix: prefix});
+            pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, { sitePrefix: prefix }),
-                installedPlugins: results.pluginMap.active,
-                inactivePlugins: results.pluginMap.inactive,
-                availablePlugins: results.pluginMap.available,
+                pills: pills,
+                installedPlugins: map.active,
+                inactivePlugins: map.inactive,
+                availablePlugins: map.available,
                 sitePrefix: prefix,
-                siteUid: site,
-                siteName: results.siteName
+                siteUid: self.pathSiteUId,
+                siteName: self.siteName
             });
             //load the template
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
