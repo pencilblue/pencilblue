@@ -79,7 +79,7 @@ module.exports = function(pb) {
         ];
 
         var contentService = new pb.ContentService(this.pathSiteUid, true);
-        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content', { pathSitePrefix: self.pathSitePrefix });
+        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content', { pathSiteUid: self.pathSiteUid, pathSitePrefix: self.pathSitePrefix });
         pills = pb.AdminSubnavService.addSiteToPills(pills, this.siteName);
 
         contentService.getSettings(function(err, contentSettings) {
@@ -100,7 +100,8 @@ module.exports = function(pb) {
     };
 
     Content.getSubNavItems = function(key, ls, data) {
-        return [{
+
+        var subNavItems = [{
             name: 'configuration',
             title: ls.get('CONTENT'),
             icon: 'chevron-left',
@@ -110,12 +111,18 @@ module.exports = function(pb) {
             title: ls.get('EMAIL'),
             icon: 'envelope',
             href: '/admin' + data.pathSitePrefix + '/site_settings/email'
-        }, {
-            name: 'libraries',
-            title: ls.get('LIBRARIES'),
-            icon: 'book',
-            href: '/admin' + data.pathSitePrefix + '/site_settings/libraries'
         }];
+
+        if (data.pathSiteUid === pb.SiteService.GLOBAL_SITE) {
+            subNavItems.push({
+                name: 'libraries',
+                title: ls.get('LIBRARIES'),
+                icon: 'book',
+                href: '/admin' + data.pathSitePrefix + '/site_settings/libraries'
+            });
+        }
+
+        return subNavItems;
     };
 
     //register admin sub-nav

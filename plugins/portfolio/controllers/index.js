@@ -79,6 +79,7 @@ module.exports = function IndexModule(pb) {
         TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
                 var pluginService = new pb.PluginService(pb.SiteService.getCurrentSite(self.site));
+
                 pluginService.getSettings('portfolio', function(err, portfolioSettings) {
                     var homePageKeywords = '';
                     var homePageDescription = '';
