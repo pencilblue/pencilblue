@@ -35,7 +35,6 @@ module.exports = function IndexModule(pb) {
     function Index() {}
     util.inherits(Index, pb.BaseController);
 
-<<<<<<< HEAD
     Index.prototype.init = function(props, cb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
@@ -46,18 +45,11 @@ module.exports = function IndexModule(pb) {
                 }
                 else {
                     self.siteObj = site;
+                    self.navService = new pb.SectionService(site.uid);
+                    self.queryService = new pb.SiteQueryService(site.uid);
                     cb();
                 }
             });
-=======
-    Index.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteUId = pb.SiteService.getCurrentSite(self.site);
-            self.navService = new pb.SectionService(self.pathSiteUId);
-            self.queryService = new pb.SiteQueryService(self.siteUId);
-            cb();
->>>>>>> multi_tenancy
         });
     };
 
@@ -86,12 +78,7 @@ module.exports = function IndexModule(pb) {
         };
         TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
-                
-<<<<<<< HEAD
                 var pluginService = new pb.PluginService(pb.SiteService.getCurrentSite(self.site));
-=======
-                var pluginService = new pb.PluginService(self.site);
->>>>>>> multi_tenancy
                 pluginService.getSettings('portfolio', function(err, portfolioSettings) {
                     var homePageKeywords = '';
                     var homePageDescription = '';
@@ -107,7 +94,6 @@ module.exports = function IndexModule(pb) {
                                 break;
                         }
                     }
-                    console.log(self.siteObj);
                     self.ts.registerLocal('meta_keywords', homePageKeywords);
                     self.ts.registerLocal('meta_desc', homePageDescription);
                     self.ts.registerLocal('meta_title', self.siteObj.displayName);
