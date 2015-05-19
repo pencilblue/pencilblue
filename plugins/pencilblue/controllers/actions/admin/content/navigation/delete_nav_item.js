@@ -37,7 +37,7 @@ module.exports = function(pb) {
                 else {
                     self.navService = new pb.SectionService(self.pathSiteUId, true);
                     self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
                     self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
                     var siteService = new pb.SiteService();
                     siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
@@ -63,8 +63,7 @@ module.exports = function(pb) {
         }
 
         //ensure existence
-        var dao = new pb.DAO();
-        dao.loadById(vars.id, 'section', function(err, section) {
+        self.queryService.loadById(vars.id, 'section', function(err, section) {
             if(section === null) {
                 cb({
                     code: 400,
@@ -82,7 +81,7 @@ module.exports = function(pb) {
                     }
                 ]
             };
-            dao.delete(where, 'section', function(err, result) {
+            self.queryService.delete(where, 'section', function(err, result) {
                 if(util.isError(err) || result < 1) {
                     return cb({
                         code: 500,

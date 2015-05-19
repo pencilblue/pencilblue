@@ -37,6 +37,8 @@ module.exports = function(pb) {
     MediaForm.prototype.init = function (props, cb) {
         this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
         this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.pathSiteUId);
+        this.queryService = new pb.SiteQueryService(this.pathSiteUId, true);
+        this.mediaService = new pb.MediaService(null, this.pathSiteUId, true);
 
         pb.BaseController.prototype.init.call(this, props, cb);
     };
@@ -68,7 +70,6 @@ module.exports = function(pb) {
                 });
             });
         });
-        return;
     };
 
     MediaForm.prototype.getAngularObjects = function(data, cb) {
@@ -83,7 +84,6 @@ module.exports = function(pb) {
 
     MediaForm.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var dao = new pb.DAO();
 
         var tasks = {
             tabs: function(callback) {
@@ -112,7 +112,7 @@ module.exports = function(pb) {
                     where: pb.DAO.ANYWHERE,
                     order: {name: pb.DAO.ASC}
                 };
-                dao.q('topic', opts, callback);
+                self.queryService.q('topic', opts, callback);
             },
 
             media: function(callback) {
@@ -123,8 +123,7 @@ module.exports = function(pb) {
                     });
                 }
 
-                var mservice = new pb.MediaService();
-                mservice.loadById(vars.id, callback);
+                self.mediaService.loadById(vars.id, callback);
             }
         };
         async.series(tasks, cb);

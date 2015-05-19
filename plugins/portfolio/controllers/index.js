@@ -35,6 +35,7 @@ module.exports = function IndexModule(pb) {
     function Index() {}
     util.inherits(Index, pb.BaseController);
 
+<<<<<<< HEAD
     Index.prototype.init = function(props, cb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
@@ -48,6 +49,15 @@ module.exports = function IndexModule(pb) {
                     cb();
                 }
             });
+=======
+    Index.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteUId = pb.SiteService.getCurrentSite(self.site);
+            self.navService = new pb.SectionService(self.pathSiteUId);
+            self.queryService = new pb.SiteQueryService(self.siteUId);
+            cb();
+>>>>>>> multi_tenancy
         });
     };
 
@@ -77,7 +87,11 @@ module.exports = function IndexModule(pb) {
         TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
                 
+<<<<<<< HEAD
                 var pluginService = new pb.PluginService(pb.SiteService.getCurrentSite(self.site));
+=======
+                var pluginService = new pb.PluginService(self.site);
+>>>>>>> multi_tenancy
                 pluginService.getSettings('portfolio', function(err, portfolioSettings) {
                     var homePageKeywords = '';
                     var homePageDescription = '';
@@ -112,8 +126,7 @@ module.exports = function IndexModule(pb) {
                         var opts = {
                             where: {settings_type: 'home_page'}
                         };
-                        var dao = new pb.DAO();
-                        dao.q('portfolio_theme_settings', opts, function(err, settings) {
+                        self.queryService.q('portfolio_theme_settings', opts, function(err, settings) {
                             if (util.isError(err)) {
                                 self.reqHandler.serveError(err);
                             }

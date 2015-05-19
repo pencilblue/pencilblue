@@ -39,7 +39,7 @@ module.exports = function(pb) {
                 }
                 else {
                     self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
                     var siteService = new pb.SiteService();
                     siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
                         self.siteName = siteName;
@@ -201,7 +201,6 @@ module.exports = function(pb) {
 
     ArticleForm.prototype.gatherData = function(vars, cb) {
         var self  = this;
-        var dao   = new pb.DAO();
         var tasks = {
             templates: function(callback) {
                 callback(null, pb.TemplateService.getAvailableContentTemplates());
@@ -228,8 +227,8 @@ module.exports = function(pb) {
             },
 
             media: function(callback) {
-                var mservice = new pb.MediaService();
-                mservice.getBySite(vars.siteid, callback);
+                var mservice = new pb.MediaService(null, vars.siteid, true);
+                mservice.get(callback);
             },
 
             article: function(callback) {
@@ -239,7 +238,7 @@ module.exports = function(pb) {
                 }
 
                 //TODO call article service
-                dao.loadById(vars.id, 'article', callback);
+                self.queryService.loadById(vars.id, 'article', callback);
             }
         };
         async.parallelLimit(tasks, 2, cb);

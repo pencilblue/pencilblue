@@ -37,7 +37,7 @@ module.exports = function(pb) {
                 else {
                     self.navService = new pb.SectionService(self.pathSiteUId, true);
                     self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId);
+                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
                     self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
                     var siteService = new pb.SiteService();
                     siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
