@@ -45,7 +45,7 @@ module.exports = function IndexModule(pb) {
                 }
                 else {
                     self.siteObj = site;
-                    self.queryService = new pb.SiteQueryService(site.uid);
+                    self.siteQueryService = new pb.SiteQueryService(site.uid);
                     cb();
                 }
             });
@@ -112,7 +112,7 @@ module.exports = function IndexModule(pb) {
                         var opts = {
                             where: {settings_type: 'home_page'}
                         };
-                        self.queryService.q('portfolio_theme_settings', opts, function(err, settings) {
+                        self.siteQueryService.q('portfolio_theme_settings', opts, function(err, settings) {
                             if (util.isError(err)) {
                                 self.reqHandler.serveError(err);
                             }

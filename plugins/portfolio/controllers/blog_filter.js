@@ -45,10 +45,10 @@ module.exports = function BlogFilterModule(pb) {
             return;
         }
 
-        this.queryService.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
+        this.siteQueryService.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
             if (util.isError(err) || result === null) {
                 if(pb.validation.isIdStr(self.pathVars.custUrl)) {
-                    this.queryService.loadById(self.pathVars.custUrl, objectType, function(err, result) {
+                    this.siteQueryService.loadById(self.pathVars.custUrl, objectType, function(err, result) {
                         if (util.isError(err) || result === null || result.draft) {
                             self.reqHandler.serve404();
                             return;
