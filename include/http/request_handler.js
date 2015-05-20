@@ -577,15 +577,15 @@ module.exports = function RequestHandlerModule(pb) {
             request: this.req,
             localization: this.localization
         };
-        pb.ErrorFormatters.formatForMime(params, function(err, result) {
-            if (util.isError(err)) {
-                pb.log.error('RequestHandler: An error occurred attempting to render an error: %s', err.stack);
+        pb.ErrorFormatters.formatForMime(params, function(error, result) {
+            if (util.isError(error)) {
+                pb.log.error('RequestHandler: An error occurred attempting to render an error: %s', error.stack);
             }
             
             var data = {
                 content: result.content,
                 content_type: result.mime,
-                code: 500
+                code: err.code || 500
             };
             self.onRenderComplete(data);
         });
@@ -925,7 +925,10 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} data
      */
     RequestHandler.prototype.onRenderComplete = function(data){
-
+        if (util.isError(data)) {
+            return this.serveError(data);
+        }
+        
         //set cookie
         var cookies = new Cookies(this.req, this.resp);
         if (this.setSessionCookie) {
@@ -1004,7 +1007,16 @@ module.exports = function RequestHandlerModule(pb) {
             }
             this.resp.setHeader('content-type', contentType);
             this.resp.writeHead(data.code);
-            this.resp.end(data.content);
+            
+            //write content
+            var content = data.content;
+            if (Buffer.isBuffer(content)) {
+                /* no op */
+            }
+            else if (util.isObject(data.content)) {
+                content = JSON.stringify(content);
+            }
+            this.resp.end(content);
         }
         catch(e) {
             pb.log.error('RequestHandler: '+e.stack);

@@ -54,9 +54,10 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
 
-    PluginSettingsFormController.prototype.get = function (cb) {
+    
+    PluginSettingsFormController.prototype.get = function(cb) {
         var self = this;
-        console.log(this.constructor.name);
+
         var uid = this.pathVars.id;
         this.pluginService.getPluginBySite(uid, function(err, plugin) {
             if (util.isError(err)) {
@@ -129,15 +130,15 @@ module.exports = function(pb) {
             });
         });
     };
-
-    PluginSettingsFormController.prototype.post = function (cb) {
+    
+    
+    PluginSettingsFormController.prototype.post = function(cb) {
         var self = this;
-        console.log(this.constructor.name);
         var post = this.body;
-
+        
         //retrieve settings
         var uid = this.pathVars.id;
-        self.getSettings(uid, function(err, settings) {console.log(settings);
+        self.getSettings(uid, function(err, settings) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
@@ -236,6 +237,7 @@ module.exports = function(pb) {
     };
 
     /**
+     * @static
      * @method render
      *
      */
