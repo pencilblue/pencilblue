@@ -67,7 +67,7 @@ module.exports = function EmailServiceModule(pb) {
      */
     EmailService.prototype.sendFromTemplate = function(options, cb){
         var self = this;
-        var ts   = new pb.TemplateService();
+        var ts   = new pb.TemplateService(null, this.site);
         if (options.replacements) {
             for(var key in options.replacements) {
                 ts.registerLocal(key, options.replacements[key]);
