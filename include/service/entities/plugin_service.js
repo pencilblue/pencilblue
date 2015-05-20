@@ -596,7 +596,7 @@ module.exports = function PluginServiceModule(pb) {
      * Retrieves the content templates for all of the active plugins
      * @static
      * @method getActiveContentTemplates
-     * @param site
+     * @param targetSite
      * @return {Array} An array of objects
      */
     PluginService.getActiveContentTemplates = function(targetSite) {
