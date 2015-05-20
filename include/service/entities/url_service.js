@@ -31,7 +31,11 @@ module.exports = function UrlServiceModule(pb) {
      * @module Services
      * @submodule Entities
      */
-    function UrlService() {}
+    function UrlService(site, onlyThisSite) {
+        this.site = pb.SiteService.getCurrentSite(site);
+        this.onlyThisSite = onlyThisSite;
+        this.siteQueryService = new pb.SiteQueryService(this.site, this.onlyThisSite);
+    }
 
     //dependencies
     var RequestHandler = pb.RequestHandler;
@@ -95,8 +99,7 @@ module.exports = function UrlServiceModule(pb) {
         if (site !== undefined) {
             where[pb.SiteService.SITE_FIELD] = site;
         }
-        var dao = new pb.DAO();
-        dao.unique(type, where, id, function(err, isUnique) {
+        this.siteQueryService.unique(type, where, id, function(err, isUnique) {
             cb(err, !isUnique);
         });
     };

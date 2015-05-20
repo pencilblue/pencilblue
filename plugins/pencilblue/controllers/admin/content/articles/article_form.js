@@ -69,15 +69,13 @@ module.exports = function(pb) {
 
       self.setPageName(self.article[pb.DAO.getIdField()] ? self.article.headline : self.ls.get('NEW_ARTICLE'));
       self.ts.registerLocal('angular_script', '');
-      self.getAngularObjects(tabs, results, function(angularObjects) {
-          self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-          self.ts.load('admin/content/articles/article_form', function(err, data) {
-              self.onTemplateRetrieved('' + data, function(err, data) {
-                  var result = '' + data;
-                  self.checkForFormRefill(result, function(newResult) {
-                      result = newResult;
-                      cb({content: result});
-                  });
+      self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
+      self.ts.load('admin/content/articles/article_form', function(err, data) {
+          self.onTemplateRetrieved('' + data, function(err, data) {
+              var result = '' + data;
+              self.checkForFormRefill(result, function(newResult) {
+                  result = newResult;
+                  cb({content: result});
               });
           });
       });
@@ -87,16 +85,8 @@ module.exports = function(pb) {
         cb(null, template);
     };
 
-    ArticleForm.prototype.getAngularObjects = function(tabs, data, cb) {
+    ArticleForm.prototype.getAngularObjects = function(tabs, data) {
         var self = this;
-        if(pb.config.multisite) {
-            if(!data.site) {
-                data.site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
-            }
-            if(!data.article.site) {
-                data.article.site = data.site;
-            }
-        }
         if(data.article[pb.DAO.getIdField()]) {
             var media = [];
             var i, j;
@@ -136,31 +126,29 @@ module.exports = function(pb) {
             }
             data.article.article_topics = topics;
         }
-        data.site = data.article.site;
-        pb.AdminSubnavService.getWithSite(this.getActivePill(), this.ls, this.getActivePill(), data, function(pills) {
-            var objects = {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
-                pills: pills,
-                tabs: tabs,
-                templates: data.templates,
-                sections: data.sections,
-                topics: data.topics,
-                media: data.media,
-                article: data.article,
-                site: data.site
-            };
-            if(data.availableAuthors) {
-                objects.availableAuthors = data.availableAuthors;
-            }
-            cb(pb.ClientJs.getAngularObjects(objects));
-        });
+
+        data.sitePrefix = self.sitePrefix;
+        var objects = {
+            navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
+            pills: self.getAdminPills(this.getActivePill(), this.ls, this.getActivePill(), data),
+            tabs: tabs,
+            templates: data.templates,
+            sections: data.sections,
+            topics: data.topics,
+            media: data.media,
+            article: data.article,
+            siteKey: pb.SiteService.SITE_FIELD,
+            site: self.pathSiteUId,
+            sitePrefix: self.sitePrefix
+        };
+        if(data.availableAuthors) {
+          objects.availableAuthors = data.availableAuthors;
+        }
+        return pb.ClientJs.getAngularObjects(objects);
     };
 
     ArticleForm.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin';
-        if(data.article.site) {
-            adminPrefix += pb.SiteService.getCurrentSitePrefix(data.article.site);
-        }
+        var adminPrefix = '/admin' + data.sitePrefix;
         return [{
             name: 'manage_articles',
             title: data.article[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.article.headline : ls.get('NEW_ARTICLE'),
@@ -182,7 +170,7 @@ module.exports = function(pb) {
         var self  = this;
         var tasks = {
             templates: function(callback) {
-                callback(null, pb.TemplateService.getAvailableContentTemplates());
+                callback(null, pb.TemplateService.getAvailableContentTemplates(self.pathSiteUId));
             },
 
             sections: function(callback) {

@@ -596,18 +596,26 @@ module.exports = function PluginServiceModule(pb) {
      * Retrieves the content templates for all of the active plugins
      * @static
      * @method getActiveContentTemplates
+     * @param targetSite
      * @return {Array} An array of objects
      */
-    PluginService.getActiveContentTemplates = function() {
+    PluginService.getActiveContentTemplates = function(targetSite) {
 
         var templates = [];
-        for (var uid in ACTIVE_PLUGINS) {
-            var plugin = ACTIVE_PLUGINS[uid];
-            if (plugin.templates) {
-                var clone = util.clone(plugin.templates);
-                for(var i = 0; i < clone.length; i++) {
-                    clone[i].theme_uid = uid;
-                    templates.push(clone[i]);
+
+        for (var site in ACTIVE_PLUGINS) {
+            if (!pb.SiteService.isNotSetOrEqual(targetSite, site)) {
+                continue;
+            }
+            var pluginsForSite = ACTIVE_PLUGINS[site];
+            for (var uid in pluginsForSite) {
+                var plugin = pluginsForSite[uid];
+                if (plugin.templates) {
+                    var clone = util.clone(plugin.templates);
+                    for(var i = 0; i < clone.length; i++) {
+                        clone[i].theme_uid = uid;
+                        templates.push(clone[i]);
+                    }
                 }
             }
         }
