@@ -37,6 +37,7 @@ module.exports = function BaseAdminControllerModule(pb) {
    */
   BaseAdminController.prototype.init = function (props, cb) {
     var self = this;
+    self.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
     BaseController.prototype.init.call(self, props, function () {
       self.extendedInit(cb);
     });
@@ -44,7 +45,6 @@ module.exports = function BaseAdminControllerModule(pb) {
 
   BaseAdminController.prototype.extendedInit = function(cb) {
     var self = this;
-    self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
     var siteService = new pb.SiteService();
     siteService.getByUid(self.pathSiteUId, function (err, siteInfo) {
       if (err || !siteInfo) {
@@ -61,6 +61,14 @@ module.exports = function BaseAdminControllerModule(pb) {
       }
     });
   };
+
+    /**
+     * @method getTemplateService
+     * @return {Object} TemplateService
+     */
+    BaseAdminController.prototype.getTemplateService = function() {
+        return new pb.TemplateService(this.localizationService, this.pathSiteUId);
+    };
 
   /**
    * Centralized place to obtain the pills to be displayed on top of the admin controller
