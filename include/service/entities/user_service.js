@@ -327,7 +327,7 @@ module.exports = function UserServiceModule(pb) {
             },
             unverified_email: function(callback) {
                 dao.count('unverified_user', getWhere({email: email.toLowerCase()}), callback);
-            },
+            }
         };
         async.series(tasks, cb);
     };
