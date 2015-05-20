@@ -568,10 +568,11 @@ module.exports = function(pb) {
      * Articles and pages.
      *
      * @method getAvailableContentTemplates
+     * @param site
      * @return {Array} An array of template definitions
      */
-    TemplateService.getAvailableContentTemplates = function() {
-        var templates = pb.PluginService.getActiveContentTemplates();
+    TemplateService.getAvailableContentTemplates = function(site) {
+        var templates = pb.PluginService.getActiveContentTemplates(site);
         templates.push(
             {
                 theme_uid: 'pencilblue',

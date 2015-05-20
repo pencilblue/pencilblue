@@ -288,6 +288,27 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
+     * Returns true iff both site given are equal
+     * @param siteA
+     * @param siteB
+     */
+    SiteService.areEqual = function (siteA, siteB) {
+        if (SiteService.isGlobal(siteA) && SiteService.isGlobal(siteB)) {
+            return true;
+        }
+        return siteA === siteB;
+    };
+
+    /**
+     * Returns true iff actual is not set (falsey) or logically equivalent to expected in terms of sites
+     * @param actual
+     * @param expected
+     */
+    SiteService.isNotSetOrEqual = function (actual, expected) {
+        return !actual || SiteService.areEqual(actual, expected);
+    };
+
+    /**
      * Central place to get the current site
      *
      * @param siteid

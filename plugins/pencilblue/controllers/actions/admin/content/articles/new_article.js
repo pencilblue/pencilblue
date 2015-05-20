@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Creates a new article
      */
     function NewArticlePostController(){}
-    util.inherits(NewArticlePostController, pb.BaseController);
+    util.inherits(NewArticlePostController, pb.BaseAdminController);
 
     NewArticlePostController.prototype.render = function(cb) {
         var self = this;
@@ -47,7 +47,7 @@ module.exports = function(pb) {
 
             post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
             var articleDocument = pb.DocumentCreator.create('article', post, ['meta_keywords']);
-            pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, articleDocument.site, function(err, isSafe) {
+            pb.RequestHandler.isSystemSafeURL(articleDocument.url, null, self.pathSiteUId, function(err, isSafe) {
                 if(util.isError(err) || !isSafe)  {
                     cb({
                         code: 400,
@@ -56,8 +56,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.save(articleDocument, function(err, result) {
+                self.siteQueryService.save(articleDocument, function(err, result) {
                     if(util.isError(err))  {
                         return cb({
                             code: 500,
