@@ -105,7 +105,7 @@ module.exports = function BaseControllerModule(pb) {
         this.site                = props.site;
 
         var self = this;
-        this.templateService     = new pb.TemplateService(this.localizationService, this.site);
+        this.templateService     = this.getTemplateService();
         this.templateService.registerLocal('locale', this.ls.language);
         this.templateService.registerLocal('error_success', function(flag, cb) {
             self.displayErrorOrSuccessCallback(flag, cb);
@@ -139,6 +139,14 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.requiresClientLocalization = function() {
         return true;
+    };
+
+    /**
+     * @method getTemplateService
+     * @return {Object} TemplateService
+     */
+    BaseController.prototype.getTemplateService = function() {
+        return new pb.TemplateService(this.localizationService, this.site);
     };
 
     /**
