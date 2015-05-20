@@ -59,7 +59,7 @@ module.exports = function HomePageSettingsModule(pb) {
                 homePageSettings = homePageSettings[0];
             }
             else {
-                homePageSettings = {callouts: [{}, {}, {}]};
+                homePageSettings = {callouts: [{}, {}, {}], site:self.pathSiteUId};
             }
 
             var mservice = new pb.MediaService(self.pathSiteUId, true);
