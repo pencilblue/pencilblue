@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Edits an article
      */
     function EditArticle(){}
-    util.inherits(EditArticle, pb.BaseController);
+    util.inherits(EditArticle, pb.BaseAdminController);
 
     EditArticle.prototype.render = function(cb) {
         var self = this;
@@ -44,8 +44,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            var dao = new pb.DAO();
-            dao.loadById(post.id, 'article', function(err, article) {
+            self.siteQueryService.loadById(post.id, 'article', function(err, article) {
                 if(util.isError(err) || article === null) {
                     cb({
                         code: 400,
@@ -61,7 +60,7 @@ module.exports = function(pb) {
                 post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
                 pb.DocumentCreator.update(post, article, ['meta_keywords']);
 
-                pb.RequestHandler.urlExists(article.url, post.id, article.site, function(error, exists) {
+                pb.RequestHandler.urlExists(article.url, post.id, self.pathSiteUId, function(error, exists) {
                     var testError = (error !== null && typeof error !== 'undefined');
                     
                     if( testError || exists || article.url.indexOf('/admin') === 0) {
@@ -72,7 +71,7 @@ module.exports = function(pb) {
                         return;
                     }
 
-                    dao.save(article, function(err, result) {
+                    self.siteQueryService.save(article, function(err, result) {
                         if(util.isError(err)) {
                             return cb({
                                 code: 500,

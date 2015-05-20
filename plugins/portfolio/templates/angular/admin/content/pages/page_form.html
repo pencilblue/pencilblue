@@ -18,7 +18,7 @@
         };
 
         $scope.getUrlAvailability = function() {
-            $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page')
+            $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page&' + $scope.siteKey + '=' + $scope.site)
             .success(function(result) {
                 $scope.urlAvailable = !result.data;
             })
@@ -42,7 +42,7 @@
             $scope.getPageData(draft, function(pageData) {
                 $scope.saving = true;
                 if(pageData._id) {
-                    $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
+                    $http.post('/actions/admin' + $scope.sitePrefix + '/content/pages/' + $scope.page._id, pageData)
                     .success(function(result) {
                         $scope.successMessage = result.message;
                         $scope.page.last_modified = result.data.last_modified;
@@ -54,11 +54,11 @@
                     });
                 }
                 else {
-                    $http.post('/actions/admin/content/pages', pageData)
+                    $http.post('/actions/admin' + $scope.sitePrefix + '/content/pages', pageData)
                     .success(function(result) {
                         $scope.successMessage = result.message;
                         $scope.saving = false;
-                        $window.location = '/admin/content/pages/' + result.data._id.toString();
+                        $window.location = '/admin' + $scope.sitePrefix + '/content/pages/' + result.data._id.toString();
                     })
                     .error(function(error, status) {
                         $scope.errorMessage = error.message;
@@ -76,7 +76,7 @@
             $scope.page.draft = true;
             $scope.getPageData(true, function(pageData) {
                 $scope.saving = true;
-                $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
+                $http.post('/actions/admin' + $scope.sitePrefix + '/content/pages/' + $scope.page._id, pageData)
                 .success(function(result) {
                     $scope.page.last_modified = result.data.last_modified;
                     $timeout($scope.savePageDraft, 30000);
