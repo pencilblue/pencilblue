@@ -40,7 +40,7 @@ module.exports = function BlogModule(pb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
             self.navService = new pb.SectionService(self.site);
-            self.siteQueryService = new pb.SiteQueryService(self.site);
+            self.siteQueryService = new pb.SiteQueryService(self.site, true);
             cb();
         });
     };
@@ -256,7 +256,7 @@ module.exports = function BlogModule(pb) {
         var article = this.req.pencilblue_article || null;
         var page    = this.req.pencilblue_page    || null;
 
-        var service = new ArticleService(this.site, pb.config.multisite);
+        var service = new ArticleService(this.site, true);
         if(this.req.pencilblue_preview) {
             if(this.req.pencilblue_preview == page || article) {
                 if(page) {
