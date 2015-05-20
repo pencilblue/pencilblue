@@ -27,7 +27,7 @@ module.exports = function SaveHomePageSettingsModule(pb) {
      * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
      */
     function SaveHomePageSettings() {}
-    util.inherits(SaveHomePageSettings, pb.BaseController);
+    util.inherits(SaveHomePageSettings, pb.BaseAdminController);
 
     SaveHomePageSettings.prototype.render = function(cb) {
         var self = this;
@@ -38,8 +38,7 @@ module.exports = function SaveHomePageSettingsModule(pb) {
             var opts = {
                 where: {settings_type: 'home_page'}
             };
-            var dao = new pb.DAO();
-            dao.q('portfolio_theme_settings', opts, function(err, homePageSettings) {
+            self.siteQueryService.q('portfolio_theme_settings', opts, function(err, homePageSettings) {
                 if (util.isError(err)) {
                     return self.reqHandler.serveError(err);
                 }
@@ -52,7 +51,7 @@ module.exports = function SaveHomePageSettingsModule(pb) {
                     homePageSettings.settings_type = 'home_page';
                 }
 
-                dao.save(homePageSettings, function(err, result) {
+                self.siteQueryService.save(homePageSettings, function(err, result) {
                     if(util.isError(err))  {
                         cb({
                             code: 500,
@@ -78,6 +77,13 @@ module.exports = function SaveHomePageSettingsModule(pb) {
             {
                 method: 'post',
                 path: '/actions/admin/plugins/settings/portfolio/home_page',
+                auth_required: true,
+                access_level: pb.SecurityService.ACCESS_EDITOR,
+                content_type: 'text/html'
+            },
+            {
+                method: 'post',
+                path: '/actions/admin/:siteid/plugins/settings/portfolio/home_page',
                 auth_required: true,
                 access_level: pb.SecurityService.ACCESS_EDITOR,
                 content_type: 'text/html'
