@@ -20,33 +20,12 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util         = pb.util;
-    var MediaService = pb.MediaService;
-    
+
     /**
      * Saves the site's logo
      */
     function SiteLogo() {}
-    util.inherits(SiteLogo, pb.BaseController);
-
-    SiteLogo.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(SiteLogo, pb.BaseAdminController);
 
     SiteLogo.prototype.render = function(cb) {
         var self = this;

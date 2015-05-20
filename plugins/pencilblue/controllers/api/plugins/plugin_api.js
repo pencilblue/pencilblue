@@ -27,8 +27,6 @@ module.exports = function(pb) {
     var PluginService  = pb.PluginService;
     var RequestHandler = pb.RequestHandler;
 
-    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
-
     /**
      * Controller to properly route and handle remote calls to interact with
      * the PluginService
@@ -44,7 +42,7 @@ module.exports = function(pb) {
          * @type {PluginService}
          */
     }
-    util.inherits(PluginApiController, BaseController);
+    util.inherits(PluginApiController, pb.BaseAdminController);
 
     //constants
     /**
@@ -61,7 +59,7 @@ module.exports = function(pb) {
         uninstall: true,
         reset_settings: true,
         initialize: true,
-        set_theme: true
+        set_theme: true,
     };
 
     /**
@@ -71,31 +69,9 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     PluginApiController.prototype.render = function(cb) {
-        var self = this;
-        var site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
-
-        pb.SiteService.siteExists(site, function (err, siteExists) {
-            if (siteExists) {
-                self.onSiteValidated(site, cb);
-            }
-            else {
-                self.reqHandler.serve404();
-                return;
-            }
-        });
-    };
-
-    /**
-     * Triggers after the site is validated
-     * @method onSiteValidated
-     * @param site
-     * @param cb
-     */
-    PluginApiController.prototype.onSiteValidated = function onSiteValidated(site, cb) {
         var action     = this.pathVars.action;
         var identifier = this.pathVars.id;
-        this.site       = pb.SiteService.getCurrentSite(this.pathVars.siteid);
-        this.pluginService = new pb.PluginService(this.site);
+        this.pluginService = new pb.PluginService(this.pathSiteUId);
 
         //validate action
         var errors = [];
@@ -262,8 +238,7 @@ module.exports = function(pb) {
             }
 
             var theme = plugin ? plugin.uid : uid;
-            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.site, true);
-            settings.set('active_theme', theme, function(err, result) {
+            self.settings.set('active_theme', theme, function(err, result) {
                 if (util.isError(err)) {
                     var content = BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.get('SET_THEME_FAILED'), uid), [err.message]);
                     cb({content: content, code: 500});

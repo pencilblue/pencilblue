@@ -24,28 +24,7 @@ module.exports = function(pb) {
      * Creates a new topic
      */
     function NewTopic(){}
-    util.inherits(NewTopic, pb.BaseController);
-
-    NewTopic.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(NewTopic, pb.BaseAdminController);
 
     NewTopic.prototype.render = function(cb) {
         var self = this;
@@ -70,8 +49,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            var dao = new pb.DAO();
-            dao.loadById(vars.id, 'topic', function(err, topic) {
+            self.siteQueryService.loadById(vars.id, 'topic', function(err, topic) {
                 if(util.isError(err) || !util.isObject(topic)) {
                     cb({
                         code: 400,
@@ -82,7 +60,7 @@ module.exports = function(pb) {
 
                 pb.DocumentCreator.update(post, topic);
 
-                self.queryService.loadByValue('name', topic.name, 'topic', function(err, testTopic) {
+                self.siteQueryService.loadByValue('name', topic.name, 'topic', function(err, testTopic) {
                     if(testTopic && !testTopic[pb.DAO.getIdField()].equals(topic[pb.DAO.getIdField()])) {
                         cb({
                             code: 400,
@@ -91,7 +69,7 @@ module.exports = function(pb) {
                         return;
                     }
 
-                    self.queryService.save(topic, function(err, result) {
+                    self.siteQueryService.save(topic, function(err, result) {
                         if(util.isError(err)) {
                             return cb({
                                 code: 500,

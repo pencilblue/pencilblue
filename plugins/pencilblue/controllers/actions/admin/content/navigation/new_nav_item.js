@@ -24,30 +24,7 @@ module.exports = function(pb) {
      * Creates a nav item
      */
     function NewNavItem(){}
-    util.inherits(NewNavItem, pb.BaseController);
-
-    NewNavItem.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.navService = new pb.SectionService(self.pathSiteUId, true);
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(NewNavItem, pb.BaseAdminController);
 
     NewNavItem.prototype.render = function(cb){
         var self = this;
@@ -65,7 +42,7 @@ module.exports = function(pb) {
             pb.SectionService.trimForType(navItem);
 
             //validate
-            self.navService.save(navItem, function(err, result) {
+            self.sectionService.save(navItem, function(err, result) {
                 if(util.isError(err)) {
                     cb({
                         code: 500,
@@ -89,7 +66,7 @@ module.exports = function(pb) {
     };
 
     NewNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {
-        this.navService.updateNavMap(navItem, cb);
+        this.sectionService.updateNavMap(navItem, cb);
     };
 
     NewNavItem.getHtmlErrorMsg = function(validationErrors) {

@@ -27,29 +27,7 @@ module.exports = function(pb) {
      * Interface for creating and editing topics
      */
     function TopicForm(){}
-    util.inherits(TopicForm, pb.BaseController);
-
-    TopicForm.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(TopicForm, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'topic_form';
@@ -70,8 +48,7 @@ module.exports = function(pb) {
 
             self.topic = data.topic;
             data.sitePrefix = self.sitePrefix;
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data);
-            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, self.topic, data);
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.topic[pb.DAO.getIdField()] ? self.topic.name : self.ls.get('NEW_TOPIC'));
@@ -108,7 +85,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                self.queryService.loadById(vars.id, 'topic', function(err, topic) {
+                self.siteQueryService.loadById(vars.id, 'topic', function(err, topic) {
                     callback(err, topic);
                 });
             }

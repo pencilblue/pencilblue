@@ -24,24 +24,7 @@ module.exports = function(pb) {
      * Saves the site's content settings
      */
     function Content(){}
-    util.inherits(Content, pb.BaseController);
-
-    Content.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUid, true);
-                    cb();
-                }
-            });
-        });
-    };
+    util.inherits(Content, pb.BaseAdminController);
 
     Content.prototype.render = function(cb) {
         var self = this;

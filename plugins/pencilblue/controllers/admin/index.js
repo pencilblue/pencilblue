@@ -29,25 +29,7 @@ module.exports = function AdminIndexControllerModule(pb) {
      * @constructor
      */
     function AdminIndexController(){}
-    util.inherits(AdminIndexController, pb.BaseController);
-
-    /**
-     * @see BaseController#render
-     */
-    AdminIndexController.prototype.render = function(cb) {
-        var self = this;
-        var site = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-
-        pb.SiteService.siteExists(site, function (err, siteExists) {
-            if (siteExists) {
-                self.onSiteValidated(cb);
-            }
-            else {
-                self.reqHandler.serve404();
-                return;
-            }
-        });
-    };
+    util.inherits(AdminIndexController, pb.BaseAdminController);
 
     /**
      *
@@ -56,7 +38,7 @@ module.exports = function AdminIndexControllerModule(pb) {
      * @param cb
      *
      */
-    AdminIndexController.prototype.onSiteValidated = function onSiteValidated(cb) {
+    AdminIndexController.prototype.render = function (cb) {
         var self = this;
 
         //gather all the data
@@ -102,18 +84,17 @@ module.exports = function AdminIndexControllerModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Object)
      */
     AdminIndexController.prototype.gatherData = function(cb) {
+        var self = this;
         var tasks = {
 
             //article count
             articleCount: function(callback) {
-                var dao    = new pb.DAO();
-                dao.count('article', pb.DAO.ANYWHERE, callback);
+                self.siteQueryService.count('article', pb.DAO.ANYWHERE, callback);
             },
 
             //page count
             pageCount: function(callback) {
-                var dao    = new pb.DAO();
-                dao.count('page', pb.DAO.ANYWHERE, callback);
+                self.siteQueryService.count('page', pb.DAO.ANYWHERE, callback);
             },
 
             //cluster status

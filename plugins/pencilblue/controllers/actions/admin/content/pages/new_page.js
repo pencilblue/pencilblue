@@ -24,14 +24,13 @@ module.exports = function(pb) {
      * Creates a new page
      * @class NewPagePostController
      * @constructor
-     * @extends FormController
+     * @extends BaseAdminController
      */
     function NewPagePostController(){}
-    util.inherits(NewPagePostController, pb.BaseController);
+    util.inherits(NewPagePostController, pb.BaseAdminController);
 
     NewPagePostController.prototype.render = function(cb) {
         var self = this;
-        var site = pb.SiteService.getCurrentSite(this.pathVars.siteid);
         this.getJSONPostParams(function(err, post) {
             if(self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR || !post.author) {
               post.author = self.session.authentication.user[pb.DAO.getIdField()];
@@ -51,7 +50,6 @@ module.exports = function(pb) {
 
             post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
             var pageDocument = pb.DocumentCreator.create('page', post, ['meta_keywords']);
-            var dao          = new pb.DAO();
             pb.RequestHandler.urlExists(pageDocument.url, post.id, pageDocument.site, function(err, exists) {
                 if(util.isError(err) || exists) {
                     cb({
@@ -60,7 +58,7 @@ module.exports = function(pb) {
                     });
                     return;
                 }
-                dao.save(pageDocument, function(err, result) {
+                self.siteQueryService.save(pageDocument, function(err, result) {
                     if(util.isError(err)) {
                         pb.log.error(err);
                         cb({

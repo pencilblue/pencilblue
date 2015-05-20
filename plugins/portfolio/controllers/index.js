@@ -38,10 +38,17 @@ module.exports = function IndexModule(pb) {
     Index.prototype.init = function (props, cb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteUId = pb.SiteService.getCurrentSite(self.site);
-            self.navService = new pb.SectionService(self.pathSiteUId);
-            self.queryService = new pb.SiteQueryService(self.siteUId);
-            cb();
+            var siteService = new pb.SiteService();
+            siteService.getByUid(self.site, function(err, site) {
+                if (!site) {
+                    self.reqHandler.serve404();
+                }
+                else {
+                    self.siteObj = site;
+                    self.siteQueryService = new pb.SiteQueryService(site.uid);
+                    cb();
+                }
+            });
         });
     };
 
@@ -70,8 +77,8 @@ module.exports = function IndexModule(pb) {
         };
         TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
-                
                 var pluginService = new pb.PluginService(self.site);
+
                 pluginService.getSettings('portfolio', function(err, portfolioSettings) {
                     var homePageKeywords = '';
                     var homePageDescription = '';
@@ -87,10 +94,9 @@ module.exports = function IndexModule(pb) {
                                 break;
                         }
                     }
-
                     self.ts.registerLocal('meta_keywords', homePageKeywords);
                     self.ts.registerLocal('meta_desc', homePageDescription);
-                    self.ts.registerLocal('meta_title', pb.config.siteName);
+                    self.ts.registerLocal('meta_title', self.siteObj.displayName);
                     self.ts.registerLocal('meta_lang', localizationLanguage);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
@@ -106,7 +112,7 @@ module.exports = function IndexModule(pb) {
                         var opts = {
                             where: {settings_type: 'home_page'}
                         };
-                        self.queryService.q('portfolio_theme_settings', opts, function(err, settings) {
+                        self.siteQueryService.q('portfolio_theme_settings', opts, function(err, settings) {
                             if (util.isError(err)) {
                                 self.reqHandler.serveError(err);
                             }

@@ -24,28 +24,7 @@ module.exports = function(pb) {
      * Interface for managing topics
      */
     function ManageTopics() {}
-    util.inherits(ManageTopics, pb.BaseController);
-
-    ManageTopics.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.queryService = new pb.SiteQueryService(self.pathSiteUId, true);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUId, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
+    util.inherits(ManageTopics, pb.BaseAdminController);
 
     var SUB_NAV_KEY = 'manage_topics';
 
@@ -56,7 +35,7 @@ module.exports = function(pb) {
             select: pb.DAO.PROJECT_ALL,
             where: pb.DAO.ANYWHERE
         };
-        self.queryService.q('topic', opts, function (err, topics) {
+        self.siteQueryService.q('topic', opts, function (err, topics) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
             }
@@ -75,11 +54,10 @@ module.exports = function(pb) {
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
             });
 
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix});
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-                pills: pb.AdminSubnavService.addSiteToPills(pills, self.siteName),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix}),
                 topics: topics,
                 sitePrefix: self.sitePrefix
             });

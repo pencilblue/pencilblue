@@ -19,13 +19,12 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util           = pb.util;
-    var BaseController = pb.BaseController;
 
     /**
      * Interface for changing a plugin's settings
      * @class PluginSettingsFormController
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function PluginSettingsFormController(){
     
@@ -36,32 +35,26 @@ module.exports = function(pb) {
          */
         this.pluginService = new pb.PluginService();
     }
-    util.inherits(PluginSettingsFormController, BaseController);
+    util.inherits(PluginSettingsFormController, pb.BaseAdminController);
+
+    /**
+     * Initialize controller and plugin service
+     * @override
+     * @param props
+     * @param cb
+     */
+    PluginSettingsFormController.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseAdminController.prototype.init.call(self, props, function () {
+            self.pluginService = new pb.PluginService(self.pathSiteUId);
+            cb();
+        });
+    };
 
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
 
-    PluginSettingsFormController.prototype.init = function (props, cb) {
-        this.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
-        this.pluginService = new pb.PluginService(this.pathSiteUId);
-
-        pb.BaseController.prototype.init.call(this, props, cb);
-    };
-    
-    PluginSettingsFormController.prototype.get = function(cb) {
-        var self = this;
-
-        pb.SiteService.siteExists(self.pathSiteUId, function (err, siteExists) {
-            if (siteExists) {
-                self.onSiteValidatedGet(cb);
-            }
-            else {
-                self.reqHandler.serve404();
-            }
-        });
-    };
-
-    PluginSettingsFormController.prototype.onSiteValidatedGet = function (cb) {
+    PluginSettingsFormController.prototype.get = function (cb) {
         var self = this;
         console.log(this.constructor.name);
         var uid = this.pathVars.id;
@@ -112,21 +105,20 @@ module.exports = function(pb) {
                     }
                 ];
 
-                var prefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
                 //setup angular
                 var data = {
                     plugin: plugin,
                     settingType: self.getType(),
-                    sitePrefix: prefix
+                    sitePrefix: self.sitePrefix
                 };
                 var angularObjects = pb.ClientJs.getAngularObjects({
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, data),
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, data),
                     tabs: tabs,
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                     settings: clone,
                     pluginUID: uid,
                     type: data.settingType,
-                    sitePrefix: prefix
+                    sitePrefix: self.sitePrefix
                 });
 
                 //render page
@@ -137,22 +129,8 @@ module.exports = function(pb) {
             });
         });
     };
-    
-    
-    PluginSettingsFormController.prototype.post = function(cb) {
-        var self = this;
 
-        pb.SiteService.siteExists(self.pathSiteUId, function (err, siteExists) {
-            if (siteExists) {
-                self.onSiteValidatedPost(cb);
-            }
-            else {
-                self.reqHandler.serve404();
-            }
-        });
-    };
-
-    PluginSettingsFormController.prototype.onSiteValidatedPost = function (cb) {
+    PluginSettingsFormController.prototype.post = function (cb) {
         var self = this;
         console.log(this.constructor.name);
         var post = this.body;

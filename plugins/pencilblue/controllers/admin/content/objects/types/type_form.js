@@ -27,31 +27,10 @@ module.exports = function(pb) {
      * Interface for creating and editing custom object types
      */
     function TypeForm(){}
-    util.inherits(TypeForm, pb.BaseController);
+    util.inherits(TypeForm, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'type_form';
-
-    TypeForm.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
 
     TypeForm.prototype.render = function(cb) {
         var self = this;
@@ -67,10 +46,7 @@ module.exports = function(pb) {
             }
 
             self.objectType = data.objectType;
-
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data);
-            data.pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
-
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data);
             var angularObjects = pb.ClientJs.getAngularObjects(data);
             self.setPageName(self.objectType[pb.DAO.getIdField()] ? self.objectType.name : self.ls.get('NEW_OBJECT'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
@@ -82,7 +58,7 @@ module.exports = function(pb) {
 
     TypeForm.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService(self.pathSiteUid, true);
+        var cos = new pb.CustomObjectService(self.pathSiteUId, true);
 
         var tasks = {
             tabs: function(callback) {
@@ -108,7 +84,7 @@ module.exports = function(pb) {
             },
 
             pathSitePrefix: function(callback) {
-                callback(null, self.pathSitePrefix)
+                callback(null, self.sitePrefix)
             },
 
             objectTypes: function(callback) {

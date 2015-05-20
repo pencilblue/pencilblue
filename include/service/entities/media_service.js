@@ -38,7 +38,7 @@ module.exports = function MediaServiceModule(pb) {
      */
     function MediaService(provider, site, onlyThisSite) {
         this.site = pb.SiteService.getCurrentSite(site);
-        this.queryService = new pb.SiteQueryService(site, onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
         if (util.isNullOrUndefined(provider)) {
             provider = MediaService.loadMediaProvider();
         }
@@ -52,7 +52,7 @@ module.exports = function MediaServiceModule(pb) {
          * @type {MediaProvider}
          */
         this.provider = provider;
-    };
+    }
     
     /**
      *
@@ -101,7 +101,7 @@ module.exports = function MediaServiceModule(pb) {
      * occurred and a media descriptor if found.
      */
     MediaService.prototype.loadById = function(mid, cb) {
-        this.queryService.loadById(mid.toString(), MediaService.COLL, cb);
+        this.siteQueryService.loadById(mid.toString(), MediaService.COLL, cb);
     };
 
     /**
@@ -118,7 +118,7 @@ module.exports = function MediaServiceModule(pb) {
         }
 
         var self = this;
-        this.queryService.deleteById(mid, MediaService.COLL, cb);
+        self.siteQueryService.deleteById(mid, MediaService.COLL, cb);
     };
 
     /**
@@ -143,7 +143,7 @@ module.exports = function MediaServiceModule(pb) {
                 return cb(null, validationErrors);
             }
 
-            self.queryService.save(media, cb);
+            self.siteQueryService.save(media, cb);
         });
     };
 
@@ -164,7 +164,7 @@ module.exports = function MediaServiceModule(pb) {
 
         //ensure the media name is unique
         var where = { name: media.name };
-        this.queryService.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
+        this.siteQueryService.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
             if(util.isError(err)) {
                 return cb(err, errors);
             }
@@ -187,6 +187,7 @@ module.exports = function MediaServiceModule(pb) {
      * @param {Integer} [options.limit]
      * @param {Integer} [options.offset]
      * @param {Boolean} [options.format_media=true]
+     * @param cb
      */
     MediaService.prototype.get = function(options, cb) {
         if (util.isFunction(options)) {
@@ -197,7 +198,7 @@ module.exports = function MediaServiceModule(pb) {
             };
         }
 
-        this.queryService.q('media', options, function (err, media) {
+        this.siteQueryService.q('media', options, function (err, media) {
             if (util.isError(err)) {
                 return cb(err, []);
             }
@@ -471,7 +472,7 @@ module.exports = function MediaServiceModule(pb) {
     MediaService.prototype.renderById = function(id, options, cb) {
         var self = this;
 
-        self.queryService.loadById(id, MediaService.COLL, function (err, media) {
+        self.siteQueryService.loadById(id, MediaService.COLL, function (err, media) {
             if (util.isError(err)) {
                 return cb(err);   
             }

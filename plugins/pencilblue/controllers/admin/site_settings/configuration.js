@@ -27,30 +27,10 @@ module.exports = function(pb) {
      * Interface for displaying the site's configuration settings
      */
     function Configuration(){}
-    util.inherits(Configuration, pb.BaseController);
+    util.inherits(Configuration, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'site_configuration';
-
-    Configuration.prototype.init = function (props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.pathSiteUId = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            var siteService = new pb.SiteService();
-            siteService.getByUid(self.pathSiteUId, function(err, site) {
-                if (!site) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    self.siteObj = site;
-                    self.isGlobalSite = site.uid === pb.SiteService.GLOBAL_SITE;
-                    self.siteName = self.isGlobalSite ? site.uid : site.displayName;
-                    cb();
-                }
-            });
-        });
-    };
 
     Configuration.prototype.render = function(cb) {
         var self = this;
@@ -76,7 +56,7 @@ module.exports = function(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration', {sitePrefix: self.sitePrefix, site: self.pathSiteUId, siteName: self.siteName}),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'configuration', {sitePrefix: self.sitePrefix, site: self.pathSiteUId, siteName: self.siteName}),
                 config: config,
                 isGlobalSite: self.isGlobalSite
             });
@@ -121,10 +101,6 @@ module.exports = function(pb) {
             });
         }
 
-        if(data && data.siteName) {
-            return pb.AdminSubnavService.addSiteToPills(pills, data.siteName);
-        }
-        
         return pills;
     };
 

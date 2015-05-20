@@ -24,44 +24,23 @@ module.exports = function(pb) {
      * Interface for managing object types
      * @class ManageObjectTypes
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function ManageObjectTypes() {}
-    util.inherits(ManageObjectTypes, pb.BaseController);
+    util.inherits(ManageObjectTypes, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_object_types';
 
-    ManageObjectTypes.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
-
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
 
-        var service = new pb.CustomObjectService(self.pathSiteUid, true);
+        var service = new pb.CustomObjectService(self.pathSiteUId, true);
         service.findTypes(function(err, custObjTypes) {
 
             //none to manage
             if(custObjTypes.length === 0) {
-                self.redirect('/admin' + self.pathSitePrefix + '/content/objects/types/new', cb);
+                self.redirect('/admin' + self.sitePrefix + '/content/objects/types/new', cb);
                 return;
             }
 
@@ -69,16 +48,13 @@ module.exports = function(pb) {
             pb.CustomObjectService.setFieldTypesUsed(custObjTypes, self.ls);
 
             //build out the angular controller
-            var data = {};
-            data.pathSitePrefix = self.pathSitePrefix;
-            var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data);
-            pills = pb.AdminSubnavService.addSiteToPills(pills, self.siteName);
+            var data = {pathSitePrefix: self.sitePrefix};
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                pills: pills,
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data),
                 objectTypes: custObjTypes,
-                pathSitePrefix: self.pathSitePrefix
+                pathSitePrefix: self.sitePrefix
             });
 
             self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));

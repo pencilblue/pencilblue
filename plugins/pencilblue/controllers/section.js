@@ -31,8 +31,8 @@ module.exports = function SectionModule(pb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
             self.siteUId = pb.SiteService.getCurrentSite(self.site);
-            self.navService = new pb.SectionService(self.pathSiteUId);
-            self.queryService = new pb.SiteQueryService(self.siteUId);
+            self.sectionService = new pb.SectionService(self.pathSiteUId);
+            self.siteQueryService = new pb.SiteQueryService(self.siteUId);
             cb();
         });
     };
@@ -40,14 +40,14 @@ module.exports = function SectionModule(pb) {
     Section.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
-        self.queryService.loadByValue('url', custUrl, 'section', function(err, section) {
+        self.siteQueryService.loadByValue('url', custUrl, 'section', function(err, section) {
             if (util.isError(err) || section == null) {
                 self.reqHandler.serve404();
                 return;
             }
 
             self.req.pencilblue_section = section[pb.DAO.getIdField()].toString();
-            this.section = section;
+            self.section = section;
             Section.super_.prototype.render.apply(self, [cb]);
         });
     };

@@ -24,31 +24,10 @@ module.exports = function(pb) {
      * Interface for the site's content settings
      */
     function Content(){}
-    util.inherits(Content, pb.BaseController);
+    util.inherits(Content, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'content_settings';
-
-    Content.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function() {
-            self.pathSiteUid = pb.SiteService.getCurrentSite(self.pathVars.siteid);
-            pb.SiteService.siteExists(self.pathSiteUid, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.pathSitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUid);
-                    var siteService = new pb.SiteService();
-                    siteService.getSiteNameByUid(self.pathSiteUid, function (siteName) {
-                        self.siteName = siteName;
-                        cb();
-                    });
-                }
-            });
-        });
-    };
 
     Content.prototype.render = function(cb) {
         var self = this;
@@ -79,16 +58,13 @@ module.exports = function(pb) {
         ];
 
         var contentService = new pb.ContentService(this.pathSiteUid, true);
-        var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content', { pathSiteUid: self.pathSiteUid, pathSitePrefix: self.pathSitePrefix });
-        pills = pb.AdminSubnavService.addSiteToPills(pills, this.siteName);
-
         contentService.getSettings(function(err, contentSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pills,
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'content', { pathSitePrefix: self.sitePrefix }),
                 tabs: tabs,
                 contentSettings: contentSettings,
-                pathSitePrefix: self.pathSitePrefix
+                pathSitePrefix: self.sitePrefix
             });
 
             self.setPageName(self.ls.get('CONTENT'));
