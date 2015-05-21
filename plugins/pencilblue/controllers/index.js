@@ -33,6 +33,15 @@ module.exports = function IndexModule(pb) {
     function Index(){}
     util.inherits(Index, pb.BaseController);
 
+    Index.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteQueryService = new pb.SiteQueryService(self.site, true);
+            cb();
+        });
+    };
+
     Index.prototype.render = function(cb) {
         var self = this;
 
