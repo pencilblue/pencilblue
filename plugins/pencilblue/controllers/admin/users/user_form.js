@@ -46,7 +46,12 @@ module.exports = function(pb) {
             }
 
             self.user = data.user;
-            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: self.user});
+            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {
+                session: self.session,
+                user: self.user,
+                site: self.pathSiteUId,
+                sitePrefix: self.sitePrefix
+            });
 
             data.adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR}];
             if(!data.user[pb.DAO.getIdField()] || self.session.authentication.user_id !== data.user[pb.DAO.getIdField()].toString()) {
@@ -107,7 +112,7 @@ module.exports = function(pb) {
             name: 'manage_users',
             title: data.user[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.user.username : ls.get('NEW_USER'),
             icon: 'chevron-left',
-            href: '/admin/users'
+            href: '/admin' + data.sitePrefix + '/users'
         }];
 
         if(data.user[pb.DAO.getIdField()]) {
@@ -116,7 +121,7 @@ module.exports = function(pb) {
                     name: 'change_password',
                     title: ls.get('CHANGE_PASSWORD'),
                     icon: 'key',
-                    href: '/admin/users/password/' + data.user[pb.DAO.getIdField()].toString()
+                    href: '/admin' + data.sitePrefix + '/users/password/' + data.user[pb.DAO.getIdField()].toString()
                 });
             }
             else if(data.session.authentication.admin_level >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
@@ -124,7 +129,7 @@ module.exports = function(pb) {
                     name: 'reset_password',
                     title: ls.get('RESET_PASSWORD'),
                     icon: 'key',
-                    href: '/actions/admin/users/send_password_reset/' + data.user[pb.DAO.getIdField()].toString()
+                    href: '/actions/admin' + data.sitePrefix + '/users/send_password_reset/' + data.user[pb.DAO.getIdField()].toString()
                 });
             }
         }
@@ -133,7 +138,7 @@ module.exports = function(pb) {
             name: 'new_user',
             title: '',
             icon: 'plus',
-            href: '/admin/users/new'
+            href: '/admin' + data.sitePrefix + '/users/new'
         });
 
         return pills;
