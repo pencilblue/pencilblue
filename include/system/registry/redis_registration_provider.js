@@ -43,7 +43,7 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @property REGISTRY_DB
      * @type {Integer}
      */
-    var REGISTRY_DB = 2;
+    var REGISTRY_DB = 0;
 
     /**
      * The character used to separate the registry key prefix from the unique value
