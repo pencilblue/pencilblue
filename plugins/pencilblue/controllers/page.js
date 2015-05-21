@@ -49,18 +49,17 @@ module.exports = function PageModule(pb) {
             }
         }
         else {
-            where = {url: custUrl, site: self.site};
+            where = {url: custUrl};
         }
 
-        var dao = new pb.DAO();
-        dao.loadByValues(where, 'page', function(err, page) {
+        self.siteQueryService.loadByValues(where, 'page', function(err, page) {
             if (util.isError(err) || page == null) {
                 if (where.url) {
                     self.reqHandler.serve404();
                     return;
                 }
 
-                dao.loadByValues({url: custUrl}, 'page', function(err, page) {
+                self.siteQueryService.loadByValues({url: custUrl}, 'page', function(err, page) {
                     if (util.isError(err) || page == null) {
                         self.reqHandler.serve404();
                         return;
