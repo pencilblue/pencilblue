@@ -199,7 +199,7 @@ module.exports = function Routes(pb){
             path: "/actions/admin/:siteid/content/articles/:id",
             access_level: pb.SecurityService.ACCESS_EDITOR,
             auth_required: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js')
         },
 
         // PAGES
@@ -600,12 +600,41 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'libraries.js'),
             content_type: 'text/html'
         },
+        //USERS
         {
             method: 'get',
             path: "/admin/:siteid/users/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js')
+        },
+        {
+            method: 'get',
+            path: "/admin/:siteid/users/new",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js')
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/:siteid/users",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'new_user.js')
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/:siteid/users/:id",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'edit_user.js')
+        },
+        {
+            method: 'delete',
+            path: "/actions/admin/:siteid/users/:id",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_user.js')
         }
     ];
 };

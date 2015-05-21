@@ -122,7 +122,7 @@ module.exports = function Routes(pb){
             method: 'post',
             path: "/actions/user/manage_account/change_password",
             auth_required: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'manage_account', 'change_password.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'manage_account', 'change_password.js')
         },
         {
             method: 'post',
@@ -135,19 +135,19 @@ module.exports = function Routes(pb){
             method: 'post',
             path: "/actions/user/resend_verification",
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'resend_verification.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'resend_verification.js')
         },
         {
             method: 'post',
             path: "/actions/user/sign_up",
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'sign_up.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'sign_up.js')
         },
         {
             method: 'get',
             path: "/actions/user/verify_email",
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'verify_email.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'verify_email.js')
         },
         {
             method: 'get',
@@ -167,7 +167,7 @@ module.exports = function Routes(pb){
             method: 'get',
             path: "/user/sign_up",
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'sign_up.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'sign_up.js')
         },
         {
             method: 'get',
@@ -181,7 +181,7 @@ module.exports = function Routes(pb){
             handler: 'login',
             path: "/user/login",
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'login.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'login.js')
         },
         {
             method: 'get',
@@ -480,7 +480,7 @@ module.exports = function Routes(pb){
             path: "/actions/admin/content/articles/:id",
             access_level: pb.SecurityService.ACCESS_EDITOR,
             auth_required: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js')
         },
 
         // PAGES
@@ -829,7 +829,7 @@ module.exports = function Routes(pb){
             path: "/actions/admin/themes/site_logo",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'themes', 'site_logo.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'themes', 'site_logo.js')
         },
 
         // USERS
@@ -838,70 +838,70 @@ module.exports = function Routes(pb){
             path: "/admin/users",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'manage_users.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'manage_users.js')
         },
         {
             method: 'get',
             path: "/admin/users/unverified",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'unverified_users.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'unverified_users.js')
         },
         {
             method: 'get',
             path: "/admin/users/new",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js')
         },
         {
             method: 'get',
             path: "/admin/users/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js')
         },
         {
             method: 'get',
             path: "/admin/users/password/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'change_password.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'change_password.js')
         },
         {
             method: 'post',
             path: "/actions/admin/users",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'new_user.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'new_user.js')
         },
         {
             method: 'post',
             path: "/actions/admin/users/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'edit_user.js')
         },
         {
             method: 'delete',
             path: "/actions/admin/users/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_user.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_user.js')
         },
         {
             method: 'delete',
             path: "/actions/admin/users/unverified/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_unverified_user.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_unverified_user.js')
         },
         {
             method: 'get',
             path: "/actions/admin/users/verify/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'verify_user.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'verify_user.js')
         },
 
         {
@@ -909,21 +909,21 @@ module.exports = function Routes(pb){
             path: "/actions/admin/users/change_password/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'change_password.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'change_password.js')
         },
         {
             method: 'get',
             path: "/actions/admin/users/send_password_reset/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js')
         },
         {
             method: 'post',
             path: "/actions/admin/users/send_password_reset/:id",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js')
         },
 
         // SITE SETTINGS
