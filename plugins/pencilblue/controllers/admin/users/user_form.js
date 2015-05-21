@@ -27,7 +27,7 @@ module.exports = function(pb) {
      * Interface for editing a user
      */
     function UserForm(){}
-    util.inherits(UserForm, pb.BaseController);
+    util.inherits(UserForm, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'user_form';
@@ -53,6 +53,7 @@ module.exports = function(pb) {
                 data.adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
             }
 
+            data.sitePrefix = self.sitePrefix;
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(data.user[pb.DAO.getIdField()] ? data.user.username : self.ls.get('NEW_USER'));

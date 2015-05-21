@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Creates a new user
      */
     function NewUser(){}
-    util.inherits(NewUser, pb.BaseController);
+    util.inherits(NewUser, pb.BaseAdminController);
 
     NewUser.prototype.render = function(cb) {
         var self = this;
@@ -43,6 +43,15 @@ module.exports = function(pb) {
                 cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+                });
+                return;
+            }
+
+            post.site = pb.users.determineUserSiteScope(post.admin, self.pathSiteUId);
+            if (!post.site) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, 'User access level not compatible with site scope')
                 });
                 return;
             }

@@ -69,7 +69,7 @@
                 $scope.user.photo = $scope.photoValue;
             }
 
-            var postURL = '/actions/admin/users';
+            var postURL = '/actions/admin' + $scope.sitePrefix + '/users';
             if($scope.user._id) {
                 postURL += '/' + $scope.user._id;
             }
@@ -80,7 +80,7 @@
                 $scope.saving = false;
 
                 if(result.data._id) {
-                    $window.location = '/admin/users/' + result.data._id;
+                    $window.location = '/admin' + $scope.sitePrefix + '/users/' + result.data._id;
                 }
             })
             .error(function(error, status) {

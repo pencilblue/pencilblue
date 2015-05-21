@@ -376,5 +376,18 @@ module.exports = function UserServiceModule(pb) {
             cb(err, count === 1);
         });
     };
+
+    UserService.prototype.determineUserSiteScope = function(accessLevel, siteid) {
+        if (accessLevel === pb.SecurityService.ACCESS_MANAGING_EDITOR
+            || accessLevel === pb.SecurityService.ACCESS_ADMINISTRATOR) {
+            return pb.SiteService.GLOBAL_SITE;
+        }
+        else if (siteid === pb.SiteService.GLOBAL_SITE) {
+            return null;
+        }
+        else {
+            return siteid;
+        }
+    };
     return UserService;
 };
