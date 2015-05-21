@@ -35,30 +35,29 @@ module.exports = function ArticleModule(pb) {
         //check for object ID as the custom URL
         var where  = null;
         if(pb.validation.isIdStr(custUrl)) {
-            where = {_id: pb.DAO.getObjectID(custUrl), site: self.site};
+            where = {_id: pb.DAO.getObjectID(custUrl)};
             if (pb.log.isSilly()) {
                 pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
             }
         }
         else {
-            where = {url: custUrl, site: self.site};
+            where = {url: custUrl};
         }
 
         // fall through to URL key
         if (where === null) {
-            where = {url: custUrl, site: self.site};
+            where = {url: custUrl};
         }
 
         //attempt to load object
-        var dao = new pb.DAO();
-        dao.loadByValues(where, 'article', function(err, article) {
+        self.siteQueryService.loadByValues(where, 'article', function(err, article) {
             if (util.isError(err) || article == null) {
                 if (where.url) {
                     self.reqHandler.serve404();
                     return;
                 }
 
-                dao.loadByValues({url: custUrl, site: self.site}, 'article', function(err, article) {
+                self.siteQueryService.loadByValues({url: custUrl}, 'article', function(err, article) {
                     if (util.isError(err) || article == null) {
                         self.reqHandler.serve404();
                         return;
