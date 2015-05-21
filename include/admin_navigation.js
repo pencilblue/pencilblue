@@ -252,8 +252,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getAdditions
      * @returns {Array}
      */
-    function getAdditions() {
-        return util.clone(AdminNavigation.additions);
+    function getAdditions(site) {
+        return util.clone(AdminNavigation.additions[site] || []);
     };
 
     /**
@@ -263,8 +263,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getChildrenAdditions
      * @returns {Object}
      */
-    function getChildrenAdditions() {
-        return util.clone(AdminNavigation.childrenAdditions);
+    function getChildrenAdditions(site) {
+        return util.clone(AdminNavigation.childrenAdditions[site] || []);
     };
 
     /**
@@ -278,9 +278,14 @@ module.exports = function AdminNavigationModule(pb) {
         var i;
         var navigation = [];
         var multiSiteAdditions = getMultiSiteNavigation();
-        var defaultNavigation = getDefaultNavigation(session ? session.adminSiteId : null);
-        var additions = getAdditions();
-        var childrenAdditions = getChildrenAdditions();
+        var adminSiteId = session && session.adminSiteId ? session.adminSiteId : pb.SiteService.GLOBAL_SITE;
+        var defaultNavigation = getDefaultNavigation(adminSiteId);
+        var additions = getAdditions(adminSiteId);
+        var childrenAdditions = getChildrenAdditions(adminSiteId);
+        if (!pb.SiteService.isGlobal(adminSiteId)) {
+            util.arrayPushAll(getAdditions(pb.SiteService.GLOBAL_SITE), additions);
+            util.merge(getChildrenAdditions(pb.SiteService.GLOBAL_SITE), childrenAdditions);
+        }
 
         util.arrayPushAll(defaultNavigation, navigation);
         util.arrayPushAll(additions, navigation);
@@ -400,9 +405,10 @@ module.exports = function AdminNavigationModule(pb) {
      * @param {String} parentId
      * @param {Object} node
      * @returns {Boolean}
+     * @param site
      */
-    AdminNavigation.addChild = function (parentId, node) {
-        if (isDuplicate(node.id)) {
+    AdminNavigation.addChildToSite = function (parentId, node, site) {
+        if (isDuplicate(node.id, buildNavigation(getSiteContext(site)))) {
             return false;
         }
 
@@ -414,20 +420,40 @@ module.exports = function AdminNavigationModule(pb) {
         return true;
     };
 
+    AdminNavigation.addChild = function (parentId, node) {
+        return AdminNavigation.addChildToSite(parentId, node, pb.SiteService.GLOBAL_SITE);
+    };
+
+    function getSiteContext(site) {
+        return {adminSiteId: site};
+    }
+
     /**
      * Adds a new top level node
      * @static
      * @method add
      * @param {Object} node
      * @returns {Boolean}
+     * @param site
      */
-    AdminNavigation.add = function (node) {
-        if (isDuplicate(node.id)) {
+    AdminNavigation.addToSite = function (node, site) {
+        if (isDuplicate(node.id, buildNavigation(getSiteContext(site)))) {
             return false;
         }
 
-        AdminNavigation.additions.push(node);
+        if (!(site in AdminNavigation.additions)) {
+            AdminNavigation.additions[site] = [];
+        }
+        AdminNavigation.additions[site].push(node);
         return true;
+    };
+
+    AdminNavigation.add = function (node) {
+        return AdminNavigation.addToSite(node, pb.SiteService.GLOBAL_SITE);
+    };
+
+    AdminNavigation.remove = function (id) {
+        return AdminNavigation.removeFromSite(id, pb.SiteService.GLOBAL_SITE);
     };
 
     /**
@@ -435,11 +461,11 @@ module.exports = function AdminNavigationModule(pb) {
      * @static
      * @method remove
      * @param id
-     * @param navigation
      * @returns {boolean}
+     * @param site
      */
-    AdminNavigation.remove = function (id) {
-        if (!isDuplicate(id, buildNavigation())) {
+    AdminNavigation.removeFromSite = function (id, site) {
+        if (!isDuplicate(id, buildNavigation(getSiteContext(site)))) {
             return false;
         }
 
@@ -463,10 +489,10 @@ module.exports = function AdminNavigationModule(pb) {
             return navigation;
         }
 
-        AdminNavigation.additions = removeNode(id, AdminNavigation.additions);
+        AdminNavigation.additions[site] = removeNode(id, AdminNavigation.additions[site]);
 
         for (var parentId in AdminNavigation.childrenAdditions) {
-            AdminNavigation.childrenAdditions[parentId] = removeNode(id, AdminNavigation.childrenAdditions[parentId]);
+            AdminNavigation.childrenAdditions[site][parentId] = removeNode(id, AdminNavigation.childrenAdditions[site][parentId]);
         }
 
         return true;
