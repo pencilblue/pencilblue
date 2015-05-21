@@ -57,7 +57,8 @@ module.exports = function(pb) {
             }
 
             var user = pb.DocumentCreator.create('user', post);
-            pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
+            var userService = new pb.UserService(self.pathSiteUId);
+            userService.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
                 if(util.isError(err) || isTaken) {
                     cb({
                         code: 400,

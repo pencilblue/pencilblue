@@ -29,7 +29,9 @@ module.exports = function UserServiceModule(pb) {
      * @class UserService
      * @constructor
      */
-    function UserService(){}
+    function UserService(siteid){
+        this.siteUID = pb.SiteService.getCurrentSite(siteid);
+    }
 
     /**
      * Gets the full name of a user
@@ -306,7 +308,8 @@ module.exports = function UserServiceModule(pb) {
             }
             return where;
         };
-        var dao   = new pb.DAO();
+
+        var dao = new pb.SiteQueryService(this.siteUID, false);
         var tasks = {
             verified_username: function(callback) {
                 var expStr = util.escapeRegExp(username) + '$';
