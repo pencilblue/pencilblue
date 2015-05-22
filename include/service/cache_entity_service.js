@@ -55,7 +55,7 @@ module.exports = function CacheEntityServiceModule(pb) {
     CacheEntityService.prototype.get = function(key, cb){
 
         var self = this;
-        pb.cache.get(key, function(err, result){console.log(util.inspect(result));
+        pb.cache.get(key, function(err, result){
             if (util.isError(err)) {
                 return cb(err, null);
             }
@@ -122,7 +122,7 @@ module.exports = function CacheEntityServiceModule(pb) {
                 }
                 rawVal[self.valueField] = value;
                 val                     = JSON.stringify(rawVal);
-            }console.log('TIMEOUT: '+self.timeout);
+            }
 
             //set into cache
             pb.cache.setex(key, self.timeout, val, cb);
