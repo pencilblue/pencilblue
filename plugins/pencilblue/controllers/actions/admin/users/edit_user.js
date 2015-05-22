@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Edits a user
      */
     function EditUser(){}
-    util.inherits(EditUser, pb.BaseController);
+    util.inherits(EditUser, pb.BaseAdminController);
 
     EditUser.prototype.render = function(cb) {
         var self = this;
@@ -48,9 +48,10 @@ module.exports = function(pb) {
                 return;
             }
 
-            var dao = new pb.DAO();
+            var dao = new pb.SiteQueryService(self.pathSiteUId, true);
             dao.loadById(vars.id, 'user', function(err, user) {
                 if(util.isError(err) || user === null) {
+                    if (err) { pb.log.error(JSON.stringify(err)); }
                     cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
@@ -61,8 +62,10 @@ module.exports = function(pb) {
                 delete post[pb.DAO.getIdField()];
                 pb.DocumentCreator.update(post, user);
 
-                pb.users.isUserNameOrEmailTaken(user.username, user.email, vars.id, function(err, isTaken) {
+                var userService = new UserService(self.pathSiteUId);
+                userService.isUserNameOrEmailTaken(user.username, user.email, vars.id, function(err, isTaken) {
                     if(util.isError(err) || isTaken) {
+                        if(err) { pb.log.error(JSON.stringify(err)); }
                         cb({
                             code: 400,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
