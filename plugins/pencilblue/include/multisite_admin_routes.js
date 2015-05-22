@@ -610,6 +610,13 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
+            path: "/admin/:siteid/users/unverified",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'unverified_users.js')
+        },
+        {
+            method: 'get',
             path: "/admin/:siteid/users/new",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
