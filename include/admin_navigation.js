@@ -22,6 +22,7 @@ module.exports = function AdminNavigationModule(pb) {
 
     //PB dependencies
     var SecurityService = pb.SecurityService;
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * Provides function to construct the structure needed to display the navigation
@@ -219,7 +220,7 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'library_settings',
                         title: 'LIBRARIES',
                         icon: 'book',
-                        href: '/admin/'+ pb.SiteService.GLOBAL_SITE +'/site_settings/libraries',
+                        href: '/admin/'+ GLOBAL_SITE +'/site_settings/libraries',
                         access: SecurityService.ACCESS_ADMINISTRATOR
                     }
                 ]
@@ -252,8 +253,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getAdditions
      * @returns {Array}
      */
-    function getAdditions() {
-        return util.clone(AdminNavigation.additions);
+    function getAdditions(site) {
+        return util.clone(AdminNavigation.additions[site] || []);
     };
 
     /**
@@ -263,8 +264,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getChildrenAdditions
      * @returns {Object}
      */
-    function getChildrenAdditions() {
-        return util.clone(AdminNavigation.childrenAdditions);
+    function getChildrenAdditions(site) {
+        return util.clone(AdminNavigation.childrenAdditions[site] || []);
     };
 
     /**
@@ -278,9 +279,14 @@ module.exports = function AdminNavigationModule(pb) {
         var i;
         var navigation = [];
         var multiSiteAdditions = getMultiSiteNavigation();
-        var defaultNavigation = getDefaultNavigation(session ? session.adminSiteId : null);
-        var additions = getAdditions();
-        var childrenAdditions = getChildrenAdditions();
+        var adminSiteId = session && session.adminSiteId ? session.adminSiteId : GLOBAL_SITE;
+        var defaultNavigation = getDefaultNavigation(adminSiteId);
+        var additions = getAdditions(adminSiteId);
+        var childrenAdditions = getChildrenAdditions(adminSiteId);
+        if (!pb.SiteService.isGlobal(adminSiteId)) {
+            util.arrayPushAll(getAdditions(GLOBAL_SITE), additions);
+            util.merge(getChildrenAdditions(GLOBAL_SITE), childrenAdditions);
+        }
 
         util.arrayPushAll(defaultNavigation, navigation);
         util.arrayPushAll(additions, navigation);
@@ -361,7 +367,13 @@ module.exports = function AdminNavigationModule(pb) {
             }
         }
         return false;
-    };
+    }
+
+    function exists(id, site) {
+        var isGlobal = pb.SiteService.isGlobal(site);
+        return isDuplicate(id, buildNavigation(getSiteContext(site))) ||
+          (!isGlobal && isDuplicate(id, buildNavigation(getSiteContext(GLOBAL_SITE))))
+    }
 
     /**
      * @private
@@ -400,19 +412,35 @@ module.exports = function AdminNavigationModule(pb) {
      * @param {String} parentId
      * @param {Object} node
      * @returns {Boolean}
+     * @param site
      */
-    AdminNavigation.addChild = function (parentId, node) {
-        if (isDuplicate(node.id)) {
+    AdminNavigation.addChildToSite = function (parentId, node, site) {
+        if (exists(node.id, site)) {
             return false;
         }
 
-        if (!AdminNavigation.childrenAdditions[parentId]) {
-            AdminNavigation.childrenAdditions[parentId] = [];
+        var additionsMap;
+        if (!(site in AdminNavigation.childrenAdditions)) {
+            additionsMap = AdminNavigation.childrenAdditions[site] = {}
+        } else {
+            additionsMap = AdminNavigation.childrenAdditions[site];
         }
 
-        AdminNavigation.childrenAdditions[parentId].push(node);
+        if (!additionsMap[parentId]) {
+            additionsMap[parentId] = [];
+        }
+
+        additionsMap[parentId].push(node);
         return true;
     };
+
+    AdminNavigation.addChild = function (parentId, node) {
+        return AdminNavigation.addChildToSite(parentId, node, GLOBAL_SITE);
+    };
+
+    function getSiteContext(site) {
+        return {adminSiteId: site};
+    }
 
     /**
      * Adds a new top level node
@@ -420,14 +448,26 @@ module.exports = function AdminNavigationModule(pb) {
      * @method add
      * @param {Object} node
      * @returns {Boolean}
+     * @param site
      */
-    AdminNavigation.add = function (node) {
-        if (isDuplicate(node.id)) {
+    AdminNavigation.addToSite = function (node, site) {
+        if (exists(node.id, site)) {
             return false;
         }
 
-        AdminNavigation.additions.push(node);
+        if (!(site in AdminNavigation.additions)) {
+            AdminNavigation.additions[site] = [];
+        }
+        AdminNavigation.additions[site].push(node);
         return true;
+    };
+
+    AdminNavigation.add = function (node) {
+        return AdminNavigation.addToSite(node, GLOBAL_SITE);
+    };
+
+    AdminNavigation.remove = function (id) {
+        return AdminNavigation.removeFromSite(id, GLOBAL_SITE);
     };
 
     /**
@@ -435,11 +475,11 @@ module.exports = function AdminNavigationModule(pb) {
      * @static
      * @method remove
      * @param id
-     * @param navigation
      * @returns {boolean}
+     * @param site
      */
-    AdminNavigation.remove = function (id) {
-        if (!isDuplicate(id, buildNavigation())) {
+    AdminNavigation.removeFromSite = function (id, site) {
+        if (!isDuplicate(id, buildNavigation(getSiteContext(site)))) {
             return false;
         }
 
@@ -463,10 +503,11 @@ module.exports = function AdminNavigationModule(pb) {
             return navigation;
         }
 
-        AdminNavigation.additions = removeNode(id, AdminNavigation.additions);
+        AdminNavigation.additions[site] = removeNode(id, AdminNavigation.additions[site]);
 
-        for (var parentId in AdminNavigation.childrenAdditions) {
-            AdminNavigation.childrenAdditions[parentId] = removeNode(id, AdminNavigation.childrenAdditions[parentId]);
+        var childAdditionsMap = AdminNavigation.childrenAdditions[site];
+        for (var parentId in  childAdditionsMap) {
+            childAdditionsMap[parentId] = removeNode(id, childAdditionsMap[parentId]);
         }
 
         return true;
