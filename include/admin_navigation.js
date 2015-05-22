@@ -22,6 +22,7 @@ module.exports = function AdminNavigationModule(pb) {
 
     //PB dependencies
     var SecurityService = pb.SecurityService;
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * Provides function to construct the structure needed to display the navigation
@@ -219,7 +220,7 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'library_settings',
                         title: 'LIBRARIES',
                         icon: 'book',
-                        href: '/admin/'+ pb.SiteService.GLOBAL_SITE +'/site_settings/libraries',
+                        href: '/admin/'+ GLOBAL_SITE +'/site_settings/libraries',
                         access: SecurityService.ACCESS_ADMINISTRATOR
                     }
                 ]
@@ -278,13 +279,13 @@ module.exports = function AdminNavigationModule(pb) {
         var i;
         var navigation = [];
         var multiSiteAdditions = getMultiSiteNavigation();
-        var adminSiteId = session && session.adminSiteId ? session.adminSiteId : pb.SiteService.GLOBAL_SITE;
+        var adminSiteId = session && session.adminSiteId ? session.adminSiteId : GLOBAL_SITE;
         var defaultNavigation = getDefaultNavigation(adminSiteId);
         var additions = getAdditions(adminSiteId);
         var childrenAdditions = getChildrenAdditions(adminSiteId);
         if (!pb.SiteService.isGlobal(adminSiteId)) {
-            util.arrayPushAll(getAdditions(pb.SiteService.GLOBAL_SITE), additions);
-            util.merge(getChildrenAdditions(pb.SiteService.GLOBAL_SITE), childrenAdditions);
+            util.arrayPushAll(getAdditions(GLOBAL_SITE), additions);
+            util.merge(getChildrenAdditions(GLOBAL_SITE), childrenAdditions);
         }
 
         util.arrayPushAll(defaultNavigation, navigation);
@@ -366,7 +367,13 @@ module.exports = function AdminNavigationModule(pb) {
             }
         }
         return false;
-    };
+    }
+
+    function exists(id, site) {
+        var isGlobal = pb.SiteService.isGlobal(site);
+        return isDuplicate(id, buildNavigation(getSiteContext(site))) ||
+          (!isGlobal && isDuplicate(id, buildNavigation(getSiteContext(GLOBAL_SITE))))
+    }
 
     /**
      * @private
@@ -408,7 +415,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @param site
      */
     AdminNavigation.addChildToSite = function (parentId, node, site) {
-        if (isDuplicate(node.id, buildNavigation(getSiteContext(site)))) {
+        if (exists(node.id, site)) {
             return false;
         }
 
@@ -421,7 +428,7 @@ module.exports = function AdminNavigationModule(pb) {
     };
 
     AdminNavigation.addChild = function (parentId, node) {
-        return AdminNavigation.addChildToSite(parentId, node, pb.SiteService.GLOBAL_SITE);
+        return AdminNavigation.addChildToSite(parentId, node, GLOBAL_SITE);
     };
 
     function getSiteContext(site) {
@@ -437,7 +444,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @param site
      */
     AdminNavigation.addToSite = function (node, site) {
-        if (isDuplicate(node.id, buildNavigation(getSiteContext(site)))) {
+        if (exists(node.id, site)) {
             return false;
         }
 
@@ -449,11 +456,11 @@ module.exports = function AdminNavigationModule(pb) {
     };
 
     AdminNavigation.add = function (node) {
-        return AdminNavigation.addToSite(node, pb.SiteService.GLOBAL_SITE);
+        return AdminNavigation.addToSite(node, GLOBAL_SITE);
     };
 
     AdminNavigation.remove = function (id) {
-        return AdminNavigation.removeFromSite(id, pb.SiteService.GLOBAL_SITE);
+        return AdminNavigation.removeFromSite(id, GLOBAL_SITE);
     };
 
     /**
