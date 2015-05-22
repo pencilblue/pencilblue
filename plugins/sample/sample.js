@@ -91,7 +91,7 @@ module.exports = function SamplePluginModule(pb) {
         }, site);
 
         // Remove "sample_2"
-        pb.AdminNavigation.remove("sample_2");
+        pb.AdminNavigation.removeFromSite("sample_2", site);
 
         cb(null, true);
     };
