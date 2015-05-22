@@ -1,6 +1,6 @@
 
 module.exports = function PortfolioModule(pb) {
-    
+
     /**
      * Portfolio - A portfolio site theme for PencilBlue
      *
@@ -40,8 +40,8 @@ module.exports = function PortfolioModule(pb) {
      * The result is ignored
      */
     Portfolio.onStartup = function(cb) {
-        pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization, plugin) {
-            if(plugin.uid === 'portfolio') {
+        pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization, data) {
+            if(data.plugin.uid === 'portfolio') {
                 return [
                     {
                         name: 'home_page_settings',

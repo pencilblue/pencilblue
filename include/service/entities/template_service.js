@@ -283,7 +283,6 @@ module.exports = function(pb) {
         this.getTemplateContentsByPriority(templateLocation, function(err, templateContents) {
             if (util.isError(err)) {
                 return cb(err, null);
-                return;
             }
             else if (!templateContents) {
                 return cb(new Error('Failed to find a matching template for location: '+templateLocation), null);
@@ -298,13 +297,12 @@ module.exports = function(pb) {
      * parameter that is the populated template with any registered flags replaced.
      *
      * @method process
-     * @param {string} content The raw content to be inspected for flags
+     * @param {Object} content The raw content to be inspected for flags
      * @param {function} cb Callback function
      */
     TemplateService.prototype.process = function(content, cb) {
         if (!util.isObject(content)) {
-            cb(new Error("TemplateService: A valid content string is required in order for the template engine to process the value. Content="+util.inspect(content)), content);
-            return;
+            return cb(new Error("TemplateService: A valid content object is required in order for the template engine to process the value. Content="+util.inspect(content)), content);
         }
 
         //iterate parts
