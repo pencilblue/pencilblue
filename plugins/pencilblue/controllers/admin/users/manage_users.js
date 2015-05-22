@@ -51,7 +51,8 @@ module.exports = function(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, { sitePrefix: self.sitePrefix }),
                 users: users,
-                currentUserId: self.session.authentication.user_id
+                currentUserId: self.session.authentication.user_id,
+                sitePrefix: self.sitePrefix
             });
 
             self.setPageName(self.ls.get('MANAGE_USERS'));
