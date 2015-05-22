@@ -97,7 +97,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
+                var dao = new pb.SiteQueryService(self.pathSiteUId, true);
                 dao.loadById(vars.id, 'user', function(err, user) {
                     delete user.password;
                     callback(err, user);
@@ -108,20 +108,22 @@ module.exports = function(pb) {
     };
 
     UserForm.getSubNavItems = function(key, ls, data) {
+        var idField = pb.DAO.getIdField();
         var pills = [{
             name: 'manage_users',
-            title: data.user[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.user.username : ls.get('NEW_USER'),
+            title: data.user[idField] ? ls.get('EDIT') + ' ' + data.user.username : ls.get('NEW_USER'),
             icon: 'chevron-left',
             href: '/admin' + data.sitePrefix + '/users'
         }];
 
-        if(data.user[pb.DAO.getIdField()]) {
-            if(data.session.authentication.user_id === data.user[pb.DAO.getIdField()].toString()) {
+        if(data.user[idField]) {
+            var userIdString = data.user[idField].toString();
+            if(data.session.authentication.user_id === userIdString) {
                 pills.push({
                     name: 'change_password',
                     title: ls.get('CHANGE_PASSWORD'),
                     icon: 'key',
-                    href: '/admin' + data.sitePrefix + '/users/password/' + data.user[pb.DAO.getIdField()].toString()
+                    href: '/admin' + data.sitePrefix + '/users/password/' + userIdString
                 });
             }
             else if(data.session.authentication.admin_level >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
@@ -129,7 +131,7 @@ module.exports = function(pb) {
                     name: 'reset_password',
                     title: ls.get('RESET_PASSWORD'),
                     icon: 'key',
-                    href: '/actions/admin' + data.sitePrefix + '/users/send_password_reset/' + data.user[pb.DAO.getIdField()].toString()
+                    href: '/actions/admin' + data.sitePrefix + '/users/send_password_reset/' + userIdString
                 });
             }
         }

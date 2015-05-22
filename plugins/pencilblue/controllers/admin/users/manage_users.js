@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Interface for managing users
      */
     function ManageUsers(){}
-    util.inherits(ManageUsers, pb.BaseController);
+    util.inherits(ManageUsers, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_users';
@@ -38,7 +38,7 @@ module.exports = function(pb) {
                 admin: {$lte: self.session.authentication.user.admin}
             }
         };
-        var dao  = new pb.DAO();
+        var dao  = new pb.SiteQueryService(self.pathSiteUId, true);
         dao.q('user', opts, function(err, users) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
@@ -49,7 +49,7 @@ module.exports = function(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, { sitePrefix: self.sitePrefix }),
                 users: users,
                 currentUserId: self.session.authentication.user_id
             });
@@ -67,17 +67,17 @@ module.exports = function(pb) {
             name: 'manage_users',
             title: ls.get('MANAGE_USERS'),
             icon: 'refresh',
-            href: '/admin/users'
+            href: '/admin' + data.sitePrefix + '/users'
         }, {
             name: 'unverified_users',
             title: ls.get('UNVERIFIED_USERS'),
             icon: 'user',
-            href: '/admin/users/unverified'
+            href: '/admin' + data.sitePrefix + '/users/unverified'
         }, {
             name: 'new_user',
             title: '',
             icon: 'plus',
-            href: '/admin/users/new'
+            href: '/admin' + data.sitePrefix + '/users/new'
         }];
     };
 
