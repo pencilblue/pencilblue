@@ -354,5 +354,9 @@ module.exports = function SiteServiceModule(pb) {
         }
     };
 
+    SiteService.getSiteFromObject = function (object) {
+        return object[SiteService.SITE_FIELD];
+    };
+
     return SiteService;
 };

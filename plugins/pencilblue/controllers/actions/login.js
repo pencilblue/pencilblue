@@ -57,6 +57,10 @@ module.exports = function LoginActionControllerModule(pb) {
             }
             else if(adminAttempt) {
                 location = '/admin';
+                var site = pb.SiteService.getSiteFromObject(user);
+                if (!pb.SiteService.isNotSetOrEqual(site, self.site)) {
+                    location += '/' + site;
+                }
             }
             self.redirect(location, cb);
         });
