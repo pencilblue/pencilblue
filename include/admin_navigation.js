@@ -419,11 +419,18 @@ module.exports = function AdminNavigationModule(pb) {
             return false;
         }
 
-        if (!AdminNavigation.childrenAdditions[parentId]) {
-            AdminNavigation.childrenAdditions[parentId] = [];
+        var additionsMap;
+        if (!(site in AdminNavigation.childrenAdditions)) {
+            additionsMap = AdminNavigation.childrenAdditions[site] = {}
+        } else {
+            additionsMap = AdminNavigation.childrenAdditions[site];
         }
 
-        AdminNavigation.childrenAdditions[parentId].push(node);
+        if (!additionsMap[parentId]) {
+            additionsMap[parentId] = [];
+        }
+
+        additionsMap[parentId].push(node);
         return true;
     };
 
@@ -498,8 +505,9 @@ module.exports = function AdminNavigationModule(pb) {
 
         AdminNavigation.additions[site] = removeNode(id, AdminNavigation.additions[site]);
 
-        for (var parentId in AdminNavigation.childrenAdditions) {
-            AdminNavigation.childrenAdditions[site][parentId] = removeNode(id, AdminNavigation.childrenAdditions[site][parentId]);
+        var childAdditionsMap = AdminNavigation.childrenAdditions[site];
+        for (var parentId in  childAdditionsMap) {
+            childAdditionsMap[parentId] = removeNode(id, childAdditionsMap[parentId]);
         }
 
         return true;
