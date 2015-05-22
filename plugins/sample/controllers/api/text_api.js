@@ -20,7 +20,6 @@ module.exports = function TextApiControllerModule(pb) {
     //PB dependencies
     var util           = pb.util;
     var PluginService  = pb.PluginService;
-    var TextService    = PluginService.getService('textService', 'sample');
 
     /**
      * TextApiController - A sample controller to demonstrate how to build an API
@@ -41,6 +40,7 @@ module.exports = function TextApiControllerModule(pb) {
     TextApiController.prototype.getRandomText = function(cb) {
         var self = this;
 
+        var TextService = PluginService.getService('textService', 'sample', self.site);
         var service = new TextService();
         var text = service.getText();
         var dataStr = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', text);
@@ -137,28 +137,24 @@ module.exports = function TextApiControllerModule(pb) {
             {
                 method: 'get',
                 path: "/api/sample/random/text",
-                handler: "getText",
                 content_type: 'application/json',
                 handler: "getRandomText"
             },
             {
                 method: 'get',
                 path: "/api/sample/text/length/:text",
-                handler: "getText",
                 content_type: 'application/json',
                 handler: "getTextLengthByPathParam"
             },
             {
                 method: 'get',
                 path: "/api/sample/text/length",
-                handler: "getText",
                 content_type: 'application/json',
                 handler: "getTextLengthByQueryParam"
             },
             {
                 method: 'post',
                 path: "/api/sample/text/length",
-                handler: "getText",
                 content_type: 'application/json',
                 handler: "getTextLengthByPostParam",
                 request_body: ['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data']

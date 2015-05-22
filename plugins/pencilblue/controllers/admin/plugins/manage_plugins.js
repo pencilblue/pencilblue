@@ -34,7 +34,7 @@ module.exports = function(pb) {
     ManagePlugins.prototype.render = function (cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService();
+        var pluginService = new pb.PluginService(self.pathSiteUId);
         pluginService.getPluginMap(function (err, map) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);

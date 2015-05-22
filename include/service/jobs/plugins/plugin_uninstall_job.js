@@ -116,13 +116,18 @@ module.exports = function PluginUninstallJobModule(pb) {
                 }
 
                 var mm = pb.PluginService.getActiveMainModule(pluginUid, site);
-                if (util.isFunction(mm.onUninstall)) {
+                if (util.isFunction(mm.onUninstall) || util.isFunction(mm.onUninstallWithContext)) {
                     self.log('Calling plugin onUnstall', pluginUid);
 
                     var d = domain.create();
                     d.on('error', callback);
                     d.run(function() {
-                        mm.onUninstall(callback);
+                        if (util.isFunction(mm.onUninstall)) {
+                            mm.onUninstall(callback);
+                        } else {
+                            var context = {site: site};
+                            mm.onUninstallWithContext(context, callback);
+                        }
                     });
                 }
                 else {

@@ -726,7 +726,12 @@ module.exports = function RequestHandlerModule(pb) {
 
             //check for themed route
             var themesToCheck = [activeTheme, RequestHandler.DEFAULT_THEME];
-            util.arrayPushAll(Object.keys(route.themes), themesToCheck);
+            if (this.site in route.themes) {
+                util.arrayPushAll(Object.keys(route.themes[this.site]), themesToCheck);
+            }
+            if (!pb.SiteService.isGlobal(this.site) && (pb.SiteService.GLOBAL_SITE in route.themes)) {
+                util.arrayPushAll(Object.keys(route.themes[pb.SiteService.GLOBAL_SITE]), themesToCheck);
+            }
             for (var j = 0; j < themesToCheck.length; j++) {
 
                 //see if theme supports method and provides support
