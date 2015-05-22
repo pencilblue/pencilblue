@@ -175,14 +175,14 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'manage',
                         title: 'MANAGE',
                         icon: 'users',
-                        href: '/admin/users',
+                        href: adminPath + '/users',
                         access: SecurityService.ACCESS_EDITOR
                     },
                     {
                         id: 'permissions',
                         title: 'PERMISSIONS',
                         icon: 'lock',
-                        href: '/admin/users/permissions',
+                        href: adminPath + '/users/permissions',
                         access: SecurityService.ACCESS_ADMINISTRATOR
                     },
                 ]
