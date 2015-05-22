@@ -27,7 +27,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
      * @extends BaseController
      */
     function AdminChangePasswordController(){}
-    util.inherits(AdminChangePasswordController, pb.BaseController);
+    util.inherits(AdminChangePasswordController, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'change_password';
@@ -44,7 +44,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
             return;
         }
 
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService(self.pathSiteUId, true);
         dao.loadById(vars.id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.redirect('/admin/users', cb);
@@ -64,7 +64,8 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, user),
                 tabs: tabs,
                 adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
-                user: user
+                user: user,
+                sitePrefix: self.sitePrefix
             });
 
             delete user.password;
@@ -77,12 +78,13 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
     };
 
     AdminChangePasswordController.getSubNavItems = function(key, ls, data) {
+        var sitePrefix = pb.SiteService.getCurrentSitePrefix(pb.SiteService.getCurrentSite(data.site));
         return [
             {
                 name: SUB_NAV_KEY,
                 title: ls.get('CHANGE_PASSWORD'),
                 icon: 'chevron-left',
-                href: pb.UrlService.urlJoin('/admin/users/', + encodeURIComponent(data[pb.DAO.getIdField()]))
+                href: pb.UrlService.urlJoin('/admin' + sitePrefix + '/users/', encodeURIComponent(data[pb.DAO.getIdField()]))
             }
        ];
     };
