@@ -1021,8 +1021,7 @@ module.exports = function PluginServiceModule(pb) {
                  pb.log.debug('PluginService:[INIT] Attempting to call onStartup function for %s.', details.uid);
 
                 var mainModule = ACTIVE_PLUGINS[site][details.uid].main_module;
-                if (util.isFunction(mainModule.onStartup)) {
-
+                 if (util.isFunction(mainModule.onStartupWithContext) || util.isFunction(mainModule.onStartup)) {
                     var timeoutProtect = setTimeout(function() {
 
                         // Clear the local timer variable, indicating the timeout has been triggered.
@@ -1042,8 +1041,17 @@ module.exports = function PluginServiceModule(pb) {
                             pb.log.error('PluginService:[INIT] Plugin %s failed to start. %s', details.uid, err.stack);
                         }
                     });
-                    d.run(function() {
-                        mainModule.onStartup(function(err, didStart) {
+                     d.run(function () {
+                         if (util.isFunction(mainModule.prototype.onStartup)) {
+                             mainModule = new mainModule(site);
+                        }
+                         if (util.isFunction(mainModule.onStartupWithContext)) {
+                             var context = {site: site};
+                             mainModule.onStartupWithContext(context, startupCallback);
+                         } else {
+                             mainModule.onStartup(startupCallback);
+                         }
+                         function startupCallback(err, didStart) {
                             if (util.isError(err)) {
                                 throw err;
                             }
@@ -1054,13 +1062,13 @@ module.exports = function PluginServiceModule(pb) {
                                 clearTimeout(timeoutProtect);
                                 callback(err, didStart);
                             }
-                        });
+                         }
                     });
                 }
-                else {
-                    pb.log.warn("PluginService: Plugin %s did not provide an 'onStartup' function.", details.uid);
-                    callback(null, false);
-                }
+                 else {
+                     pb.log.warn("PluginService: Plugin %s did not provide an 'onStartup' function.", details.uid);
+                     callback(null, false);
+                 }
              },
 
              //load services
