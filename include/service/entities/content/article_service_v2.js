@@ -84,10 +84,8 @@ module.exports = function(pb) {
         }
         
         //add where clause to weed out drafts
-        options.where.draft = {
-            $ne: 1,
-            $ne: true
-        };
+        ArticleServiceV2.setPublishedClause(options.where);
+        
         options.where.publish_date = {
             $lte: new Date()
         };
@@ -135,6 +133,34 @@ module.exports = function(pb) {
             });
         };
         ArticleServiceV2.super_.prototype.get.apply(this, [id, options, afterGet]);
+    };
+    
+    /**
+     * Retrieves articles based on the section
+     * @method getBySection
+     * @param {String|Object} sectionId
+     * @param {Object} [options]
+     * @param {Function} cb
+     */
+    ArticleServiceV2.prototype.getBySection = function(sectionId, options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+        
+        //ensure a where clause exists
+        if (!util.isObject(options.where)) {
+            options.where = {};
+        }
+        
+        //add where clause to search based on section
+        var section = sectionId;
+        if (util.isObject(section)) {
+            section = section[pb.DAO.getIdField()] + '';
+        }
+        options.where.article_sections = section;
+        
+        this.getAll(options, cb);
     };
     
     /**
@@ -554,6 +580,19 @@ module.exports = function(pb) {
         }
         
         cb(null);
+    };
+    
+    /**
+     *
+     * @static
+     * @method setPublishedClause
+     * @param {Object} where
+     */
+    ArticleServiceV2.setPublishedClause = function(where) {
+        where.draft = {
+            $ne: 1,
+            $ne: true
+        };
     };
     
     //Event Registries

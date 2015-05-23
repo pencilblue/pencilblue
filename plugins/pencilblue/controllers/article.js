@@ -19,14 +19,37 @@ module.exports = function ArticleModule(pb) {
     
     //pb dependencies
     var util  = pb.util;
-    var Index = require('./index.js')(pb);
     
     /**
      * Loads a single article
      */
     function Article(){}
-    util.inherits(Article, Index);
+    util.inherits(Article, pb.BaseController);
 
+    Article.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            //create the service
+            self.service         = new pb.ArticleServiceV2();
+
+            //create the loader context
+            var context = {
+                service: self.service,
+                session: self.session,
+                req: self.req,
+                ts: self.ts,
+                ls: self.ls
+            };
+            self.contentViewLoader = new pb.ContentViewLoader(context);
+            
+            cb(null, true);
+        };
+        Article.super_.prototype.init.apply(this, [context, init]);
+    };
 
     Article.prototype.render = function(cb) {
         var self    = this;
@@ -37,43 +60,24 @@ module.exports = function ArticleModule(pb) {
             render: true,
             where: this.getWhereClause(custUrl)
         };
-        var service = new pb.ArticleServiceV2();
-        service.getSingle(opts, function(err, article) {
+        this.service.getSingle(opts, function(err, article) {
             if (util.isError(err)) {
                 return cb(err);
             }
             else if (article == null) {
                 return self.reqHandler.serve404();   
             }
-
-            //retrieve content settings
-            var contentService = new pb.ContentService();
-            contentService.getSettings(function(err, contentSettings) {
+                
+            var options = {};
+            self.contentViewLoader.render([article], options, function(err, html) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
-                
-                var context = {
-                    contentSettings: contentSettings,
-                    service: service,
-                    session: self.session,
-                    req: self.req,
-                    ts: self.ts,
-                    ls: self.ls
+
+                var result = {
+                    content: html
                 };
-                var contentViewLoader = new pb.ContentViewLoader(context);
-                
-                var options = {};
-                contentViewLoader.render([article], options, function(err, html) {
-                    if (util.isError(err)) {
-                        return cb(err);
-                    }
-                    
-                    var result = {
-                        content: html
-                    };
-                    cb(result);
-                });
+                cb(result);
             });
         });
     };

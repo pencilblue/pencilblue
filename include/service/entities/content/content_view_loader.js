@@ -27,7 +27,7 @@ module.exports = function(pb) {
     var Localization = pb.Localization;
     var ClientJs     = pb.ClientJs;
     
-    function ContentViewRenderer(context) {
+    function ContentViewLoader(context) {
         
         this.ts = context.ts;
         this.ls = context.ls;
@@ -46,80 +46,160 @@ module.exports = function(pb) {
      */
     var DISPLAY_NONE_STYLE_ATTR = 'display:none;';
     
-    ContentViewRenderer.prototype.renderSingle = function(content, options, cb) {
+    ContentViewLoader.prototype.renderSingle = function(content, options, cb) {
         this.render([content], options, cb);
     };
     
-    ContentViewRenderer.prototype.render = function(contentArray, options, cb) {
+    ContentViewLoader.prototype.render = function(contentArray, options, cb) {
         var self = this;
         
-        
-        self.setMetaInfo(data.meta, options);
-        self.ts.registerLocal('current_url', self.req.url);
-        self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
-        self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));
-        self.ts.registerLocal('infinite_scroll', function(flag, cb) {
-            self.onInfiniteScroll(contentArray, options, cb);
-        });
-        self.ts.registerLocal('page_name', function(flag, cb) {
-            self.onPageName(contentArray, options, cb);
-        });
-        self.ts.registerLocal('angular', function(flag, cb) {
-            self.onAngular(contentArray, options, cb);
-        });
-        self.ts.registerLocal('articles', function(flag, cb) {
-            sef.onContent(contentArray, options, cb);
-        });
-    };
-    
-    ContentViewRenderer.prototype.onContent = function(contentArray, options, cb) {
-        
-        var createHandler = function(content, options) {
-            return function(callback) {
-                
-                //TODO render article here
-                cb(null, new pb.TemplateValue('', false));
-            };
-        };
-        var content = '';
-        var limit = Math.min(this.contentSettings.articles_per_page, contentArray.length);
-        for (var i = 0; i < limit; i++) {
+        this.gatherData(contentArray, options, function(err, data) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
             
-            var key  = 'content_' + i;
-            var flag = '^' + key '^';
-            content += key;
-            this.ts.registerLocal(key, createHandler(contentArray[i], options));
-        };
-        
-        cb(null, content);
+            self.setMetaInfo(data.meta, options);
+            self.ts.registerLocal('current_url', self.req.url);
+            self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
+            self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));
+            self.ts.registerLocal('infinite_scroll', function(flag, cb) {
+                self.onInfiniteScroll(contentArray, options, cb);
+            });
+            self.ts.registerLocal('page_name', function(flag, cb) {
+                self.onPageName(contentArray, options, cb);
+            });
+            self.ts.registerLocal('angular', function(flag, cb) {
+                self.onAngular(contentArray, options, cb);
+            });
+            self.ts.registerLocal('articles', function(flag, cb) {
+                self.onContent(contentArray, options, cb);
+            });
+            
+            self.getTemplate(contentArray, options, function(err, template) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+
+                self.ts.load(template, cb);
+            });
+        });
     };
     
-    ContentViewRenderer.prototype.gatherData = function(contentArray, options, cb) {
+    ContentViewLoader.prototype.getTemplate = function(content, options, cb) {
+
+        //check if we should just use whatever default there is.
+        //this could fall back to an active theme or the default pencilblue theme.
+        if (util.isObject(options.topic) || util.isObject(options.section)) {
+            return cb(null, this.getDefaultTemplatePath());
+        }
+
+        //now we are dealing with a single page or article. the template will be
+        //judged based off the article's preference.
+        if (util.isArray(content) && content.length > 0) {
+            content = content[0];
+        }
+        var uidAndTemplate = content.template;
+
+        //when no template is specified or is empty we no that the article has no
+        //preference and we can fall back on the default (index).  We depend on the
+        //template service to determine who has priority based on the active theme
+        //then defaulting back to pencilblue.
+        if (!pb.validation.validateNonEmptyStr(uidAndTemplate, true)) {
+            var defautTemplatePath = this.getDefaultTemplatePath();
+            pb.log.silly("ContentController: No template specified, defaulting to %s.", defautTemplatePath);
+            return cb(null, defautTemplatePath);
+        }
+
+        //we now know that the template was specified.  We have to split the value
+        //to extract the intended theme and the template path
+        var pieces = uidAndTemplate.split('|');
+
+        //for backward compatibility we let the template service determine where to
+        //find the template when no template is specified.  This mostly catches the
+        //default case of "index"
+        if (pieces.length === 1) {
+
+            pb.log.silly("ContentController: No theme specified, Template Service will delegate [%s]", pieces[0]);
+            return cb(null, pieces[0]);
+        }
+        else if (pieces.length <= 0) {
+
+            //shit's broke. This should never be the case but better safe than sorry
+            return cb(new Error("The content's template property provided an invalid value of ["+content.template+']'), null);
+        }
+
+        //the theme is specified, we ensure that the theme is installed and
+        //initialized otherwise we let the template service figure out how to
+        //delegate.
+        if (!pb.PluginService.isActivePlugin(pieces[0])) {
+            pb.log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
+            return cb(null, pieces[1]);
+        }
+
+        //the theme is OK. We don't gaurantee that the template is on the disk but we can testify that it SHOULD.  We set the
+        //prioritized theme for the template service.
+        pb.log.silly("ContentController: Prioritizing Theme [%s] for template [%s]", pieces[0], pieces[1]);
+        this.ts.setTheme(pieces[0]);
+        cb(null, pieces[1]);
+    };
+
+    ContentViewLoader.prototype.getDefaultTemplatePath = function() {
+        return 'index';
+    };
+    
+    ContentViewLoader.prototype.onContent = function(contentArray, options, cb) {
+        var self  = this;
+        var limit = Math.min(this.contentSettings.articles_per_page, contentArray.length);
+
+        var tasks = util.getTasks(contentArray, function(contentArray, i) {
+            return function(callback) {
+                if (i >= limit) {
+                    return callback(null, '');
+                }
+                self.renderContent(contentArray[i], options, callback);
+            };
+        });
+        async.series(tasks, function(err, content) {
+            cb(err, new pb.TemplateValue(content.join(''), false));
+        });
+    };
+    
+    ContentViewLoader.prototype.gatherData = function(contentArray, options, cb) {
         var self  = this;
         var tasks = {
 
             //navigation
             nav: function(callback) {
-                self.getNavigation(function(themeSettings, navigation, accountButtons) {
-                    callback(
-                        null, 
-                        {
-                            themeSettings: themeSettings, 
-                            navigation: navigation, 
-                            accountButtons: accountButtons
-                        }
-                    );
-                });
+                
+                var options = {
+                    currUrl: self.req.url,
+                    session: self.session,
+                    ls: self.ls
+                };
+                var topMenuService = new pb.TopMenuService();
+                topMenuService.getNavItems(options, callback);
             },
 
             meta: function(callback) {
                 self.getMetaInfo(contentArray, options, callback);
+            },
+            
+            contentSettings: function(callback) {
+                if (util.isObject(self.contentSettings)) {
+                    return callback(null, self.contentSettings);
+                }
+                
+                var contentService = new pb.ContentService();
+                contentService.getSettings(function(err, contentSettings) {
+                    self.contentSettings = contentSettings;
+                    callback(err, contentSettings);
+                });
             }
         };
         async.parallel(tasks, cb);
     };
     
-    ContentViewRenderer.prototype.onAngular = function(contentArray, options, cb) {
+    ContentViewLoader.prototype.onAngular = function(contentArray, options, cb) {
         var objects = {
             trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
         };
@@ -127,7 +207,7 @@ module.exports = function(pb) {
         cb(null, angularData);
     };
     
-    ContentViewRenderer.prototype.onPageName = function(contentArray, options, cb) {
+    ContentViewLoader.prototype.onPageName = function(contentArray, options, cb) {
         var content = contentArray[0];
         if (!util.isObject(content)) {
             return cb(null, options.metaTitle || pb.config.siteName);
@@ -150,8 +230,8 @@ module.exports = function(pb) {
         cb(null, name ? name + ' | ' + pb.config.siteName : pb.config.siteName);
     };
     
-    ContentViewRenderer.prototype.onInfiniteScroll = function(contentArray, options, cb) {
-        if(contentArray.length > 1) {
+    ContentViewLoader.prototype.onInfiniteScroll = function(contentArray, options, cb) {
+        if(contentArray.length <= 1) {
             return cb(null, '');
         }
 
@@ -167,7 +247,7 @@ module.exports = function(pb) {
         cb(null, val);
     };
     
-    ContentViewRenderer.prototype.setMetaInfo = function(meta, options) {
+    ContentViewLoader.prototype.setMetaInfo = function(meta, options) {
         this.ts.registerLocal('meta_keywords', meta.keywords);
         this.ts.registerLocal('meta_desc', options.metaDescription || meta.description);
         this.ts.registerLocal('meta_title', options.metaTitle || meta.title);
@@ -175,13 +255,16 @@ module.exports = function(pb) {
         this.ts.registerLocal('meta_lang', Localization.getDefaultLocale());
     };
     
-    ContentViewRenderer.prototype.getMetaInfo = function(contentArray, options, cb) {
+    ContentViewLoader.prototype.getMetaInfo = function(contentArray, options, cb) {
+        if (contentArray.length === 0) {
+            return cb(null, {});
+        }
         
-        var articleService = context.service;
+        var articleService = this.service;
         articleService.getMetaInfo(contentArray[0], cb);
     };
     
-    ContentViewRenderer.prototype.renderContent = function(content, options, cb) {
+    ContentViewLoader.prototype.renderContent = function(content, options, cb) {
         var self = this;
         
         //set recurring params
@@ -202,22 +285,22 @@ module.exports = function(pb) {
             self.onContentHeadline(content, options, cb);
         });
         ats.registerLocal('article_headline_nolink', content.headline);
-        ats.registerLocal('article_subheading', ContentViewRenderer.valOrEmpty(content.subheading));
-        ats.registerLocal('article_subheading_display', ContentViewRenderer.getDisplayAttr(content.subheading));
+        ats.registerLocal('article_subheading', ContentViewLoader.valOrEmpty(content.subheading));
+        ats.registerLocal('article_subheading_display', ContentViewLoader.getDisplayAttr(content.subheading));
         ats.registerLocal('article_id', content[pb.DAO.getIdField()] + '');
         ats.registerLocal('article_index', options.contentIndex++);
         ats.registerLocal('article_timestamp', showTimestamp && content.timestamp ? content.timestamp : '');
-        ats.registerLocal('article_timestamp_display', ContentViewRenderer.getDisplayAttr(showTimestamp));
+        ats.registerLocal('article_timestamp_display', ContentViewLoader.getDisplayAttr(showTimestamp));
         ats.registerLocal('article_layout', new pb.TemplateValue(content.layout, false));
         ats.registerLocal('article_url', content.url);
-        ats.registerLocal('display_byline', ContentViewRenderer.getDisplayAttr(showByLine));
-        ats.registerLocal('author_photo', ContentViewRenderer.valOrEmpty(content.author_photo));
-        ats.registerLocal('author_photo_display', ContentViewRenderer.getDisplayAttr(content.author_photo));
-        ats.registerLocal('author_name', ContentViewRenderer.valOrEmpty(content.author_name));
-        ats.registerLocal('author_position', ContentViewRenderer.valOrEmpty(content.author_position));
-        ats.registerLocal('media_body_style', ContentViewRenderer.valOrEmpty(content.media_body_style));
+        ats.registerLocal('display_byline', ContentViewLoader.getDisplayAttr(showByLine));
+        ats.registerLocal('author_photo', ContentViewLoader.valOrEmpty(content.author_photo));
+        ats.registerLocal('author_photo_display', ContentViewLoader.getDisplayAttr(content.author_photo));
+        ats.registerLocal('author_name', ContentViewLoader.valOrEmpty(content.author_name));
+        ats.registerLocal('author_position', ContentViewLoader.valOrEmpty(content.author_position));
+        ats.registerLocal('media_body_style', ContentViewLoader.valOrEmpty(content.media_body_style));
         ats.registerLocal('comments', function(flag, cb) {
-            if (isPage || !pb.ArticleService.allowComments(contentSettings, content)) {
+            if (isPage || !pb.ArticleService.allowComments(self.contentSettings, content)) {
                 return cb(null, '');
             }
 
@@ -228,7 +311,7 @@ module.exports = function(pb) {
         ats.load('elements/article', cb);
     };
     
-    ContentViewRenderer.prototype.renderComments = function(content, cb) {
+    ContentViewLoader.prototype.renderComments = function(content, cb) {
         var self           = this;
         var ts             = new pb.TemplateService();
         var commentingUser = null;
@@ -263,7 +346,7 @@ module.exports = function(pb) {
         ts.load('elements/comments', cb);
     };
     
-    ContentViewRenderer.prototype.renderComment = function(comment, cb) {
+    ContentViewLoader.prototype.renderComment = function(comment, cb) {
 
         var cts = new pb.TemplateService(this.ls);
         cts.reprocess = false;
@@ -276,7 +359,7 @@ module.exports = function(pb) {
         cts.load('elements/comments/comment', cb);
     };
     
-    ContentViewRenderer.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
+    ContentViewLoader.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
         var val = '';
         if (commentingUser) {
             val = commentingUser.photo || '';
@@ -284,7 +367,7 @@ module.exports = function(pb) {
         cb(null, val);
     };
     
-    ContentViewRenderer.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
+    ContentViewLoader.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
         var val = '';
         if (commentingUser && util.isArray(commentingUser.position) && commentingUser.position.length > 0) {
             val = ', ' + commentingUser.position;
@@ -292,25 +375,28 @@ module.exports = function(pb) {
         cb(null, val);
     };
     
-    ContentViewRenderer.prototype.onContentPermalink = function(content, options, cb) {
+    ContentViewLoader.prototype.onContentPermalink = function(content, options, cb) {
         cb(null, this.createContentPermalink(content));
     };
     
-    ContentViewRenderer.prototype.onContentHeadline = function(content, options, cb) {
+    ContentViewLoader.prototype.onContentHeadline = function(content, options, cb) {
         var url = this.createContentPermalink(content);
-        var val = new pb.TemplateValue('<a href="' + url + '">' + HtmlEncoder.htmlEncode(content.headline) + '</a>', false)
+        var val = new pb.TemplateValue('<a href="' + url + '">' + HtmlEncoder.htmlEncode(content.headline) + '</a>', false);
+        cb(null, val);
     };
     
-    ContentViewRenderer.prototype.createContentPermalink = function(content) {
+    ContentViewLoader.prototype.createContentPermalink = function(content) {
         var prefix = '/' + this.service.getType();
         return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url));
     };
     
-    ContentViewRenderer.getDisplayAttr = function(val) {
+    ContentViewLoader.getDisplayAttr = function(val) {
         return val ? '' : DISPLAY_NONE_STYLE_ATTR;
     };
     
-    ContentViewRenderer.valOrEmpty = function(val) {
+    ContentViewLoader.valOrEmpty = function(val) {
         return val ? val : '';
     };
+    
+    return ContentViewLoader;
 };
