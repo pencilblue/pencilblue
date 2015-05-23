@@ -33,6 +33,7 @@ module.exports = function(pb) {
         this.ls = context.ls;
         this.req = context.req;
         this.contentSettings = context.contentSettings; 
+        this.session = context.session;
         this.service = context.service;
     };
     
@@ -155,11 +156,11 @@ module.exports = function(pb) {
         }
 
         var infiniteScrollScript = pb.ClientJs.includeJS('/js/infinite_article_scroll.js');
-        if(options.isSection) {
-            infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollSection = "' + section + '";');
+        if(util.isObject(options.section)) {
+            infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollSection = "' + options.section[pb.DAO.getIdField()] + '";');
         }
-        else if(options.isTopic) {
-            infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollTopic = "' + topic + '";');
+        else if(util.isObject(options.topic)) {
+            infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollTopic = "' + options.topic.topic[pb.DAO.getIdField()] + '";');
         }
 
         var val = new pb.TemplateValue(infiniteScrollScript, false);
@@ -217,11 +218,6 @@ module.exports = function(pb) {
         ats.registerLocal('media_body_style', ContentViewRenderer.valOrEmpty(content.media_body_style));
         ats.registerLocal('comments', function(flag, cb) {
             if (isPage || !pb.ArticleService.allowComments(contentSettings, content)) {
-                
-                //***
-                // TODO render comments
-                //***
-                
                 return cb(null, '');
             }
 
@@ -230,6 +226,70 @@ module.exports = function(pb) {
             });
         });
         ats.load('elements/article', cb);
+    };
+    
+    ContentViewRenderer.prototype.renderComments = function(content, cb) {
+        var self           = this;
+        var ts             = new pb.TemplateService();
+        var commentingUser = null;
+        if(pb.security.isAuthenticated(this.session)) {
+            commentingUser = Comments.getCommentingUser(this.session.authentication.user);
+        }
+
+        ts.registerLocal('user_photo', function(flag, cb) {
+            self.onCommentingUserPhoto(content, commentingUser, cb);
+        });
+        ts.registerLocal('user_position', function(flag, cb) {
+            self.onCommentingUserPosition(content, commentingUser, cb);
+        });
+        ts.registerLocal('user_name', commentingUser ? commentingUser.name : '');
+        ts.registerLocal('display_submit', commentingUser ? 'block' : 'none');
+        ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
+        ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
+        ts.registerLocal('individual_comments', function(flag, cb) {
+            if (!util.isArray(content.comments) || content.comments.length == 0) {
+                return cb(null, '');
+            }
+
+            var tasks = util.getTasks(content.comments, function(comments, i) {
+                return function(callback) {
+                    self.renderComment(comments[i], callback);
+                };
+            });
+            async.parallel(tasks, function(err, results) {
+                cb(err, new pb.TemplateValue(results.join(''), false));
+            });
+        });
+        ts.load('elements/comments', cb);
+    };
+    
+    ContentViewRenderer.prototype.renderComment = function(comment, cb) {
+
+        var cts = new pb.TemplateService(this.ls);
+        cts.reprocess = false;
+        cts.registerLocal('commenter_photo', comment.commenter_photo ? comment.commenter_photo : '');
+        cts.registerLocal('display_photo', comment.commenter_photo ? 'block' : 'none');
+        cts.registerLocal('commenter_name', comment.commenter_name);
+        cts.registerLocal('commenter_position', comment.commenter_position ? ', ' + comment.commenter_position : '');
+        cts.registerLocal('content', comment.content);
+        cts.registerLocal('timestamp', comment.timestamp);
+        cts.load('elements/comments/comment', cb);
+    };
+    
+    ContentViewRenderer.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
+        var val = '';
+        if (commentingUser) {
+            val = commentingUser.photo || '';
+        }
+        cb(null, val);
+    };
+    
+    ContentViewRenderer.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
+        var val = '';
+        if (commentingUser && util.isArray(commentingUser.position) && commentingUser.position.length > 0) {
+            val = ', ' + commentingUser.position;
+        }
+        cb(null, val);
     };
     
     ContentViewRenderer.prototype.onContentPermalink = function(content, options, cb) {

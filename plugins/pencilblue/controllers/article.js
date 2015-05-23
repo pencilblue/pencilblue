@@ -31,54 +31,66 @@ module.exports = function ArticleModule(pb) {
     Article.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
-
-        //check for object ID as the custom URL
-        var where  = null;
-        if(pb.validation.isIdStr(custUrl)) {
-            where = {_id: pb.DAO.getObjectID(custUrl)};
-            if (pb.log.isSilly()) {
-                pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
-            }
-        }
-        else {
-            where = {url: custUrl};
-        }
-
-        // fall through to URL key
-        if (where === null) {
-            where = {url: custUrl};
-        }
         
         //attempt to load object
-        var dao = new pb.DAO();
-        dao.loadByValues(where, 'article', function(err, article) {
-            if (util.isError(err) || article == null) {
-                if (where.url) {
-                    self.reqHandler.serve404();
-                    return;
-                }
-
-                dao.loadByValues({url: custUrl}, 'article', function(err, article) {
-                    if (util.isError(err) || article == null) {
-                        self.reqHandler.serve404();
-                        return;
-                    }
-
-                    self.renderArticle(article, cb);
-                });
-
-                return;
+        var opts = {
+            render: true,
+            where: this.getWhereClause(custUrl)
+        };
+        var service = new pb.ArticleServiceV2();
+        service.getSingle(opts, function(err, article) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            else if (article == null) {
+                return self.reqHandler.serve404();   
             }
 
-            self.renderArticle(article, cb);
+            //retrieve content settings
+            var contentService = new pb.ContentService();
+            contentService.getSettings(function(err, contentSettings) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+                
+                var context = {
+                    contentSettings: contentSettings,
+                    service: service,
+                    session: self.session,
+                    req: self.req,
+                    ts: self.ts,
+                    ls: self.ls
+                };
+                var contentViewLoader = new pb.ContentViewLoader(context);
+                
+                var options = {};
+                contentViewLoader.render([article], options, function(err, html) {
+                    if (util.isError(err)) {
+                        return cb(err);
+                    }
+                    
+                    var result = {
+                        content: html
+                    };
+                    cb(result);
+                });
+            });
         });
     };
     
-    Article.prototype.renderArticle = function(article, cb) {
-        this.req.pencilblue_article = article._id.toString();
-        this.article = article;
-        this.setPageName(article.name);
-        Article.super_.prototype.render.apply(this, [cb]);
+    Article.prototype.getWhereClause = function(custUrl) {
+        
+        //check for object ID as the custom URL
+        var where  = null;
+        if(pb.validation.isIdStr(custUrl, true)) {
+            where = pb.DAO.getIdWhere(custUrl);
+        }
+        else {
+            where = {
+                url: custUrl
+            };
+        }
+        return where;
     };
 
     //exports
