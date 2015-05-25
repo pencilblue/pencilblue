@@ -676,7 +676,7 @@ module.exports = function DAOModule(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            db.collectionNames(entity, options, function(err, results) {
+            db.listCollections({name: entity}, options).toArray(function(err, results) {
                 cb(err, util.isArray(results) && results.length === 1);
             });
         });

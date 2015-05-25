@@ -63,6 +63,7 @@ module.exports = function(pb) {
             payload: options.payload || {
             
                 server: pb.ServerRegistration.generateServerKey(),
+                instance: pb.ServerRegistration.generateKey(),
                 date: new Date()
             }
         };
