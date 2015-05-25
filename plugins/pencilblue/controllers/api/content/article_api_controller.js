@@ -28,16 +28,30 @@ module.exports = function(pb) {
      * @constructor
      * @extends BaseApiController
      */
-    function ArticleApiController(){
-    
-        /**
-         * 
-         * @property service
-         * @type {ArticleServiceV2}
-         */
-        this.service = new ArticleServiceV2();
-    }
+    function ArticleApiController(){}
     util.inherits(ArticleApiController, pb.BaseApiController);
+    
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    ArticleApiController.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+            
+            /**
+             * 
+             * @property service
+             * @type {ArticleServiceV2}
+             */
+            self.service = new ArticleServiceV2();
+                
+            cb(err, true);
+        };
+        ArticleApiController.super_.prototype.init.apply(this, [context, init]);
+    };
 
     //exports
     return ArticleApiController;

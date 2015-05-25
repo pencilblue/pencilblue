@@ -28,16 +28,30 @@ module.exports = function(pb) {
      * @constructor
      * @extends BaseApiController
      */
-    function TopicApiController(){
-    
-        /**
-         * 
-         * @property service
-         * @type {TopicService}
-         */
-        this.service = new TopicService();
-    }
+    function TopicApiController(){}
     util.inherits(TopicApiController, pb.BaseApiController);
+    
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    TopicApiController.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+            
+            /**
+             * 
+             * @property service
+             * @type {TopicService}
+             */
+            self.service = new TopicService();
+                
+            cb(err, true);
+        };
+        TopicApiController.super_.prototype.init.apply(this, [context, init]);
+    };
 
     //exports
     return TopicApiController;

@@ -605,7 +605,7 @@ module.exports = function(pb) {
                 events.emit(this.type + '.' + event, data, callback);
             }
         ];
-        async.series(tasks, cb;
+        async.series(tasks, cb);
     };
     
     /**
