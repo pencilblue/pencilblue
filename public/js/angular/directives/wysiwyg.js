@@ -6,13 +6,17 @@
       replace: true,
       templateUrl: '/admin/elements/wysiwyg',
       scope: {
-        layout: '='
+        layout: '=',
+        media: '='
       },
       link: function(scope, element, attrs) {
         scope.wysiwyg = {
           currentView: 'editable',
           layout: scope.layout ? scope.layout.toString() : '',
-          markdown: toMarkdown(scope.layout ? scope.layout.toString() : '')
+          markdown: toMarkdown(scope.layout ? scope.layout.toString() : ''),
+          selectedMediaItem: null,
+          mediaPosition: 'none',
+          mediaMaxHeightUnit: 'px'
         };
 
         scope.availableElements = [{
@@ -101,6 +105,34 @@
         scope.insertReadMore = function() {
           scope.restoreSelection();
           scope.formatAction('inserthtml', '<hr class="read_more_break"></hr>');
+        }
+
+        scope.showInsertMediaModal = function() {
+          scope.saveSelection();
+          angular.element(element).find('[insert-media-modal]').modal('show');
+        };
+
+        scope.associateMedia = function() {
+          angular.element(element).find('[insert-media-modal]').modal('hide');
+          angular.element('.nav-tabs a[href="#media"]').tab('show');
+        };
+
+        scope.insertMedia = function() {
+          angular.element(element).find('[insert-media-modal]').modal('hide');
+          scope.restoreSelection();
+
+          var mediaFormat = scope.getMediaFormat();
+          scope.formatAction('inserthtml', '<div>^media_display_' + scope.wysiwyg.selectedMediaItem._id + mediaFormat + '^</div>');
+        };
+
+        scope.getMediaFormat = function() {
+          var mediaFormat = '/position:' + scope.wysiwyg.mediaPosition;
+
+          if(scope.wysiwyg.mediaMaxHeight) {
+            mediaFormat = mediaFormat.concat(',maxheight:' + scope.wysiwyg.mediaMaxHeight + scope.wysiwyg.mediaMaxHeightUnit);
+          }
+
+          return mediaFormat;
         }
 
         scope.saveSelection = function() {

@@ -329,7 +329,7 @@ var loc =
         ADD_MEDIA: 'Add media',
         INSERT_MEDIA: 'Insert media',
         SELECT_MEDIA: 'Select media to insert',
-        ASSOCIATE_MEDIA: 'Associate media with the article',
+        ASSOCIATE_MEDIA: 'Associate media with the content',
         BOLD: 'Bold',
         ITALIC: 'Italic',
         UNDERLINE: 'Underline',
