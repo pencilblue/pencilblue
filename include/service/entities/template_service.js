@@ -279,6 +279,10 @@ module.exports = function(pb) {
      * @param {function} cb               Callback function
      */
     TemplateService.prototype.load = function(templateLocation, cb) {
+        if (!util.isFunction(cb)) {
+            throw new Error('cb parameter must be a function');
+        }
+        
         var self = this;
         this.getTemplateContentsByPriority(templateLocation, function(err, templateContents) {
             if (util.isError(err)) {
@@ -304,7 +308,10 @@ module.exports = function(pb) {
         if (!util.isObject(content)) {
             return cb(new Error("TemplateService: A valid content object is required in order for the template engine to process the value. Content="+util.inspect(content)), content);
         }
-
+        else if (!util.isFunction(cb)) {
+            throw new Error('cb parameter must be a function');
+        }
+        
         //iterate parts
         var self  = this;
         var tasks = util.getTasks(content.parts, function(parts, i) {
@@ -538,7 +545,30 @@ module.exports = function(pb) {
             });
         });
     };
+    
+    /**
+     * Creates an instance of Template service based 
+     * @method getChildInstance
+     * @return {TemplateService}
+     */
+    TemplateService.prototype.getChildInstance = function() {
+        
+        var childTs                     = new TemplateService(this.localizationService);
+        childTs.theme                   = this.theme;
+        childTs.localCallbacks          = util.merge(this.localCallbacks, {});
+        childTs.reprocess               = this.reprocess;
+        childTs.unregisteredFlagHandler = this.unregisteredFlagHandler;
+        return childTs;
+    };
 
+    /**
+     * Determines if the content provided is equal to the flag
+     * @static
+     * @method isFlag
+     * @param {String} content
+     * @param {String} flag
+     * @return {String}
+     */
     TemplateService.isFlag = function(content, flag) {
         return util.isString(content) && (content.length === 0 || ('^'+flag+'^') === content);
     };

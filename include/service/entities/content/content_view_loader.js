@@ -251,7 +251,7 @@ module.exports = function(pb) {
         this.ts.registerLocal('meta_keywords', meta.keywords);
         this.ts.registerLocal('meta_desc', options.metaDescription || meta.description);
         this.ts.registerLocal('meta_title', options.metaTitle || meta.title);
-        this.ts.registerLocal('meta_thumbnail', meta.thumbnail);
+        this.ts.registerLocal('meta_thumbnail', meta.thumbnail || '');
         this.ts.registerLocal('meta_lang', Localization.getDefaultLocale());
     };
     
@@ -275,9 +275,9 @@ module.exports = function(pb) {
         var isPage           = this.service.getType() === 'page';
         var showByLine       = this.contentSettings.display_bylines && !isPage;
         var showTimestamp    = this.contentSettings.display_timestamp && !isPage;
-        var ats              = new pb.TemplateService(this.ls);
+        var ats              = self.ts.getChildInstance();
         var contentUrlPrefix = '/' + this.service.getType() + '/';
-
+        self.ts.reprocess = false;
         ats.registerLocal('article_permalink', function(flag, cb) {
             self.onContentPermalink(content, options, cb);
         });
@@ -288,7 +288,7 @@ module.exports = function(pb) {
         ats.registerLocal('article_subheading', ContentViewLoader.valOrEmpty(content.subheading));
         ats.registerLocal('article_subheading_display', ContentViewLoader.getDisplayAttr(content.subheading));
         ats.registerLocal('article_id', content[pb.DAO.getIdField()] + '');
-        ats.registerLocal('article_index', options.contentIndex++);
+        ats.registerLocal('article_index', options.contentIndex);
         ats.registerLocal('article_timestamp', showTimestamp && content.timestamp ? content.timestamp : '');
         ats.registerLocal('article_timestamp_display', ContentViewLoader.getDisplayAttr(showTimestamp));
         ats.registerLocal('article_layout', new pb.TemplateValue(content.layout, false));
@@ -304,19 +304,21 @@ module.exports = function(pb) {
                 return cb(null, '');
             }
 
-            self.renderComments(content, ats, function(err, comments) {
+            var ts = ats.getChildInstance();
+            self.renderComments(content, ts, function(err, comments) {
                 cb(err, new pb.TemplateValue(comments, false));
             });
         });
         ats.load('elements/article', cb);
+        
+        options.contentIndex++;
     };
     
-    ContentViewLoader.prototype.renderComments = function(content, cb) {
+    ContentViewLoader.prototype.renderComments = function(content, ts, cb) {
         var self           = this;
-        var ts             = new pb.TemplateService();
         var commentingUser = null;
         if(pb.security.isAuthenticated(this.session)) {
-            commentingUser = Comments.getCommentingUser(this.session.authentication.user);
+            commentingUser = pb.CommentService.getCommentingUser(this.session.authentication.user);
         }
 
         ts.registerLocal('user_photo', function(flag, cb) {
@@ -336,7 +338,9 @@ module.exports = function(pb) {
 
             var tasks = util.getTasks(content.comments, function(comments, i) {
                 return function(callback) {
-                    self.renderComment(comments[i], callback);
+                    
+                    var cts = ts.getChildInstance();
+                    self.renderComment(comments[i], cts, callback);
                 };
             });
             async.parallel(tasks, function(err, results) {
@@ -346,9 +350,8 @@ module.exports = function(pb) {
         ts.load('elements/comments', cb);
     };
     
-    ContentViewLoader.prototype.renderComment = function(comment, cb) {
-
-        var cts = new pb.TemplateService(this.ls);
+    ContentViewLoader.prototype.renderComment = function(comment, cts, cb) {
+        
         cts.reprocess = false;
         cts.registerLocal('commenter_photo', comment.commenter_photo ? comment.commenter_photo : '');
         cts.registerLocal('display_photo', comment.commenter_photo ? 'block' : 'none');
@@ -359,7 +362,7 @@ module.exports = function(pb) {
         cts.load('elements/comments/comment', cb);
     };
     
-    ContentViewLoader.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
+    ContentViewLoader.prototype.onCommentingUserPhoto = function(content, commentingUser, cb) {
         var val = '';
         if (commentingUser) {
             val = commentingUser.photo || '';
