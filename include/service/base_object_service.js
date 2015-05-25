@@ -75,6 +75,27 @@ module.exports = function(pb) {
     var MAX_RESULTS = 1000;
     
     /**
+     * The event that is triggered before the count query is executed
+     * @private
+     * @static
+     * @readonly
+     * @property BEFORE_COUNT
+     * @type {String}
+     */
+    BaseObjectService.BEFORE_COUNT = "beforeCount";
+    
+    /**
+     * The event that is triggered before the query is executed to retrieve 
+     * results
+     * @private
+     * @static
+     * @readonly
+     * @property BEFORE_GET_ALL
+     * @type {String}
+     */
+    BaseObjectService.BEFORE_GET_ALL = "beforeGetAll";
+    
+    /**
      * The event that is triggered when querying for one or more resources
      * @private
      * @static
@@ -83,6 +104,17 @@ module.exports = function(pb) {
      * @type {String}
      */
     BaseObjectService.GET_ALL = "getAll";
+    
+    /**
+     * The event that is triggered before the query is executed to retrieve 
+     * an item by ID
+     * @private
+     * @static
+     * @readonly
+     * @property BEFORE_GET
+     * @type {String}
+     */
+    BaseObjectService.BEFORE_GET = "beforeGet";
     
     /**
      * The event that is triggered when retrieving a resource by ID
@@ -201,30 +233,37 @@ module.exports = function(pb) {
             options = {};
         }
         
-        //set a reasonable limit
-        //TODO evaluate if this should be at the service level or controller 
-        //level
-        var limit = util.isNullOrUndefined(options.limit) ? MAX_RESULTS : Math.min(options.limit, MAX_RESULTS);
-        
+        //fire off the beforeGetAll event to allow plugins to modify queries
         var self = this;
-        var opts = {
-            select: options.select,
-            where: options.where,
-            order: options.order,
-            limit: limit,
-            offset: options.offset
-        };
-        this.dao.q(this.type, opts, function(err, results) {
+        self._emit(BaseObjectService.BEFORE_GET_ALL, options, function(err) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
-            var context = {
-                service: self,
-                data: results
+        
+            //set a reasonable limit
+            //TODO evaluate if this should be at the service level or controller 
+            //level
+            var limit = util.isNullOrUndefined(options.limit) ? MAX_RESULTS : Math.min(options.limit, MAX_RESULTS);
+
+            var opts = {
+                select: options.select,
+                where: options.where,
+                order: options.order,
+                limit: limit,
+                offset: options.offset
             };
-            events.emit(self.type + '.' + 'getAll', context, function(err) {
-                cb(err, results);
+            self.dao.q(self.type, opts, function(err, results) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+
+                var context = {
+                    service: self,
+                    data: results
+                };
+                self._emit(BaseObjectService.GET_ALL, context, function(err) {
+                    cb(err, results);
+                });
             });
         });
     };
@@ -245,7 +284,18 @@ module.exports = function(pb) {
             options = {};
         }
         
-        this.dao.count(this.type, options.where, cb);
+        var self = this;
+        var context = {
+            service: self,
+            data: options
+        };
+        this._emit(BaseObjectService.BEFORE_COUNT, context, function(err) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            self.dao.count(self.type, options.where, cb);
+        });
     };
     
     /**
@@ -303,19 +353,30 @@ module.exports = function(pb) {
             options = {};
         }
         
+        //set the id in the options so that plugins can inspect the ID
         var self = this;
-        this.dao.loadById(id, this.type, options, function(err, obj) {
+        options.id = id;
+        
+        //fire before event so that plugins can modify the options and perform any validations
+        var context = {
+            service: self,
+            data: options
+        };
+        this._emit(BaseObjectService.BEFORE_GET, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
             }
             
-            var context = {
-                service: self,
-                data: obj
-            };
-            events.emit(self.type + '.' + 'get', context, function(err) {
-                cb(err, obj);
-            }); 
+            self.dao.loadById(id, self.type, options, function(err, obj) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+
+                context.data = obj;
+                self._emit(BaseObjectService.GET, context, function(err) {
+                    cb(err, obj);
+                }); 
+            });
         });
     };
     
@@ -380,7 +441,7 @@ module.exports = function(pb) {
             service: self,
             data: dto
         };
-        events.emit(self.type + '.' + 'format', context, function(err) {
+        self._emit(BaseObjectService.FORMAT, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -399,7 +460,7 @@ module.exports = function(pb) {
                 context.validationErrors = [];
                 
                 //perform all validations
-                events.emit(self.type + '.' + 'validate', context, function(err) {
+                self._emit(BaseObjectService.VALIDATE, context, function(err) {
                     if (util.isError(err)) {
                         return cb(err);
                     }
@@ -411,7 +472,7 @@ module.exports = function(pb) {
                     }
                     
                     //do any pre-save stuff
-                    events.emit(self.type + '.' + 'beforeSave', context, function(err) {
+                    self._emit(BaseObjectService.BEFORE_SAVE, context, function(err) {
                         if (util.isError(err)) {
                             return cb(err);
                         }
@@ -424,7 +485,7 @@ module.exports = function(pb) {
                             }
                             
                             //do any pre-save stuff
-                            events.emit(self.type + '.' + 'afterSave', context, function(err) {
+                            self._emit(BaseObjectService.AFTER_SAVE, context, function(err) {
                                 cb(err, obj);
                             });
                         });
@@ -463,7 +524,7 @@ module.exports = function(pb) {
                 isUpdate: isUpdate,
                 isCreate: isCreate
             }
-            events.emit(self.type + '.' + 'merge', context, function(err) {
+            self._emit(BaseObjectService.MERGE, context, function(err) {
                 cb(err, obj);
             });
         };
@@ -505,7 +566,7 @@ module.exports = function(pb) {
                 service: self,
                 data: obj
             };
-            events.emit(self.type + '.' + 'beforeDelete', context, function(err) {
+            self._emit(BaseObjectService.BEFORE_DELETE, context, function(err) {
                 if (util.isError(err)) {
                     return cb(err, null);
                 }
@@ -515,7 +576,7 @@ module.exports = function(pb) {
                         return cb(err, obj);
                     }
                     
-                    events.emit(self.type + '.' + 'afterDelete', context, function(err) {
+                    self._emit(BaseObjectService.AFTER_DELETE, context, function(err) {
                         cb(err, obj);
                     });
                 });
@@ -532,7 +593,19 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     BaseObjectService.prototype._emit = function(event, data, cb) {
-        events.emit(this.type + '.' + event, data, cb);
+        var tasks = [
+            
+            //global events
+            function(callback) {
+                events.emit(event, data, callback);
+            },
+            
+            //object specific events
+            function(callback) {
+                events.emit(this.type + '.' + event, data, callback);
+            }
+        ];
+        async.series(tasks, cb;
     };
     
     /**
@@ -645,7 +718,7 @@ module.exports = function(pb) {
      * @static
      * @method getDefaultSanitizationRules
      */
-    BaseObjectService .getDefaultSanitizationRules = function() {
+    BaseObjectService.getDefaultSanitizationRules = function() {
         return {
             allowedTags: [],
             allowedAttributes: {}
