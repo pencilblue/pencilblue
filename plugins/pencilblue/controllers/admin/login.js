@@ -35,10 +35,15 @@ module.exports = function LoginViewControllerModule(pb) {
      * @method render
      */
     LoginViewController.prototype.render = function(cb) {
-
+        var self = this;
 
         if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: pb.SecurityService.ACCESS_WRITER})) {
-            this.redirect('/admin', cb);
+            var location = '/admin';
+            var site = pb.SiteService.getSiteFromObject(this.session.authentication.user);
+            if (!pb.SiteService.isNotSetOrEqual(site, self.site)) {
+                location += pb.SiteService.getCurrentSitePrefix(site);
+            }
+            this.redirect(location, cb);
             return;
         }
         else if(pb.security.isAuthenticated(this.session)) {

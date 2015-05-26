@@ -15,6 +15,7 @@ module.exports = function SiteServiceModule(pb) {
     function SiteService(){}
 
     SiteService.GLOBAL_SITE = 'global';
+    SiteService.NO_SITE = 'no-site';    // represents a site that doesn't exist
     SiteService.SITE_FIELD = 'site';
     SiteService.SITE_COLLECTION = 'site';
     var SITE_COLL = SiteService.SITE_COLLECTION;
@@ -364,6 +365,9 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     SiteService.getSiteFromObject = function (object) {
+        if (!object) {
+            return SiteService.NO_SITE;
+        }
         return object[SiteService.SITE_FIELD];
     };
 

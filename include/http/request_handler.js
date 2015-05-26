@@ -1078,6 +1078,12 @@ module.exports = function RequestHandlerModule(pb) {
                     self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.urlJoin(pb.config.siteRoot, '/admin');
                     callback(result, result);
                     return;
+                } else if (!isUserAllowedToAccessSite()) {
+                    result.success = false;
+                    result.content = '403 Forbidden';
+                    result.code    = 403;
+                    callback(result, result);
+                    return;
                 }
                 callback(null, result);
             }
@@ -1085,6 +1091,17 @@ module.exports = function RequestHandlerModule(pb) {
                 callback(null, result);
             }
         };
+
+        function isUserAllowedToAccessSite(user) {
+            if (!user) {
+                user = self.session.authentication.user;
+            }
+            if (!user) {// still
+                return false;
+            }
+            var siteFromUser = pb.SiteService.getSiteFromObject(user);
+            return pb.SiteService.doesScopeEnvelope(siteFromUser, site);
+        }
 
         var checkAdminLevel = function(callback) {
 

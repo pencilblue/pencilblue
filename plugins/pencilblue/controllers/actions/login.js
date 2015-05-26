@@ -59,7 +59,7 @@ module.exports = function LoginActionControllerModule(pb) {
                 location = '/admin';
                 var site = pb.SiteService.getSiteFromObject(user);
                 if (!pb.SiteService.isNotSetOrEqual(site, self.site)) {
-                    location += '/' + site;
+                    location += pb.SiteService.getCurrentSitePrefix(site);
                 }
             }
             self.redirect(location, cb);
