@@ -22,6 +22,7 @@ module.exports = function AdminNavigationModule(pb) {
 
     //PB dependencies
     var SecurityService = pb.SecurityService;
+    var _ = require('lodash');
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
@@ -42,7 +43,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @property additions
      * @type {Array}
      */
-    AdminNavigation.additions = [];
+    AdminNavigation.additions = {};
 
     /**
      *
@@ -285,6 +286,7 @@ module.exports = function AdminNavigationModule(pb) {
         var childrenAdditions = getChildrenAdditions(adminSiteId);
         if (!pb.SiteService.isGlobal(adminSiteId)) {
             util.arrayPushAll(getAdditions(GLOBAL_SITE), additions);
+            additions = _.uniq(additions, 'id');
             util.merge(getChildrenAdditions(GLOBAL_SITE), childrenAdditions);
         }
 
