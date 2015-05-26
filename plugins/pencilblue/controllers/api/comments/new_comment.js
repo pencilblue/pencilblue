@@ -25,7 +25,16 @@ module.exports = function NewCommentModule(pb) {
      * Creates a new comment
      */
     function NewComment(){}
-    util.inherits(NewComment, pb.AdminFormController);
+    util.inherits(NewComment, pb.FormController);
+
+    NewComment.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteUId = pb.SiteService.getCurrentSite(self.site);
+            self.siteQueryService = new pb.SiteQueryService(self.siteUId);
+            cb();
+        });
+    };
 
     NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
