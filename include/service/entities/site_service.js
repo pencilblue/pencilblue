@@ -309,6 +309,15 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
+     * Returns true iff given (user) scope envelopes current scope; conceptually, true <=> userScope ⊇ currentScope
+     * @param userScope
+     * @param currentScope
+     */
+    SiteService.doesScopeEnvelope = function (userScope, currentScope) {
+        return SiteService.isGlobal(userScope) || userScope === currentScope;
+    };
+
+    /**
      * Central place to get the current site
      *
      * @param siteid
