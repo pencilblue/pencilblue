@@ -19,6 +19,7 @@
 var util              = require('../util.js');
 var async             = require('async');
 var AsyncEventEmitter = require('async-eventemitter');
+var Sanitizer         = require('sanitize-html');
 
 module.exports = function(pb) {
     
@@ -37,7 +38,7 @@ module.exports = function(pb) {
      * @param {String} context.type
      */
     function BaseObjectService(context){
-        //TODO figure out what the context needs
+        this.context = context;
         
         //error checking
         if (!util.isObject(context)) {
@@ -71,7 +72,28 @@ module.exports = function(pb) {
      * @property MAX_RESULTS
      * @type {Integer}
      */
-    var MAX_RESULTS = 250;
+    var MAX_RESULTS = 1000;
+    
+    /**
+     * The event that is triggered before the count query is executed
+     * @private
+     * @static
+     * @readonly
+     * @property BEFORE_COUNT
+     * @type {String}
+     */
+    BaseObjectService.BEFORE_COUNT = "beforeCount";
+    
+    /**
+     * The event that is triggered before the query is executed to retrieve 
+     * results
+     * @private
+     * @static
+     * @readonly
+     * @property BEFORE_GET_ALL
+     * @type {String}
+     */
+    BaseObjectService.BEFORE_GET_ALL = "beforeGetAll";
     
     /**
      * The event that is triggered when querying for one or more resources
@@ -82,6 +104,17 @@ module.exports = function(pb) {
      * @type {String}
      */
     BaseObjectService.GET_ALL = "getAll";
+    
+    /**
+     * The event that is triggered before the query is executed to retrieve 
+     * an item by ID
+     * @private
+     * @static
+     * @readonly
+     * @property BEFORE_GET
+     * @type {String}
+     */
+    BaseObjectService.BEFORE_GET = "beforeGet";
     
     /**
      * The event that is triggered when retrieving a resource by ID
@@ -170,6 +203,29 @@ module.exports = function(pb) {
     BaseObjectService.AFTER_DELETE = "afterDelete";
     
     /**
+     * Retrieves the object type supported by the service
+     * @method getType
+     * @return {String} The object type supported
+     */
+    BaseObjectService.prototype.getType = function() {
+        return this.type;
+    };
+    
+    /**
+     * Retrieves a context object to be passed to event listeners
+     * @method getContext
+     * @param {String|Object|Number|Boolean} [data]
+     * @return {Object}
+     */
+    BaseObjectService.prototype.getContext = function(data) {
+        var context = util.merge(this.context, {
+            service: this,
+            data: data
+        });
+        return context;
+    };
+    
+    /**
      * Executes a query for resources against the persistence layer. The 
      * function will callback with an array of results.  The function will 
      * trigger the "getAll" event.  Also note that there is hard limit on the 
@@ -191,30 +247,35 @@ module.exports = function(pb) {
             options = {};
         }
         
-        //set a reasonable limit
-        //TODO evaluate if this should be at the service level or controller 
-        //level
-        var limit = util.isNullOrUndefined(options.limit) ? MAX_RESULTS : Math.min(options.limit, MAX_RESULTS);
-        
-        var self = this;
-        var opts = {
-            select: options.select,
-            where: options.where,
-            order: options.order,
-            limit: limit,
-            offset: options.offset
-        };
-        this.dao.q(this.type, opts, function(err, results) {
+        //fire off the beforeGetAll event to allow plugins to modify queries
+        var self    = this;
+        var context = this.getContext(options);
+        self._emit(BaseObjectService.BEFORE_GET_ALL, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
-            var context = {
-                service: self,
-                data: results
+        
+            //set a reasonable limit
+            //TODO evaluate if this should be at the service level or controller 
+            //level
+            var limit = BaseObjectService.getLimit(options.limit);
+
+            var opts = {
+                select: options.select,
+                where: options.where,
+                order: options.order,
+                limit: limit,
+                offset: options.offset
             };
-            events.emit(self.type + '.' + 'getAll', context, function(err) {
-                cb(err, results);
+            self.dao.q(self.type, opts, function(err, results) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+
+                context.data = results;
+                self._emit(BaseObjectService.GET_ALL, context, function(err) {
+                    cb(err, results);
+                });
             });
         });
     };
@@ -235,7 +296,15 @@ module.exports = function(pb) {
             options = {};
         }
         
-        this.dao.count(this.type, options.where, cb);
+        var self = this;
+        var context = this.getContext(options);
+        this._emit(BaseObjectService.BEFORE_COUNT, context, function(err) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            self.dao.count(self.type, options.where, cb);
+        });
     };
     
     /**
@@ -273,7 +342,7 @@ module.exports = function(pb) {
             
             pageDetails.count = pageDetails.data.length;
             pageDetails.offset = options.offset || 0;
-            pageDetails.limit = Math.min(options.limit, MAX_RESULTS);
+            pageDetails.limit = BaseObjectService.getLimit(options.limit);
             cb(null, pageDetails);
         });
     };
@@ -293,19 +362,27 @@ module.exports = function(pb) {
             options = {};
         }
         
+        //set the id in the options so that plugins can inspect the ID
         var self = this;
-        this.dao.loadById(id, this.type, options, function(err, obj) {
+        options.id = id;
+        
+        //fire before event so that plugins can modify the options and perform any validations
+        var context = this.getContext(options);
+        this._emit(BaseObjectService.BEFORE_GET, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
             }
             
-            var context = {
-                service: self,
-                data: obj
-            };
-            events.emit(self.type + '.' + 'get', context, function(err) {
-                cb(err, obj);
-            }); 
+            self.dao.loadById(id, self.type, options, function(err, obj) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+
+                context.data = obj;
+                self._emit(BaseObjectService.GET, context, function(err) {
+                    cb(err, obj);
+                }); 
+            });
         });
     };
     
@@ -366,11 +443,8 @@ module.exports = function(pb) {
         
         //do any object formatting that should be done before validation
         var self    = this;
-        var context = {
-            service: self,
-            data: dto
-        };
-        events.emit(self.type + '.' + 'format', context, function(err) {
+        var context = this.getContext(dto);
+        self._emit(BaseObjectService.FORMAT, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -389,7 +463,7 @@ module.exports = function(pb) {
                 context.validationErrors = [];
                 
                 //perform all validations
-                events.emit(self.type + '.' + 'validate', context, function(err) {
+                self._emit(BaseObjectService.VALIDATE, context, function(err) {
                     if (util.isError(err)) {
                         return cb(err);
                     }
@@ -401,7 +475,7 @@ module.exports = function(pb) {
                     }
                     
                     //do any pre-save stuff
-                    events.emit(self.type + '.' + 'beforeSave', context, function(err) {
+                    self._emit(BaseObjectService.BEFORE_SAVE, context, function(err) {
                         if (util.isError(err)) {
                             return cb(err);
                         }
@@ -414,7 +488,7 @@ module.exports = function(pb) {
                             }
                             
                             //do any pre-save stuff
-                            events.emit(self.type + '.' + 'afterSave', context, function(err) {
+                            self._emit(BaseObjectService.AFTER_SAVE, context, function(err) {
                                 cb(err, obj);
                             });
                         });
@@ -446,14 +520,12 @@ module.exports = function(pb) {
                 return cb(err, obj);
             }
             
-            var context = {
-                service: self,
-                data: dto,
-                object: obj,
-                isUpdate: isUpdate,
-                isCreate: isCreate
-            }
-            events.emit(self.type + '.' + 'merge', context, function(err) {
+            var context = self.getContext(dto);
+            context.object = obj;
+            context.isUpdate = isUpdate;
+            context.isCreate = isCreate;
+
+            self._emit(BaseObjectService.MERGE, context, function(err) {
                 cb(err, obj);
             });
         };
@@ -491,11 +563,8 @@ module.exports = function(pb) {
                 return cb(err, obj);
             }
             
-            var context = {
-                service: self,
-                data: obj
-            };
-            events.emit(self.type + '.' + 'beforeDelete', context, function(err) {
+            var context = self.getContext(obj);
+            self._emit(BaseObjectService.BEFORE_DELETE, context, function(err) {
                 if (util.isError(err)) {
                     return cb(err, null);
                 }
@@ -505,12 +574,39 @@ module.exports = function(pb) {
                         return cb(err, obj);
                     }
                     
-                    events.emit(self.type + '.' + 'afterDelete', context, function(err) {
+                    self._emit(BaseObjectService.AFTER_DELETE, context, function(err) {
                         cb(err, obj);
                     });
                 });
             });
         });
+    };
+    
+    /**
+     *
+     * @private
+     * @method _emit
+     * @param {String} event
+     * @param {Object} data
+     * @param {Function} cb
+     */
+    BaseObjectService.prototype._emit = function(event, data, cb) {
+        pb.log.silly('BaseObjectService: Emitting events: [%s, %s.%s]', event, this.type, event);
+        
+        var self = this;
+        var tasks = [
+            
+            //global events
+            function(callback) {
+                events.emit(event, data, callback);
+            },
+            
+            //object specific events
+            function(callback) {
+                events.emit(self.type + '.' + event, data, callback);
+            }
+        ];
+        async.series(tasks, cb);
     };
     
     /**
@@ -568,13 +664,81 @@ module.exports = function(pb) {
         return error;
     };
     
-    BaseObjectService.sanitize = function(valStr, config) {
-        return pb.BaseController.sanitize(valStr, config);
+    /**
+     * Strips HTML formatting from a string value
+     * @static
+     * @method sanitize
+     * @param {String} value
+     * @param {Object} [config]
+     */
+    BaseObjectService.sanitize = function(value, config) {
+        if (!value) {
+            return value;
+        }
+        else if (!util.isObject(config)) {
+            config = BaseObjectService.getDefaultSanitizationRules();
+        }
+        return Sanitizer(value, config);
+    };
+    
+    /**
+     * The sanitization rules that apply to Pages and Articles
+     * @static
+     * @method getContentSanitizationRules
+     */
+    BaseObjectService.getContentSanitizationRules = function() {
+        return {
+            allowedTags: [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u', 'span' ],
+            allowedAttributes: {
+                a: [ 'href', 'name', 'target', 'class', 'align'],
+                img: [ 'src', 'class', 'align'],
+                p: ['align', 'class'],
+                h1: ['style', 'class', 'align'],
+                h2: ['style', 'class', 'align'],
+                h3: ['style', 'class', 'align'],
+                h4: ['style', 'class', 'align'],
+                h5: ['style', 'class', 'align'],
+                h6: ['style', 'class', 'align'],
+                div: ['style', 'class', 'align'],
+                span: ['style', 'class', 'align'],
+                table: ['style', 'class', 'align'],
+                tr: ['style', 'class', 'align'],
+                th: ['style', 'class', 'align'],
+                td: ['style', 'class', 'align'],
+            },
+
+            // Lots of these won't come up by default because we don't allow them
+            selfClosing: [ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' ],
+
+            // URL schemes we permit
+            allowedSchemes: [ 'http', 'https', 'ftp', 'mailto' ]
+        };
+    };
+
+    /**
+     * @static
+     * @method getDefaultSanitizationRules
+     */
+    BaseObjectService.getDefaultSanitizationRules = function() {
+        return {
+            allowedTags: [],
+            allowedAttributes: {}
+        };
     };
     
     BaseObjectService.getDate = function(dateStr) {
         var val = Date.parse(dateStr);
         return isNaN(val) ? null : new Date(val);
+    };
+    
+    /**
+     *
+     * @static
+     * @method getLimit
+     * @param {Integer} limit
+     */
+    BaseObjectService.getLimit = function(limit) {
+        return util.isNullOrUndefined(limit) || isNaN(limit) || limit <= 0 ? MAX_RESULTS : Math.min(limit, MAX_RESULTS);
     };
     
     BaseObjectService.on = function(event, listener) {

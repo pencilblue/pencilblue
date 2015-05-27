@@ -19,18 +19,26 @@
 var path           = require('path');
 var HtmlEncoder    = require('htmlencode');
 var async          = require('async');
+var process        = require('process');
 
 module.exports = function FeedModule(pb) {
 
     //pb dependencies
-    var util           = pb.util;
-    var ArticleService = pb.ArticleService;
-    var MediaLoader    = pb.MediaLoader;
+    var util             = pb.util;
+    var ArticleServiceV2 = pb.ArticleServiceV2;
+    var MediaLoader      = pb.MediaLoader;
 
     /**
      * RSS Feed
      */
-    function ArticleFeed(){}
+    function ArticleFeed(){
+        
+        /**
+         *
+         *
+         */
+        this.service = new ArticleServiceV2();
+    }
     util.inherits(ArticleFeed, pb.BaseController);
 
     ArticleFeed.prototype.render = function(cb) {
@@ -41,61 +49,44 @@ module.exports = function FeedModule(pb) {
         this.ts.registerLocal('items', function(flag, cb){
 
             var opts = {
-                select: pb.DAO.PROJECT_ALL,
-                where: {publish_date: {$lte: new Date()}, draft: {$ne: 1}},
+                render: true,
                 order: {publish_date: pb.DAO.DESC},
                 limit: 100
             };
-            var dao   = new pb.DAO();
-            dao.q('article', opts, function(err, articles) {
+            self.service.getPublished(opts, function(err, articles) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
 
-                pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
-                    articles = articlesWithAuthorNames;
+                self.getSectionNames(articles, function(err) {
+                    if (util.isError(err)) {
+                        return cb(err);
+                    }
 
-                    self.getSectionNames(articles, function(err, articlesWithSectionNames) {
-                        articles = articlesWithSectionNames;
+                    var tasks = util.getTasks(articles, function(articles, i) {
+                        return function(callback) {
 
-                        self.getMedia(articles, function(err, articlesWithMedia) {
-                            articles = articlesWithMedia;
-
-                            var contentService = new pb.ContentService();
-                            contentService.getSettings(function(err, contentSettings) {
-
-                                var tasks = util.getTasks(articles, function(articles, i) {
-                                    return function(callback) {
-                                        if(articles[i].article_layout.indexOf('^read_more^') > -1) {
-                                          articles[i].article_layout = articles[i].article_layout.substr(0, articles[i].article_layout.indexOf('^read_more^')) + ' <a href="' + pb.config.siteRoot + '/article/' + articles[i].url + '">' + contentSettings.read_more_text + '...</a>';
-                                        }
-
-                                        var mediaLoader = new MediaLoader();
-                                        mediaLoader.start(articles[i].article_layout, function(err, newLayout) {
-                                            articles[i].article_layout = newLayout;
-
-                                            self.ts.registerLocal('url', '/article/' + articles[i].url);
-                                            self.ts.registerLocal('title', articles[i].headline);
-                                            self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
-                                            self.ts.registerLocal('author', articles[i].author_name);
-                                            self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
-                                            self.ts.registerLocal('content', new pb.TemplateValue(articles[i].article_layout, false));
-                                            self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
-                                                var categories = '';
-                                                for(var j = 0; j < articles[i].section_names.length; j++) {
-                                                    categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
-                                                }
-                                                onFlagProccessed(null, new pb.TemplateValue(categories, false));
-                                            });
-                                            self.ts.load('xml_feeds/rss/item', callback);
-                                        });
-                                    };
+                                self.ts.registerLocal('url', '/article/' + articles[i].url);
+                                self.ts.registerLocal('title', articles[i].headline);
+                                self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
+                                self.ts.registerLocal('author', articles[i].author_name);
+                                self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
+                                self.ts.registerLocal('content', new pb.TemplateValue(articles[i].layout, false));
+                                self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
+                                    var categories = '';
+                                    for(var j = 0; j < articles[i].section_names.length; j++) {
+                                        categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
+                                    }
+                                    onFlagProccessed(null, new pb.TemplateValue(categories, false));
                                 });
-                                async.series(tasks, function(err, results) {
-                                    cb(err, new pb.TemplateValue(results.join(''), false));
-                                });
+
+                            process.nextTick(function() {
+                                self.ts.load('xml_feeds/rss/item', callback);
                             });
-                        });
+                        };
+                    });
+                    async.series(tasks, function(err, results) {
+                        cb(err, new pb.TemplateValue(results.join(''), false));
                     });
                 });
             });
@@ -132,51 +123,53 @@ module.exports = function FeedModule(pb) {
 
     ArticleFeed.prototype.getSectionNames = function(articles, cb) {
 
+        //get the sections
+        var sectionsHash = {};
+        articles.forEach(function(article) {
+            if (util.isArray(article.article_sections) && article.article_sections.length > 0) {
+                article.article_sections.forEach(function(sectionId) {
+                    sectionsHash[sectionId] = true;
+                });
+            }
+        });
+        
+        //build query to lookup sections that apply
         var opts = {
             select: {name: 1},
-            where: pb.DAO.ANYWHERE,
+            where: pb.DAO.getIdInWhere(Object.keys(sectionsHash)),
             order: {parent: 1}
         };
         var dao = new pb.DAO();
         dao.q('section', opts, function(err, sections) {
             if (util.isError(err)) {
-                return cb(err, sections);
+                return cb(err);
             }
 
-            for(var i = 0; i < articles.length; i++) {
-
-                var sectionNames = [];
-                for(var j = 0; j < articles[i].article_sections.length; j++) {
-
-                    for(var o = 0; o < sections.length; o++) {
-
-                        if(pb.DAO.areIdsEqual(sections[o][pb.DAO.getIdField()], articles[i].article_sections[j])) {
-                            sectionNames.push(sections[o].name);
-                            break;
-                        }
-                    }
+            //convert to hash for quick lookup
+            var idField = pb.DAO.getIdField();
+            sectionsHash = util.arrayToHash(sections, function(sections, i) {
+                return sections[i][idField];
+            });
+            
+            //set for each article
+            articles.forEach(function(article) {
+                article.section_names = [];
+                if (!util.isArray(article.article_sections)) {
+                    return;
                 }
-
-                articles[i].section_names = sectionNames;
-            }
-
-            cb(null, articles);
-        });
-    };
-
-    ArticleFeed.prototype.getMedia = function(articles, cb) {
-
-        var tasks = util.getTasks(articles, function(articles, i) {
-            return function (callback) {
-
-                var mediaLoader = new MediaLoader();
-                mediaLoader.start(articles[i].article_layout, function(err, newLayout) {
-                    articles[i].layout = newLayout;
-                    callback(null, articles[i]);
+                    
+                //add all section names
+                article.article_sections.forEach(function(sectionId) {
+                    
+                    var section = sectionsHash[sectionId];
+                    if (section) {
+                        article.section_names.push(section.name);
+                    }
                 });
-            };
+            });
+
+            cb(null);
         });
-        async.series(tasks, cb);
     };
 
     ArticleFeed.getRSSDate = function(date) {
