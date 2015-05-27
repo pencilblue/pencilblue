@@ -38,7 +38,7 @@ module.exports = function(pb) {
      * @param {String} context.type
      */
     function BaseObjectService(context){
-        //TODO figure out what the context needs
+        this.context = context;
         
         //error checking
         if (!util.isObject(context)) {
@@ -212,6 +212,20 @@ module.exports = function(pb) {
     };
     
     /**
+     * Retrieves a context object to be passed to event listeners
+     * @method getContext
+     * @param {String|Object|Number|Boolean} [data]
+     * @return {Object}
+     */
+    BaseObjectService.prototype.getContext = function(data) {
+        var context = util.merge(this.context, {
+            service: this,
+            data: data
+        });
+        return context;
+    };
+    
+    /**
      * Executes a query for resources against the persistence layer. The 
      * function will callback with an array of results.  The function will 
      * trigger the "getAll" event.  Also note that there is hard limit on the 
@@ -234,8 +248,9 @@ module.exports = function(pb) {
         }
         
         //fire off the beforeGetAll event to allow plugins to modify queries
-        var self = this;
-        self._emit(BaseObjectService.BEFORE_GET_ALL, options, function(err) {
+        var self    = this;
+        var context = this.getContext(options);
+        self._emit(BaseObjectService.BEFORE_GET_ALL, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -243,7 +258,7 @@ module.exports = function(pb) {
             //set a reasonable limit
             //TODO evaluate if this should be at the service level or controller 
             //level
-            var limit = util.isNullOrUndefined(options.limit) ? MAX_RESULTS : Math.min(options.limit, MAX_RESULTS);
+            var limit = BaseObjectService.getLimit(options.limit);
 
             var opts = {
                 select: options.select,
@@ -257,10 +272,7 @@ module.exports = function(pb) {
                     return cb(err);
                 }
 
-                var context = {
-                    service: self,
-                    data: results
-                };
+                context.data = results;
                 self._emit(BaseObjectService.GET_ALL, context, function(err) {
                     cb(err, results);
                 });
@@ -285,10 +297,7 @@ module.exports = function(pb) {
         }
         
         var self = this;
-        var context = {
-            service: self,
-            data: options
-        };
+        var context = this.getContext(options);
         this._emit(BaseObjectService.BEFORE_COUNT, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
@@ -333,7 +342,7 @@ module.exports = function(pb) {
             
             pageDetails.count = pageDetails.data.length;
             pageDetails.offset = options.offset || 0;
-            pageDetails.limit = Math.min(options.limit, MAX_RESULTS);
+            pageDetails.limit = BaseObjectService.getLimit(options.limit);
             cb(null, pageDetails);
         });
     };
@@ -358,10 +367,7 @@ module.exports = function(pb) {
         options.id = id;
         
         //fire before event so that plugins can modify the options and perform any validations
-        var context = {
-            service: self,
-            data: options
-        };
+        var context = this.getContext(options);
         this._emit(BaseObjectService.BEFORE_GET, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
@@ -437,10 +443,7 @@ module.exports = function(pb) {
         
         //do any object formatting that should be done before validation
         var self    = this;
-        var context = {
-            service: self,
-            data: dto
-        };
+        var context = this.getContext(dto);
         self._emit(BaseObjectService.FORMAT, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
@@ -517,13 +520,11 @@ module.exports = function(pb) {
                 return cb(err, obj);
             }
             
-            var context = {
-                service: self,
-                data: dto,
-                object: obj,
-                isUpdate: isUpdate,
-                isCreate: isCreate
-            }
+            var context = self.getContext(dto);
+            context.object = obj;
+            context.isUpdate = isUpdate;
+            context.isCreate = isCreate;
+
             self._emit(BaseObjectService.MERGE, context, function(err) {
                 cb(err, obj);
             });
@@ -562,10 +563,7 @@ module.exports = function(pb) {
                 return cb(err, obj);
             }
             
-            var context = {
-                service: self,
-                data: obj
-            };
+            var context = self.getContext(obj);
             self._emit(BaseObjectService.BEFORE_DELETE, context, function(err) {
                 if (util.isError(err)) {
                     return cb(err, null);
@@ -593,6 +591,9 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     BaseObjectService.prototype._emit = function(event, data, cb) {
+        pb.log.silly('BaseObjectService: Emitting events: [%s, %s.%s]', event, this.type, event);
+        
+        var self = this;
         var tasks = [
             
             //global events
@@ -602,7 +603,7 @@ module.exports = function(pb) {
             
             //object specific events
             function(callback) {
-                events.emit(this.type + '.' + event, data, callback);
+                events.emit(self.type + '.' + event, data, callback);
             }
         ];
         async.series(tasks, cb);
@@ -728,6 +729,16 @@ module.exports = function(pb) {
     BaseObjectService.getDate = function(dateStr) {
         var val = Date.parse(dateStr);
         return isNaN(val) ? null : new Date(val);
+    };
+    
+    /**
+     *
+     * @static
+     * @method getLimit
+     * @param {Integer} limit
+     */
+    BaseObjectService.getLimit = function(limit) {
+        return util.isNullOrUndefined(limit) || isNaN(limit) || limit <= 0 ? MAX_RESULTS : Math.min(limit, MAX_RESULTS);
     };
     
     BaseObjectService.on = function(event, listener) {

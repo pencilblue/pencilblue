@@ -102,6 +102,11 @@ module.exports = function BaseControllerModule(pb) {
         this.pathVars            = props.path_vars;
         this.query               = props.query;
         this.pageName            = '';
+        this.context             = {
+            req: this.req,
+            session: this.session,
+            ls: this.ls
+        };
 
         var self = this;
         this.templateService     = new pb.TemplateService(this.localizationService);
@@ -129,6 +134,16 @@ module.exports = function BaseControllerModule(pb) {
         this.ts = this.templateService;
 
         cb();
+    };
+    
+    /**
+     * Retrieves a context object that contains the necessary information for 
+     * service prototypes
+     * @method getServiceContext
+     * @return {Object}
+     */
+    BaseController.prototype.getServiceContext = function(){
+        return util.merge(this.context, {});
     };
 
     /**

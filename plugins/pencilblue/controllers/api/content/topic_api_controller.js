@@ -46,7 +46,7 @@ module.exports = function(pb) {
              * @property service
              * @type {TopicService}
              */
-            self.service = new TopicService();
+            self.service = new TopicService(self.getServiceContext());
                 
             cb(err, true);
         };

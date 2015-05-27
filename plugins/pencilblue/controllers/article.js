@@ -34,16 +34,11 @@ module.exports = function ArticleModule(pb) {
             }
             
             //create the service
-            self.service         = new pb.ArticleServiceV2();
+            self.service = new pb.ArticleServiceV2(self.getServiceContext());
 
             //create the loader context
-            var context = {
-                service: self.service,
-                session: self.session,
-                req: self.req,
-                ts: self.ts,
-                ls: self.ls
-            };
+            var context     = self.getServiceContext();
+            context.service = self.service;
             self.contentViewLoader = new pb.ContentViewLoader(context);
             
             cb(null, true);
