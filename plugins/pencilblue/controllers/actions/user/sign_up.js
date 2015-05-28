@@ -84,7 +84,12 @@ module.exports = function SignUpModule(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
+                if (pb.SiteService.isGlobal(self.site)) {
+                    self.formError(self.ls.get('CANNOT_SIGN_UP_GLOBAL'), '/user/sign_up', cb);
+                    return;
+                }
+
+                var dao = new pb.SiteQueryService(self.site);
                 dao.save(user, function(err, data) {
                     if(util.isError(err)) {
                         return self.formError(request, session, self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);

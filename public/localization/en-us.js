@@ -505,7 +505,8 @@ var loc =
         SEND: 'Send',
         USE_CDN: 'Use CDNs (default)',
         USE_BOWER: 'Use Bower',
-        TEST_EMAIL_SUCCESS: 'Test email successfully sent'
+        TEST_EMAIL_SUCCESS: 'Test email successfully sent',
+        CANNOT_SIGN_UP_GLOBAL: 'You cannot sign up on global; an admin must create a global user within admin panel',
     }
 };
 
