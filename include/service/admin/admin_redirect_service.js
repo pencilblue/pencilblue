@@ -31,23 +31,9 @@ module.exports = function AdminRedirectServiceModule(pb) {
   AdminRedirectService.redirectAdminUser = function (controller, user, cb) {
     var location = '/admin';
     var site = pb.SiteService.getSiteFromObject(user);
-    if (!pb.SiteService.areEqual(site, controller.site)) {
-      var siteId = pb.SiteService.getCurrentSite(site);
-      location += pb.SiteService.getCurrentSitePrefix(siteId);
-      if (pb.SiteService.isGlobal(siteId)) {
-        controller.redirect(pb.config.siteRoot + location, cb);
-      } else {
-        var service = new pb.SiteService();
-        service.getByUid(siteId, function (err, siteObj) {
-          if (siteObj) {
-            location = '//' + siteObj.hostname + location;
-          }
-          controller.redirect(location, cb);
-        });
-      }
-    } else {
-      controller.redirect(location, cb);
-    }
+    var siteId = pb.SiteService.getCurrentSite(site);
+    location += pb.SiteService.getCurrentSitePrefix(siteId);
+    controller.redirect(location, cb);
   };
 
   return AdminRedirectService;
