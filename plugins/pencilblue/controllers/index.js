@@ -175,7 +175,7 @@ module.exports = function IndexModule(pb) {
         //the theme is specified, we ensure that the theme is installed and
         //initialized otherwise we let the template service figure out how to
         //delegate.
-        if (!pb.PluginService.isActivePlugin(pieces[0])) {
+        if (!pb.PluginService.isActivePlugin(pieces[0], this.site)) {
             pb.log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
             cb(null, pieces[1]);
             return;
