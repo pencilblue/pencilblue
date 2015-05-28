@@ -31,14 +31,17 @@ module.exports = function CacheEntityServiceModule(pb) {
      * @module Services
      * @class CacheEntityService
      * @constructor
-     * @param {String} objType
-     * @param {String} valueField
-     * @param {String} keyField
+     * @param {String} [objType]
+     * @param {String} [valueField]
+     * @param {String} [keyField]
+     * @param {Integer} The number of seconds that a value will remain in cache 
+     * before expiry.
      */
-    function CacheEntityService(objType, valueField, keyField){
+    function CacheEntityService(objType, valueField, keyField, timeout){
         this.type       = 'Cache';
         this.objType    = objType;
         this.keyField   = keyField;
+        this.timeout    = timeout || 0;
         this.valueField = valueField ? valueField : null;
     }
 
@@ -54,14 +57,12 @@ module.exports = function CacheEntityServiceModule(pb) {
         var self = this;
         pb.cache.get(key, function(err, result){
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                return cb(err, null);
             }
 
             //value doesn't exist in cache
             if (result == null) {
-                cb(null, null);
-                return;
+                return cb(null, null);
             }
 
             //value exists
@@ -69,6 +70,14 @@ module.exports = function CacheEntityServiceModule(pb) {
             if (self.valueField != null){
                 var rawVal = JSON.parse(result);
                 val        = rawVal[self.valueField];
+            }
+            else {
+                try{
+                    val = JSON.parse(val);
+                }
+                catch(e) {
+                    pb.log.error('CacheEntityService: an unparcable value was provided to the cache service. Type=%s Value=%s', self.objType, val);
+                }
             }
 
             //make call back
@@ -88,14 +97,17 @@ module.exports = function CacheEntityServiceModule(pb) {
         var self = this;
         pb.cache.get(key, function(err, result){
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                return cb(err, null);
             }
 
             //value doesn't exist in cache
             var val = null;
             if (self.valueField == null) {
                 val = value;
+                
+                if (util.isObject(val)) {
+                    val = JSON.stringify(val);
+                }
             }
             else{
                 var rawVal = null;
@@ -113,7 +125,7 @@ module.exports = function CacheEntityServiceModule(pb) {
             }
 
             //set into cache
-            pb.cache.set(key, val, cb);
+            pb.cache.setex(key, self.timeout, val, cb);
         });
     };
 

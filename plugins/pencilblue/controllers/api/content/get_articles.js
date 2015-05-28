@@ -89,7 +89,7 @@ module.exports = function(pb) {
                     self.renderContent(content[i], contentSettings, {}, i, callback);
                 };
             });
-            async.parallel(tasks, function(err, result) {
+            async.series(tasks, function(err, result) {
 
                 var data   = {count: cnt, articles: result.join('')};
                 var apiObj = BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'success', data);

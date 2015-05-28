@@ -18,7 +18,7 @@
 //dependencies
 var async = require('async');
 
-module.exports = function SiteMapModule(pb) {
+module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
