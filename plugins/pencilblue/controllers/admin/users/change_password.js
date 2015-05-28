@@ -63,7 +63,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, user),
                 tabs: tabs,
-                adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
+                adminOptions: pb.users.getAdminOptions(self.session, self.localizationService, self.pathSiteUId),
                 user: user,
                 sitePrefix: self.sitePrefix
             });
