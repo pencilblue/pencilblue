@@ -55,11 +55,11 @@ module.exports = function LoginActionControllerModule(pb) {
             if (self.session.on_login !== undefined) {
                 location = self.session.on_login;
                 delete self.session.on_login;
+                self.redirect(location, cb);
             }
             else if(adminAttempt) {
-                location = '/admin';
+                pb.AdminRedirectService.redirectAdminUser(self, user, cb);
             }
-            self.redirect(location, cb);
         });
     };
 
