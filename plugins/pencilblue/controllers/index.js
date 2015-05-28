@@ -110,12 +110,12 @@ module.exports = function IndexModule(pb) {
                     });
                     self.getTemplate(data.content, function(err, template) {
                         if (util.isError(err)) {
-                            throw err;
+                            return cb(err);
                         }
 
                         self.ts.load(template, function(err, result) {
                             if (util.isError(err)) {
-                                throw err;
+                                return cb(err);
                             }
 
                             cb({content: result});

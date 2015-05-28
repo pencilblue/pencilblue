@@ -108,7 +108,7 @@ module.exports = function DAOModule(pb) {
      * @param {String}   key        The key to search for
      * @param {*}        val        The value to search for
      * @param {String}   collection The collection to search in
-     * @param {Object}   Key value pair object to exclude the retrival of data
+     * @param {Object}   opts Key value pair object to exclude the retrival of data
      * @param {Function} cb         Callback function
      */
     DAO.prototype.loadByValue = function(key, val, collection, opts, cb) {
@@ -165,7 +165,7 @@ module.exports = function DAOModule(pb) {
      * @method loadByValues
      * @param {Object}   where      Key value pair object
      * @param {String}   collection The collection to search in
-     * @param {Object}   Key value pair object to exclude the retrival of data
+     * @param {Object}   opts Key value pair object to exclude the retrival of data
      * @param {Function} cb         Callback function
      */
     DAO.prototype.loadByValues = function(where, collection, opts, cb) {
@@ -199,6 +199,7 @@ module.exports = function DAOModule(pb) {
      */
     DAO.prototype.count = function(entityType, where, cb) {
         var options = {
+            count: true,
             entityType: entityType,
             where: where
         };
@@ -381,8 +382,8 @@ module.exports = function DAOModule(pb) {
 
             //log the result
             if(pb.config.db.query_logging){
-                var query = "DAO: SELECT %j FROM %s.%s WHERE %j";
-                var args = [select, self.dbName, entityType, where];
+                var query = "DAO: %s %j FROM %s.%s WHERE %j";
+                var args = [options.count ? 'COUNT' : 'SELECT', select, self.dbName, entityType, where];
                 if (typeof orderBy !== 'undefined') {
                     query += " ORDER BY %j";
                     args.push(orderBy);

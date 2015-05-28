@@ -103,6 +103,11 @@ module.exports = function BaseControllerModule(pb) {
         this.query               = props.query;
         this.pageName            = '';
         this.site                = props.site;
+        this.context             = {
+            req: this.req,
+            session: this.session,
+            ls: this.ls
+        };
 
         var self = this;
         this.templateService     = this.getTemplateService();
@@ -130,6 +135,16 @@ module.exports = function BaseControllerModule(pb) {
         this.ts = this.templateService;
 
         cb();
+    };
+    
+    /**
+     * Retrieves a context object that contains the necessary information for 
+     * service prototypes
+     * @method getServiceContext
+     * @return {Object}
+     */
+    BaseController.prototype.getServiceContext = function(){
+        return util.merge(this.context, {});
     };
 
     /**
@@ -367,64 +382,33 @@ module.exports = function BaseControllerModule(pb) {
 
     /**
      * The sanitization rules that apply to Pages and Articles
+     * @deprecated Since 0.4.1
      * @static
      * @method getContentSanitizationRules
      */
     BaseController.getContentSanitizationRules = function() {
-        return {
-            allowedTags: [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u', 'span' ],
-            allowedAttributes: {
-                a: [ 'href', 'name', 'target', 'class', 'align'],
-                img: [ 'src', 'class', 'align'],
-                p: ['align', 'class'],
-                h1: ['style', 'class', 'align'],
-                h2: ['style', 'class', 'align'],
-                h3: ['style', 'class', 'align'],
-                h4: ['style', 'class', 'align'],
-                h5: ['style', 'class', 'align'],
-                h6: ['style', 'class', 'align'],
-                div: ['style', 'class', 'align'],
-                span: ['style', 'class', 'align'],
-                table: ['style', 'class', 'align'],
-                tr: ['style', 'class', 'align'],
-                th: ['style', 'class', 'align'],
-                td: ['style', 'class', 'align'],
-            },
-
-            // Lots of these won't come up by default because we don't allow them
-            selfClosing: [ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' ],
-
-            // URL schemes we permit
-            allowedSchemes: [ 'http', 'https', 'ftp', 'mailto' ]
-        };
+        return pb.BaseObjectService.getContentSanitizationRules();
     };
 
     /**
+     * @deprecated Since 0.4.1
      * @static
      * @method getDefaultSanitizationRules
      */
     BaseController.getDefaultSanitizationRules = function() {
-        return {
-            allowedTags: [],
-            allowedAttributes: {}
-        };
+        return pb.BaseObjectService.getDefaultSanitizationRules();
     };
 
     /**
      *
+     * @deprecated Since 0.4.1
      * @static
      * @method sanitize
      * @param {String} value
      * @param {Object} [config]
      */
     BaseController.sanitize = function(value, config) {
-        if (!value) {
-            return value;
-        }
-        else if (!util.isObject(config)) {
-            config = BaseController.getDefaultSanitizationRules();
-        }
-        return Sanitizer(value, config);
+        return pb.BaseObjectService.sanitize(value, config);
     };
 
     /**
