@@ -43,9 +43,6 @@ module.exports = function(pb) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
-            else if (users.length === 0) {
-                return self.redirect('/admin', cb);
-            }
 
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),

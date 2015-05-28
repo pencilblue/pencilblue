@@ -121,19 +121,23 @@ module.exports = function UserServiceModule(pb) {
      * @method getAdminOptions
      * @param {Object} session The current session object
      * @param {Object} ls      The localization object
+     * @param {String} siteUid
      */
-    UserService.prototype.getAdminOptions = function(session, ls) {
-        var adminOptions = [
-            {name: ls.get('READER'), value: pb.SecurityService.ACCESS_USER},
-            {name: ls.get('WRITER'), value: pb.SecurityService.ACCESS_WRITER},
-            {name: ls.get('EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}
-        ];
+    UserService.prototype.getAdminOptions = function (session, ls, siteUid) {
+        var adminOptions = [];
 
-        if(session.authentication.user.admin >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
-            adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: pb.SecurityService.ACCESS_MANAGING_EDITOR});
+        if (!pb.SiteService.isGlobal(siteUid)) {
+            adminOptions = [{name: ls.get('READER'), value: pb.SecurityService.ACCESS_USER},
+                {name: ls.get('WRITER'), value: pb.SecurityService.ACCESS_WRITER},
+                {name: ls.get('EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}]
         }
-        if(session.authentication.user.admin >= pb.SecurityService.ACCESS_ADMINISTRATOR) {
-            adminOptions.push({name: ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR});
+        else {
+            if (session.authentication.user.admin >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
+                adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: pb.SecurityService.ACCESS_MANAGING_EDITOR});
+            }
+            if (session.authentication.user.admin >= pb.SecurityService.ACCESS_ADMINISTRATOR) {
+                adminOptions.push({name: ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR});
+            }
         }
 
         return adminOptions;

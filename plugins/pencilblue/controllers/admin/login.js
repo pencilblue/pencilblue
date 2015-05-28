@@ -35,10 +35,10 @@ module.exports = function LoginViewControllerModule(pb) {
      * @method render
      */
     LoginViewController.prototype.render = function(cb) {
-
+        var self = this;
 
         if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: pb.SecurityService.ACCESS_WRITER})) {
-            this.redirect('/admin', cb);
+            pb.AdminRedirectService.redirectAdminUser(self, self.session.authentication.user, cb);
             return;
         }
         else if(pb.security.isAuthenticated(this.session)) {
