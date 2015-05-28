@@ -24,6 +24,7 @@ var async   = require('async');
 var domain  = require('domain');
 var Cookies = require('cookies');
 var util    = require('../util.js');
+var _ = require('lodash');
 
 module.exports = function RequestHandlerModule(pb) {
 
@@ -732,6 +733,7 @@ module.exports = function RequestHandlerModule(pb) {
             if (!pb.SiteService.isGlobal(this.site) && (pb.SiteService.GLOBAL_SITE in route.themes)) {
                 util.arrayPushAll(Object.keys(route.themes[pb.SiteService.GLOBAL_SITE]), themesToCheck);
             }
+            themesToCheck = _.uniq(themesToCheck);
             for (var j = 0; j < themesToCheck.length; j++) {
 
                 //see if theme supports method and provides support
@@ -744,6 +746,7 @@ module.exports = function RequestHandlerModule(pb) {
                     obj.theme  = themesToCheck[j];
                     obj.method = methods[i];
                     obj.site   = GLOBAL_SITE;
+                    return obj;
                 }
             }
         }
