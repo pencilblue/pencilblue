@@ -793,6 +793,15 @@ module.exports = function RequestHandlerModule(pb) {
         });
     };
 
+    function getPathVars(route, url) {
+        var pathVars = {};
+        var pathParts = url.pathname.split('/');
+        for (var field in route.path_vars) {
+            pathVars[field] = pathParts[route.path_vars[field]];
+        }
+        return pathVars;
+    }
+
     /**
      *
      * @method onSecurityChecksPassed
@@ -804,12 +813,7 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, method, site, route) {
 
         //extract path variables
-        var pathVars = {};
-        var pathParts = this.url.pathname.split('/');
-        for (var field in route.path_vars) {
-            pathVars[field] = pathParts[route.path_vars[field]];
-        }
-
+        var pathVars = getPathVars(route, this.url);
         //execute controller
         var ControllerType  = route.themes[site][activeTheme][method].controller;
         var cInstance       = new ControllerType();
@@ -1081,7 +1085,7 @@ module.exports = function RequestHandlerModule(pb) {
                     self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.urlJoin(pb.config.siteRoot, '/admin');
                     callback(result, result);
                     return;
-                } else if (!isUserAllowedToAccessSite()) {
+                } else if (!isUserAllowedToAccessSite(self.session.authentication.user)) {
                     result.success = false;
                     result.content = '403 Forbidden';
                     result.code    = 403;
@@ -1097,13 +1101,21 @@ module.exports = function RequestHandlerModule(pb) {
 
         function isUserAllowedToAccessSite(user) {
             if (!user) {
-                user = self.session.authentication.user;
-            }
-            if (!user) {// still
                 return false;
             }
             var siteFromUser = pb.SiteService.getSiteFromObject(user);
-            return pb.SiteService.doesScopeEnvelope(siteFromUser, site);
+            if (pb.SiteService.doesScopeEnvelope(siteFromUser, self.site)) {
+                return true;
+            }
+
+            // TODO: this is somewhat hacky change to get siteid, this code should go away once we move to site resolution by hostname
+            var pathVars = getPathVars(self.route, self.url);
+            var siteId = pathVars.siteid;
+            if (siteId && pb.SiteService.doesScopeEnvelope(siteFromUser, siteId)) {
+                return true;
+            }
+
+            return false;
         }
 
         var checkAdminLevel = function(callback) {

@@ -38,12 +38,7 @@ module.exports = function LoginViewControllerModule(pb) {
         var self = this;
 
         if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: pb.SecurityService.ACCESS_WRITER})) {
-            var location = '/admin';
-            var site = pb.SiteService.getSiteFromObject(this.session.authentication.user);
-            if (!pb.SiteService.isNotSetOrEqual(site, self.site)) {
-                location += pb.SiteService.getCurrentSitePrefix(site);
-            }
-            this.redirect(location, cb);
+            pb.AdminRedirectService.redirectAdminUser(self, self.session.authentication.user, cb);
             return;
         }
         else if(pb.security.isAuthenticated(this.session)) {
