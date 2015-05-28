@@ -34,7 +34,7 @@ module.exports = function(pb) {
         var self = this;
 
         //get plugs with themes
-        var pluginService = new pb.PluginService(self.site);
+        var pluginService = new pb.PluginService(self.pathSiteUId);
         pluginService.getPluginsWithThemesBySite(function (err, themes) {
             if (util.isError(err)) {
                 throw result;
