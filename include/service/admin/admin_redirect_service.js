@@ -38,9 +38,9 @@ module.exports = function AdminRedirectServiceModule(pb) {
         controller.redirect(pb.config.siteRoot + location, cb);
       } else {
         var service = new pb.SiteService();
-        service.getByUid(siteId, function (siteObj) {
+        service.getByUid(siteId, function (err, siteObj) {
           if (siteObj) {
-            location = siteObj.hostname + location;
+            location = '//' + siteObj.hostname + location;
           }
           controller.redirect(location, cb);
         });
