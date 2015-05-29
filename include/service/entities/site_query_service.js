@@ -32,7 +32,7 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @constructor
    */
   function SiteQueryService(siteUId, onlyThisSite) {
-    this.siteUId = siteUId;
+    this.siteUId = pb.SiteService.getCurrentSite(siteUId);
     this.onlyThisSite = onlyThisSite;
     DAO.call(this);
   }

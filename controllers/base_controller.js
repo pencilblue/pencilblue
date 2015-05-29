@@ -102,11 +102,7 @@ module.exports = function BaseControllerModule(pb) {
         this.pathVars            = props.path_vars;
         this.query               = props.query;
         this.pageName            = '';
-        this.context             = {
-            req: this.req,
-            session: this.session,
-            ls: this.ls
-        };
+        this.site                = props.site;
 
         var self = this;
         this.templateService     = this.getTemplateService();
