@@ -102,7 +102,6 @@ module.exports = function BaseControllerModule(pb) {
         this.pathVars            = props.path_vars;
         this.query               = props.query;
         this.pageName            = '';
-        this.site                = props.site;
         this.context             = {
             req: this.req,
             session: this.session,
@@ -133,6 +132,15 @@ module.exports = function BaseControllerModule(pb) {
             });
         });
         this.ts = this.templateService;
+        
+        //build out a base service context that can be cloned and passed to any 
+        //service objects
+        this.context = {
+            req: this.req,
+            session: this.session,
+            ls: this.ls,
+            ts: this.ts
+        };
 
         cb();
     };
