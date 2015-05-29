@@ -497,7 +497,7 @@ module.exports = function PluginServiceModule(pb) {
 
         //add cache service
         if (useCache) {
-            services.push(new pb.CacheEntityService(objType, undefined, undefined, site, 3600));
+            services.push(new pb.CacheEntityService(objType, undefined, undefined, site, false, 3600));
         }
 
         //always add DB

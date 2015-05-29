@@ -54,10 +54,10 @@ module.exports = function BlogModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService(self.site, true);
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
-                var articleService = new pb.ArticleService();
+                var articleService = new pb.ArticleService(self.site, true);
                 articleService.getMetaInfo(data.content[0], function(err, meta) {
 
                     self.ts.reprocess = false;

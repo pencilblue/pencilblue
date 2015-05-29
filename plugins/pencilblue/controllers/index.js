@@ -55,7 +55,7 @@ module.exports = function IndexModule(pb) {
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
                 
-                var articleService = new pb.ArticleService();
+                var articleService = new pb.ArticleService(self.site);
                 articleService.getMetaInfo(data.content[0], function(err, meta) {
                     self.ts.registerLocal('meta_keywords', meta.keywords);
                     self.ts.registerLocal('meta_desc', data.section.description || meta.description);

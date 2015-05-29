@@ -56,11 +56,11 @@ module.exports = function(pb) {
         this.type = context.type;
         
         /**
-         * An instance of DAO to be used to interact with the persitence layer
+         * An instance of DAO to be used to interact with the persistence layer
          * @property dao
          * @type {DAO}
          */
-        this.dao = new pb.DAO();
+        this.dao = new pb.SiteQueryService(context.site, context.onlyThisSite)
     }
     
     /**

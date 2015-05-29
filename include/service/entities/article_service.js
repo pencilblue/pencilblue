@@ -33,7 +33,7 @@ module.exports = function ArticleServiceModule(pb) {
      * @constructor
      *
      */
-    function ArticleService(){
+    function ArticleService(siteUid, onlyThisSite){
         this.object_type = ARTICLE_TYPE;
         this.site = pb.SiteService.getCurrentSite(siteUid);
         this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
@@ -47,7 +47,7 @@ module.exports = function ArticleServiceModule(pb) {
      * @property ARTICLE_TYPE
      * @type {String}
      */
-    var ARTICLE_TYPE = 'article'
+    var ARTICLE_TYPE = 'article';
     
     /**
      *
