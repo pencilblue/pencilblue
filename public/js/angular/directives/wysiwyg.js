@@ -1,6 +1,6 @@
 (function() {
   angular.module('wysiwygElement', [])
-  .directive('wysiwyg', function($sce, $document, $window) {
+  .directive('wysiwyg', function($sce, $http, $document, $interval, $window) {
     return {
       restrict: 'AE',
       replace: true,
@@ -124,6 +124,7 @@
 
           var mediaFormat = scope.getMediaFormat();
           scope.formatAction('inserthtml', '<div>^media_display_' + scope.wysiwyg.selectedMediaItem._id + mediaFormat + '^</div>');
+          scope.saveSelection();
         };
 
         scope.getMediaFormat = function() {
@@ -150,6 +151,35 @@
           }
         };
 
+        scope.loadMediaPreviews = function() {
+          if(scope.wysiwyg.currentView !== 'editable') {
+            return;
+          }
+
+          var index = scope.wysiwyg.layout.indexOf('^media_display_');
+          if(index === -1) {
+            return;
+          }
+
+          var startIndex = index + 15;
+          var endIndex = scope.wysiwyg.layout.substr(startIndex).indexOf('^');
+          var mediaProperties = scope.wysiwyg.layout.substr(startIndex, endIndex).split('/');
+          var mediaID = mediaProperties[0];
+          var mediaTag = scope.wysiwyg.layout.substr(startIndex - 14, endIndex + 14);
+
+          $http.get('/api/content/get_media_embed?id=' + mediaID + '&tag=' + encodeURIComponent(mediaTag))
+          .success(function(result) {
+            if(!result.code) {
+              var mediaPreview = result.data;
+
+              scope.wysiwyg.layout = scope.wysiwyg.layout.split('^' + mediaTag + '^').join(mediaPreview);
+              if(scope.wysiwyg.layout.indexOf('^media_display_') > -1) {
+                scope.loadMediaPreviews();
+              }
+            }
+          });
+        }
+
         scope.toggleFullscreen = function() {
           scope.wysiwyg.fullscreen = !scope.wysiwyg.fullscreen;
 
@@ -166,7 +196,7 @@
             }).focus();
 
             angular.element(element).find('.content_layout').css({
-              'height': (angular.element(element).height() - angular.element(element).find('.content_layout').position().top - 5) + 'px',
+              'height': (angular.element(element).height() - angular.element(element).find('.content_layout').position().top) + 'px',
               'margin': '0'
             });
           }
@@ -214,6 +244,7 @@
         });
 
         rangy.init();
+        $interval(scope.loadMediaPreviews, 500);
       }
     };
   })
