@@ -16,7 +16,8 @@
           markdown: toMarkdown(scope.layout ? scope.layout.toString() : ''),
           selectedMediaItem: null,
           mediaPosition: 'none',
-          mediaMaxHeightUnit: 'px'
+          mediaMaxHeightUnit: 'px',
+          fullscreen: false
         };
 
         scope.availableElements = [{
@@ -146,6 +147,32 @@
           if(scope.editableSelection) {
             rangy.restoreSelection(scope.editableSelection, true);
             scope.editableSelection = null;
+          }
+        };
+
+        scope.toggleFullscreen = function() {
+          scope.wysiwyg.fullscreen = !scope.wysiwyg.fullscreen;
+
+          if(scope.wysiwyg.fullscreen) {
+            angular.element(element).css({
+              'background-color': '#FFFFFF',
+              'position': 'fixed',
+              'top': '0',
+              'left': '0',
+              'width': '100%',
+              'height': '100%',
+              'overflow': 'auto',
+              'z-index': '10000'
+            }).focus();
+
+            angular.element(element).find('.content_layout').css({
+              'height': (angular.element(element).height() - angular.element(element).find('.content_layout').position().top - 5) + 'px',
+              'margin': '0'
+            });
+          }
+          else {
+            angular.element(element).attr('style', '');
+            angular.element(element).find('.content_layout').attr('style', '');
           }
         };
 
