@@ -109,7 +109,7 @@ module.exports = function ContentServiceModule(pb) {
             twoDigitDate: contentSettings.two_digit_date,
             displayTime: contentSettings.display_hours_minutes,
             timeFormat: contentSettings.time_format,
-            twoDigitDate: contentSettings.two_digit_time,
+            twoDigitTime: contentSettings.two_digit_time,
             ls: ls
         };
         return ContentService.getTimestampText(options);

@@ -46,14 +46,14 @@ module.exports = function PluginServiceModule(pb) {
          * @property pluginSettingsService
          * @type {SimpleLayeredService}
          */
-        this.pluginSettingsService = PluginService.genSettingsService('plugin_settings', caching.useMemory, caching.useCache, 'PluginSettingService');
+        this.pluginSettingsService = PluginService.genSettingsService('plugin_settings', caching.use_memory, caching.use_cache, 'PluginSettingService');
 
         /**
          * A setting service that sets and retrieves the settings for plugins
          * @property pluginSettingsService
          * @type {SimpleLayeredService}
          */
-        this.themeSettingsService  = PluginService.genSettingsService('theme_settings', caching.useMemory, caching.useCache, 'ThemeSettingService');
+        this.themeSettingsService  = PluginService.genSettingsService('theme_settings', caching.use_memory, caching.use_cache, 'ThemeSettingService');
     }
 
     //constants
@@ -533,7 +533,7 @@ module.exports = function PluginServiceModule(pb) {
 
         //add cache service
         if (useCache) {
-            services.push(new pb.CacheEntityService(objType));
+            services.push(new pb.CacheEntityService(objType, undefined, undefined, 3600));
         }
 
         //always add DB
