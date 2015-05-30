@@ -26,15 +26,37 @@ var util = require('../util.js');
  */
 module.exports = function CommentServiceModule(pb) {
     
+    //pb dependencies
+    var BaseObjectService = pb.BaseObjectService;
+    
     /**
      * Retrieves comment information
      *
      * @module Services
      * @submodule Theme
      * @class CommentService
+     * @extends BaseObjectService
      * @constructor
+     * @param {Object} context
      */
-    function CommentService(){}
+    function CommentService(context){
+        if (!util.isObject(context)) {
+            context = {};
+        }
+        
+        context.type = TYPE;
+        CommentService.super_.call(this, context);
+    }
+    util.inherits(CommentService, BaseObjectService);
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property TYPE
+     * @type {String}
+     */
+    var TYPE = 'comment';
 
     /**
      * Retrieves the template for comments
@@ -73,6 +95,57 @@ module.exports = function CommentServiceModule(pb) {
             position: user.position
         };
     };
+    
+    /**
+     * 
+     * @static
+     * @method 
+     * @param {Object} context
+     * @param {TopicService} service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    CommentService.format = function(context, cb) {
+        var dto = context.data;
+        dto.article = BaseObjectService.sanitize(dto.article);
+        dto.content = BaseObjectService.sanitize(dto.content);
+        cb(null);
+    };
+    
+    /**
+     * 
+     * @static
+     * @method 
+     * @param {Object} context
+     * @param {TopicService} service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    CommentService.merge = function(context, cb) {
+        context.object.name = context.data.name;
+        cb(null);
+    };
+    
+    /**
+     * 
+     * @static
+     * @method validate
+     * @param {Object} context
+     * @param {Object} context.data The DTO that was provided for persistence
+     * @param {TopicService} context.service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    CommentService.validate = function(context, cb) {
+        var obj = context.data;
+        var errors = context.validationErrors;
+        cb(null);
+    };
+    
+    //Event Registries
+    BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, CommentService.format);
+    BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, CommentService.merge);
+    BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, CommentService.validate);
 
     //exports
     return CommentService;
