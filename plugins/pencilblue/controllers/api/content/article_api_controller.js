@@ -18,18 +18,18 @@
 module.exports = function(pb) {
 
     //PB dependencies
-    var util            = pb.util;
-    var TopicService    = pb.TopicService;
-    var SecurityService = pb.SecurityService;
+    var util             = pb.util;
+    var ArticleServiceV2 = pb.ArticleServiceV2;
+    var SecurityService  = pb.SecurityService;
 
     /**
      * 
-     * @class TopicApiController
+     * @class ArticleApiController
      * @constructor
      * @extends BaseApiController
      */
-    function TopicApiController(){}
-    util.inherits(TopicApiController, pb.BaseApiController);
+    function ArticleApiController(){}
+    util.inherits(ArticleApiController, pb.BaseApiController);
     
     /**
      * Initializes the controller
@@ -37,22 +37,22 @@ module.exports = function(pb) {
      * @param {Object} context
      * @param {Function} cb
      */
-    TopicApiController.prototype.init = function(context, cb) {
+    ArticleApiController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
             
             /**
              * 
              * @property service
-             * @type {TopicService}
+             * @type {ArticleServiceV2}
              */
-            self.service = new TopicService(self.getServiceContext());
+            self.service = new ArticleServiceV2();
                 
             cb(err, true);
         };
-        TopicApiController.super_.prototype.init.apply(this, [context, init]);
+        ArticleApiController.super_.prototype.init.apply(this, [context, init]);
     };
 
     //exports
-    return TopicApiController;
+    return ArticleApiController;
 };
