@@ -208,6 +208,7 @@
 
         scope.setPublicLayout = function() {
           if(!scope.wysiwyg.layout.length) {
+            scope.layout = '';
             return;
           }
 
