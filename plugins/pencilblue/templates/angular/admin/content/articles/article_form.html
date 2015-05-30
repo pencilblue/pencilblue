@@ -6,7 +6,6 @@
 	.controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window, validationService) {
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
-		^tmp_angular=admin=elements=is_wysiwyg_valid^
 
 		$scope.urlAvailable = null;
 
@@ -110,7 +109,7 @@
 		};
 
 		$scope.getArticleData = function(draft, cb) {
-			var articleData = JSON.parse(JSON.stringify($scope.article));
+			var articleData = angular.copy($scope.article);
 			articleData.publish_date = (new Date($filter('parsableDate')($scope.article.publish_date))).getTime();
 			articleData.draft = draft ? 1 : 0;
 
@@ -129,15 +128,12 @@
 				topics.push($scope.article.article_topics[i]._id.toString());
 			}
 
-			var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
-			getWYSIWYGLayout(wysId, function(layout) {
-				articleData.article_media = media;
-				articleData.article_sections = sections;
-				articleData.article_topics = topics;
-				articleData.article_layout = layout;
+			articleData.article_media = media;
+			articleData.article_sections = sections;
+			articleData.article_topics = topics;
+			articleData.article_layout = $scope.layout;
 
-				cb(articleData);
-			});
+			cb(articleData);
 		};
 
 		$scope.previewArticle = function() {

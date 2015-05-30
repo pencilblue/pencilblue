@@ -206,6 +206,81 @@
           }
         };
 
+        scope.setPublicLayout = function() {
+          if(!scope.wysiwyg.layout.length) {
+            return;
+          }
+
+          var self = this;
+
+          var tempEditable = angular.element(element).find('.temp_editable');
+          tempEditable.html(scope.wysiwyg.layout.toString());
+
+          this.convertReadMore = function() {
+            var s = 0;
+            var readMoreCount = tempEditable.find('.read_more_break').length;
+
+            if(readMoreCount === 0) {
+              scope.layout = tempEditable.html();
+              return;
+            }
+
+            tempEditable.find('.read_more_break').each(function() {
+              if(s === 0) {
+                angular.element(this).replaceWith('^read_more^');
+              }
+              else {
+                angular.element(this).replaceWith('');
+              }
+
+              s++;
+              if(s >= readMoreCount) {
+                scope.layout = tempEditable.html();
+              }
+            });
+          };
+
+          this.convertMedia = function() {
+            var i = 0;
+            var mediaCount = tempEditable.find('.media_preview').length;
+            if(mediaCount === 0) {
+              this.convertReadMore();
+              return;
+            }
+
+            tempEditable.find('.media_preview').each(function() {
+              var mediaTags = ['^' + angular.element(this).attr('media-tag') + '^'];
+              var subTags = angular.element(this).find('[media-tag]');
+              for(var j = 0; j < subTags.length; j++) {
+                mediaTags.push('^' + $(subTags[j]).attr('media-tag') + '^')
+              }
+
+              angular.element(this).replaceWith(mediaTags.concat(''));
+
+              i++;
+              if(i >= mediaCount){
+                self.convertReadMore();
+              }
+            });
+          }
+
+          var j = 0;
+          var selectionCount = tempEditable.find('.rangySelectionBoundary').length;
+          if(selectionCount === 0) {
+            this.convertMedia();
+            return;
+          }
+
+          tempEditable.find('.rangySelectionBoundary').each(function() {
+            angular.element(this).replaceWith('');
+
+            j++;
+            if(j >= selectionCount) {
+              self.convertMedia();
+            }
+          });
+        };
+
         scope.$watch('wysiwyg.layout', function(newVal, oldVal) {
           if(scope.wysiwyg.currentView !== 'editable') {
             return;
@@ -245,6 +320,7 @@
 
         rangy.init();
         $interval(scope.loadMediaPreviews, 500);
+        $interval(scope.setPublicLayout, 500);
       }
     };
   })
