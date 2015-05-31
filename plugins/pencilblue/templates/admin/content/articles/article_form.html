@@ -62,7 +62,6 @@
 					<div class="form-group" ng-class="{'has-error': !isWysiwygValid(layout)}">
 						<label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
 						<wysiwyg layout="layout" media="article.article_media"></wysiwyg>
-						^tmp_admin=elements=wysiwyg^
 						<div class="form_error" ng-if="!isWysiwygValid(layout)" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
 					</div>
 				</div>
@@ -131,5 +130,6 @@
 		</fieldset>
 	</form>
 </div>
+^tmp_admin=elements=wysiwyg_scripts^
 ^tmp_angular=admin=content=articles=article_form^
 ^tmp_admin=footer^
