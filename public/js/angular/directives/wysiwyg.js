@@ -293,7 +293,7 @@
           });
 
           if(newVal !== oldVal) {
-            scope.wysiwyg.markdown = toMarkdown(newVal);
+            scope.wysiwyg.markdown = toMarkdown(scope.layout);
           }
 
           scope.saveSelection();
