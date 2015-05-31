@@ -58,7 +58,17 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     BaseApiController.prototype.getAll = function(cb) {
-        
+        var options = this.processQuery();
+        this.service.getAllWithCount(options, this.handleGet(cb));
+    };
+    
+    /**
+     * Prcoess the query string and builds the options for passing to the 
+     * object service
+     * @method processQuery
+     * @return {Object} The options representing the query
+     */
+    BaseApiController.prototype.processQuery = function() {
         var q = this.query;
         
         //get limit & offset
@@ -112,15 +122,15 @@ module.exports = function(pb) {
         }
         
         //process where
-        var where = null;
+        var where = {};
         //TODO implement a where clause parser
         
-        var options = {
+        return options = {
             select: select,
+            where: where,
             limit: limit,
             offset: offset
         };
-        this.service.getAllWithCount(options, this.handleGet(cb));
     };
     
     /**
@@ -129,9 +139,20 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     BaseApiController.prototype.post = function(cb) {
+        var dto = this.getPostDto();
+        this.service.save(dto, this.handleSave(cb, true));
+    };
+    
+    /**
+     * Retrieves the request DTO.  The function ensures that the id field is 
+     * removed.
+     * @method getPostDto
+     * @return {Object} 
+     */
+    BaseApiController.prototype.getPostDto = function() {
         var dto = this.body || {};
         delete dto[pb.DAO.getIdField()];
-        this.service.save(dto, this.handleSave(cb, true));
+        return dto;
     };
     
     /**

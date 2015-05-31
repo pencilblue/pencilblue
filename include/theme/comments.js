@@ -16,7 +16,9 @@
 */
 
 //dependencies
-var util = require('../util.js');
+var util  = require('../util.js');
+var async = require('async');
+var registered = false;
 
 /**
  * Theme content services
@@ -47,6 +49,27 @@ module.exports = function CommentServiceModule(pb) {
         
         context.type = TYPE;
         CommentService.super_.call(this, context);
+        
+        /**
+         *
+         * @property userService
+         * @type {UserService}
+         */
+        this.userService = new pb.UserService(context);
+        
+        /**
+         *
+         * @property articleService
+         * @type {ArticleService} 
+         */
+        this.articleService = new pb.ArticleServiceV2(context);
+        
+        /**
+         *
+         * @property contentService
+         * @type {ContentService}
+         */
+        this.contentService = new pb.ContentService();
     }
     util.inherits(CommentService, BaseObjectService);
     
@@ -58,6 +81,104 @@ module.exports = function CommentServiceModule(pb) {
      * @type {String}
      */
     var TYPE = 'comment';
+    
+    /**
+     * Validates a comment
+     * @method validate
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    CommentService.prototype.validate = function(context, cb) {
+        var obj = context.data;
+        var errors = context.validationErrors;
+
+        if (!ValidationService.isNonEmptyStr(obj.content, true)) {
+            errors.push(BaseObjectService.validationFailure('content', 'Content is required'));
+        }
+        
+        if (!ValidationService.isIdStr(obj.commenter)) {
+            errors.push(BaseObjectService.validationFailure('commenter', 'An invalid commenter ID was provided'));
+        }
+        
+        if (!ValidationService.isIdStr(obj.article, true)) {
+            errors.push(BaseObjectService.validationFailure('article', 'The article ID is required'));
+        }
+        
+        var principal = pb.SecurityService.getPrincipal(context.session);
+        var isAdmin = pb.SecurityService.isAuthorized(context.session, {admin_level: pb.SecurityService.ACCESS_ADMINISTRATOR});
+        
+        if (!ValidationService.isIdStr(obj.commenter)) {
+            errors.push(BaseObjectService.validationFailure('commenter', 'An invalid commenter ID was provided'));
+        }
+        else if (context.isUpdate) {
+            
+            if (obj.commenter === null && !isAdmin) {
+            
+                //you can't edit an anonymous comment unless you are an admin
+                errors.push(BaseObjectService.validationFailure('commenter', 'Only admins can edit anonymous comments'));
+            }
+            else if (principal && obj.commenter !== principal[pb.DAO.getIdField()].toString() && !isAdmin) {
+             
+                //you can't edit a comment unless it is your comment or you are an admin
+                errors.push(BaseObjectService.validationFailure('commenter', 'Only admins can edit another user\'s comment'));
+            }
+        }
+        else if (context.isCreate) {
+            
+            if (principal !== null && obj.commenter === null) {
+                
+                //you can't create a comment anonymously if you are authenticated
+                errors.push(BaseObjectService.validationFailure('commenter', 'An authenticated user must be the comment creator'));
+            }
+        }
+        
+        var self = this;
+        var tasks = [
+            
+            //validate commenter exists
+            function(callback) {
+                if (!ValidationService.isIdStr(obj.commenter, true)) {
+                    return callback();
+                }
+                
+                //check for existence of user
+                self.userService.get(obj.commenter, function(err, user) {
+                    if (!util.isObject(user)) {
+                         errors.push(BaseObjectService.validationFailure('commenter', 'An invalid  commenter ID was provided'));
+                    }
+                    callback(err);
+                });
+            },
+            
+            
+            //validate article exists
+            function(callback) {
+                
+                //retrieve the article to ensure it exists
+                self.articleService.get(obj.article, function(err, article) {
+                    if (!util.isObject(article)) {
+                        errors.push(BaseObjectService.validationFailure('article', 'An invalid article ID was provided'));
+                        return callback(err);
+                    }
+                    
+                    //ensure the article supports comments
+                    if (!article.allow_comments) {
+                        errors.push(BaseObjectService.validationFailure('article', 'The specified article does not allow comments'));
+                        return callback(err);
+                    }
+                    
+                    //ensure the site supports comments
+                    self.contentService.get(function(err, settings) {
+                        if (util.isObject(settings) && !settings.allow_comments) {
+                            errors.push(BaseObjectService.validationFailure('article', 'Comments are not enabled'));
+                        }
+                        return callback(err);
+                    });
+                });
+            }
+        ];
+        async.parallel(tasks, cb);
+    };
 
     /**
      * Retrieves the template for comments
@@ -126,8 +247,8 @@ module.exports = function CommentServiceModule(pb) {
         if (context.isCreate) {
             context.object.article = context.data.article;
             
-            var principal = pb.SecurityService.getPincipal(context.session);
-            context.object.commenter = principal === null ? null : principal[pb.DAO.getIdField()];
+            var principal = pb.SecurityService.getPrincipal(context.session);
+            context.object.commenter = principal === null ? null : principal[pb.DAO.getIdField()] + '';
         }
         context.object.content = context.data.content;
         cb(null);
@@ -144,49 +265,7 @@ module.exports = function CommentServiceModule(pb) {
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     CommentService.validate = function(context, cb) {
-        var obj = context.data;
-        var errors = context.validationErrors;
-        
-        if (!ValidationService.isNonEmptyStr(obj.content, true)) {
-            errors.push(BaseObjectService.validationFailure('content', 'Content is required'));
-        }
-        
-        if (!ValidationService.isIdStr(obj.commenter)) {
-            errors.push(BaseObjectService.validationFailure('commenter', 'An invalid commenter ID was provided'));
-        }
-        
-        if (!ValidationService.isIdStr(obj.article, true)) {
-            errors.push(BaseObjectService.validationFailure('article', 'The article ID is required'));
-        }
-        
-        var principal = pb.SecurityService.getPrincipal(context.session);
-        var isAdmin = pb.SecurityService.isAuthorized(context.session, {admin_level: pb.SecurityService.ACCESS_ADMINISTRATOR});
-        
-        if (!ValidationService.isIdStr(obj.commenter)) {
-            errors.push(BaseObjectService.validationFailure('commenter', 'An invalid commenter ID was provided'));
-        }
-        else if (context.isUpdate) {
-            
-            if (obj.commenter === null && !isAdmin) {
-            
-                //you can't edit an anonymous comment unless you are an admin
-                errors.push(BaseObjectService.validationFailure('commenter', 'Only admins can edit anonymous comments'));
-            }
-            else if (principal && obj.commenter !== principal[pb.DAO.getIdField()].toString() && !isAdmin) {
-             
-                //you can't edit a comment unless it is your comment or you are an admin
-                errors.push(BaseObjectService.validationFailure('commenter', 'Only admins can edit another user\'s comment'));
-            }
-        }
-        else if (context.isCreate) {
-            
-            if (principal !== null && obj.commenter !== null) {
-                
-                //you can create a comment anonymously if you are authenticated
-                errors.push(BaseObjectService.validationFailure('commenter', 'An authenticated user must be the comment creator'));
-            }
-        }
-        cb(null);
+        context.service.validate(context, cb);
     };
     
     //Event Registries

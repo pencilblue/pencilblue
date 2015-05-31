@@ -740,7 +740,7 @@ module.exports = function RequestHandlerModule(pb) {
         //execute controller
         var ControllerType  = route.themes[activeTheme][method].controller;
         var cInstance       = new ControllerType();
-        this.doRender(pathVars, cInstance, route.themes[activeTheme][method]);
+        this.doRender(pathVars, cInstance, route.themes[activeTheme][method], activeTheme);
     };
 
     /**
@@ -751,13 +751,15 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} pathVars The URL path's variables
      * @param {BaseController} cInstance An instance of the controller to be executed
      * @param {Object} themeRoute
+     * @param {String} activeTheme
      */
-    RequestHandler.prototype.doRender = function(pathVars, cInstance, themeRoute) {
+    RequestHandler.prototype.doRender = function(pathVars, cInstance, themeRoute, activeTheme) {
         var self  = this;
 
         //attempt to parse body
         this.parseBody(themeRoute.request_body, function(err, body) {
             if (util.isError(err)) {
+                err.code = 400;
                 return self.serveError(err);
             }
 
@@ -769,7 +771,8 @@ module.exports = function RequestHandlerModule(pb) {
                 localization_service: self.localizationService,
                 path_vars: pathVars,
                 query: self.url.query,
-                body: body
+                body: body,
+                activeTheme: activeTheme
             };
             cInstance.init(props, function(){
                 self.onControllerInitialized(cInstance, themeRoute);

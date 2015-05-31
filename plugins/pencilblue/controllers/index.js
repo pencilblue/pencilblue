@@ -221,6 +221,9 @@ module.exports = function IndexModule(pb) {
         var topic   = this.req.pencilblue_topic   || null;
         var article = this.req.pencilblue_article || null;
         var page    = this.req.pencilblue_page    || null;
+        
+        //get service context
+        var opts = this.getServiceContext();
 
         var service = new ArticleService();
         if(this.req.pencilblue_preview) {
@@ -231,10 +234,10 @@ module.exports = function IndexModule(pb) {
                 var where = pb.DAO.getIdWhere(page || article);
                 where.draft = {$exists: true};
                 where.publish_date = {$exists: true};
-                service.find(where, articleCallback);
+                service.find(where, opts, articleCallback);
             }
             else {
-                service.find({}, articleCallback);
+                service.find({}, opts, articleCallback);
             }
         }
         else if(section) {
@@ -251,7 +254,7 @@ module.exports = function IndexModule(pb) {
             service.findById(page, articleCallback);
         }
         else{
-            service.find({}, articleCallback);
+            service.find({}, opts, articleCallback);
         }
     };
 
@@ -261,7 +264,9 @@ module.exports = function IndexModule(pb) {
         var isPage           = content.object_type === 'page';
         var showByLine       = contentSettings.display_bylines && !isPage;
         var showTimestamp    = contentSettings.display_timestamp && !isPage;
-        var ats              = new pb.TemplateService(this.ls);
+        
+        
+        var ats              = this.ts.getChildInstance();
         var contentUrlPrefix = isPage ? '/page/' : '/article/';
         self.ts.reprocess = false;
         ats.registerLocal('article_permalink', pb.UrlService.urlJoin(pb.config.siteRoot, contentUrlPrefix, content.url));
@@ -340,7 +345,7 @@ module.exports = function IndexModule(pb) {
 
     Index.prototype.renderComment = function(comment, cb) {
 
-        var cts = new pb.TemplateService(this.ls);
+        var cts = this.ts.getChildInstance();
         cts.reprocess = false;
         cts.registerLocal('commenter_photo', comment.commenter_photo ? comment.commenter_photo : '');
         cts.registerLocal('display_photo', comment.commenter_photo ? 'block' : 'none');
@@ -380,12 +385,18 @@ module.exports = function IndexModule(pb) {
 
     Index.prototype.getNavigation = function(cb) {
         var options = {
-            currUrl: this.req.url
+            currUrl: this.req.url,
+            session: this.session,
+            ls: this.ls,
+            activeTheme: this.activeTheme
         };
-        TopMenu.getTopMenu(this.session, this.ls, options, function(themeSettings, navigation, accountButtons) {
-            TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
-                cb(themeSettings, navigation, accountButtons);
-            });
+        
+        var menuService = new pb.TopMenuService();
+        menuService.getNavItems(options, function(err, navItems) {
+            if (util.isError(err)) {
+                pb.log.error('Index: %s', err.stack);
+            }
+            cb(navItems.themeSettings, navItems.navigation, navItems.accountButtons);
         });
     };
 
