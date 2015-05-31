@@ -1289,13 +1289,10 @@ module.exports = function PluginServiceModule(pb) {
      * @method installPluginDependencies
      * @param {String} pluginDirName
      * @param {Object} dependencies
+     * @param {Object} plugin
      * @param {Function} cb
      */
-    PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
-        if (util.isFunction(plugin)) {
-            cb = plugin;
-            plugin = null;
-        }
+    PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {console.log('***installing dependencies');
 
         //verify parameters
         if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
@@ -1315,12 +1312,12 @@ module.exports = function PluginServiceModule(pb) {
             function(callback) {
 
                 //try and acquire the lock
-                lockService.acquire(key, function(err, reply) {
+                lockService.acquire(key, function(err, reply) {console.log('LS_REPLY=%s', reply);
                     if (util.isError(err)) {
                         return callback(err);   
                     }
                     else if (reply) {
-                        didLock = true;
+                        didLock = true;console.log('I Locked so calling back');
                         return callback();
                     }
 
@@ -1335,20 +1332,20 @@ module.exports = function PluginServiceModule(pb) {
                     }, 1000);
                 });
             },
-            function(err) {
+            function(err) {console.log('I made it here');
 
                 //a callback function that allows for deleting the lock key
                 var onDone = function(err, result) {
-                    if (!didLock) {
+                    if (!didLock) { console.log('I never locked so exiting Im done');console.log(err);console.log(result);
                         return cb(err, result);
                     }
-                    lockService.release(key, function(error, didRelease) {
+                    lockService.release(key, function(error, didRelease) {console.log('Releasing lock: %s', didRelease);
                         cb(err || error, didRelease);
                     });
                 };
 
                 //verify results
-                if (util.isError(err)) {
+                if (util.isError(err)) {console.log('I made it here2');
                     return onDone(err);
                 }
                 else if (retryCount >= MAX_DEPENDENCY_LOCK_RETRY_CNT) {
@@ -1356,9 +1353,11 @@ module.exports = function PluginServiceModule(pb) {
                     pb.log.warn('PluginService: Reached maximum retry count trying to verify dependencies');
                     return onDone(null, false);
                 }
-
+                           console.log('I made it here3');console.log(plugin);
+                           
+                try{
                 //proceed to check to see if all dependencies are there
-                self.hasDependencies(plugin, function(err, hasDependencies) {
+                self.hasDependencies(plugin, function(err, hasDependencies) {console.log('checked dependencies');console.log(err);console.log(hasDependencies);
                     if (hasDependencies) {
                         pb.log.silly('PluginService: Assuming another process installed dependencies because they were discovered. Skipping install');
                         return onDone(err);
@@ -1370,6 +1369,10 @@ module.exports = function PluginServiceModule(pb) {
                         onDone(err, result);
                     });
                 });
+                }
+               catch(e) {
+pb.log.error(e.stack);
+               }
             }
         );
     };
