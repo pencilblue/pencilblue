@@ -291,5 +291,12 @@ module.exports = function System(pb){
                 self.shutdown(killProcess);
             }
         });
+        
+        process.on ('uncaughtException', function(err) {
+            log.debug('System[%s]: uncaughtException detected %s: ', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '', err.stack);
+            if (!IS_SHUTTING_DOWN) {
+                self.shutdown(killProcess);
+            }
+        });
     };
 };
