@@ -80,13 +80,21 @@
 
         scope.isFormatActive = function(type) {
           return $document[0].queryCommandState(type)
-        }
+        };
+
+        scope.clearStyles = function() {
+          scope.formatAction('removeFormat');
+          scope.setElement('p');
+        };
 
         scope.showInsertLinkModal = function() {
-          scope.layoutLink = {
-            newTab: true
-          };
+          if(!scope.layoutLink) {
+            scope.layoutLink = {
+              newTab: true
+            };
+          }
 
+          scope.layoutLink.text = scope.getSelection();
           scope.saveSelection();
           angular.element(element).find('[insert-link-modal]').modal('show');
         };
@@ -138,6 +146,10 @@
         }
 
         scope.saveSelection = function() {
+          if(!angular.element(element).find('[contenteditable]').is(':focus')) {
+            return;
+          }
+
           if(scope.editableSelection) {
             rangy.removeMarkers(scope.editableSelection);
           }
@@ -150,6 +162,14 @@
             scope.editableSelection = null;
           }
         };
+
+        scope.getSelection = function() {
+          if(scope.editableSelection) {
+            return rangy.getSelection().toString();
+          }
+
+          return '';
+        }
 
         scope.loadMediaPreviews = function() {
           if(scope.wysiwyg.currentView !== 'editable') {
@@ -297,6 +317,16 @@
           }
 
           scope.saveSelection();
+        });
+
+        scope.$watch('layout', function(newVal, oldVal) {
+          if(scope.wysiwyg.currentView !== 'html') {
+            return;
+          }
+
+          if(newVal !== oldVal) {
+            scope.wysiwyg.markdown = toMarkdown(scope.layout);
+          }
         });
 
         scope.$watch('wysiwyg.markdown', function(newVal, oldVal) {

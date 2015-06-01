@@ -313,7 +313,7 @@ var loc =
     wysiwyg: {
         NORMAL_TEXT: 'Texto normal',
         QUOTE: 'Cita',
-        PRE: 'Code',
+        PRE: 'Pre',
         HEADING_1: 'Encabezado 1',
         HEADING_2: 'Encabezado 2',
         HEADING_3: 'Encabezado 3',
