@@ -38,8 +38,17 @@ module.exports = function(pb) {
      * @submodule Entities
      * @param {Object} [localizationService] The localization service object
      */
-    function TemplateService(localizationService){
-        this.localCallbacks      = {
+    function TemplateService(opts){
+        var localizationService;
+        if (!opts || util.isFunction(opts)) {
+            localizationService = opts;
+            opts = {};
+        }
+        else {
+            localizationService = opts.ls;
+        }
+        
+        this.localCallbacks = {
             year: (new Date()).getFullYear()
         };
 
@@ -47,6 +56,11 @@ module.exports = function(pb) {
         if (localizationService) {
             this.localizationService = localizationService;
         }
+        
+        /**
+         * @property activeTheme
+         */
+        this.activeTheme = opts.activeTheme;
 
         //set the prioritized template as not specified
         this.theme = null;
@@ -208,6 +222,20 @@ module.exports = function(pb) {
     TemplateService.prototype.setReprocess = function(reprocess) {
         this.reprocess = reprocess ? true : false;
     };
+    
+    /**
+     * Retrieves the active theme.  When not provided the service retrieves it 
+     * from the settings service.
+     * @private
+     * @method _getActiveTheme
+     * @param {Function} cb
+     */
+    TemplateService.prototype._getActiveTheme = function(cb) {
+        if (this.activeTheme) {
+            return cb(null, this.activeTheme);
+        }
+        pb.settings.get('active_theme', cb);
+    };
 
     /**
      * Retrieves the raw template based on a priority.  The path to the template is
@@ -233,7 +261,7 @@ module.exports = function(pb) {
         if (hintedTheme) {
             paths.push(TemplateService.getCustomPath(this.getTheme(), relativePath));
         }
-        pb.settings.get('active_theme', function(err, activeTheme){
+        this._getActiveTheme(function(err, activeTheme){
             if (activeTheme !== null) {
                 paths.push(TemplateService.getCustomPath(activeTheme, relativePath));
             }
@@ -504,7 +532,7 @@ module.exports = function(pb) {
     TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
         var self = this;
         
-        pb.settings.get('active_theme', function(err, activeTheme) {
+        this._getActiveTheme(function(err, activeTheme) {
             if(util.isError(err) || activeTheme == null) {
                 cb(err, []);
                 return;
@@ -553,7 +581,11 @@ module.exports = function(pb) {
      */
     TemplateService.prototype.getChildInstance = function() {
         
-        var childTs                     = new TemplateService(this.localizationService);
+        var opts = {
+            ls: this.localizationService,
+            activeTheme: this.activeTheme
+        };
+        var childTs                     = new TemplateService(opts);
         childTs.theme                   = this.theme;
         childTs.localCallbacks          = util.merge(this.localCallbacks, {});
         childTs.reprocess               = this.reprocess;
