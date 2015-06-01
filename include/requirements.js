@@ -116,6 +116,7 @@ module.exports = function PB(config) {
     pb.JsonBodyParser      = BodyParsers.JsonBodyParser;
     pb.FormBodyParser      = BodyParsers.FormBodyParser;
     pb.BaseController      = require(path.join(config.docRoot, '/controllers/base_controller.js'))(pb);
+    pb.BaseApiController   = require(path.join(config.docRoot, '/controllers/api/base_api_controller.js'))(pb);
     pb.BaseAdminController = require(path.join(config.docRoot, '/controllers/admin/base_admin_controller.js'))(pb);
     pb.ViewController      = require(path.join(config.docRoot, '/controllers/view_controller.js'))(pb);
     pb.FormController      = require(path.join(config.docRoot, '/controllers/form_controller.js'))(pb);
@@ -235,6 +236,13 @@ module.exports = function PB(config) {
     //content services
     pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js')(pb);
     pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js')(pb);
+    
+    //object services
+    pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
+    pb.TopicService      = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
+    pb.ArticleServiceV2  = require(path.join(config.docRoot, '/include/service/entities/content/article_service_v2.js'))(pb);
+    pb.ArticleRenderer   = require(path.join(config.docRoot, '/include/service/entities/content/article_renderer.js'))(pb);
+    pb.ContentViewLoader = require(path.join(config.docRoot, '/include/service/entities/content/content_view_loader.js'))(pb);
     
     var ArticleServiceModule = require(path.join(config.docRoot, '/include/service/entities/article_service.js'))(pb);
     pb.ArticleService        = ArticleServiceModule.ArticleService;

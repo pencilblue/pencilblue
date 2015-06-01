@@ -1,6 +1,6 @@
 
 module.exports = function PortfolioModule(pb) {
-    
+
     /**
      * Portfolio - A portfolio site theme for PencilBlue
      *

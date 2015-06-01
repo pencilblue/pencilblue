@@ -14,6 +14,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+//dependencies
+var HtmlEncoder = require('htmlencode');
+
 module.exports = function(pb) {
     
     //pb dependencies
@@ -35,6 +39,39 @@ module.exports = function(pb) {
      * @type {String}
      */
     var DEFAULT_MIME = 'text/html';
+    
+    /**
+     * Error code when a validation failure occurs
+     * @private
+     * @static
+     * @readonly
+     * @property BAD_REQUEST
+     * @type {Integer}
+     */
+    var BAD_REQUEST = 400;
+    
+    /**
+     * Converts an error to a plain object that can be serialized
+     * @private
+     * @static
+     * @method convertToObject
+     * @param {Object} params
+     * @return {Object}
+     */
+    var convertToObject = function(params) {
+        var content = {
+            code: params.error.code,
+            message: params.error.message
+        };
+        if (pb.config.logging.showErrors) {
+            content.stack = params.error.stack;
+        }
+        if (params.error.code === BAD_REQUEST) {
+            delete content.stack;
+            content.validationErrors = params.error.validationErrors;
+        }
+        return content;
+    };
 
     /**
      * Serializes an error as JSON
@@ -50,11 +87,7 @@ module.exports = function(pb) {
     ErrorFormatters.json = function(params, cb){
         cb(
             null,
-            JSON.stringify({
-                code: params.error.code,
-                message: params.error.message,
-                stack: params.error.stack
-            })
+            JSON.stringify(convertToObject(params))
         );
     };
 
@@ -90,12 +123,46 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ErrorFormatters.xml = function(params, cb) {
+        
+        var xmlObj = function(key, obj) {
+            var xml = '<'+HtmlEncoder.htmlEncode(key)+'>'
+            util.forEach(obj, function(val, key) {
+                
+                if (util.isArray(val)) {
+                    xml += xmlArray(key, val);
+                }
+                else if (util.isObject(val)) {
+                    xml += xmlObj(key, val);
+                }
+                else {
+                    xml += '<'+HtmlEncoder.htmlEncode(key)+'>' + HtmlEncoder.htmlEncode(val + '') + '</'+HtmlEncoder.htmlEncode(key)+'>';
+                }
+            });
+            xml += '</'+HtmlEncoder.htmlEncode(key)+'>';
+            return xml;
+        };
+        var xmlArray = function(key, obj) {
+            var xml = '';
+            util.forEach(obj, function(val, i) {
+                
+                if (util.isArray(val)) {
+                    xml += xmlArray(key+'_'+i, val);
+                }
+                else if (util.isObject(val)) {
+                    xml += xmlObj(key, val);
+                }
+                else {
+                    xml += '<'+HtmlEncoder.htmlEncode(key)+'>' + HtmlEncoder.htmlEncode(val + '') + '</'+HtmlEncoder.htmlEncode(key)+'>';
+                }
+            });
+            return xml;
+        };
+        var xmlPrimitive = function(key, val) {
+            return '<'+HtmlEncoder.htmlEncode(key)+'>' + HtmlEncoder.htmlEncode(val + '') + '</'+HtmlEncoder.htmlEncode(key)+'>';
+        };
         cb(
             null,
-            '<error><message>' + params.error.message + '</message>' +
-            '<stack>' + params.error.stack + '</stack>' +
-            '<code>' + params.error.code + '</code>' +
-            '</error>'
+            xmlObj('error', convertToObject(params))
         );
     };
     

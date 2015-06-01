@@ -236,6 +236,19 @@ module.exports = function TopMenuServiceModule(pb) {
             });
         });
     };
+    
+    TopMenuService.prototype.getNavItems = function(options, cb) {
+        TopMenuService.getTopMenu(options.session, options.ls, options, function(themeSettings, navigation, accountButtons) {
+            TopMenuService.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
+                var navItems = {
+                    themeSettings: themeSettings,
+                    navigation: navigation,
+                    accountButtons: accountButtons
+                };
+                cb(null, navItems);
+            });
+        });
+    };
 
     //exports
     return TopMenuService;

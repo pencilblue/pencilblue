@@ -19,41 +19,98 @@ module.exports = function SectionModule(pb) {
     
     //pb dependencies
     var util  = pb.util;
-    var Index = require('./index.js')(pb);
 
     /**
      * Loads a section
      */
     function Section(){}
-    util.inherits(Section, Index);
+    util.inherits(Section, pb.BaseController);
 
-    Section.prototype.init = function (props, cb) {
+
+    Section.prototype.init = function(context, cb) {
         var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteUId = pb.SiteService.getCurrentSite(self.site);
-            self.sectionService = new pb.SectionService(self.pathSiteUId);
-            self.siteQueryService = new pb.SiteQueryService(self.siteUId);
-            cb();
-        });
+        var init = function(err) {
+            
+            //get content settings
+            var contentService = new pb.ContentService();
+            contentService.getSettings(function(err, contentSettings) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+                
+                //create the service
+                self.contentSettings = contentSettings;
+                self.service         = new pb.ArticleServiceV2();
+                
+                //create the loader context
+                var context = {
+                    service: self.service,
+                    session: self.session,
+                    req: self.req,
+                    ts: self.ts,
+                    ls: self.ls,
+                    contentSettings: contentSettings
+                };
+                self.contentViewLoader = new pb.ContentViewLoader(context);
+                self.dao     = new pb.DAO();
+                
+                cb(null, true);
+            });
+        };
+        Section.super_.prototype.init.apply(this, [context, init]);
     };
-
+    
     Section.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
-        self.siteQueryService.loadByValue('url', custUrl, 'section', function(err, section) {
-            if (util.isError(err) || section == null) {
-                self.reqHandler.serve404();
-                return;
+        
+        this.getContent(custUrl, function(err, data) {
+            if (util.isError(err)) {
+                return cb(err);
             }
-
-            self.req.pencilblue_section = section[pb.DAO.getIdField()].toString();
-            self.section = section;
-            Section.super_.prototype.render.apply(self, [cb]);
+            else if (!util.isObject(data)) {
+                return self.reqHandler.serve404();
+            }
+            
+            var options = {
+                section: data.section
+            };
+            self.contentViewLoader.render(data.content, options, function(err, html) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+                
+                var result = {
+                    content: html
+                };
+                cb(result);
+            });
         });
     };
+    
+    Section.prototype.getContent = function(custUrl, cb) {
+        var self = this;
+            
+        self.dao.loadByValue('url', custUrl, 'section', function(err, section) {
+            if (util.isError(err) || section == null) {
+                return cb(null, null);
+            }
 
-    Section.prototype.getPageTitle = function() {
-        return this.section.name;
+            var opts = {
+                render: true,
+                where: {},
+                limit: self.contentSettings.articles_per_page || 5,
+                order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}]
+            };
+            pb.ArticleServiceV2.setPublishedClause(opts.where);
+            self.service.getBySection(section, opts, function(err, content) {
+                var result = {
+                    section: section,
+                    content: content
+                };
+                cb(err, result);
+            });
+        });
     };
 
     //exports
