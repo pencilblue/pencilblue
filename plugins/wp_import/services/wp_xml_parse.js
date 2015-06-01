@@ -53,7 +53,9 @@ module.exports = function WPXMLParseServiceModule(pb) {
         cb(null, true);
     };
 
-    WPXMLParseService.parse = function(xmlString, defaultUserId, cb) {
+    WPXMLParseService.parse = function(data, defaultUserId, cb) {
+        var xmlString = data.data;
+        var site = data.site;
         var self = this;
         pb.log.debug('WPXMLParseService: Starting to parse...');
 
@@ -71,7 +73,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
 
                 //load settings
                 function(callback) {
-                    var pluginService = new pb.PluginService();
+                    var pluginService = new pb.PluginService(site);
                     pluginService.getSettingsKV('wp_import', function(err, settingsResult) {
                         settings = settingsResult;
                         callback(err);
@@ -93,7 +95,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 },
 
                 function(callback) {
-                    self.saveNewArticlesAndPages(defaultUserId, channel, users, topics, settings, callback);
+                    self.saveNewArticlesAndPages(site, defaultUserId, channel, users, topics, settings, callback);
                 }
             ];
             async.series(tasks, function(err, results) {
@@ -247,7 +249,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         async.parallel(tasks, cb);
     };
 
-    WPXMLParseService.saveNewArticlesAndPages = function(defaultUserId, channel, users, topics, settings, cb) {
+    WPXMLParseService.saveNewArticlesAndPages = function(site, defaultUserId, channel, users, topics, settings, cb) {
         var self = this;
         var rawArticles = [];
         var rawPages = [];
@@ -345,6 +347,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                             author: defaultUserId
                         }
                         var newPage = pb.DocumentCreator.create('page', pagedoc);
+                        newPage.site = site;
                         var dao = new pb.DAO();
                         dao.save(newPage, callback);
                     });
@@ -436,6 +439,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                             author: author
                         };
                         var newArticle = pb.DocumentCreator.create('article', articleDoc);
+                        newArticle.site = site;
                         var dao = new pb.DAO();
                         dao.save(newArticle, callback);
                     });
