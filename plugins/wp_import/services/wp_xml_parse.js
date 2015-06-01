@@ -88,7 +88,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 },
 
                 function(callback) {
-                    self.saveNewTopics(channel, function(err, topicsResult) {
+                    self.saveNewTopics(site, channel, function(err, topicsResult) {
                         topics = topicsResult;
                         callback(err);
                     });
@@ -168,7 +168,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         async.series(tasks, cb);
     };
 
-    WPXMLParseService.saveNewTopics = function(channel, cb) {
+    WPXMLParseService.saveNewTopics = function(site, channel, cb) {
         pb.log.debug('WPXMLParseService: Parsing topics...');
 
         //parse out the list of topics to try and persist
@@ -183,6 +183,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 name: "wp:tag_name"
             }                      
         ];
+
         iterations.forEach(function(descriptor) {
 
             pb.log.silly('WPXMLParseService:Parsing Topics: Inspecting "%s" elements...', descriptor.element);
@@ -220,7 +221,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
 
                 //get the topic formatted
                 var topic = pb.DocumentCreator.create('topic', topics[topicKeys[i]]);
-
+                topic.site = site;
                 //ensure it doesn't already exist
                 var key = 'name';
                 var val = new RegExp('^'+util.escapeRegExp(topic.name)+'$', 'ig');
