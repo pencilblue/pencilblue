@@ -54,8 +54,8 @@ module.exports = function WPImportModule(pb) {
      * @param {Object} The plugin object
      * @return {Array}
      */
-    WPImport.onPluginSettingsSubNav = function(navKey, localization, plugin) {
-        if(plugin.uid === 'wp_import') {
+    WPImport.onPluginSettingsSubNav = function(navKey, localization, data) {
+        if(data.plugin.uid === 'wp_import') {
             return [
                 {
                     name: 'import_xml',
