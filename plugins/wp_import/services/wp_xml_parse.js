@@ -156,8 +156,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         var tasks = util.getTasks(users, function(users, index) {
             return function(callback) {
 
-                var dao = new pb.DAO();
-                dao.loadByValue('username', users[index].username, 'user', function(err, existingUser) {
+                self.siteQueryService.loadByValue('username', users[index].username, 'user', function(err, existingUser) {
                     if (util.isError(err)) {
                         return cb(err);
                     }
