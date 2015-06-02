@@ -53,7 +53,7 @@ module.exports = function(pb) {
      * @param {String} name
      * @param {Object} [options={}]
      * @param {Object} [options.payload]
-     * @param {Integer} [options.timeout]
+     * @param {Integer} [options.timeout] Lock timeout in seconds
      * @param {Function} cb
      */
     DbLockProvider.prototype.acquire = function(name, options, cb) {
@@ -75,7 +75,7 @@ module.exports = function(pb) {
         var dao = new pb.DAO();
         dao.save(lock, function(err, result) {
             if (util.isError(err)) {
-                
+                pb.log.silly('DbLockProvider: Failed to insert lock document: CODE=%s\n%s', err.code, err.stack);
                 //when unique constraint error occurs send no error.  It means 
                 //the lock exists
                 return cb(err.code === EXPECTED_ERROR_CODE ? null : err, false);
