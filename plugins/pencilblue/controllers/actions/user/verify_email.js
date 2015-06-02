@@ -35,14 +35,14 @@ module.exports = function VerifyEmailModule(pb) {
             return;
         }
 
-        var dao = new pb.DAO();
-        dao.count('user', {email: get.email}, function(err, count) {
+        var siteQueryService = new pb.SiteQueryService(self.site, true);
+        siteQueryService.count('user', {email: get.email}, function(err, count) {
             if(count > 0) {
                 self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
                 return;
             }
 
-            dao.loadByValue('email', get.email, 'unverified_user', function(err, unverifiedUser) {
+            siteQueryService.loadByValue('email', get.email, 'unverified_user', function(err, unverifiedUser) {
                 if(unverifiedUser === null) {
                     self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
                     return;
@@ -53,7 +53,7 @@ module.exports = function VerifyEmailModule(pb) {
                     return;
                 }
 
-                dao.deleteById(unverifiedUser[pb.DAO.getIdField()], 'unverified_user', function(err, result)  {
+                siteQueryService.deleteById(unverifiedUser[pb.DAO.getIdField()], 'unverified_user', function(err, result)  {
                     //TODO handle error
 
                     //convert to user
@@ -61,7 +61,7 @@ module.exports = function VerifyEmailModule(pb) {
                     delete user[pb.DAO.getIdField()];
                     user.object_type = 'user';
 
-                    dao.save(user, function(err, result) {
+                    siteQueryService.save(user, function(err, result) {
                         if(util.isError(err))  {
                             return self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
                         }

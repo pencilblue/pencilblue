@@ -31,6 +31,16 @@ module.exports = function SignUpModule(pb) {
     function SignUp(){}
     util.inherits(SignUp, FormController);
 
+    SignUp.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteQueryService = new pb.SiteQueryService(self.site, true);
+            cb();
+        });
+    };
+
+
     SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
 
@@ -84,10 +94,9 @@ module.exports = function SignUpModule(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.save(user, function(err, data) {
+                self.siteQueryService.save(user, function(err, data) {
                     if(util.isError(err)) {
-                        return self.formError(request, session, self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
+                        return self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
                     }
 
                     self.session.success = successMsg;
@@ -107,19 +116,18 @@ module.exports = function SignUpModule(pb) {
     };
 
     SignUp.prototype.validateUniques = function(user, cb) {
-        var dao = new pb.DAO();
         var tasks = {
             verified_username: function(callback) {
-                dao.count('user', {username: user.username}, callback);
+                self.siteQueryService.count('user', {username: user.username}, callback);
             },
             verified_email: function(callback) {
-                dao.count('user', {email: user.email}, callback);
+                self.siteQueryService.count('user', {email: user.email}, callback);
             },
             unverified_username: function(callback) {
-                dao.count('unverified_user', {username: user.username}, callback);
+                self.siteQueryService.count('unverified_user', {username: user.username}, callback);
             },
             unverified_email: function(callback) {
-                dao.count('unverified_user', {email: user.email}, callback);
+                self.siteQueryService.count('unverified_user', {email: user.email}, callback);
             }
         };
         async.series(tasks, cb);

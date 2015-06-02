@@ -36,14 +36,14 @@ module.exports = function ResendVerificationModule(pb) {
             return;
         }
 
-        var dao = new pb.DAO();
-        dao.loadByValue('email', post.email, 'user', function(err, user) {
+        var siteQueryService = new pb.SiteQueryService(self.site, true);
+        siteQueryService.loadByValue('email', post.email, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
                 return;
             }
 
-            dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
+            siteQueryService.loadByValue('email', post.email, 'unverified_user', function(err, user) {
                 if(util.isError(err) || user === null) {
                     self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
                     return;
@@ -51,7 +51,7 @@ module.exports = function ResendVerificationModule(pb) {
 
                user.verification_code = util.uniqueId();
 
-               dao.save(user, function(err, result) {
+               siteQueryService.save(user, function(err, result) {
                     if(util.isError(result)) {
                         self.formError(self.ls.get('ERROR_SAVING'), '/user/resend_verification', cb);
                         return;
