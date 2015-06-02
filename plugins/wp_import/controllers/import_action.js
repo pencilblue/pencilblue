@@ -23,7 +23,6 @@ module.exports = function ImportWPActionControllerModule(pb) {
     
     //pb dependencies
     var util       = pb.util;
-    var WPXMLParseService = pb.PluginService.getService('wp_xml_parse', 'wp_import');
 
     /**
      * @class ImportWPActionController
@@ -41,6 +40,7 @@ module.exports = function ImportWPActionControllerModule(pb) {
     ImportWPActionController.prototype.render = function(cb) {
         var self  = this;
         var files = [];
+        var WPXMLParseService = pb.PluginService.getService('wp_xml_parse', 'wp_import', this.site);
         var wpXMLParse = new WPXMLParseService(this.site);
         var form = new formidable.IncomingForm();
         form.on('file', function(field, file) {
