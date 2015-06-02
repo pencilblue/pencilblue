@@ -32,7 +32,10 @@ module.exports = function WPXMLParseServiceModule(pb) {
      * @class WPXMLParseService
      * @constructor
      */
-    function WPXMLParseService() {}
+    function WPXMLParseService(site) {
+        this.site = pb.SiteService.getCurrentSite(site);
+        this.siteQueryService = new pb.SiteQueryService(this.site, true);
+    }
     
     /**
      * Counter used to help create a random values for required fields when no 
@@ -45,6 +48,16 @@ module.exports = function WPXMLParseServiceModule(pb) {
     var DEFAULT_COUNTER = 0;
 
     /**
+     * The name the service
+     * @private
+     * @static
+     * @readonly
+     * @property SERVICE_NAME
+     * @type {String}
+     */
+    var SERVICE_NAME = 'wp_xml_parse';
+
+    /**
      * @static
      * @method init
      */
@@ -53,9 +66,21 @@ module.exports = function WPXMLParseServiceModule(pb) {
         cb(null, true);
     };
 
-    WPXMLParseService.parse = function(data, defaultUserId, cb) {
-        var xmlString = data.data;
-        var site = data.site;
+    /**
+     * A service interface function designed to allow developers to name the handle
+     * to the service object what ever they desire. The function must return a
+     * valid string and must not conflict with the names of other services for the
+     * plugin that the service is associated with.
+     *
+     * @static
+     * @method getName
+     * @return {String} The service name
+     */
+    WPXMLParseService.getName = function() {
+        return SERVICE_NAME;
+    };
+
+    WPXMLParseService.prototype.parse = function(xmlString, defaultUserId, cb) {
         var self = this;
         pb.log.debug('WPXMLParseService: Starting to parse...');
 
@@ -73,7 +98,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
 
                 //load settings
                 function(callback) {
-                    var pluginService = new pb.PluginService(site);
+                    var pluginService = new pb.PluginService(self.site);
                     pluginService.getSettingsKV('wp_import', function(err, settingsResult) {
                         settings = settingsResult;
                         callback(err);
@@ -88,14 +113,14 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 },
 
                 function(callback) {
-                    self.saveNewTopics(site, channel, function(err, topicsResult) {
+                    self.saveNewTopics(channel, function(err, topicsResult) {
                         topics = topicsResult;
                         callback(err);
                     });
                 },
 
                 function(callback) {
-                    self.saveNewArticlesAndPages(site, defaultUserId, channel, users, topics, settings, callback);
+                    self.saveNewArticlesAndPages(self.site, defaultUserId, channel, users, topics, settings, callback);
                 }
             ];
             async.series(tasks, function(err, results) {
@@ -104,7 +129,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         });
     };
 
-    WPXMLParseService.saveNewUsers = function(channel, settings, cb) {
+    WPXMLParseService.prototype.saveNewUsers = function(channel, settings, cb) {
         pb.log.debug('WPXMLParseService: Parsing Users...');
 
         var self = this;
@@ -168,7 +193,8 @@ module.exports = function WPXMLParseServiceModule(pb) {
         async.series(tasks, cb);
     };
 
-    WPXMLParseService.saveNewTopics = function(site, channel, cb) {
+    WPXMLParseService.prototype.saveNewTopics = function(channel, cb) {
+        var self = this;
         pb.log.debug('WPXMLParseService: Parsing topics...');
 
         //parse out the list of topics to try and persist
@@ -221,12 +247,10 @@ module.exports = function WPXMLParseServiceModule(pb) {
 
                 //get the topic formatted
                 var topic = pb.DocumentCreator.create('topic', topics[topicKeys[i]]);
-                topic.site = site;
                 //ensure it doesn't already exist
                 var key = 'name';
                 var val = new RegExp('^'+util.escapeRegExp(topic.name)+'$', 'ig');
-                var dao = new pb.DAO();
-                dao.loadByValue(key, val, 'topic', function(err, existingTopic) {
+                self.siteQueryService.loadByValue(key, val, 'topic', function(err, existingTopic) {
                     if (util.isError(err)) {
                         return callback(err);   
                     }
@@ -236,7 +260,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     }
 
                     //we're all good.  we can persist now
-                    dao.save(topic, function(err, result) {
+                    self.siteQueryService.save(topic, function(err, result) {
                         if (util.isError(err)) {
                             return callback(err);
                         }
@@ -250,7 +274,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         async.parallel(tasks, cb);
     };
 
-    WPXMLParseService.saveNewArticlesAndPages = function(site, defaultUserId, channel, users, topics, settings, cb) {
+    WPXMLParseService.prototype.saveNewArticlesAndPages = function(site, defaultUserId, channel, users, topics, settings, cb) {
         var self = this;
         var rawArticles = [];
         var rawPages = [];
@@ -336,7 +360,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                         }
 
                         //construct the page descriptor
-                        var title = BaseController.sanitize(rawPage.title[0]) || WPXMLParseService.uniqueStrVal('Page');
+                        var title = BaseController.sanitize(rawPage.title[0]) || self.uniqueStrVal('Page');
                         var pagedoc = {
                             url: pageName,
                             headline: title,
@@ -362,7 +386,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 var rawArticle = rawArticles[index];
                 var articleName = rawArticle['wp:post_name'][0] || rawArticle.title[0];
                 if (util.isNullOrUndefined(articleName) || articleName === '') {
-                    articleName = WPXMLParseService.uniqueStrVal('article');
+                    articleName = self.uniqueStrVal('article');
                 };
 
                 //output progress
@@ -427,7 +451,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                         }
 
                         //construct the article descriptor
-                        var title = BaseController.sanitize(rawArticle.title[0]) || WPXMLParseService.uniqueStrVal('Article');
+                        var title = BaseController.sanitize(rawArticle.title[0]) || self.uniqueStrVal('Article');
                         var articleDoc = {
                             url: articleName,
                             headline: title,
@@ -454,8 +478,8 @@ module.exports = function WPXMLParseServiceModule(pb) {
         async.series(tasks, cb);
     };
 
-    WPXMLParseService.retrieveMediaObjects = function(site, content, settings, cb) {
-
+    WPXMLParseService.prototype.retrieveMediaObjects = function(site, content, settings, cb) {
+        var self = this;
         var handlers = [
             {
                 name: 'image',
@@ -493,17 +517,17 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 },
                 getMediaObject: function(details, cb) {
                     if(!settings.download_media) {
-                        return WPXMLParseService.createMediaObject(site, 'image', details.source, cb);
+                        return self.createMediaObject(site, 'image', details.source, cb);
                     }
 
                     //download it & store it with the media service
-                    WPXMLParseService.downloadMediaContent(site, details.source, function(err, location) {
+                    self.downloadMediaContent(site, details.source, function(err, location) {
                         if (util.isError(err)) {
                             return cb(err);   
                         }
 
                         //create the media object
-                        WPXMLParseService.createMediaObject(site, 'image', location, cb);
+                        self.createMediaObject(site, 'image', location, cb);
                     });
                 }
             },
@@ -524,7 +548,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     };
                 },
                 getMediaObject: function(details, cb) {
-                    WPXMLParseService.createMediaObject(site, 'youtube', details.source, cb);
+                    self.createMediaObject(site, 'youtube', details.source, cb);
                 }
             },
             {
@@ -544,7 +568,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     };
                 },
                 getMediaObject: function(details, cb) {
-                    WPXMLParseService.createMediaObject(site, 'daily_motion', details.source, cb);
+                    self.createMediaObject(site, 'daily_motion', details.source, cb);
                 }
             }
         ];
@@ -603,7 +627,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         });
     };
 
-    WPXMLParseService.createMediaObject = function(site, mediaType, location, cb) {
+    WPXMLParseService.prototype.createMediaObject = function(site, mediaType, location, cb) {
 
         var options = {
             where: {
@@ -637,7 +661,8 @@ module.exports = function WPXMLParseServiceModule(pb) {
         });
     };
 
-    WPXMLParseService.downloadMediaContent = function(site, srcString, cb) {
+    WPXMLParseService.prototype.downloadMediaContent = function(site, srcString, cb) {
+        var self = this;
         if (util.isNullOrUndefined(srcString) || srcString.indexOf('http') !== 0) {
             return cb(new Error('Invalid protocol on URI: '+srcString));
         }
@@ -649,7 +674,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         //create a functiont to download the content
         var run = function() {
             ht.get(srcString, function(res) {
-                WPXMLParseService.saveMediaContent(site, srcString, res, cb);
+                self.saveMediaContent(site, srcString, res, cb);
             });
         };
 
@@ -665,14 +690,14 @@ module.exports = function WPXMLParseServiceModule(pb) {
         });
     };
 
-    WPXMLParseService.saveMediaContent = function(site, originalFilename, stream, cb) {
+    WPXMLParseService.prototype.saveMediaContent = function(site, originalFilename, stream, cb) {
         var mediaService = new pb.MediaService(null, site, true);
         mediaService.setContentStream(stream, originalFilename, function(err, result) {
             cb(err, result ? result.mediaPath : null);
         });
     };
     
-    WPXMLParseService.uniqueStrVal = function(prefix) {
+    WPXMLParseService.prototype.uniqueStrVal = function(prefix) {
         return prefix + '-' + (DEFAULT_COUNTER++) + '-' + (new Date()).getTime();
     };
 

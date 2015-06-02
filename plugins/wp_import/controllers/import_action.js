@@ -23,7 +23,7 @@ module.exports = function ImportWPActionControllerModule(pb) {
     
     //pb dependencies
     var util       = pb.util;
-    var wpXMLParse = pb.PluginService.getService('wp_xml_parse', 'wp_import');
+    var WPXMLParseService = pb.PluginService.getService('wp_xml_parse', 'wp_import');
 
     /**
      * @class ImportWPActionController
@@ -41,7 +41,7 @@ module.exports = function ImportWPActionControllerModule(pb) {
     ImportWPActionController.prototype.render = function(cb) {
         var self  = this;
         var files = [];
-
+        var wpXMLParse = new WPXMLParseService(this.site);
         var form = new formidable.IncomingForm();
         form.on('file', function(field, file) {
             files.push(file);
@@ -59,12 +59,7 @@ module.exports = function ImportWPActionControllerModule(pb) {
                     return;
                 }
 
-                var parseData = {
-                    data:data.toString(),
-                    site:self.site
-                };
-
-                wpXMLParse.parse(parseData, self.session.authentication.user_id, function(err, users) {
+                wpXMLParse.parse(data.toString(), self.session.authentication.user_id, function(err, users) {
                     if(util.isError(err)) {
                         self.session.error = err.stack;
                         return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))});
