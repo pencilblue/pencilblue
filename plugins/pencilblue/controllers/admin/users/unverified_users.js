@@ -38,14 +38,15 @@ module.exports = function(pb) {
 
         self.siteQueryService.q('unverified_user', opts, function(err, users) {
             if(util.isError(err)) {
-                return self.redirect('/admin', cb);
+                return self.redirect('/admin' + self.sitePrefix, cb);
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, { sitePrefix: self.sitePrefix }),
-                users: users
+                users: users,
+                sitePrefix: self.sitePrefix
             });
 
             self.setPageName(self.ls.get('UNVERIFIED_USERS'));
