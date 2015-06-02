@@ -617,6 +617,13 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
+            path: "/admin/:siteid/users/permissions",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'permissions.js')
+        },
+        {
+            method: 'get',
             path: "/admin/:siteid/users/new",
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
