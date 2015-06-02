@@ -291,15 +291,20 @@ module.exports = function RequestHandlerModule(pb) {
             //set them in storage
             if (isStatic) {
                 RequestHandler.staticRoutes[descriptor.path] = routeDescriptor;
-                pb.log.debug('RequestHander: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
             }
             else {
                 RequestHandler.index[pattern] = RequestHandler.storage.length;
                 RequestHandler.storage.push(routeDescriptor);
-                pb.log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
             }
         }
-                                                               
+        
+        //log the result
+        if (isStatic) {
+            pb.log.debug('RequestHander: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
+        }
+        else {
+            pb.log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
+        }
         return true;
     };
 
