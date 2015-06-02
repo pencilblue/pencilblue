@@ -345,7 +345,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     //retrieve media content for page
                     pb.log.debug('WPXMLParseService: Inspecting %s for media content', pageName);
 
-                    self.retrieveMediaObjects(self.site, rawPage['content:encoded'][0], settings, function(err, updatedContent, mediaObjects) {
+                    self.retrieveMediaObjects(rawPage['content:encoded'][0], settings, function(err, updatedContent, mediaObjects) {
                         if (util.isError(err)) {
                             pb.log.error('WPXMLParseService: Failed to retrieve 1 or more media objects for %s. %s', options.type, err.stack);
                         }
@@ -434,7 +434,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     //retrieve media content for article
                     pb.log.debug('WPXMLParseService: Inspecting %s for media content', articleName);
 
-                    self.retrieveMediaObjects(self.site, rawArticle['content:encoded'][0], settings, function(err, updatedContent, mediaObjects) {
+                    self.retrieveMediaObjects(rawArticle['content:encoded'][0], settings, function(err, updatedContent, mediaObjects) {
                         if (util.isError(err)) {
                             pb.log.error('WPXMLParseService: Failed to retrieve 1 or more media objects for %s. %s', options.type, err.stack);
                         }
@@ -474,7 +474,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         async.series(tasks, cb);
     };
 
-    WPXMLParseService.prototype.retrieveMediaObjects = function(site, content, settings, cb) {
+    WPXMLParseService.prototype.retrieveMediaObjects = function(content, settings, cb) {
         var self = this;
         var handlers = [
             {
@@ -513,17 +513,17 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 },
                 getMediaObject: function(details, cb) {
                     if(!settings.download_media) {
-                        return self.createMediaObject(site, 'image', details.source, cb);
+                        return self.createMediaObject('image', details.source, cb);
                     }
 
                     //download it & store it with the media service
-                    self.downloadMediaContent(site, details.source, function(err, location) {
+                    self.downloadMediaContent(details.source, function(err, location) {
                         if (util.isError(err)) {
                             return cb(err);   
                         }
 
                         //create the media object
-                        self.createMediaObject(site, 'image', location, cb);
+                        self.createMediaObject('image', location, cb);
                     });
                 }
             },
@@ -544,7 +544,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     };
                 },
                 getMediaObject: function(details, cb) {
-                    self.createMediaObject(site, 'youtube', details.source, cb);
+                    self.createMediaObject('youtube', details.source, cb);
                 }
             },
             {
@@ -564,7 +564,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     };
                 },
                 getMediaObject: function(details, cb) {
-                    self.createMediaObject(site, 'daily_motion', details.source, cb);
+                    self.createMediaObject('daily_motion', details.source, cb);
                 }
             }
         ];
@@ -605,7 +605,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 }
 
                 //persist the media descriptor
-                var mediaService = new pb.MediaService(null, site, true);
+                var mediaService = new pb.MediaService(null, self.site, true);
                 mediaService.save(mediaObj, function(err, results) {
                     if (util.isError(err)) {
                         return callback(err);
@@ -623,7 +623,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         });
     };
 
-    WPXMLParseService.prototype.createMediaObject = function(site, mediaType, location, cb) {
+    WPXMLParseService.prototype.createMediaObject = function(mediaType, location, cb) {
 
         var options = {
             where: {
@@ -631,7 +631,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
             },
             limit: 1
         };
-        var mediaService = new pb.MediaService(null, site, true);
+        var mediaService = new pb.MediaService(null, this.site, true);
         mediaService.get(options, function(err, mediaArray) {
             if (util.isError(err)) {
                 return cb(err);   
@@ -657,7 +657,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         });
     };
 
-    WPXMLParseService.prototype.downloadMediaContent = function(site, srcString, cb) {
+    WPXMLParseService.prototype.downloadMediaContent = function(srcString, cb) {
         var self = this;
         if (util.isNullOrUndefined(srcString) || srcString.indexOf('http') !== 0) {
             return cb(new Error('Invalid protocol on URI: '+srcString));
@@ -670,7 +670,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         //create a functiont to download the content
         var run = function() {
             ht.get(srcString, function(res) {
-                self.saveMediaContent(site, srcString, res, cb);
+                self.saveMediaContent(srcString, res, cb);
             });
         };
 
@@ -686,8 +686,8 @@ module.exports = function WPXMLParseServiceModule(pb) {
         });
     };
 
-    WPXMLParseService.prototype.saveMediaContent = function(site, originalFilename, stream, cb) {
-        var mediaService = new pb.MediaService(null, site, true);
+    WPXMLParseService.prototype.saveMediaContent = function(originalFilename, stream, cb) {
+        var mediaService = new pb.MediaService(null, this.site, true);
         mediaService.setContentStream(stream, originalFilename, function(err, result) {
             cb(err, result ? result.mediaPath : null);
         });
