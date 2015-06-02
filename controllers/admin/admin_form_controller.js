@@ -32,6 +32,7 @@ module.exports = function AdminFormControllerModule(pb) {
    */
   AdminFormController.prototype.init = function (props, cb) {
     var self = this;
+    self.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
     pb.FormController.prototype.init.call(self, props, function () {
       BaseAdminController.prototype.extendedInit.call(self, cb);
     });
