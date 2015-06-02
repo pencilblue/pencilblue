@@ -120,7 +120,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 },
 
                 function(callback) {
-                    self.saveNewArticlesAndPages(self.site, defaultUserId, channel, users, topics, settings, callback);
+                    self.saveNewArticlesAndPages(defaultUserId, channel, users, topics, settings, callback);
                 }
             ];
             async.series(tasks, function(err, results) {
@@ -274,7 +274,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         async.parallel(tasks, cb);
     };
 
-    WPXMLParseService.prototype.saveNewArticlesAndPages = function(site, defaultUserId, channel, users, topics, settings, cb) {
+    WPXMLParseService.prototype.saveNewArticlesAndPages = function(defaultUserId, channel, users, topics, settings, cb) {
         var self = this;
         var rawArticles = [];
         var rawPages = [];
@@ -319,7 +319,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     type: 'page',
                     url: pageName,
                 };
-                var urlService = new pb.UrlService();
+                var urlService = new pb.UrlService(self.site, true);
                 urlService.existsForType(options, function(err, exists) {
                     if (util.isError(err)) {
                         return callback(err);
@@ -345,7 +345,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     //retrieve media content for page
                     pb.log.debug('WPXMLParseService: Inspecting %s for media content', pageName);
 
-                    self.retrieveMediaObjects(site, rawPage['content:encoded'][0], settings, function(err, updatedContent, mediaObjects) {
+                    self.retrieveMediaObjects(self.site, rawPage['content:encoded'][0], settings, function(err, updatedContent, mediaObjects) {
                         if (util.isError(err)) {
                             pb.log.error('WPXMLParseService: Failed to retrieve 1 or more media objects for %s. %s', options.type, err.stack);
                         }
@@ -372,9 +372,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                             author: defaultUserId
                         }
                         var newPage = pb.DocumentCreator.create('page', pagedoc);
-                        newPage.site = site;
-                        var dao = new pb.DAO();
-                        dao.save(newPage, callback);
+                        self.siteQueryService.save(newPage, callback);
                     });
                 });
             };
@@ -397,7 +395,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     type: 'article',
                     url: articleName,
                 };
-                var urlService = new pb.UrlService();
+                var urlService = new pb.UrlService(self.site, true);
                 urlService.existsForType(options, function(err, exists) {
                     if (util.isError(err)) {
                         return callback(err);
@@ -436,7 +434,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     //retrieve media content for article
                     pb.log.debug('WPXMLParseService: Inspecting %s for media content', articleName);
 
-                    self.retrieveMediaObjects(site, rawArticle['content:encoded'][0], settings, function(err, updatedContent, mediaObjects) {
+                    self.retrieveMediaObjects(self.site, rawArticle['content:encoded'][0], settings, function(err, updatedContent, mediaObjects) {
                         if (util.isError(err)) {
                             pb.log.error('WPXMLParseService: Failed to retrieve 1 or more media objects for %s. %s', options.type, err.stack);
                         }
@@ -464,9 +462,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                             author: author
                         };
                         var newArticle = pb.DocumentCreator.create('article', articleDoc);
-                        newArticle.site = site;
-                        var dao = new pb.DAO();
-                        dao.save(newArticle, callback);
+                        self.siteQueryService.save(newArticle, callback);
                     });
                 });
             };
