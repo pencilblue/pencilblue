@@ -44,8 +44,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
             return;
         }
 
-        var dao = new pb.SiteQueryService(self.pathSiteUId, true);
-        dao.loadById(vars.id, 'user', function(err, user) {
+        self.siteQueryService.loadById(vars.id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.redirect('/admin/users', cb);
                 return;

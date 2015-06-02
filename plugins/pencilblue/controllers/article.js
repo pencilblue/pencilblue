@@ -19,65 +19,77 @@ module.exports = function ArticleModule(pb) {
     
     //pb dependencies
     var util  = pb.util;
-    var Index = require('./index.js')(pb);
     
     /**
      * Loads a single article
      */
     function Article(){}
-    util.inherits(Article, Index);
+    util.inherits(Article, pb.BaseController);
 
+    Article.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            //create the service
+            self.service = new pb.ArticleServiceV2(self.getServiceContext());
+
+            //create the loader context
+            var context     = self.getServiceContext();
+            context.service = self.service;
+            self.contentViewLoader = new pb.ContentViewLoader(context);
+            
+            cb(null, true);
+        };
+        Article.super_.prototype.init.apply(this, [context, init]);
+    };
 
     Article.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
-
-        //check for object ID as the custom URL
-        var where  = null;
-        if(pb.validation.isIdStr(custUrl)) {
-            where = {_id: pb.DAO.getObjectID(custUrl)};
-            if (pb.log.isSilly()) {
-                pb.log.silly("ArticleController: The custom URL was not an object ID [%s].  Will now search url field. [%s]", custUrl, e.message);
-            }
-        }
-        else {
-            where = {url: custUrl};
-        }
-
-        // fall through to URL key
-        if (where === null) {
-            where = {url: custUrl};
-        }
-
+        
         //attempt to load object
-        self.siteQueryService.loadByValues(where, 'article', function(err, article) {
-            if (util.isError(err) || article == null) {
-                if (where.url) {
-                    self.reqHandler.serve404();
-                    return;
+        var opts = {
+            render: true,
+            where: this.getWhereClause(custUrl)
+        };
+        this.service.getSingle(opts, function(err, article) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            else if (article == null) {
+                return self.reqHandler.serve404();   
+            }
+                
+            var options = {};
+            self.contentViewLoader.render([article], options, function(err, html) {
+                if (util.isError(err)) {
+                    return cb(err);
                 }
 
-                self.siteQueryService.loadByValues({url: custUrl}, 'article', function(err, article) {
-                    if (util.isError(err) || article == null) {
-                        self.reqHandler.serve404();
-                        return;
-                    }
-
-                    self.renderArticle(article, cb);
-                });
-
-                return;
-            }
-
-            self.renderArticle(article, cb);
+                var result = {
+                    content: html
+                };
+                cb(result);
+            });
         });
     };
     
-    Article.prototype.renderArticle = function(article, cb) {
-        this.req.pencilblue_article = article._id.toString();
-        this.article = article;
-        this.setPageName(article.name);
-        Article.super_.prototype.render.apply(this, [cb]);
+    Article.prototype.getWhereClause = function(custUrl) {
+        
+        //check for object ID as the custom URL
+        var where  = null;
+        if(pb.validation.isIdStr(custUrl, true)) {
+            where = pb.DAO.getIdWhere(custUrl);
+        }
+        else {
+            where = {
+                url: custUrl
+            };
+        }
+        return where;
     };
 
     //exports

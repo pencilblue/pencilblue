@@ -31,17 +31,22 @@ module.exports = function CacheEntityServiceModule(pb) {
      * @module Services
      * @class CacheEntityService
      * @constructor
-     * @param {String} objType
-     * @param {String} valueField
-     * @param {String} keyField
+     * @param {String} [objType]
+     * @param {String} [valueField]
+     * @param {String} [keyField]
+     * @param {String} [site]
+     * @param {String} [onlyThisSite]
+     * @param {Integer} The number of seconds that a value will remain in cache 
+     * before expiry.
      */
-    function CacheEntityService(objType, valueField, keyField, site, onlyThisSite){
+    function CacheEntityService(objType, valueField, keyField, site, onlyThisSite, timeout){
         this.type       = 'Cache';
         this.objType    = objType;
-        this.keyField   = keyField;
         this.valueField = valueField ? valueField : null;
+        this.keyField   = keyField;
         this.site = site || GLOBAL_SITE;
         this.onlyThisSite = onlyThisSite ? true : false;
+        this.timeout    = timeout || 0;
     }
 
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
@@ -58,8 +63,7 @@ module.exports = function CacheEntityServiceModule(pb) {
         var self = this;
         pb.cache.get(keyValue(key, this.site), function(err, result){
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                return cb(err, null);
             }
 
             //site specific value doesn't exist in cache
@@ -67,14 +71,12 @@ module.exports = function CacheEntityServiceModule(pb) {
                 if(self.site !== GLOBAL_SITE && !self.onlyThisSite) {
                     pb.cache.get(keyValue(key, GLOBAL_SITE), function(err, result){
                         if (util.isError(err)) {
-                            cb(err, null);
-                            return;
+                            return cb(err, null);
                         }
 
                         //value doesn't exist in cache
                         if (result == null) {
-                            cb(null, null);
-                            return;
+                            return cb(null, null);
                         }
 
                         //make call back
@@ -97,6 +99,14 @@ module.exports = function CacheEntityServiceModule(pb) {
             var rawVal = JSON.parse(result);
             val        = rawVal[valueField];
         }
+        else {
+        try{
+            val = JSON.parse(val);
+        }
+        catch(e) {
+            pb.log.error('CacheEntityService: an unparcable value was provided to the cache service. Type=%s Value=%s', self.objType, val);
+        }
+    }
         return val;
     }
 
@@ -112,14 +122,17 @@ module.exports = function CacheEntityServiceModule(pb) {
         var self = this;
         pb.cache.get(keyValue(key, this.site), function(err, result){
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                return cb(err, null);
             }
 
             //value doesn't exist in cache
             var val = null;
             if (self.valueField == null) {
                 val = value;
+                
+                if (util.isObject(val)) {
+                    val = JSON.stringify(val);
+                }
             }
             else{
                 var rawVal = null;
@@ -137,7 +150,7 @@ module.exports = function CacheEntityServiceModule(pb) {
             }
 
             //set into cache
-            pb.cache.set(key, val, cb);
+            pb.cache.setex(key, self.timeout, val, cb);
         });
     };
 

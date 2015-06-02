@@ -46,6 +46,22 @@ module.exports = function PluginServiceModule(pb) {
 
         this._pluginRepository = pb.PluginRepository;
 
+        //construct settings services
+        var caching = pb.config.plugins.caching;
+
+        /**
+         * A setting service that sets and retrieves the settings for plugins
+         * @property pluginSettingsService
+         * @type {SimpleLayeredService}
+         */
+        this.pluginSettingsService = PluginService.genSettingsService('plugin_settings', caching.use_memory, caching.use_cache, 'PluginSettingService');
+
+        /**
+         * A setting service that sets and retrieves the settings for plugins
+         * @property pluginSettingsService
+         * @type {SimpleLayeredService}
+         */
+        this.themeSettingsService  = PluginService.genSettingsService('theme_settings', caching.use_memory, caching.use_cache, 'ThemeSettingService');
     }
 
     //constants
@@ -473,20 +489,117 @@ module.exports = function PluginServiceModule(pb) {
         if (useMemory){
             var options = {
                 objType: objType,
+                site: site,
                 timeout: pb.config.plugins.caching.memory_timeout,
-                site: site
             };
             services.push(new pb.MemoryEntityService(options));
         }
 
         //add cache service
         if (useCache) {
-            services.push(new pb.CacheEntityService(objType, null, null, site));
+            services.push(new pb.CacheEntityService(objType, undefined, undefined, site, false, 3600));
         }
 
         //always add DB
         services.push(new pb.DBEntityService(objType, 'settings', 'plugin_uid', site));
         return new pb.SimpleLayeredService(services, serviceName);
+    };
+
+    /**
+     * Loads the settings from a details object and persists them in the DB.  Any
+     * existing settings for the plugin are deleted before the new settings are
+     * persisted.
+     *
+     * @method resetSettings
+     * @param details The details object to extract the settings from
+     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
+     * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
+     */
+    PluginService.prototype.resetSettings = function(details, cb) {
+        var self = this;
+
+        //retrieve plugin to prove it exists (plus we need the id)
+        var pluginName = details.uid;
+        this.getPlugin(pluginName, function(err, plugin) {
+            if (util.isError(err) || !plugin) {
+                return cb(err ? err : new Error("The plugin "+pluginName+" is not installed"), false);
+            }
+
+            //remove any existing settings
+            self.pluginSettingsService.purge(pluginName, function (err, result) {
+                if (util.isError(err) || !result) {
+                    return cb(err, false);
+                }
+
+                //build the object to persist
+                var baseDoc  = {
+                    plugin_name: plugin.name,
+                    plugin_uid: plugin.uid,
+                    plugin_id: plugin[pb.DAO.getIdField()].toString(),
+                    settings: details.settings
+                };
+                var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
+
+                //save it
+                var dao      = new pb.DAO();
+                dao.save(settings, function(err, result) {
+                    cb(err, !util.isError(err));
+                });
+            });
+        });
+    };
+
+    /**
+     * Loads the Theme settings from a details object and persists them in the DB.  Any
+     * existing theme settings for the plugin are deleted before the new settings
+     * are persisted. If the plugin does not have a theme then false is provided in
+     * the callback.
+     *
+     * @method resetThemeSettings
+     * @param details The details object to extract the settings from
+     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
+     * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
+     */
+    PluginService.prototype.resetThemeSettings = function(details, cb) {
+        var self = this;
+
+        //error checking
+        var pluginName = details.uid;
+        if (!details.theme || !details.theme.settings) {
+            cb(new Error("PluginService: Settings are required when attempting to reset a plugin's theme settings"), false);
+            return;
+        }
+
+        //retrieve plugin to prove it exists (plus we need the id)
+        this.getPlugin(pluginName, function(err, plugin) {
+            if (util.isError(err) || !plugin) {
+                cb(err, false);
+                return;
+            }
+
+            //remove any existing settings
+            self.themeSettingsService.purge(pluginName, function (err, result) {
+                if (util.isError(err) || !result) {
+                    cb(err, false);
+                    return;
+                }
+
+                //build the object to persist
+                var baseDoc  = {
+                    plugin_name: plugin.name,
+                    plugin_uid: plugin.uid,
+                    plugin_id: plugin[pb.DAO.getIdField()].toString(),
+                    settings: details.theme.settings
+                };
+                var settings = pb.DocumentCreator.create('theme_settings', baseDoc);
+
+                //save it
+                var dao      = new pb.DAO();
+                dao.save(settings, function(err, result) {
+                    cb(err, !util.isError(err));
+                });
+            });
+        });
     };
 
     /**

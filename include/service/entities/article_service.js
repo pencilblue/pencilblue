@@ -34,10 +34,30 @@ module.exports = function ArticleServiceModule(pb) {
      *
      */
     function ArticleService(siteUid, onlyThisSite){
-        this.object_type = 'article';
+        this.object_type = ARTICLE_TYPE;
         this.site = pb.SiteService.getCurrentSite(siteUid);
         this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
     }
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property ARTICLE_TYPE
+     * @type {String}
+     */
+    var ARTICLE_TYPE = 'article';
+    
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property PAGE_TYPE
+     * @type {String}
+     */
+    var PAGE_TYPE = 'page';
 
     /**
      * Rerieves the content type
@@ -227,7 +247,7 @@ module.exports = function ArticleServiceModule(pb) {
     ArticleService.prototype.processArticleForDisplay = function(article, articleCount, authors, contentSettings, cb) {
         var self = this;
 
-        if (this.getContentType() === 'article') {
+        if (this.getContentType() === ARTICLE_TYPE) {
             if(contentSettings.display_bylines) {
 
                 for(var j = 0; j < authors.length; j++) {
@@ -323,12 +343,18 @@ module.exports = function ArticleServiceModule(pb) {
             article.layout = newLayout;
             delete article.article_layout;
 
-            if (self.getContentType() === 'article') {
+            if (self.getContentType() === ARTICLE_TYPE && ArticleService.allowComments(contentSettings, article)) {
 
-                var where = {article: article[pb.DAO.getIdField()].toString()};
-                var order = {created: pb.DAO.ASC};
+                var opts = {
+                    where: {
+                        article: article[pb.DAO.getIdField()].toString()
+                    },
+                    order: {
+                        created: pb.DAO.ASC
+                    }
+                };
                 var dao   = new pb.DAO();
-                dao.q('comment', {where: where, select: pb.DAO.PROJECT_ALL, order: order}, function(err, comments) {
+                dao.q('comment', opts, function(err, comments) {
                     if(util.isError(err) || comments.length == 0) {
                         return cb(null, null);
                     }
@@ -436,88 +462,66 @@ module.exports = function ArticleServiceModule(pb) {
             });
         });
     };
+    
+    /**
+     * Retrieves the SEO metadata for the specified content.  
+     * @method getMetaInfo
+     * @param {Object} article The article to retrieve information for
+     * @param {Function} cb A callback that takes two parameters.  The first is 
+     * an Error, if occurred.  The second is an object that contains 4 
+     * properties: 
+     * title - the SEO title, 
+     * description - the SEO description, 
+     * keywords - an array of SEO keywords that describe the content, 
+     * thumbnail - a URI path to the thumbnail image 
+     */
+    ArticleService.prototype.getMetaInfo = function(article, cb) {
+        var serviceV2 = new pb.ArticleServiceV2();
+        serviceV2.getMetaInfo(article, cb);
+    };
 
     /**
      * Retrieves the meta info for an article or page
-     *
+     * @deprecated Since 0.4.1
      * @method getMetaInfo
      * @param {Object}   article An article or page object
      * @param {Function} cb      Callback function
      */
-    ArticleService.getMetaInfo = function(article, cb)
-    {
-        if(typeof article === 'undefined')
-        {
-            cb('', '', '');
-            return;
+    ArticleService.getMetaInfo = function(article, cb) {
+        if(util.isNullOrUndefined(article)) {
+            return cb('', '', '');
         }
-
-        var keywords = article.meta_keywords || [];
-        var topics = article.article_topics || article.page_topics || [];
-        var thumbnail = '';
-        var instance = this;
-        var dao = new pb.DAO();
-
-        this.loadTopic = function(index)
-        {
-            if(index >= topics.length)
-            {
-                var description = '';
-                if(article.meta_desc)
-                {
-                    description = article.meta_desc;
-                }
-                else if(article.layout)
-                {
-                    description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
+        
+        //log deprecation
+        pb.log.warn('ArticleService: ArticleService.getMetaInfo is deprecated and will be removed 0.5.0.  Use the prototype function getMetaInfo instead');
+        
+        //all wrapped up to ensure we can be multi-threaded here for backwards 
+        //compatibility
+        (function(cb) {
+            
+            var articleService = new ArticleService();
+            articleService.getMetaInfo(article, function(err, meta) {
+                if (util.isError(err)) {
+                    return cb('', '', '');
                 }
 
-                cb(keywords.join(','), description, (article.seo_title) ? article.seo_title : article.headline, thumbnail);
-                return;
-            }
-
-            dao.loadById(topics[index], 'topic', function(err, topic) {
-                if(util.isError(err) || !topic) {
-                    pb.log.error('ArticleService: Failed to load topic. %s', err.stack);
-
-                    index++;
-                    instance.loadTopic(index);
-                    return;
-                }
-
-                var topicName = topic.name;
-                var keywordMatch = false;
-
-                for(var i = 0; i < keywords.length; i++) {
-                    if(topicName == keywords[i]) {
-                        keywordMatch = true;
-                        break;
-                    }
-                }
-
-                if(!keywordMatch)
-                {
-                    keywords.push(topicName);
-                }
-                index++;
-                instance.loadTopic(index);
+                cb(meta.keywords, meta.description, meta.title, meta.thumbnail);
             });
-        };
-
-        if(!article.thumbnail || !article.thumbnail.length) {
-            this.loadTopic(0);
-        }
-        else {
-            dao.loadById(article.thumbnail, 'media', function(err, media) {
-                if(util.isError(err) || !media) {
-                    instance.loadTopic(0);
-                    return;
-                }
-
-                thumbnail = media.location;
-                instance.loadTopic(0);
-            });
-        }
+        })(cb);
+    };
+    
+    /**
+     * Provided the content descriptor and the content settings object the 
+     * function indicates if comments should be allowed within the given 
+     * context of the content.
+     * @param {Object} contentSettings The settings object retrieved from the 
+     * content service
+     * @param {Object} content The page or article that should or should not 
+     * have associated comments.
+     * @return {Boolean}
+     */
+    ArticleService.allowComments = function(contentSettings, content) {
+        return contentSettings.allow_comments && content.allow_comments;
     };
 
     /**
@@ -577,7 +581,7 @@ module.exports = function ArticleServiceModule(pb) {
                 return cb(err);
             }
             else if (!data) {
-                pb.log.warn("ArticleService: Content contains reference to missing media [%s].", flag.id);
+                pb.log.warn("MediaLoader: Content contains reference to missing media [%s].", flag.id);
                 return cb(null, layout.replace(flag.flag, ''));
             }
 

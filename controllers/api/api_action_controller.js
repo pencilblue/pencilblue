@@ -29,6 +29,7 @@ module.exports = function ApiActionControllerModule(pb) {
     /**
      * Controller interface used to map simple actions to handlers and provide
      * a flow for validation and error handling.
+     * @deprecated Since 0.4.1
      * @class ApiActionController
      * @constructor
      * @extends BaseController

@@ -38,8 +38,8 @@ module.exports = function(pb) {
                 admin: {$lte: self.session.authentication.user.admin}
             }
         };
-        var dao  = new pb.SiteQueryService(self.pathSiteUId, true);
-        dao.q('user', opts, function(err, users) {
+
+        self.siteQueryService.q('user', opts, function(err, users) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }

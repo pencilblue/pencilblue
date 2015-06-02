@@ -503,11 +503,13 @@ var BASE_CONFIG = {
     //It can be of any of the following: silly, debug, info, warn, error.  The 
     //file property specifes the absolute file path where the log file should 
     //be written.  If no value is provided the file transport will not be 
-    //configured.
+    //configured. The "showErrors" property indicates if the stack trace should 
+    //be included in the serialization of the error.
     logging: {
         
         level: "info",
-        file: LOG_FILE
+        file: LOG_FILE,
+        showErrors: true
     },
 
     //System settings always have the persistent storage layer on.  Optionally,

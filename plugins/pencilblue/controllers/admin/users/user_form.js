@@ -97,8 +97,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.SiteQueryService(self.pathSiteUId, true);
-                dao.loadById(vars.id, 'user', function(err, user) {
+                self.siteQueryService.loadById(vars.id, 'user', function(err, user) {
                     delete user.password;
                     callback(err, user);
                 });

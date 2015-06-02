@@ -48,8 +48,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            var dao = new pb.SiteQueryService(self.pathSiteUId, true);
-            dao.loadById(vars.id, 'user', function(err, user) {
+            self.siteQueryService.loadById(vars.id, 'user', function(err, user) {
                 if(util.isError(err) || user === null) {
                     if (err) { pb.log.error(JSON.stringify(err)); }
                     cb({
@@ -73,7 +72,7 @@ module.exports = function(pb) {
                         return;
                     }
 
-                    dao.save(user, function(err, result) {
+                    self.siteQueryService.save(user, function(err, result) {
                         if(util.isError(err)) {
                             cb({
                                 code: 500,

@@ -35,8 +35,8 @@ module.exports = function(pb) {
         var opts = {
             where: pb.DAO.ANYWHERE
         };
-        var dao  = new pb.SiteQueryService(self.pathSiteUId, true);
-        dao.q('unverified_user', opts, function(err, users) {
+
+        self.siteQueryService.q('unverified_user', opts, function(err, users) {
             if(util.isError(err)) {
                 return self.redirect('/admin', cb);
             }

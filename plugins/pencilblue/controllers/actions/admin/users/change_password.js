@@ -57,8 +57,7 @@ module.exports = function ChangePasswordModule(pb) {
                 return;
             }
 
-            var dao = new pb.SiteQueryService(self.pathSiteUId, true);
-            dao.loadById(vars.id, 'user', function(err, user) {
+            self.siteQueryService.loadById(vars.id, 'user', function(err, user) {
                 if(util.isError(err) || user === null) {
                     if (err) { pb.log.error(JSON.stringify(err)); }
                     cb({
@@ -81,7 +80,7 @@ module.exports = function ChangePasswordModule(pb) {
                 delete user.new_password;
                 delete user.current_password;
 
-                dao.save(user, function(err, result) {
+                self.siteQueryService.save(user, function(err, result) {
                     if(util.isError(err)) {
                         if (err) { pb.log.error(JSON.stringify(err)); }
                         return cb({
