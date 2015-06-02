@@ -176,7 +176,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     users[index].password = generatedPassword;
 
                     var newUser = pb.DocumentCreator.create('user', users[index]);
-                    dao.save(newUser, function(err, result) {
+                    self.siteQueryService.save(newUser, function(err, result) {
                         if (util.isError(err)) {
                             return callback(err);
                         }
