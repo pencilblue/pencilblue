@@ -44,7 +44,7 @@ module.exports = function(pb) {
                 return self.reqHandler.serveError(err);
             }
             else if (users.length === 0) {
-                return self.redirect('/admin', cb);
+                return self.redirect('/admin' + self.sitePrefix + '/users/new', cb);
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects({
