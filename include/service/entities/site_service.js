@@ -15,6 +15,7 @@ module.exports = function SiteServiceModule(pb) {
     function SiteService(){}
 
     SiteService.GLOBAL_SITE = 'global';
+    SiteService.NO_SITE = 'no-site';    // represents a site that doesn't exist
     SiteService.SITE_FIELD = 'site';
     SiteService.SITE_COLLECTION = 'site';
     var SITE_COLL = SiteService.SITE_COLLECTION;
@@ -309,6 +310,15 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
+     * Returns true iff given (user) scope envelopes current scope; conceptually, true <=> userScope ⊇ currentScope
+     * @param userScope
+     * @param currentScope
+     */
+    SiteService.doesScopeEnvelope = function (userScope, currentScope) {
+        return SiteService.isGlobal(userScope) || userScope === currentScope;
+    };
+
+    /**
      * Central place to get the current site
      *
      * @param siteid
@@ -352,6 +362,13 @@ module.exports = function SiteServiceModule(pb) {
         else {
             cb(null, true);
         }
+    };
+
+    SiteService.getSiteFromObject = function (object) {
+        if (!object) {
+            return SiteService.NO_SITE;
+        }
+        return object[SiteService.SITE_FIELD];
     };
 
     return SiteService;

@@ -98,7 +98,6 @@ module.exports = function Routes(pb){
         {
             path: "/actions/logout",
             access_level: 0,
-            auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'logout.js'),
             content_type: 'text/html'
         },

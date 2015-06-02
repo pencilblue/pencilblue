@@ -94,6 +94,11 @@ module.exports = function SignUpModule(pb) {
                     return;
                 }
 
+                if (pb.SiteService.isGlobal(self.site)) {
+                    self.formError(self.ls.get('CANNOT_SIGN_UP_GLOBAL'), '/user/sign_up', cb);
+                    return;
+                }
+
                 self.siteQueryService.save(user, function(err, data) {
                     if(util.isError(err)) {
                         return self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);

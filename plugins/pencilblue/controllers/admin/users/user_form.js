@@ -55,7 +55,7 @@ module.exports = function(pb) {
 
             data.adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR}];
             if(!data.user[pb.DAO.getIdField()] || self.session.authentication.user_id !== data.user[pb.DAO.getIdField()].toString()) {
-                data.adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
+                data.adminOptions = pb.users.getAdminOptions(self.session, self.localizationService, self.pathSiteUId);
             }
 
             data.sitePrefix = self.sitePrefix;

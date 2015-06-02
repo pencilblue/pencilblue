@@ -43,6 +43,7 @@ module.exports = function LoginActionControllerModule(pb) {
 
         var options = post;
         options.access_level = adminAttempt ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_USER;
+        options.site = self.site;
         pb.security.authenticateSession(this.session, options, new FormAuthentication(), function(err, user) {
             if(util.isError(err) || user === null)  {
                 self.loginError(adminAttempt, cb);
@@ -54,11 +55,11 @@ module.exports = function LoginActionControllerModule(pb) {
             if (self.session.on_login !== undefined) {
                 location = self.session.on_login;
                 delete self.session.on_login;
+                self.redirect(location, cb);
             }
             else if(adminAttempt) {
-                location = '/admin';
+                pb.AdminRedirectService.redirectAdminUser(self, user, cb);
             }
-            self.redirect(location, cb);
         });
     };
 

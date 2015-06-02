@@ -67,8 +67,9 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.save(user, function(err, result) {
+                var site = self.pathSiteUId || self.site;
+                var sqs = new pb.SiteQueryService(site);
+                sqs.save(user, function(err, result) {
                     if(util.isError(err)) {
                         cb({
                             code: 500,
