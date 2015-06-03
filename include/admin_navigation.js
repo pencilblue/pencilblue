@@ -80,11 +80,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @param  adminsiteId {String} uid of site
      * @returns {Array}
      */
-    function getDefaultNavigation(adminSiteId) {
-        var adminPath = '/admin'
-        if(adminSiteId && pb.config.multisite) {
-            adminPath = '/admin/' + adminSiteId;
-        }
+    function getDefaultNavigation() {
         return util.clone(Object.freeze([
             {
                 id: 'content',
@@ -97,49 +93,49 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'navigation',
                         title: 'NAVIGATION',
                         icon: 'th-large',
-                        href: adminPath + '/content/navigation',
+                        href: '/admin/content/navigation',
                         access: SecurityService.ACCESS_EDITOR
                     },
                     {
                         id: 'topics',
                         title: 'TOPICS',
                         icon: 'tags',
-                        href: adminPath + '/content/topics',
+                        href: '/admin/content/topics',
                         access: SecurityService.ACCESS_EDITOR
                     },
                     {
                         id: 'pages',
                         title: 'PAGES',
                         icon: 'file-o',
-                        href: adminPath + '/content/pages',
+                        href: '/admin/content/pages',
                         access: SecurityService.ACCESS_EDITOR
                     },
                     {
                         id: 'articles',
                         title: 'ARTICLES',
                         icon: 'files-o',
-                        href: adminPath + '/content/articles',
+                        href: '/admin/content/articles',
                         access: SecurityService.ACCESS_WRITER
                     },
                     {
                         id: 'media',
                         title: 'MEDIA',
                         icon: 'camera',
-                        href: adminPath + '/content/media',
+                        href: '/admin/content/media',
                         access: SecurityService.ACCESS_WRITER
                     },
                     {
                         id: 'comments',
                         title: 'COMMENTS',
                         icon: 'comments',
-                        href: adminPath + '/content/comments',
+                        href: '/admin/content/comments',
                         access: SecurityService.ACCESS_EDITOR
                     },
                     {
                         id: 'custom_objects',
                         title: 'CUSTOM_OBJECTS',
                         icon: 'sitemap',
-                        href: adminPath + '/content/objects/types',
+                        href: '/admin/content/objects/types',
                         access: SecurityService.ACCESS_EDITOR
                     }
                 ]
@@ -156,13 +152,13 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'manage',
                         title: 'MANAGE',
                         icon: 'upload',
-                        href: adminPath + '/plugins'
+                        href: '/admin/plugins'
                     },
                     {
                         id: 'themes',
                         title: 'THEMES',
                         icon: 'magic',
-                        href: adminPath + '/themes'
+                        href: '/admin/themes'
                     }
                 ]
             },
@@ -200,14 +196,14 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'site_settings',
                         title: 'SITE_SETTINGS',
                         icon: 'cog',
-                        href: adminPath + '/site_settings',
+                        href: '/admin/site_settings',
                         access: SecurityService.ACCESS_MANAGING_EDITOR
                     },
                     {
                         id: 'content_settings',
                         title: 'CONTENT',
                         icon: 'quote-right',
-                        href: adminPath + '/site_settings/content',
+                        href: '/admin/site_settings/content',
                         access: SecurityService.ACCESS_MANAGING_EDITOR
                     },
                     {
@@ -221,7 +217,7 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'library_settings',
                         title: 'LIBRARIES',
                         icon: 'book',
-                        href: '/admin/'+ GLOBAL_SITE +'/site_settings/libraries',
+                        href: '/admin/site_settings/libraries',
                         access: SecurityService.ACCESS_ADMINISTRATOR
                     }
                 ]
@@ -281,7 +277,7 @@ module.exports = function AdminNavigationModule(pb) {
         var navigation = [];
         var multiSiteAdditions = getMultiSiteNavigation();
         var adminSiteId = session && session.adminSiteId ? session.adminSiteId : GLOBAL_SITE;
-        var defaultNavigation = getDefaultNavigation(adminSiteId);
+        var defaultNavigation = getDefaultNavigation();
         var additions = getAdditions(adminSiteId);
         var childrenAdditions = getChildrenAdditions(adminSiteId);
         if (!pb.SiteService.isGlobal(adminSiteId)) {
