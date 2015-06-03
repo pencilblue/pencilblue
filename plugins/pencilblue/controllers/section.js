@@ -31,12 +31,12 @@ module.exports = function SectionModule(pb) {
         var self = this;
         var init = function(err) {
             //get content settings
-            var contentService = new pb.ContentService(self.site, self.getServiceContext().onlyThisSite);
+            var serviceContext = self.getServiceContext();
+            var contentService = new pb.ContentService(self.site, serviceContext.onlyThisSite);
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
-                var serviceContext = self.getServiceContext();
                 //create the service
                 self.contentSettings = contentSettings;
                 self.service         = new pb.ArticleServiceV2(serviceContext);
