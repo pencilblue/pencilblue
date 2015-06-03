@@ -30,27 +30,23 @@ module.exports = function SectionModule(pb) {
     Section.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
             //get content settings
-            var contentService = new pb.ContentService();
+            var contentService = new pb.ContentService(self.site, self.getServiceContext().onlyThisSite);
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
-                
+                var serviceContext = self.getServiceContext();
                 //create the service
                 self.contentSettings = contentSettings;
-                self.service         = new pb.ArticleServiceV2();
+                self.service         = new pb.ArticleServiceV2(serviceContext);
                 
                 //create the loader context
-                var context = {
+                var context = util.merge(serviceContext, {
                     service: self.service,
-                    session: self.session,
-                    req: self.req,
-                    ts: self.ts,
-                    ls: self.ls,
                     contentSettings: contentSettings
-                };
+                });
+
                 self.contentViewLoader = new pb.ContentViewLoader(context);
                 self.dao     = new pb.DAO();
                 
