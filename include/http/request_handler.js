@@ -1199,7 +1199,6 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} location
      */
     RequestHandler.prototype.doRedirect = function(location) {
-        location = pb.SiteService.getSiteProtocol(location);
         this.resp.statusCode = 302;
         this.resp.setHeader("Location", location);
         this.resp.end();

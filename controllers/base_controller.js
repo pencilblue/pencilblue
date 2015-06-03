@@ -200,7 +200,7 @@ module.exports = function BaseControllerModule(pb) {
                 return;
             }
             else {
-                cb(pb.RequestHandler.generateRedirect(siteProps.hostname + redirectLocation));
+                cb(pb.RequestHandler.generateRedirect(redirectLocation));
             }
         });
 
