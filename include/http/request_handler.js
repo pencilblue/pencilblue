@@ -162,6 +162,8 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.unregisterThemeRoutes = function(theme) {
 
         var routesRemoved = 0;
+        
+        //pattern routes
         for (var i = 0; i < RequestHandler.storage.length; i++) {
             var path   = RequestHandler.storage[i].path;
             var result = RequestHandler.unregisterRoute(path, theme);
@@ -169,6 +171,14 @@ module.exports = function RequestHandlerModule(pb) {
                 routesRemoved++;
             }
         }
+        
+        //static routes
+        Object.keys(RequestHandler.staticRoutes).forEach(function(path) {
+            var result = RequestHandler.unregisterRoute(path, theme);
+            if (result) {
+                routesRemoved++;
+            }
+        });
         return routesRemoved;
     };
 
@@ -193,17 +203,25 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //check if that pattern is registered for any theme
-        if (RequestHandler.index[pattern] === undefined) {
+        var descriptor;
+        if (RequestHandler.staticRoutes[path]) {
+            descriptor = RequestHandler.staticRoutes[path];
+        }
+        else if (RequestHandler.index[pattern]) {
+            descriptor = RequestHandler.storage[RequestHandler.index[pattern]];
+        }
+        else {
+            //not a static route or pattern route
             return false;
         }
 
         //check for theme
-        var descriptor = RequestHandler.storage[RequestHandler.index[pattern]];
         if (!descriptor.themes[theme]) {
             return false;
         }
 
         //remove from service
+        pb.log.debug('RequestHander: UnRegistered Route - Theme [%s] Path [%s]', theme, path);
         delete descriptor.themes[theme];
         return true;
     };
@@ -291,15 +309,20 @@ module.exports = function RequestHandlerModule(pb) {
             //set them in storage
             if (isStatic) {
                 RequestHandler.staticRoutes[descriptor.path] = routeDescriptor;
-                pb.log.debug('RequestHander: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
             }
             else {
                 RequestHandler.index[pattern] = RequestHandler.storage.length;
                 RequestHandler.storage.push(routeDescriptor);
-                pb.log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
             }
         }
-                                                               
+        
+        //log the result
+        if (isStatic) {
+            pb.log.debug('RequestHander: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
+        }
+        else {
+            pb.log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
+        }
         return true;
     };
 
