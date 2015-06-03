@@ -59,7 +59,8 @@ module.exports = function ResendVerificationModule(pb) {
 
                     self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
                     self.redirect('/user/verification_sent', cb);
-                    pb.users.sendVerificationEmail(user, util.cb);
+                    var userService = new UserService(self.site);
+                    userService.sendVerificationEmail(user, util.cb);
                 });
             });
         });

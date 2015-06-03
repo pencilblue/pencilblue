@@ -109,7 +109,8 @@ module.exports = function SignUpModule(pb) {
 
                     //send email for verification when required
                     if (contentSettings.require_verification) {
-                        pb.users.sendVerificationEmail(user, util.cb);
+                        var userService = new pb.UserService(self.site);
+                        userService.sendVerificationEmail(user, util.cb);
                     }
                 });
             });

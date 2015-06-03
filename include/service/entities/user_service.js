@@ -218,20 +218,22 @@ module.exports = function UserServiceModule(pb) {
     UserService.prototype.sendVerificationEmail = function(user, cb) {
         cb = cb || util.cb;
 
-        pb.SiteService.getByUid(this.site, function(err, siteInfo) {
+        var siteService = new pb.SiteService();
+        siteService.getByUid(this.siteUID, function(err, siteInfo) {
             // We need to see if email settings have been saved with verification content
             var emailService = new pb.EmailService(this.site);
-            emailService.getSettings(function(err, emailSettings) {
+            emailService.getSettings(function (err, emailSettings) {
+                var hostname = siteInfo.hostname.indexOf('http') > 0 ? siteInfo.hostname : 'http://' + siteInfo.hostname;
                 var options = {
                     to: user.email,
                     replacements: {
-                        'verification_url': siteInfo.hostname + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+                        'verification_url': hostname + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
                         'first_name': user.first_name,
                         'last_name': user.last_name
                     }
                 };
-                if(emailSettings.layout) {
-                    options.subject= emailSettings.verification_subject;
+                if (emailSettings.layout) {
+                    options.subject = emailSettings.verification_subject;
                     options.layout = emailSettings.verification_content;
                     emailService.sendFromLayout(options, cb);
                 }
