@@ -487,7 +487,7 @@ module.exports = function ArticleServiceModule(pb) {
      * thumbnail - a URI path to the thumbnail image 
      */
     ArticleService.prototype.getMetaInfo = function(article, cb) {
-        var serviceV2 = new pb.ArticleServiceV2();
+        var serviceV2 = new pb.ArticleServiceV2({site: this.site});
         serviceV2.getMetaInfo(article, cb);
     };
 

@@ -84,6 +84,7 @@ module.exports = function(pb) {
      * @param {Function} cb Callback function
      */
     ContentService.prototype.get = function(cb) {
+        var self = this;
         this.settingService.get(CONTENT_SETTINGS_REF, function(err, settings){
             if (settings) {
                 return cb(err, settings);

@@ -236,6 +236,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ArticleServiceV2.prototype.gatherDataForRender = function(articles, cb) {
+        var self = this;
         if (!util.isArray(articles)) {
             return cb(new Error('articles parameter must be an array'));
         }
@@ -267,7 +268,7 @@ module.exports = function(pb) {
             
             contentSettings: function(callback) {
                 
-                var contentService = new pb.ContentService();
+                var contentService = new pb.ContentService(self.context.site, self.context.onlyThisSite);
                 contentService.getSettings(callback);
             }
         };
@@ -287,6 +288,7 @@ module.exports = function(pb) {
      * thumbnail - a URI path to the thumbnail image 
      */
     ArticleServiceV2.prototype.getMetaInfo = function(article, cb) {
+        var self = this;
         if (util.isNullOrUndefined(article)) {
             return cb(
                 new Error('The article parameter cannot be null'),
@@ -346,7 +348,7 @@ module.exports = function(pb) {
                     },
                     where: pb.DAO.getIdInWhere(article.article_topics || article.page_topics)
                 };
-                var topicService = new pb.TopicService();
+                var topicService = new pb.TopicService(self.context);
                 topicService.getAll(opts, function(err, topics) {
                     if (util.isError(err)) {
                         return callback(err);
@@ -376,7 +378,7 @@ module.exports = function(pb) {
                     },
                     where: pb.DAO.getIdWhere(article.thumbnail)
                 };
-                var mediaService = new pb.MediaService();
+                var mediaService = new pb.MediaService(null, self.context.site, self.context.onlyThisSite);
                 mediaService.get(mOpts, function(err, media) {
                     callback(err, util.isNullOrUndefined(media) ? '' : media.location);
                 });
