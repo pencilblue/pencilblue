@@ -593,6 +593,14 @@ module.exports = function Routes(pb){
             content_type: 'text/html'
         },
         {
+            method: 'post',
+            path: "/api/admin/:siteid/site_settings/email/send_test",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'site_settings', 'email', 'send_test.js'),
+            content_type: 'application/json'
+        },
+        {
             method: 'get',
             path: "/admin/"+ pb.SiteService.GLOBAL_SITE + "/site_settings/libraries",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,

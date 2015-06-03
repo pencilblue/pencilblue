@@ -43,7 +43,7 @@ module.exports = function(pb) {
                 subject: 'Test email from PencilBlue',
                 layout: 'This is a successful test email from the PencilBlue system.'
             };
-            var emailService = new pb.EmailService();
+            var emailService = new pb.EmailService(pb.SiteService.getCurrentSite(self.pathVars.siteid));
             emailService.sendFromLayout(options, function(err, response) {
                 if(err) {
                     return cb({

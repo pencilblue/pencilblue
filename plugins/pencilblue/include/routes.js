@@ -902,7 +902,6 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'verify_user.js')
         },
-
         {
             method: 'post',
             path: "/actions/admin/users/change_password/:id",

@@ -21,7 +21,7 @@ module.exports = function SiteServiceModule(pb) {
     var SITE_COLL = SiteService.SITE_COLLECTION;
 
     SiteService.prototype.getByUid = function(uid, cb) {
-        if(uid === SiteService.GLOBAL_SITE) {
+        if(!uid || uid === SiteService.GLOBAL_SITE) {
             cb(null, {
                 displayName:pb.config.siteName,
                 hostname: pb.config.siteRoot,

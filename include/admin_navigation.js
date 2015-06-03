@@ -214,7 +214,7 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'email_settings',
                         title: 'EMAIL',
                         icon: 'envelope',
-                        href: '/admin/site_settings/email',
+                        href: adminPath + '/site_settings/email',
                         access: SecurityService.ACCESS_MANAGING_EDITOR
                     },
                     {

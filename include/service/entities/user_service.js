@@ -218,27 +218,29 @@ module.exports = function UserServiceModule(pb) {
     UserService.prototype.sendVerificationEmail = function(user, cb) {
         cb = cb || util.cb;
 
-        // We need to see if email settings have been saved with verification content
-        var emailService = new pb.EmailService();
-        emailService.getSettings(function(err, emailSettings) {
-            var options = {
-                to: user.email,
-                replacements: {
-                    'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name
+        pb.SiteService.getByUid(this.site, function(err, siteInfo) {
+            // We need to see if email settings have been saved with verification content
+            var emailService = new pb.EmailService(this.site);
+            emailService.getSettings(function(err, emailSettings) {
+                var options = {
+                    to: user.email,
+                    replacements: {
+                        'verification_url': siteInfo.hostname + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name
+                    }
+                };
+                if(emailSettings.layout) {
+                    options.subject= emailSettings.verification_subject;
+                    options.layout = emailSettings.verification_content;
+                    emailService.sendFromLayout(options, cb);
                 }
-            };
-            if(emailSettings.layout) {
-                options.subject= emailSettings.verification_subject;
-                options.layout = emailSettings.verification_content;
-                emailService.sendFromLayout(options, cb);
-            }
-            else {
-                options.subject = pb.config.siteName + ' Account Confirmation';
-                options.template = emailSettings.template;
-                emailService.sendFromTemplate(options, cb);
-            }
+                else {
+                    options.subject = siteInfo.displayName + ' Account Confirmation';
+                    options.template = emailSettings.template;
+                    emailService.sendFromTemplate(options, cb);
+                }
+            });
         });
     };
 
@@ -253,19 +255,22 @@ module.exports = function UserServiceModule(pb) {
     UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
         cb = cb || util.cb;
 
-        var verficationUrl = pb.UrlService.urlJoin(pb.config.siteRoot, '/actions/user/reset_password') + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
-        var options = {
-            to: user.email,
-            subject: pb.config.siteName + ' Password Reset',
-            template: 'admin/elements/password_reset_email',
-            replacements: {
-                'verification_url': verficationUrl,
-                'first_name': user.first_name,
-                'last_name': user.last_name
-            }
-        };
-        var emailService = new pb.EmailService();
-        emailService.sendFromTemplate(options, cb);
+        pb.SiteService.getByUid(this.site, function(err, siteInfo) {
+            var verficationUrl = pb.UrlService.urlJoin(siteInfo.hostname, '/actions/user/reset_password')
+              + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
+            var options = {
+                to: user.email,
+                subject: siteInfo.displayName + ' Password Reset',
+                template: 'admin/elements/password_reset_email',
+                replacements: {
+                    'verification_url': verficationUrl,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name
+                }
+            };
+            var emailService = new pb.EmailService(this.site);
+            emailService.sendFromTemplate(options, cb);
+        });
     };
 
     /**
@@ -327,7 +332,7 @@ module.exports = function UserServiceModule(pb) {
             },
             unverified_email: function(callback) {
                 dao.count('unverified_user', getWhere({email: email.toLowerCase()}), callback);
-            },
+            }
         };
         async.series(tasks, cb);
     };
