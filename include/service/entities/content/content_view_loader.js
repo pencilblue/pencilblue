@@ -36,6 +36,7 @@ module.exports = function(pb) {
         this.session = context.session;
         this.service = context.service;
         this.site = context.site;
+        this.onlyThisSite = context.site;
     };
     
     /**
@@ -191,7 +192,7 @@ module.exports = function(pb) {
                     return callback(null, self.contentSettings);
                 }
                 
-                var contentService = new pb.ContentService(self.site, true);
+                var contentService = new pb.ContentService(self.site, self.onlyThisSite);
                 contentService.getSettings(function(err, contentSettings) {
                     self.contentSettings = contentSettings;
                     callback(err, contentSettings);

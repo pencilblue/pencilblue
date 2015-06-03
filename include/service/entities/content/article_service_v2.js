@@ -268,7 +268,7 @@ module.exports = function(pb) {
             
             contentSettings: function(callback) {
                 
-                var contentService = new pb.ContentService(self.context.site, true);
+                var contentService = new pb.ContentService(self.context.site, self.context.onlyThisSite);
                 contentService.getSettings(callback);
             }
         };
@@ -378,7 +378,7 @@ module.exports = function(pb) {
                     },
                     where: pb.DAO.getIdWhere(article.thumbnail)
                 };
-                var mediaService = new pb.MediaService(null, self.context.site, true);
+                var mediaService = new pb.MediaService(null, self.context.site, self.context.onlyThisSite);
                 mediaService.get(mOpts, function(err, media) {
                     callback(err, util.isNullOrUndefined(media) ? '' : media.location);
                 });
