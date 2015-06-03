@@ -190,9 +190,20 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Function} cb
      */
     BaseController.prototype.formError = function(message, redirectLocation, cb) {
+        var self = this;
+        self.session.error = message;
+        var siteService = new pb.SiteService();
+        siteService.getByUid(self.site, function(err, siteProps) {
+            if(util.isError(err) || !siteProps) {
+                if(err) { pb.log.error(err) };
+                self.reqHandler.serve404(); //TODO: Handle this better?
+                return;
+            }
+            else {
+                cb(pb.RequestHandler.generateRedirect(siteProps.hostname + redirectLocation));
+            }
+        });
 
-        this.session.error = message;
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + redirectLocation));
     };
 
     /**

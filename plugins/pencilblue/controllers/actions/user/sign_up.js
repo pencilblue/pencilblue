@@ -121,6 +121,7 @@ module.exports = function SignUpModule(pb) {
     };
 
     SignUp.prototype.validateUniques = function(user, cb) {
+        var self = this;
         var tasks = {
             verified_username: function(callback) {
                 self.siteQueryService.count('user', {username: user.username}, callback);
