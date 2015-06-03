@@ -37,7 +37,7 @@ module.exports = function BaseAdminControllerModule(pb) {
    */
   BaseAdminController.prototype.init = function (props, cb) {
     var self = this;
-    self.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+    self.pathSiteUId = props.site;
     BaseController.prototype.init.call(self, props, function () {
       self.extendedInit(cb);
     });
