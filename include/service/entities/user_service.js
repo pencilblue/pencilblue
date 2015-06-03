@@ -223,11 +223,10 @@ module.exports = function UserServiceModule(pb) {
             // We need to see if email settings have been saved with verification content
             var emailService = new pb.EmailService(this.site);
             emailService.getSettings(function (err, emailSettings) {
-                var hostname = siteInfo.hostname.indexOf('http') > 0 ? siteInfo.hostname : 'http://' + siteInfo.hostname;
                 var options = {
                     to: user.email,
                     replacements: {
-                        'verification_url': hostname + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+                        'verification_url': pb.SiteService.getSiteProtocol(siteInfo.hostname) + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
                         'first_name': user.first_name,
                         'last_name': user.last_name
                     }

@@ -371,5 +371,10 @@ module.exports = function SiteServiceModule(pb) {
         return object[SiteService.SITE_FIELD];
     };
 
+    SiteService.getSiteProtocol = function(hostname) {
+        var protocol = pb.config.server.ssl.enabled ? 'https://' : 'http://';
+        return hostname.indexOf('http') > 0 ? hostname : protocol + hostname;
+    };
+
     return SiteService;
 };
