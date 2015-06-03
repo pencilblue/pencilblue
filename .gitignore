@@ -21,5 +21,6 @@ plugins/*
 **/node_modules
 **/node_modules/**
 config.json
+coverage/
 **/.DS_Store
 **/dump.rdb

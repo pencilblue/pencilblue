@@ -66,8 +66,9 @@ module.exports = function BaseAdminControllerModule(pb) {
      * @method getTemplateService
      * @return {Object} TemplateService
      */
-    BaseAdminController.prototype.getTemplateService = function() {
-        return new pb.TemplateService(this.localizationService, this.pathSiteUId);
+    BaseAdminController.prototype.getTemplateService = function(tsOpts) {
+        tsOpts.site = this.pathSiteUId;
+        return new pb.TemplateService(tsOpts);
     };
 
   /**

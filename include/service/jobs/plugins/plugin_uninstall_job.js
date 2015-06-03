@@ -156,16 +156,15 @@ module.exports = function PluginUninstallJobModule(pb) {
             //remove settings
             function(callback) {
                 self.log('Attemping to remove plugin settings');
-
                 self.pluginService.purgePluginSettings(pluginUid, function (err, result) {
                     callback(err, !util.isError(err) && result);
+
                 });
             },
 
             //remove theme settings
             function(callback) {
                 self.log('Attemping to remove theme settings');
-
                 self.pluginService.purgeThemeSettings(pluginUid, function (err, result) {
                     callback(err, !util.isError(err) && result);
                 });

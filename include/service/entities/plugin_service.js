@@ -1286,13 +1286,10 @@ module.exports = function PluginServiceModule(pb) {
      * @method installPluginDependencies
      * @param {String} pluginDirName
      * @param {Object} dependencies
+     * @param {Object} plugin
      * @param {Function} cb
      */
     PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
-        if (util.isFunction(plugin)) {
-            cb = plugin;
-            plugin = null;
-        }
 
         //verify parameters
         if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
@@ -1353,7 +1350,7 @@ module.exports = function PluginServiceModule(pb) {
                     pb.log.warn('PluginService: Reached maximum retry count trying to verify dependencies');
                     return onDone(null, false);
                 }
-
+                           
                 //proceed to check to see if all dependencies are there
                 self.hasDependencies(plugin, function(err, hasDependencies) {
                     if (hasDependencies) {
@@ -2093,12 +2090,10 @@ module.exports = function PluginServiceModule(pb) {
             //get the routes
             ControllerPrototype.getRoutes(function(err, routes) {
                 if (util.isError(err)) {
-                    cb(err, null);
-                    return;
+                    return cb(err, null);
                 }
                 else if (!util.isArray(routes)) {
-                    cb(new Error('Controller at ['+pathToController+'] did not return an array of routes'), null);
-                    return;
+                    return cb(new Error('Controller at ['+pathToController+'] did not return an array of routes'), null);
                 }
 
                 //attempt to register route

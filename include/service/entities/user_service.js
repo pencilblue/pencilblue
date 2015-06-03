@@ -19,7 +19,7 @@
 var async = require('async');
 var util  = require('../../util.js');
 
-module.exports = function UserServiceModule(pb) {
+module.exports = function(pb) {
 
     /**
      * Service for performing user specific operations.
@@ -29,7 +29,24 @@ module.exports = function UserServiceModule(pb) {
      * @class UserService
      * @constructor
      */
-    function UserService(){}
+    function UserService(context){
+        if (!util.isObject(context)) {
+            context = {};
+        }
+        
+        context.type = TYPE;
+        UserService.super_.call(this, context);
+    }
+    util.inherits(UserService, pb.BaseObjectService);
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property TYPE
+     * @type {String}
+     */
+    var TYPE = 'user';
 
     /**
      * Gets the full name of a user

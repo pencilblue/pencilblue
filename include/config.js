@@ -408,6 +408,18 @@ var BASE_CONFIG = {
                 spec: {created: ASC},
                 options: {}
             },
+            
+            //comment
+            {
+                collection: 'comment',
+                spec: {article: ASC},
+                options: {}
+            },
+            {
+                collection: 'comment',
+                spec: {commenter: ASC},
+                options: {}
+            },
 
             //topic
             {
