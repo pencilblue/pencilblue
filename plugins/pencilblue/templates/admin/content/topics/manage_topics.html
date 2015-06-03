@@ -5,7 +5,7 @@
     ^tmp_admin=elements=search_input^
     <div>
         <div class="btn-group" ng-repeat="topic in topics track by topic._id" style="margin: 0 .5em .5em 0" ng-if="!topic.hidden && !topic.paginated">
-            <a class="btn btn-primary" ng-href="/admin{{ sitePrefix }}/content/topics/{{topic._id}}" ng-bind="topic.name"></a>
+            <a class="btn btn-primary" ng-href="/admin/content/topics/{{topic._id}}" ng-bind="topic.name"></a>
             <button class="btn btn-primary" type="button" ng-click="confirmDelete(topic)">
                 <i class="fa fa-trash"></i>
             </button>

@@ -23,16 +23,30 @@ module.exports = function(pb) {
     /**
      * Interface for managing topics
      */
-    function ManageTopics() {
-    
-        /**
-         * 
-         * @property service
-         * @type {TopicService}
-         */
-        this.service = new pb.TopicService();
-    }
+    function ManageTopics() {}
     util.inherits(ManageTopics, pb.BaseAdminController);
+
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    ManageTopics.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+
+            /**
+             *
+             * @property service
+             * @type {TopicService}
+             */
+            self.service = new pb.TopicService(self.getServiceContext());
+
+            cb(err, true);
+        };
+        ManageTopics.super_.prototype.init.apply(this, [context, init]);
+    };
 
     var SUB_NAV_KEY = 'manage_topics';
 
@@ -46,7 +60,7 @@ module.exports = function(pb) {
             else if(topics.length === 0) {
 
                 //none to manage
-                return self.redirect('/admin' + self.sitePrefix + '/content/topics/new', cb);
+                return self.redirect('/admin/content/topics/new', cb);
             }
 
             //currently, mongo cannot do case-insensitive sorts.  We do it manually
@@ -61,9 +75,8 @@ module.exports = function(pb) {
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix}),
-                topics: topics,
-                sitePrefix: self.sitePrefix
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                topics: topics
             });
 
             self.setPageName(self.ls.get('MANAGE_TOPICS'));
@@ -76,22 +89,21 @@ module.exports = function(pb) {
     };
 
     ManageTopics.getSubNavItems = function(key, ls, data) {
-        var prefix = data.sitePrefix;
         return [{
             name: SUB_NAV_KEY,
             title: ls.get('MANAGE_TOPICS'),
             icon: 'refresh',
-            href: '/admin' + prefix + '/content/topics'
+            href: '/admin/content/topics'
         }, {
             name: 'import_topics',
             title: '',
             icon: 'upload',
-            href: '/admin' + prefix + '/content/topics/import'
+            href: '/admin/content/topics/import'
         }, {
             name: 'new_topic',
             title: '',
             icon: 'plus',
-            href: '/admin' + prefix + '/content/topics/new'
+            href: '/admin/content/topics/new'
         }];
     };
 
