@@ -150,7 +150,8 @@ module.exports = function BaseControllerModule(pb) {
             ls: this.ls,
             ts: this.ts,
             site: this.site,
-            activeTheme: this.activeTheme
+            activeTheme: this.activeTheme,
+            onlyThisSite: true
         };
 
         cb();

@@ -32,7 +32,7 @@ module.exports = function SectionModule(pb) {
         var init = function(err) {
             
             //get content settings
-            var contentService = new pb.ContentService();
+            var contentService = new pb.ContentService(self.site, true);
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);
@@ -40,7 +40,7 @@ module.exports = function SectionModule(pb) {
                 
                 //create the service
                 self.contentSettings = contentSettings;
-                self.service         = new pb.ArticleServiceV2();
+                self.service         = new pb.ArticleServiceV2(self.getServiceContext());
                 
                 //create the loader context
                 var context = {
@@ -49,7 +49,8 @@ module.exports = function SectionModule(pb) {
                     req: self.req,
                     ts: self.ts,
                     ls: self.ls,
-                    contentSettings: contentSettings
+                    contentSettings: contentSettings,
+                    site: self.site
                 };
                 self.contentViewLoader = new pb.ContentViewLoader(context);
                 self.dao     = new pb.DAO();
