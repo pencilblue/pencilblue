@@ -135,7 +135,8 @@ module.exports = function BaseControllerModule(pb) {
             req: this.req,
             session: this.session,
             ls: this.ls,
-            ts: this.ts
+            ts: this.ts,
+            site: this.site
         };
 
         cb();
