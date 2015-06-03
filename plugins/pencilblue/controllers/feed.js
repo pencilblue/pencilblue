@@ -31,15 +31,23 @@ module.exports = function FeedModule(pb) {
     /**
      * RSS Feed
      */
-    function ArticleFeed(){
-        
-        /**
-         *
-         *
-         */
-        this.service = new ArticleServiceV2();
-    }
+    function ArticleFeed(){}
     util.inherits(ArticleFeed, pb.BaseController);
+
+    ArticleFeed.prototype.init = function(props, cb) {
+        var self = this;
+        var init = function(err) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+
+            //create the service
+            self.service = new pb.ArticleServiceV2(self.getServiceContext());
+
+            cb(null, true);
+        };
+        ArticleFeed.super_.prototype.init.apply(this, [props, init]);
+    };
 
     ArticleFeed.prototype.render = function(cb) {
         var self = this;
