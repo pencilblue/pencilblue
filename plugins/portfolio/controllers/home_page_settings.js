@@ -80,7 +80,7 @@ module.exports = function HomePageSettingsModule(pb) {
 
                 var objects = {
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, {sitePrefix: self.sitePrefix}),
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
                     tabs: tabs,
                     media: media,
                     homePageSettings: homePageSettings
@@ -101,7 +101,7 @@ module.exports = function HomePageSettingsModule(pb) {
                 name: 'content_settings',
                 title: ls.get('HOME_PAGE_SETTINGS'),
                 icon: 'chevron-left',
-                href: '/admin'+ data.sitePrefix + '/plugins/portfolio/settings'
+                href: '/admin/plugins/portfolio/settings'
             }
         ];
     };
