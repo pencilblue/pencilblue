@@ -4,18 +4,18 @@
                 <div class="col-md-4 col-md-offset-4">
                     <div id="login_logo">
                         <a href="^site_root^">
-                            <img src="^site_logo^"></img>
+                            <img src="^site_logo^"/>
                         </a>
                     </div>
                     ^error_success^
                     <div class="panel panel-default">
                         <div class="panel-heading">^loc_RESEND_VERIFICATION^</a></div>
                         <div class="panel-body">
-                            <form id="sign_up_form" method="post" action="^site_root^/actions/user/resend_verification">
+                            <form id="sign_up_form" method="post" action="/actions/user/resend_verification">
                                 <fieldset>
                                     <div class="form-group">
                                         <label>^loc_EMAIL^</label>
-                                        <input type="email" id="email" name="email" class="form-control"></input>
+                                        <input type="email" id="email" name="email" class="form-control"/>
                                     </div>
                                     <input type="submit" class="btn btn-lg btn-info btn-block" value="^loc_SUBMIT^">
                                 </fieldset>
@@ -23,11 +23,11 @@
                         </div>
                     </div>
                     <div style="text-align: right">
-                        <a href="^site_root^"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_BACK_HOME^</a>
+                        <a href="/"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_BACK_HOME^</a>
                     </div>
                 </div>
             </div>
         </div>
-        <script type="text/javascript" src="^site_root^/js/user/resend_verification.js"></script>
+        <script type="text/javascript" src="/js/user/resend_verification.js"></script>
     </body>
 </html>
