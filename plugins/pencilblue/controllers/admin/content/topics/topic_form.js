@@ -47,8 +47,7 @@ module.exports = function(pb) {
             }
 
             self.topic = data.topic;
-            data.sitePrefix = self.sitePrefix;
-            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, self.topic, data);
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.topic);
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.topic[pb.DAO.getIdField()] ? self.topic.name : self.ls.get('NEW_TOPIC'));
@@ -94,23 +93,21 @@ module.exports = function(pb) {
     };
 
     TopicForm.getSubNavItems = function(key, ls, data) {
-        var topic = data.topic;
-        var prefix = data.sitePrefix;
         return [{
             name: SUB_NAV_KEY,
-            title: topic[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + topic.name : ls.get('NEW_TOPIC'),
+            title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_TOPIC'),
             icon: 'chevron-left',
-            href: '/admin' + prefix + '/content/topics'
+            href: '/admin/content/topics'
         }, {
             name: 'import_topics',
             title: '',
             icon: 'upload',
-            href: '/admin' + prefix + '/content/topics/import'
+            href: '/admin/content/topics/import'
         }, {
             name: 'new_topic',
             title: '',
             icon: 'plus',
-            href: '/admin' + prefix + '/content/topics/new'
+            href: '/admin/content/topics/new'
         }];
     };
 
