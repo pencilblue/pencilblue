@@ -112,8 +112,7 @@ module.exports = function(pb) {
             }
             data.page.page_topics = topics;
         }
-
-        data.sitePrefix = self.sitePrefix;
+        
         var objects = {
             navigation: pb.AdminNavigation.get(this.session, ['content', 'pages'], this.ls),
             pills: self.getAdminPills(this.getActivePill(), this.ls, this.getActivePill(), data),
@@ -124,7 +123,7 @@ module.exports = function(pb) {
             media: data.media,
             page: data.page,
             siteKey: pb.SiteService.SITE_FIELD,
-            site: self.pathSiteUId,
+            site: self.site,
             sitePrefix: self.sitePrefix
         };
         if(data.availableAuthors) {
@@ -139,17 +138,16 @@ module.exports = function(pb) {
      *
      */
     PageFormController.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin' + data.sitePrefix;
         return [{
             name: 'manage_pages',
             title: data.page[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.page.headline : ls.get('NEW_PAGE'),
             icon: 'chevron-left',
-            href: adminPrefix + '/content/pages'
+            href: '/admin/content/pages'
         }, {
             name: 'new_page',
             title: '',
             icon: 'plus',
-            href: adminPrefix + '/content/pages/new'
+            href: '/admin/content/pages/new'
         }];
     };
 
@@ -171,7 +169,7 @@ module.exports = function(pb) {
         var self  = this;
         var tasks = {
             templates: function(callback) {
-                callback(null, pb.TemplateService.getAvailableContentTemplates(self.pathSiteUId));
+                callback(null, pb.TemplateService.getAvailableContentTemplates(self.site));
             },
 
             sections: function(callback) {
@@ -195,7 +193,7 @@ module.exports = function(pb) {
             },
 
             media: function(callback) {
-                var mservice = new pb.MediaService(null, self.pathSiteUId, true);
+                var mservice = new pb.MediaService(null, self.site, true);
                 mservice.get(callback);
             },
 
