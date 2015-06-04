@@ -43,18 +43,12 @@ module.exports = function PortfolioModule(pb) {
         pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization, data) {
             if(data.plugin.uid === 'portfolio') {
                 var href;
-                if(pb.config.multisite) {
-                    href = '/admin/:siteid/plugins/portfolio/settings/home_page';
-                }
-                else {
-                    href = '/admin/plugins/portfolio/settings/home_page'
-                }
                 return [
                     {
                         name: 'home_page_settings',
                         title: 'Home page settings',
                         icon: 'home',
-                        href: href
+                        href: '/admin/plugins/portfolio/settings/home_page'
                     }
                 ];
             }
