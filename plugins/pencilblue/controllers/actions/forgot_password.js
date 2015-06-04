@@ -27,6 +27,12 @@ module.exports = function ForgotPasswordControllerModule(pb) {
     function ForgotPasswordController(){}
     util.inherits(ForgotPasswordController, pb.FormController);
 
+
+    ForgotPasswordController.prototype.init = function(context, cb) {
+        ForgotPasswordController.super_.prototype.init.apply(this, [context, init]);
+    };
+
+
     /**
      * 
      * @method onPostParamsRetrieved
@@ -57,7 +63,7 @@ module.exports = function ForgotPasswordControllerModule(pb) {
         };
 
         //search for user
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService(self.context.site, true);
         dao.loadByValues(query, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 return self.formError(self.ls.get('NOT_REGISTERED'), returnURL, cb);
@@ -94,7 +100,7 @@ module.exports = function ForgotPasswordControllerModule(pb) {
 
                         self.session.success = self.ls.get('YOUR_PASSWORD_RESET');
                         self.redirect(returnURL, cb);
-                        var userService = new pb.UserService(self.site);
+                        var userService = new pb.UserService(self.context);
                         userService.sendPasswordResetEmail(user, passwordReset, util.cb);
                     });
                 });

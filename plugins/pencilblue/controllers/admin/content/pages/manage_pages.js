@@ -46,7 +46,7 @@ module.exports = function(pb) {
             }
 
             pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-                self.getAngularObjects(self.pathSiteUId, pagesWithAuthor, function(angularObjects) {
+                self.getAngularObjects(pagesWithAuthor, function(angularObjects) {
                     var title = self.ls.get('MANAGE_PAGES');
                     self.setPageName(title);
                     self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
@@ -76,9 +76,9 @@ module.exports = function(pb) {
         return pages;
     };
 
-    ManagePages.prototype.getAngularObjects = function(site, pagesWithAuthor, cb) {
+    ManagePages.prototype.getAngularObjects = function(pagesWithAuthor, cb) {
         var self = this;
-        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, 'manage_pages', {site: site}, function(pills) {
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, 'manage_pages', {site: self.site}, function(pills) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                 pills: pills,
@@ -91,20 +91,16 @@ module.exports = function(pb) {
     };
 
     ManagePages.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin';
-        if(data.site) {
-            adminPrefix += pb.SiteService.getCurrentSitePrefix(data.site);
-        }
         return [{
             name: 'manage_pages',
             title: ls.get('MANAGE_PAGES'),
             icon: 'refresh',
-            href: adminPrefix + '/content/pages'
+            href: '/admin/content/pages'
         }, {
             name: 'new_page',
             title: '' ,
             icon: 'plus',
-            href: adminPrefix + '/content/pages/new'
+            href: '/admin/content/pages/new'
         }];
     };
 

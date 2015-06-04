@@ -60,7 +60,7 @@ module.exports = function(pb) {
                 post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
                 pb.DocumentCreator.update(post, article, ['meta_keywords']);
 
-                pb.RequestHandler.urlExists(article.url, post.id, self.pathSiteUId, function(error, exists) {
+                pb.RequestHandler.urlExists(article.url, post.id, self.site, function(error, exists) {
                     var testError = (error !== null && typeof error !== 'undefined');
                     
                     if( testError || exists || article.url.indexOf('/admin') === 0) {
