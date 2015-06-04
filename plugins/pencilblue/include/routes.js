@@ -1077,6 +1077,32 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js'),
             request_body: ['application/json']
         },
+        {
+            method: 'get',
+            path: "/api/content/articles/:articleId/comments",
+            handler: "getAllComments",
+            content_type: 'application/json',
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js')
+        },
+        {
+            method: 'post',
+            path: "/api/content/articles/:articleId/comments",
+            handler: "addComment",
+            content_type: 'application/json',
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js'),
+            request_body: ['application/json']
+        },
+        {
+            method: 'delete',
+            path: "/api/content/articles/:articleId/comments/:id",
+            handler: "deleteComment",
+            content_type: 'application/json',
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js')
+        },
         
         //topics
         {

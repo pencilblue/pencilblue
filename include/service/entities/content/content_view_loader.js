@@ -35,6 +35,8 @@ module.exports = function(pb) {
         this.contentSettings = context.contentSettings; 
         this.session = context.session;
         this.service = context.service;
+        this.site = context.site;
+        this.onlyThisSite = context.site;
     };
     
     /**
@@ -174,7 +176,8 @@ module.exports = function(pb) {
                 var options = {
                     currUrl: self.req.url,
                     session: self.session,
-                    ls: self.ls
+                    ls: self.ls,
+                    site: self.site
                 };
                 var topMenuService = new pb.TopMenuService();
                 topMenuService.getNavItems(options, callback);
@@ -189,7 +192,7 @@ module.exports = function(pb) {
                     return callback(null, self.contentSettings);
                 }
                 
-                var contentService = new pb.ContentService();
+                var contentService = new pb.ContentService(self.site, self.onlyThisSite);
                 contentService.getSettings(function(err, contentSettings) {
                     self.contentSettings = contentSettings;
                     callback(err, contentSettings);
@@ -369,7 +372,7 @@ module.exports = function(pb) {
         }
         cb(null, val);
     };
-    
+
     ContentViewLoader.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
         var val = '';
         if (commentingUser && util.isArray(commentingUser.position) && commentingUser.position.length > 0) {

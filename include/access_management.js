@@ -270,6 +270,20 @@ module.exports = function(pb) {
         }
         return password.join('');
     };
+    
+    /**
+     *
+     * @static
+     * @method getPrincipal
+     * @param {Object} session
+     * @return {Object} The authenticated user principal or NULL if not authenticated
+     */
+    SecurityService.getPrincipal = function(session) {
+        if (util.isObject(session) && util.isObject(session.authentication)) {
+            return session.authentication.user;
+        }
+        return null;
+    };
 
     return SecurityService;
 };

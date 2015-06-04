@@ -199,7 +199,7 @@ module.exports = function ArticleServiceModule(pb) {
 
                     var tasks = util.getTasks(articles, function(articles, i) {
                         return function(callback) {
-                            self.processArticleForDisplay(articles[i], articles.length, authors, contentSettings, function(){
+                            self.processArticleForDisplay(articles[i], articles.length, authors, contentSettings, options, function(){
                                 callback(null, null);
                             });
                         };
@@ -244,7 +244,12 @@ module.exports = function ArticleServiceModule(pb) {
      * @param {Object}   contentSettings Content settings to use for processing
      * @param {Function} cb              Callback function
      */
-    ArticleService.prototype.processArticleForDisplay = function(article, articleCount, authors, contentSettings, cb) {
+    ArticleService.prototype.processArticleForDisplay = function(article, articleCount, authors, contentSettings, options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = cb;
+        }
+        
         var self = this;
 
         if (this.getContentType() === ARTICLE_TYPE) {
@@ -339,7 +344,7 @@ module.exports = function ArticleServiceModule(pb) {
 
         article.layout  = article.article_layout;
         var mediaLoader = new MediaLoader();
-        mediaLoader.start(article[this.getContentType()+'_layout'], function(err, newLayout) {
+        mediaLoader.start(article[this.getContentType()+'_layout'], options, function(err, newLayout) {
             article.layout = newLayout;
             delete article.article_layout;
 
@@ -452,10 +457,16 @@ module.exports = function ArticleServiceModule(pb) {
      * Retrieves the article and byline templates
      *
      * @method getTemplates
+     * @param {Object} [opts]
      * @param {Function} cb Callback function
      */
-    ArticleService.prototype.getTemplates = function(cb) {
-        var ts = new pb.TemplateService();
+    ArticleService.prototype.getTemplates = function(opts, cb) {
+        if (util.isFunction(opts)) {
+            cb = opts;
+            opts = {};
+        }
+        
+        var ts = new pb.TemplateService(opts);
         ts.load('elements/article', function(err, articleTemplate) {
             ts.load('elements/article/byline', function(err, bylineTemplate) {
                 cb(articleTemplate, bylineTemplate);
@@ -476,7 +487,7 @@ module.exports = function ArticleServiceModule(pb) {
      * thumbnail - a URI path to the thumbnail image 
      */
     ArticleService.prototype.getMetaInfo = function(article, cb) {
-        var serviceV2 = new pb.ArticleServiceV2();
+        var serviceV2 = new pb.ArticleServiceV2({site: this.site});
         serviceV2.getMetaInfo(article, cb);
     };
 
@@ -532,7 +543,10 @@ module.exports = function ArticleServiceModule(pb) {
      * @constructor
      * @submodule Entities
      */
-    function MediaLoader() {};
+    function MediaLoader() {
+    
+        this.mediaService = new pb.MediaService();
+    };
 
     /**
      * Processes an article or page to insert media
@@ -541,9 +555,14 @@ module.exports = function ArticleServiceModule(pb) {
      * @param  {String}   articleLayout The HTML layout of the article or page
      * @param  {Function} cb            [description]
      */
-    MediaLoader.prototype.start = function(articleLayout, cb) {
+    MediaLoader.prototype.start = function(articleLayout, options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+        
         var self = this;
-        var ts   = new pb.TemplateService();
+        var ts   = new pb.TemplateService(options);
         ts.load('elements/media', function(err, mediaTemplate) {
 
             async.whilst(
@@ -559,6 +578,29 @@ module.exports = function ArticleServiceModule(pb) {
                 }
             );
         });
+    };
+    
+    /**
+     * Scans a string for media flags then parses them to return an array of 
+     * each one that was found
+     * @method scanForFlags
+     * @param {String} layout
+     * @return {Array}
+     */
+    MediaLoader.prototype.scanForFlags = function(layout) {
+        if (!util.isString(layout)) {
+            return [];
+        }
+        
+        var flags = [];
+        var index = 0;
+        while( (index = layout.indexOf('^media_display_')) >= 0) {
+            flags.push(pb.MediaService.extractNextMediaFlag(layout));
+            
+            var nexPosition = layout.indexOf('^', index + 1);
+            layout = layout.substr(nexPosition);
+        }
+        return flags;
     };
 
     /**

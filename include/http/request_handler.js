@@ -180,6 +180,8 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         var routesRemoved = 0;
+        
+        //pattern routes
         for (var i = 0; i < RequestHandler.storage.length; i++) {
             var path   = RequestHandler.storage[i].path;
             var result = RequestHandler.unregisterRoute(path, theme, site);
@@ -187,6 +189,14 @@ module.exports = function RequestHandlerModule(pb) {
                 routesRemoved++;
             }
         }
+        
+        //static routes
+        Object.keys(RequestHandler.staticRoutes).forEach(function(path) {
+            var result = RequestHandler.unregisterRoute(path, theme);
+            if (result) {
+                routesRemoved++;
+            }
+        });
         return routesRemoved;
     };
 
@@ -217,7 +227,15 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //check if that pattern is registered for any theme
-        if (RequestHandler.index[pattern] === undefined) {
+        var descriptor;
+        if (RequestHandler.staticRoutes[path]) {
+            descriptor = RequestHandler.staticRoutes[path];
+        }
+        else if (RequestHandler.index[pattern]) {
+            descriptor = RequestHandler.storage[RequestHandler.index[pattern]];
+        }
+        else {
+            //not a static route or pattern route
             return false;
         }
 
@@ -336,15 +354,20 @@ module.exports = function RequestHandlerModule(pb) {
             //set them in storage
             if (isStatic) {
                 RequestHandler.staticRoutes[descriptor.path] = routeDescriptor;
-                pb.log.debug('RequestHander: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
             }
             else {
                 RequestHandler.index[pattern] = RequestHandler.storage.length;
                 RequestHandler.storage.push(routeDescriptor);
-                pb.log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
             }
         }
-                                                               
+        
+        //log the result
+        if (isStatic) {
+            pb.log.debug('RequestHander: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
+        }
+        else {
+            pb.log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
+        }
         return true;
     };
 
@@ -817,7 +840,7 @@ module.exports = function RequestHandlerModule(pb) {
         //execute controller
         var ControllerType  = route.themes[site][activeTheme][method].controller;
         var cInstance       = new ControllerType();
-        this.doRender(pathVars, cInstance, route.themes[site][activeTheme][method]);
+        this.doRender(pathVars, cInstance, route.themes[site][activeTheme][method], activeTheme);
     };
 
     /**
@@ -828,13 +851,15 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} pathVars The URL path's variables
      * @param {BaseController} cInstance An instance of the controller to be executed
      * @param {Object} themeRoute
+     * @param {String} activeTheme
      */
-    RequestHandler.prototype.doRender = function(pathVars, cInstance, themeRoute) {
+    RequestHandler.prototype.doRender = function(pathVars, cInstance, themeRoute, activeTheme) {
         var self  = this;
 
         //attempt to parse body
         this.parseBody(themeRoute.request_body, function(err, body) {
             if (util.isError(err)) {
+                err.code = 400;
                 return self.serveError(err);
             }
             if(pathVars.siteid) {
@@ -849,7 +874,8 @@ module.exports = function RequestHandlerModule(pb) {
                 path_vars: pathVars,
                 query: self.url.query,
                 body: body,
-                site: self.site
+                site: self.site,
+                activeTheme: activeTheme
             };
             cInstance.init(props, function(){
                 self.onControllerInitialized(cInstance, themeRoute);

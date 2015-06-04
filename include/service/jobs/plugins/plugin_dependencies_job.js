@@ -77,8 +77,8 @@ module.exports = function PluginDependenciesJobModule(pb) {
     PluginDependenciesJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
 
-        var dependencies   = null;
-        var pluginUid = this.getPluginUid();
+        var pluginDetails = null;
+        var pluginUid     = this.getPluginUid();
         var tasks = [
 
             //verify plugin is available
@@ -89,7 +89,7 @@ module.exports = function PluginDependenciesJobModule(pb) {
                 pb.PluginService.loadDetailsFile(filePath, function(err, details) {
                     var didLoad = util.isObject(details);
                     if (didLoad) {
-                        dependencies = details.dependencies;
+                        pluginDetails = details;
                     }
                     callback(err, didLoad);
                 });
@@ -97,13 +97,12 @@ module.exports = function PluginDependenciesJobModule(pb) {
 
             //load dependencies
             function(callback) {
-                if (!dependencies) {
+                if (!util.isObject(pluginDetails) || !util.isObject(pluginDetails.dependencies)) {
                     self.log('No dependencies to load.');
-                    callback(null, true);
-                    return;
+                    return callback(null, true);
                 }
 
-                pb.plugins.installPluginDependencies(pluginUid, dependencies, function(err, results) {
+                pb.plugins.installPluginDependencies(pluginUid, pluginDetails.dependencies, pluginDetails, function(err, results) {
                     callback(err, !util.isError(err));
                 });
             }

@@ -92,6 +92,7 @@ module.exports = function BaseControllerModule(pb) {
      *  @param {Function} cb A callback that takes a single optional argument: cb(Error)
      */
     BaseController.prototype.init = function(props, cb) {
+        var self = this;
         this.reqHandler          = props.request_handler;
         this.req                 = props.request;
         this.res                 = props.response;
@@ -104,8 +105,13 @@ module.exports = function BaseControllerModule(pb) {
         this.pageName            = '';
         this.site                = props.site;
 
-        var self = this;
-        this.templateService     = this.getTemplateService();
+        var tsOpts = {
+            ls: this.localizationService,
+            activeTheme: props.activeTheme,
+            site: this.site
+        };
+
+        this.templateService     = this.getTemplateService(tsOpts);
         this.templateService.registerLocal('locale', this.ls.language);
         this.templateService.registerLocal('error_success', function(flag, cb) {
             self.displayErrorOrSuccessCallback(flag, cb);
@@ -129,13 +135,23 @@ module.exports = function BaseControllerModule(pb) {
         });
         this.ts = this.templateService;
         
+        /**
+         *
+         * @property activeTheme
+         * @type {String}
+         */
+        this.activeTheme = props.activeTheme;
+        
         //build out a base service context that can be cloned and passed to any 
         //service objects
         this.context = {
             req: this.req,
             session: this.session,
             ls: this.ls,
-            ts: this.ts
+            ts: this.ts,
+            site: this.site,
+            activeTheme: this.activeTheme,
+            onlyThisSite: true
         };
 
         cb();
@@ -162,10 +178,11 @@ module.exports = function BaseControllerModule(pb) {
 
     /**
      * @method getTemplateService
+     * @param {Object} options for TemplateService
      * @return {Object} TemplateService
      */
-    BaseController.prototype.getTemplateService = function() {
-        return new pb.TemplateService(this.localizationService, this.site);
+    BaseController.prototype.getTemplateService = function(tsOps) {
+        return new pb.TemplateService(tsOps);
     };
 
     /**

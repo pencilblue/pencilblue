@@ -593,19 +593,24 @@ module.exports = function(pb) {
     BaseObjectService.prototype._emit = function(event, data, cb) {
         pb.log.silly('BaseObjectService: Emitting events: [%s, %s.%s]', event, this.type, event);
         
-        var self = this;
-        var tasks = [
-            
-            //global events
-            function(callback) {
+        var self  = this;
+        var tasks = [];
+        
+        //global events
+        if (events.listeners(event).length > 0) {
+            tasks.push(function(callback) {
                 events.emit(event, data, callback);
-            },
-            
-            //object specific events
-            function(callback) {
-                events.emit(self.type + '.' + event, data, callback);
-            }
-        ];
+            });
+        }
+        
+        //object specific
+        var eventName = self.type + '.' + event;
+        if (events.listeners(eventName).length > 0) {
+            tasks.push(function(callback) {
+                
+                events.emit(eventName, data, callback);
+            });
+        }
         async.series(tasks, cb);
     };
     
@@ -661,6 +666,20 @@ module.exports = function(pb) {
         var error = new Error('Validation Failure');
         error.code = 400;
         error.validationErrors = validationFailures;
+        return error;
+    };
+    
+    /**
+     * Creates a new Error representative of an action that was performed that 
+     * the current principal did not have authroization to perform.
+     * @static
+     * @method forbiddenError
+     * @param {String} message
+     * @return {Error}
+     */
+    BaseObjectService.forbiddenError = function(message) {
+        var error = new Error(message || 'Forbidden');
+        error.code = 403;
         return error;
     };
     

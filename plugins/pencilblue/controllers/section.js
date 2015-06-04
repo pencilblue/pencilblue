@@ -30,27 +30,23 @@ module.exports = function SectionModule(pb) {
     Section.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
             //get content settings
-            var contentService = new pb.ContentService();
+            var serviceContext = self.getServiceContext();
+            var contentService = new pb.ContentService(self.site, serviceContext.onlyThisSite);
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
-                
                 //create the service
                 self.contentSettings = contentSettings;
-                self.service         = new pb.ArticleServiceV2();
+                self.service         = new pb.ArticleServiceV2(serviceContext);
                 
                 //create the loader context
-                var context = {
+                var context = util.merge(serviceContext, {
                     service: self.service,
-                    session: self.session,
-                    req: self.req,
-                    ts: self.ts,
-                    ls: self.ls,
                     contentSettings: contentSettings
-                };
+                });
+
                 self.contentViewLoader = new pb.ContentViewLoader(context);
                 self.dao     = new pb.DAO();
                 
@@ -91,6 +87,7 @@ module.exports = function SectionModule(pb) {
     Section.prototype.getContent = function(custUrl, cb) {
         var self = this;
             
+        //lookup by URL
         self.dao.loadByValue('url', custUrl, 'section', function(err, section) {
             if (util.isError(err) || section == null) {
                 return cb(null, null);
@@ -98,7 +95,7 @@ module.exports = function SectionModule(pb) {
 
             var opts = {
                 render: true,
-                where: {},
+                where: pb.DAO.ANYWHERE,
                 limit: self.contentSettings.articles_per_page || 5,
                 order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}]
             };

@@ -21,6 +21,7 @@ module.exports = function(pb) {
     var util             = pb.util;
     var ArticleServiceV2 = pb.ArticleServiceV2;
     var SecurityService  = pb.SecurityService;
+    var CommentService   = pb.CommentService;
 
     /**
      * 
@@ -46,11 +47,50 @@ module.exports = function(pb) {
              * @property service
              * @type {ArticleServiceV2}
              */
-            self.service = new ArticleServiceV2();
+            self.service = new ArticleServiceV2(self.getServiceContext());
+            
+            /**
+             *
+             * @property commentService
+             * @type {CommentService}
+             */
+            self.commentService = new CommentService(self.getServiceContext());
                 
             cb(err, true);
         };
         ArticleApiController.super_.prototype.init.apply(this, [context, init]);
+    };
+    
+    /**
+     * Retrieves comments for an article
+     * @method getAllComments
+     * @param {Function} cb
+     */
+    ArticleApiController.prototype.getAllComments = function(cb) {
+        var options = this.processQuery();
+        options.where.article = this.pathVars.articleId;
+        this.commentService.getAllWithCount(options, this.handleGet(cb));
+    };
+    
+    /**
+     * Adds a comment to an article
+     * @method addComment
+     * @param {Function} cb
+     */
+    ArticleApiController.prototype.addComment = function(cb) {
+        var dto = this.getPostDto();
+        dto.article = this.pathVars.articleId;
+        this.commentService.save(dto, this.handleSave(cb, true));
+    };
+    
+    /**
+     * Deletes a comment from an article
+     * @method deleteComment
+     * @param {Function} cb
+     */
+    ArticleApiController.prototype.deleteComment = function(cb) {
+        var id = this.pathVars.id;
+        this.commentService.deleteById(id, this.handleDelete(cb));
     };
 
     //exports

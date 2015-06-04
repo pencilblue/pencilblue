@@ -107,8 +107,14 @@ module.exports = function PB(config) {
     pb.FormAuthentication             = Authentication.FormAuthentication;
 
     //setup user service
-    pb.UserService = require(path.join(config.docRoot, '/include/service/entities/user_service.js'))(pb);
-    pb.users       = new pb.UserService();
+    pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
+    pb.UserService       = require(path.join(config.docRoot, '/include/service/entities/user_service.js'))(pb);
+    Object.defineProperty(pb, 'users', {
+        get: function() {
+            pb.log.warn('PencilBlue: pb.users is deprecated.  Use new pb.UserService(context) instead');
+            return new pb.UserService();
+        }
+    });
 
     //setup request handling
     var BodyParsers        = require(path.join(config.docRoot, 'include/http/parsers'))(pb);
@@ -239,7 +245,6 @@ module.exports = function PB(config) {
     pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js')(pb);
     
     //object services
-    pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
     pb.TopicService      = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
     pb.ArticleServiceV2  = require(path.join(config.docRoot, '/include/service/entities/content/article_service_v2.js'))(pb);
     pb.ArticleRenderer   = require(path.join(config.docRoot, '/include/service/entities/content/article_renderer.js'))(pb);

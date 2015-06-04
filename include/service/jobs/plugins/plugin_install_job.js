@@ -87,20 +87,7 @@ module.exports = function PluginInstallJobModule(pb) {
                 .init(name, jobId)
                 .setPluginUid(pluginUid)
                 .setSite(site)
-                .setChunkOfWorkPercentage(1/3)
-                .run(callback);
-            },
-
-            //install dependencies across cluster
-            function(callback) {
-
-                var name = util.format("INSTALL_DEPENDENCIES_%s", pluginUid);
-                var job  = new pb.PluginDependenciesJob();
-                job.setRunAsInitiator(true)
-                .init(name, jobId)
-                .setPluginUid(pluginUid)
-                .setSite(site)
-                .setChunkOfWorkPercentage(1/3)
+                .setChunkOfWorkPercentage(1/2)
                 .run(callback);
             },
 
@@ -124,7 +111,7 @@ module.exports = function PluginInstallJobModule(pb) {
                 .init(name, jobId)
                 .setPluginUid(pluginUid)
                 .setSite(site)
-                .setChunkOfWorkPercentage(1/3)
+                .setChunkOfWorkPercentage(1/2)
                 .run(callback);
             }
         ];

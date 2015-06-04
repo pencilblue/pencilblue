@@ -37,7 +37,7 @@ module.exports = function BaseAdminControllerModule(pb) {
    */
   BaseAdminController.prototype.init = function (props, cb) {
     var self = this;
-    self.pathSiteUId = pb.SiteService.getCurrentSite(props.path_vars.siteid);
+    self.pathSiteUId = props.site;
     BaseController.prototype.init.call(self, props, function () {
       self.extendedInit(cb);
     });
@@ -67,12 +67,23 @@ module.exports = function BaseAdminControllerModule(pb) {
     });
   };
 
+  /**
+   * Retrieves a context object that contains the necessary information for
+   * service prototypes
+   * @method getServiceContext
+   * @return {Object}
+   */
+  BaseAdminController.prototype.getServiceContext = function(){
+    return util.merge(BaseAdminController.super_.prototype.getServiceContext.apply(this), { onlyThisSite: true});
+  };
+
     /**
      * @method getTemplateService
      * @return {Object} TemplateService
      */
-    BaseAdminController.prototype.getTemplateService = function() {
-        return new pb.TemplateService(this.localizationService, this.pathSiteUId);
+    BaseAdminController.prototype.getTemplateService = function(tsOpts) {
+        tsOpts.site = this.pathSiteUId;
+        return new pb.TemplateService(tsOpts);
     };
 
   /**

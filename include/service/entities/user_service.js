@@ -29,9 +29,24 @@ module.exports = function UserServiceModule(pb) {
      * @class UserService
      * @constructor
      */
-    function UserService(siteid){
-        this.siteUID = pb.SiteService.getCurrentSite(siteid);
+    function UserService(context){
+        if (!util.isObject(context)) {
+            context = {};
+        }
+        
+        context.type = TYPE;
+        UserService.super_.call(this, context);
     }
+    util.inherits(UserService, pb.BaseObjectService);
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property TYPE
+     * @type {String}
+     */
+    var TYPE = 'user';
 
     /**
      * Gets the full name of a user
