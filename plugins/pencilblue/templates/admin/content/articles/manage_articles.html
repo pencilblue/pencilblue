@@ -7,7 +7,7 @@
         <table class="table table-responsive table-condensed">
             ^tmp_admin=elements=table_headers^
             <tr ng-repeat="article in articles track by article._id" ng-if="!article.hidden && !article.paginated">
-                <td><a class="article_headline" ng-href="/admin{{ sitePrefix }}/content/articles/{{article._id}}" ng-bind="article.headline"></a></td>
+                <td><a class="article_headline" ng-href="/admin/content/articles/{{article._id}}" ng-bind="article.headline"></a></td>
                 <td class="article_status" ng-bind="article.status"></td>
                 <td class="article_url" ng-bind="article.url"></td>
                 <td class="article_author" ng-bind="article.author_name"></td>
