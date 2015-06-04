@@ -254,10 +254,13 @@ module.exports = function UserServiceModule(pb) {
      * @param {Function} cb            Callback function
      */
     UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
+        var self = this;
         cb = cb || util.cb;
 
-        pb.SiteService.getByUid(this.site, function(err, siteInfo) {
-            var verficationUrl = pb.UrlService.urlJoin(siteInfo.hostname, '/actions/user/reset_password')
+        var siteService = new pb.SiteService();
+        siteService.getByUid(self.siteUID, function(err, siteInfo) {
+            var root = pb.SiteService.getSiteProtocol(siteInfo.hostname);
+            var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password')
               + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
             var options = {
                 to: user.email,
@@ -269,7 +272,7 @@ module.exports = function UserServiceModule(pb) {
                     'last_name': user.last_name
                 }
             };
-            var emailService = new pb.EmailService(this.site);
+            var emailService = new pb.EmailService(self.siteUID);
             emailService.sendFromTemplate(options, cb);
         });
     };

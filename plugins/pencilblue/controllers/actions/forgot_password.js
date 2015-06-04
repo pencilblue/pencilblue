@@ -94,7 +94,8 @@ module.exports = function ForgotPasswordControllerModule(pb) {
 
                         self.session.success = self.ls.get('YOUR_PASSWORD_RESET');
                         self.redirect(returnURL, cb);
-                        pb.users.sendPasswordResetEmail(user, passwordReset, util.cb);
+                        var userService = new pb.UserService(self.site);
+                        userService.sendPasswordResetEmail(user, passwordReset, util.cb);
                     });
                 });
             });
