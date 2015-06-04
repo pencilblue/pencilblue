@@ -52,7 +52,7 @@ module.exports = function(pb) {
 
             pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
                 articles = self.getArticleStatuses(articlesWithAuthorNames);
-                self.getAngularObjects(self.pathSiteUId, articles, function (angularObjects) {
+                self.getAngularObjects(self.site, articles, function (angularObjects) {
                     var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
                     self.setPageName(manageArticlesStr);
                     self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
@@ -97,20 +97,16 @@ module.exports = function(pb) {
     };
 
     ManageArticles.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin';
-        if(data.site) {
-            adminPrefix += pb.SiteService.getCurrentSitePrefix(data.site);
-        }
         return [{
             name: 'manage_articles',
             title: ls.get('MANAGE_ARTICLES'),
             icon: 'refresh',
-            href: adminPrefix + '/content/articles'
+            href: '/admin/content/articles'
         }, {
             name: 'new_article',
             title: '',
             icon: 'plus',
-            href: adminPrefix + '/content/articles/new'
+            href: '/admin/content/articles/new'
         }];
     };
 

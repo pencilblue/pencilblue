@@ -127,7 +127,6 @@ module.exports = function(pb) {
             data.article.article_topics = topics;
         }
 
-        data.sitePrefix = self.sitePrefix;
         var objects = {
             navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
             pills: self.getAdminPills(this.getActivePill(), this.ls, this.getActivePill(), data),
@@ -138,7 +137,7 @@ module.exports = function(pb) {
             media: data.media,
             article: data.article,
             siteKey: pb.SiteService.SITE_FIELD,
-            site: self.pathSiteUId,
+            site: self.site,
             sitePrefix: self.sitePrefix
         };
         if(data.availableAuthors) {
@@ -148,17 +147,16 @@ module.exports = function(pb) {
     };
 
     ArticleForm.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin' + data.sitePrefix;
         return [{
             name: 'manage_articles',
             title: data.article[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.article.headline : ls.get('NEW_ARTICLE'),
             icon: 'chevron-left',
-            href: adminPrefix + '/content/articles'
+            href: '/admin/content/articles'
         }, {
             name: 'new_article',
             title: '',
             icon: 'plus',
-            href: adminPrefix + '/content/articles/new'
+            href: '/admin/content/articles/new'
         }];
     };
 
@@ -170,7 +168,7 @@ module.exports = function(pb) {
         var self  = this;
         var tasks = {
             templates: function(callback) {
-                callback(null, pb.TemplateService.getAvailableContentTemplates(self.pathSiteUId));
+                callback(null, pb.TemplateService.getAvailableContentTemplates(self.site));
             },
 
             sections: function(callback) {

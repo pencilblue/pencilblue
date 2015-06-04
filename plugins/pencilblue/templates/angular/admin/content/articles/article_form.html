@@ -48,7 +48,7 @@
 			$scope.getArticleData(draft, function(articleData) {
 				$scope.saving = true;
 				if(articleData._id) {
-					$http.post('/actions/admin' + $scope.sitePrefix + '/content/articles/' + $scope.article._id, articleData)
+					$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
 					.success(function(result) {
 						$scope.successMessage = result.message;
 						$scope.article.last_modified = result.data.last_modified;
@@ -60,16 +60,16 @@
 					});
 				}
 				else {
-					$http.post('/actions/admin' + $scope.sitePrefix + '/content/articles', articleData)
+					$http.post('/actions/admin/content/articles', articleData)
 					.success(function(result) {
 						$scope.successMessage = result.message;
 						$scope.saving = false;
 
 						if(!result.data._id) {
-							$window.location = '/admin' + $scope.sitePrefix + '/content/articles';
+							$window.location = '/admin/content/articles';
 							return;
 						}
-						$window.location = '/admin' + $scope.sitePrefix + '/content/articles/' + result.data._id.toString();
+						$window.location = '/admin/content/articles/' + result.data._id.toString();
 					})
 					.error(function(error, status) {
 						$scope.errorMessage = error.message;
@@ -87,7 +87,7 @@
 			$scope.article.draft = true;
 			$scope.getArticleData(true, function(articleData) {
 				$scope.saving = true;
-				$http.post('/actions/admin' + $scope.sitePrefix + '/content/articles/' + $scope.article._id, articleData)
+				$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
 				.success(function(result) {
 					$scope.article.last_modified = result.data.last_modified;
 					$timeout($scope.saveArticleDraft, 30000);
