@@ -231,10 +231,11 @@ module.exports = function UserServiceModule(pb) {
      * @param {Function} cb   Callback function
      */
     UserService.prototype.sendVerificationEmail = function(user, cb) {
+        var self = this;
         cb = cb || util.cb;
 
         var siteService = new pb.SiteService();
-        siteService.getByUid(this.siteUID, function(err, siteInfo) {
+        siteService.getByUid(self.context.site, function(err, siteInfo) {
             // We need to see if email settings have been saved with verification content
             var emailService = new pb.EmailService(this.site);
             emailService.getSettings(function (err, emailSettings) {
@@ -273,7 +274,7 @@ module.exports = function UserServiceModule(pb) {
         cb = cb || util.cb;
 
         var siteService = new pb.SiteService();
-        siteService.getByUid(self.siteUID, function(err, siteInfo) {
+        siteService.getByUid(self.context.site, function(err, siteInfo) {
             var root = pb.SiteService.getSiteProtocol(siteInfo.hostname);
             var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password')
               + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
@@ -287,7 +288,7 @@ module.exports = function UserServiceModule(pb) {
                     'last_name': user.last_name
                 }
             };
-            var emailService = new pb.EmailService(self.siteUID);
+            var emailService = new pb.EmailService(self.context.site);
             emailService.sendFromTemplate(options, cb);
         });
     };
@@ -325,6 +326,7 @@ module.exports = function UserServiceModule(pb) {
      * @param {Function} cb       Callback function
      */
     UserService.prototype.getExistingUsernameEmailCounts = function(username, email, id, cb) {
+        var self = this;
         if (util.isFunction(id)) {
             cb = id;
             id = null;
@@ -337,7 +339,7 @@ module.exports = function UserServiceModule(pb) {
             return where;
         };
 
-        var dao = new pb.SiteQueryService(this.siteUID, false);
+        var dao = new pb.SiteQueryService(self.context.site, false);
         var tasks = {
             verified_username: function(callback) {
                 var expStr = util.escapeRegExp(username) + '$';
