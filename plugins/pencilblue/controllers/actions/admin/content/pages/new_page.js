@@ -50,7 +50,7 @@ module.exports = function(pb) {
 
             post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
             var pageDocument = pb.DocumentCreator.create('page', post, ['meta_keywords']);
-            pb.RequestHandler.urlExists(pageDocument.url, post.id, self.pathSiteUId, function(err, exists) {
+            pb.RequestHandler.urlExists(pageDocument.url, post.id, self.site, function(err, exists) {
                 if(util.isError(err) || exists) {
                     cb({
                         code: 400,

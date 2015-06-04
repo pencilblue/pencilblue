@@ -64,7 +64,7 @@ module.exports = function(pb) {
 
                 self.setFormFieldValues(post);
 
-                pb.RequestHandler.urlExists(page.url, post.id, self.pathSiteUId, function(err, exists) {
+                pb.RequestHandler.urlExists(page.url, post.id, self.site, function(err, exists) {
                     if(util.isError(err) || exists) {
                         cb({
                             code: 400,
