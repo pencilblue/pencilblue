@@ -309,7 +309,7 @@ module.exports = function MongoCommandBrokerModule(pb) {
                         instance.onCommandReceived(command.channel, command);
                     }
                     else {
-                        console.log('Dummy record found');
+                        /* no op */
                     }
                     
                     //trigger wait for next object

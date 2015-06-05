@@ -103,8 +103,12 @@ module.exports = function BaseControllerModule(pb) {
         this.query               = props.query;
         this.pageName            = '';
 
-        var self = this;
-        this.templateService     = new pb.TemplateService(this.localizationService);
+        var self   = this;
+        var tsOpts = {
+            ls: this.localizationService,
+            activeTheme: props.activeTheme
+        };
+        this.templateService = new pb.TemplateService(tsOpts);
         this.templateService.registerLocal('locale', this.ls.language);
         this.templateService.registerLocal('error_success', function(flag, cb) {
             self.displayErrorOrSuccessCallback(flag, cb);
@@ -128,13 +132,21 @@ module.exports = function BaseControllerModule(pb) {
         });
         this.ts = this.templateService;
         
+        /**
+         *
+         * @property activeTheme
+         * @type {String}
+         */
+        this.activeTheme = props.activeTheme;
+        
         //build out a base service context that can be cloned and passed to any 
         //service objects
         this.context = {
             req: this.req,
             session: this.session,
             ls: this.ls,
-            ts: this.ts
+            ts: this.ts,
+            activeTheme: this.activeTheme
         };
 
         cb();

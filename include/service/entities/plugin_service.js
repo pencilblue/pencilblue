@@ -1292,7 +1292,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Object} plugin
      * @param {Function} cb
      */
-    PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {console.log('***installing dependencies');
+    PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
 
         //verify parameters
         if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
@@ -1312,12 +1312,12 @@ module.exports = function PluginServiceModule(pb) {
             function(callback) {
 
                 //try and acquire the lock
-                lockService.acquire(key, function(err, reply) {console.log('LS_REPLY=%s', reply);
+                lockService.acquire(key, function(err, reply) {
                     if (util.isError(err)) {
                         return callback(err);   
                     }
                     else if (reply) {
-                        didLock = true;console.log('I Locked so calling back');
+                        didLock = true;
                         return callback();
                     }
 
@@ -1332,20 +1332,20 @@ module.exports = function PluginServiceModule(pb) {
                     }, 1000);
                 });
             },
-            function(err) {console.log('I made it here');
+            function(err) {
 
                 //a callback function that allows for deleting the lock key
                 var onDone = function(err, result) {
-                    if (!didLock) { console.log('I never locked so exiting Im done');console.log(err);console.log(result);
+                    if (!didLock) {
                         return cb(err, result);
                     }
-                    lockService.release(key, function(error, didRelease) {console.log('Releasing lock: %s', didRelease);
+                    lockService.release(key, function(error, didRelease) {
                         cb(err || error, didRelease);
                     });
                 };
 
                 //verify results
-                if (util.isError(err)) {console.log('I made it here2');
+                if (util.isError(err)) {
                     return onDone(err);
                 }
                 else if (retryCount >= MAX_DEPENDENCY_LOCK_RETRY_CNT) {
@@ -1353,11 +1353,9 @@ module.exports = function PluginServiceModule(pb) {
                     pb.log.warn('PluginService: Reached maximum retry count trying to verify dependencies');
                     return onDone(null, false);
                 }
-                           console.log('I made it here3');console.log(plugin);
                            
-                try{
                 //proceed to check to see if all dependencies are there
-                self.hasDependencies(plugin, function(err, hasDependencies) {console.log('checked dependencies');console.log(err);console.log(hasDependencies);
+                self.hasDependencies(plugin, function(err, hasDependencies) {
                     if (hasDependencies) {
                         pb.log.silly('PluginService: Assuming another process installed dependencies because they were discovered. Skipping install');
                         return onDone(err);
@@ -1369,10 +1367,6 @@ module.exports = function PluginServiceModule(pb) {
                         onDone(err, result);
                     });
                 });
-                }
-               catch(e) {
-pb.log.error(e.stack);
-               }
             }
         );
     };
@@ -2092,12 +2086,10 @@ pb.log.error(e.stack);
             //get the routes
             ControllerPrototype.getRoutes(function(err, routes) {
                 if (util.isError(err)) {
-                    cb(err, null);
-                    return;
+                    return cb(err, null);
                 }
                 else if (!util.isArray(routes)) {
-                    cb(new Error('Controller at ['+pathToController+'] did not return an array of routes'), null);
-                    return;
+                    return cb(new Error('Controller at ['+pathToController+'] did not return an array of routes'), null);
                 }
 
                 //attempt to register route

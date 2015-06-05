@@ -77,17 +77,38 @@ module.exports = function ArticleModule(pb) {
         });
     };
     
+    /**
+     * Builds out the where clause for finding the article to render.  Because 
+     * MongoDB has an object ID represented by 12 characters we must account 
+     * for this condition by building a where clause with an "or" condition.  
+     * Otherwise we will only query on the url key
+     * @method getWhereClause
+     * @param {String} custUrl Represents the article's ID or its slug
+     * @return {Object} An object representing the where clause to use in the 
+     * query to locate the article
+     */
     Article.prototype.getWhereClause = function(custUrl) {
         
-        //check for object ID as the custom URL
-        var where  = null;
+        //put a check to look up by ID *FIRST*
+        var conditions = [];
         if(pb.validation.isIdStr(custUrl, true)) {
-            where = pb.DAO.getIdWhere(custUrl);
+            conditions.push(pb.DAO.getIdWhere(custUrl));
+        }
+        
+        //put a check to look up by URL
+        conditions.push({
+            url: custUrl 
+        });
+        
+        //check for object ID as the custom URL
+        var where;
+        if (conditions.length > 1) {
+            where = {
+                $or: conditions
+            };
         }
         else {
-            where = {
-                url: custUrl
-            };
+            where = conditions[0];
         }
         return where;
     };

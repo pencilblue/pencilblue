@@ -3,7 +3,7 @@ node_js:
   - "0.10"
   - "0.11"
   - "0.12"
-  - "iojs"
+  - "iojs-1.4.2"
 after_script: 
   - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
   - rm -rf ./coverage

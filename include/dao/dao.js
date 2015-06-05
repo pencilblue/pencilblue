@@ -384,6 +384,10 @@ module.exports = function DAOModule(pb) {
             return cb(new Error('The dbObj parameter must be an object'));
         }
 
+        //ensure an object_type was specified & update common fields
+        dbObj.object_type = dbObj.object_type || options.object_type;
+        DAO.updateChangeHistory(dbObj);
+        
         //log interaction
         if (pb.config.db.query_logging) {
             var msg;
@@ -395,10 +399,6 @@ module.exports = function DAOModule(pb) {
             }
             pb.log.info(msg);
         }
-
-        //ensure an object_type was specified & update common fields
-        dbObj.object_type = dbObj.object_type || options.object_type;
-        DAO.updateChangeHistory(dbObj);
 
         //retrieve db reference
         this.getDb(function(err, db) {
@@ -759,6 +759,7 @@ module.exports = function DAOModule(pb) {
      * @return {Object} Where clause
      */
     DAO.getIdInWhere = function(objArray, idProp) {
+        var seen = {};
         var idArray = [];
         for(var i = 0; i < objArray.length; i++) {
 
@@ -769,7 +770,10 @@ module.exports = function DAOModule(pb) {
             else{
                 rawId = objArray[i];
             }
-            idArray.push(DAO.getObjectId(rawId));
+            if (!seen[rawId]) {
+                seen[rawId] = true;
+                idArray.push(DAO.getObjectId(rawId));
+            }
         }
         return {
             _id: {$in: idArray}

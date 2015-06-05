@@ -17,7 +17,7 @@
 
 var util = require('./util.js');
 
-module.exports = function ContentServiceModule(pb) {
+module.exports = function(pb) {
 
     /**
      * Service for content settings retrieval
@@ -66,12 +66,21 @@ module.exports = function ContentServiceModule(pb) {
     });
 
     /**
-     * Retrieves the content settings
-     *
+     * A long named alias of 'get'
      * @method getSettings
      * @param {Function} cb Callback function
      */
     ContentService.prototype.getSettings = function(cb){
+        this.get(cb);
+    };
+    
+    /**
+     * Retrieves the content settings.  When settings are not found in storage 
+     * the service will generate defaults and persist them.
+     * @method get
+     * @param {Function} cb Callback function
+     */
+    ContentService.prototype.get = function(cb) {
         pb.settings.get(CONTENT_SETTINGS_REF, function(err, settings){
             if (settings) {
                 return cb(err, settings);
