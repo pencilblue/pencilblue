@@ -11,6 +11,7 @@
 		$scope.urlAvailable = null;
 
 		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
+		$scope.article.article_media = $scope.article.article_media || [];
 		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
 		$scope.article.meta_keywords = $scope.article.meta_keywords ? $scope.article.meta_keywords.join(',') : '';
 		$scope.editingObject = $scope.article;

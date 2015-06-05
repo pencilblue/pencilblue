@@ -10,6 +10,7 @@
 
         $scope.urlAvailable = null;
         $scope.page.publish_date = $filter('date')($scope.page.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
+        $scope.page.page_media = $scope.page.page_media || [];
         $scope.layout = $sce.trustAsHtml($scope.page.page_layout);
         $scope.page.meta_keywords = $scope.page.meta_keywords ? $scope.page.meta_keywords.join(',') : '';
         $scope.editingObject = $scope.page;
