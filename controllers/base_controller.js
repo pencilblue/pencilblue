@@ -70,6 +70,32 @@ module.exports = function BaseControllerModule(pb) {
     var ALERT_PATTERN = '<div class="alert %s error_success">%s<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
 
     /**
+     * The prefix in the content-type header that indicates the charset used in 
+     * the encoding
+     * @static
+     * @private
+     * @readonly
+     * @property CHARSET_HEADER_PREFIX
+     * @type {String}
+     */
+    var CHARSET_HEADER_PREFIX = 'charset=';
+    
+    /**
+     * A mapping that converts the HTTP standard for content-type encoding and 
+     * what the Buffer prototype expects
+     * @static
+     * @private
+     * @readonly
+     * @property ENCODING_MAPPING
+     * @type {Object}
+     */
+    var ENCODING_MAPPING = Object.freeze({
+        'UTF-8': 'utf8',
+        'US-ASCII': 'ascii',
+        'UTF-16LE': 'utf16le'
+    });
+    
+    /**
      * Responsible for initializing a controller.  Properties from the
      * RequestHandler are passed down so that the controller has complete access to
      * a variety of request specified properties.  By default the function transfers the options over to instance variables that can be access during rendering.  In addition, the function sets up the template service along with a set of local flags:
@@ -245,13 +271,20 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Function} cb
      */
     BaseController.prototype.getPostParams = function(cb) {
+        var self = this;
+        
         this.getPostData(function(err, raw){
             if (util.isError(err)) {
                 cb(err, null);
                 return;
             }
 
-            var postParams = url.parse('?' + raw, true).query;
+            //lookup encoding
+            var encoding = self.getContentEncoding();
+            encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
+            
+            //convert to string
+            var postParams = url.parse('?' + raw.toString(encoding), true).query;
             cb(null, postParams);
         });
     };
@@ -262,16 +295,21 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Function} cb
      */
     BaseController.prototype.getJSONPostParams = function(cb) {
+        var self = this;
+        
         this.getPostData(function(err, raw){
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                return cb(err, null);
             }
+            
+            //lookup encoding
+            var encoding = self.getContentEncoding();
+            encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
 
             var error      = null;
             var postParams = null;
             try {
-                postParams = JSON.parse(raw);
+                postParams = JSON.parse(raw.toString(encoding));
             }
             catch(err) {
                 error = err;
@@ -286,18 +324,44 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Function} cb
      */
     BaseController.prototype.getPostData = function(cb) {
-        var body = '';
+        var buffers     = [];
+        var totalLength = 0;
+        
         this.req.on('data', function (data) {
-            body += data;
+            buffers.push(data);
+            totalLength += data.length;
+            
             // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
-            if (body.length > 1e6) {
+            if (totalLength > 1e6) {
                 // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
                 cb(new PBError("POST limit reached! Maximum of 1MB.", 400), null);
             }
         });
         this.req.on('end', function () {
+            
+            //create one big buffer.
+            var body = Buffer.concat (buffers, totalLength);
             cb(null, body);
         });
+    };
+    
+    /**
+     *  Attempts to extract 
+     */
+    BaseController.prototype.getContentEncoding = function() {
+        var rawContentEncoding = this.req.headers['content-type'];
+        if (!util.isString(rawContentEncoding)) {
+            return null;
+        }
+        
+        //find the charset in the header
+        var index = rawContentEncoding.indexOf(CHARSET_HEADER_PREFIX);
+        if (index < 0) {
+            return null;
+        }
+        
+        //parse it out and look it up.  Default to UTF-8 if unrecognized
+        return rawContentEncoding.substring(index + CHARSET_HEADER_PREFIX.length);
     };
 
     /**
