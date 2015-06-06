@@ -29,6 +29,32 @@ module.exports = function(/*pb*/) {
      * @constructor
      */
     function BaseBodyParser() {}
+    
+    /**
+     * The prefix in the content-type header that indicates the charset used in 
+     * the encoding
+     * @static
+     * @private
+     * @readonly
+     * @property CHARSET_HEADER_PREFIX
+     * @type {String}
+     */
+    var CHARSET_HEADER_PREFIX = 'charset=';
+    
+    /**
+     * A mapping that converts the HTTP standard for content-type encoding and 
+     * what the Buffer prototype expects
+     * @static
+     * @private
+     * @readonly
+     * @property ENCODING_MAPPING
+     * @type {Object}
+     */
+    var ENCODING_MAPPING = Object.freeze({
+        'UTF-8': 'utf8',
+        'US-ASCII': 'ascii',
+        'UTF-16LE': 'utf16le'
+    });
 
     /**
      * Attempts to retrieve the payload body as a string
@@ -47,18 +73,52 @@ module.exports = function(/*pb*/) {
      * @param {Function} cb
      */
     BaseBodyParser.prototype.getRawData = function(req, cb) {
-        var body = '';
+        var buffers     = [];
+        var totalLength = 0;
+        
         req.on('data', function (data) {
-            body += data;
+            buffers.push(data);
+            totalLength += data.length;
+            
             // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
-            if (body.length > 2e6) {
+            if (totalLength > 1e6) {
                 // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
-                cb(Error("POST limit reached! Maximum of 2MB."), null);
+                
+                var error = new Error("POST limit reached! Maximum of 1MB.");
+                error.code = 400;
+                cb(error);
             }
         });
         req.on('end', function () {
+            
+            //create one big buffer.
+            var body = Buffer.concat (buffers, totalLength);
             cb(null, body);
         });
+        req.once('error', cb);
+    };
+    
+    /**
+     * Attempts to extract charset attribute from the content-type header.
+     * @static
+     * @method getcontentEncoding
+     * @param {Request} req
+     * @return {String} the charset encoding
+     */
+    BaseBodyParser.getContentEncoding = function(req) {
+        var rawContentEncoding = req.headers['content-type'];
+        if (!util.isString(rawContentEncoding)) {
+            return null;
+        }
+        
+        //find the charset in the header
+        var index = rawContentEncoding.indexOf(CHARSET_HEADER_PREFIX);
+        if (index < 0) {
+            return null;
+        }
+        
+        //parse it out and look it up.  Default to UTF-8 if unrecognized
+        return rawContentEncoding.substring(index + CHARSET_HEADER_PREFIX.length);
     };
 
     /**
@@ -112,18 +172,26 @@ module.exports = function(/*pb*/) {
      * and the parsed body content as an object
      */
     JsonBodyParser.prototype.parse = function(req, cb) {
+        var self = this;
+        
         this.getRawData(req, function(err, raw){
             if (util.isError(err)) {
                 return cb(err);
             }
+            
+            //lookup encoding
+            var encoding = BaseBodyParser.getContentEncoding(req);
+            encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
 
-            //parse the content
+            var error      = null;
+            var postParams = null;
             try {
-                cb(null, JSON.parse(raw));
+                postParams = JSON.parse(raw.toString(encoding));
             }
             catch(err) {
-                cb(err);
+                error = err;
             }
+            cb(error, postParams);
         });
     };
     

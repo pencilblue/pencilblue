@@ -280,7 +280,7 @@ module.exports = function BaseControllerModule(pb) {
             }
 
             //lookup encoding
-            var encoding = self.getContentEncoding();
+            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
             encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
             
             //convert to string
@@ -303,7 +303,7 @@ module.exports = function BaseControllerModule(pb) {
             }
             
             //lookup encoding
-            var encoding = self.getContentEncoding();
+            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
             encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
 
             var error      = null;
@@ -343,25 +343,6 @@ module.exports = function BaseControllerModule(pb) {
             var body = Buffer.concat (buffers, totalLength);
             cb(null, body);
         });
-    };
-    
-    /**
-     *  Attempts to extract 
-     */
-    BaseController.prototype.getContentEncoding = function() {
-        var rawContentEncoding = this.req.headers['content-type'];
-        if (!util.isString(rawContentEncoding)) {
-            return null;
-        }
-        
-        //find the charset in the header
-        var index = rawContentEncoding.indexOf(CHARSET_HEADER_PREFIX);
-        if (index < 0) {
-            return null;
-        }
-        
-        //parse it out and look it up.  Default to UTF-8 if unrecognized
-        return rawContentEncoding.substring(index + CHARSET_HEADER_PREFIX.length);
     };
 
     /**
