@@ -30,9 +30,13 @@
                             <label>^loc_URL_KEY^</label>
                             <div class="input-group">
                                 <span class="input-group-addon">section/</span>
-                                <input type="text" name="url" class="form-control" ng-model="navItem.url" required></input>
+                                <input type="text" name="url" class="form-control" ng-model="navItem.url" ng-change="resetUrlAvailability()" required></input>
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-default" ng-click="validateURL('section', navItem.url)">^loc_CHECK^</button>
+                                  <button type="button" class="btn" ng-class="{'btn-default': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!navItem.url.length">
+                                    <span ng-if="urlAvailable === null">^loc_CHECK^</span>
+                                    <span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
+                                    <span ng-if="urlAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+                                  </button>
                                 </span>
                             </div>
                             <div class="form_error" ng-if="!isFieldValid(navItemForm.url)">^loc_REQUIRED_FIELD^</div>
