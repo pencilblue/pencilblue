@@ -39,6 +39,13 @@ module.exports = function(pb) {
             context = {};
         }
         
+        /**
+         *
+         * @property contentSettings
+         * @type {Object}
+         */
+        this.contentSettings = context.contentSettings;
+        
         context.type = TYPE;
         ArticleServiceV2.super_.call(this, context);
     }
@@ -175,9 +182,7 @@ module.exports = function(pb) {
             }
             
             //complete the rendering
-            self.render(articles, function(err, articles) {
-                cb(err, articles);
-            });
+            self.render(articles, cb);
         };
         ArticleServiceV2.super_.prototype.getAll.apply(this, [options, afterGetAll]);
     };
@@ -240,6 +245,7 @@ module.exports = function(pb) {
             return cb(new Error('articles parameter must be an array'));
         }
         
+        var self = this;
         var tasks = {
             
             articleCount: function(callback) {
@@ -266,6 +272,9 @@ module.exports = function(pb) {
             },
             
             contentSettings: function(callback) {
+                if (util.isObject(self.contentSettings)) {
+                    return callback(null, self.contentSettings);
+                }
                 
                 var contentService = new pb.ContentService();
                 contentService.getSettings(callback);

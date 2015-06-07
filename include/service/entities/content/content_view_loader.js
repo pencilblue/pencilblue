@@ -35,6 +35,7 @@ module.exports = function(pb) {
         this.contentSettings = context.contentSettings; 
         this.session = context.session;
         this.service = context.service;
+        this.activeTheme = context.activeTheme;
     };
     
     /**
@@ -171,13 +172,14 @@ module.exports = function(pb) {
             //navigation
             nav: function(callback) {
                 
-                var options = {
+                var opts = {
                     currUrl: self.req.url,
                     session: self.session,
-                    ls: self.ls
+                    ls: self.ls,
+                    activeTheme: self.activeTheme
                 };
                 var topMenuService = new pb.TopMenuService();
-                topMenuService.getNavItems(options, callback);
+                topMenuService.getNavItems(opts, callback);
             },
 
             meta: function(callback) {
