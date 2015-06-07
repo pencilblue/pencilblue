@@ -40,7 +40,7 @@
 
       <div class="btn-group btn-group-sm btn-group-format" ng-show="wysiwyg.currentView === 'editable'">
         <button type="button" class="btn btn-default" ng-click="showInsertLinkModal()" title="^loc_INSERT_LINK^"><i class="fa fa-link"></i></button>
-        <button type="button" class="btn btn-default" ng-click="showInsertMediaModal()" title="^loc_INSERT_MEDIA^" ng-if="media"><i class="fa fa-picture-o"></i></button>
+        <button type="button" class="btn btn-default" ng-click="showInsertMediaModal()" title="^loc_INSERT_MEDIA^" ng-if="mediaAvailable()"><i class="fa fa-picture-o"></i></button>
         <button type="button" class="btn btn-default" ng-click="insertReadMore()" title="^loc_INSERT_READ_MORE^"><i class="fa fa-compress"></i></button>
       </div>
 

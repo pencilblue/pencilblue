@@ -114,7 +114,15 @@
         scope.insertReadMore = function() {
           scope.restoreSelection();
           scope.formatAction('inserthtml', '<hr class="read_more_break"></hr>');
-        }
+        };
+
+        scope.mediaAvailable = function() {
+          if(scope.media && scope.media instanceof Array) {
+            return true;
+          }
+
+          return false;
+        };
 
         scope.showInsertMediaModal = function() {
           scope.saveSelection();
