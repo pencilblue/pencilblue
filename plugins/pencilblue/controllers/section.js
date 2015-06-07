@@ -99,7 +99,7 @@ module.exports = function SectionModule(pb) {
 
             var opts = {
                 render: true,
-                where: pb.DAO.ANYWHERE,
+                where: {},
                 limit: self.contentSettings.articles_per_page || 5,
                 order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}]
             };
