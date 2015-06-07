@@ -23,79 +23,120 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
-    var BaseController  = pb.BaseController;
-    var Comments        = pb.CommentService;
-    var ArticleService  = pb.ArticleService;
-    var IndexController = require('../../index.js')(pb);
+    var BaseController   = pb.BaseController;
+    var Comments         = pb.CommentService;
+    var ArticleServiceV2 = pb.ArticleServiceV2;
 
     /**
      * Get articles within indices, for real time pagination
      */
     function GetArticles(){}
-    util.inherits(GetArticles, IndexController);
+    util.inherits(GetArticles, BaseController);
+    
+    GetArticles.prototype.init = function(context, cb) {
+    var self = this;
+        var init = function(err) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            //retrieve content settings
+            var contentService = new pb.ContentService();
+            contentService.getSettings(function(err, contentSettings) {
+                
+                //set the content settings
+                self.contentSettings = contentSettings;
+                
+                //create the service
+                var asContext = self.getServiceContext();
+                asContext.contentSettings = contentSettings;
+                self.service = new pb.ArticleServiceV2(asContext);
+                
+                //create the loader context
+                var cvlContext  = self.getServiceContext();
+                cvlContext.service = self.service;
+                cvlContext.contentSettings = contentSettings;
+                self.contentViewLoader = new pb.ContentViewLoader(cvlContext);
+                
+                //call back
+                cb(err, !util.isError(err));
+            });
+        };
+        GetArticles.super_.prototype.init.apply(this, [context, init]);
+    };
 
     GetArticles.prototype.render = function(cb) {
         var self = this;
-        var get  = this.query;
-
-        var contentService = new pb.ContentService();
-        contentService.getSettings(function(err, contentSettings) {
-
-            if(!get.limit || get.limit.length === 0)
-            {
-                get.limit = contentSettings.articles_per_page;
+        
+        this.getContent(function(err, articles) {
+            if (util.isError(err)) {
+                return cb(err);
             }
-            if(!get.offset)
-            {
-                get.offset = contentSettings.articles_per_page;
-            }
-
-            self.limit  = parseInt(get.limit);
-            self.offset = parseInt(get.offset);
-
-            //create callback to be issued by all the find calls
-            var articleCallback = function(err, articles) {
-                self.processArticles(articles, cb);
-            };
-
-            var service = new ArticleService();
-
-            if(get.section) {
-                service.findBySection(get.section, articleCallback);
-            }
-            else if(get.topic) {
-                service.findByTopic(get.topic, articleCallback);
-            }
-            else {
-                service.find({}, articleCallback);
-            }
+            
+            var options = {};
+            self.contentViewLoader.onContent(articles, options, function(err, content) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+                
+                var data = {
+                    count: articles.length, 
+                    articles: content.toString(),
+                    limit: self.getLimit(),
+                    offset: self.getOffset()
+                };
+                cb({
+                    content: BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'success', data)
+                });
+            });
         });
     };
-
-    GetArticles.prototype.processArticles = function(articles, cb) {
-        var self = this;
-
-        var contentService = new pb.ContentService();
-        contentService.getSettings(function(err, contentSettings) {
-
-            var cnt   = 0;
-            var tasks = util.getTasks(articles, function(content, i) {
-                return function(callback) {
-                    if (i < self.offset || i >= (self.offset + self.limit)) {//TODO, limit articles in query, not through hackery
-                        callback(null, '');
-                        return;
-                    }
-                    cnt++;
-                    self.renderContent(content[i], contentSettings, {}, i, callback);
-                };
-            });
-            async.series(tasks, function(err, result) {
-
-                var data   = {count: cnt, articles: result.join('')};
-                var apiObj = BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'success', data);
-                cb({content: apiObj});
-            });
-        });
+    
+    GetArticles.prototype.getOffset = function() {
+        var offset = parseInt(this.query.offset);
+        if (isNaN(offset) || offset < 0) {
+            
+            //the infinite scroll depends on this being the default.  It is old 
+            //legacy logic and should not be brought forward as the new new 
+            //article API is built out.
+            offset = this.contentSettings.articles_per_page;
+        }
+        return offset;
+    };
+    
+    GetArticles.prototype.getLimit = function(cb) {
+        var limit = parseInt(this.query.limit);
+        if (isNaN(limit) || limit <= 0 || limit > this.contentSettings.articles_per_page) {
+            limit = this.contentSettings.articles_per_page;
+        }
+        return limit;
+    };
+    
+    GetArticles.prototype.getContent = function(cb) {
+        
+        var limit  = this.getLimit();
+        var offset = this.getOffset();
+        
+        //build out the where clause
+        var where = {};
+        ArticleServiceV2.setPublishedClause(where);
+        
+        if (this.query.section) {
+            ArticleServiceV2.setSectionClause(where, this.query.section);
+        }
+        else if (this.query.topic) {
+            ArticleServiceV2.setTopicClause(where, this.query.topic);
+        }
+        
+        //retrieve articles
+        var opts = {
+            render: true,
+            where: where,
+            order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}],
+            limit: limit,
+            offset: offset
+        };
+        this.service.getAll(opts, cb);
     };
 
     //exports

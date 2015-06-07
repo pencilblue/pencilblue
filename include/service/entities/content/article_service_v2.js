@@ -590,9 +590,31 @@ module.exports = function(pb) {
      */
     ArticleServiceV2.setPublishedClause = function(where) {
         where.draft = {
-            $ne: 1,
-            $ne: true
+            $nin: [1, true]
         };
+        where.publish_date = {
+            $lte: new Date()
+        };
+    };
+    
+    /**
+     *
+     * @static
+     * @method setSectionClause
+     * @param {Object} where
+     */
+    ArticleServiceV2.setSectionClause = function(where, sectionId) {
+        where.article_sections = sectionId + '';
+    };
+    
+    /**
+     *
+     * @static
+     * @method setTopicClause
+     * @param {Object} where
+     */
+    ArticleServiceV2.setTopicClause = function(where, topicId) {
+        where.article_topics = topicId + '';
     };
     
     //Event Registries
