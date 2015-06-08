@@ -40,7 +40,7 @@ module.exports = function(pb) {
 
             //none to manage
             if(custObjTypes.length === 0) {
-                self.redirect('/admin' + self.sitePrefix + '/content/objects/types/new', cb);
+                self.redirect('/admin/content/objects/types/new', cb);
                 return;
             }
 
