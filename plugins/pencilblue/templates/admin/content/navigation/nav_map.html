@@ -7,7 +7,7 @@
             <div class="panel-heading">
                 <h5>
                     <i class="fa fa-bars" style="float: left; margin: 0 1em 0 -.25em" data-as-sortable-item-handle></i>
-                    <a ng-href="/admin{{ sitePrefix }}/content/navigation/{{item._id}}">
+                    <a ng-href="/admin/content/navigation/{{item._id}}">
                         <i class="fa fa-fw fa-{{icons[item.type]}}" style="float: left; margin-right: .25em"></i>
                         <span ng-bind="item.name"></span>
                     </a>
@@ -21,7 +21,7 @@
                     <div class="panel-heading">
                         <h5>
                             <i class="fa fa-bars" style="float: left; margin: 0 1em 0 -.25em" data-as-sortable-item-handle></i>
-                            <a ng-href="/admin{{ sitePrefix }}/content/navigation/{{child._id}}">
+                            <a ng-href="/admin/content/navigation/{{child._id}}">
                                 <i class="fa fa-fw fa-{{icons[child.type]}}" style="float: left; margin-right: .25em"></i>
                                 <span ng-bind="child.name"></span>
                             </a>
@@ -35,7 +35,7 @@
         </div>
     </div>
     <div style="margin-top: 1em">
-        <a class="btn btn-default" ng-href="/admin{{ sitePrefix }}/content/navigation">
+        <a class="btn btn-default" ng-href="/admin/content/navigation">
             <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
         </a>
         <button type="button" class="btn btn-primary" ng-click="saveNavMap()">
