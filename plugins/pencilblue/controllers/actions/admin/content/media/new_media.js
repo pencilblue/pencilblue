@@ -43,7 +43,7 @@ module.exports = function(pb) {
             }
 
             var mediaDocument = pb.DocumentCreator.create('media', post);
-            var mediaService = new pb.MediaService(null, self.pathSiteUId);
+            var mediaService = new pb.MediaService(null, self.site);
             mediaService.save(mediaDocument, function(err, result) {
                 if(util.isError(err)) {
                     return cb({

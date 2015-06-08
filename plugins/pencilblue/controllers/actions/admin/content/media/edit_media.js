@@ -49,7 +49,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            var mediaService = new pb.MediaService(null, self.pathSiteUId);
+            var mediaService = new pb.MediaService(null, self.site);
             mediaService.loadById(vars.id, function(err, media) {
                 if(util.isError(err) || media === null) {
                     cb({
