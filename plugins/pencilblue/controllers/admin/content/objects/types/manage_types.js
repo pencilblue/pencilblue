@@ -52,8 +52,7 @@ module.exports = function(pb) {
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-                objectTypes: custObjTypes,
-                pathSitePrefix: self.sitePrefix
+                objectTypes: custObjTypes
             });
 
             self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
