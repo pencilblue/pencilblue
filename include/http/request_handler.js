@@ -1146,13 +1146,6 @@ module.exports = function RequestHandlerModule(pb) {
                 return true;
             }
 
-            // TODO: this is somewhat hacky change to get siteid, this code should go away once we move to site resolution by hostname
-            var pathVars = getPathVars(self.route, self.url);
-            var siteId = pathVars.siteid;
-            if (siteId && pb.SiteService.doesScopeEnvelope(siteFromUser, siteId)) {
-                return true;
-            }
-
             return false;
         }
 
