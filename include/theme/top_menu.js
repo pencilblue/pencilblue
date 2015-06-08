@@ -231,6 +231,15 @@ module.exports = function TopMenuServiceModule(pb) {
         });
     };
     
+    /**
+     * @method getNavItems
+     * @param {Object} options
+     * @param {Localization} options.ls
+     * @param {String} options.activeTheme
+     * @param {Object} options.session
+     * @param {String} options.currUrl
+     * @param {Function} cb
+     */
     TopMenuService.prototype.getNavItems = function(options, cb) {
         TopMenuService.getTopMenu(options.session, options.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenuService.getBootstrapNav(navigation, accountButtons, options, function(navigation, accountButtons) {

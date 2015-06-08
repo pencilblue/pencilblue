@@ -79,6 +79,18 @@ module.exports = function(pb) {
      */
     var TYPE = 'article';
     
+    /**
+     *
+     * @method getPublished
+     * @param {Object} [options]
+     * @param {Object} [options.where]
+     * @param {Object} [options.select]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.limit]
+     * @param {Integer} [options.offset]
+     * @param {Boolean} [options.render]
+     * @param {Function} cb
+     */
     ArticleServiceV2.prototype.getPublished = function(options, cb) {
         if (util.isFunction(options)) {
             cb = options;
@@ -93,13 +105,21 @@ module.exports = function(pb) {
         //add where clause to weed out drafts
         ArticleServiceV2.setPublishedClause(options.where);
         
-        options.where.publish_date = {
-            $lte: new Date()
-        };
-        
         this.getAll(options, cb);
     };
     
+    /**
+     *
+     * @method getDrafts
+     * @param {Object} [options]
+     * @param {Object} [options.where]
+     * @param {Object} [options.select]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.limit]
+     * @param {Integer} [options.offset]
+     * @param {Boolean} [options.render=false]
+     * @param {Function} cb
+     */
     ArticleServiceV2.prototype.getDrafts = function(options, cb) {
         if (util.isFunction(options)) {
             cb = options;
@@ -124,6 +144,7 @@ module.exports = function(pb) {
      * @method get
      * @param {String} id
      * @param {object} options
+     * @param {Boolean} [options.render=false]
      * @param {Function} cb
      */
     ArticleServiceV2.prototype.get = function(id, options, cb) {
@@ -172,6 +193,15 @@ module.exports = function(pb) {
     
     /**
      *
+     * @method getAll
+     * @param {Object} [options]
+     * @param {Object} [options.where]
+     * @param {Object} [options.select]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.limit]
+     * @param {Integer} [options.offset]
+     * @param {Boolean} [options.render=false]
+     * @param {Function} cb
      */
     ArticleServiceV2.prototype.getAll = function(options, cb) {
         
@@ -187,6 +217,12 @@ module.exports = function(pb) {
         ArticleServiceV2.super_.prototype.getAll.apply(this, [options, afterGetAll]);
     };
     
+    /**
+     *
+     * @method render
+     * @param {Array} articles
+     * @param {Function} cb
+     */
     ArticleServiceV2.prototype.render = function(articles, cb) {
         if (!util.isArray(articles)) {
             return cb(new Error('articles parameter must be an array'));

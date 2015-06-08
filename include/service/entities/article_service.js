@@ -606,7 +606,12 @@ module.exports = function ArticleServiceModule(pb) {
         });
     };
     
-    
+    /**
+     * @method onMediaAvailable
+     * @param {String} articleLayout
+     * @param {Object} options
+     * @param {Function} cb
+     */
     MediaLoader.prototype.onMediaAvailable = function(articleLayout, options, cb) {
         var self = this;
         
@@ -628,6 +633,12 @@ module.exports = function ArticleServiceModule(pb) {
         });
     };
     
+    /**
+     * Retrieves the media template for rendering media
+     * @method getMediaTemplate
+     * @param {Object} options
+     * @param {Function} cb
+     */
     MediaLoader.prototype.getMediaTemplate = function(options, cb) {
         if (options.mediaTemplate) {
             return cb(null, options.mediaTemplate);

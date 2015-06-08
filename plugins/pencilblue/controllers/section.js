@@ -15,19 +15,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = function SectionModule(pb) {
+module.exports = function(pb) {
     
     //pb dependencies
-    var util  = pb.util;
+    var util = pb.util;
 
     /**
      * Loads a section
+     * @class SectionViewController
+     * @constructor
+     * @extends BaseController
      */
-    function Section(){}
-    util.inherits(Section, pb.BaseController);
+    function SectionViewController(){}
+    util.inherits(SectionViewController, pb.BaseController);
 
-
-    Section.prototype.init = function(context, cb) {
+    /**
+     * @method init
+     * @param {Object} content
+     * @param {Function} cb
+     */
+    SectionViewController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
             
@@ -56,10 +63,14 @@ module.exports = function SectionModule(pb) {
                 cb(null, true);
             });
         };
-        Section.super_.prototype.init.apply(this, [context, init]);
+        SectionViewController.super_.prototype.init.apply(this, [context, init]);
     };
     
-    Section.prototype.render = function(cb) {
+    /**
+     * @method render
+     * @param {Function} cb
+     */
+    SectionViewController.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
         
@@ -87,7 +98,13 @@ module.exports = function SectionModule(pb) {
         });
     };
     
-    Section.prototype.getContent = function(custUrl, cb) {
+    /**
+     * Retrieves the content to be displayed and rendered
+     * @method getContent
+     * @param {String} custUrl The URL slug of the section
+     * @param {Function} cb
+     */
+    SectionViewController.prototype.getContent = function(custUrl, cb) {
         var self = this;
             
         //lookup by URL
@@ -103,7 +120,7 @@ module.exports = function SectionModule(pb) {
                 order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}]
             };
             pb.ArticleServiceV2.setPublishedClause(opts.where);
-            self.service.getBySection(section, opts, function(err, content) {
+            self.service.getBySectionViewController(section, opts, function(err, content) {
                 var result = {
                     section: section,
                     content: content
@@ -114,5 +131,5 @@ module.exports = function SectionModule(pb) {
     };
 
     //exports
-    return Section;
+    return SectionViewController;
 };
