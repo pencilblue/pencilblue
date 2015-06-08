@@ -58,19 +58,18 @@ module.exports = function(pb) {
             }
 
             //retrieve the content settings or defaults if they have not yet been configured
-            var contentService = new pb.ContentService(self.pathSiteUId);
+            var contentService = new pb.ContentService(self.site);
             contentService.getSettings(function(err, contentSettings) {
                 //TODO handle error
 
                 //retrieve any details
                 self.getCommentDetails(comments, function(commentsWithDetails) {
-                    var pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {prefix: self.sitePrefix});
+                    var pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
                     var angularObjects = pb.ClientJs.getAngularObjects({
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
                         pills: pills,
                         comments: commentsWithDetails,
                         allowComments: contentSettings.allow_comments,
-                        sitePrefix: self.sitePrefix,
                         siteRoot: self.siteRoot
                     });
 
@@ -138,7 +137,7 @@ module.exports = function(pb) {
             name: SUB_NAV_KEY,
             title: ls.get('MANAGE_COMMENTS'),
             icon: 'refresh',
-            href: '/admin' + data.prefix + '/content/comments'
+            href: '/admin/content/comments'
         }];
     };
 

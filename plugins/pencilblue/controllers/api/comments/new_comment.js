@@ -29,8 +29,7 @@ module.exports = function NewCommentModule(pb) {
 
     NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
-
-        var contentService = new pb.ContentService(self.siteUId);
+        var contentService = new pb.ContentService(self.site);
         contentService.getSettings(function(err, contentSettings) {
             if(!contentSettings.allow_comments) {
                 cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'commenting not allowed'), code: 400});
