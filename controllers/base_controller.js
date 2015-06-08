@@ -105,6 +105,11 @@ module.exports = function BaseControllerModule(pb) {
         this.pageName            = '';
         this.site                = props.site;
 
+        this.siteService = new pb.SiteService();
+        this.siteService.getByUid(this.site, function (err, siteInfo) {
+            self.siteObj = siteInfo;
+        });
+
         var tsOpts = {
             ls: this.localizationService,
             activeTheme: props.activeTheme,
@@ -112,6 +117,12 @@ module.exports = function BaseControllerModule(pb) {
         };
 
         this.templateService     = this.getTemplateService(tsOpts);
+        this.templateService.registerLocal('site_root', function(flag, cb) {
+            cb(null, self.siteObj.hostname || self.templateService.siteRoot);
+        });
+        this.templateService.registerLocal('site_name', function(flag, cb) {
+            cb(null, self.siteObj.displayName || self.templateService.siteName);
+        });
         this.templateService.registerLocal('locale', this.ls.language);
         this.templateService.registerLocal('error_success', function(flag, cb) {
             self.displayErrorOrSuccessCallback(flag, cb);
