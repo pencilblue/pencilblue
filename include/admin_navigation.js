@@ -173,14 +173,14 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'manage',
                         title: 'MANAGE',
                         icon: 'users',
-                        href: adminPath + '/users',
+                        href: 'admin/users',
                         access: SecurityService.ACCESS_EDITOR
                     },
                     {
                         id: 'permissions',
                         title: 'PERMISSIONS',
                         icon: 'lock',
-                        href: adminPath + '/users/permissions',
+                        href: 'admin/users/permissions',
                         access: SecurityService.ACCESS_ADMINISTRATOR
                     },
                 ]
@@ -210,7 +210,7 @@ module.exports = function AdminNavigationModule(pb) {
                         id: 'email_settings',
                         title: 'EMAIL',
                         icon: 'envelope',
-                        href: adminPath + '/site_settings/email',
+                        href: 'admin/site_settings/email',
                         access: SecurityService.ACCESS_MANAGING_EDITOR
                     },
                     {
