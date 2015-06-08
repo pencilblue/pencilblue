@@ -60,13 +60,13 @@ module.exports = function SectionServiceModule(pb) {
      * @return {Array}
      * @param sitePrefix
      */
-    SectionService.getPillNavOptions = function(activePill, sitePrefix) {
+    SectionService.getPillNavOptions = function(activePill) {
         return [
             {
                 name: 'new_nav_item',
                 title: '',
                 icon: 'plus',
-                href: '/admin' + sitePrefix + '/content/navigation/new'
+                href: '/admin/content/navigation/new'
             }
         ];
     };

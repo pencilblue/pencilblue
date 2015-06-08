@@ -43,19 +43,19 @@ module.exports = function(pb) {
             else if(sections.length === 0) {
 
                 //when no sections exist redirect to create page
-                return self.redirect('/admin' + self.sitePrefix + '/content/navigation/new', cb);
+                return self.redirect('/admin/content/navigation/new', cb);
             }
 
             self.settings.get('section_map', function (err, sectionMap) {
                 if(sectionMap === null) {
-                    self.redirect('/admin' + self.sitePrefix + '/content/navigation/new', cb);
+                    self.redirect('/admin/content/navigation/new', cb);
                     return;
                 }
 
                 var angularObjects = pb.ClientJs.getAngularObjects(
                     {
                         navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
-                        pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {sitePrefix: self.sitePrefix}),
+                        pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                         navItems: NavigationMap.getOrderedItems(sections, sectionMap),
                         icons: {
                             container: 'inbox',
@@ -63,8 +63,7 @@ module.exports = function(pb) {
                             article: 'files-o',
                             page: 'file-o',
                             link: 'link'
-                        },
-                        sitePrefix: self.sitePrefix
+                        }
                     }
                 );
 
@@ -118,13 +117,13 @@ module.exports = function(pb) {
     };
 
     NavigationMap.getSubNavItems = function(key, ls, data) {
-        var pills = SectionService.getPillNavOptions(null, data.sitePrefix);
+        var pills = SectionService.getPillNavOptions();
         pills.unshift(
         {
             name: SUB_NAV_KEY,
             title: ls.get('NAV_MAP'),
             icon: 'refresh',
-            href: '/admin' + data.sitePrefix + '/content/navigation'
+            href: '/admin/content/navigation'
         });
         return pills;
     };

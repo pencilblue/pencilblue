@@ -36,7 +36,7 @@
             }
 
             $scope.saving = true;
-            $http.post('/actions/admin' + $scope.sitePrefix + '/content/navigation/map', {map: navMap})
+            $http.post('/actions/admin/content/navigation/map', {map: navMap})
             .success(function(result) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
@@ -58,7 +58,7 @@
             }
 
             $scope.deleting = true;
-            $http({method: 'DELETE', url: '/actions/admin' + $scope.sitePrefix + '/content/navigation/' + $scope.objectToDelete._id})
+            $http({method: 'DELETE', url: '/actions/admin/content/navigation/' + $scope.objectToDelete._id})
             .success(function(result) {
                 $scope.deleting = false;
                 $scope.successMessage = result.message;
