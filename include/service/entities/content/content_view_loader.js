@@ -35,6 +35,7 @@ module.exports = function(pb) {
         this.contentSettings = context.contentSettings; 
         this.session = context.session;
         this.service = context.service;
+        this.activeTheme = context.activeTheme;
     };
     
     /**
@@ -46,10 +47,24 @@ module.exports = function(pb) {
      */
     var DISPLAY_NONE_STYLE_ATTR = 'display:none;';
     
+    /**
+     *
+     * @method getMetaInfo
+     * @param {Object} content
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.renderSingle = function(content, options, cb) {
         this.render([content], options, cb);
     };
     
+    /**
+     *
+     * @method render
+     * @param {Array} contentArray
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.render = function(contentArray, options, cb) {
         var self = this;
         
@@ -85,6 +100,13 @@ module.exports = function(pb) {
         });
     };
     
+    /**
+     *
+     * @method getTemplate
+     * @param {Array|Object} content
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.getTemplate = function(content, options, cb) {
 
         //check if we should just use whatever default there is.
@@ -143,10 +165,22 @@ module.exports = function(pb) {
         cb(null, pieces[1]);
     };
 
+    /**
+     *
+     * @method getDefaultTemplatePath
+     * @return {String}
+     */
     ContentViewLoader.prototype.getDefaultTemplatePath = function() {
         return 'index';
     };
     
+    /**
+     *
+     * @method onContent
+     * @param {Array} contentArray
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.onContent = function(contentArray, options, cb) {
         var self  = this;
         var limit = Math.min(this.contentSettings.articles_per_page, contentArray.length);
@@ -164,6 +198,13 @@ module.exports = function(pb) {
         });
     };
     
+    /**
+     *
+     * @method gatherData
+     * @param {Array} contentArray
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.gatherData = function(contentArray, options, cb) {
         var self  = this;
         var tasks = {
@@ -171,13 +212,14 @@ module.exports = function(pb) {
             //navigation
             nav: function(callback) {
                 
-                var options = {
+                var opts = {
                     currUrl: self.req.url,
                     session: self.session,
-                    ls: self.ls
+                    ls: self.ls,
+                    activeTheme: self.activeTheme
                 };
                 var topMenuService = new pb.TopMenuService();
-                topMenuService.getNavItems(options, callback);
+                topMenuService.getNavItems(opts, callback);
             },
 
             meta: function(callback) {
@@ -199,6 +241,13 @@ module.exports = function(pb) {
         async.parallel(tasks, cb);
     };
     
+    /**
+     * 
+     * @method onAngular
+     * @param {Array} contentArray
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.onAngular = function(contentArray, options, cb) {
         var objects = {
             trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
@@ -207,6 +256,13 @@ module.exports = function(pb) {
         cb(null, angularData);
     };
     
+    /**
+     *
+     * @method onPageName
+     * @param {Array} contentArray
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.onPageName = function(contentArray, options, cb) {
         var content = contentArray[0];
         if (!util.isObject(content)) {
@@ -230,6 +286,13 @@ module.exports = function(pb) {
         cb(null, name ? name + ' | ' + pb.config.siteName : pb.config.siteName);
     };
     
+    /**
+     *
+     * @method onInfiniteScroll
+     * @param {Array} contentArray
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.onInfiniteScroll = function(contentArray, options, cb) {
         if(contentArray.length <= 1) {
             return cb(null, '');
@@ -247,6 +310,11 @@ module.exports = function(pb) {
         cb(null, val);
     };
     
+    /**
+     * 
+     * @method setMetaInfo
+     * @param {Object} options
+     */
     ContentViewLoader.prototype.setMetaInfo = function(meta, options) {
         this.ts.registerLocal('meta_keywords', meta.keywords);
         this.ts.registerLocal('meta_desc', options.metaDescription || meta.description);
@@ -255,15 +323,27 @@ module.exports = function(pb) {
         this.ts.registerLocal('meta_lang', Localization.getDefaultLocale());
     };
     
+    /**
+     *
+     * @method getMetaInfo
+     * @param {Array} contentArray
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.getMetaInfo = function(contentArray, options, cb) {
         if (contentArray.length === 0) {
             return cb(null, {});
         }
-        
-        var articleService = this.service;
-        articleService.getMetaInfo(contentArray[0], cb);
+        this.service.getMetaInfo(contentArray[0], cb);
     };
     
+    /**
+     *
+     * @method renderContent
+     * @param {Object} content
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.renderContent = function(content, options, cb) {
         var self = this;
         
@@ -314,6 +394,13 @@ module.exports = function(pb) {
         options.contentIndex++;
     };
     
+    /**
+     *
+     * @method renderComments
+     * @param {Object} content
+     * @param {TemplateService} ts
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.renderComments = function(content, ts, cb) {
         var self           = this;
         var commentingUser = null;
@@ -350,6 +437,13 @@ module.exports = function(pb) {
         ts.load('elements/comments', cb);
     };
     
+    /**
+     *
+     * @method renderComment
+     * @param {Object} comment
+     * @param {TemplateService} cts
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.renderComment = function(comment, cts, cb) {
         
         cts.reprocess = false;
@@ -362,6 +456,13 @@ module.exports = function(pb) {
         cts.load('elements/comments/comment', cb);
     };
     
+    /**
+     *
+     * @method onCommentingUserPhoto
+     * @param {Object} content
+     * @param {Object} commentingUser
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.onCommentingUserPhoto = function(content, commentingUser, cb) {
         var val = '';
         if (commentingUser) {
@@ -370,6 +471,13 @@ module.exports = function(pb) {
         cb(null, val);
     };
     
+    /**
+     * 
+     * @method onCommentingUserPosition
+     * @param {Object} content
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
         var val = '';
         if (commentingUser && util.isArray(commentingUser.position) && commentingUser.position.length > 0) {
@@ -378,25 +486,60 @@ module.exports = function(pb) {
         cb(null, val);
     };
     
+    /**
+     *
+     * @method onContentPermalink
+     * @param {Object} content
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.onContentPermalink = function(content, options, cb) {
         cb(null, this.createContentPermalink(content));
     };
     
+    /**
+     *
+     * @method onContentHeadline
+     * @param {Object} content
+     * @param {Object} options
+     * @param {Function} cb
+     */
     ContentViewLoader.prototype.onContentHeadline = function(content, options, cb) {
         var url = this.createContentPermalink(content);
         var val = new pb.TemplateValue('<a href="' + url + '">' + HtmlEncoder.htmlEncode(content.headline) + '</a>', false);
         cb(null, val);
     };
     
+    /**
+     *
+     * @method createContentPermalink
+     * @param {Object} content
+     * @return {String}
+     */
     ContentViewLoader.prototype.createContentPermalink = function(content) {
         var prefix = '/' + this.service.getType();
         return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url));
     };
     
+    /**
+     *
+     * @static
+     * @method getDisplayAttr
+     * @param {*} val
+     * @return {String}
+     */
     ContentViewLoader.getDisplayAttr = function(val) {
         return val ? '' : DISPLAY_NONE_STYLE_ATTR;
     };
     
+    /**
+     * When passed a value it is evaluated as a boolean.  If evaluated to TRUE 
+     * the value is returned, if FALSE empty string is returned
+     * @static
+     * @method valOrEmpty
+     * @param {*} val
+     * @return {*}
+     */
     ContentViewLoader.valOrEmpty = function(val) {
         return val ? val : '';
     };

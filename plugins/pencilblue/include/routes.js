@@ -103,10 +103,10 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
-            path: "/",
+            path: '/',
             access_level: 0,
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'index.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'blog.js'),
             content_type: 'text/html'
         },
         {

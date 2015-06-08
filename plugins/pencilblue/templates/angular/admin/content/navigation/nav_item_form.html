@@ -7,6 +7,8 @@
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
 
+        $scope.urlAvailable = null;
+
         $scope.setItem = function(item) {
             $scope.navItem.item = item;
             $scope.$apply();
@@ -16,6 +18,20 @@
         $scope.setNavItemValue = function(key, value) {
             $scope.navItem[key] = value;
         }
+
+        $scope.getUrlAvailability = function() {
+          $http.get('/api/url/exists_for?url=' + $scope.navItem.url + '&type=section')
+          .success(function(result) {
+            $scope.urlAvailable = !result.data;
+          })
+          .error(function(error, status) {
+            $scope.errorMessage = error.message;
+          });
+        };
+
+        $scope.resetUrlAvailability = function() {
+          $scope.urlAvailable = null;
+        };
 
         $scope.saveNavItem = function() {
             $scope.formSubmitted = true;
