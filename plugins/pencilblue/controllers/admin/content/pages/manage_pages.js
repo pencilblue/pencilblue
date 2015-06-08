@@ -42,7 +42,7 @@ module.exports = function(pb) {
                 return self.reqHandler.serveError(err);
             }
             else if(pages.length === 0) {
-                return self.redirect('/admin' + self.sitePrefix + '/content/pages/new', cb);
+                return self.redirect('/admin/content/pages/new', cb);
             }
 
             pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
@@ -82,8 +82,7 @@ module.exports = function(pb) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
                 pills: pills,
-                pages: self.getPageStatuses(pagesWithAuthor),
-                sitePrefix: self.sitePrefix
+                pages: self.getPageStatuses(pagesWithAuthor)
             });
             cb(angularObjects);
         });
