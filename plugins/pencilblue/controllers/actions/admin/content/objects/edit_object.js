@@ -41,7 +41,7 @@ module.exports = function(pb) {
             return;
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUId, true);
+        var service = new pb.CustomObjectService(self.site, true);
         service.loadById(vars.id, function(err, custObj) {
             if(util.isError(err) || !util.isObject(custObj)) {
                 return cb({
