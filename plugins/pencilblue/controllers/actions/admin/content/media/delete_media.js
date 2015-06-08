@@ -50,7 +50,7 @@ module.exports = function(pb) {
             return;
         }
 
-        var mservice = new pb.MediaService(self.pathSiteUId);
+        var mservice = new pb.MediaService(self.site);
         mservice.loadById(vars.id, function(err, mediaData) {
             if(util.isError(err) || !mediaData) {
                 cb({
