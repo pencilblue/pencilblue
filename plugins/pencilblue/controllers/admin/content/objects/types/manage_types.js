@@ -35,7 +35,7 @@ module.exports = function(pb) {
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
 
-        var service = new pb.CustomObjectService(self.pathSiteUId, true);
+        var service = new pb.CustomObjectService(self.site, true);
         service.findTypes(function(err, custObjTypes) {
 
             //none to manage
