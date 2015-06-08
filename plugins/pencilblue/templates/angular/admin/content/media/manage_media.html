@@ -76,7 +76,7 @@
 			}
 
 			$scope.deleting = true;
-			$http({method: 'DELETE', url: '/actions/admin' + $scope.sitePrefix + '/content/media/' + $scope.objectToDelete._id})
+			$http({method: 'DELETE', url: '/actions/admin/content/media/' + $scope.objectToDelete._id})
 			.success(function(result) {
 				for(var i = 0; i < $scope.media.length; i ++) {
 					if($scope.media[i]._id.toString() === $scope.objectToDelete._id.toString()) {

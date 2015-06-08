@@ -42,10 +42,10 @@ module.exports = function(pb) {
             order: {created: pb.DAO.DESC},
             format_media: true
         };
-        var mediaService = new pb.MediaService(null, self.pathSiteUId, true);
+        var mediaService = new pb.MediaService(null, self.site, true);
         mediaService.get(options, function(err, mediaData) {
             if(util.isError(mediaData) || mediaData.length === 0) {
-                self.redirect('/admin' + self.sitePrefix + '/content/media/new', cb);
+                self.redirect('/admin/content/media/new', cb);
                 return;
             }
 
@@ -62,33 +62,28 @@ module.exports = function(pb) {
 
     ManageMedia.prototype.getAngularObjects = function(mediaData, cb) {
         var self = this;
-        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: self.pathSiteUId}, function(pills) {
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: self.site}, function(pills) {
             var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
                     pills: pills,
-                    media: pb.MediaService.formatMedia(mediaData),
-                    sitePrefix: self.sitePrefix
+                    media: pb.MediaService.formatMedia(mediaData)
                 });
             cb(angularObjects);
         });
     };
 
     ManageMedia.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin';
-        if(data.site) {
-            adminPrefix += '/' + data.site;
-        }
         return [{
             name: 'manage_media',
             title: ls.get('MANAGE_MEDIA'),
             icon: 'refresh',
-            href: adminPrefix + '/content/media'
+            href: '/admin/content/media'
         }, {
             name: 'new_media',
             title: '',
             icon: 'plus',
-            href: adminPrefix + '/content/media/new'
+            href: '/admin/content/media/new'
         }];
     };
 
