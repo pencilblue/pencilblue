@@ -135,18 +135,6 @@ module.exports = function BaseControllerModule(pb) {
         });
         this.ts = this.templateService;
 
-        this.siteService = new pb.SiteService();
-        this.siteService.getByUid(this.site, function (err, siteInfo) {
-            self.siteObj = siteInfo;
-
-            self.templateService.registerLocal('site_root', function(flag, cb) {
-                cb(null, self.siteObj.hostname || self.templateService.siteRoot);
-            });
-            self.templateService.registerLocal('site_name', function(flag, cb) {
-                cb(null, self.siteObj.displayName || self.templateService.siteName);
-            });
-        });
-        
         /**
          *
          * @property activeTheme
@@ -166,7 +154,19 @@ module.exports = function BaseControllerModule(pb) {
             onlyThisSite: true
         };
 
-        cb();
+        this.siteService = new pb.SiteService();
+        this.siteService.getByUid(this.site, function (err, siteInfo) {
+            self.siteObj = siteInfo;
+
+            self.templateService.registerLocal('site_root', function(flag, cb) {
+                cb(null, self.siteObj.hostname || self.templateService.siteRoot);
+            });
+            self.templateService.registerLocal('site_name', function(flag, cb) {
+                cb(null, self.siteObj.displayName || self.templateService.siteName);
+            });
+
+            cb();
+        });
     };
     
     /**
