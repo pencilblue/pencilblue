@@ -56,11 +56,8 @@ module.exports = function(pb) {
 
             var navData = {
                 item: self.navItem,
-                sitePrefix: self.sitePrefix
             };
             data.pills = self.getAdminPills(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
-            data.sitePrefix = self.sitePrefix;
-            data.site = self.pathSiteUId;
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
@@ -152,13 +149,13 @@ module.exports = function(pb) {
 
     NavItemFormController.getSubNavItems = function(key, ls, data) {
         var item = data.item;
-        var pills = SectionService.getPillNavOptions(null, data.sitePrefix);
+        var pills = SectionService.getPillNavOptions(null);
         pills.unshift(
         {
             name: 'manage_nav_items',
             title: item[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + item.name : ls.get('NEW_NAV_ITEM'),
             icon: 'chevron-left',
-            href: '/admin' + data.sitePrefix + '/content/navigation'
+            href: '/admin/content/navigation'
         });
         return pills;
     };

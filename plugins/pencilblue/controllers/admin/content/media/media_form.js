@@ -67,7 +67,6 @@ module.exports = function(pb) {
         var self = this;
         pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, data.media, {site: data.media.site}, function(pills) {
             data.pills = pills;
-            data.sitePrefix = self.sitePrefix;
             cb(pb.ClientJs.getAngularObjects(data));
         });
 
@@ -110,11 +109,11 @@ module.exports = function(pb) {
                 if(!vars.id) {
                     return callback(null, {
                         media_topics: [],
-                        site: self.pathSiteUId
+                        site: self.site
                     });
                 }
 
-                var mediaService = new pb.MediaService(null, self.pathSiteUId, true);
+                var mediaService = new pb.MediaService(null, self.site, true);
                 mediaService.loadById(vars.id, callback);
             }
         };
@@ -141,20 +140,16 @@ module.exports = function(pb) {
     };
 
     MediaForm.getSubNavItems = function(key, ls, data) {
-        var adminPrefix = '/admin';
-        if(data.site) {
-            adminPrefix += '/' + data.site;
-        }
         return [{
             name: 'manage_media',
             title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_MEDIA'),
             icon: 'chevron-left',
-            href: adminPrefix + '/content/media'
+            href: '/admin/content/media'
         }, {
             name: 'new_media',
             title: '',
             icon: 'plus',
-            href: adminPrefix + '/content/media/new'
+            href: '/admin/content/media/new'
         }];
     };
 
