@@ -34,7 +34,7 @@ module.exports = function(pb) {
         var self = this;
 
         //get plugs with themes
-        var pluginService = new pb.PluginService(self.pathSiteUId);
+        var pluginService = new pb.PluginService(self.site);
         pluginService.getPluginsWithThemesBySite(function (err, themes) {
             if (util.isError(err)) {
                 throw result;
@@ -69,20 +69,15 @@ module.exports = function(pb) {
                         }
                     }
 
-                    var subNavData = {
-                        sitePrefix: self.sitePrefix
-                    };
-
                     //setup angular
                     var angularObjects = pb.ClientJs.getAngularObjects({
                         navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes'], self.ls),
-                        pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, subNavData),
+                        pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
                         tabs: self.getTabs(),
                         themes: themes,
                         options: options,
                         siteLogo: siteLogo,
-                        activeTheme: activeTheme,
-                        sitePrefix: self.sitePrefix
+                        activeTheme: activeTheme
                     });
 
                     self.ts.registerLocal('image_title', '');
@@ -116,7 +111,7 @@ module.exports = function(pb) {
                 name: 'manage_themes',
                 title: ls.get('MANAGE_THEMES'),
                 icon: 'refresh',
-                href: '/admin' + data.sitePrefix + '/themes'
+                href: '/admin/themes'
             }
        ];
     };
