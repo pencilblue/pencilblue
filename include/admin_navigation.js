@@ -276,7 +276,6 @@ module.exports = function AdminNavigationModule(pb) {
         var i;
         var navigation = [];
         var multiSiteAdditions = getMultiSiteNavigation();
-        //
         var defaultNavigation = getDefaultNavigation();
         var additions = getAdditions();
         var childrenAdditions = getChildrenAdditions();
