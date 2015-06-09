@@ -11,8 +11,7 @@
 				settingsObject[$scope.settings[i].name] = $scope.settings[i].value;
 			}
 
-				var prefix = '/admin' + $scope.sitePrefix;
-			$http.post(prefix + '/' + $scope.type + '/' + $scope.pluginUID + '/settings', settingsObject)
+			$http.post('/admin/' + $scope.type + '/' + $scope.pluginUID + '/settings', settingsObject)
 			.success(function(result) {
 				$scope.successMessage = result.message;
 				$scope.saving = false;
