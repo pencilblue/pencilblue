@@ -250,8 +250,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getAdditions
      * @returns {Array}
      */
-    function getAdditions(site) {
-        return util.clone(AdminNavigation.additions[site] || []);
+    function getAdditions() {
+        return util.clone(AdminNavigation.additions);
     };
 
     /**
@@ -261,8 +261,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getChildrenAdditions
      * @returns {Object}
      */
-    function getChildrenAdditions(site) {
-        return util.clone(AdminNavigation.childrenAdditions[site] || []);
+    function getChildrenAdditions() {
+        return util.clone(AdminNavigation.childrenAdditions);
     };
 
     /**
@@ -276,18 +276,13 @@ module.exports = function AdminNavigationModule(pb) {
         var i;
         var navigation = [];
         var multiSiteAdditions = getMultiSiteNavigation();
-        var adminSiteId = session && session.adminSiteId ? session.adminSiteId : GLOBAL_SITE;
         var defaultNavigation = getDefaultNavigation();
-        var additions = getAdditions(adminSiteId);
-        var childrenAdditions = getChildrenAdditions(adminSiteId);
-        if (!pb.SiteService.isGlobal(adminSiteId)) {
-            util.arrayPushAll(getAdditions(GLOBAL_SITE), additions);
-            additions = _.uniq(additions, 'id');
-            util.merge(getChildrenAdditions(GLOBAL_SITE), childrenAdditions);
-        }
+        var additions = getAdditions();
+        var childrenAdditions = getChildrenAdditions();
 
         util.arrayPushAll(defaultNavigation, navigation);
         util.arrayPushAll(additions, navigation);
+
         if(pb.config.multisite) {
             util.arrayPushAll(multiSiteAdditions, navigation);
         }
