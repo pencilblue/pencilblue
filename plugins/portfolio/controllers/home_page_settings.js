@@ -59,10 +59,10 @@ module.exports = function HomePageSettingsModule(pb) {
                 homePageSettings = homePageSettings[0];
             }
             else {
-                homePageSettings = {callouts: [{}, {}, {}], site:self.pathSiteUId};
+                homePageSettings = {callouts: [{}, {}, {}], site:self.site};
             }
 
-            var mservice = new pb.MediaService(self.pathSiteUId, true);
+            var mservice = new pb.MediaService(self.site, true);
             mservice.get(function(err, media) {
                 if(homePageSettings.page_media) {
                     var pageMedia = [];
