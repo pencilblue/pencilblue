@@ -46,7 +46,7 @@ module.exports = function(pb) {
     PluginSettingsFormController.prototype.init = function (props, cb) {
         var self = this;
         pb.BaseAdminController.prototype.init.call(self, props, function () {
-            self.pluginService = new pb.PluginService(self.pathSiteUId);
+            self.pluginService = new pb.PluginService(self.site);
             cb();
         });
     };
@@ -109,8 +109,7 @@ module.exports = function(pb) {
                 //setup angular
                 var data = {
                     plugin: plugin,
-                    settingType: self.getType(),
-                    sitePrefix: self.sitePrefix
+                    settingType: self.getType()
                 };
                 var angularObjects = pb.ClientJs.getAngularObjects({
                     pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, data),
@@ -118,8 +117,7 @@ module.exports = function(pb) {
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                     settings: clone,
                     pluginUID: uid,
-                    type: data.settingType,
-                    sitePrefix: self.sitePrefix
+                    type: data.settingType
                 });
 
                 //render page
@@ -247,7 +245,7 @@ module.exports = function(pb) {
                 name: 'manage_plugins',
                 title: data.plugin.name + ' ' + ls.get('SETTINGS'),
                 icon: 'chevron-left',
-                href: '/admin' + data.sitePrefix + '/' + data.settingType
+                href: '/admin/' + data.settingType
             }
         ];
     };

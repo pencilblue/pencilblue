@@ -53,15 +53,12 @@ module.exports = function(pb) {
                 return;
             }
 
-            //angular data
-            obj.sitePrefix = self.sitePrefix;
             var angularObjects = pb.ClientJs.getAngularObjects({
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, obj),
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
                 d: obj.details,
                 status: obj.status,
-                is_active: PluginService.isActivePlugin(obj.details.uid),
-                sitePrefix: self.sitePrefix
+                is_active: PluginService.isActivePlugin(obj.details.uid)
             });
 
             //render page
@@ -81,7 +78,7 @@ module.exports = function(pb) {
     PluginDetailsViewController.prototype.getDetails = function (puid, cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService(self.pathSiteUId);
+        var pluginService = new pb.PluginService(self.site);
         pluginService.getPluginBySite(puid, function(err, plugin) {
             if (util.isError(err)) {
                 cb(err, plugin);
@@ -140,7 +137,7 @@ module.exports = function(pb) {
                 name: 'manage',
                 title: data.details.name,
                 icon: 'chevron-left',
-                href: '/admin' + data.sitePrefix + '/plugins'
+                href: '/admin/plugins'
             }
         ];
     };
