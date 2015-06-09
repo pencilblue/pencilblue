@@ -24,7 +24,7 @@
 
 				$scope.saving = true;
 
-				$http.post('/actions/admin/'+ $scope.homePageSettings.site +'/plugins/settings/portfolio/home_page', $scope.homePageSettings)
+				$http.post('/actions/admin/plugins/settings/portfolio/home_page', $scope.homePageSettings)
 				.success(function(result) {
 					$scope.successMessage = result.message;
 					$scope.saving = false;
