@@ -14,7 +14,7 @@
 
             $scope.saving = true;
 
-            $http.post('/actions/admin/site', $scope.siteEntity)
+            $http.post('/actions/admin/site/new', $scope.siteEntity)
             .success(function(result) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;

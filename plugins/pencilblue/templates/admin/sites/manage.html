@@ -2,7 +2,6 @@
 <div class="col-md-9">
     ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
-    <form name="siteForm" ng-submit="addNewSite()">
         <div>
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -55,16 +54,7 @@
                         </td>
                     </tr>
                 </table>
-            </div>
-        </div>
-        <div class="input-group">
-            <input type="text" class="form-control" ng-model="siteEntity.displayName" placeholder="Short Name" required>
-        </div>
-        <div class="input-group">
-            <input type="text" class="form-control" ng-model="siteEntity.hostname" placeholder="Hostname" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Add</button>
-    </form>
+            </div></div>
     ^tmp_admin=elements=progress_console_modal^
 </div>
 ^tmp_angular=admin=sites=manage^

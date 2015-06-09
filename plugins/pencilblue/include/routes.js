@@ -1008,11 +1008,19 @@ module.exports = function Routes(pb){
             content_type: 'text/html'
         },
         {
-            method: 'post',
-            path: "/actions/admin/site",
+            method: 'get',
+            path: "/admin/sites/new",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'new_site.js')
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'site_form.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/site/new",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'new_site_action.js')
         },
         {
             method: 'post',

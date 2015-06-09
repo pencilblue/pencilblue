@@ -13,6 +13,7 @@ module.exports = function(pb) {
 		siteService.getSiteMap(function(err, map) {	
 			var angularObjects = pb.ClientJs.getAngularObjects({
             	navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls),
+				pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
             	activeSites: map.active,
             	inactiveSites: map.inactive
         	});
@@ -24,7 +25,17 @@ module.exports = function(pb) {
 	}
 
 	Manage.getSubNavItems = function(key, ls, data) {
-		return [];
+		return [{
+			name: 'manage_sites',
+			title: ls.get('MANAGE_SITES'),
+			icon: 'refresh',
+			href: '/admin/sites'
+		}, {
+			name: 'new_site',
+			title: '',
+			icon: 'plus',
+			href: '/admin/sites/new'
+		}];
 	}
 
  	pb.AdminSubnavService.registerFor(SUB_NAV_KEY, Manage.getSubNavItems);

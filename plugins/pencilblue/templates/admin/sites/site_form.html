@@ -1,0 +1,21 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+
+        <form name="siteForm" ng-submit="addNewSite()">
+            <formset>
+                <div class="form_group">
+                    <input type="text" class="form-control" ng-model="siteEntity.displayName" placeholder="Short Name" required>
+                </div>
+                <div class="form_error">
+                    <input type="text" class="form-control" ng-model="siteEntity.hostname" placeholder="Hostname" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </formset>
+        </form>
+
+    ^tmp_admin=elements=progress_console_modal^
+</div>
+^tmp_angular=admin=sites=manage^
+^tmp_admin=footer^
