@@ -58,7 +58,7 @@ module.exports = function(pb) {
 
     TypeForm.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService(self.pathSiteUId, true);
+        var cos = new pb.CustomObjectService(self.site, true);
 
         var tasks = {
             tabs: function(callback) {
@@ -81,10 +81,6 @@ module.exports = function(pb) {
 
             navigation: function(callback) {
                 callback(null, pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls));
-            },
-
-            pathSitePrefix: function(callback) {
-                callback(null, self.sitePrefix)
             },
 
             objectTypes: function(callback) {
@@ -116,12 +112,12 @@ module.exports = function(pb) {
             name: SUB_NAV_KEY,
             title: data.objectType[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.objectType.name : ls.get('NEW_OBJECT_TYPE'),
             icon: 'chevron-left',
-            href: '/admin' + data.pathSitePrefix + '/content/objects/types'
+            href: '/admin/content/objects/types'
         }, {
             name: 'new_object_type',
             title: '',
             icon: 'plus',
-            href: '/admin' + data.pathSitePrefix + '/content/objects/types/new'
+            href: '/admin/content/objects/types/new'
         }];
     };
 
