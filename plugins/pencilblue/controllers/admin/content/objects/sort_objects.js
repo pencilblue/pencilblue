@@ -65,7 +65,6 @@ module.exports = function(pb) {
                     pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: objectType, pathSitePrefix: self.sitePrefix}),
                     customObjects: customObjects,
                     objectType: objectType,
-                    pathSitePrefix: self.site
                 });
 
                 self.setPageName(self.ls.get('SORT') + ' ' + objectType.name);

@@ -116,10 +116,6 @@ module.exports = function(pb) {
                 callback(null, pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls));
             },
 
-            pathSitePrefix: function(callback) {
-                callback(null, self.site)
-            },
-
             objectType: function(callback) {
                 cos.loadTypeById(vars.type_id, function(err, objectType) {
                     if(util.isError(err)) {

@@ -61,7 +61,6 @@ module.exports = function(pb) {
 
 
                 var data = {};
-                data.pathSitePrefix = self.site;
                 data.custObjType = custObjType;
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', data);
                 for(var i = 0; i < pills.length; i++) {
@@ -78,7 +77,6 @@ module.exports = function(pb) {
                     pills: pills,
                     customObjects: customObjects,
                     objectType: custObjType,
-                    pathSitePrefix: self.site
                 });
 
                 var title = self.ls.get('MANAGE') + ' ' + custObjType.name;
