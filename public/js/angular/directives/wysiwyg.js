@@ -125,6 +125,7 @@
         };
 
         scope.showInsertMediaModal = function() {
+          angular.element(element).find('[contenteditable]').focus();
           scope.saveSelection();
           angular.element(element).find('[insert-media-modal]').modal('show');
         };
@@ -135,12 +136,11 @@
         };
 
         scope.insertMedia = function() {
-          angular.element(element).find('[insert-media-modal]').modal('hide');
-          scope.restoreSelection();
-
           var mediaFormat = scope.getMediaFormat();
           scope.formatAction('inserthtml', '<div>^media_display_' + scope.wysiwyg.selectedMediaItem._id + mediaFormat + '^</div>');
-          scope.saveSelection();
+
+          angular.element(element).find('[insert-media-modal]').modal('hide');
+          scope.restoreSelection();
         };
 
         scope.getMediaFormat = function() {
@@ -237,6 +237,11 @@
         scope.setPublicLayout = function() {
           if(!scope.wysiwyg.layout.length) {
             scope.layout = '';
+            return;
+          }
+
+          if(scope.wysiwyg.currentView === 'html') {
+            scope.wysiwyg.layout = scope.layout.toString();
             return;
           }
 
