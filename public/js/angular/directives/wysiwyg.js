@@ -1,6 +1,6 @@
 (function() {
   angular.module('wysiwygElement', [])
-  .directive('wysiwyg', function($sce, $http, $document, $interval, $window) {
+  .directive('wysiwyg', function($sce, $http, $document, $interval, $timeout, $window) {
     return {
       restrict: 'AE',
       replace: true,
@@ -141,6 +141,7 @@
 
           angular.element(element).find('[insert-media-modal]').modal('hide');
           scope.restoreSelection();
+          scope.wysiwyg.layout = angular.element(element).find('[contenteditable]').html();
         };
 
         scope.getMediaFormat = function() {
