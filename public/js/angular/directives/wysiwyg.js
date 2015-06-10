@@ -1,6 +1,6 @@
 (function() {
   angular.module('wysiwygElement', [])
-  .directive('wysiwyg', function($sce, $http, $document, $interval, $timeout, $window) {
+  .directive('wysiwyg', function($sce, $http, $document, $interval, $window) {
     return {
       restrict: 'AE',
       replace: true,
