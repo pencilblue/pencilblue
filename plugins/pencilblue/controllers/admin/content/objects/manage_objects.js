@@ -40,7 +40,7 @@ module.exports = function(pb) {
             return this.reqHandler.serve404();
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUId, true);
+        var service = new pb.CustomObjectService(self.site, true);
         service.loadTypeById(vars.type_id, function(err, custObjType) {
             if (util.isError(err)) {
                 return self.serveError(err);
@@ -56,12 +56,11 @@ module.exports = function(pb) {
 
                 //none to manage
                 if(customObjects.length === 0) {
-                    return self.redirect(pb.UrlService.urlJoin('/admin' + self.sitePrefix + '/content/objects/', encodeURIComponent(vars.type_id), '/new'), cb);
+                    return self.redirect(pb.UrlService.urlJoin('/admin/content/objects/', encodeURIComponent(vars.type_id), '/new'), cb);
                 }
 
 
                 var data = {};
-                data.pathSitePrefix = self.sitePrefix;
                 data.custObjType = custObjType;
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', data);
                 for(var i = 0; i < pills.length; i++) {
@@ -78,7 +77,6 @@ module.exports = function(pb) {
                     pills: pills,
                     customObjects: customObjects,
                     objectType: custObjType,
-                    pathSitePrefix: self.sitePrefix
                 });
 
                 var title = self.ls.get('MANAGE') + ' ' + custObjType.name;
@@ -96,17 +94,17 @@ module.exports = function(pb) {
             name: 'manage_objects',
             title: ls.get('MANAGE') + ' ' + data.custObjType.name + ' ' + ls.get('OBJECTS'),
             icon: 'chevron-left',
-            href: '/admin' + data.pathSitePrefix + '/content/objects/types'
+            href: '/admin/content/objects/types'
         }, {
             name: 'sort_objects',
             title: '',
             icon: 'sort-amount-desc',
-            href: '/admin' + data.pathSitePrefix + '/content/objects/' + data.custObjType[pb.DAO.getIdField()] + '/sort'
+            href: '/admin/content/objects/' + data.custObjType[pb.DAO.getIdField()] + '/sort'
         }, {
             name: 'new_object',
             title: '',
             icon: 'plus',
-            href: '/admin' + data.pathSitePrefix + '/content/objects/' + data.custObjType[pb.DAO.getIdField()] + '/new'
+            href: '/admin/content/objects/' + data.custObjType[pb.DAO.getIdField()] + '/new'
         }];
     };
 

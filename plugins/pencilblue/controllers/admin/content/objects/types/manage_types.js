@@ -35,12 +35,12 @@ module.exports = function(pb) {
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
 
-        var service = new pb.CustomObjectService(self.pathSiteUId, true);
+        var service = new pb.CustomObjectService(self.site, true);
         service.findTypes(function(err, custObjTypes) {
 
             //none to manage
             if(custObjTypes.length === 0) {
-                self.redirect('/admin' + self.sitePrefix + '/content/objects/types/new', cb);
+                self.redirect('/admin/content/objects/types/new', cb);
                 return;
             }
 
@@ -48,13 +48,11 @@ module.exports = function(pb) {
             pb.CustomObjectService.setFieldTypesUsed(custObjTypes, self.ls);
 
             //build out the angular controller
-            var data = {pathSitePrefix: self.sitePrefix};
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data),
-                objectTypes: custObjTypes,
-                pathSitePrefix: self.sitePrefix
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                objectTypes: custObjTypes
             });
 
             self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
@@ -72,12 +70,12 @@ module.exports = function(pb) {
             name: SUB_NAV_KEY,
             title: ls.get('MANAGE_OBJECT_TYPES'),
             icon: 'refresh',
-            href: '/admin' + data.pathSitePrefix + '/content/objects/types'
+            href: '/admin/content/objects/types'
         }, {
             name: 'new_object_type',
             title: '',
             icon: 'plus',
-            href: '/admin' + data.pathSitePrefix + '/content/objects/types/new'
+            href: '/admin/content/objects/types/new'
         }];
     };
 
