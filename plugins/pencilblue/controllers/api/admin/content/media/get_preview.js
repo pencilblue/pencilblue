@@ -50,7 +50,7 @@ module.exports = function(pb) {
         var options = {
             view: 'view'
         };
-        var mediaService = new pb.MediaService(null, self.pathSiteUId, true);
+        var mediaService = new pb.MediaService(null, self.site, true);
         if (get.id) {
             mediaService.renderById(get.id, options, function(err, html) {
                 self.renderComplete(err, html, cb);
