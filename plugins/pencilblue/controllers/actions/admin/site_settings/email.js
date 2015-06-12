@@ -18,8 +18,7 @@
 module.exports = function(pb) {
     
     //pb dependencies
-    var util = pb.util,
-        SiteService = pb.SiteService;
+    var util = pb.util;
     
     /**
      * Saves the site's email settings
@@ -31,7 +30,7 @@ module.exports = function(pb) {
         var self = this;
 
         this.getJSONPostParams(function(err, post) {
-            var settingService = pb.SettingServiceFactory.getServiceBySite(SiteService.getCurrentSite(self.pathVars.siteid), true);
+            var settingService = pb.SettingServiceFactory.getServiceBySite(self.site, true);
             settingService.set('email_settings', post, function(data) {
                 if(util.isError(data)) {
                     cb({
