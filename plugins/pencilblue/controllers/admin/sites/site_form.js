@@ -2,12 +2,12 @@ module.exports = function(pb) {
 
     var util = pb.util;
 
-    function NewSite(){}
-    util.inherits(NewSite, pb.BaseController);
+    function SiteForm(){}
+    util.inherits(SiteForm, pb.BaseController);
 
     var SUB_NAV_KEY = 'new_site';
 
-   NewSite.prototype.render = function(cb) {
+   SiteForm.prototype.render = function(cb) {
         var self = this;
         var angularObjects = pb.ClientJs.getAngularObjects({
             navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls),
@@ -21,7 +21,7 @@ module.exports = function(pb) {
     };
 
 
-   NewSite.getSubNavItems = function(key, ls, data) {
+    SiteForm.getSubNavItems = function(key, ls, data) {
        return [{
             name: 'manage_sites',
             title: ls.get('MANAGE_SITES'),
@@ -35,7 +35,7 @@ module.exports = function(pb) {
        }];
    };
 
-   pb.AdminSubnavService.registerFor(SUB_NAV_KEY, NewSite.getSubNavItems);
+   pb.AdminSubnavService.registerFor(SUB_NAV_KEY, SiteForm.getSubNavItems);
 
-   return NewSite;
-}
+   return SiteForm;
+};
