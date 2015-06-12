@@ -123,8 +123,7 @@ module.exports = function(pb) {
             media: data.media,
             page: data.page,
             siteKey: pb.SiteService.SITE_FIELD,
-            site: self.site,
-            sitePrefix: self.sitePrefix
+            site: self.site
         };
         if(data.availableAuthors) {
           objects.availableAuthors = data.availableAuthors;

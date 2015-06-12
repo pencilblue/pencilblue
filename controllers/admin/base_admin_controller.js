@@ -50,7 +50,6 @@ module.exports = function BaseAdminControllerModule(pb) {
         self.reqHandler.serve404();
       } else {
         self.sectionService = new pb.SectionService(self.site, true);
-        self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.site);
         self.siteQueryService = new pb.SiteQueryService(self.site, true);
         self.settings = pb.SettingServiceFactory.getServiceBySite(self.site, true);
         self.siteObj = siteInfo;
