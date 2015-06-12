@@ -7,7 +7,7 @@
         <table id="users_table" class="table table-responsive table-condensed">
             ^tmp_admin=elements=table_headers^
             <tr ng-repeat="user in users track by user._id" ng-if="!user.hidden && !user.paginated">
-                <td><a ng-href="/admin{{sitePrefix}}/users/{{user._id}}" ng-bind="user.username"></a></td>
+                <td><a ng-href="/admin/users/{{user._id}}" ng-bind="user.username"></a></td>
                 <td ng-bind="user.first_name + ' ' + user.last_name"></td>
                 <td ng-bind="user.email"></td>
                 <td ng-bind="user.created | date: 'yyyy-MM-dd HH:mm'"></td>
