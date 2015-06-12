@@ -56,7 +56,7 @@ module.exports = function(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'configuration', {sitePrefix: self.sitePrefix, site: self.pathSiteUId, siteName: self.siteName}),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'configuration', {site: self.site}),
                 config: config,
                 isGlobalSite: self.isGlobalSite
             });
@@ -70,26 +70,21 @@ module.exports = function(pb) {
     };
 
     Configuration.getSubNavItems = function(key, ls, data) {
-        var prefix = '/admin';
-        if(data && data.sitePrefix) {
-            prefix += data.sitePrefix;
-        }
-
         var pills = [{
             name: 'configuration',
             title: ls.get('CONFIGURATION'),
             icon: 'refresh',
-            href: prefix + '/site_settings'
+            href: '/admin/site_settings'
         }, {
             name: 'content',
             title: ls.get('CONTENT'),
             icon: 'quote-right',
-            href: prefix + '/site_settings/content'
+            href: '/admin/site_settings/content'
         }, {
             name: 'email',
             title: ls.get('EMAIL'),
             icon: 'envelope',
-            href: prefix + '/site_settings/email'
+            href: '/admin/site_settings/email'
         }];
 
         if(data && data.site === pb.SiteService.GLOBAL_SITE) {
@@ -97,7 +92,7 @@ module.exports = function(pb) {
                 name: 'libraries',
                 title: ls.get('LIBRARIES'),
                 icon: 'book',
-                href: prefix + '/site_settings/libraries'
+                href: '/admin/site_settings/libraries'
             });
         }
 

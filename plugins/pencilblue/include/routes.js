@@ -103,10 +103,10 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
-            path: "/",
+            path: '/',
             access_level: 0,
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'index.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'blog.js'),
             content_type: 'text/html'
         },
         {
@@ -1002,26 +1002,34 @@ module.exports = function Routes(pb){
             path: "/admin/sites",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage_sites.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin/sites/new",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'site_form.js'),
             content_type: 'text/html'
         },
         {
             method: 'post',
-            path: "/actions/admin/site",
+            path: "/actions/admin/sites/new",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'new_site.js')
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'new_site_action.js')
         },
         {
             method: 'post',
-            path: "/actions/admin/site/activate/:id",
+            path: "/actions/admin/sites/activate/:id",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'activate_site.js')
         },
         {
             method: 'post',
-            path: "/actions/admin/site/deactivate/:id",
+            path: "/actions/admin/sites/deactivate/:id",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'deactivate_site.js')

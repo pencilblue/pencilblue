@@ -1,17 +1,17 @@
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Creates a new site
      */
-    function NewSite(){}
-    util.inherits(NewSite, pb.BaseController);
+    function NewSiteAction(){}
+    util.inherits(NewSiteAction, pb.BaseController);
 
-    NewSite.prototype.render = function(cb)
+    NewSiteAction.prototype.render = function(cb)
     {
-		var self = this;
+        var self = this;
 
         this.getJSONPostParams(function(err, post) {
             var message = self.hasRequiredParams(post, self.getRequiredFields());
@@ -62,10 +62,10 @@ module.exports = function(pb) {
 
     };
 
-    NewSite.prototype.getRequiredFields = function() {
+    NewSiteAction.prototype.getRequiredFields = function() {
         return ['displayName', 'hostname'];
     };
 
     //exports
-    return NewSite;
+    return NewSiteAction;
 };

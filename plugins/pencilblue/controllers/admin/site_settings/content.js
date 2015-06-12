@@ -57,14 +57,13 @@ module.exports = function(pb) {
             }
         ];
 
-        var contentService = new pb.ContentService(this.pathSiteUid, true);
+        var contentService = new pb.ContentService(this.site, true);
         contentService.getSettings(function(err, contentSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'content', { pathSitePrefix: self.sitePrefix }),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'content', {site:self.site}),
                 tabs: tabs,
-                contentSettings: contentSettings,
-                pathSitePrefix: self.sitePrefix
+                contentSettings: contentSettings
             });
 
             self.setPageName(self.ls.get('CONTENT'));
@@ -81,20 +80,20 @@ module.exports = function(pb) {
             name: 'configuration',
             title: ls.get('CONTENT'),
             icon: 'chevron-left',
-            href: '/admin' + data.pathSitePrefix + '/site_settings'
+            href: '/admin/site_settings'
         }, {
             name: 'email',
             title: ls.get('EMAIL'),
             icon: 'envelope',
-            href: '/admin' + data.pathSitePrefix + '/site_settings/email'
+            href: '/admin/site_settings/email'
         }];
 
-        if (data.pathSiteUid === pb.SiteService.GLOBAL_SITE) {
+        if (data.site === pb.SiteService.GLOBAL_SITE) {
             subNavItems.push({
                 name: 'libraries',
                 title: ls.get('LIBRARIES'),
                 icon: 'book',
-                href: '/admin' + data.pathSitePrefix + '/site_settings/libraries'
+                href: '/admin/site_settings/libraries'
             });
         }
 

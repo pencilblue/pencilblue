@@ -37,7 +37,6 @@ module.exports = function BaseAdminControllerModule(pb) {
    */
   BaseAdminController.prototype.init = function (props, cb) {
     var self = this;
-    self.pathSiteUId = props.site;
     BaseController.prototype.init.call(self, props, function () {
       self.extendedInit(cb);
     });
@@ -51,14 +50,13 @@ module.exports = function BaseAdminControllerModule(pb) {
       return;
     }
     var siteService = new pb.SiteService();
-    siteService.getByUid(self.pathSiteUId, function (err, siteInfo) {
+    siteService.getByUid(self.site, function (err, siteInfo) {
       if (err || !siteInfo) {
         self.reqHandler.serve404();
       } else {
-        self.sectionService = new pb.SectionService(self.pathSiteUId, true);
-        self.sitePrefix = pb.SiteService.getCurrentSitePrefix(self.pathSiteUId);
-        self.siteQueryService = new pb.SiteQueryService(self.pathSiteUId, true);
-        self.settings = pb.SettingServiceFactory.getServiceBySite(self.pathSiteUId, true);
+        self.sectionService = new pb.SectionService(self.site, true);
+        self.siteQueryService = new pb.SiteQueryService(self.site, true);
+        self.settings = pb.SettingServiceFactory.getServiceBySite(self.site, true);
         self.siteObj = siteInfo;
         self.isGlobalSite = pb.SiteService.isGlobal(siteInfo.uid);
         self.siteName = self.isGlobalSite ? siteInfo.uid : siteInfo.displayName;
@@ -82,7 +80,7 @@ module.exports = function BaseAdminControllerModule(pb) {
      * @return {Object} TemplateService
      */
     BaseAdminController.prototype.getTemplateService = function(tsOpts) {
-        tsOpts.site = this.pathSiteUId;
+        tsOpts.site = this.site;
         return new pb.TemplateService(tsOpts);
     };
 
