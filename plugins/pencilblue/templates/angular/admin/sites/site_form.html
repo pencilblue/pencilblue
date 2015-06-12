@@ -1,0 +1,54 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['validation'])
+            .controller('PencilBlueController', function($scope, $http, $window, validationService) {
+                ^angular_objects^
+                ^tmp_angular=admin=elements=is_field_valid^
+
+                $scope.addNewSite = function() {
+                    $scope.formSubmitted = true;
+
+                    if(!validationService.isFormValid($scope.siteForm)) {
+                        return;
+                    }
+
+                    $scope.saving = true;
+
+                    $http.post('/actions/admin/sites/new', $scope.siteEntity)
+                            .success(function(result) {
+                                $scope.successMessage = result.message;
+                                $scope.saving = false;
+                                $scope.onActionSuccess();
+                                $scope.$apply();
+                            })
+                            .error(function(error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                            });
+                };
+
+                $scope.jobAction = function(actionType, identifier, data, cb) {
+                    $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
+                            .success(function(result) {
+                                cb(result);
+                            })
+                            .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
+                $scope.onActionSuccess = function() {
+                    $scope.actionIsComplete = true;
+                    $scope.refreshPage();
+                }
+
+                $scope.onActionFailure = function(error) {
+                    $scope.actionIsComplete = true;
+                    $scope.actionError = error.message;
+                }
+
+                $scope.refreshPage = function() {
+                    $window.location.reload();
+                }
+            });
+</script>
