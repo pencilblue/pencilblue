@@ -3,29 +3,6 @@
     angular.module('pencilblueApp', ['validation'])
     .controller('PencilBlueController', function($scope, $http, $window, validationService) {
         ^angular_objects^
-        ^tmp_angular=admin=elements=is_field_valid^
-
-        $scope.addNewSite = function() {
-            $scope.formSubmitted = true;
-
-            if(!validationService.isFormValid($scope.siteForm)) {
-                return;
-            }
-
-            $scope.saving = true;
-
-            $http.post('/actions/admin/site/new', $scope.siteEntity)
-            .success(function(result) {
-                $scope.successMessage = result.message;
-                $scope.saving = false;
-                $scope.onActionSuccess();
-                $scope.$apply();
-            })
-            .error(function(error, status) {
-                $scope.errorMessage = error.message;
-                $scope.saving = false;
-            });
-        };
 
         $scope.activateSite = function(site) {
             site.name = site.displayName;
@@ -34,7 +11,7 @@
             $scope.consoleOutput = '';
             $('#progress_modal').modal({});
 
-            $http.post('/actions/admin/site/activate/' + site.uid)
+            $http.post('/actions/admin/sites/activate/' + site.uid)
             .success(function(result) {
                 $scope.onActivateOrDeactivateComplete(result);
             })
@@ -50,7 +27,7 @@
             $scope.consoleOutput = '';
             $('#progress_modal').modal({});
 
-            $http.post('/actions/admin/site/deactivate/' + site.uid)
+            $http.post('/actions/admin/sites/deactivate/' + site.uid)
             .success(function(result) {
                 $scope.onActivateOrDeactivateComplete(result);
             })
@@ -141,12 +118,12 @@
         $scope.onActionSuccess = function() {
             $scope.actionIsComplete = true;
             $scope.refreshPage();
-        }
+        };
 
         $scope.onActionFailure = function(error) {
             $scope.actionIsComplete = true;
             $scope.actionError = error.message;
-        }
+        };
 
         $scope.refreshPage = function() {
             $window.location.reload();

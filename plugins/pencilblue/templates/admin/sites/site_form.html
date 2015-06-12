@@ -2,20 +2,31 @@
 <div class="col-md-9">
     ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
-
-        <form name="siteForm" ng-submit="addNewSite()">
-            <formset>
-                <div class="form_group">
-                    <input type="text" class="form-control" ng-model="siteEntity.displayName" placeholder="Short Name" required>
+    ^tmp_admin=elements=tab_nav^
+    <form name="siteForm" ng-submit="addNewSite()" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="topic_settings">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.display)}">
+                        <label>Display Name</label>
+                        <input type="text" name="display" class="form-control" ng-model="siteEntity.displayName" required>
+                        <div class="form_error" ng-if="!isFieldValid(siteForm.display)">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                    <div class="form_group" ng-class="{'has-error': !isFieldValid(siteForm.host)}">
+                        <label>Hostname</label>
+                        <input type="text" name="host" class="form-control" ng-model="siteEntity.hostname" required>
+                        <div class="form_error" ng-if="!isFieldValid(siteForm.host)">^loc_REQUIRED_FIELD^</div>
+                    </div>
                 </div>
-                <div class="form_error">
-                    <input type="text" class="form-control" ng-model="siteEntity.hostname" placeholder="Hostname" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Add</button>
-            </formset>
-        </form>
-
+                <br>
+                <a class="btn btn-default" href="/admin/sites">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </a>
+                ^tmp_admin=elements=save_button^
+            </div>
+        </fieldset>
+    </form>
     ^tmp_admin=elements=progress_console_modal^
 </div>
-^tmp_angular=admin=sites=manage^
+^tmp_angular=admin=sites=site_form^
 ^tmp_admin=footer^

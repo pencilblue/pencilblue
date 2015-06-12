@@ -29,7 +29,7 @@ module.exports = function(pb) {
 			name: 'manage_sites',
 			title: ls.get('MANAGE_SITES'),
 			icon: 'refresh',
-			href: '/admin/sites'
+			href: '/admin/site'
 		}, {
 			name: 'new_site',
 			title: '',
