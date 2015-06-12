@@ -36,9 +36,9 @@ module.exports = function(pb) {
 			icon: 'plus',
 			href: '/admin/sites/new'
 		}];
-	}
+	};
 
- 	pb.AdminSubnavService.registerFor(SUB_NAV_KEY, Manage.getSubNavItems);
+	pb.AdminSubnavService.registerFor(SUB_NAV_KEY, Manage.getSubNavItems);
 
 	return Manage;
 }

@@ -6,7 +6,7 @@
     <form name="siteForm" ng-submit="addNewSite()" novalidate>
         <fieldset>
             <div class="tab-content">
-                <div class="tab-pane active" id="topic_settings">
+                <div class="tab-pane active" id="site">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.display)}">
                         <label>Display Name</label>
                         <input type="text" name="display" class="form-control" ng-model="siteEntity.displayName" required>
@@ -27,6 +27,7 @@
         </fieldset>
     </form>
     ^tmp_admin=elements=progress_console_modal^
-</div>
+
 ^tmp_angular=admin=sites=site_form^
 ^tmp_admin=footer^
+</div>
