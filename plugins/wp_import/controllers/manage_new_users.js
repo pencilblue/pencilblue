@@ -71,7 +71,7 @@ module.exports = function WPManageUsersViewControllerModule(pb) {
             pills: pills,
             tabs: tabs,
             users: self.session.importedUsers,
-            adminOptions: pb.users.getAdminOptions(self.session, self.localizationService, self.pathSiteUId)
+            adminOptions: pb.users.getAdminOptions(self.session, self.localizationService)
         };
 
         this.setPageName(this.ls.get('IMPORT_WORDPRESS'));

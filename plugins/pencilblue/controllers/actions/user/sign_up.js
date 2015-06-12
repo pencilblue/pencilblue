@@ -31,16 +31,6 @@ module.exports = function SignUpModule(pb) {
     function SignUp(){}
     util.inherits(SignUp, FormController);
 
-    SignUp.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteQueryService = new pb.SiteQueryService(self.site, true);
-            cb();
-        });
-    };
-
-
     SignUp.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
 
@@ -83,7 +73,7 @@ module.exports = function SignUpModule(pb) {
                 //check for validation failures
                 var errMsg = null;
                 if (results.verified_username > 0 || results.unverified_username > 0) {
-                    errMsg = self.ls.get('EXISTING_EMAIL');
+                    errMsg = self.ls.get('EXISTING_USERNAME');
                 }
                 else if (results.verified_email > 0 || results.unverified_email > 0) {
                     errMsg = self.ls.get('EXISTING_EMAIL');
@@ -99,7 +89,8 @@ module.exports = function SignUpModule(pb) {
                     return;
                 }
 
-                self.siteQueryService.save(user, function(err, data) {
+                var dao = new pb.SiteQueryService(self.site);
+                dao.save(user, function(err, data) {
                     if(util.isError(err)) {
                         return self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
                     }
@@ -109,7 +100,7 @@ module.exports = function SignUpModule(pb) {
 
                     //send email for verification when required
                     if (contentSettings.require_verification) {
-                        var userService = new pb.UserService(self.site);
+                        var userService = new pb.UserService(self.getServiceContext());
                         userService.sendVerificationEmail(user, util.cb);
                     }
                 });
@@ -122,19 +113,19 @@ module.exports = function SignUpModule(pb) {
     };
 
     SignUp.prototype.validateUniques = function(user, cb) {
-        var self = this;
+        var dao = new pb.SiteQueryService(this.site);
         var tasks = {
             verified_username: function(callback) {
-                self.siteQueryService.count('user', {username: user.username}, callback);
+                dao.count('user', {username: user.username}, callback);
             },
             verified_email: function(callback) {
-                self.siteQueryService.count('user', {email: user.email}, callback);
+                dao.count('user', {email: user.email}, callback);
             },
             unverified_username: function(callback) {
-                self.siteQueryService.count('unverified_user', {username: user.username}, callback);
+                dao.count('unverified_user', {username: user.username}, callback);
             },
             unverified_email: function(callback) {
-                self.siteQueryService.count('unverified_user', {email: user.email}, callback);
+                dao.count('unverified_user', {email: user.email}, callback);
             }
         };
         async.series(tasks, cb);

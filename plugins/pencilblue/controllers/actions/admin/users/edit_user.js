@@ -29,6 +29,7 @@ module.exports = function(pb) {
     EditUser.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
+        var userService = new pb.UserService(self.getServiceContext());
 
         this.getJSONPostParams(function(err, post) {
             var message = self.hasRequiredParams(post, self.getRequiredFields());
@@ -61,7 +62,6 @@ module.exports = function(pb) {
                 delete post[pb.DAO.getIdField()];
                 pb.DocumentCreator.update(post, user);
 
-                var userService = new UserService(self.pathSiteUId);
                 userService.isUserNameOrEmailTaken(user.username, user.email, vars.id, function(err, isTaken) {
                     if(util.isError(err) || isTaken) {
                         if(err) { pb.log.error(JSON.stringify(err)); }
@@ -81,7 +81,7 @@ module.exports = function(pb) {
                             return;
                         }
 
-                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_EDITED'))});
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_EDITED'), result)});
                     });
                 });
             });

@@ -30,36 +30,6 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'site_email_settings';
 
-
-    /**
-     *
-     * @method render
-     *
-     */
-    Email.prototype.init = function(props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(this, props, function() {
-            self.pathSiteUId = SiteService.getCurrentSite(self.pathVars.siteid);
-            SiteService.siteExists(self.pathSiteUId, function (err, exists) {
-                if (!exists) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.sitePrefix = SiteService.getCurrentSitePrefix(self.pathSiteUId);
-                    cb();
-                }
-            });
-        });
-    };
-
-    /**
-     *
-     * @method render
-     * @param site
-     * @param cb
-     *
-     */
     Email.prototype.render = function(cb) {
         var self = this;
         var tabs =
@@ -82,14 +52,13 @@ module.exports = function(pb) {
             }
         ];
 
-        var emailService = new pb.EmailService(self.pathVars.siteid);
+        var emailService = new pb.EmailService(this.site);
         emailService.getSettings(function(err, emailSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email', { sitePrefix: self.sitePrefix }),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email', { site: self.site }),
                 tabs: tabs,
-                emailSettings: emailSettings,
-                sitePrefix: self.sitePrefix
+                emailSettings: emailSettings
             });
 
             self.setPageName(self.ls.get('EMAIL'));
@@ -101,21 +70,17 @@ module.exports = function(pb) {
     };
 
     Email.getSubNavItems = function(key, ls, data) {
-        var prefix = '/admin';
-        if(data && data.sitePrefix) {
-            prefix += data.sitePrefix;
-        }
 
         var pills = [{
             name: 'configuration',
             title: ls.get('EMAIL'),
             icon: 'chevron-left',
-            href: prefix + '/site_settings'
+            href: '/admin/site_settings'
         }, {
             name: 'content',
             title: ls.get('CONTENT'),
             icon: 'quote-right',
-            href: prefix + '/site_settings/content'
+            href: '/admin/site_settings/content'
         }];
 
         if(data && data.site === SiteService.GLOBAL_SITE) {
@@ -123,12 +88,8 @@ module.exports = function(pb) {
                 name: 'libraries',
                 title: ls.get('LIBRARIES'),
                 icon: 'book',
-                href: prefix + '/site_settings/libraries'
+                href: '/admin/site_settings/libraries'
             });
-        }
-
-        if(data && data.siteName) {
-            return pb.AdminSubnavService.addSiteToPills(pills, data.siteName);
         }
 
         return pills;

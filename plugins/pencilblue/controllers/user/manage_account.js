@@ -26,19 +26,11 @@ module.exports = function ManageAccountModule(pb) {
     function ManageAccount(){}
     util.inherits(ManageAccount, pb.FormController);
 
-    ManageAccount.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteQueryService = new pb.SiteQueryService(self.site, true);
-            cb();
-        });
-    };
-
     ManageAccount.prototype.render = function(cb) {
         var self = this;
 
-        self.siteQueryService.loadById(self.session.authentication.user_id, 'user', function(err, user) {
+        var dao = new pb.SiteQueryService(self.site, true);
+        dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 if (err) { pb.log.error(err); }
                 self.redirect('/', cb);

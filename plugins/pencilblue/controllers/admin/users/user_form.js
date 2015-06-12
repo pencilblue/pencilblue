@@ -46,19 +46,14 @@ module.exports = function(pb) {
             }
 
             self.user = data.user;
-            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {
-                session: self.session,
-                user: self.user,
-                site: self.pathSiteUId,
-                sitePrefix: self.sitePrefix
-            });
+            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: self.user});
 
             data.adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR}];
             if(!data.user[pb.DAO.getIdField()] || self.session.authentication.user_id !== data.user[pb.DAO.getIdField()].toString()) {
-                data.adminOptions = pb.users.getAdminOptions(self.session, self.localizationService, self.pathSiteUId);
+                var userService = new pb.UserService(self.getServiceContext());
+                data.adminOptions = userService.getAdminOptions(self.session, self.localizationService);
             }
 
-            data.sitePrefix = self.sitePrefix;
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(data.user[pb.DAO.getIdField()] ? data.user.username : self.ls.get('NEW_USER'));
@@ -107,22 +102,20 @@ module.exports = function(pb) {
     };
 
     UserForm.getSubNavItems = function(key, ls, data) {
-        var idField = pb.DAO.getIdField();
         var pills = [{
             name: 'manage_users',
-            title: data.user[idField] ? ls.get('EDIT') + ' ' + data.user.username : ls.get('NEW_USER'),
+            title: data.user[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.user.username : ls.get('NEW_USER'),
             icon: 'chevron-left',
-            href: '/admin' + data.sitePrefix + '/users'
+            href: '/admin/users'
         }];
 
-        if(data.user[idField]) {
-            var userIdString = data.user[idField].toString();
-            if(data.session.authentication.user_id === userIdString) {
+        if(data.user[pb.DAO.getIdField()]) {
+            if(data.session.authentication.user_id === data.user[pb.DAO.getIdField()].toString()) {
                 pills.push({
                     name: 'change_password',
                     title: ls.get('CHANGE_PASSWORD'),
                     icon: 'key',
-                    href: '/admin' + data.sitePrefix + '/users/password/' + userIdString
+                    href: '/admin/users/password/' + data.user[pb.DAO.getIdField()].toString()
                 });
             }
             else if(data.session.authentication.admin_level >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
@@ -130,7 +123,7 @@ module.exports = function(pb) {
                     name: 'reset_password',
                     title: ls.get('RESET_PASSWORD'),
                     icon: 'key',
-                    href: '/actions/admin' + data.sitePrefix + '/users/send_password_reset/' + userIdString
+                    href: '/actions/admin/users/send_password_reset/' + data.user[pb.DAO.getIdField()].toString()
                 });
             }
         }
@@ -139,7 +132,7 @@ module.exports = function(pb) {
             name: 'new_user',
             title: '',
             icon: 'plus',
-            href: '/admin' + data.sitePrefix + '/users/new'
+            href: '/admin/users/new'
         });
 
         return pills;

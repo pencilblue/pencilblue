@@ -193,12 +193,12 @@ var BASE_CONFIG = {
             //user
             {
                 collection: 'user',
-                spec: {username: ASC},
+                spec: {username: ASC, site: ASC},
                 options: {unique: true}
             },
             {
                 collection: 'user',
-                spec: {email: ASC},
+                spec: {email: ASC, site: ASC},
                 options: {unique: true}
             },
             {

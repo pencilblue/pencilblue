@@ -29,15 +29,6 @@ module.exports = function ChangePasswordFormControllerModule(pb) {
     function ChangePasswordFormController(){}
     util.inherits(ChangePasswordFormController, pb.FormController);
 
-    ChangePasswordFormController.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteQueryService = new pb.SiteQueryService(self.site, true);
-            cb();
-        });
-    };
-
     /**
      *
      * @method render
@@ -47,7 +38,8 @@ module.exports = function ChangePasswordFormControllerModule(pb) {
         var self = this;
 
         //retrieve user
-        self.siteQueryService.loadById(self.session.authentication.user_id, 'user', function(err, user) {
+        var dao = new pb.SiteQueryService(self.site, true);
+        dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.redirect('/', cb);
                 return;

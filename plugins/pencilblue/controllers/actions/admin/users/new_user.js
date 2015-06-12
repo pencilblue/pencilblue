@@ -47,7 +47,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            post.site = pb.users.determineUserSiteScope(post.admin, self.pathSiteUId);
+            post.site = pb.users.determineUserSiteScope(post.admin, self.site);
             if (!post.site) {
                 cb({
                     code: 400,
@@ -57,7 +57,7 @@ module.exports = function(pb) {
             }
 
             var user = pb.DocumentCreator.create('user', post);
-            var userService = new pb.UserService(self.pathSiteUId);
+            var userService = new pb.UserService(self.getServiceContext());
             userService.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
                 if(util.isError(err) || isTaken) {
                     cb({
@@ -67,9 +67,8 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var site = self.pathSiteUId || self.site;
-                var sqs = new pb.SiteQueryService(site);
-                sqs.save(user, function(err, result) {
+                var dao = new pb.SiteQueryService(self.site);
+                dao.save(user, function(err, result) {
                     if(util.isError(err)) {
                         cb({
                             code: 500,

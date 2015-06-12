@@ -55,11 +55,11 @@ module.exports = function IndexModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService(self.site);
+        var contentService = new pb.ContentService(self.site, true);
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
                 
-                var articleService = new pb.ArticleService(self.site);
+                var articleService = new pb.ArticleService(self.site, true);
                 articleService.getMetaInfo(data.content[0], function(err, meta) {
                     self.ts.registerLocal('meta_keywords', meta.keywords);
                     self.ts.registerLocal('meta_desc', data.section.description || meta.description);

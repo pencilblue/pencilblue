@@ -38,15 +38,14 @@ module.exports = function(pb) {
 
         self.siteQueryService.q('unverified_user', opts, function(err, users) {
             if(util.isError(err)) {
-                return self.redirect('/admin' + self.sitePrefix, cb);
+                return self.redirect('/admin', cb);
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
                 navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, { sitePrefix: self.sitePrefix }),
-                users: users,
-                sitePrefix: self.sitePrefix
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                users: users
             });
 
             self.setPageName(self.ls.get('UNVERIFIED_USERS'));
@@ -62,12 +61,12 @@ module.exports = function(pb) {
             name: SUB_NAV_KEY,
             title: ls.get('UNVERIFIED_USERS'),
             icon: 'chevron-left',
-            href: '/admin' + data.sitePrefix + '/users'
+            href: '/admin/users'
         }, {
             name: 'new_user',
             title: '',
             icon: 'plus',
-            href: '/admin' + data.sitePrefix + '/users/new'
+            href: '/admin/users/new'
         }];
     };
 

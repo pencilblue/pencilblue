@@ -138,11 +138,12 @@ module.exports = function UserServiceModule(pb) {
      * @param {Object} ls      The localization object
      * @param {String} siteUid
      */
-    UserService.prototype.getAdminOptions = function (session, ls, siteUid) {
+    UserService.prototype.getAdminOptions = function (session, ls) {
         var adminOptions = [];
 
-        if (!pb.SiteService.isGlobal(siteUid)) {
-            adminOptions = [{name: ls.get('READER'), value: pb.SecurityService.ACCESS_USER},
+        if (!pb.SiteService.isGlobal(this.context.site)) {
+            adminOptions = [
+                {name: ls.get('READER'), value: pb.SecurityService.ACCESS_USER},
                 {name: ls.get('WRITER'), value: pb.SecurityService.ACCESS_WRITER},
                 {name: ls.get('EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}]
         }
@@ -237,7 +238,7 @@ module.exports = function UserServiceModule(pb) {
         var siteService = new pb.SiteService();
         siteService.getByUid(self.context.site, function(err, siteInfo) {
             // We need to see if email settings have been saved with verification content
-            var emailService = new pb.EmailService(this.site);
+            var emailService = new pb.EmailService(self.context.site);
             emailService.getSettings(function (err, emailSettings) {
                 var options = {
                     to: user.email,
@@ -275,7 +276,7 @@ module.exports = function UserServiceModule(pb) {
 
         var siteService = new pb.SiteService();
         siteService.getByUid(self.context.site, function(err, siteInfo) {
-            var root = pb.SiteService.getSiteProtocol(siteInfo.hostname);
+            var root = pb.SiteService.getHostWithProtocol(siteInfo.hostname);
             var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password')
               + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
             var options = {

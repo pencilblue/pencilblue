@@ -1,4 +1,5 @@
 var async = require('async');
+var url = require('url');
 var util  = require('../../util.js');
 
 module.exports = function SiteServiceModule(pb) {
@@ -371,9 +372,11 @@ module.exports = function SiteServiceModule(pb) {
         return object[SiteService.SITE_FIELD];
     };
 
-    SiteService.getSiteProtocol = function(hostname) {
-        var protocol = pb.config.server.ssl.enabled ? 'https://' : 'http://';
-        return hostname.indexOf('http') > 0 ? hostname : protocol + hostname;
+    SiteService.getHostWithProtocol = function(hostname) {
+        hostname = hostname.match(/^http/g) ? hostname : "//" + hostname;
+        var urlObject = url.parse(hostname, false, true);
+        urlObject.protocol = pb.config.server.ssl.enabled ? 'https' : 'http';
+        return url.format(urlObject);
     };
 
     return SiteService;

@@ -44,15 +44,14 @@ module.exports = function(pb) {
                 return self.reqHandler.serveError(err);
             }
             else if (users.length === 0) {
-                return self.redirect('/admin' + self.sitePrefix + '/users/new', cb);
+                return self.redirect('/admin/users/new', cb);
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, { sitePrefix: self.sitePrefix }),
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 users: users,
-                currentUserId: self.session.authentication.user_id,
-                sitePrefix: self.sitePrefix
+                currentUserId: self.session.authentication.user_id
             });
 
             self.setPageName(self.ls.get('MANAGE_USERS'));
@@ -68,17 +67,17 @@ module.exports = function(pb) {
             name: 'manage_users',
             title: ls.get('MANAGE_USERS'),
             icon: 'refresh',
-            href: '/admin' + data.sitePrefix + '/users'
+            href: '/admin/users'
         }, {
             name: 'unverified_users',
             title: ls.get('UNVERIFIED_USERS'),
             icon: 'user',
-            href: '/admin' + data.sitePrefix + '/users/unverified'
+            href: '/admin/users/unverified'
         }, {
             name: 'new_user',
             title: '',
             icon: 'plus',
-            href: '/admin' + data.sitePrefix + '/users/new'
+            href: '/admin/users/new'
         }];
     };
 
