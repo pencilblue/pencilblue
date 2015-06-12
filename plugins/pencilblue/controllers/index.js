@@ -29,6 +29,10 @@ module.exports = function IndexModule(pb) {
 
     /**
      * Index page of the pencilblue theme
+     * @deprecated Since 0.4.1
+     * @class Index
+     * @constructor
+     * @extends BaseController
      */
     function Index(){}
     util.inherits(Index, pb.BaseController);

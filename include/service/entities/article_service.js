@@ -545,6 +545,10 @@ module.exports = function ArticleServiceModule(pb) {
      */
     function MediaLoader() {
     
+        /**
+         * @property mediaService
+         * @type {MediaService}
+         */
         this.mediaService = new pb.MediaService();
     };
 
@@ -560,15 +564,65 @@ module.exports = function ArticleServiceModule(pb) {
             cb = options;
             options = {};
         }
+        if (!util.isObject(options.media)) {
+            options.media = {};
+        }
         
+        //scan for media that should be retrieved
+        var flags = this.scanForFlags(articleLayout);
+        if (flags.length === 0) {
+            return cb(null, articleLayout);
+        }
+        
+        //reconcile what media is already cached and that which should be loaded
+        var idsToRetrieve = [];
+        flags.forEach(function(flag) {
+            if (!options.media[flag.id]) {
+                idsToRetrieve.push(flag.id);
+            };
+        });
+        
+        //when all media is already cached just do the processing
+        if (idsToRetrieve.length === 0) {
+            return this.onMediaAvailable(articleLayout, options, cb);
+        }
+        
+        //retrieve the media that we need
         var self = this;
-        var ts   = new pb.TemplateService(options);
-        ts.load('elements/media', function(err, mediaTemplate) {
-
+        var opts = {
+            where: idsToRetrieve.length === 1 ? pb.DAO.getIdWhere(idsToRetrieve[0]) : pb.DAO.getIdInWhere(idsToRetrieve)
+        };
+        this.mediaService.get(opts, function(err, media) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            //cache the retrieved media
+            var idField = pb.DAO.getIdField();
+            media.forEach(function(mediaItem) {
+                options.media[mediaItem[idField].toString()] = mediaItem;
+            });
+            
+            self.onMediaAvailable(articleLayout, options, cb);
+        });
+    };
+    
+    /**
+     * @method onMediaAvailable
+     * @param {String} articleLayout
+     * @param {Object} options
+     * @param {Function} cb
+     */
+    MediaLoader.prototype.onMediaAvailable = function(articleLayout, options, cb) {
+        var self = this;
+        
+        this.getMediaTemplate(options, function(err, mediaTemplate) {
+            options.mediaTemplate = mediaTemplate;
+            
             async.whilst(
                 function() {return articleLayout.indexOf('^media_display_') >= 0;},
                 function(callback) {
-                    self.replaceMediaTag(articleLayout, mediaTemplate, function(err, newArticleLayout) {
+                    self.replaceMediaTag(articleLayout, mediaTemplate, options.media, function(err, newArticleLayout) {
                         articleLayout = newArticleLayout;
                         callback();
                     });
@@ -578,6 +632,22 @@ module.exports = function ArticleServiceModule(pb) {
                 }
             );
         });
+    };
+    
+    /**
+     * Retrieves the media template for rendering media
+     * @method getMediaTemplate
+     * @param {Object} options
+     * @param {Function} cb
+     */
+    MediaLoader.prototype.getMediaTemplate = function(options, cb) {
+        if (options.mediaTemplate) {
+            return cb(null, options.mediaTemplate);
+        }
+        
+        var templatePath = options.mediaTemplatePath || 'elements/media';
+        var ts = new pb.TemplateService(options);
+        ts.load('elements/media', cb);
     };
     
     /**
@@ -609,7 +679,7 @@ module.exports = function ArticleServiceModule(pb) {
      * @param {String}   mediaTemplate The template of the media embed
      * @param {Function} cb            Callback function
      */
-    MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, cb) {
+    MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, mediaCache, cb) {
         var flag = pb.MediaService.extractNextMediaFlag(layout);
         if (!flag) {
             return cb(null, layout);
@@ -617,46 +687,40 @@ module.exports = function ArticleServiceModule(pb) {
 
         var mediaStyleString = flag.style;
 
-        var dao = new pb.DAO();
-        dao.loadById(flag.id, 'media', function(err, data) {
-            if(util.isError(err)) {
+        var data = mediaCache[flag.id];
+        if (!data) {
+            pb.log.warn("MediaLoader: Content contains reference to missing media [%s].", flag.id);
+            return cb(null, layout.replace(flag.flag, ''));
+        }
+
+        //ensure the max height is set if explicity set for media replacement
+        var options = {
+            view: 'post',
+            style: {
+
+            },
+            attrs: {
+                frameborder: "0",
+                allowfullscreen: ""
+            }
+        };
+        if (flag.style.maxHeight) {
+            options.style['max-height'] = flag.style.maxHeight;
+        }
+        this.mediaService.render(data, options, function(err, html) {
+            if (util.isError(err)) {
                 return cb(err);
             }
-            else if (!data) {
-                pb.log.warn("MediaLoader: Content contains reference to missing media [%s].", flag.id);
-                return cb(null, layout.replace(flag.flag, ''));
-            }
 
-            //ensure the max height is set if explicity set for media replacement
-            var options = {
-                view: 'post',
-                style: {
+            //get the style for the container
+            var containerStyleStr = pb.MediaService.getStyleForPosition(flag.style.position) || '';
 
-                },
-                attrs: {
-                    frameborder: "0",
-                    allowfullscreen: ""
-                }
-            };
-            if (flag.style.maxHeight) {
-                options.style['max-height'] = flag.style.maxHeight;
-            }
-            var ms = new pb.MediaService();
-            ms.render(data, options, function(err, html) {
-                if (util.isError(err)) {
-                    return cb(err);
-                }
-
-                //get the style for the container
-                var containerStyleStr = pb.MediaService.getStyleForPosition(flag.style.position) || '';
-
-                //finish up replacements
-                var mediaEmbed = mediaTemplate.split('^media^').join(html);
-                mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
-                mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption ? '' : 'display: none');
-                mediaEmbed     = mediaEmbed.split('^container_style^').join(containerStyleStr);
-                cb(null, layout.replace(flag.flag, mediaEmbed));
-            });
+            //finish up replacements
+            var mediaEmbed = mediaTemplate.split('^media^').join(html);
+            mediaEmbed     = mediaEmbed.split('^caption^').join(data.caption);
+            mediaEmbed     = mediaEmbed.split('^display_caption^').join(data.caption ? '' : 'display: none');
+            mediaEmbed     = mediaEmbed.split('^container_style^').join(containerStyleStr);
+            cb(null, layout.replace(flag.flag, mediaEmbed));
         });
     };
 
