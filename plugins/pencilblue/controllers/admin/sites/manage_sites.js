@@ -18,11 +18,11 @@ module.exports = function(pb) {
                 inactiveSites: map.inactive
             });
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/sites/manage', function(err,result) {
+            self.ts.load('admin/sites/manage_sites', function(err,result) {
                 cb({content: result});
             });
         });
-    }
+    };
 
     ManageSites.getSubNavItems = function(key, ls, data) {
         return [{
@@ -41,4 +41,4 @@ module.exports = function(pb) {
     pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageSites.getSubNavItems);
 
     return ManageSites;
-}
+};
