@@ -41,9 +41,12 @@ module.exports = function(pb) {
             return;
         }
 
-        var service = new pb.CustomObjectService(self.pathSiteUId, true);
+        var service = new pb.CustomObjectService(self.site, true);
         service.loadById(vars.id, function(err, custObj) {
-            if(util.isError(err) || !util.isObject(custObj)) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            else if(!util.isObject(custObj)) {
                 return cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
@@ -52,7 +55,10 @@ module.exports = function(pb) {
 
             //load the type definition
             service.loadTypeById(vars.type_id, function(err, custObjType) {
-                if(util.isError(err) || !util.isObject(custObjType)) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+                else if(!util.isObject(custObjType)) {
                     return cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
@@ -64,7 +70,12 @@ module.exports = function(pb) {
                 //format post fields
                 var post = self.body;
                 pb.CustomObjectService.formatRawForType(post, custObjType);
-                util.deepMerge(post, custObj);
+                
+                //merge the new fields into the existing object
+                var fields = Object.keys(custObjType.fields);
+                fields.forEach(function(fieldName) {
+                    custObj[fieldName] = post[fieldName];
+                });
 
                 //validate and persist
                 service.save(custObj, custObjType, function(err, result) {

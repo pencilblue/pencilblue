@@ -11,7 +11,7 @@
 
             $scope.saving = true;
 
-            $http.post('/actions/admin' + $scope.pathSitePrefix + '/content/objects/' + $scope.objectType._id + '/sort', {sorted_objects: sorting})
+            $http.post('/actions/admin/content/objects/' + $scope.objectType._id + '/sort', {sorted_objects: sorting})
             .success(function(result) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;

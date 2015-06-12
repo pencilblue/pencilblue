@@ -29,13 +29,13 @@
                             <th></th>
                         </tr>
                         <tr class="theme_row" ng-repeat="t in themes track by t.uid" on-finish-render ng-cloak>
-                            <td><a ng-href="/admin{{sitePrefix}}/plugins/{{t.uid}}" title="{{t.description}}" ng-bind="t.uid"></a></td>
+                            <td><a ng-href="/admin/plugins/{{t.uid}}" title="{{t.description}}" ng-bind="t.uid"></a></td>
                             <td ng-bind="t.version"></td>
                             <td ng-bind="t.created | date: 'yyyy-MM-dd HH:mm'"></td>
                             <td><i class="fa fa-check" ng-if="t.uid === activeTheme"></i></td>
                             <td style="text-align: right">
                                 <div class="btn-group">
-                                    <a class="btn btn-sm btn-default" ng-href="/admin{{sitePrefix}}/themes/{{t.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
+                                    <a class="btn btn-sm btn-default" ng-href="/admin/themes/{{t.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
                                     <button type="button" class="btn btn-sm btn-default" ng-click="pluginAction('reset_settings', t.uid)"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_RESET_SETTINGS^</button>
                                 </div>
                             </td>

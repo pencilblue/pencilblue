@@ -38,7 +38,7 @@ module.exports = function(pb) {
         var vars = this.pathVars;
 
         if(!pb.validation.isIdStr(vars.type_id, true)) {
-            return self.redirect('/admin' + self.sitePrefix + '/content/objects/types', cb);
+            return self.redirect('/admin/content/objects/types', cb);
         }
 
         this.gatherData(vars, function(err, data) {
@@ -83,7 +83,7 @@ module.exports = function(pb) {
 
             self.objectType = data.objectType;
             self.customObject = data.customObject;
-            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject, pathSitePrefix: self.sitePrefix});
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject, pathSitePrefix: self.site});
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.customObject[pb.DAO.getIdField()] ? self.customObject.name : self.ls.get('NEW') + ' ' + self.objectType.name + ' ' + self.ls.get('OBJECT'));
@@ -96,7 +96,7 @@ module.exports = function(pb) {
 
     ObjectFormController.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService(self.pathSiteUId, true);
+        var cos = new pb.CustomObjectService(self.site, true);
 
         var tasks = {
             tabs: function(callback) {
@@ -114,10 +114,6 @@ module.exports = function(pb) {
 
             navigation: function(callback) {
                 callback(null, pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls));
-            },
-
-            pathSitePrefix: function(callback) {
-                callback(null, self.sitePrefix)
             },
 
             objectType: function(callback) {
@@ -251,13 +247,13 @@ module.exports = function(pb) {
                 name: 'manage_objects',
                 title: data.customObject[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.customObject.name : ls.get('NEW') + ' ' + data.objectType.name + ' ' + ls.get('OBJECT'),
                 icon: 'chevron-left',
-                href: '/admin' + data.pathSitePrefix + '/content/objects/' + data.objectType[pb.DAO.getIdField()]
+                href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()]
             },
             {
                 name: 'new_object',
                 title: '',
                 icon: 'plus',
-                href: '/admin' + data.pathSitePrefix + '/content/objects/' + data.objectType[pb.DAO.getIdField()] + '/new'
+                href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()] + '/new'
             }
         ];
     };

@@ -39,6 +39,13 @@ module.exports = function(pb) {
             context = {};
         }
         
+        /**
+         *
+         * @property contentSettings
+         * @type {Object}
+         */
+        this.contentSettings = context.contentSettings;
+        
         context.type = TYPE;
         ArticleServiceV2.super_.call(this, context);
     }
@@ -72,6 +79,18 @@ module.exports = function(pb) {
      */
     var TYPE = 'article';
     
+    /**
+     *
+     * @method getPublished
+     * @param {Object} [options]
+     * @param {Object} [options.where]
+     * @param {Object} [options.select]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.limit]
+     * @param {Integer} [options.offset]
+     * @param {Boolean} [options.render]
+     * @param {Function} cb
+     */
     ArticleServiceV2.prototype.getPublished = function(options, cb) {
         if (util.isFunction(options)) {
             cb = options;
@@ -86,13 +105,21 @@ module.exports = function(pb) {
         //add where clause to weed out drafts
         ArticleServiceV2.setPublishedClause(options.where);
         
-        options.where.publish_date = {
-            $lte: new Date()
-        };
-        
         this.getAll(options, cb);
     };
     
+    /**
+     *
+     * @method getDrafts
+     * @param {Object} [options]
+     * @param {Object} [options.where]
+     * @param {Object} [options.select]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.limit]
+     * @param {Integer} [options.offset]
+     * @param {Boolean} [options.render=false]
+     * @param {Function} cb
+     */
     ArticleServiceV2.prototype.getDrafts = function(options, cb) {
         if (util.isFunction(options)) {
             cb = options;
@@ -117,6 +144,7 @@ module.exports = function(pb) {
      * @method get
      * @param {String} id
      * @param {object} options
+     * @param {Boolean} [options.render=false]
      * @param {Function} cb
      */
     ArticleServiceV2.prototype.get = function(id, options, cb) {
@@ -165,6 +193,15 @@ module.exports = function(pb) {
     
     /**
      *
+     * @method getAll
+     * @param {Object} [options]
+     * @param {Object} [options.where]
+     * @param {Object} [options.select]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.limit]
+     * @param {Integer} [options.offset]
+     * @param {Boolean} [options.render=false]
+     * @param {Function} cb
      */
     ArticleServiceV2.prototype.getAll = function(options, cb) {
         
@@ -175,13 +212,17 @@ module.exports = function(pb) {
             }
             
             //complete the rendering
-            self.render(articles, function(err, articles) {
-                cb(err, articles);
-            });
+            self.render(articles, cb);
         };
         ArticleServiceV2.super_.prototype.getAll.apply(this, [options, afterGetAll]);
     };
     
+    /**
+     *
+     * @method render
+     * @param {Array} articles
+     * @param {Function} cb
+     */
     ArticleServiceV2.prototype.render = function(articles, cb) {
         if (!util.isArray(articles)) {
             return cb(new Error('articles parameter must be an array'));
@@ -241,6 +282,7 @@ module.exports = function(pb) {
             return cb(new Error('articles parameter must be an array'));
         }
         
+        var self = this;
         var tasks = {
             
             articleCount: function(callback) {
@@ -267,6 +309,9 @@ module.exports = function(pb) {
             },
             
             contentSettings: function(callback) {
+                if (util.isObject(self.contentSettings)) {
+                    return callback(null, self.contentSettings);
+                }
                 
                 var contentService = new pb.ContentService(self.context.site, self.context.onlyThisSite);
                 contentService.getSettings(callback);
@@ -592,9 +637,31 @@ module.exports = function(pb) {
      */
     ArticleServiceV2.setPublishedClause = function(where) {
         where.draft = {
-            $ne: 1,
-            $ne: true
+            $nin: [1, true]
         };
+        where.publish_date = {
+            $lte: new Date()
+        };
+    };
+    
+    /**
+     *
+     * @static
+     * @method setSectionClause
+     * @param {Object} where
+     */
+    ArticleServiceV2.setSectionClause = function(where, sectionId) {
+        where.article_sections = sectionId + '';
+    };
+    
+    /**
+     *
+     * @static
+     * @method setTopicClause
+     * @param {Object} where
+     */
+    ArticleServiceV2.setTopicClause = function(where, topicId) {
+        where.article_topics = topicId + '';
     };
     
     //Event Registries

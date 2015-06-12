@@ -34,7 +34,7 @@ module.exports = function(pb) {
     ManagePlugins.prototype.render = function (cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService(self.pathSiteUId);
+        var pluginService = new pb.PluginService(self.site);
         pluginService.getPluginMap(function (err, map) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
@@ -42,15 +42,13 @@ module.exports = function(pb) {
             }
 
             //setup angular
-            var prefix = self.sitePrefix;
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, {sitePrefix: prefix}),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
                 installedPlugins: map.active,
                 inactivePlugins: map.inactive,
                 availablePlugins: map.available,
-                sitePrefix: prefix,
-                siteUid: self.pathSiteUId
+                siteUid: self.site
             });
             //load the template
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
@@ -66,7 +64,7 @@ module.exports = function(pb) {
                 name: 'manage_plugins',
                 title: ls.get('MANAGE_PLUGINS'),
                 icon: 'refresh',
-                href: '/admin' + data.sitePrefix + '/plugins'
+                href: '/admin/plugins'
             }
         ];
     };

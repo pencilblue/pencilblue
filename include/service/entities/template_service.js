@@ -49,10 +49,18 @@ module.exports = function(pb) {
             localizationService = opts.ls;
         }
         
+        /**
+         * @property localCallbacks
+         * @type {Object}
+         */
         this.localCallbacks = {
             year: (new Date()).getFullYear()
         };
 
+        /**
+         * @property localizationService
+         * @type {Localization}
+         */
         this.localizationService = null;
         if (localizationService) {
             this.localizationService = localizationService;
@@ -63,7 +71,11 @@ module.exports = function(pb) {
          */
         this.activeTheme = opts.activeTheme;
 
-        //set the prioritized template as not specified
+        /**
+         * The prioritized theme when selecting templates
+         * @property theme
+         * @type {String}
+         */
         this.theme = null;
 
         //ensure template loader is initialized
