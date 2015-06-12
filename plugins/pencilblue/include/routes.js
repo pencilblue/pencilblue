@@ -1004,7 +1004,7 @@ module.exports = function Routes(pb){
             path: "/admin/sites",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage_sites.js'),
             content_type: 'text/html'
         },
         {
