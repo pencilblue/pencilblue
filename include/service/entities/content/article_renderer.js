@@ -237,7 +237,7 @@ module.exports = function(pb) {
             // Cutoff the article at the right number of paragraphs
             for(i = 0; i < tempLayoutArray.length && i < contentSettings.auto_break_articles; i++) {
                 if(i === contentSettings.auto_break_articles -1 && i != tempLayoutArray.length - 1) {
-                    newLayout += tempLayoutArray[i] + '&nbsp;<a href="' + pb.config.siteRoot + '/article/' + article.url + '">' + contentSettings.read_more_text + '...</a>' + breakString;
+                    newLayout += tempLayoutArray[i] + '&nbsp;<span class="read_more"><a href="' + pb.config.siteRoot + '/article/' + article.url + '">' + contentSettings.read_more_text + '...</a></span>' + breakString;
                     continue;
                 }
                 newLayout += tempLayoutArray[i] + breakString;
@@ -259,8 +259,8 @@ module.exports = function(pb) {
         if(context.readMore) {
             var beforeReadMore = article.article_layout.substr(0, article.article_layout.indexOf('^read_more^'));
             var path = pb.UrlService.urlJoin('/article/' + article.url);
-            var link = ' <a href="' + pb.UrlService.createSystemUrl(path) + '">';
-            article.article_layout = beforeReadMore + link + context.contentSettings.read_more_text + '</a>';
+            var link = ' <span class="read_more"><a href="' + pb.UrlService.createSystemUrl(path) + '">';
+            article.article_layout = beforeReadMore + link + context.contentSettings.read_more_text + '</a></span>';
         }
         else {
             article.article_layout = article.article_layout.split('^read_more^').join('');
