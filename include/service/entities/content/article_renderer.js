@@ -92,7 +92,7 @@ module.exports = function(pb) {
         if(ArticleRenderer.containsReadMoreFlag(article)) {
             this.formatLayoutForReadMore(article, context);
         }
-        else if(context.articleCount > 1 && contentSettings.auto_break_articles) {
+        else if(context.readMore && contentSettings.auto_break_articles) {
             this.formatAutoBreaks(article, context);
         }
     };
@@ -256,7 +256,7 @@ module.exports = function(pb) {
     
     ArticleRenderer.prototype.formatLayoutForReadMore = function(article, context) {
         
-        if(context.articleCount > 1) {
+        if(context.readMore) {
             var beforeReadMore = article.article_layout.substr(0, article.article_layout.indexOf('^read_more^'));
             var path = pb.UrlService.urlJoin('/article/' + article.url);
             var link = ' <a href="' + pb.UrlService.createSystemUrl(path) + '">';

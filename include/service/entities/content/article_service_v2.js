@@ -145,22 +145,53 @@ module.exports = function(pb) {
      * @param {String} id
      * @param {object} options
      * @param {Boolean} [options.render=false]
+     * @param {Boolean} [options.readMore=false]
      * @param {Function} cb
      */
     ArticleServiceV2.prototype.get = function(id, options, cb) {
-        
         var self = this;
+        var renderOptions = {};
+        if (!options || options.readMore === undefined) {
+            renderOptions.readMore = false;
+        }
+        else {
+            renderOptions.readMore = options.readMore;
+        }
+
         var afterGet = function(err, article) {
             if (util.isError(err) || article === null || !options || !options.render) {
                 return cb(err, article);
             }
             
             //complete the rendering
-            self.render([article], function(err/*, articles*/) {
+            self.render([article], renderOptions, function(err/*, articles*/) {
                 cb(err, article);
             });
         };
         ArticleServiceV2.super_.prototype.get.apply(this, [id, options, afterGet]);
+    };
+
+    /**
+     *
+     * @method getAll
+     * @param {Object} [options]
+     * @param {Object} [options.select]
+     * @param {Object} [options.where]
+     * @param {Array} [options.order]
+     * @param {Integer} [options.offset]
+     * @param {Boolean} [options.readMore=false]
+     * @param {Function} cb
+     */
+    ArticleServiceV2.prototype.getSingle = function(options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        if (options.readMore === undefined) {
+            options.readMore = false;
+        }
+
+        ArticleServiceV2.super_.prototype.getSingle.apply(this, [options, cb]);
     };
     
     /**
@@ -201,18 +232,26 @@ module.exports = function(pb) {
      * @param {Integer} [options.limit]
      * @param {Integer} [options.offset]
      * @param {Boolean} [options.render=false]
+     * @param {Boolean} [options.readMore=true]
      * @param {Function} cb
      */
     ArticleServiceV2.prototype.getAll = function(options, cb) {
-        
         var self = this;
+        var renderOptions = {};
+        if (!options || options.readMore === undefined) {
+            renderOptions.readMore = true;
+        }
+        else {
+            renderOptions.readMore = options.readMore;
+        }
+
         var afterGetAll = function(err, articles) {
             if (util.isError(err) || articles === null || articles.length === 0 || !options || !options.render) {
                 return cb(err, articles);
             }
             
             //complete the rendering
-            self.render(articles, cb);
+            self.render(articles, renderOptions, cb);
         };
         ArticleServiceV2.super_.prototype.getAll.apply(this, [options, afterGetAll]);
     };
@@ -221,9 +260,16 @@ module.exports = function(pb) {
      *
      * @method render
      * @param {Array} articles
+     * @param {Object} [options] An optional argument to provide rendering settings.
+     * @param {Boolean} [options.readMore] Specifies if article body content should be truncated, and read more links rendered.
      * @param {Function} cb
      */
-    ArticleServiceV2.prototype.render = function(articles, cb) {
+    ArticleServiceV2.prototype.render = function(articles, options, cb) {
+        if (arguments.length == 2 && util.isFunction(options)) { // if only two arguments were supplied
+            cb = options;
+            options = null;
+        }
+
         if (!util.isArray(articles)) {
             return cb(new Error('articles parameter must be an array'));
         }
@@ -243,6 +289,9 @@ module.exports = function(pb) {
                         service: self,
                         data: articles[i]
                     };
+                    if (options) {
+                        util.merge(options, articleContext);
+                    }
                     util.merge(context, articleContext);
                     
                     //create tasks for each article
