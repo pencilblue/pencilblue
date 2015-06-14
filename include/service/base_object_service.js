@@ -390,7 +390,7 @@ module.exports = function(pb) {
      * Retrieves a single resource by the specified query. The function will 
      * callback with the object that was found or NULL if no object could be 
      * found. The function will trigger the "getAll" event.  
-     * @method getAll
+     * @method getSingle
      * @param {Object} [options]
      * @param {Object} [options.select]
      * @param {Object} [options.where]

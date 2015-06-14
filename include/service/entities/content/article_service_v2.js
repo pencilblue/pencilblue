@@ -149,20 +149,17 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ArticleServiceV2.prototype.get = function(id, options, cb) {
-        var self = this;
-        var renderOptions = {};
-        if (!options || options.readMore === undefined) {
-            renderOptions.readMore = false;
-        }
-        else {
-            renderOptions.readMore = options.readMore;
-        }
 
+        var self = this;
         var afterGet = function(err, article) {
             if (util.isError(err) || article === null || !options || !options.render) {
                 return cb(err, article);
             }
-            
+
+            var renderOptions = {
+                readMore: options && options.readMore ? true : false
+            };
+
             //complete the rendering
             self.render([article], renderOptions, function(err/*, articles*/) {
                 cb(err, article);
@@ -173,7 +170,7 @@ module.exports = function(pb) {
 
     /**
      *
-     * @method getAll
+     * @method getSingle
      * @param {Object} [options]
      * @param {Object} [options.select]
      * @param {Object} [options.where]
@@ -236,20 +233,17 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ArticleServiceV2.prototype.getAll = function(options, cb) {
-        var self = this;
-        var renderOptions = {};
-        if (!options || options.readMore === undefined) {
-            renderOptions.readMore = true;
-        }
-        else {
-            renderOptions.readMore = options.readMore;
-        }
 
+        var self = this;
         var afterGetAll = function(err, articles) {
             if (util.isError(err) || articles === null || articles.length === 0 || !options || !options.render) {
                 return cb(err, articles);
             }
-            
+
+            var renderOptions = {
+                readMore: options && options.readMore !== undefined ? options.readMore : true
+            };
+
             //complete the rendering
             self.render(articles, renderOptions, cb);
         };
