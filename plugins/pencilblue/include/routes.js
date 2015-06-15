@@ -1016,6 +1016,14 @@ module.exports = function Routes(pb){
             content_type: 'text/html'
         },
         {
+            method: 'get',
+            path: "/admin/sites/:siteid",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'edit_sites.js'),
+            content_type: 'text/html'
+        },
+        {
             method: 'post',
             path: "/actions/admin/sites/new",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
@@ -1036,7 +1044,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'deactivate_site.js')
         },
-        
+
         //**********************API************************
         
         //articles

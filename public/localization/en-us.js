@@ -435,7 +435,9 @@ var loc =
         ERROR_ACTIVATING: 'There was an error activating',
         ERROR_DEACTIVATING: 'There was an error deactivating',
         SITE_ACTIVATED: 'Site activated',
-        SITE_DEACTIVATED: 'Site deactivated'
+        SITE_DEACTIVATED: 'Site deactivated',
+        ACTIVATE: 'Activate',
+        DEACTIVATE: 'Deactivate'
     },
     plugins:
     {
