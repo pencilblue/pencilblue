@@ -314,12 +314,8 @@ module.exports = function IndexModule(pb) {
     Index.prototype.renderComments = function(content, ts, cb) {
         var self           = this;
         var commentingUser = null;
-        var user = this.session.authentication.user;
-        var userSite = pb.SiteService.getSiteFromObject(user);
-        var isAllowedToComment = pb.SiteService.doesScopeEnvelope(userSite, self.site);
-
         if(pb.security.isAuthenticated(this.session)) {
-            commentingUser = Comments.getCommentingUser(user);
+            commentingUser = Comments.getCommentingUser(this.session.authentication.user);
         }
 
         ts.registerLocal('user_photo', function(flag, cb) {
@@ -339,7 +335,7 @@ module.exports = function IndexModule(pb) {
             }
         });
         ts.registerLocal('user_name', commentingUser ? commentingUser.name : '');
-        ts.registerLocal('display_submit', commentingUser && isAllowedToComment ? 'block' : 'none');
+        ts.registerLocal('display_submit', commentingUser ? 'block' : 'none');
         ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
         ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
         ts.registerLocal('individual_comments', function(flag, cb) {

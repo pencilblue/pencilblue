@@ -44,11 +44,6 @@ module.exports = function BaseAdminControllerModule(pb) {
 
   BaseAdminController.prototype.extendedInit = function(cb) {
     var self = this;
-    var userSite = pb.SiteService.getSiteFromObject(self.session.authentication.user);
-    if (!pb.SiteService.doesScopeEnvelope(userSite, self.pathSiteUId)) {
-      self.reqHandler.serve404(); // TODO should we serve 403 here?
-      return;
-    }
     var siteService = new pb.SiteService();
     siteService.getByUid(self.site, function (err, siteInfo) {
       if (err || !siteInfo) {

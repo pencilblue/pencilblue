@@ -816,15 +816,6 @@ module.exports = function RequestHandlerModule(pb) {
         });
     };
 
-    function getPathVars(route, url) {
-        var pathVars = {};
-        var pathParts = url.pathname.split('/');
-        for (var field in route.path_vars) {
-            pathVars[field] = pathParts[route.path_vars[field]];
-        }
-        return pathVars;
-    }
-
     /**
      *
      * @method onSecurityChecksPassed
@@ -836,7 +827,12 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, method, site, route) {
 
         //extract path variables
-        var pathVars = getPathVars(route, this.url);
+        var pathVars = {};
+        var pathParts = this.url.pathname.split('/');
+        for (var field in route.path_vars) {
+            pathVars[field] = pathParts[route.path_vars[field]];
+        }
+
         //execute controller
         var ControllerType  = route.themes[site][activeTheme][method].controller;
         var cInstance       = new ControllerType();
@@ -1121,12 +1117,6 @@ module.exports = function RequestHandlerModule(pb) {
                     self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.urlJoin(pb.config.siteRoot, '/admin');
                     callback(result, result);
                     return;
-                } else if (!isUserAllowedToAccessSite(self.session.authentication.user)) {
-                    result.success = false;
-                    result.content = '403 Forbidden';
-                    result.code    = 403;
-                    callback(result, result);
-                    return;
                 }
                 callback(null, result);
             }
@@ -1134,18 +1124,6 @@ module.exports = function RequestHandlerModule(pb) {
                 callback(null, result);
             }
         };
-
-        function isUserAllowedToAccessSite(user) {
-            if (!user) {
-                return false;
-            }
-            var siteFromUser = pb.SiteService.getSiteFromObject(user);
-            if (pb.SiteService.doesScopeEnvelope(siteFromUser, self.site)) {
-                return true;
-            }
-
-            return false;
-        }
 
         var checkAdminLevel = function(callback) {
 
