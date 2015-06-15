@@ -43,8 +43,8 @@ module.exports = function ProfileModule(pb) {
         post.position   = BaseController.sanitize(post.position);
         post.photo      = BaseController.sanitize(post.photo);
 
-        var siteQueryService = new pb.SiteQueryService(self.site, true);
-        siteQueryService.loadById(self.session.authentication.user_id, 'user', function(err, user) {
+        var dao = new pb.SiteQueryService(self.site, true);
+        dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
                 return;
@@ -52,7 +52,7 @@ module.exports = function ProfileModule(pb) {
 
             //update the document
             pb.DocumentCreator.update(post, user);
-            siteQueryService.save(user, function(err, result) {
+            dao.save(user, function(err, result) {
                 if(util.isError(err)) {
                     return self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
                 }

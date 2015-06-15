@@ -63,15 +63,15 @@ module.exports = function(pb) {
         delete post.new_password;
         delete post.confirm_password;
 
-        var siteQueryService = new pb.SiteQueryService(self.site, true);
-        siteQueryService.loadByValues(where, 'user', function(err, user) {
+        var dao = new pb.SiteQueryService(self.site, true);
+        dao.loadByValues(where, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.formError(self.ls.get('INVALID_PASSWORD'), '/user/change_password', cb);
                 return;
             }
 
             pb.DocumentCreator.update(post, user);
-            siteQueryService.save(user, function(err, result) {
+            dao.save(user, function(err, result) {
                 if(util.isError(err)) {
                     return self.formError(self.ls.get('ERROR_SAVING'), '/user/change_password', cb);
                 }

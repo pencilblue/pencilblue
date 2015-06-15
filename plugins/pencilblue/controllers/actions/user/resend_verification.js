@@ -52,7 +52,7 @@ module.exports = function ResendVerificationModule(pb) {
 
                user.verification_code = util.uniqueId();
 
-                dao.save(user, function(err, result) {
+               dao.save(user, function(err, result) {
                     if(util.isError(result)) {
                         self.formError(self.ls.get('ERROR_SAVING'), '/user/resend_verification', cb);
                         return;

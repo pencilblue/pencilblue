@@ -35,14 +35,14 @@ module.exports = function ResetPasswordModule(pb) {
             return;
         }
 
-        var siteQueryService = new pb.SiteQueryService(self.site, true);
-        siteQueryService.loadByValue('email', get.email, 'user', function(err, user) {
+        var dao = new pb.SiteQueryService(self.site, true);
+        dao.loadByValue('email', get.email, 'user', function(err, user) {
             if(user === null) {
                 self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
                 return;
             }
 
-            siteQueryService.loadByValue('user_id', user[pb.DAO.getIdField()].toString(), 'password_reset', function(err, passwordReset) {
+            dao.loadByValue('user_id', user[pb.DAO.getIdField()].toString(), 'password_reset', function(err, passwordReset) {
                 if(passwordReset === null) {
                     self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
                     return;
@@ -54,7 +54,7 @@ module.exports = function ResetPasswordModule(pb) {
                 }
 
                 // delete the password reset token
-                siteQueryService.deleteById(passwordReset[pb.DAO.getIdField()], 'password_reset', function(err, result)  {
+                dao.deleteById(passwordReset[pb.DAO.getIdField()], 'password_reset', function(err, result)  {
                     //log the user in
                     self.session.authentication.user        = user;
                     self.session.authentication.user_id     = user[pb.DAO.getIdField()].toString();
