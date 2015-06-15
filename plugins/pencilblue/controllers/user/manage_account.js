@@ -29,7 +29,7 @@ module.exports = function ManageAccountModule(pb) {
     ManageAccount.prototype.render = function(cb) {
         var self = this;
 
-        var dao = new pb.SiteQueryService(self.site, true);
+        var dao = new pb.SiteQueryService(self.site);
         dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 if (err) { pb.log.error(err); }

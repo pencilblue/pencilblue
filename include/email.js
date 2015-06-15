@@ -28,9 +28,10 @@ module.exports = function EmailServiceModule(pb) {
      * @class EmailService
      * @constructor
      */
-    function EmailService(siteUid) {
+    function EmailService(siteUid, onlyThisSite) {
 
         this.site = pb.SiteService.getCurrentSite(siteUid);
+        this.onlyThisSite  = onlyThisSite;
     }
 
     /** 
@@ -158,7 +159,7 @@ module.exports = function EmailServiceModule(pb) {
      */
     EmailService.prototype.getSettings = function(cb) {
         var self = this;
-        var settingsService = pb.SettingServiceFactory.getServiceBySite(self.site);
+        var settingsService = pb.SettingServiceFactory.getServiceBySite(self.site, self.onlyThisSite);
         settingsService.get('email_settings', function(err, settings) {
             cb(err, util.isError(err) || !settings ? EmailService.getDefaultSettings() : settings);
         });

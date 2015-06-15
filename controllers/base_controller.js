@@ -185,7 +185,7 @@ module.exports = function BaseControllerModule(pb) {
             self.siteObj = siteInfo;
 
             self.templateService.registerLocal('site_root', function(flag, cb) {
-                cb(null, self.siteObj.hostname || self.templateService.siteRoot);
+                cb(null, pb.SiteService.getHostWithProtocol(self.siteObj.hostname) || self.templateService.siteRoot);
             });
             self.templateService.registerLocal('site_name', function(flag, cb) {
                 cb(null, self.siteObj.displayName || self.templateService.siteName);
@@ -245,20 +245,9 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Function} cb
      */
     BaseController.prototype.formError = function(message, redirectLocation, cb) {
-        var self = this;
-        self.session.error = message;
-        var siteService = new pb.SiteService();
-        siteService.getByUid(self.site, function(err, siteProps) {
-            if(util.isError(err) || !siteProps) {
-                if(err) { pb.log.error(err) };
-                self.reqHandler.serve404(); //TODO: Handle this better?
-                return;
-            }
-            else {
-                cb(pb.RequestHandler.generateRedirect(redirectLocation));
-            }
-        });
 
+        this.session.error = message;
+        cb(pb.RequestHandler.generateRedirect(redirectLocation));
     };
 
     /**

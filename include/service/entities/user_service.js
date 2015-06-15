@@ -243,7 +243,7 @@ module.exports = function UserServiceModule(pb) {
                 var options = {
                     to: user.email,
                     replacements: {
-                        'verification_url': pb.SiteService.getSiteProtocol(siteInfo.hostname) + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+                        'verification_url': pb.SiteService.getHostWithProtocol(siteInfo.hostname) + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
                         'first_name': user.first_name,
                         'last_name': user.last_name
                     }
@@ -340,7 +340,7 @@ module.exports = function UserServiceModule(pb) {
             return where;
         };
 
-        var dao = new pb.SiteQueryService(self.context.site, false);
+        var dao = (pb.SiteService.isGlobal(self.context.site)) ? new pb.DAO() : new pb.SiteQueryService(self.context.site, false);
         var tasks = {
             verified_username: function(callback) {
                 var expStr = util.escapeRegExp(username) + '$';

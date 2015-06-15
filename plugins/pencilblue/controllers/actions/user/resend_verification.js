@@ -20,6 +20,7 @@ module.exports = function ResendVerificationModule(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
     
     /**
      * Resends an account verification email
@@ -36,14 +37,14 @@ module.exports = function ResendVerificationModule(pb) {
             return;
         }
 
-        var siteQueryService = new pb.SiteQueryService(self.site, true);
-        siteQueryService.loadByValue('email', post.email, 'user', function(err, user) {
+        var dao = new pb.SiteQueryService(self.site, true);
+        dao.loadByValue('email', post.email, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
                 return;
             }
 
-            siteQueryService.loadByValue('email', post.email, 'unverified_user', function(err, user) {
+            dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
                 if(util.isError(err) || user === null) {
                     self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
                     return;
@@ -51,7 +52,7 @@ module.exports = function ResendVerificationModule(pb) {
 
                user.verification_code = util.uniqueId();
 
-               siteQueryService.save(user, function(err, result) {
+                dao.save(user, function(err, result) {
                     if(util.isError(result)) {
                         self.formError(self.ls.get('ERROR_SAVING'), '/user/resend_verification', cb);
                         return;
@@ -59,7 +60,7 @@ module.exports = function ResendVerificationModule(pb) {
 
                     self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
                     self.redirect('/user/verification_sent', cb);
-                    var userService = new UserService(self.site);
+                    var userService = new UserService(self.getServiceContext());
                     userService.sendVerificationEmail(user, util.cb);
                 });
             });
