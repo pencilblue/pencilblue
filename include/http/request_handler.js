@@ -239,9 +239,6 @@ module.exports = function RequestHandlerModule(pb) {
             return false;
         }
 
-        //check for theme
-        var descriptor = RequestHandler.storage[RequestHandler.index[pattern]];
-
         //return false if specified site has no themes registered on that descriptor
         //return false if theme doesnt exist on descriptor for that site
         if (!descriptor || !descriptor.themes[site] || !descriptor.themes[site][theme]) {
