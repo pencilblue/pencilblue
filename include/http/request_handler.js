@@ -192,7 +192,7 @@ module.exports = function RequestHandlerModule(pb) {
         
         //static routes
         Object.keys(RequestHandler.staticRoutes).forEach(function(path) {
-            var result = RequestHandler.unregisterRoute(path, theme);
+            var result = RequestHandler.unregisterRoute(path, theme, site);
             if (result) {
                 routesRemoved++;
             }
@@ -239,12 +239,9 @@ module.exports = function RequestHandlerModule(pb) {
             return false;
         }
 
-        //check for theme
-        var descriptor = RequestHandler.storage[RequestHandler.index[pattern]];
-
         //return false if specified site has no themes registered on that descriptor
         //return false if theme doesnt exist on descriptor for that site
-        if (!descriptor.themes[site] || !descriptor.themes[site][theme]) {
+        if (!descriptor || !descriptor.themes[site] || !descriptor.themes[site][theme]) {
             return false;
         }
 
