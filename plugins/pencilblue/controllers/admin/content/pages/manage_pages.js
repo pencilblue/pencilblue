@@ -19,6 +19,7 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
     
     /**
      * Interface for managing pages
@@ -45,7 +46,8 @@ module.exports = function(pb) {
                 return self.redirect('/admin/content/pages/new', cb);
             }
 
-            pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
+            var userService = new UserService(self.getServiceContext());
+            userService.getAuthors(pages, function(err, pagesWithAuthor) {
                 self.getAngularObjects(pagesWithAuthor, function(angularObjects) {
                     var title = self.ls.get('MANAGE_PAGES');
                     self.setPageName(title);

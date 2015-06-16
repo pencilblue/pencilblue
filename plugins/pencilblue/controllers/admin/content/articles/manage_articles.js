@@ -19,6 +19,7 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
     
     /**
      * Interface for managing articles
@@ -50,7 +51,8 @@ module.exports = function(pb) {
                 return self.redirect('/admin/content/articles/new', cb);
             }
 
-            pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
+            var userService = new UserService(self.getServiceContext());
+            userService.getAuthors(articles, function(err, articlesWithAuthorNames) {
                 articles = self.getArticleStatuses(articlesWithAuthorNames);
                 self.getAngularObjects(self.site, articles, function (angularObjects) {
                     var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');

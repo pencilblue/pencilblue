@@ -111,7 +111,7 @@ module.exports = function UserServiceModule(pb) {
             },
             where: pb.DAO.getIdInWhere(Object.keys(authorIds))
         };
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService(this.context.site);
         dao.q('user', opts, function(err, authors) {
             if (util.isError(err)) {
                 return cb(err);
@@ -201,7 +201,8 @@ module.exports = function UserServiceModule(pb) {
                 },
                 $or: [
                     { site: self.context.site },
-                    { site: pb.SiteService.GLOBAL_SITE}
+                    { site: pb.SiteService.GLOBAL_SITE },
+                    { site: { $exists: false } }
                 ]
             }
         };
