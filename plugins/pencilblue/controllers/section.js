@@ -120,7 +120,7 @@ module.exports = function(pb) {
                 order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}]
             };
             pb.ArticleServiceV2.setPublishedClause(opts.where);
-            self.service.getBySectionViewController(section, opts, function(err, content) {
+            self.service.getBySection(section, opts, function(err, content) {
                 var result = {
                     section: section,
                     content: content

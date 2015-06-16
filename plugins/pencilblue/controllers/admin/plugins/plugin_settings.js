@@ -226,7 +226,7 @@ module.exports = function(pb) {
      * @method render
      *
      */
-    PluginSettingsFormController.geSubNavItems = function(key, ls, data) {
+    PluginSettingsFormController.getSubNavItems = function(key, ls, data) {
         return [
             {
                 name: 'manage_plugins',
@@ -333,7 +333,7 @@ module.exports = function(pb) {
     };
 
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsFormController.geSubNavItems);
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, PluginSettingsFormController.getSubNavItems);
 
     //exports
     return PluginSettingsFormController;
