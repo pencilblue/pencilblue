@@ -25,7 +25,7 @@ module.exports = function(pb) {
      * Interface for the site's email settings
      */
     function Email(){}
-    util.inherits(Email, pb.BaseController);
+    util.inherits(Email, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'site_email_settings';
@@ -56,7 +56,7 @@ module.exports = function(pb) {
         emailService.getSettings(function(err, emailSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email', { site: self.site }),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'email', { site: self.site }),
                 tabs: tabs,
                 emailSettings: emailSettings
             });

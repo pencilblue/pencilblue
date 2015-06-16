@@ -46,7 +46,7 @@ module.exports = function(pb) {
             }
 
             self.user = data.user;
-            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: self.user});
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: self.user});
 
             data.adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR}];
             if(!data.user[pb.DAO.getIdField()] || self.session.authentication.user_id !== data.user[pb.DAO.getIdField()].toString()) {

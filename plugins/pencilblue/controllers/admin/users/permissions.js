@@ -19,13 +19,13 @@ module.exports = function(pb) {
 
     //pb dependencies
     var util = pb.util;
-    var BaseController = pb.BaseController;
+    var BaseAdminController = pb.BaseAdminController;
 
     /**
      * Interface for displaying how a plugin's user permissions are organized
      */
     function PermissionsMapController(){}
-    util.inherits(PermissionsMapController, BaseController);
+    util.inherits(PermissionsMapController, BaseAdminController);
 
     PermissionsMapController.prototype.render = function(cb) {
         var self = this;
@@ -72,6 +72,8 @@ module.exports = function(pb) {
             icon: 'puzzle-piece',
             href: '/admin/plugins'
         }];
+
+        pills = pb.AdminSubnavService.addSiteToPills(pills, this.siteName);
 
         var angularObjects = pb.ClientJs.getAngularObjects({
             navigation: pb.AdminNavigation.get(this.session, ['users', 'permissions'], this.ls),

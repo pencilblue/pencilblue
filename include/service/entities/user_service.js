@@ -198,7 +198,11 @@ module.exports = function UserServiceModule(pb) {
             where: {
                 admin: {
                     $gte: getWriters ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_EDITOR
-                }
+                },
+                $or: [
+                    { site: self.context.site },
+                    { site: pb.SiteService.GLOBAL_SITE}
+                ]
             }
         };
         var dao = new pb.DAO();

@@ -22,6 +22,7 @@ module.exports = function(pb) {
 
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
 
     /**
      * Interface for creating and editing pages
@@ -49,7 +50,8 @@ module.exports = function(pb) {
             }
 
             if(self.session.authentication.user.admin >= pb.SecurityService.ACCESS_EDITOR) {
-              pb.users.getWriterOrEditorSelectList(self.page.author, true, function(err, availableAuthors) {
+                var userService = new UserService(self.getServiceContext());
+                userService.getWriterOrEditorSelectList(self.page.author, true, function(err, availableAuthors) {
                 if(availableAuthors && availableAuthors.length > 1) {
                   results.availableAuthors = availableAuthors;
                 }
