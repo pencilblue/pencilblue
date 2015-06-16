@@ -20,6 +20,7 @@ module.exports = function ResendVerificationModule(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
     
     /**
      * Resends an account verification email
@@ -36,7 +37,7 @@ module.exports = function ResendVerificationModule(pb) {
             return;
         }
 
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService(self.site, true);
         dao.loadByValue('email', post.email, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
@@ -59,7 +60,8 @@ module.exports = function ResendVerificationModule(pb) {
 
                     self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
                     self.redirect('/user/verification_sent', cb);
-                    pb.users.sendVerificationEmail(user, util.cb);
+                    var userService = new UserService(self.getServiceContext());
+                    userService.sendVerificationEmail(user, util.cb);
                 });
             });
         });

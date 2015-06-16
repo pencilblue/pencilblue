@@ -43,6 +43,7 @@ module.exports = function LoginActionControllerModule(pb) {
 
         var options = post;
         options.access_level = adminAttempt ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_USER;
+        options.site = self.site;
         pb.security.authenticateSession(this.session, options, new FormAuthentication(), function(err, user) {
             if(util.isError(err) || user === null)  {
                 self.loginError(adminAttempt, cb);

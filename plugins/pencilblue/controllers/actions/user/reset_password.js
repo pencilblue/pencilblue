@@ -35,7 +35,7 @@ module.exports = function ResetPasswordModule(pb) {
             return;
         }
 
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService(self.site, true);
         dao.loadByValue('email', get.email, 'user', function(err, user) {
             if(user === null) {
                 self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);

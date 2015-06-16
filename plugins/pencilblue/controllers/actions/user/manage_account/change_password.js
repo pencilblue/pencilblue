@@ -63,7 +63,7 @@ module.exports = function(pb) {
         delete post.new_password;
         delete post.confirm_password;
 
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService(self.site, true);
         dao.loadByValues(where, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.formError(self.ls.get('INVALID_PASSWORD'), '/user/change_password', cb);

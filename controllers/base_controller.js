@@ -185,7 +185,7 @@ module.exports = function BaseControllerModule(pb) {
             self.siteObj = siteInfo;
 
             self.templateService.registerLocal('site_root', function(flag, cb) {
-                cb(null, self.siteObj.hostname || self.templateService.siteRoot);
+                cb(null, pb.SiteService.getHostWithProtocol(self.siteObj.hostname) || self.templateService.siteRoot);
             });
             self.templateService.registerLocal('site_name', function(flag, cb) {
                 cb(null, self.siteObj.displayName || self.templateService.siteName);
@@ -247,7 +247,7 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.formError = function(message, redirectLocation, cb) {
 
         this.session.error = message;
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + redirectLocation));
+        cb(pb.RequestHandler.generateRedirect(redirectLocation));
     };
 
     /**

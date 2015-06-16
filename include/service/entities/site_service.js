@@ -1,4 +1,5 @@
 var async = require('async');
+var url = require('url');
 var util  = require('../../util.js');
 
 module.exports = function SiteServiceModule(pb) {
@@ -15,12 +16,13 @@ module.exports = function SiteServiceModule(pb) {
     function SiteService(){}
 
     SiteService.GLOBAL_SITE = 'global';
+    SiteService.NO_SITE = 'no-site';    // represents a site that doesn't exist
     SiteService.SITE_FIELD = 'site';
     SiteService.SITE_COLLECTION = 'site';
     var SITE_COLL = SiteService.SITE_COLLECTION;
 
     SiteService.prototype.getByUid = function(uid, cb) {
-        if(uid === SiteService.GLOBAL_SITE) {
+        if(!uid || uid === SiteService.GLOBAL_SITE) {
             cb(null, {
                 displayName:pb.config.siteName,
                 hostname: pb.config.siteRoot,
@@ -352,6 +354,20 @@ module.exports = function SiteServiceModule(pb) {
         else {
             cb(null, true);
         }
+    };
+
+    SiteService.getSiteFromObject = function (object) {
+        if (!object) {
+            return SiteService.NO_SITE;
+        }
+        return object[SiteService.SITE_FIELD];
+    };
+
+    SiteService.getHostWithProtocol = function(hostname) {
+        hostname = hostname.match(/^http/g) ? hostname : "//" + hostname;
+        var urlObject = url.parse(hostname, false, true);
+        urlObject.protocol = pb.config.server.ssl.enabled ? 'https' : 'http';
+        return url.format(urlObject);
     };
 
     return SiteService;

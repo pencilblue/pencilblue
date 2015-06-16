@@ -25,11 +25,19 @@ module.exports = function NewCommentModule(pb) {
      * Creates a new comment
      */
     function NewComment(){}
-    util.inherits(NewComment, pb.AdminFormController);
+    util.inherits(NewComment, pb.FormController);
+
+    NewComment.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteQueryService = new pb.SiteQueryService(self.site, true);
+            cb();
+        });
+    };
 
     NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
-        var contentService = new pb.ContentService(self.site);
+        var contentService = new pb.ContentService(self.site, true);
         contentService.getSettings(function(err, contentSettings) {
             if(!contentSettings.allow_comments) {
                 cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'commenting not allowed'), code: 400});

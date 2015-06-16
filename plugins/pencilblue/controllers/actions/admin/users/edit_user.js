@@ -24,11 +24,12 @@ module.exports = function(pb) {
      * Edits a user
      */
     function EditUser(){}
-    util.inherits(EditUser, pb.BaseController);
+    util.inherits(EditUser, pb.BaseAdminController);
 
     EditUser.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
+        var userService = new pb.UserService(self.getServiceContext());
 
         this.getJSONPostParams(function(err, post) {
             var message = self.hasRequiredParams(post, self.getRequiredFields());
@@ -48,9 +49,9 @@ module.exports = function(pb) {
                 return;
             }
 
-            var dao = new pb.DAO();
-            dao.loadById(vars.id, 'user', function(err, user) {
+            self.siteQueryService.loadById(vars.id, 'user', function(err, user) {
                 if(util.isError(err) || user === null) {
+                    if (err) { pb.log.error(JSON.stringify(err)); }
                     cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
@@ -61,8 +62,9 @@ module.exports = function(pb) {
                 delete post[pb.DAO.getIdField()];
                 pb.DocumentCreator.update(post, user);
 
-                pb.users.isUserNameOrEmailTaken(user.username, user.email, vars.id, function(err, isTaken) {
+                userService.isUserNameOrEmailTaken(user.username, user.email, vars.id, function(err, isTaken) {
                     if(util.isError(err) || isTaken) {
+                        if(err) { pb.log.error(JSON.stringify(err)); }
                         cb({
                             code: 400,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
@@ -70,7 +72,7 @@ module.exports = function(pb) {
                         return;
                     }
 
-                    dao.save(user, function(err, result) {
+                    self.siteQueryService.save(user, function(err, result) {
                         if(util.isError(err)) {
                             cb({
                                 code: 500,
@@ -79,7 +81,7 @@ module.exports = function(pb) {
                             return;
                         }
 
-                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_EDITED'))});
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_EDITED'), result)});
                     });
                 });
             });

@@ -98,7 +98,6 @@ module.exports = function Routes(pb){
         {
             path: "/actions/logout",
             access_level: 0,
-            auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'logout.js'),
             content_type: 'text/html'
         },
@@ -903,7 +902,6 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'verify_user.js'),
         },
-
         {
             method: 'post',
             path: "/actions/admin/users/change_password/:id",

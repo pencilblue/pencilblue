@@ -57,14 +57,15 @@ module.exports = function ForgotPasswordControllerModule(pb) {
         };
 
         //search for user
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService(self.site, true);
         dao.loadByValues(query, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 return self.formError(self.ls.get('NOT_REGISTERED'), returnURL, cb);
             }
 
             //verify that an email server was setup
-            pb.settings.get('email_settings', function(err, emailSettings) {
+            var settings = pb.SettingServiceFactory.getServiceBySite(self.site);
+            settings.get('email_settings', function(err, emailSettings) {
                 if (util.isError(err)) {
                     return self.formError(err.message, returnURL, cb);
                 }
@@ -94,7 +95,8 @@ module.exports = function ForgotPasswordControllerModule(pb) {
 
                         self.session.success = self.ls.get('YOUR_PASSWORD_RESET');
                         self.redirect(returnURL, cb);
-                        pb.users.sendPasswordResetEmail(user, passwordReset, util.cb);
+                        var userService = new pb.UserService(self.getServiceContext());
+                        userService.sendPasswordResetEmail(user, passwordReset, util.cb);
                     });
                 });
             });

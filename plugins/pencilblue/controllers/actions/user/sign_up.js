@@ -73,7 +73,7 @@ module.exports = function SignUpModule(pb) {
                 //check for validation failures
                 var errMsg = null;
                 if (results.verified_username > 0 || results.unverified_username > 0) {
-                    errMsg = self.ls.get('EXISTING_EMAIL');
+                    errMsg = self.ls.get('EXISTING_USERNAME');
                 }
                 else if (results.verified_email > 0 || results.unverified_email > 0) {
                     errMsg = self.ls.get('EXISTING_EMAIL');
@@ -84,10 +84,15 @@ module.exports = function SignUpModule(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
+                if (pb.SiteService.isGlobal(self.site)) {
+                    self.formError(self.ls.get('CANNOT_SIGN_UP_GLOBAL'), '/user/sign_up', cb);
+                    return;
+                }
+
+                var dao = new pb.SiteQueryService(self.site);
                 dao.save(user, function(err, data) {
                     if(util.isError(err)) {
-                        return self.formError(request, session, self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
+                        return self.formError(self.ls.get('ERROR_SAVING'), '/user/sign_up', cb);
                     }
 
                     self.session.success = successMsg;
@@ -95,7 +100,8 @@ module.exports = function SignUpModule(pb) {
 
                     //send email for verification when required
                     if (contentSettings.require_verification) {
-                        pb.users.sendVerificationEmail(user, util.cb);
+                        var userService = new pb.UserService(self.getServiceContext());
+                        userService.sendVerificationEmail(user, util.cb);
                     }
                 });
             });
@@ -107,7 +113,7 @@ module.exports = function SignUpModule(pb) {
     };
 
     SignUp.prototype.validateUniques = function(user, cb) {
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService(this.site);
         var tasks = {
             verified_username: function(callback) {
                 dao.count('user', {username: user.username}, callback);

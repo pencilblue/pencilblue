@@ -43,7 +43,7 @@ module.exports = function ProfileModule(pb) {
         post.position   = BaseController.sanitize(post.position);
         post.photo      = BaseController.sanitize(post.photo);
 
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService(self.site, true);
         dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);

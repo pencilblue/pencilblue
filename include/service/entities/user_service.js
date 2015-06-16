@@ -19,7 +19,7 @@
 var async = require('async');
 var util  = require('../../util.js');
 
-module.exports = function(pb) {
+module.exports = function UserServiceModule(pb) {
 
     /**
      * Service for performing user specific operations.
@@ -136,19 +136,24 @@ module.exports = function(pb) {
      * @method getAdminOptions
      * @param {Object} session The current session object
      * @param {Object} ls      The localization object
+     * @param {String} siteUid
      */
-    UserService.prototype.getAdminOptions = function(session, ls) {
-        var adminOptions = [
-            {name: ls.get('READER'), value: pb.SecurityService.ACCESS_USER},
-            {name: ls.get('WRITER'), value: pb.SecurityService.ACCESS_WRITER},
-            {name: ls.get('EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}
-        ];
+    UserService.prototype.getAdminOptions = function (session, ls) {
+        var adminOptions = [];
 
-        if(session.authentication.user.admin >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
-            adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: pb.SecurityService.ACCESS_MANAGING_EDITOR});
+        if (!pb.SiteService.isGlobal(this.context.site)) {
+            adminOptions = [
+                {name: ls.get('READER'), value: pb.SecurityService.ACCESS_USER},
+                {name: ls.get('WRITER'), value: pb.SecurityService.ACCESS_WRITER},
+                {name: ls.get('EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}]
         }
-        if(session.authentication.user.admin >= pb.SecurityService.ACCESS_ADMINISTRATOR) {
-            adminOptions.push({name: ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR});
+        else {
+            if (session.authentication.user.admin >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
+                adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: pb.SecurityService.ACCESS_MANAGING_EDITOR});
+            }
+            if (session.authentication.user.admin >= pb.SecurityService.ACCESS_ADMINISTRATOR) {
+                adminOptions.push({name: ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR});
+            }
         }
 
         return adminOptions;
@@ -193,7 +198,11 @@ module.exports = function(pb) {
             where: {
                 admin: {
                     $gte: getWriters ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_EDITOR
-                }
+                },
+                $or: [
+                    { site: self.context.site },
+                    { site: pb.SiteService.GLOBAL_SITE}
+                ]
             }
         };
         var dao = new pb.DAO();
@@ -227,29 +236,33 @@ module.exports = function(pb) {
      * @param {Function} cb   Callback function
      */
     UserService.prototype.sendVerificationEmail = function(user, cb) {
+        var self = this;
         cb = cb || util.cb;
 
-        // We need to see if email settings have been saved with verification content
-        var emailService = new pb.EmailService();
-        emailService.getSettings(function(err, emailSettings) {
-            var options = {
-                to: user.email,
-                replacements: {
-                    'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name
+        var siteService = new pb.SiteService();
+        siteService.getByUid(self.context.site, function(err, siteInfo) {
+            // We need to see if email settings have been saved with verification content
+            var emailService = new pb.EmailService(self.context.site);
+            emailService.getSettings(function (err, emailSettings) {
+                var options = {
+                    to: user.email,
+                    replacements: {
+                        'verification_url': pb.SiteService.getHostWithProtocol(siteInfo.hostname) + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name
+                    }
+                };
+                if (emailSettings.layout) {
+                    options.subject = emailSettings.verification_subject;
+                    options.layout = emailSettings.verification_content;
+                    emailService.sendFromLayout(options, cb);
                 }
-            };
-            if(emailSettings.layout) {
-                options.subject= emailSettings.verification_subject;
-                options.layout = emailSettings.verification_content;
-                emailService.sendFromLayout(options, cb);
-            }
-            else {
-                options.subject = pb.config.siteName + ' Account Confirmation';
-                options.template = emailSettings.template;
-                emailService.sendFromTemplate(options, cb);
-            }
+                else {
+                    options.subject = siteInfo.displayName + ' Account Confirmation';
+                    options.template = emailSettings.template;
+                    emailService.sendFromTemplate(options, cb);
+                }
+            });
         });
     };
 
@@ -262,21 +275,27 @@ module.exports = function(pb) {
      * @param {Function} cb            Callback function
      */
     UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
+        var self = this;
         cb = cb || util.cb;
 
-        var verficationUrl = pb.UrlService.urlJoin(pb.config.siteRoot, '/actions/user/reset_password') + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
-        var options = {
-            to: user.email,
-            subject: pb.config.siteName + ' Password Reset',
-            template: 'admin/elements/password_reset_email',
-            replacements: {
-                'verification_url': verficationUrl,
-                'first_name': user.first_name,
-                'last_name': user.last_name
-            }
-        };
-        var emailService = new pb.EmailService();
-        emailService.sendFromTemplate(options, cb);
+        var siteService = new pb.SiteService();
+        siteService.getByUid(self.context.site, function(err, siteInfo) {
+            var root = pb.SiteService.getHostWithProtocol(siteInfo.hostname);
+            var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password')
+              + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
+            var options = {
+                to: user.email,
+                subject: siteInfo.displayName + ' Password Reset',
+                template: 'admin/elements/password_reset_email',
+                replacements: {
+                    'verification_url': verficationUrl,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name
+                }
+            };
+            var emailService = new pb.EmailService(self.context.site);
+            emailService.sendFromTemplate(options, cb);
+        });
     };
 
     /**
@@ -312,6 +331,7 @@ module.exports = function(pb) {
      * @param {Function} cb       Callback function
      */
     UserService.prototype.getExistingUsernameEmailCounts = function(username, email, id, cb) {
+        var self = this;
         if (util.isFunction(id)) {
             cb = id;
             id = null;
@@ -323,7 +343,8 @@ module.exports = function(pb) {
             }
             return where;
         };
-        var dao   = new pb.DAO();
+
+        var dao = (pb.SiteService.isGlobal(self.context.site)) ? new pb.DAO() : new pb.SiteQueryService(self.context.site, false);
         var tasks = {
             verified_username: function(callback) {
                 var expStr = util.escapeRegExp(username) + '$';
@@ -337,7 +358,7 @@ module.exports = function(pb) {
             },
             unverified_email: function(callback) {
                 dao.count('unverified_user', getWhere({email: email.toLowerCase()}), callback);
-            },
+            }
         };
         async.series(tasks, cb);
     };
@@ -392,6 +413,19 @@ module.exports = function(pb) {
         dao.count('user', where, function(err, count) {
             cb(err, count === 1);
         });
+    };
+
+    UserService.prototype.determineUserSiteScope = function(accessLevel, siteid) {
+        if (accessLevel === pb.SecurityService.ACCESS_MANAGING_EDITOR
+            || accessLevel === pb.SecurityService.ACCESS_ADMINISTRATOR) {
+            return pb.SiteService.GLOBAL_SITE;
+        }
+        else if (siteid === pb.SiteService.GLOBAL_SITE) {
+            return null;
+        }
+        else {
+            return siteid;
+        }
     };
     return UserService;
 };

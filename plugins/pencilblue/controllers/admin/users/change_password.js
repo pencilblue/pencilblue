@@ -27,7 +27,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
      * @extends BaseController
      */
     function AdminChangePasswordController(){}
-    util.inherits(AdminChangePasswordController, pb.BaseController);
+    util.inherits(AdminChangePasswordController, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'change_password';
@@ -44,8 +44,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
             return;
         }
 
-        var dao = new pb.DAO();
-        dao.loadById(vars.id, 'user', function(err, user) {
+        self.siteQueryService.loadById(vars.id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.redirect('/admin/users', cb);
                 return;

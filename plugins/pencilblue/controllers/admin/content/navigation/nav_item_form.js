@@ -73,11 +73,12 @@ module.exports = function(pb) {
 
     NavItemFormController.prototype.gatherData = function(vars, cb) {
         var self = this;
+        var userService = new pb.UserService(self.getServiceContext());
         var tasks = {
 
             //get editors
             editors: function(callback) {
-                pb.users.getWriterOrEditorSelectList(self.session.authentication.user_id, false, callback);
+                userService.getWriterOrEditorSelectList(self.session.authentication.user_id, false, callback);
             },
 
             //get parents

@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Creates a new user
      */
     function NewUser(){}
-    util.inherits(NewUser, pb.BaseController);
+    util.inherits(NewUser, pb.BaseAdminController);
 
     NewUser.prototype.render = function(cb) {
         var self = this;
@@ -47,8 +47,18 @@ module.exports = function(pb) {
                 return;
             }
 
+            post.site = pb.users.determineUserSiteScope(post.admin, self.site);
+            if (!post.site) {
+                cb({
+                    code: 400,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, 'User access level not compatible with site scope')
+                });
+                return;
+            }
+
             var user = pb.DocumentCreator.create('user', post);
-            pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
+            var userService = new pb.UserService(self.getServiceContext());
+            userService.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
                 if(util.isError(err) || isTaken) {
                     cb({
                         code: 400,
@@ -57,7 +67,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
+                var dao = new pb.SiteQueryService(self.site);
                 dao.save(user, function(err, result) {
                     if(util.isError(err)) {
                         cb({
