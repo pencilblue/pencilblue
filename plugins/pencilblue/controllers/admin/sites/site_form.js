@@ -23,12 +23,12 @@ module.exports = function(pb) {
 
     SiteForm.getSubNavItems = function(key, ls, data) {
        return [{
-            name: 'manage_sites',
-            title: ls.get('MANAGE_SITES'),
+            name: 'new_site',
+            title: ls.get('NEW_SITE'),
             icon: 'chevron-left',
             href: '/admin/sites'
        }, {
-            name: 'new_site',
+            name: 'create_site',
             title: '',
             icon: 'plus',
             href: '/admin/sites/new'

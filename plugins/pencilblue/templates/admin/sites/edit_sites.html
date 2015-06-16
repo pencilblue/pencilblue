@@ -3,19 +3,19 @@
     ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
     ^tmp_admin=elements=tab_nav^
-    <form name="siteForm" ng-submit="addNewSite()" novalidate>
+    <form name="editSiteForm" ng-submit="editSite()" novalidate>
         <fieldset>
             <div class="tab-content">
                 <div class="tab-pane active" id="site">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.display)}">
                         <label>Display Name</label>
-                        <input type="text" name="display" placeholder="CURRENT DISPLAY NAME" class="form-control" ng-model="siteEntity.displayName" required>
-                        <div class="form_error" ng-if="!isFieldValid(siteForm.display)">^loc_REQUIRED_FIELD^</div>
+                        <input type="text" name="display" placeholder="^display_name^" class="form-control" ng-model="siteEntity.displayName" required />
+                        <div class="form_error" ng-if="!isFieldValid(editSiteForm.display)">^loc_REQUIRED_FIELD^</div>
                     </div>
                     <div class="form_group" ng-class="{'has-error': !isFieldValid(siteForm.host)}">
                         <label>Hostname</label>
-                        <input type="text" name="host" placeholder="CURRENT HOST NAME" class="form-control" ng-model="siteEntity.hostname" required>
-                        <div class="form_error" ng-if="!isFieldValid(siteForm.host)">^loc_REQUIRED_FIELD^</div>
+                        <input type="text" name="host" placeholder="^host_name^" class="form-control" ng-model="siteEntity.hostname" required />
+                        <div class="form_error" ng-if="!isFieldValid(editSiteForm.host)">^loc_REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <br>
@@ -28,6 +28,6 @@
     </form>
     ^tmp_admin=elements=progress_console_modal^
 
-    ^tmp_angular=admin=sites=edit_sites^
+    ^TMP_ANGULAR=ADMIN=SITES=EDIT_SITES^
     ^tmp_admin=footer^
 </div>

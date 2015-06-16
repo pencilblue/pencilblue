@@ -430,14 +430,17 @@ var loc =
     },
     sites: {
         EXISTING_HOSTNAME: 'That hostname is already in use',
-        EXISTING_DISPLAYNAME: 'There is already a site with that displayname',
+        EXISTING_DISPLAYNAME: 'That displayname is already in use',
         SITE_CREATED: 'The site was successfully created',
         ERROR_ACTIVATING: 'There was an error activating',
         ERROR_DEACTIVATING: 'There was an error deactivating',
         SITE_ACTIVATED: 'Site activated',
         SITE_DEACTIVATED: 'Site deactivated',
         ACTIVATE: 'Activate',
-        DEACTIVATE: 'Deactivate'
+        DEACTIVATE: 'Deactivate',
+        EDIT_SITE: 'Edit Site',
+        NEW_SITE: 'New Site',
+        SITE_UPDATED: 'Site was successfully updated'
     },
     plugins:
     {
