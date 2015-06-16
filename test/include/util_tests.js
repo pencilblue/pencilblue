@@ -787,7 +787,7 @@ describe('Util', function() {
                 results.should.be.instanceof(Array).and.have.lengthOf(1);
                 
                 var expected = [
-                    'controllers/api'
+                    path.join('controllers', 'api')
                 ];
                 results.should.eql(expected);
                 done();
@@ -944,7 +944,7 @@ describe('Util', function() {
         
         it('should return "" when passed a path with no extension', function() {
             
-            var result = util.getExtension('./controllers/config');
+            var result = util.getExtension(path.join('.', 'controllers', 'config'));
             should.strictEqual(null, result);
         });
         

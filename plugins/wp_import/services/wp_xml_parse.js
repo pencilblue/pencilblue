@@ -282,7 +282,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         var pageTasks = util.getTasks(rawPages, function(rawPages, index) {
             return function(callback) {
                 var rawPage = rawPages[index];
-                var pageName = rawPage['wp:post_name'][0];
+                var pageName = rawPage['wp:post_name'][0] || rawPage.title[0];
 
                 //output progress
                 pb.log.debug('WPXMLParseService: Processing %s "%s"', 'page', pageName);
