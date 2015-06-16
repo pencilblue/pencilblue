@@ -19,6 +19,7 @@ module.exports = function(pb) {
             self.ts.registerLocal('display_name', data.displayName.toString());
             self.ts.registerLocal('host_name', data.hostname.toString());
             self.ts.registerLocal('siteid', id.toString());
+            self.ts.registerLocal('isActive', data.active);
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/sites/edit_sites', function(err,result) {
                  cb({content: result});

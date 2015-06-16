@@ -159,6 +159,7 @@ var loc =
         UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
         OBJECT_NOT_FOUND: 'The requested object was not found in the system',
         REQUIRED_FIELD: 'This field is required',
+        SITE_MUST_DEACTIVATE: 'This site must be deactivated before you can edit the hostname',
         INVALID_FILE: 'An invalid file was supplied',
         COMPLETE: 'Complete',
         WYSIWYG: 'WYSIWYG',

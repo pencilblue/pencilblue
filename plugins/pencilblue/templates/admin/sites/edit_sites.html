@@ -14,8 +14,9 @@
                     </div>
                     <div class="form_group" ng-class="{'has-error': !isFieldValid(siteForm.host)}">
                         <label>Hostname</label>
-                        <input type="text" name="host" placeholder="^host_name^" class="form-control" ng-model="siteEntity.hostname" required />
-                        <div class="form_error" ng-if="!isFieldValid(editSiteForm.host)">^loc_REQUIRED_FIELD^</div>
+                        <input type="text" name="host" placeholder="^host_name^" class="form-control" ng-disabled="^isActive^" ng-model="siteEntity.hostname" required />
+                        <div class="form_error" ng-if="!^isActive^ && !isFieldValid(editSiteForm.host)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="^isActive^">^loc_SITE_MUST_DEACTIVATE^</div>
                     </div>
                 </div>
                 <br>
@@ -28,6 +29,6 @@
     </form>
     ^tmp_admin=elements=progress_console_modal^
 
-    ^TMP_ANGULAR=ADMIN=SITES=EDIT_SITES^
+    ^tmp_angular=admin=sites=edit_sites^
     ^tmp_admin=footer^
 </div>
