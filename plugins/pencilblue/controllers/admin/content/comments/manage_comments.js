@@ -99,12 +99,13 @@ module.exports = function(pb) {
         }
 
         this.getCommentingUser = function(index) {
-            self.siteQueryService.__proto__.loadById(comments[index].commenter, 'user', function(err, user) {
+            self.dao = new pb.DAO();
+            self.dao.__proto__.loadById(comments[index].commenter, 'user', function(err, user) {
                 if(!util.isError(err) && user !== null) {
                     comments[index].user_name = user.first_name + ' ' + user.last_name;
                 }
 
-                self.siteQueryService.loadById(comments[index].article, 'article', function(err, article) {
+                self.dao.loadById(comments[index].article, 'article', function(err, article) {
                     if(!util.isError(err) && article !== null) {
                         comments[index].article_url = article.url;
                         comments[index].article_headline = article.headline;
