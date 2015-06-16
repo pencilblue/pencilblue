@@ -14,7 +14,8 @@ module.exports = function(pb) {
         dao.loadByValue('uid', id, 'site', function(err, data) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
+                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                tabs: [{ active: 'active', href: '#editSite', icon: 'cog', title: self.ls.get('EDIT_SITE') }]
             });
             self.ts.registerLocal('display_name', data.displayName.toString());
             self.ts.registerLocal('host_name', data.hostname.toString());

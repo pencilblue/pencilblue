@@ -9,12 +9,12 @@
                 <div class="tab-pane active" id="site">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.display)}">
                         <label>Display Name</label>
-                        <input type="text" name="display" placeholder="^display_name^" class="form-control" ng-model="siteEntity.displayName" required />
+                        <input type="text" name="display" class="form-control" ng-model="siteEntity.displayName" ng-init="siteEntity.displayName = '^display_name^'" required />
                         <div class="form_error" ng-if="!isFieldValid(editSiteForm.display)">^loc_REQUIRED_FIELD^</div>
                     </div>
                     <div class="form_group" ng-class="{'has-error': !isFieldValid(siteForm.host)}">
                         <label>Hostname</label>
-                        <input type="text" name="host" placeholder="^host_name^" class="form-control" ng-disabled="^isActive^" ng-model="siteEntity.hostname" required />
+                        <input type="text" name="host" class="form-control" ng-disabled="^isActive^" ng-model="siteEntity.hostname" ng-init="siteEntity.hostname = '^host_name^'" required />
                         <div class="form_error" ng-if="!^isActive^ && !isFieldValid(editSiteForm.host)">^loc_REQUIRED_FIELD^</div>
                         <div class="form_error" ng-if="^isActive^">^loc_SITE_MUST_DEACTIVATE^</div>
                     </div>
