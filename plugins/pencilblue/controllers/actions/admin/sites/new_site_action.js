@@ -31,8 +31,6 @@ module.exports = function(pb) {
                 return;
             }
 
-
-
             var siteService = new pb.SiteService();
             var site = pb.DocumentCreator.create('site', post);
 
