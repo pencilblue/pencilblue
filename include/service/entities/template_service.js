@@ -40,7 +40,7 @@ module.exports = function(pb) {
      */
     function TemplateService(opts){
         var localizationService;
-        if (!opts || util.isFunction(opts)) {
+        if (!opts || (opts instanceof pb.Localization)) {
             localizationService = opts;
             opts = {};
         }
