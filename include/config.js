@@ -490,6 +490,13 @@ var BASE_CONFIG = {
                 collection: 'lock',
                 spec: {timeout: ASC},
                 options: {expireAfterSeconds: 0}
+            },
+
+            //site
+            {
+                collection: 'site',
+                spec: {hostname: ASC},
+                options: {unique: true}
             }
         ]
 	},

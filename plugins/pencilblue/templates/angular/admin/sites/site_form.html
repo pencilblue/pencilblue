@@ -19,7 +19,6 @@
                                 $scope.successMessage = result.message;
                                 $scope.saving = false;
                                 $scope.onActionSuccess();
-                                $scope.$apply();
                             })
                             .error(function(error, status) {
                                 $scope.errorMessage = error.message;

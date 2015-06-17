@@ -39,12 +39,12 @@ module.exports = function(pb) {
                     if(field === 'hostname') {
                         cb({
                             code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_HOSTNAME'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
                         });
                     } else {
                         cb({
                             code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_DISPLAYNAME'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
                         });
                     }
                 }

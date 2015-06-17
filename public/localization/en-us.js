@@ -431,7 +431,8 @@ var loc =
     },
     sites: {
         EXISTING_HOSTNAME: 'That hostname is already in use',
-        EXISTING_DISPLAYNAME: 'That displayname is already in use',
+        EXISTING_DISPLAYNAME: 'That display name is already in use',
+        DUPLICATE_INFO: 'Each site must have a unique hostname',
         SITE_CREATED: 'The site was successfully created',
         ERROR_ACTIVATING: 'There was an error activating',
         ERROR_DEACTIVATING: 'There was an error deactivating',

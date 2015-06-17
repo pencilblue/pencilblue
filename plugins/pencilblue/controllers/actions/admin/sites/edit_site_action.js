@@ -31,21 +31,39 @@ module.exports = function(pb) {
                 return;
             }
 
+            siteService = new pb.SiteService();
             var dao = new pb.DAO();
             dao.loadByValue('uid', siteid, 'site', function(err, data) {
-                data.displayName = post.displayName;
-                data.hostname = post.hostname;
-                dao.save(data, function(err, result) {
-                    if(err) {
-                        cb({
-                            code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR SAVING'))
+                siteService.isDisplayNameOrHostnameTaken(post.displayName, post.hostname, data.id, function (err, isTaken, field) {
+                    if(isTaken) {
+                        if(field == 'displayName') {
+                            cb({
+                                code: 400,
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
+                            });
+                        } else {
+                            cb({
+                                code: 400,
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
+                            });
+                        }
+                    } else {
+                       data.displayName = post.displayName;
+                       data.hostname = post.hostname;
+                       dao.save(data, function(err, result) {
+                           if(err) {
+                              cb({
+                                  code: 400,
+                                  content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR SAVING'))
+                              });
+                              return;
+                           }
+                           cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
                         });
-                        return;
                     }
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
+
                 });
-            });
+            })
 
         });
 
