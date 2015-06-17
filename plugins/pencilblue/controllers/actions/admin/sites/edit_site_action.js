@@ -31,22 +31,16 @@ module.exports = function(pb) {
                 return;
             }
 
-            siteService = new pb.SiteService();
+            var siteService = new pb.SiteService();
             var dao = new pb.DAO();
             dao.loadByValue('uid', siteid, 'site', function(err, data) {
-                siteService.isDisplayNameOrHostnameTaken(post.displayName, post.hostname, data.id, function (err, isTaken, field) {
+                siteService.isDisplayNameOrHostnameTaken(post.displayName, post.hostname, data._id, function (err, isTaken, field) {
                     if(isTaken) {
-                        if(field == 'displayName') {
-                            cb({
+                        cb({
                                 code: 400,
                                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
-                            });
-                        } else {
-                            cb({
-                                code: 400,
-                                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
-                            });
-                        }
+                        });
+
                     } else {
                        data.displayName = post.displayName;
                        data.hostname = post.hostname;

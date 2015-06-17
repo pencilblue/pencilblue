@@ -36,17 +36,11 @@ module.exports = function(pb) {
 
             siteService.createSite(site, post.id, function(err, isTaken, field, result) {
                 if(isTaken) {
-                    if(field === 'hostname') {
-                        cb({
+                    cb({
                             code: 400,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
-                        });
-                    } else {
-                        cb({
-                            code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
-                        });
-                    }
+                    });
+
                 }
                 if(util.isError(err)) {
                     cb({
