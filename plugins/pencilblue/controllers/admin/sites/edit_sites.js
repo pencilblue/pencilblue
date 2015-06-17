@@ -1,4 +1,4 @@
-module.exports = function(pb) {
+module.exports = function EditSitesModuel(pb) {
 
     var util = pb.util;
 

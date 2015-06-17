@@ -36,6 +36,19 @@
                             });
                 };
 
+                $scope.deleteSite = function(site) {
+                    $http.post('/actions/admin/sites/delete/' + site.uid)
+                            .success(function(result) {
+                                $scope.successMessage = result.message;
+                                $scope.saving = false;
+                                $scope.onActionSuccess();
+                            })
+                            .error(function(error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                            });
+                };
+
                 $scope.jobAction = function(actionType, identifier, data, cb) {
                     $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
                             .success(function(result) {
