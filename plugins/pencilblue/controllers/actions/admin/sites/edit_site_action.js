@@ -1,4 +1,4 @@
-module.exports = function EditSitesActionModule(pb) {
+module.exports = function(pb) {
 
     //pb dependencies
     var util = pb.util;
