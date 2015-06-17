@@ -17,11 +17,10 @@
 
 //dependencies
 var path = require('path');
-var multiSiteAdminRoutes = require('./multisite_admin_routes');
 
 //exports
 module.exports = function Routes(pb){
-    var routes = [
+    return [
         {
             method: 'get',
             path: '/media/*',
@@ -1161,9 +1160,4 @@ module.exports = function Routes(pb){
             request_body: ['application/json']
         }
     ];
-    
-    if(pb.config.multisite){
-        routes = routes.concat(multiSiteAdminRoutes(pb));
-    }
-    return routes;
 };
