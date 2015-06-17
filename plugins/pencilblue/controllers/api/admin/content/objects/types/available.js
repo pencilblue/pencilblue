@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Checks to see if the proposed name for a custom object type is available
      */
     function GetObjectTypeNameAvailable(){}
-    util.inherits(GetObjectTypeNameAvailable, pb.AdminFormController);
+    util.inherits(GetObjectTypeNameAvailable, pb.FormController);
 
     GetObjectTypeNameAvailable.prototype.render = function(cb) {
         var self = this;

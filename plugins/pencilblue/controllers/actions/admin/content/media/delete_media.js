@@ -24,10 +24,10 @@ module.exports = function(pb) {
      * Deletes media
      * @class DeleteMediaController
      * @constructor
-     * @extends AdminFormController
+     * @extends FormController
      */
     function DeleteMediaController(){}
-    util.inherits(DeleteMediaController, pb.AdminFormController);
+    util.inherits(DeleteMediaController, pb.FormController);
 
     //constants
     var MANAGE_MEDIA_PATH = '/admin/content/media/manage_media';
