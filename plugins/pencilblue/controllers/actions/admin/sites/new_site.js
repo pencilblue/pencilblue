@@ -1,4 +1,4 @@
-module.exports = function(pb) {
+module.exports = function NewSiteActionModule(pb) {
 
     //pb dependencies
     var util = pb.util;
@@ -36,17 +36,11 @@ module.exports = function(pb) {
 
             siteService.createSite(site, post.id, function(err, isTaken, field, result) {
                 if(isTaken) {
-                    if(field === 'hostname') {
-                        cb({
-                            code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_HOSTNAME'))
-                        });
-                    } else {
-                        cb({
-                            code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_DISPLAYNAME'))
-                        });
-                    }
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
+                    });
+
                 }
                 if(util.isError(err)) {
                     cb({
