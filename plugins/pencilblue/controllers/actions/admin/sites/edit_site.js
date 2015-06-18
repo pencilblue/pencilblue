@@ -37,22 +37,22 @@ module.exports = function EditSiteActionModule(pb) {
                 siteService.isDisplayNameOrHostnameTaken(post.displayName, post.hostname, data._id, function (err, isTaken, field) {
                     if(isTaken) {
                         cb({
-                                code: 400,
-                                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
+                            code: 400,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
                         });
 
                     } else {
-                       data.displayName = post.displayName;
-                       data.hostname = post.hostname;
-                       dao.save(data, function(err, result) {
-                           if(err) {
-                              cb({
-                                  code: 400,
-                                  content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR SAVING'))
-                              });
-                              return;
-                           }
-                           cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
+                        data.displayName = post.displayName;
+                        data.hostname = post.hostname;
+                        dao.save(data, function(err, result) {
+                            if(err) {
+                                cb({
+                                    code: 400,
+                                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR SAVING'))
+                                });
+                                return;
+                            }
+                            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
                         });
                     }
 

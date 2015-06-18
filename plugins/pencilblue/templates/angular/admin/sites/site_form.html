@@ -5,7 +5,7 @@
                 ^angular_objects^
                 ^tmp_angular=admin=elements=is_field_valid^
 
-                $scope.addNewSite = function() {
+                $scope.editSite = function() {
                     $scope.formSubmitted = true;
 
                     if(!validationService.isFormValid($scope.siteForm)) {
@@ -13,8 +13,29 @@
                     }
 
                     $scope.saving = true;
+                    console.log($scope.siteForm);
+                    $http.post('/actions/admin/sites/edit/' + $scope.uid,
+                            {
+                                displayName: $scope.displayName,
+                                hostname: $scope.hostname
+                            })
+                            .success(function(result) {
+                                $scope.successMessage = result.message;
+                                $scope.saving = false;
+                                $scope.onActionSuccess();
+                            })
+                            .error(function(error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                            });
+                };
 
-                    $http.post('/actions/admin/sites/new', $scope.siteEntity)
+                $scope.newSite = function() {
+                    $http.post('/actions/admin/sites/new',
+                            {
+                                displayName: $scope.displayName,
+                                hostname: $scope.hostname
+                            })
                             .success(function(result) {
                                 $scope.successMessage = result.message;
                                 $scope.saving = false;
