@@ -152,6 +152,7 @@ module.exports = function DBManagerModule(pb) {
          * defer the reporting of an error until the end.
          */
         this.processIndices = function(procedures, cb) {
+            var self = this;
             if (!util.isArray(procedures)) {
                 cb(new Error('The procedures parameter must be an array of Objects'));
                 return;
@@ -159,7 +160,22 @@ module.exports = function DBManagerModule(pb) {
 
             //to prevent a cirular dependency we do the require for DAO here.
             var DAO = require('./dao.js')(pb);
-
+            this.getStoredIndices(function(err, storedIndices) {
+                var dao = new DAO();
+                storedIndices.forEach(function(index) {
+                    var filteredIndex = procedures.filter(function(procedure) {
+                        var ns = pb.config.db.name + '.' + procedure.collection;
+                        var result = ns === index.ns && self.compareIndices(index, procedure);
+                        return result;
+                    });
+                    if(filteredIndex.length === 0 || util.isNullOrUndefined(filteredIndex)) {
+                        console.log('DROP INDEX');
+                        dao.dropIndex(index.ns.split('.')[1], index.name, function(err, result) {
+                            console.log(result)
+                        });
+                    }
+                });
+            });
             //create the task list for executing indices.
             var errors = [];
             var tasks = util.getTasks(procedures, function(procedures, i) {
@@ -184,6 +200,38 @@ module.exports = function DBManagerModule(pb) {
                     results: results
                 };
                 cb(err, result);
+            });
+        };
+
+
+        this.compareIndices = function(stored, defined) {
+            var keys = Object.keys(stored.key);
+            var specs = Object.keys(defined.spec);
+            var result =  JSON.stringify(keys) === JSON.stringify(specs);
+            return result;
+
+        };
+
+        /**
+         * Yields all indices currently in the entire database
+         * @method getStoredInidices
+         * @param {Function} cb
+         */
+        this.getStoredIndices = function(cb) {
+            dbs[pb.config.db.name].collections(function(err, collections) {
+                var tasks = util.getTasks(collections, function(collections, i) {
+                    return function(callback) {
+                        collections[i].indexes(function(err, indexes) {
+                            if(util.isError(err)) {
+                                pb.log.error("Error retrieving indices from db: " + err);
+                            }
+                            callback(err, indexes);
+                        });
+                    };
+                });
+                async.parallel(tasks, function(err, results) {
+                    cb(err, Array.prototype.concat.apply([], results));
+                });
             });
         };
 
