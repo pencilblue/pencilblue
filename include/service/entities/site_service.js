@@ -321,24 +321,6 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
-     * Gets the current site prefix based on site (the return value of getCurrentSite)
-     * this is used as an url fragment, and equal to slash + site if multisite is on, or empty if it's off;
-     * used for '/admin' + prefix so controllers (both node and angular) can generate urls conforming to
-     * multitenant and single tenant setups
-     * @param site
-     * @returns {string} /site if multisite is enabled, empty if not
-     */
-    SiteService.getCurrentSitePrefix = function (site) {
-        if (!pb.config.multisite) {
-            return '';
-        }
-        if (!site) {
-            throw new Error("Site is empty in getCurrentSitePrefix when it never should be");
-        }
-        return '/' + site;
-    };
-
-    /**
      * Determines if a site exists matching siteUid
      * @method siteExists
      * @param {String} siteUid

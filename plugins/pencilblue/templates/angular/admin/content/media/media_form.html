@@ -132,7 +132,7 @@
 			}
 			mediaObject.media_topics = topics;
 
-			mediaService.saveMedia(mediaObject, $scope.sitePrefix)
+			mediaService.saveMedia(mediaObject)
 			.then(function(result) {
 				$scope.saving = false;
 				$scope.successMessage = result.message;

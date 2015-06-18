@@ -32,7 +32,6 @@ module.exports = function SectionServiceModule(pb) {
     function SectionService(site, onlyThisSite) {
         this.site = pb.SiteService.getCurrentSite(site);
         this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, onlyThisSite);
-        this.sitePrefix = pb.SiteService.getCurrentSitePrefix(this.site);
         this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
     }
 
@@ -58,7 +57,6 @@ module.exports = function SectionServiceModule(pb) {
      * @method getPillNavOptions
      * @param {String} activePill
      * @return {Array}
-     * @param sitePrefix
      */
     SectionService.getPillNavOptions = function(activePill) {
         return [
@@ -766,8 +764,6 @@ module.exports = function SectionServiceModule(pb) {
 
         return VALID_TYPES[type] === true;
     };
-
-
 
     //exports
     return SectionService;
