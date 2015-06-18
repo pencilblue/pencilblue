@@ -158,29 +158,27 @@ module.exports = function DBManagerModule(pb) {
                 return;
             }
 
+            this.dropUnconfiguredIndices(procedures, function(err) {
+                if(util.isError(err)) {
+                    pb.log.error('DBManager: Error occurred during index check/deletion ERROR[%s]', err.stack);
+                }
+                self.ensureIndices(procedures, cb);
+            });
+        };
+
+        /**
+         * Ensures all indices declared are defined on Mongo server
+         * @method ensureIndices
+         * @param {Array} procedures
+         * @param {Function} cb
+         */
+        this.ensureIndices = function (procedures, cb) {
             //to prevent a cirular dependency we do the require for DAO here.
             var DAO = require('./dao.js')(pb);
-            this.getStoredIndices(function(err, storedIndices) {
-                var dao = new DAO();
-                storedIndices.forEach(function(index) {
-                    var filteredIndex = procedures.filter(function(procedure) {
-                        var ns = pb.config.db.name + '.' + procedure.collection;
-                        var result = ns === index.ns && self.compareIndices(index, procedure);
-                        return result;
-                    });
-                    if(filteredIndex.length === 0 || util.isNullOrUndefined(filteredIndex)) {
-                        console.log('DROP INDEX');
-                        dao.dropIndex(index.ns.split('.')[1], index.name, function(err, result) {
-                            console.log(result)
-                        });
-                    }
-                });
-            });
             //create the task list for executing indices.
             var errors = [];
             var tasks = util.getTasks(procedures, function(procedures, i) {
                 return function(callback) {
-
                     var dao = new DAO();
                     dao.ensureIndex(procedures[i], function(err, result) {
                         if (util.isError(err)) {
@@ -201,9 +199,57 @@ module.exports = function DBManagerModule(pb) {
                 };
                 cb(err, result);
             });
+        }
+
+
+        /**
+         * Sorts through all created indices and drops any index not declared in pb.config
+         * @method dropUnconfiguredIndices
+         * @param {Array} procedures
+         * @param {Function} cb
+         */
+        this.dropUnconfiguredIndices = function(procedures, cb) {
+            var self = this;
+            //to prevent a cirular dependency we do the require for DAO here.
+            var DAO = require('./dao.js')(pb);
+            this.getStoredIndices(function(err, storedIndices) {
+                var dao = new DAO();
+
+                var tasks = util.getTasks(storedIndices, function(indices, i) {
+                    return function(callback) {
+                        var index = indices[i];
+                        var filteredIndex = procedures.filter(function(procedure) {
+                            var ns = pb.config.db.name + '.' + procedure.collection;
+                            var result = ns === index.ns && self.compareIndices(index, procedure);
+                            return result;
+                        });
+                        var indexCollection = index.ns.split('.')[0];
+                        if(index.name !== '_id_' && indexCollection !== 'pencilblue' && (filteredIndex.length === 0 || util.isNullOrUndefined(filteredIndex))) {
+                            dao.dropIndex(index.ns.split('.')[1], index.name, function(err, result) {
+                                if(util.isError(err)) {
+                                    pb.log.error('DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack);
+                                }
+                                callback(err, result);
+                            });
+                        }
+                        else {
+                            callback();
+                        }
+                    };
+                });
+                async.parallel(tasks, function(err){
+                    cb(err);
+                });
+            });
         };
 
-
+        /**
+         * Compares an index stored in Mongo to an index declared in pb.config
+         * @method compareIndices
+         * @param {Object} stored
+         * @param {Object} defined
+         * @returns {boolean}
+         */
         this.compareIndices = function(stored, defined) {
             var keys = Object.keys(stored.key);
             var specs = Object.keys(defined.spec);
@@ -306,7 +352,7 @@ module.exports = function DBManagerModule(pb) {
         };
         return pb.UrlService.urlJoin(str, config.db.name);
     };
-    
+
     //exports
     return DBManager;
 };
