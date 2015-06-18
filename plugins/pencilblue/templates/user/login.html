@@ -1,38 +1,56 @@
-^tmp_user=head^
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 col-md-offset-4">
-                    <div id="login_logo">
-                        <img src="^site_logo^"></img>
-                    </div>
-                    ^error_success^
-                    <div class="panel panel-default">
-                        <div class="panel-heading">^loc_LOGIN^ | <a href="/user/sign_up">^loc_CREATE_ACCOUNT^</a></div>
-                        <div class="panel-body">
-                            <form id="login_form" method="post" action="/actions/login">
-                                <fieldset>
-                                    <div class="form-group">
-                                        <label>^loc_USERNAME_OR_EMAIL^</label>
-                                        <input type="text" id="username" name="username" class="form-control" autofocus="true" onkeyup="checkForLogin(event)"></input>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>^loc_PASSWORD^</label>
-                                        <input type="password" id="password" name="password" class="form-control" onkeyup="checkForLogin(event)"></input>
-                                    </div>
-                                    <input type="button" class="btn btn-lg btn-primary btn-block" value="^loc_LOGIN^" onclick="login()">
-                                    <div class="forgot_password">
-                                        <a href="javascript:forgotPassword()">I forgot my password</a>
-                                    </div>
-                                </fieldset>
-                            </form>
-                        </div>
-                    </div>
-                    <div style="text-align: right">
-                        <a href="^site_root^"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_BACK_HOME^</a>
-                    </div>
-                </div>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>^site_name^^page_name^</title>
+    <meta name="description" content="^meta_desc^">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta name="robots" content="noindex">
+
+    <link rel="stylesheet" type="text/css" href="^bootstrap_css_src^">
+    <link rel="stylesheet" type="text/css" href="/css/admin.css">
+
+    <script type="text/javascript" src="^jquery_src^"></script>
+    <script type="text/javascript" src="^jquery_validate_src^"></script>
+    <script type="text/javascript" src="^bootstrap_js_src^"></script>
+
+    <script type="text/javascript" src="/js/user/login.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+          <div>
+            <img id="login_logo" src="^site_logo^"></img>
+          </div>
+          ^error_success^
+          <div class="panel panel-default">
+            <div class="panel-heading">^loc_LOGIN^ | <a href="/user/sign_up">^loc_CREATE_ACCOUNT^</a></div>
+            <div class="panel-body">
+              <form id="login_form" method="post" action="/actions/login">
+                <fieldset>
+                  <div class="form-group">
+                    <label>^loc_USERNAME_OR_EMAIL^</label>
+                    <input type="text" id="username" name="username" class="form-control" autofocus="true" onkeyup="checkForLogin(event)"></input>
+                  </div>
+                  <div class="form-group">
+                    <label>^loc_PASSWORD^</label>
+                    <input type="password" id="password" name="password" class="form-control" onkeyup="checkForLogin(event)"></input>
+                  </div>
+                  <input type="button" class="btn btn-lg btn-primary btn-block" value="^loc_LOGIN^" onclick="login()">
+                  <div class="forgot_password">
+                    <a href="javascript:forgotPassword()">I forgot my password</a>
+                  </div>
+                </fieldset>
+              </form>
             </div>
+          </div>
+          <div style="text-align: right">
+            <a href="^site_root^"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_BACK_HOME^</a>
+          </div>
         </div>
-        <script type="text/javascript" src="/js/user/login.js"></script>
-    </body>
+      </div>
+    </div>
+  </body>
 </html>
