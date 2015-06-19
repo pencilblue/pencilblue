@@ -66,7 +66,7 @@ module.exports = function AsyncJobRunnerModule(pb) {
         var self = this;
 
         var d = domain.create();
-        d.on('error', function(err) {console.log(err);
+        d.on('error', function(err) {
             self.processResults(err, null, cb);
         });
         d.run(function() {
