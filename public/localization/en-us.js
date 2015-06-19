@@ -159,6 +159,7 @@ var loc =
         UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
         OBJECT_NOT_FOUND: 'The requested object was not found in the system',
         REQUIRED_FIELD: 'This field is required',
+        SITE_MUST_DEACTIVATE: 'This site must be deactivated before you can edit the hostname',
         INVALID_FILE: 'An invalid file was supplied',
         COMPLETE: 'Complete',
         WYSIWYG: 'WYSIWYG',
@@ -430,12 +431,18 @@ var loc =
     },
     sites: {
         EXISTING_HOSTNAME: 'That hostname is already in use',
-        EXISTING_DISPLAYNAME: 'There is already a site with that displayname',
+        EXISTING_DISPLAYNAME: 'That display name is already in use',
+        DUPLICATE_INFO: 'Each site must have a unique hostname',
         SITE_CREATED: 'The site was successfully created',
         ERROR_ACTIVATING: 'There was an error activating',
         ERROR_DEACTIVATING: 'There was an error deactivating',
         SITE_ACTIVATED: 'Site activated',
-        SITE_DEACTIVATED: 'Site deactivated'
+        SITE_DEACTIVATED: 'Site deactivated',
+        ACTIVATE: 'Activate',
+        DEACTIVATE: 'Deactivate',
+        EDIT_SITE: 'Edit Site',
+        NEW_SITE: 'New Site',
+        SITE_UPDATED: 'Site was successfully updated'
     },
     plugins:
     {

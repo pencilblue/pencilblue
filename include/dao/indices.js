@@ -20,7 +20,6 @@ var ASC  = 1;
 var DESC = -1;
 
 module.exports = function IndicesModule(multisite) {
-    console.log(multisite);
     return [
 
         //user

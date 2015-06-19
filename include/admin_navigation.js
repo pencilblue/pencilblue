@@ -77,7 +77,6 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method getDefaultNavigation
-     * @param  adminsiteId {String} uid of site
      * @returns {Array}
      */
     function getDefaultNavigation() {
@@ -360,7 +359,7 @@ module.exports = function AdminNavigationModule(pb) {
             }
         }
         return false;
-    }
+    };
 
     function exists(id, site) {
         var isGlobal = pb.SiteService.isGlobal(site);
