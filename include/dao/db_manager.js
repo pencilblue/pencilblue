@@ -223,9 +223,9 @@ module.exports = function DBManagerModule(pb) {
                             var result = ns === index.ns && self.compareIndices(index, procedure);
                             return result;
                         });
-                        var indexCollection = index.ns.split('.')[0];
-                        if(index.name !== '_id_' && indexCollection !== 'pencilblue' && (filteredIndex.length === 0 || util.isNullOrUndefined(filteredIndex))) {
-                            dao.dropIndex(index.ns.split('.')[1], index.name, function(err, result) {
+                        var indexCollection = index.ns.split('.')[1];
+                        if(index.name !== '_id_' && indexCollection !== 'session' && (filteredIndex.length === 0 || util.isNullOrUndefined(filteredIndex))) {
+                            dao.dropIndex(indexCollection, index.name, function(err, result) {
                                 if(util.isError(err)) {
                                     pb.log.error('DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack);
                                 }
