@@ -6,7 +6,7 @@
     <div class="table_container">
         <table class="table table-responsive table-condensed">
             ^tmp_admin=elements=table_headers^
-            <tr ng-repeat="page in pages track by page._id">
+            <tr ng-repeat="page in pages track by page._id" ng-if="!page.hidden && !page.paginated">
                 <td><a ng-href="/admin/content/pages/{{page._id}}" ng-bind="page.headline"></a></td>
                 <td ng-bind="page.status"></td>
                 <td ng-bind="page.url"></td>
