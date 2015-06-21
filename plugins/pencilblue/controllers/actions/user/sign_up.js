@@ -78,7 +78,7 @@ module.exports = function SignUpModule(pb) {
           //check for validation failures
           var errMsg = null;
           if (results.verified_username > 0 || results.unverified_username > 0) {
-            errMsg = self.ls.get('EXISTING_EMAIL');
+                    errMsg = self.ls.get('EXISTING_USERNAME');
           }
           else if (results.verified_email > 0 || results.unverified_email > 0) {
             errMsg = self.ls.get('EXISTING_EMAIL');
