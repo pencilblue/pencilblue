@@ -722,21 +722,20 @@ module.exports = function RequestHandlerModule(pb) {
 
         //sanity check
         if (rt.theme === null || rt.method === null) {
-            this.serve404();
-            return;
+            return this.serve404();
         }
 
         //do security checks
         this.checkSecurity(rt.theme, rt.method, function(err, result) {
             if (pb.log.isSilly()) {
-                pb.log.silly("RequestHandler: Security Result=[%s]", result.success);
+                pb.log.silly('RequestHandler: Security Result=[%s]', result.success);
                 for (var key in result.results) {
-                    pb.log.silly("RequestHandler:"+key+': '+JSON.stringify(result.results[key]));
+                    pb.log.silly('RequestHandler:%s: %s', key, JSON.stringify(result.results[key]));
                 }
             }
             //all good
             if (result.success) {
-                return self.onSecurityChecksPassed(rt.theme, rt.method, route);
+                return self.onSecurityChecksPassed(activeTheme, rt.theme, rt.method, route);
             }
 
             //handle failures through bypassing other processing and doing output
@@ -747,11 +746,12 @@ module.exports = function RequestHandlerModule(pb) {
     /**
      *
      * @method onSecurityChecksPassed
-     * @param {String} activeTheme
+     * @param {String} activeTheme The user set active theme
+     * @param {String} routeTheme The plugin/theme who's controller will handle the request
      * @param {String} method
      * @param {Object} route
      */
-    RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, method, route) {
+    RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, routeTheme, method, route) {
 
         //extract path variables
         var pathVars = {};
@@ -761,9 +761,9 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //execute controller
-        var ControllerType  = route.themes[activeTheme][method].controller;
+        var ControllerType  = route.themes[routeTheme][method].controller;
         var cInstance       = new ControllerType();
-        this.doRender(pathVars, cInstance, route.themes[activeTheme][method], activeTheme);
+        this.doRender(pathVars, cInstance, route.themes[routeTheme][method], activeTheme);
     };
 
     /**
@@ -774,7 +774,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} pathVars The URL path's variables
      * @param {BaseController} cInstance An instance of the controller to be executed
      * @param {Object} themeRoute
-     * @param {String} activeTheme
+     * @param {String} activeTheme The user set active theme
      */
     RequestHandler.prototype.doRender = function(pathVars, cInstance, themeRoute, activeTheme) {
         var self  = this;

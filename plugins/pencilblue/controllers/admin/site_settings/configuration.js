@@ -19,10 +19,10 @@
 var fs = require('fs');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for displaying the site's configuration settings
      */
@@ -41,6 +41,10 @@ module.exports = function(pb) {
                 return;
             }
 
+            if(typeof callHome === 'undefined') {
+              callHome = true;
+            }
+
             var config = {
                 documentRoot: pb.config.docRoot,
                 siteIP: pb.config.siteIP,
@@ -48,7 +52,7 @@ module.exports = function(pb) {
                 dbType: pb.config.db.type,
                 dbName: pb.config.db.name,
                 dbServers: pb.config.db.servers,
-                callHome: callHome || true,
+                callHome: callHome,
                 configSet: fs.existsSync(pb.config.docRoot + '/config.json')
             };
 
