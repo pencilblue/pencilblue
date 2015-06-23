@@ -27,6 +27,24 @@ module.exports = function(pb) {
      */
     function BaseApiController(){}
     util.inherits(BaseApiController, pb.BaseController);
+    
+    /**
+     * Indicates if a field should be part of the projection
+     * @static
+     * @readonly
+     * @property FIELD_ON
+     * @type {String}
+     */
+    BaseApiController.FIELD_ON = '1';
+    
+    /**
+     * Indicates if a field should be part of the projection
+     * @static
+     * @readonly
+     * @property FIELD_OFF
+     * @type {String}
+     */
+    BaseApiController.FIELD_OFF = '0';
 
     /**
      * Retrieves a resource by ID where :id is a path parameter
@@ -82,54 +100,102 @@ module.exports = function(pb) {
         }
         
         //process select
-        var select = null;
-        var rawSelect = q.$select;
-        if (pb.ValidationService.isNonEmptyStr(rawSelect, true)) {
-            var select = {};
-            var pieces = rawSelect.split(',');
-            pieces.forEach(function(rawStatement) {
-                
-                var statement = rawStatement.split('=');
-                if (statement.length == 2 && pb.ValidationService.isNonEmptyStr(statement[0], true) && (statement[1] === '1' || statement[1] === '0')) {
-                    
-                    select[statement[0]] = parseInt(statement[1]);
-                }
-                else {
-                    var failures = [ pb.BaseObjectService.validationFailure('$select', 'An invalid select statement was provided: ' + statement[0] + '=' + statement[1]) ];
-                    return cb(pb.BaseObjectService.validationError(failures));
-                }
-            });
-        }
+        var selectResult = this.processSelect(q.$select);
         
         //process the order
-        var order = null;
-        var rawOrder = q.$order;
-        if (pb.ValidationService.isNonEmptyStr(rawSelect, true)) {
-            var order = [];
-            var pieces = rawSelect.split(',');
-            pieces.forEach(function(rawStatement) {
-                
-                var statement = rawStatement.split('=');
-                if (statement.length == 2 && pb.ValidationService.isNonEmptyStr(statement[0], true) && pb.ValidationService.isInt(statement[1], true)) {
-                    
-                    order.push([statement[0], parseInt(statement[1]) > 0 ? pb.DAO.ASC : pb.DAO.DESC ]);
-                }
-                else {
-                    var failures = [ pb.BaseObjectService.validationFailure('$order', 'An invalid order statement was provided: ' + statement[0] + '=' + statement[1]) ];
-                    return cb(pb.BaseObjectService.validationError(failures));
-                }
-            });
-        }
+        var orderResult = this.processOrder(q.$order);
         
         //process where
         var where = {};
         //TODO implement a where clause parser
         
-        return options = {
-            select: select,
+        //when failures occur combine them into a one big error and throw it to 
+        //stop execution
+        var failures = selectResult.failures.concat(orderResult.failures);
+        if (failures.length > 0) {
+            throw pb.BaseObjectService.validationError(failures);
+        }
+        
+        return {
+            select: selectResult.select,
             where: where,
+            order: orderResult.order,
             limit: limit,
             offset: offset
+        };
+    };
+    
+    /**
+     * Processes the value of a $order query string variable
+     * @method processOrder
+     * @param {String} rawOrder
+     * @return {Object} Contains the order statement and an array of failures
+     */
+    BaseApiController.prototype.processOrder = function(rawOrder) {
+        var order = null;
+        var failures = [];
+
+        if (pb.ValidationService.isNonEmptyStr(rawOrder, true)) {
+            
+            order = [];
+            var orderPieces = rawOrder.split(',');
+            orderPieces.forEach(function(rawStatement) {
+                
+                var statement = rawStatement.split('=');
+                if (statement.length === 2 && 
+                    pb.ValidationService.isNonEmptyStr(statement[0], true) && 
+                    pb.ValidationService.isInt(statement[1], true)) {
+                    
+                    order.push([statement[0], parseInt(statement[1]) > 0 ? pb.DAO.ASC : pb.DAO.DESC ]);
+                }
+                else {
+                    
+                    var msg = util.format('An invalid order statement was provided: %s=%s', statement[0], statement[1]);
+                    failures.push(pb.BaseObjectService.validationFailure('$order', msg));
+                }
+            });
+        } 
+        
+        return {
+            order: order,
+            failures: failures
+        };
+    };
+    
+    /**
+     * Processes the value of a $select query string variable
+     * @method processSelect
+     * @param {String} rawSelect
+     * @return {Object} Contains the select statement and an array of failures
+     */
+    BaseApiController.prototype.processSelect = function(rawSelect) {
+        var select = null;
+        var failures = [];
+        
+        if (pb.ValidationService.isNonEmptyStr(rawSelect, true)) {
+            
+            select = {};
+            var selectPieces = rawSelect.split(',');
+            selectPieces.forEach(function(rawStatement) {
+                
+                var statement = rawStatement.split('=');
+                if (statement.length === 2 && 
+                    pb.ValidationService.isNonEmptyStr(statement[0], true) && 
+                    (statement[1] === BaseApiController.FIELD_ON || statement[1] === BaseApiController.FIELD_OFF)) {
+                    
+                    select[statement[0]] = parseInt(statement[1]);
+                }
+                else {
+                    
+                    var msg = util.format('An invalid select statement was provided: %s=%s', statement[0], statement[1]);
+                    failures.push(pb.BaseObjectService.validationFailure('$select', msg));
+                }
+            });
+        }
+        
+        return {
+            select: select,
+            failures: failures
         };
     };
     
@@ -210,7 +276,6 @@ module.exports = function(pb) {
      * @return {Function} That can prepare a response and execute the callback
      */
     BaseApiController.prototype.handleSave = function(cb, isCreate) {
-        var self = this;
         return function(err, obj) {
             if (util.isError(err)) {
                 return cb(err);
