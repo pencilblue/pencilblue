@@ -1,7 +1,5 @@
-var loc =
-{
-    generic:
-    {
+module.exports = {
+    generic: {
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'All rights reserved',
         NONE: 'None',
@@ -169,13 +167,11 @@ var loc =
         ERROR_SETTING_SYS_INITIALIZED: 'An error occurred while attempting to set the system initialized setting',
         ERROR_SETTING_CALLHOME: 'An error occurred while attempting to set the system reporting preference'
     },
-    error:
-    {
+    error: {
     	ERROR: 'Error',
         PAGE_NOT_FOUND: 'The page can not be found'
     },
-    timestamp:
-    {
+    timestamp: {
         JAN: 'January',
         FEB: 'February',
         MAR: 'March',
@@ -191,20 +187,18 @@ var loc =
         TIME_AM: 'AM',
         TIME_PM: 'PM'
     },
-    setup:
-    {
+    setup: {
         REGISTER_ADMIN: 'Register the site\'s first admin account'
     },
-    login:
-    {
+    login: {
         ADMIN_LOGIN: 'Writer, editor, and administrator login',
         USERNAME_OR_EMAIL: 'Username or email address',
         INVALID_LOGIN: 'Invalid username and password combination',
         READY_TO_USE: 'Your pencilblue installation is ready to use',
-        ACCOUNT_CREATED: 'Your account was successfully created, you may now login'
+        ACCOUNT_CREATED: 'Your account was successfully created, you may now login',
+        FORGOT_PASSWORD: 'I forgot my password'
     },
-    admin:
-    {
+    admin: {
         DASHBOARD: 'Dashboard',
         CONTENT: 'Content',
         PAGES: 'Pages',
@@ -247,8 +241,7 @@ var loc =
         URL_KEY: 'URL Key',
         FEED_UNAVAILABLE: 'Unable to load the news feed.'
     },
-    topics:
-    {
+    topics: {
         MANAGE_TOPICS: 'Manage topics',
         NEW_TOPIC: 'New topic',
         TOPIC_NAME: 'Topic name',
@@ -258,8 +251,7 @@ var loc =
         IMPORT_TOPICS_HELP: 'Here you can import a CSV file of topic names into PencilBlue. The file should contain no other information.',
         TOPICS_CSV_FILE: 'CSV file containing topic names',
     },
-    media:
-    {
+    media: {
         MANAGE_MEDIA: 'Manage media',
         NEW_MEDIA: 'New media',
         LINK_OR_UPLOAD: 'Link or upload',
@@ -281,8 +273,7 @@ var loc =
         IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
         FILE_TOO_BIG: 'The file is larger than the allowed limit'
     },
-    pages:
-    {
+    pages: {
         MANAGE_PAGES: 'Manage pages',
         NEW_PAGE: 'New page',
         PAGE_URL: 'Page URL',
@@ -292,8 +283,7 @@ var loc =
         SUBHEADING: 'Subheading',
         PUBLISH_DATE: 'Publish date'
     },
-    articles:
-    {
+    articles: {
         MANAGE_ARTICLES: 'Manage articles',
         NEW_ARTICLE: 'New article',
         ARTICLE_URL: 'Article URL',
@@ -346,15 +336,13 @@ var loc =
         MARKDOWN_VIEW: 'Markdown view',
         TOGGLE_FULLSCREEN: 'Toggle fullscreen'
     },
-    comments:
-    {
+    comments: {
         MANAGE_COMMENTS: 'Manage comments',
         CONFIRM_DELETE_COMMENT: 'Are you sure you want to delete this comment by',
         COMMENTS_DISABLED: 'Comments are disabled',
         ENABLE_HERE: 'Enable them here'
     },
-    custom_objects:
-    {
+    custom_objects: {
         MANAGE_OBJECT_TYPES: 'Manage object types',
         NEW_OBJECT_TYPE: 'New object type',
         MANAGE_OBJECTS: 'Manage objects',
@@ -377,8 +365,7 @@ var loc =
         DESCRIPTION: 'Description',
         INVALID_FIELD: 'Invalid field was submitted. Make sure there are no duplicate field names or unselected field types'
     },
-    users:
-    {
+    users: {
         MANAGE_USERS: 'Manage users',
         UNVERIFIED_USERS: 'Unverified users',
         NEW_USER: 'New user',
@@ -427,8 +414,7 @@ var loc =
         VERIFY: 'Verify',
         VERIFIED: 'was verified'
     },
-    plugins:
-    {
+    plugins: {
         MANAGE_PLUGINS: 'Manage plugins',
         NO_ACTIVE_PLUGINS: 'No active plugins',
         NO_INACTIVE_PLUGINS: 'No inactive plugins',
@@ -440,12 +426,10 @@ var loc =
         ACTIVATING: 'Activating',
         ACTION_ERROR: 'An error occurred while attempting to complete the action'
     },
-    themes:
-    {
+    themes: {
         MANAGE_THEMES: 'Manage themes'
     },
-    site_settings:
-    {
+    site_settings:  {
         CONFIGURATION: 'Configuration',
         EDIT_CONFIGURATION: 'To edit the configuration, create a config.json file in the root directory',
         SITE_NAME: 'Site name',
@@ -498,13 +482,3 @@ var loc =
         TEST_EMAIL_SUCCESS: 'Test email successfully sent'
     }
 };
-
-//Allows for both server and client use
-if(typeof global !== 'undefined') {
- global.loc = loc;
- global.localizationLanguage = 'en-us';
-}
-
-if(typeof module !== 'undefined') {
- module.exports = loc;
-}
