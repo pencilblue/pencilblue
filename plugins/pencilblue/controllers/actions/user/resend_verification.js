@@ -33,21 +33,24 @@ module.exports = function ResendVerificationModule(pb) {
 
         var message = this.hasRequiredParams(post, this.getRequiredFields());
         if(message) {
-            self.formError(message, '/user/resend_verification', cb);
-            return;
+            return self.formError(message, '/user/resend_verification', cb);
         }
 
         var dao = new pb.SiteQueryService(self.site, true);
         dao.loadByValue('email', post.email, 'user', function(err, user) {
-            if(util.isError(err) || user === null) {
-                self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
-                return;
+            if(util.isError(err)) {
+                return cb(err);
+            }
+            else if (!util.isNullOrUndefined(user)) {
+                return self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
             }
 
             dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
-                if(util.isError(err) || user === null) {
-                    self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
-                    return;
+                if(util.isError(err)) {
+                    return cb(err);
+                }
+                else if(util.isNullOrUndefined(user)) {
+                    return self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
                 }
 
                user.verification_code = util.uniqueId();
