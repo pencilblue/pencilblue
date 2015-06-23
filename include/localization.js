@@ -22,6 +22,9 @@ var locale = require('locale');
 var util   = require('./util.js');
 
 module.exports = function LocalizationModule(pb) {
+    
+    //pb dependencies
+    var config = pb.config;
 
     /**
      * Provides functions to translate items based on keys.  Also
@@ -112,7 +115,7 @@ module.exports = function LocalizationModule(pb) {
 
         // If the localization is for HTML output, load the localization into client side JS
         if (text.indexOf('<body') > -1)  {
-            text = text.concat(pb.ClientJs.includeJS(pb.config.siteRoot + '/localization/' + localizationLanguage + '.js'));
+            text = text.concat(pb.ClientJs.includeJS(pb.config.siteRoot + '/localization/' + config.localization.defaultLocale + '.js'));
         }
 
         return text;
@@ -343,7 +346,7 @@ module.exports = function LocalizationModule(pb) {
      * @return {String} The default locale
      */
     Localization.getDefaultLocale = function() {
-        return pb.config.localization.defaultLocale || 'en_us';
+        return config.localization.defaultLocale || 'en_us';
     };
     
     return Localization;

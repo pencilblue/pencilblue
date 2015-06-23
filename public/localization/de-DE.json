@@ -13,7 +13,7 @@
  *                         at end of file as well as some translations that I, at second view
  *                         disliked;-).
  */
-var loc = {
+module.exports = {
     generic:{
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'All rights reserved',
@@ -519,13 +519,3 @@ var loc = {
         TEST_EMAIL_SUCCESS: 'Test-E-Mail wurde erfolgreich versandt.'
     }
 };
-
-//Allows for both server and client use
-if(global !== 'undefined') {
- global.loc = loc;
- global.localizationLanguage = 'en-us';
-}
-
-if(module !== 'undefined') {
- module.exports = loc;
-}
