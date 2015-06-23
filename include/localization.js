@@ -163,8 +163,8 @@ module.exports = function LocalizationModule(pb) {
 
         if (val === null) {
             
-            var defaultLocale = Localization.getDefaultLocale();
-            if (this.language === defaultLocale.toLowerCase()) {
+            var defaultLocale = Localization.getDefaultLocale().toLocaleLowerCase();
+            if (this.language === defaultLocale) {
                 return val = key;
             }
             else {
@@ -267,7 +267,7 @@ module.exports = function LocalizationModule(pb) {
         if (!locale) {
             return false;
         }
-        return Localization.getLocalizationPackage(locale) !== undefined;
+        return Localization.getLocalizationPackage(locale) ? true : false;
     };
 
     /**
@@ -281,7 +281,7 @@ module.exports = function LocalizationModule(pb) {
         if (!pb.validation.isNonEmptyStr(locale, true)) {
             return null;
         }
-        return Localization.storage[locale.replace('-', '_').toLowerCase()];
+        return Localization.storage[locale.toLowerCase()] || null;
     };
 
     /**
@@ -296,9 +296,10 @@ module.exports = function LocalizationModule(pb) {
         if (!Localization.isSupported(locale) || !util.isObject(localizations)) {
             return false;
         }
-        for (var key in localizations) {
-            Localization.registerLocalization(locale, key, localizations[key]);
-        }
+        
+        util.forEach(localizations, function(item, key) {
+            Localization.registerLocalization(locale, key, item);
+        });
         return true;
     };
 
