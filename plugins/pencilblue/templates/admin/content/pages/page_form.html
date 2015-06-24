@@ -52,12 +52,9 @@
                         </div>
                         <div class="form_error" ng-if="!isFieldValid(pageForm.publish_date)">^loc_REQUIRED_FIELD^</div>
                     </div>
-                    <div class="form-group" ng-class="{'has-error': !isWysiwygValid('#page_wysiwyg')}">
-                        <label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
-                        <div id="page_wysiwyg">
-                            ^wysiwyg^
-                        </div>
-                        <div class="form_error" ng-if="!isWysiwygValid('#page_wysiwyg')" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
+                    <div class="form-group" ng-class="{'has-error': !isWysiwygValid(layout)}">
+                      <wysiwyg layout="layout" media="page.page_media"></wysiwyg>
+                      <div class="form_error" ng-if="!isWysiwygValid(layout)" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <div class="tab-pane" id="media">
@@ -123,5 +120,6 @@
         </fieldset>
     </form>
 </div>
+^tmp_admin=elements=wysiwyg_scripts^
 ^tmp_angular=admin=content=pages=page_form^
 ^tmp_admin=footer^
