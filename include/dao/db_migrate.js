@@ -42,68 +42,97 @@ module.exports = function DBMigrateModule(pb) {
         'email_settings'
     ];
 
-    function DBMigrate(){}
+    function DBMigrate() {
 
-    DBMigrate.run = function(cb) {
-        var siteService = new pb.SiteService();
-        siteService.getSiteMap(function(err, result) {
-            if(pb.config.multisite && result.active.length === 0 && result.inactive.length === 0 ) {
-                DBMigrate.createSite(function(err, isTaken, field, result) {
-                    DBMigrate.migrateContentAndPluginData(result.uid, cb);//TODO: migrate content and plugin data to newly create site.
-                });
-            }
-            else {
-                cb(null, true);
-            }
-        });
-    };
+        this.run = function (cb) {
+            var self = this;
+            var siteService = new pb.SiteService();
+            siteService.getSiteMap(function (err, result) {
+                if (pb.config.multisite && result.active.length === 0 && result.inactive.length === 0) {
+                    self.createSite(function (err, isTaken, field, result) {
+                        self.siteUid = result.uid;
+                        var tasks = [
+                            util.wrapTask(self, self.migrateContentAndPluginData),
+                            util.wrapTask(self, self.migrateSettings)
+                        ];
+                        //self.migrateContentAndPluginData(cb);
+                        async.series(tasks, function(err, result) {
+                           cb(null, true);
+                        });
+                    });
+                }
+                else {
+                    cb(null, true);
+                }
+            });
+        };
 
-    DBMigrate.createSite = function(cb) {
-        var siteService = new pb.SiteService();
-        var site = pb.DocumentCreator.create('site', {
-            displayName: pb.config.siteName,
-            hostname: url.parse(pb.config.siteRoot).host
-        });
-        siteService.createSite(site, '', cb);
-    };
+        this.createSite = function (cb) {
+            var siteService = new pb.SiteService();
+            var site = pb.DocumentCreator.create('site', {
+                displayName: pb.config.siteName,
+                hostname: url.parse(pb.config.siteRoot).host
+            });
+            siteService.createSite(site, '', cb);
+        };
 
-    DBMigrate.migrateContentAndPluginData = function(siteUid, cb) {
-        var tasks = pb.util.getTasks(MIGRATE_ALL, function(collections, i) {
-            return function(callback) {
-                DBMigrate.migrateCollection(collections[i], siteUid, callback);
-            } ;
-        });
-
-
-        async.parallel(tasks, function(err, result) {
-            cb(err, result);
-        });
-    };
-
-    DBMigrate.migrateCollection = function(collection, siteUid, callback) {
-        var dao = new pb.DAO();
-        dao.q(collection, {}, function(err, results) {
-            console.log(collection);
-            console.log(results);
-            var tasks = util.getTasks(results, function(results, i) {
-                return function(callback) {
-                    DBMigrate.applySiteToDocument(results[i], siteUid, callback);
+        this.migrateContentAndPluginData = function(cb) {
+            var self = this;
+            var tasks = pb.util.getTasks(MIGRATE_ALL, function (collections, i) {
+                return function (callback) {
+                    self.migrateCollection(collections[i], self.siteUid, callback);
                 };
             });
 
 
-            async.parallel(tasks, function(err, result) {
-                callback(err, result);
+            async.parallel(tasks, function (err, result) {
+                cb(err, result);
             });
-        });
-    };
+        };
 
-    DBMigrate.applySiteToDocument = function(document, siteUid, callback) {
-        document.site = siteUid;
-        var dao = new pb.DAO();
-        dao.save(document, callback);
-    };
+        this.migrateSettings = function (cb) {
+            var self = this;
+            var dao = new pb.DAO();
+            dao.q('setting', {}, function(err, results) {
+                var tasks = util.getTasks(results, function(results, i) {
+                   return function(callback) {
+                       if(SITE_SPECIFIC_SETTINGS.indexOf(results[i].key) > -1) {
+                           self.applySiteToDocument(results[i], self.siteUid, callback);
+                       }
+                       else {
+                           callback(null, true);
+                       }
+                   }
+                });
+                async.parallel(tasks, function(err, result) {
+                    cb(null, true);
+                });
+            });
+        };
 
+        this.migrateCollection = function (collection, siteUid, callback) {
+            var self = this;
+            var dao = new pb.DAO();
+            dao.q(collection, {}, function (err, results) {
+                var tasks = util.getTasks(results, function (results, i) {
+                    return function (callback) {
+                        self.applySiteToDocument(results[i], siteUid, callback);
+                    };
+                });
+
+
+                async.parallel(tasks, function (err, result) {
+                    callback(err, result);
+                });
+            });
+        };
+
+        this.applySiteToDocument = function (document, siteUid, callback) {
+            document.site = siteUid;
+            var dao = new pb.DAO();
+            dao.save(document, callback);
+        };
+    }
     return DBMigrate;
 
 };

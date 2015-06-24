@@ -283,7 +283,7 @@ module.exports = function DBManagerModule(pb) {
 
         this.processMigration = function(cb) {
             var DBMigrate = require('./db_migrate.js')(pb);
-            DBMigrate.run(cb);
+            new DBMigrate().run(cb);
         };
 
         /**
