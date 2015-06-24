@@ -248,7 +248,7 @@ module.exports = function UserServiceModule(pb) {
                 var options = {
                     to: user.email,
                     replacements: {
-                        'verification_url': pb.SiteService.getHostWithProtocol(siteInfo.hostname) + 'actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+                        'verification_url': pb.SiteService.getHostWithProtocol(siteInfo.hostname) + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
                         'first_name': user.first_name,
                         'last_name': user.last_name
                     }
