@@ -143,15 +143,8 @@ module.exports = function SiteQueryServiceModule(pb) {
   };
 
   /**
-   * Function for getting all collections with site specific content
-   */
-  /**
-   * Funtion for deleting all site specific content by searching all collections for
-   * a field named 'site' and adding that collection to an array to be passed in to
-   * deleteSiteSpecificContent defined below
-   * @param array of collection names
-   * @param siteid
-   * @param callback
+   * Gets all collection names
+   * @param cb
    */
   SiteQueryService.prototype.getCollections = function (cb) {
     var dao = new pb.DAO();
@@ -164,7 +157,7 @@ module.exports = function SiteQueryServiceModule(pb) {
   };
 
   /**
-   * Funtion for deleting all site specific content
+   * Deletes all site specific content
    * @param array of collection names
    * @param siteid
    * @param callback
