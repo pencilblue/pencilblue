@@ -157,7 +157,7 @@ module.exports = function SiteQueryServiceModule(pb) {
     var dao = new pb.DAO();
     dao.getAllCollections(function(err, items) {
       if(pb.util.isError(err)) {
-        throw err;
+        pb.error.silly(err);
       }
       cb(err, items);
     })
