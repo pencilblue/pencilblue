@@ -761,6 +761,24 @@ module.exports = function DAOModule(pb) {
     };
 
     /**
+     * Gets all collection names
+     * @returns {DAO}
+     */
+    DAO.prototype.getAllCollections = function(cb) {
+        pb.dbm.getDb(this.dbName, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            db.collections(function(err, items) {
+                if (util.isError(err)) {
+                    return cb(err)
+                }
+                cb(err, items);
+            });
+        });
+    };
+
+    /**
      * Creates a basic where clause based on the specified Id
      * @deprecated since 0.4.0
      * @static

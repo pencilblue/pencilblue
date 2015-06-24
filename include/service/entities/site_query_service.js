@@ -17,7 +17,7 @@
 
 module.exports = function SiteQueryServiceModule(pb) {
   "use strict";
-
+  var async = require('async');
   var SITE_FIELD = pb.SiteService.SITE_FIELD;
   var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
   var _ = require('lodash');
@@ -140,6 +140,57 @@ module.exports = function SiteQueryServiceModule(pb) {
   SiteQueryService.prototype.save = function (dbObj, options, callback) {
     dbObj = modifySave(this.siteUId, dbObj);
     DAO.prototype.save.call(this, dbObj, options, callback);
+  };
+
+  /**
+   * Gets all collection names
+   * @param cb
+   */
+  SiteQueryService.prototype.getCollections = function (cb) {
+    var dao = new pb.DAO();
+    dao.getAllCollections(function(err, items) {
+      if(pb.util.isError(err)) {
+        pb.log.error(err);
+      }
+      cb(err, items);
+    })
+  };
+
+  /**
+   * Deletes all site specific content
+   * @param array of collection names
+   * @param siteid
+   * @param callback
+   */
+  SiteQueryService.prototype.deleteSiteSpecificContent = function (collections, siteid, callback) {
+    var dao = new pb.DAO();
+    var tasks = util.getTasks(collections, function(collections, i) {
+      return function(taskCallback) {
+        dao.delete({site: siteid}, collections[i].s.name, function(err, numberOfDeletedRecords) {
+          if(util.isError(err) || !numberOfDeletedRecords) {
+            taskCallback(null, " ");
+          } else {
+            pb.log.silly(numberOfDeletedRecords + " site specific records associated with " + siteid + " were deleted");
+            taskCallback(err, numberOfDeletedRecords);
+          }
+        });
+      };
+    });
+    async.parallel(tasks, function(err, results) {
+      if(pb.util.isError(err)) {
+        pb.log.error(err);
+        callback(err);
+      }
+      dao.delete({uid: siteid}, 'site', function(err, result) {
+        if(util.isError(err)) {
+          pb.log.error("SiteQueryService: Failed to delete record: ", err.stack);
+          callback(err);
+        }
+        pb.log.silly("Successfully deleted site from database: " + result);
+        callback(result);
+      });
+    });
+
   };
 
   function modifySave(site, objectToSave) {
