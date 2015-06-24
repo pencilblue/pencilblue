@@ -19,12 +19,21 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var BaseAdminController = pb.BaseAdminController;
     
     /**
      * Creates a nav item
      */
     function NewNavItem(){}
-    util.inherits(NewNavItem, pb.BaseAdminController);
+    util.inherits(NewNavItem, BaseAdminController);
+
+    NewNavItem.prototype.init = function (props, cb) {
+        var self = this;
+        BaseAdminController.prototype.init.call(self, props, function () {
+            self.siteService = new pb.SectionService(self.site, true);
+            cb();
+        });
+    };
 
     NewNavItem.prototype.render = function(cb){
         var self = this;

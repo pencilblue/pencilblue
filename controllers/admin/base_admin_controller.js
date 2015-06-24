@@ -25,8 +25,7 @@ module.exports = function BaseAdminControllerModule(pb) {
    * This class serves as a base class for all the controllers used in the admin control panel
    * @constructor
    */
-  function BaseAdminController() {
-  }
+  function BaseAdminController() {}
   util.inherits(BaseAdminController, BaseController);
 
   /**
