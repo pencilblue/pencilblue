@@ -25,14 +25,10 @@ module.exports = function DBMigrateModule(pb) {
         'topic'
     ];
 
-    var MIGRATE_SPECIFIC = [
-        'user',
-        'setting'
-    ];
-
-    var GLOBAL_USERS = [
-        pb.security.ACCESS_ADMINISTRATOR,
-        pb.security.ACCESS_MANAGING_EDITOR
+    var SITE_SPECIFIC_USERS = [
+        pb.security.ACCESS_EDITOR,
+        pb.security.ACCESS_WRITER,
+        pb.security.ACCESS_USER
     ];
 
     var SITE_SPECIFIC_SETTINGS = [
@@ -53,11 +49,12 @@ module.exports = function DBMigrateModule(pb) {
                         self.siteUid = result.uid;
                         var tasks = [
                             util.wrapTask(self, self.migrateContentAndPluginData),
-                            util.wrapTask(self, self.migrateSettings)
+                            util.wrapTask(self, self.migrateSettings),
+                            util.wrapTask(self, self.migrateUsers)
                         ];
                         //self.migrateContentAndPluginData(cb);
                         async.series(tasks, function(err, result) {
-                           cb(null, true);
+                           cb(err, result);
                         });
                     });
                 }
@@ -84,33 +81,37 @@ module.exports = function DBMigrateModule(pb) {
                 };
             });
 
-
             async.parallel(tasks, function (err, result) {
                 cb(err, result);
             });
         };
 
         this.migrateSettings = function (cb) {
+            this.migrateGlobalSubCollection('setting', SITE_SPECIFIC_SETTINGS, 'key', cb);
+        };
+
+        this.migrateUsers = function(cb) {
+            this.migrateGlobalSubCollection('user', SITE_SPECIFIC_USERS, 'admin', cb);
+        };
+
+        this.migrateGlobalSubCollection = function(collection, siteSpecificArr, compareTo, cb) {
             var self = this;
             var dao = new pb.DAO();
-            dao.q('setting', {}, function(err, results) {
+            dao.q(collection, {}, function(err, results) {
                 var tasks = util.getTasks(results, function(results, i) {
-                   return function(callback) {
-                       if(SITE_SPECIFIC_SETTINGS.indexOf(results[i].key) > -1) {
-                           self.applySiteToDocument(results[i], self.siteUid, callback);
-                       }
-                       else {
-                           callback(null, true);
-                       }
-                   }
+                    return function(callback) {
+                      var uid = siteSpecificArr.indexOf(results[i][compareTo]) > -1? self.siteUid : pb.SiteService.GLOBAL_SITE;
+                      self.applySiteToDocument(results[i], uid, callback);
+                    };
                 });
+
                 async.parallel(tasks, function(err, result) {
-                    cb(null, true);
+                    cb(err, result);
                 });
             });
         };
 
-        this.migrateCollection = function (collection, siteUid, callback) {
+        this.migrateCollection = function (collection, siteUid, cb) {
             var self = this;
             var dao = new pb.DAO();
             dao.q(collection, {}, function (err, results) {
@@ -120,15 +121,14 @@ module.exports = function DBMigrateModule(pb) {
                     };
                 });
 
-
                 async.parallel(tasks, function (err, result) {
-                    callback(err, result);
+                    cb(err, result);
                 });
             });
         };
 
         this.applySiteToDocument = function (document, siteUid, callback) {
-            document.site = siteUid;
+            document[pb.SiteService.SITE_FIELD] = siteUid;
             var dao = new pb.DAO();
             dao.save(document, callback);
         };
