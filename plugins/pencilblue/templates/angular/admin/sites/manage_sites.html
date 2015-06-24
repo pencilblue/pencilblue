@@ -10,7 +10,6 @@
                     $scope.actionProgress = '0';
                     $scope.consoleOutput = '';
                     $('#progress_modal').modal({});
-
                     $http.post('/actions/admin/sites/activate/' + site.uid)
                             .success(function(result) {
                                 $scope.onActivateOrDeactivateComplete(result);
@@ -19,14 +18,12 @@
                                 $scope.onActionFailure(error);
                             });
                 };
-
                 $scope.deactivateSite = function(site) {
                     site.name = site.displayName;
                     $scope.actionPlugin = site;
                     $scope.actionProgress = '0';
                     $scope.consoleOutput = '';
                     $('#progress_modal').modal({});
-
                     $http.post('/actions/admin/sites/deactivate/' + site.uid)
                             .success(function(result) {
                                 $scope.onActivateOrDeactivateComplete(result);
@@ -35,7 +32,21 @@
                                 $scope.onActionFailure(error);
                             });
                 };
-
+                $scope.deleteSite = function(site) {
+                    $http.post('/actions/admin/sites/delete/' + site.uid)
+                            .success(function(result) {
+                                $scope.successMessage = result.message;
+                                $scope.saving = false;
+                                $scope.onActionSuccess();
+                            })
+                            .error(function(error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                            });
+                };
+                $scope.openDeleteModal = function(site) {
+                    $('#delete_site_modal').modal({});
+                };
                 $scope.jobAction = function(actionType, identifier, data, cb) {
                     $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
                             .success(function(result) {
@@ -45,10 +56,8 @@
                                 $scope.onActionFailure(error);
                             });
                 };
-
                 $scope.onActivateOrDeactivateComplete = function(result) {
                     var jobId = result.data;
-
                     //poll for logs
                     var logHandle = null;
                     var starting  = 0;
@@ -57,27 +66,22 @@
                             if (!result || !result.data || !result.data.length) {
                                 return;
                             }
-
                             var nextStarting = starting;
                             for(var i = 0; i < result.data.length; i++) {
                                 var item = result.data[i];
                                 $scope.consoleOutput += ($scope.consoleOutput.length ? '\n' : '') + item.created + ':[' + item.worker_id + '] ' + item.message;
-
                                 var date = new Date(item.created).getTime();
                                 if(date > nextStarting) {
                                     nextStarting = date;
                                 }
                             }
-
                             //offset so we don't get repeats
                             starting = nextStarting + 1;
-
                             //check for more log entries
                             logHandle = setTimeout(doLogRetrieve, 2000);
                         });
                     };
                     doLogRetrieve();
-
                     //check for job completion
                     var retrieveHandle = null;
                     var doJobRetrieve = function() {
@@ -85,12 +89,10 @@
                             if(!result || !result.data) {
                                 return;
                             }
-
                             //set progress bar
                             if(!isNaN(result.data.progress)) {
                                 $scope.actionProgress = result.data.progress.toString();
                             }
-
                             //verify status
                             if(result.data.status === 'RUNNING') {
                                 retrieveHandle = setTimeout(doJobRetrieve, 1000);
@@ -99,7 +101,6 @@
                                 //allow any trailing logs to come in
                                 setTimeout(function() {
                                     clearTimeout(logHandle);
-
                                     var line = result.data.status;
                                     if (result.data.error) {
                                         line += ': ' + result.data.error;
@@ -113,18 +114,14 @@
                     };
                     doJobRetrieve();
                 };
-
-
                 $scope.onActionSuccess = function() {
                     $scope.actionIsComplete = true;
                     $scope.refreshPage();
                 };
-
                 $scope.onActionFailure = function(error) {
                     $scope.actionIsComplete = true;
                     $scope.actionError = error.message;
                 };
-
                 $scope.refreshPage = function() {
                     $window.location.reload();
                 }

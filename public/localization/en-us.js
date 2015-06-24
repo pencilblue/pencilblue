@@ -442,7 +442,9 @@ var loc =
         DEACTIVATE: 'Deactivate',
         EDIT_SITE: 'Edit Site',
         NEW_SITE: 'New Site',
-        SITE_UPDATED: 'Site was successfully updated'
+        SITE_UPDATED: 'Site was successfully updated',
+        ERROR_REMOVING: 'There was an error removing your site',
+        REMOVE_SUCCESSFUL: 'Site removed successfully'
     },
     plugins:
     {
