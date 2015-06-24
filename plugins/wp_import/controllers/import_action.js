@@ -78,6 +78,7 @@ module.exports = function ImportWPActionControllerModule(pb) {
                 method: 'post',
                 path: '/actions/admin/plugins/wp_import/settings/import',
                 auth_required: true,
+                inactive_site_access: true,
                 access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
                 content_type: 'text/html'
             }

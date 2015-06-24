@@ -69,6 +69,7 @@ module.exports = function WPImportViewControllerModule(pb) {
                 method: 'get',
                 path: '/admin/plugins/wp_import/settings/import',
                 auth_required: true,
+                inactive_site_access: true,
                 access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
                 content_type: 'text/html'
             }
