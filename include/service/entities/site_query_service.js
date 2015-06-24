@@ -157,7 +157,7 @@ module.exports = function SiteQueryServiceModule(pb) {
     var dao = new pb.DAO();
     dao.getAllCollections(function(err, items) {
       if(pb.util.isError(err)) {
-        pb.error.silly(err);
+        pb.log.error(err);
       }
       cb(err, items);
     })
@@ -185,7 +185,7 @@ module.exports = function SiteQueryServiceModule(pb) {
     });
     async.parallel(tasks, function(err, results) {
       if(pb.util.isError(err)) {
-        pb.error.silly(err);
+        pb.log.error(err);
         callback(err);
       }
       dao.delete({uid: siteid}, 'site', function(err, result) {
