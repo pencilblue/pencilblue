@@ -81,7 +81,7 @@ module.exports = function SiteDeactivateJobModule(pb) {
                                 return;
                             }
 
-                            pb.RequestHandler.unloadSite(site);
+                            pb.RequestHandler.deactivateSite(site);
                             callback(err, result);
                         });
                     }
