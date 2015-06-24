@@ -68,7 +68,7 @@
 
           scope.setElement('p');
           return scope.availableElements[0];
-        }
+        };
 
         scope.formatAction = function(action, arguments) {
           if(scope.wysiwyg.currentView !== 'editable') {
@@ -152,7 +152,7 @@
           }
 
           return mediaFormat;
-        }
+        };
 
         scope.saveSelection = function() {
           if(!angular.element(element).find('[contenteditable]').is(':focus')) {
@@ -178,23 +178,25 @@
           }
 
           return '';
-        }
+        };
 
         scope.loadMediaPreviews = function() {
           if(scope.wysiwyg.currentView !== 'editable') {
             return;
           }
 
-          var index = scope.wysiwyg.layout.indexOf('^media_display_');
+          var mediaDisplayPrefix = '^media_display_';
+
+          var index = scope.wysiwyg.layout.indexOf(mediaDisplayPrefix);
           if(index === -1) {
             return;
           }
 
-          var startIndex = index + 15;
+          var startIndex = index + mediaDisplayPrefix.length;
           var endIndex = scope.wysiwyg.layout.substr(startIndex).indexOf('^');
           var mediaProperties = scope.wysiwyg.layout.substr(startIndex, endIndex).split('/');
           var mediaID = mediaProperties[0];
-          var mediaTag = scope.wysiwyg.layout.substr(startIndex - 14, endIndex + 14);
+          var mediaTag = scope.wysiwyg.layout.substr(startIndex - (mediaDisplayPrefix.length - 1), endIndex + (mediaDisplayPrefix.length - 1));
 
           $http.get('/api/content/get_media_embed?id=' + mediaID + '&tag=' + encodeURIComponent(mediaTag))
           .success(function(result) {
@@ -202,12 +204,12 @@
               var mediaPreview = result.data;
 
               scope.wysiwyg.layout = scope.wysiwyg.layout.split('^' + mediaTag + '^').join(mediaPreview);
-              if(scope.wysiwyg.layout.indexOf('^media_display_') > -1) {
+              if(scope.wysiwyg.layout.indexOf(mediaDisplayPrefix) > -1) {
                 scope.loadMediaPreviews();
               }
             }
           });
-        }
+        };
 
         scope.toggleFullscreen = function() {
           scope.wysiwyg.fullscreen = !scope.wysiwyg.fullscreen;
@@ -248,73 +250,73 @@
 
           var self = this;
 
-          var tempEditable = angular.element(element).find('.temp_editable');
-          tempEditable.html(scope.wysiwyg.layout.toString());
-
-          this.convertReadMore = function() {
-            var s = 0;
-            var readMoreCount = tempEditable.find('.read_more_break').length;
-
-            if(readMoreCount === 0) {
-              scope.layout = tempEditable.html();
-              return;
-            }
-
-            tempEditable.find('.read_more_break').each(function() {
-              if(s === 0) {
-                angular.element(this).replaceWith('^read_more^');
-              }
-              else {
-                angular.element(this).replaceWith('');
-              }
-
-              s++;
-              if(s >= readMoreCount) {
-                scope.layout = tempEditable.html();
-              }
-            });
-          };
-
-          this.convertMedia = function() {
-            var i = 0;
-            var mediaCount = tempEditable.find('.media_preview').length;
-            if(mediaCount === 0) {
-              this.convertReadMore();
-              return;
-            }
-
-            tempEditable.find('.media_preview').each(function() {
-              var mediaTags = ['^' + angular.element(this).attr('media-tag') + '^'];
-              var subTags = angular.element(this).find('[media-tag]');
-              for(var j = 0; j < subTags.length; j++) {
-                mediaTags.push('^' + $(subTags[j]).attr('media-tag') + '^')
-              }
-
-              angular.element(this).replaceWith(mediaTags.concat(''));
-
-              i++;
-              if(i >= mediaCount){
-                self.convertReadMore();
-              }
-            });
-          }
+          scope.tempEditable = angular.element(element).find('.temp_editable');
+          scope.tempEditable.html(scope.wysiwyg.layout.toString());
 
           var j = 0;
-          var selectionCount = tempEditable.find('.rangySelectionBoundary').length;
+          var selectionCount = scope.tempEditable.find('.rangySelectionBoundary').length;
           if(selectionCount === 0) {
-            this.convertMedia();
+            scope.convertMedia();
             return;
           }
 
-          tempEditable.find('.rangySelectionBoundary').each(function() {
+          scope.tempEditable.find('.rangySelectionBoundary').each(function() {
             angular.element(this).replaceWith('');
 
             j++;
             if(j >= selectionCount) {
-              self.convertMedia();
+              scope.convertMedia();
             }
           });
         };
+
+        scope.convertReadMore = function() {
+          var s = 0;
+          var readMoreCount = scope.tempEditable.find('.read_more_break').length;
+
+          if(readMoreCount === 0) {
+            scope.layout = scope.tempEditable.html();
+            return;
+          }
+
+          scope.tempEditable.find('.read_more_break').each(function() {
+            if(s === 0) {
+              angular.element(this).replaceWith('^read_more^');
+            }
+            else {
+              angular.element(this).replaceWith('');
+            }
+
+            s++;
+            if(s >= readMoreCount) {
+              scope.layout = scope.tempEditable.html();
+            }
+          });
+        };
+
+        scope.convertMedia = function() {
+          var i = 0;
+          var mediaCount = scope.tempEditable.find('.media_preview').length;
+          if(mediaCount === 0) {
+            scope.convertReadMore();
+            return;
+          }
+
+          scope.tempEditable.find('.media_preview').each(function() {
+            var mediaTags = ['^' + angular.element(this).attr('media-tag') + '^'];
+            var subTags = angular.element(this).find('[media-tag]');
+            for(var j = 0; j < subTags.length; j++) {
+              mediaTags.push('^' + $(subTags[j]).attr('media-tag') + '^')
+            }
+
+            angular.element(this).replaceWith(mediaTags.concat(''));
+
+            i++;
+            if(i >= mediaCount){
+              scope.convertReadMore();
+            }
+          });
+        }
 
         scope.$watch('wysiwyg.layout', function(newVal, oldVal) {
           if(scope.wysiwyg.currentView !== 'editable') {

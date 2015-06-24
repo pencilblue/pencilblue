@@ -10,18 +10,19 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
   ^tmp_angular=admin=elements=is_field_valid^
 
   $scope.hideMediaButton = true;
+  $scope.paginationLimit = 12;
 
   $scope.search = function(field) {
     searchService.search(field.searchText, field.available_objects, ['name'], function(availableObjects) {
       field.available_objects = availableObjects;
       $scope.paginate(field, 0);
     });
-  }
+  };
 
   $scope.clearSearch = function(field) {
     field.searchText = '';
     $scope.search(field);
-  }
+  };
 
   $scope.paginate = function(field, paginationIndex) {
     field.paginationIndex = paginationIndex;
@@ -30,7 +31,7 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
       field.available_objects = availableObjects;
       field.paginationPages = paginationPages;
     })
-  }
+  };
 
   $scope.pageButtonVisible = function(field, testIndex) {
     return paginationService.pageButtonVisible(testIndex, field.paginationIndex, field.paginationPages);
@@ -49,12 +50,12 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
         var itemToTest = sourceItemHandleScope.itemScope.object;
 
         for(var i = 0; i < active.length; i++) {
-          if(itemToTest._id.toString() === active[i]._id.toString()) {
+          if(itemToTest._id === active[i]._id) {
             return true;
           }
         }
         for(var i = 0; i < inactive.length; i++) {
-          if(itemToTest._id.toString() === inactive[i]._id.toString()) {
+          if(itemToTest._id === inactive[i]._id) {
             return true;
           }
         }
@@ -69,7 +70,7 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
 
   $scope.getFieldUID = function(field) {
     return field.name.toLowerCase().split(' ').join();
-  }
+  };
 
   $scope.setBoolean = function(fieldName, setting) {
     $scope.customObject[fieldName] = setting;
@@ -77,7 +78,7 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
 
   $scope.setDateToNow = function(fieldName) {
     $scope.customObject[fieldName] = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');
-  }
+  };
 
   $scope.saveObject = function() {
     $scope.formSubmitted = true;
@@ -125,48 +126,6 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
     });
   };
 
-  $scope.getWysiwygContent = function(fields, cb) {
-    if(!fields.length) {
-      cb([]);
-      return;
-    }
-
-    var self = this;
-    var wysiwygContent = [];
-
-    this.loadWysiwyg = function(index) {
-      var fieldName = $scope.getFieldUID(fields[index]) + '_wysiwyg';
-
-      if(!$('#' + fieldName + ' .wysiwyg').attr('id')) {
-        wysiwygContent.push({name: fields[index].name, content: $scope.customObject[fields[index].name]});
-
-        if(index >= fields.length - 1) {
-          cb(wysiwygContent);
-          return;
-        }
-
-        index++;
-        self.loadWysiwyg(index);
-        return;
-      }
-
-      var wysId = $('#' + fieldName + ' .wysiwyg').attr('id').substring('wysiwg_'.length + 1);
-      getWYSIWYGLayout(wysId, function(layout) {
-        wysiwygContent.push({name: fields[index].name, content: layout});
-
-        if(index >= fields.length - 1) {
-          cb(wysiwygContent);
-          return;
-        }
-
-        index++;
-        self.loadWysiwyg(index);
-      });
-    };
-
-    this.loadWysiwyg(0);
-  };
-
   for(var i = 0; i < $scope.objectType.fields.length; i++) {
     if($scope.objectType.fields[i].field_type === 'boolean' && typeof $scope.customObject[$scope.objectType.fields[i].name] === 'undefined') {
       $scope.customObject[$scope.objectType.fields[i].name] = true;
@@ -180,7 +139,7 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
     else if($scope.objectType.fields[i].field_type === 'child_objects') {
       $scope.objectType.fields[i].searchText = '';
       $scope.objectType.fields[i].paginationIndex = 0;
-      $scope.objectType.fields[i].paginationLimit = 12;
+      $scope.objectType.fields[i].paginationLimit = $scope.paginationLimit;
       $scope.paginate($scope.objectType.fields[i], 0);
     }
   }
@@ -199,11 +158,11 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
     }
 
     if(scope.$last){
-      for(var i = 0; i < scope.objectType.fields.length; i++) {
-        if(scope.objectType.fields[i].field_type === 'date') {
-          this.testForDateFields();
+      angular.forEach(scope.objectType.fields, function(field) {
+        if(field.field_type === 'date') {
+          self.testForDateFields();
         }
-      }
+      });
     }
   };
 })

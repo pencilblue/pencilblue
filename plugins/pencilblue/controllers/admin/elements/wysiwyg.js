@@ -23,6 +23,7 @@ module.exports = function WysiwygModule(pb) {
   /**
   * Route controller for the wysiwyg AngularJS directive.
   * @class WysiwygController
+  * @extends BaseController
   * @constructor
   */
   function WysiwygController(){}
