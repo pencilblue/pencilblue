@@ -349,7 +349,7 @@ module.exports = function SiteServiceModule(pb) {
         hostname = hostname.match(/^http/g) ? hostname : "//" + hostname;
         var urlObject = url.parse(hostname, false, true);
         urlObject.protocol = pb.config.server.ssl.enabled ? 'https' : 'http';
-        return url.format(urlObject);
+        return url.format(urlObject).replace(/\/$/, '');
     };
 
     return SiteService;

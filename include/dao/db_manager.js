@@ -281,6 +281,11 @@ module.exports = function DBManagerModule(pb) {
             });
         };
 
+        this.processMigration = function(cb) {
+            var DBMigrate = require('./db_migrate.js')(pb);
+            DBMigrate.run(cb);
+        };
+
         /**
          * Iterates over all database handles and call's their shutdown function.
          *

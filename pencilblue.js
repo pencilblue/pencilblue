@@ -58,6 +58,7 @@ function PencilBlue(config){
             this.initDBConnections,
             this.initDBIndices,
             util.wrapTask(this, this.initServer),
+            this.initSiteMigration,
             this.initSessions,
             this.initPlugins,
             this.initSites,
@@ -127,6 +128,10 @@ function PencilBlue(config){
         //initialize the plugins
         var pluginService = new pb.PluginService();
         pluginService.initPlugins(cb);
+    };
+
+    this.initSiteMigration = function(cb) {
+        pb.dbm.processMigration(cb);
     };
 
     /**
