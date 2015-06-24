@@ -764,7 +764,7 @@ module.exports = function DAOModule(pb) {
      * Gets all collection names
      * @returns {DAO}
      */
-    DAO.prototype.getAllCollectionNames = function(cb) {
+    DAO.prototype.getAllCollections = function(cb) {
         pb.dbm.getDb(this.dbName, function(err, db) {
             if (util.isError(err)) {
                 return cb(err);

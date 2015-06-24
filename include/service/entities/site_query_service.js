@@ -153,9 +153,9 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param siteid
    * @param callback
    */
-  SiteQueryService.prototype.getSiteSpecificCollections = function (cb) {
+  SiteQueryService.prototype.getCollections = function (cb) {
     var dao = new pb.DAO();
-    dao.getAllCollectionNames(function(err, items) {
+    dao.getAllCollections(function(err, items) {
       if(pb.util.isError(err)) {
         throw err;
       }
@@ -183,13 +183,21 @@ module.exports = function SiteQueryServiceModule(pb) {
         });
       };
     });
-    async.parallel(tasks, callback);
-    dao.delete({uid: siteid}, 'site', function(err, result) {
-      if(util.isError(err)) {
-        pb.log.error("SiteQueryService: Failed to delete record: ", err.stack);
+    async.parallel(tasks, function(err, results) {
+      if(pb.util.isError(err)) {
+        pb.error.silly(err);
+        callback(err);
       }
-      pb.log.silly("Successfully deleted site from database: " + result);
+      dao.delete({uid: siteid}, 'site', function(err, result) {
+        if(util.isError(err)) {
+          pb.log.error("SiteQueryService: Failed to delete record: ", err.stack);
+          callback(err);
+        }
+        pb.log.silly("Successfully deleted site from database: " + result);
+        callback(result);
+      });
     });
+
   };
 
   function modifySave(site, objectToSave) {

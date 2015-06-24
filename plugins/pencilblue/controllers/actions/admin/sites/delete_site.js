@@ -13,7 +13,7 @@ module.exports = function DeleteSiteActionModule(pb) {
         var self = this;
         var siteid = self.pathVars.siteid;
         var siteQueryService = new pb.SiteQueryService();
-        siteQueryService.getSiteSpecificCollections(function(err, allCollections) {
+        siteQueryService.getCollections(function(err, allCollections) {
             siteQueryService.deleteSiteSpecificContent(allCollections, siteid, function(err, result) {
                 if(util.isError(err)) {
                     cb({
