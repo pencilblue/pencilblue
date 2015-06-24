@@ -4,26 +4,30 @@ var util     = require('../util.js');
 
 module.exports = function DBMigrateModule(pb) {
     /**
-     * Array of collections used to append a "site" value to documents
+     * Array of collections used to append a "site" value to all documents
      * @private
      * @static
      * @readonly
-     * @property MIGRATE_COLL
+     * @property MIGRATE_ALL
      * @type {string[]}
      */
-    var MIGRATE_COLL = [
+    var MIGRATE_ALL = [
         'article',
         'comment',
         'custom_object_type',
+        'custom_object',
         'media',
         'page',
         'plugin',
         'plugin_settings',
         'section',
-        'setting',
         'theme_settings',
-        'topic',
-        'user'
+        'topic'
+    ];
+
+    var MIGRATE_SPECIFIC = [
+        'user',
+        'setting'
     ];
 
     var GLOBAL_USERS = [
@@ -45,7 +49,7 @@ module.exports = function DBMigrateModule(pb) {
         siteService.getSiteMap(function(err, result) {
             if(pb.config.multisite && result.active.length === 0 && result.inactive.length === 0 ) {
                 DBMigrate.createSite(function(err, isTaken, field, result) {
-                    cb(null, true);//TODO: migrate content and plugin data to newly create site.
+                    DBMigrate.migrateContentAndPluginData(result.uid, cb);//TODO: migrate content and plugin data to newly create site.
                 });
             }
             else {
@@ -63,6 +67,42 @@ module.exports = function DBMigrateModule(pb) {
         siteService.createSite(site, '', cb);
     };
 
+    DBMigrate.migrateContentAndPluginData = function(siteUid, cb) {
+        var tasks = pb.util.getTasks(MIGRATE_ALL, function(collections, i) {
+            return function(callback) {
+                DBMigrate.migrateCollection(collections[i], siteUid, callback);
+            } ;
+        });
+
+
+        async.parallel(tasks, function(err, result) {
+            cb(err, result);
+        });
+    };
+
+    DBMigrate.migrateCollection = function(collection, siteUid, callback) {
+        var dao = new pb.DAO();
+        dao.q(collection, {}, function(err, results) {
+            console.log(collection);
+            console.log(results);
+            var tasks = util.getTasks(results, function(results, i) {
+                return function(callback) {
+                    DBMigrate.applySiteToDocument(results[i], siteUid, callback);
+                };
+            });
+
+
+            async.parallel(tasks, function(err, result) {
+                callback(err, result);
+            });
+        });
+    };
+
+    DBMigrate.applySiteToDocument = function(document, siteUid, callback) {
+        document.site = siteUid;
+        var dao = new pb.DAO();
+        dao.save(document, callback);
+    };
 
     return DBMigrate;
 
