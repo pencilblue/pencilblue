@@ -247,7 +247,8 @@ var loc =
         SAVED: 'was saved',
         NARROW_RESULTS: 'Narrow results',
         URL_KEY: 'URL Key',
-        FEED_UNAVAILABLE: 'Unable to load the news feed.'
+        FEED_UNAVAILABLE: 'Unable to load the news feed.',
+        ETC: 'And other items...'
     },
     topics:
     {
@@ -444,7 +445,11 @@ var loc =
         NEW_SITE: 'New Site',
         SITE_UPDATED: 'Site was successfully updated',
         ERROR_REMOVING: 'There was an error removing your site',
-        REMOVE_SUCCESSFUL: 'Site removed successfully'
+        REMOVE_SUCCESSFUL: 'Site removed successfully',
+        INITIAL_DELETE_WARNING: 'You are attempting to delete this site and all content associated with it, including: ',
+        FINAL_DELETE_WARNING: 'This action cannot be reversed. Are you sure you want to continue?',
+        DELETE_SITE: 'Delete Site',
+        DANGER: 'Danger!'
     },
     plugins:
     {
