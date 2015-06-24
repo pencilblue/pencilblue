@@ -36,6 +36,11 @@ module.exports = function SiteServiceModule(pb) {
         }
     };
 
+    SiteService.prototype.getAllSites = function(cb) {
+        var dao = new pb.DAO();
+        dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {} }, cb);
+    };
+
     SiteService.prototype.getActiveSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {active: true} }, cb);
@@ -188,7 +193,7 @@ module.exports = function SiteServiceModule(pb) {
             } else if (!site.active) {
                 cb(new Error('Site not active'), null);
             } else {
-                pb.RequestHandler.loadSite(site);
+                pb.RequestHandler.activateSite(site);
                 cb(err, result)
             }
         });
@@ -204,14 +209,14 @@ module.exports = function SiteServiceModule(pb) {
             } else if (site.active) {
                 cb(new Error('Site not deactivated'), null);
             } else {
-                pb.RequestHandler.unloadSite(site);
+                pb.RequestHandler.deactivateSite(site);
                 cb(err, result)
             }
         });
     };
 
     SiteService.prototype.initSites = function(cb) {
-        this.getActiveSites(function(err, results) {            
+        this.getAllSites(function(err, results) {
             if(err) {
                 cb(err);
             } else {
