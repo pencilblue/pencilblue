@@ -18,6 +18,7 @@
                                 $scope.onActionFailure(error);
                             });
                 };
+
                 $scope.deactivateSite = function(site) {
                     site.name = site.displayName;
                     $scope.actionPlugin = site;
@@ -32,6 +33,7 @@
                                 $scope.onActionFailure(error);
                             });
                 };
+
                 $scope.deleteSite = function(site) {
                     $http.post('/actions/admin/sites/delete/' + site.uid)
                             .success(function(result) {
@@ -44,9 +46,11 @@
                                 $scope.saving = false;
                             });
                 };
+
                 $scope.openDeleteModal = function(site) {
                     $('#delete_site_modal').modal({});
                 };
+
                 $scope.jobAction = function(actionType, identifier, data, cb) {
                     $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
                             .success(function(result) {
@@ -56,6 +60,7 @@
                                 $scope.onActionFailure(error);
                             });
                 };
+
                 $scope.onActivateOrDeactivateComplete = function(result) {
                     var jobId = result.data;
                     //poll for logs
@@ -81,6 +86,7 @@
                             logHandle = setTimeout(doLogRetrieve, 2000);
                         });
                     };
+
                     doLogRetrieve();
                     //check for job completion
                     var retrieveHandle = null;
@@ -114,14 +120,17 @@
                     };
                     doJobRetrieve();
                 };
+
                 $scope.onActionSuccess = function() {
                     $scope.actionIsComplete = true;
                     $scope.refreshPage();
                 };
+
                 $scope.onActionFailure = function(error) {
                     $scope.actionIsComplete = true;
                     $scope.actionError = error.message;
                 };
+
                 $scope.refreshPage = function() {
                     $window.location.reload();
                 }
