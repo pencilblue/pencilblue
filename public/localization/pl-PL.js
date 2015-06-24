@@ -7,10 +7,8 @@
  *
  */
 
-var loc =
-{
-    generic:
-    {
+module.exports = {
+    generic: {
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'Wszystkie prawa zastrzeżone',
         NONE: 'Nic',
@@ -173,13 +171,11 @@ var loc =
         WYSIWYG: 'WYSIWYG',
         THUMBNAIL: 'Thumbnail'
     },
-    error:
-    {
+    error: {
     	ERROR: 'Błąd',
         PAGE_NOT_FOUND: 'Strona nie może być zlokalizowana'
     },
-    timestamp:
-    {
+    timestamp: {
         JAN: 'Styczeń',
         FEB: 'Luty',
         MAR: 'Marzec',
@@ -195,20 +191,17 @@ var loc =
         TIME_AM: 'AM',
         TIME_PM: 'PM'
     },
-    setup:
-    {
+    setup: {
         REGISTER_ADMIN: 'Proszę utworzyć konto admistratora serwisu.'
     },
-    login:
-    {
+    login: {
         ADMIN_LOGIN: 'Logowanie: pisarz, redaktor, administrator',
         USERNAME_OR_EMAIL: 'Nazwa użytkownika lub adres email',
         INVALID_LOGIN: 'Nieprawidłowa kombinacja loginu i hasła',
         READY_TO_USE: 'Zainstalowany pencilblue jest gotowy do użycia',
         ACCOUNT_CREATED: 'Twoje konto zostało pomyślenie utworzone. Możesz się teraz zalogować'
     },
-    admin:
-    {
+    admin: {
         DASHBOARD: 'Dashboard',
         CONTENT: 'Treść',
         PAGES: 'Strony',
@@ -251,8 +244,7 @@ var loc =
         URL_KEY: 'URL klucz',
         FEED_UNAVAILABLE: 'Nie można załadować aktualności.'
     },
-    topics:
-    {
+    topics: {
         MANAGE_TOPICS: 'Zarządzaj tematami',
         NEW_TOPIC: 'Nowy temat',
         TOPIC_NAME: 'Nazwa tematu',
@@ -262,8 +254,7 @@ var loc =
         IMPORT_TOPICS_HELP: 'Tutaj możesz zaimportować plik .CVS opisujący nazwę tematu. Plik nie powinien zawierać żadnych dodatkowych informacji.',
         TOPICS_CSV_FILE: 'Plik CSV zawierający nazwy tematów',
     },
-    media:
-    {
+    media: {
         MANAGE_MEDIA: 'Zarządzaj multimediami ',
         NEW_MEDIA: 'Nowe multmedia',
         LINK_OR_UPLOAD: 'Wgraj lub podlinkuj',
@@ -285,8 +276,7 @@ var loc =
         IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
         FILE_TOO_BIG: 'Rozmiar pliku przekracza dozwolony limit'
     },
-    pages:
-    {
+    pages: {
         MANAGE_PAGES: 'Zarządzaj stronami',
         NEW_PAGE: 'Nowa strona',
         PAGE_URL: 'Adres strony',
@@ -296,8 +286,7 @@ var loc =
         SUBHEADING: 'Podtytuł',
         PUBLISH_DATE: 'Data publikacji'
     },
-    articles:
-    {
+    articles: {
         MANAGE_ARTICLES: 'Zarządzaj artykułami',
         NEW_ARTICLE: 'Nowy artykuł',
         ARTICLE_URL: 'Adres artykułu',
@@ -350,15 +339,13 @@ var loc =
         MARKDOWN_VIEW: 'widok Markdown',
         TOGGLE_FULLSCREEN: 'Przełącz na pełny ekran'
     },
-    comments:
-    {
+    comments: {
         MANAGE_COMMENTS: 'Zarządzaj komentarzami',
         CONFIRM_DELETE_COMMENT: 'Czy na pewno chcesz usunąć ten komentarz',
         COMMENTS_DISABLED: 'Komentarze zablokowane',
         ENABLE_HERE: 'Włącz możliwość komentowania'
     },
-    custom_objects:
-    {
+    custom_objects: {
         MANAGE_OBJECT_TYPES: 'Zarządzaj kategoriami obiektów',
         NEW_OBJECT_TYPE: 'Nowa kategoria obiektów',
         MANAGE_OBJECTS: 'Zarządzaj obiektami',
@@ -381,8 +368,7 @@ var loc =
         DESCRIPTION: 'Opis',
         INVALID_FIELD: 'Pole zostało wypełnione nieprawidłowo. Upewnij się, że nie ma niezaznaczonych lub zduplikowanych pól.'
     },
-    users:
-    {
+    users: {
         MANAGE_USERS: 'Zarządzaj użytkownikami',
         UNVERIFIED_USERS: 'Użytkownicy niezweryfikowani',
         NEW_USER: 'Nowy użytkownik',
@@ -431,8 +417,7 @@ var loc =
         VERIFY: 'Weryfikacja',
         VERIFIED: 'Zweryfikowano'
     },
-    plugins:
-    {
+    plugins: {
         MANAGE_PLUGINS: 'Zarządzaj wtyczkami',
         NO_ACTIVE_PLUGINS: 'Brak aktywnych wtyczek',
         NO_INACTIVE_PLUGINS: 'Brak nieaktwynych wtyczek',
@@ -444,12 +429,10 @@ var loc =
         ACTIVATING: 'Aktywacja',
         ACTION_ERROR: 'Podczas wykonywania operacji wystąpił błąd'
     },
-    themes:
-    {
+    themes: {
         MANAGE_THEMES: 'Zarządzaj motywami'
     },
-    site_settings:
-    {
+    site_settings: {
         CONFIGURATION: 'Konfiguracja',
         EDIT_CONFIGURATION: 'Aby zedytować ustawienia stwórz plik config.json w katalogu głównym',
         SITE_NAME: 'Nazwa strony',
@@ -502,13 +485,3 @@ var loc =
         TEST_EMAIL_SUCCESS: 'Próbny e-mail został wysłany'
     }
 };
-
-//Allows for both server and client use
-if(typeof global !== 'undefined') {
- global.loc = loc;
- global.localizationLanguage = 'en-us';
-}
-
-if(typeof module !== 'undefined') {
- module.exports = loc;
-}
