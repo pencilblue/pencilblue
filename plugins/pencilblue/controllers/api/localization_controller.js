@@ -37,6 +37,8 @@ module.exports = function LocalizationApiControllerModule(pb) {
      */
     LocalizationApiController.prototype.getAsScript = function(cb) {
         var locale = this.query.locale || this.ls.language;
+        
+        //convert to 
         var content = {
             content: 'var loc = ' + JSON.stringify(pb.Localization.storage[locale]) + ';',
             content_type: 'text/javascript'

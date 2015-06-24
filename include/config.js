@@ -663,7 +663,7 @@ var BASE_CONFIG = {
     localization: {
         
         //The default locale is the fallback when localization fails for the user's desired language.
-        defaultLocale: 'en_US'
+        defaultLocale: 'en-US'
     },
     
     //The locking service provides a common mechanism for processes to reserve 
@@ -684,7 +684,7 @@ var BASE_CONFIG = {
     
     //Pulls in the package.json file for PB and extracts the version so it is 
     //available in the configuration.
-    version: require(path.join(Configuration.DOCUMENT_ROOT, 'package.json')).version
+    version: require(path.join(Configuration.DOCUMENT_ROOT, 'package.json')).version,
 };
 
 /** 
