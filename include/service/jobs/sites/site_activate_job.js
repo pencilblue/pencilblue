@@ -84,7 +84,7 @@ module.exports = function SiteActivateJobModule(pb) {
                                 return;
                             }
 
-                            pb.RequestHandler.loadSite(site);
+                            pb.RequestHandler.activateSite(site);
                             callback(err, result)
                         });
                     }
