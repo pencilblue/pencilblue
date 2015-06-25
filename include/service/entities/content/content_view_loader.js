@@ -269,7 +269,7 @@ module.exports = function(pb) {
     ContentViewLoader.prototype.onPageName = function(contentArray, options, cb) {
         var content = contentArray[0];
         if (!util.isObject(content)) {
-            return cb(null, options.metaTitle || this.siteObj.siteName);
+            return cb(null, options.metaTitle || this.siteObj.displayName);
         }
 
         var name = '';
@@ -286,7 +286,7 @@ module.exports = function(pb) {
             name = options.metaTitle || '';
         }
         
-        cb(null, name ? name + ' | ' + this.siteObj.siteName : this.siteObj.siteName);
+        cb(null, name ? name + ' | ' + this.siteObj.displayName : this.siteObj.displayName);
     };
     
     /**
@@ -521,7 +521,8 @@ module.exports = function(pb) {
      */
     ContentViewLoader.prototype.createContentPermalink = function(content) {
         var prefix = '/' + this.service.getType();
-        return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url), this.siteObj.hostname);
+        var hostname = pb.SiteService.getHostWithProtocol(this.siteObj.hostname);
+        return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url), hostname);
     };
     
     /**
