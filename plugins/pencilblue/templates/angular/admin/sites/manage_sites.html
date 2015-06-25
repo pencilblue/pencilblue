@@ -47,10 +47,6 @@
                             });
                 };
 
-                $scope.openDeleteModal = function(site) {
-                    $('#delete_site_modal').modal({});
-                };
-
                 $scope.jobAction = function(actionType, identifier, data, cb) {
                     $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
                             .success(function(result) {
