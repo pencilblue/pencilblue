@@ -59,14 +59,17 @@
                             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-sm fa-chevron-down"></i>
                             </button>
+                            ^tmp_admin=elements=delete_site_modal^
                             <ul class="dropdown-menu" role="menu">
                                 <li><a ng-href="/admin/sites/{{inactive.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_EDIT^</a></li>
+                                <li><a ng-click="openDeleteModal(inactive)"><i class="fa fa-fw fa-trash"></i>&nbsp;^loc_DELETE^</a></li>
                             </ul>
                         </div>
                     </td>
                 </tr>
             </table>
-        </div></div>
+        </div>
+    </div>
     ^tmp_admin=elements=progress_console_modal^
 </div>
 ^tmp_angular=admin=sites=manage_sites^

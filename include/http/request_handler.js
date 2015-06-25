@@ -141,13 +141,15 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     RequestHandler.loadSite = function(site) {
-        RequestHandler.sites[site.hostname] = site.uid;
+        RequestHandler.sites[site.hostname] = { active: site.active, uid: site.uid, displayName: site.displayName };
     };
 
-    RequestHandler.unloadSite = function(site) {
-        if(RequestHandler.sites[site.hostname]) {
-            delete RequestHandler.sites[site.hostname];
-        }
+    RequestHandler.activateSite = function(site) {
+        RequestHandler.sites[site.hostname].active = true;
+    };
+
+    RequestHandler.deactivateSite = function(site) {
+        RequestHandler.sites[site.hostname].active = false;
     };
 
     /**
@@ -631,7 +633,9 @@ module.exports = function RequestHandlerModule(pb) {
         this.session = session;
 
         //set the site -- how do we handle improper sites here?
-        this.site = RequestHandler.sites[this.hostname] || GLOBAL_SITE;
+        //TODO Handle global differently here when we pull through global site designation
+        this.siteObject = RequestHandler.sites[this.hostname] ? RequestHandler.sites[this.hostname] : { active: true, uid: pb.SiteService.GLOBAL_SITE};
+        this.site = this.siteObject.uid;
 
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
@@ -791,6 +795,12 @@ module.exports = function RequestHandlerModule(pb) {
 
         //sanity check
         if (rt.theme === null || rt.method === null || rt.site === null) {
+            this.serve404();
+            return;
+        }
+
+        var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
+        if (!this.siteObject.active && !inactiveSiteAccess) {
             this.serve404();
             return;
         }

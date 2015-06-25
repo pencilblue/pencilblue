@@ -48,7 +48,7 @@ module.exports = function EditSiteActionModule(pb) {
                             if(err) {
                                 cb({
                                     code: 400,
-                                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR SAVING'))
+                                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
                                 });
                                 return;
                             }
