@@ -171,8 +171,8 @@ module.exports = function BaseControllerModule(pb) {
          * @type {String}
          */
         this.activeTheme = props.activeTheme;
-        
-        //build out a base service context that can be cloned and passed to any 
+
+        //build out a base service context that can be cloned and passed to any
         //service objects
         this.context = {
             req: this.req,
@@ -192,6 +192,7 @@ module.exports = function BaseControllerModule(pb) {
             }
             self.siteObj = siteInfo;
             self.siteName = SiteService.isGlobal(siteInfo.uid) ? siteInfo.uid : siteInfo.displayName;
+            self.context.siteObj = self.siteObj;
 
             self.ts.registerLocal('site_root', function(flag, cb) {
                 cb(null, SiteService.getHostWithProtocol(self.siteObj.hostname) || self.templateService.siteRoot);

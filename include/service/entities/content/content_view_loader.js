@@ -28,7 +28,6 @@ module.exports = function(pb) {
     var ClientJs     = pb.ClientJs;
     
     function ContentViewLoader(context) {
-        
         this.ts = context.ts;
         this.ls = context.ls;
         this.req = context.req;
@@ -36,7 +35,8 @@ module.exports = function(pb) {
         this.session = context.session;
         this.service = context.service;
         this.site = context.site;
-        this.onlyThisSite = context.site;
+        this.siteObj = context.siteObj;
+        this.onlyThisSite = context.onlyThisSite;
         this.activeTheme = context.activeTheme;
     };
     
@@ -269,7 +269,7 @@ module.exports = function(pb) {
     ContentViewLoader.prototype.onPageName = function(contentArray, options, cb) {
         var content = contentArray[0];
         if (!util.isObject(content)) {
-            return cb(null, options.metaTitle || pb.config.siteName);
+            return cb(null, options.metaTitle || this.siteObj.siteName);
         }
 
         var name = '';
@@ -286,7 +286,7 @@ module.exports = function(pb) {
             name = options.metaTitle || '';
         }
         
-        cb(null, name ? name + ' | ' + pb.config.siteName : pb.config.siteName);
+        cb(null, name ? name + ' | ' + this.siteObj.siteName : this.siteObj.siteName);
     };
     
     /**
@@ -521,7 +521,7 @@ module.exports = function(pb) {
      */
     ContentViewLoader.prototype.createContentPermalink = function(content) {
         var prefix = '/' + this.service.getType();
-        return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url));
+        return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url), this.siteObj.hostname);
     };
     
     /**
