@@ -195,7 +195,7 @@ module.exports = function BaseControllerModule(pb) {
             self.context.siteObj = self.siteObj;
 
             self.ts.registerLocal('site_root', function(flag, cb) {
-                cb(null, SiteService.getHostWithProtocol(self.siteObj.hostname) || self.templateService.siteRoot);
+                cb(null, SiteService.getHostWithProtocol(self.siteObj.hostname) || self.ts.siteRoot);
             });
             self.ts.registerLocal('site_name', function(flag, cb) {
                 cb(null, self.siteName);
