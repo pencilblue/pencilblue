@@ -30,7 +30,7 @@ module.exports = function(pb) {
     NewNavItem.prototype.init = function (props, cb) {
         var self = this;
         BaseAdminController.prototype.init.call(self, props, function () {
-            self.siteService = new pb.SectionService(self.site, true);
+            self.sectionService = new pb.SectionService(self.site, true);
             cb();
         });
     };

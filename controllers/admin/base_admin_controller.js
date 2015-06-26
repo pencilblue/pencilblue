@@ -42,7 +42,6 @@ module.exports = function BaseAdminControllerModule(pb) {
   };
 
   BaseAdminController.prototype.extendedInit = function(cb) {
-    this.sectionService = new pb.SectionService(this.site, true);
     this.siteQueryService = new pb.SiteQueryService(this.site, true);
     this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, true);
     cb();
