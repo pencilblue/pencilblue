@@ -62,7 +62,7 @@ module.exports = function(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'configuration', {site: self.site}),
                 config: config,
-                isGlobalSite: self.isGlobalSite
+                isGlobalSite: pb.SiteService.isGlobal(self.site)
             });
 
             self.setPageName(self.ls.get('CONFIGURATION'));

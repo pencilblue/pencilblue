@@ -82,7 +82,8 @@ module.exports = function(pb) {
     };
 
     DeleteNavItem.prototype.updateNavMap = function(removeID, cb) {
-        this.sectionService.removeFromSectionMap(removeID, cb);
+        var sectionService = new pb.SectionService(this.site, true);
+        sectionService.removeFromSectionMap(removeID, cb);
     };
 
     //exports

@@ -176,8 +176,8 @@ module.exports = function UrlServiceModule(pb) {
         return util.isString(urlStr) && urlStr.indexOf('http') === 0;
     };
     
-    UrlService.createSystemUrl = function(path) {
-        return UrlService.urlJoin(pb.config.siteRoot, path);
+    UrlService.createSystemUrl = function(path, hostname) {
+        return UrlService.urlJoin(hostname, path);
     };
 
     //exports

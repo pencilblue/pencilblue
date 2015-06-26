@@ -21,7 +21,10 @@ var Sanitizer = require('sanitize-html');
 var util      = require('../include/util.js');
 
 module.exports = function BaseControllerModule(pb) {
-    
+
+    // pb dependancies
+    var SiteService = pb.SiteService;
+
     /**
      * The base controller provides functions for the majority of
      * the heavy lifing for a controller. It accepts and provides access to
@@ -137,29 +140,30 @@ module.exports = function BaseControllerModule(pb) {
             site: this.site
         };
 
-        this.templateService     = this.getTemplateService(tsOpts);
-        this.templateService.registerLocal('locale', this.ls.language);
-        this.templateService.registerLocal('error_success', function(flag, cb) {
+
+        this.ts = this.getTemplateService(tsOpts);
+        this.ts.registerLocal('locale', this.ls.language);
+        this.ts.registerLocal('error_success', function(flag, cb) {
             self.displayErrorOrSuccessCallback(flag, cb);
         });
-        this.templateService.registerLocal('page_name', function(flag, cb) {
+        this.ts.registerLocal('page_name', function(flag, cb) {
             cb(null, self.getPageName());
         });
-        this.templateService.registerLocal('localization_script', function(flag, cb) {
+        this.ts.registerLocal('localization_script', function(flag, cb) {
             self.requiresClientLocalizationCallback(flag, cb);
         });
-        this.templateService.registerLocal('analytics', function(flag, cb) {
+        this.ts.registerLocal('analytics', function(flag, cb) {
             pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
         });
-        this.templateService.registerLocal('wysiwyg', function(flag, cb) {
+        this.ts.registerLocal('wysiwyg', function(flag, cb) {
             var wysiwygId = util.uniqueId();
 
-            self.templateService.registerLocal('wys_id', wysiwygId);
-            self.templateService.load('admin/elements/wysiwyg', function(err, data) {
+            self.ts.registerLocal('wys_id', wysiwygId);
+            self.ts.load('admin/elements/wysiwyg', function(err, data) {
                 cb(err, new pb.TemplateValue(data, false));
             });
         });
-        this.ts = this.templateService;
+
 
         /**
          *
@@ -167,8 +171,8 @@ module.exports = function BaseControllerModule(pb) {
          * @type {String}
          */
         this.activeTheme = props.activeTheme;
-        
-        //build out a base service context that can be cloned and passed to any 
+
+        //build out a base service context that can be cloned and passed to any
         //service objects
         this.context = {
             req: this.req,
@@ -180,17 +184,22 @@ module.exports = function BaseControllerModule(pb) {
             onlyThisSite: true
         };
 
-        this.siteService = new pb.SiteService();
-        this.siteService.getByUid(this.site, function (err, siteInfo) {
+        var siteService = new SiteService();
+        siteService.getByUid(this.site, function (err, siteInfo) {
+            if(pb.util.isError(err)) {
+                self.reqHandler.serve404();
+                return;
+            }
             self.siteObj = siteInfo;
+            self.siteName = SiteService.isGlobal(siteInfo.uid) ? siteInfo.uid : siteInfo.displayName;
+            self.context.siteObj = self.siteObj;
 
-            self.templateService.registerLocal('site_root', function(flag, cb) {
-                cb(null, pb.SiteService.getHostWithProtocol(self.siteObj.hostname) || self.templateService.siteRoot);
+            self.ts.registerLocal('site_root', function(flag, cb) {
+                cb(null, SiteService.getHostWithProtocol(self.siteObj.hostname) || self.ts.siteRoot);
             });
-            self.templateService.registerLocal('site_name', function(flag, cb) {
-                cb(null, self.siteObj.displayName || self.templateService.siteName);
+            self.ts.registerLocal('site_name', function(flag, cb) {
+                cb(null, self.siteName);
             });
-
             cb();
         });
     };

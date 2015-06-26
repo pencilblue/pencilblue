@@ -23,7 +23,6 @@ module.exports = function(pb) {
     //pb dependencies
     var util = pb.util;
     var SectionService = pb.SectionService;
-
     /**
      * Interface for creating and editing navigation items
      * @class NavItemFormController
@@ -83,7 +82,8 @@ module.exports = function(pb) {
 
             //get parents
             parents: function(callback) {
-                self.sectionService.getParentSelectList(self.pathVars.id, function(err, parents) {
+                var sectionService = new SectionService(self.site, true);
+                sectionService.getParentSelectList(self.pathVars.id, function(err, parents) {
                     if(util.isError(err)) {
                         callback(err, parents);
                         return;

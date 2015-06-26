@@ -25,8 +25,7 @@ module.exports = function BaseAdminControllerModule(pb) {
    * This class serves as a base class for all the controllers used in the admin control panel
    * @constructor
    */
-  function BaseAdminController() {
-  }
+  function BaseAdminController() {}
   util.inherits(BaseAdminController, BaseController);
 
   /**
@@ -43,21 +42,9 @@ module.exports = function BaseAdminControllerModule(pb) {
   };
 
   BaseAdminController.prototype.extendedInit = function(cb) {
-    var self = this;
-    var siteService = new pb.SiteService();
-    siteService.getByUid(self.site, function (err, siteInfo) {
-      if (err || !siteInfo) {
-        self.reqHandler.serve404();
-      } else {
-        self.sectionService = new pb.SectionService(self.site, true);
-        self.siteQueryService = new pb.SiteQueryService(self.site, true);
-        self.settings = pb.SettingServiceFactory.getServiceBySite(self.site, true);
-        self.siteObj = siteInfo;
-        self.isGlobalSite = pb.SiteService.isGlobal(siteInfo.uid);
-        self.siteName = self.isGlobalSite ? siteInfo.uid : siteInfo.displayName;
-        cb();
-      }
-    });
+    this.siteQueryService = new pb.SiteQueryService(this.site, true);
+    this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, true);
+    cb();
   };
 
   /**
@@ -70,14 +57,6 @@ module.exports = function BaseAdminControllerModule(pb) {
     return util.merge(BaseAdminController.super_.prototype.getServiceContext.apply(this), { onlyThisSite: true});
   };
 
-    /**
-     * @method getTemplateService
-     * @return {Object} TemplateService
-     */
-    BaseAdminController.prototype.getTemplateService = function(tsOpts) {
-        tsOpts.site = this.site;
-        return new pb.TemplateService(tsOpts);
-    };
 
   /**
    * Centralized place to obtain the pills to be displayed on top of the admin controller
