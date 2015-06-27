@@ -230,10 +230,11 @@ module.exports = function PB(config) {
     pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js')(pb);
     
     //object services
-    pb.TopicService      = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
-    pb.ArticleServiceV2  = require(path.join(config.docRoot, '/include/service/entities/content/article_service_v2.js'))(pb);
-    pb.ArticleRenderer   = require(path.join(config.docRoot, '/include/service/entities/content/article_renderer.js'))(pb);
-    pb.ContentViewLoader = require(path.join(config.docRoot, '/include/service/entities/content/content_view_loader.js'))(pb);
+    pb.TopicService         = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
+    pb.ContentObjectService = require(path.join(config.docRoot, '/include/service/entities/content/content_object_service.js'))(pb);
+    pb.ArticleServiceV2     = require(path.join(config.docRoot, '/include/service/entities/content/article_service_v2.js'))(pb);
+    pb.ArticleRenderer      = require(path.join(config.docRoot, '/include/service/entities/content/article_renderer.js'))(pb);
+    pb.ContentViewLoader    = require(path.join(config.docRoot, '/include/service/entities/content/content_view_loader.js'))(pb);
     
     var ArticleServiceModule = require(path.join(config.docRoot, '/include/service/entities/article_service.js'))(pb);
     pb.ArticleService        = ArticleServiceModule.ArticleService;

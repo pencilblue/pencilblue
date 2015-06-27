@@ -39,8 +39,8 @@ module.exports = function(pb) {
         else if (!util.isObject(context.contentSettings)) {
             return cb(new Error('context.contentSettings parameter must be a valid hash of content settings'));
         }
-        else if (isNaN(context.articleCount)) {
-            return cb(new Error('context.articleCount parameter must be a valid integer greater than 0'));
+        else if (isNaN(context.contentCount)) {
+            return cb(new Error('context.contentCount parameter must be a valid integer greater than 0'));
         }
         
         this.formatBylines(article, context);

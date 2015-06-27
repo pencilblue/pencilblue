@@ -119,7 +119,7 @@ module.exports = function(pb) {
         
         //build out the where clause
         var where = {};
-        ArticleServiceV2.setPublishedClause(where);
+        pb.ContentObjectService.setPublishedClause(where);
         
         if (this.query.section) {
             ArticleServiceV2.setSectionClause(where, this.query.section);
