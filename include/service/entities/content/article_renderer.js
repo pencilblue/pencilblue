@@ -22,19 +22,57 @@ var async = require('async');
 module.exports = function(pb) {
     
     //pb dependencies
-    var DAO = pb.DAO;
+    var DAO            = pb.DAO;
     
-    function ArticleRenderer(context) {}
+    /**
+     * Retrieves the necessary data as well as prepares the layout so a view 
+     * loader can complete the render of content
+     * @class ArticleRenderer
+     * @constructor
+     */
+    function ArticleRenderer(context) {
     
-    ArticleRenderer.prototype.render = function(article, context, cb) {
-        if (!util.isObject(article)) {
-            return cb(new Error('article parameter must be a valid object'));
+        /**
+         *
+         * @property commentService
+         * @type {CommentService}
+         */
+        this.commentService = new pb.CommentService(context);
+    }
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property READ_MORE_FLAG
+     * @type {String}
+     */
+    var READ_MORE_FLAG = '^read_more^';
+    
+    /**
+     * @method render
+     * @param {Object} content
+     * @param {Object} context
+     * @param {Object} [context.authors] A hash of user objects representing the 
+     * authors of the content to be rendered
+     * @param {Object} context.contentSettings The content settings
+     * @param {Integer} context.contentCount An integer representing the total 
+     * number of content objects that will be processed for this request
+     * @param {Boolean} [context.renderBylines=true]
+     * @param {Boolean} [context.renderTimestamp=true]
+     * @param {Boolean} [context.renderComments=true]
+     * @param {Boolean} [context.readMore=false]
+     * @param {Function} cb
+     */
+    ArticleRenderer.prototype.render = function(content, context, cb) {
+        if (!util.isObject(content)) {
+            return cb(new Error('content parameter must be a valid object'));
         }
         else if (!util.isObject(context)) {
             return cb(new Error('context parameter must be a valid object'));
         }
-        else if (!util.isObject(context.authors)) {
-            return cb(new Error('context.authors parameter must be a valid hash of users'));
+        else if (!util.isObject(context.authors) && context.renderBylines !== false) {
+            return cb(new Error('context.authors parameter must be a valid hash of users when the bylines will be rendered'));
         }
         else if (!util.isObject(context.contentSettings)) {
             return cb(new Error('context.contentSettings parameter must be a valid hash of content settings'));
@@ -43,92 +81,131 @@ module.exports = function(pb) {
             return cb(new Error('context.contentCount parameter must be a valid integer greater than 0'));
         }
         
-        this.formatBylines(article, context);
-        this.formatTimestamp(article, context);
-        this.formatLayout(article, context);
+        if (context.renderBylines !== false) {
+            this.formatBylines(content, context);
+        }
+        if (context.renderTimestamp !== false) {
+            this.formatTimestamp(content, context);
+        }
+        this.formatLayout(content, context);
         
+        //build out task list
         var tasks = [
-            util.wrapTask(this, this.formatMediaReferences, [article, context]),
-            util.wrapTask(this, this.formatComments, [article, context])
+            util.wrapTask(this, this.formatMediaReferences, [content, context])
         ];
+        
+        //render comments unless explicitly asked not too
+        if (context.renderComments !== false) {
+            tasks.push(util.wrapTask(this, this.formatComments, [content, context]));
+        }
+        
+        //run the tasks
         async.parallel(tasks, function(err/*, results*/) {
-            cb(err, article);
+            cb(err, content);
         });
     };
     
-    ArticleRenderer.prototype.formatBylines = function(article, context) {
+    /**
+     * @method formatBylines
+     * @param {Object} content
+     * @param {Object} context
+     */
+    ArticleRenderer.prototype.formatBylines = function(content, context) {
 
-        var author = context.authors[article.author];
+        var author = context.authors[content.author];
         if (util.isNullOrUndefined(author)) {
-            pb.log.warn('ArticleRenderer: Failed to find author [%s] for article [%s]', article.author, article[DAO.getIdField()]);
+            pb.log.warn('ArticleRenderer: Failed to find author [%s] for content [%s]', content.author, content[DAO.getIdField()]);
             return;
         }
         
         var contentSettings = context.contentSettings;
         if(author.photo && contentSettings.display_author_photo) {
-            article.author_photo     = author.photo;
-            article.media_body_style = '';
+            content.author_photo     = author.photo;
+            content.media_body_style = '';
         }
 
-        article.author_name     = pb.users.getFormattedName(author);
-        article.author_position = '';
+        content.author_name     = pb.users.getFormattedName(author);
+        content.author_position = '';
         if (author.position && contentSettings.display_author_position) {
-            article.author_position = author.position;
+            content.author_position = author.position;
         }
     };
     
-    ArticleRenderer.prototype.formatTimestamp = function(article, context) {
+    /**
+     * @method formatTimestamp
+     * @param {Object} content
+     * @param {Object} context
+     */
+    ArticleRenderer.prototype.formatTimestamp = function(content, context) {
         if(context.contentSettings.display_timestamp ) {
-            article.timestamp = pb.ContentService.getTimestampTextFromSettings(
-                    article.publish_date,
+            content.timestamp = pb.ContentService.getTimestampTextFromSettings(
+                    content.publish_date,
                     context.contentSettings
             );
         }
     };
     
-    ArticleRenderer.prototype.formatLayout = function(article, context) {
+    /**
+     * @method formatLayout
+     * @param {Object} content
+     * @param {Object} context
+     */
+    ArticleRenderer.prototype.formatLayout = function(content, context) {
         var contentSettings = context.contentSettings;
         
-        if(ArticleRenderer.containsReadMoreFlag(article)) {
-            this.formatLayoutForReadMore(article, context);
+        if(this.containsReadMoreFlag(content)) {
+            this.formatLayoutForReadMore(content, context);
         }
         else if(context.readMore && contentSettings.auto_break_articles) {
-            this.formatAutoBreaks(article, context);
+            this.formatAutoBreaks(content, context);
         }
     };
     
-    ArticleRenderer.prototype.formatMediaReferences = function(article, context, cb) {
-        article.layout  = article.article_layout;
+    /**
+     * @method formatMediaReferences
+     * @param {Object} content
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    ArticleRenderer.prototype.formatMediaReferences = function(content, context, cb) {
+        var self = this;
+        
+        content.layout  = this.getLayout(content);
         var mediaLoader = new pb.MediaLoader();
-        mediaLoader.start(article.layout, function(err, newLayout) {
-            article.layout = newLayout;
-            delete article.article_layout;
+        mediaLoader.start(content.layout, function(err, newLayout) {
+            content.layout = newLayout;
+            self.setLayout(content, undefined);
             cb(err);
         });
     };
     
-    ArticleRenderer.prototype.formatComments = function(article, context, cb) {
+    /**
+     * @method formatComments
+     * @param {Object} content
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    ArticleRenderer.prototype.formatComments = function(content, context, cb) {
         var self = this;
-        if (!pb.ArticleService.allowComments(context.contentSettings, article)) {
+        if (!pb.ArticleService.allowComments(context.contentSettings, content)) {
             return cb(null);
         }
 
         var opts = {
             where: {
-                article: article[pb.DAO.getIdField()] + ''
+                article: content[pb.DAO.getIdField()] + ''
             },
             order: {
                 created: pb.DAO.ASC
             }
         };
-        var dao   = new pb.DAO();
-        dao.q('comment', opts, function(err, comments) {
+        this.commentService.getAll(opts, function(err, comments) {
             if(util.isError(err) || comments.length == 0) {
                 return cb(err);
             }
 
             self.getCommenters(comments, context.contentSettings, function(err, commentsWithCommenters) {
-                article.comments = commentsWithCommenters;
+                content.comments = commentsWithCommenters;
                 cb(null, null);
             });
         });
@@ -138,9 +215,9 @@ module.exports = function(pb) {
      * Retrieves the commenters for an array of comments
      *
      * @method getCommenters
-     * @param {Array}    comments        Array of comment objects
-     * @param {Object}   contentSettings Content settings to use for processing
-     * @param {Function} cb              Callback function
+     * @param {Array} comments Array of comment objects
+     * @param {Object} contentSettings Content settings to use for processing
+     * @param {Function} cb Callback function
      */
     ArticleRenderer.prototype.getCommenters = function(comments, contentSettings, cb) {
 
@@ -197,27 +274,33 @@ module.exports = function(pb) {
         });
     };
     
-    ArticleRenderer.prototype.formatAutoBreaks = function(article, context) {
+    /**
+     * @method formatAutoBreak
+     * @param {Object} content
+     * @param {Object} context
+     */
+    ArticleRenderer.prototype.formatAutoBreaks = function(content, context) {
         var contentSettings = context.contentSettings;
         var breakString = '<br>';
         var tempLayout;
-
+        var layout = this.getLayout(content);
+        
         // Firefox uses br and Chrome uses div in content editables.
         // We need to see which one is being used
-        var brIndex = article.article_layout.indexOf('<br>');
+        var brIndex = layout.indexOf('<br>');
         if(brIndex === -1) {
-            brIndex = article.article_layout.indexOf('<br />');
+            brIndex = layout.indexOf('<br />');
             breakString = '<br />';
         }
-        var divIndex = article.article_layout.indexOf('</div>');
+        var divIndex = layout.indexOf('</div>');
 
         // Temporarily replace double breaks with a directive so we don't mess up the count
         if(divIndex === -1 || (brIndex > -1 && divIndex > -1 && brIndex < divIndex)) {
-            tempLayout = article.article_layout.split(breakString + breakString).join(breakString + '^dbl_pgf_break^');
+            tempLayout = layout.split(breakString + breakString).join(breakString + '^dbl_pgf_break^');
         }
         else {
             breakString = '</div>';
-            tempLayout = article.article_layout.split('<div><br></div>').join(breakString + '^dbl_pgf_break^')
+            tempLayout = layout.split('<div><br></div>').join(breakString + '^dbl_pgf_break^')
             .split('<div><br /></div>').join(breakString + '^dbl_pgf_break^');
         }
 
@@ -234,10 +317,11 @@ module.exports = function(pb) {
         if(tempLayoutArray.length > 1) {
             var newLayout = '';
 
-            // Cutoff the article at the right number of paragraphs
+            // Cutoff the content at the right number of paragraphs
             for(i = 0; i < tempLayoutArray.length && i < contentSettings.auto_break_articles; i++) {
-                if(i === contentSettings.auto_break_articles -1 && i != tempLayoutArray.length - 1) {
-                    newLayout += tempLayoutArray[i] + '&nbsp;<span class="read_more"><a href="' + pb.config.siteRoot + '/article/' + article.url + '">' + contentSettings.read_more_text + '...</a></span>' + breakString;
+                if(i === contentSettings.auto_break_articles - 1 && i != tempLayoutArray.length - 1) {
+                    
+                    newLayout += tempLayoutArray[i] + this.getReadMoreSpan(content, contentSettings.read_more_text) + breakString;
                     continue;
                 }
                 newLayout += tempLayoutArray[i] + breakString;
@@ -250,30 +334,92 @@ module.exports = function(pb) {
             // Replace the double breaks
             newLayout = newLayout.split('^dbl_pgf_break^').join(breakString);
 
-            article.article_layout = newLayout;
+            this.setLayout(content, newLayout);
         }
     };
     
-    ArticleRenderer.prototype.formatLayoutForReadMore = function(article, context) {
+    /**
+     * @method formatLayoutForReadMore
+     * @param {Object} content
+     * @param {Objct} context
+     */
+    ArticleRenderer.prototype.formatLayoutForReadMore = function(content, context) {
+        var layout = this.getLayout(content);
         
         if(context.readMore) {
-            var beforeReadMore = article.article_layout.substr(0, article.article_layout.indexOf('^read_more^'));
-            var path = pb.UrlService.urlJoin('/article/' + article.url);
-            var link = ' <span class="read_more"><a href="' + pb.UrlService.createSystemUrl(path) + '">';
-            article.article_layout = beforeReadMore + link + context.contentSettings.read_more_text + '</a></span>';
+            var beforeReadMore = layout.substr(0, layout.indexOf(READ_MORE_FLAG));
+            layout = beforeReadMore + this.getReadMoreSpan(content, context.contentSettings.read_more_text);
         }
         else {
-            article.article_layout = article.article_layout.split('^read_more^').join('');
+            layout = layout.split(READ_MORE_FLAG).join('');
         }
+        this.setLayout(content, layout);
     };
     
-    ArticleRenderer.containsReadMoreFlag = function(article) {
-        if (!util.isObject(article)) {
-            throw new Error('The article parameter must be an object');
+    /**
+     * @method getReadMoreSpan
+     * @param {Object} content
+     * @param {String} anchorContent
+     * @reurn {String}
+     */
+    ArticleRenderer.prototype.getReadMoreSpan = function(content, anchorContent) {
+        return '&nbsp<span class="read_more">' + this.getReadMoreLink(content, anchorContent) + '</span>';
+    };
+    
+    /**
+     * @method getReadMoreLink
+     * @param {Object} content
+     * @param {String} anchorContent
+     * @return {String}
+     */
+    ArticleRenderer.prototype.getReadMoreLink = function(content, anchorContent) {
+        
+        var path = pb.UrlService.urlJoin(this.getContentLinkPrefix() + content.url);
+        return '<a href="' + pb.UrlService.createSystemUrl(path) + '">' + anchorContent + '</a>';
+    };
+    
+    /**
+     * @method getContentLinkPrefix
+     * @return {String}
+     */
+    ArticleRenderer.prototype.getContentLinkPrefix = function() {
+        return '/article/';
+    };
+    
+    /**
+     * Retrieves the layout from the content object. Provides a mechanism to 
+     * allow for layout parameter to have any name.
+     * @method getLayout
+     * @param {Object} content
+     * @return {String}
+     */
+    ArticleRenderer.prototype.getLayout = function(content) {
+        return content.article_layout;
+    };
+    
+    /**
+     * A workaround to allow this prototype to operate on articles and pages.  
+     * The layout parameter is not the same.  Until we introduce breaking 
+     * changes this will have to do.
+     * @method setLayout
+     * @param {Object} content
+     * @param {String} layout
+     */
+    ArticleRenderer.prototype.setLayout = function(content, layout) {
+        content.article_layout = layout;
+    };
+    
+    /**
+     * @method containsReadMoreFlag 
+     * @param {Object} content
+     * @return {Boolean}
+     */
+    ArticleRenderer.prototype.containsReadMoreFlag = function(content) {
+        if (!util.isObject(content)) {
+            throw new Error('The content parameter must be an object');
         }
-        return article.article_layout.indexOf('^read_more^') > -1;
+        return this.getLayout(content).indexOf(READ_MORE_FLAG) > -1;
     };
         
-    
     return ArticleRenderer;
 };
