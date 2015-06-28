@@ -106,22 +106,38 @@ module.exports = function(pb) {
         var orderResult = this.processOrder(q.$order);
         
         //process where
-        var where = {};
-        //TODO implement a where clause parser
+        var whereResult = this.processWhere(q);
         
         //when failures occur combine them into a one big error and throw it to 
         //stop execution
-        var failures = selectResult.failures.concat(orderResult.failures);
+        var failures = selectResult.failures.concat(orderResult.failures).concat(whereResult.failures);
         if (failures.length > 0) {
             throw pb.BaseObjectService.validationError(failures);
         }
         
         return {
             select: selectResult.select,
-            where: where,
+            where: whereResult.where,
             order: orderResult.order,
             limit: limit,
             offset: offset
+        };
+    };
+    
+    /**
+     * Processes the query string to develop the where clause for the query request
+     * @method processWhere
+     * @param {Object} q The hash of all query parameters from the request
+     * @return {Object}
+     */
+    BaseApiController.prototype.processWhere = function(q) {
+        var where = null;
+        var failures = [];
+        
+        //TODO provide a default implementation
+        return {
+            where: where,
+            failures: failures
         };
     };
     
@@ -131,7 +147,7 @@ module.exports = function(pb) {
      * @param {String} rawOrder
      * @return {Object} Contains the order statement and an array of failures
      */
-    BaseApiController.prototype.processOrder = function(rawOrder) {
+    BaseApiController.prototype.processOrder = function(rawOrder) {console.log(rawOrder);
         var order = null;
         var failures = [];
 
@@ -146,7 +162,9 @@ module.exports = function(pb) {
                     pb.ValidationService.isNonEmptyStr(statement[0], true) && 
                     pb.ValidationService.isInt(statement[1], true)) {
                     
-                    order.push([statement[0], parseInt(statement[1]) > 0 ? pb.DAO.ASC : pb.DAO.DESC ]);
+                    var ordering = {};
+                    ordering[statement[0]] = parseInt(statement[1]) > 0 ? pb.DAO.ASC : pb.DAO.DESC;
+                    order.push(ordering);
                 }
                 else {
                     

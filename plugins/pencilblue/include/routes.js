@@ -1123,6 +1123,55 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js'),
             request_body: ['application/json']
-        }
+        },
+        
+        //pages
+        {
+            method: 'get',
+            path: "/api/content/pages/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/pages",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js')
+        },
+        {
+            method: 'delete',
+            path: "/api/content/pages/:id",
+            handler: "delete",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js')
+        },
+        {
+            method: 'post',
+            path: "/api/content/pages",
+            handler: "post",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js'),
+            request_body: ['application/json']
+        },
+        {
+            method: 'put',
+            path: "/api/content/pages/:id",
+            handler: "put",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js'),
+            request_body: ['application/json']
+        },
     ];
 };
