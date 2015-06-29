@@ -513,7 +513,7 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.isPublicRoute = function(path){
         var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', '/favicon.ico', '/docs/', '/bower_components/'];
         for (var i = 0; i < publicRoutes.length; i++) {
-            if (path.indexOf(publicRoutes[i]) == 0) {
+            if (path.indexOf(publicRoutes[i]) === 0) {
                 return true;
             }
         }

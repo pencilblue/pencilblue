@@ -1,7 +1,5 @@
-var loc =
-{
-    generic:
-    {
+module.exports = {
+    generic: {
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'Toate drepturile rezervate',
         NONE: 'Niciunul',
@@ -164,13 +162,11 @@ var loc =
         WYSIWYG: 'WYSIWYG',
         THUMBNAIL: 'Thumbnail'
     },
-    error:
-    {
+    error: {
         ERROR: 'Eroare',
         PAGE_NOT_FOUND: 'Pagina nu a fost gasita'
     },
-    timestamp:
-    {
+    timestamp: {
         JAN: 'Ianuarie',
         FEB: 'Februarie',
         MAR: 'Martie',
@@ -186,20 +182,17 @@ var loc =
         TIME_AM: 'AM',
         TIME_PM: 'PM'
     },
-    setup:
-    {
+    setup: {
         REGISTER_ADMIN: 'Inregistreaza primul administrator al site-ului'
     },
-    login:
-    {
+    login: {
         ADMIN_LOGIN: 'Login scriitor, editor si administrator',
         USERNAME_OR_EMAIL: 'Nume utilizator si adresa de email',
         INVALID_LOGIN: 'Combinatie nume de utilizator si parola gresita',
         READY_TO_USE: 'Aplicatia ta pencilblue este gata pentru a fi folosita',
         ACCOUNT_CREATED: 'Contul tau a fost creat cu succes, acum te poti loga'
     },
-    admin:
-    {
+    admin: {
         DASHBOARD: 'Dashboard',
         CONTENT: 'Continut',
         PAGES: 'Pagini',
@@ -242,8 +235,7 @@ var loc =
         URL_KEY: 'URL Key',
         FEED_UNAVAILABLE: 'Nu pot incarca fluxul de stiri.'
     },
-    topics:
-    {
+    topics: {
         MANAGE_TOPICS: 'Administreaza topicuri',
         NEW_TOPIC: 'Topic nou',
         TOPIC_NAME: 'Nume topic',
@@ -253,8 +245,7 @@ var loc =
         IMPORT_TOPICS_HELP: 'Aici poti importa in PencilBlue un fisier CSV cu nume de topicuri. Fisierul ar trebui sa nu contina niciun fel de alta informatie.',
         TOPICS_CSV_FILE: 'Fisier CSV cu nume de topicuri',
     },
-    media:
-    {
+    media: {
         MANAGE_MEDIA: 'Administreaza media',
         NEW_MEDIA: 'Media nou',
         LINK_OR_UPLOAD: 'Link sau incarcare',
@@ -276,8 +267,7 @@ var loc =
         IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, sau .svg',
         FILE_TOO_BIG: 'Fișierul este mai mare decât limita admisă'
     },
-    pages:
-    {
+    pages: {
         MANAGE_PAGES: 'Administreaza pagini',
         NEW_PAGE: 'Pagina noua',
         PAGE_URL: 'URL pagina',
@@ -287,8 +277,7 @@ var loc =
         SUBHEADING: 'Subheading',
         PUBLISH_DATE: 'Data publicarii'
     },
-    articles:
-    {
+    articles: {
         MANAGE_ARTICLES: 'Administreaza articole',
         NEW_ARTICLE: 'Articol nou',
         ARTICLE_URL: 'URL articol',
@@ -340,15 +329,13 @@ var loc =
         MARKDOWN_VIEW: 'Vizualizare Markdown',
         TOGGLE_FULLSCREEN: 'Comuta ecran intreg'
     },
-    comments:
-    {
+    comments: {
         MANAGE_COMMENTS: 'Administreaza comentarii',
         CONFIRM_DELETE_COMMENT: 'Esti sigur ca vrei sa stergi comentariul lui',
         COMMENTS_DISABLED: 'Comentariile sunt dezactivate',
         ENABLE_HERE: 'Activeaza-le aici'
     },
-    custom_objects:
-    {
+    custom_objects: {
         MANAGE_OBJECT_TYPES: 'Administreaza tipuri obiecte',
         NEW_OBJECT_TYPE: 'Tip obiect nou',
         MANAGE_OBJECTS: 'Administreaza obiecte',
@@ -371,8 +358,7 @@ var loc =
         DESCRIPTION: 'Descriere',
         INVALID_FIELD: 'A fost trimis un camp invalid. Verifica ca nu exista campuri duplicate sa tipuri de camp neselectate'
     },
-    users:
-    {
+    users: {
         MANAGE_USERS: 'Administreaza utilizatori',
         UNVERIFIED_USERS: 'Utilizatori neverificati',
         NEW_USER: 'Utilizator nou',
@@ -421,8 +407,7 @@ var loc =
         VERIFY: 'Verifica',
         VERIFIED: 'a fost verificat'
     },
-    plugins:
-    {
+    plugins: {
         MANAGE_PLUGINS: 'Administreaza pluginuri',
         NO_ACTIVE_PLUGINS: 'Niciun plugin activ',
         NO_INACTIVE_PLUGINS: 'Niciun plugin inactiv',
@@ -434,12 +419,10 @@ var loc =
         ACTIVATING: 'Activez',
         ACTION_ERROR: 'Am inregistrat o eroare in indeplinirea actiunii'
     },
-    themes:
-    {
+    themes: {
         MANAGE_THEMES: 'Administreaza teme'
     },
-    site_settings:
-    {
+    site_settings: {
         CONFIGURATION: 'Configurare',
         EDIT_CONFIGURATION: 'Pentru a edita configurarea creaza un fisier config.json in folderul radacina',
         SITE_NAME: 'Nume sit',
@@ -492,13 +475,3 @@ var loc =
         TEST_EMAIL_SUCCESS: 'Emailul de test a fost trimis cu succes'
     }
 };
-
-//Allows for both server and client use
-if(typeof global !== 'undefined') {
-    global.loc = loc;
-    global.localizationLanguage = 'ro-ro';
-}
-
-if(typeof module !== 'undefined') {
-    module.exports = loc;
-}

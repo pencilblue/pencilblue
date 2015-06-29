@@ -22,6 +22,7 @@ module.exports = function IndexModule(pb) {
     
     //pb dependencies
     var util          = pb.util;
+    var config        = pb.config;
     var PluginService = pb.PluginService;
     var TopMenu       = pb.TopMenuService;
     var MediaLoader   = pb.MediaLoader;
@@ -80,7 +81,7 @@ module.exports = function IndexModule(pb) {
                     self.ts.registerLocal('meta_keywords', homePageKeywords);
                     self.ts.registerLocal('meta_desc', homePageDescription);
                     self.ts.registerLocal('meta_title', pb.config.siteName);
-                    self.ts.registerLocal('meta_lang', localizationLanguage);
+                    self.ts.registerLocal('meta_lang', config.localization.defaultLocale);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
                     self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));
