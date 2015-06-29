@@ -641,7 +641,11 @@ module.exports = function RequestHandlerModule(pb) {
 
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
-        if (route == null) {
+        if (this.site === pb.SiteService.GLOBAL_SITE && route && !route.path) {
+            this.doRedirect('/admin')
+            return;
+        }
+        else if (route == null) {
             this.serve404();
             return;
         }
