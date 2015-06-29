@@ -216,16 +216,31 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     SiteService.prototype.initSites = function(cb) {
-        this.getAllSites(function(err, results) {
-            if(err) {
-                cb(err);
-            } else {
-                util.forEach(results, function(site) {
-                    pb.RequestHandler.loadSite(site);
-                });
-                cb(err,true);
-            }
-        });
+        if (pb.config.multisite && !pb.config.globalRoot) {
+            cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
+        }
+        else {
+            this.getAllSites(function (err, results) {
+                if (err) {
+                    cb(err);
+                } else {
+                    util.forEach(results, function (site) {
+                        pb.RequestHandler.loadSite(site);
+                    });
+                    // To remain backwards compatible, hostname is siteRoot for single tenant
+                    // and active allows all routes to be hit.
+                    // When multisite, use the configured hostname for global, turn off public facing routes,
+                    // and maintain admin routes (active is false).
+                    pb.RequestHandler.loadSite({
+                        displayName: pb.SiteService.GLOBAL_SITE,
+                        uid: pb.SiteService.GLOBAL_SITE,
+                        hostname: pb.config.multisite ? url.parse(pb.config.globalRoot).host : url.parse(pb.config.siteRoot).host,
+                        active: pb.config.multisite ? false : true
+                    });
+                    cb(err, true);
+                }
+            });
+        }
     };
 
     function getUid()

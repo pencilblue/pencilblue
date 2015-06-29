@@ -634,7 +634,9 @@ module.exports = function RequestHandlerModule(pb) {
 
         //set the site -- how do we handle improper sites here?
         //TODO Handle global differently here when we pull through global site designation
-        this.siteObject = RequestHandler.sites[this.hostname] ? RequestHandler.sites[this.hostname] : { active: true, uid: pb.SiteService.GLOBAL_SITE};
+        this.siteObject = RequestHandler.sites[this.hostname]
+            ? RequestHandler.sites[this.hostname]
+            : this.serveError(new Error('This hostname is not registered.'));
         this.site = this.siteObject.uid;
 
         //find the controller to hand off to
@@ -801,8 +803,14 @@ module.exports = function RequestHandlerModule(pb) {
 
         var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
         if (!this.siteObject.active && !inactiveSiteAccess) {
-            this.serve404();
-            return;
+            if (this.siteObject.uid === pb.SiteService.GLOBAL_SITE) {
+                this.doRedirect('/admin');
+                return;
+            }
+            else {
+                this.serve404();
+                return;
+            }
         }
 
         //do security checks
