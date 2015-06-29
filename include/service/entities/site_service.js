@@ -234,7 +234,7 @@ module.exports = function SiteServiceModule(pb) {
                     pb.RequestHandler.loadSite({
                         displayName: pb.SiteService.GLOBAL_SITE,
                         uid: pb.SiteService.GLOBAL_SITE,
-                        hostname: pb.config.multisite ? pb.config.globalHostname : pb.config.siteRoot,
+                        hostname: pb.config.multisite ? url.parse(pb.config.globalHostname).host : url.parse(pb.config.siteRoot).host,
                         active: pb.config.multisite ? false : true
                     });
                     cb(err, true);
