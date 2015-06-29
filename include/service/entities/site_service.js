@@ -223,6 +223,15 @@ module.exports = function SiteServiceModule(pb) {
                 util.forEach(results, function(site) {
                     pb.RequestHandler.loadSite(site);
                 });
+                // To remain backwards compatible, hostname is siteRoot for single tenant
+                // and active allows all routes to be hit.
+                // When multisite, use the configured hostname for global, turn off public facing routes,
+                // and maintain admin routes (active is false).
+                pb.RequestHandler.loadSite({
+                    displayName: pb.SiteService.GLOBAL_SITE,
+                    uid: pb.SiteService.GLOBAL_SITE,
+                    hostname: pb.config.multisite ? pb.config.globalHostname : pb.config.siteRoot,
+                    active:  pb.config.multisite ? false : true});
                 cb(err,true);
             }
         });
