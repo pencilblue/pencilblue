@@ -636,7 +636,7 @@ module.exports = function RequestHandlerModule(pb) {
         //TODO Handle global differently here when we pull through global site designation
         this.siteObject = RequestHandler.sites[this.hostname]
             ? RequestHandler.sites[this.hostname]
-            : this.serveError(new Error('This hostname is not registered.'));
+            : this.serve404();
         this.site = this.siteObject.uid;
 
         //find the controller to hand off to
