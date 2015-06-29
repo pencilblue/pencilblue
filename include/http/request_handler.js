@@ -641,11 +641,7 @@ module.exports = function RequestHandlerModule(pb) {
 
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
-        if (this.site === pb.SiteService.GLOBAL_SITE && route && !route.path) {
-            this.doRedirect('/admin')
-            return;
-        }
-        else if (route == null) {
+        if (route == null) {
             this.serve404();
             return;
         }
@@ -807,8 +803,14 @@ module.exports = function RequestHandlerModule(pb) {
 
         var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
         if (!this.siteObject.active && !inactiveSiteAccess) {
-            this.serve404();
-            return;
+            if (this.siteObject.uid === pb.SiteService.GLOBAL_SITE) {
+                this.doRedirect('/admin');
+                return;
+            }
+            else {
+                this.serve404();
+                return;
+            }
         }
 
         //do security checks
