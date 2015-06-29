@@ -1143,6 +1143,7 @@ module.exports = function Routes(pb){
             path: "/actions/admin/sites/delete/:siteid",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
+            inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'delete_site.js')
         },
         {
