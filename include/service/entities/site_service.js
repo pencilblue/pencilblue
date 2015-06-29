@@ -216,7 +216,7 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     SiteService.prototype.initSites = function(cb) {
-        if (pb.config.multisite && !pb.config.globalHostname) {
+        if (pb.config.multisite && !pb.config.globalRoot) {
             cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
         }
         else {
@@ -234,7 +234,7 @@ module.exports = function SiteServiceModule(pb) {
                     pb.RequestHandler.loadSite({
                         displayName: pb.SiteService.GLOBAL_SITE,
                         uid: pb.SiteService.GLOBAL_SITE,
-                        hostname: pb.config.multisite ? url.parse(pb.config.globalHostname).host : url.parse(pb.config.siteRoot).host,
+                        hostname: pb.config.multisite ? url.parse(pb.config.globalRoot).host : url.parse(pb.config.siteRoot).host,
                         active: pb.config.multisite ? false : true
                     });
                     cb(err, true);

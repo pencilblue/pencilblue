@@ -125,7 +125,7 @@ Configuration.getBaseConfig = function(multisite) {
 
         // When multisite is true, this is the hostname that will resolve to the global namespace.
         // Only Admin routes will be activated for this hostname.
-        globalHostname: 'global.localhost:8080',
+        globalRoot: 'http://global.localhost:8080',
 
         //provides a configuration for connecting to persistent storage.  The
         //default configuration is meant for mongodb.
