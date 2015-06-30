@@ -54,7 +54,7 @@ module.exports = function(pb) {
 
                 var angularObjects = pb.ClientJs.getAngularObjects(
                     {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls, this.site),
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls, self.site),
                         pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                         navItems: NavigationMap.getOrderedItems(sections, sectionMap),
                         icons: {
