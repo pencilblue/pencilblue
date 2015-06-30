@@ -59,12 +59,9 @@
 					        <button type="button" class="btn btn-default" ng-class="{'active': !article.allow_comments}" ng-click="setCommentState(false)">^loc_NO^</button>
 					    </div>
 					</div>
-					<div class="form-group" ng-class="{'has-error': !isWysiwygValid('#article_wysiwyg')}">
-						<label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
-						<div id="article_wysiwyg">
-							^wysiwyg^
-						</div>
-						<div class="form_error" ng-if="!isWysiwygValid('#article_wysiwyg')" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
+					<div class="form-group" ng-class="{'has-error': !isWysiwygValid(layout)}">
+						<wysiwyg layout="layout" media="article.article_media"></wysiwyg>
+						<div class="form_error" ng-if="!isWysiwygValid(layout)" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
 					</div>
 				</div>
 				<div class="tab-pane" id="media">
@@ -132,5 +129,6 @@
 		</fieldset>
 	</form>
 </div>
+^tmp_admin=elements=wysiwyg_scripts^
 ^tmp_angular=admin=content=articles=article_form^
 ^tmp_admin=footer^

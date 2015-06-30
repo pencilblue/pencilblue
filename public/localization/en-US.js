@@ -303,6 +303,7 @@ module.exports = {
     wysiwyg: {
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',
+        PRE: 'Pre',
         HEADING_1: 'Heading 1',
         HEADING_2: 'Heading 2',
         HEADING_3: 'Heading 3',
@@ -318,7 +319,7 @@ module.exports = {
         ADD_MEDIA: 'Add media',
         INSERT_MEDIA: 'Insert media',
         SELECT_MEDIA: 'Select media to insert',
-        ASSOCIATE_MEDIA: 'Associate media with the article',
+        ASSOCIATE_MEDIA: 'Associate media with the content',
         BOLD: 'Bold',
         ITALIC: 'Italic',
         UNDERLINE: 'Underline',
