@@ -29,7 +29,7 @@ $(document).ready(function() {
           order: 'headline'
         },
         success: function(data) {
-          response( $.map( data.data, function( item ) {
+          response($.map(data.data, function(item) {
             return {
               value: item._id,
               label: item.headline
@@ -39,16 +39,16 @@ $(document).ready(function() {
       });
     },
     minLength: 0,
-    select: function( event, ui ) {
+    select: function(event, ui) {
       setItem(ui.item.value);
       $(this).val(ui.item.label);
       return false;
-    },
-    open: function() {
-      //$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-    },
-    close: function() {
-      //$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
     }
+  });
+
+  // Forces the source call to be made on input focus
+  input.bind('focus', function(event) {
+    var keydownEvent = $.Event('keydown');
+    input.trigger(keydownEvent);
   });
 });

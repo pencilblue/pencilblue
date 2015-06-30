@@ -15,7 +15,7 @@
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(navItemForm.name)}">
                         <label>^loc_NAME^</label>
                         <input type="text" name="name" class="form-control" ng-model="navItem.name" required></input>
-                        <div class="form_error" ng-if="!isFieldValid(navItemForm.type)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="!isFieldValid(navItemForm.name)">^loc_REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
                         <label>^loc_DESCRIPTION^</label>
