@@ -59,7 +59,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
-                navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls, self.site),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, user),
                 tabs: tabs,
                 adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),

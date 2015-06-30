@@ -116,7 +116,7 @@ module.exports = function(pb) {
         }
         
         var objects = {
-            navigation: pb.AdminNavigation.get(this.session, ['content', 'pages'], this.ls),
+            navigation: pb.AdminNavigation.get(this.session, ['content', 'pages'], this.ls, this.site),
             pills: self.getAdminPills(this.getActivePill(), this.ls, this.getActivePill(), data),
             tabs: tabs,
             templates: data.templates,

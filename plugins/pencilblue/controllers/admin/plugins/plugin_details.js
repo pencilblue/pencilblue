@@ -55,7 +55,7 @@ module.exports = function(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects({
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, obj),
-                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
                 d: obj.details,
                 status: obj.status,
                 is_active: PluginService.isActivePlugin(obj.details.uid)

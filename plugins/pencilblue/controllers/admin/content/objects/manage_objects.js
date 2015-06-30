@@ -73,7 +73,7 @@ module.exports = function(pb) {
 
                 var angularObjects = pb.ClientJs.getAngularObjects(
                 {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls, self.site),
                     pills: pills,
                     customObjects: customObjects,
                     objectType: custObjType,

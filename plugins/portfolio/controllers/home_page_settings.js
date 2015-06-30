@@ -79,7 +79,7 @@ module.exports = function HomePageSettingsModule(pb) {
                 }
 
                 var objects = {
-                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
                     pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
                     tabs: tabs,
                     media: media,

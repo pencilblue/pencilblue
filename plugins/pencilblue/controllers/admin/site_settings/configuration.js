@@ -59,7 +59,7 @@ module.exports = function(pb) {
             };
 
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'configuration', {site: self.site}),
                 config: config,
                 isGlobalSite: pb.SiteService.isGlobal(self.site)

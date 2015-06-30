@@ -12,7 +12,7 @@ module.exports = function(pb) {
         var siteService = new pb.SiteService();
         siteService.getSiteMap(function(err, map) {
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls, self.site),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 activeSites: map.active,
                 inactiveSites: map.inactive

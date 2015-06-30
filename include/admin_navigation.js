@@ -61,8 +61,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @property MULTISITE_NAV
      * @returns {Array}
      */
-    var MULTISITE_NAV = Object.freeze([
-        {
+    var MULTISITE_NAV = Object.freeze({
             id: 'site_entity',
             title: 'MANAGE_SITES',
             icon: 'sitemap',
@@ -70,7 +69,181 @@ module.exports = function AdminNavigationModule(pb) {
             access: SecurityService.ACCESS_ADMINISTRATOR
 
         }
-    ]);
+    );
+
+    /**
+     *
+     * @private
+     * @static
+     * @property CONTENT_NAV
+     * @returns {Array}
+     */
+    var CONTENT_NAV = Object.freeze({
+        id: 'content',
+        title: 'CONTENT',
+        icon: 'quote-right',
+        href: '#',
+        access: SecurityService.ACCESS_WRITER,
+        children: [
+            {
+                id: 'navigation',
+                title: 'NAVIGATION',
+                icon: 'th-large',
+                href: '/admin/content/navigation',
+                access: SecurityService.ACCESS_EDITOR
+            },
+            {
+                id: 'topics',
+                title: 'TOPICS',
+                icon: 'tags',
+                href: '/admin/content/topics',
+                access: SecurityService.ACCESS_EDITOR
+            },
+            {
+                id: 'pages',
+                title: 'PAGES',
+                icon: 'file-o',
+                href: '/admin/content/pages',
+                access: SecurityService.ACCESS_EDITOR
+            },
+            {
+                id: 'articles',
+                title: 'ARTICLES',
+                icon: 'files-o',
+                href: '/admin/content/articles',
+                access: SecurityService.ACCESS_WRITER
+            },
+            {
+                id: 'media',
+                title: 'MEDIA',
+                icon: 'camera',
+                href: '/admin/content/media',
+                access: SecurityService.ACCESS_WRITER
+            },
+            {
+                id: 'comments',
+                title: 'COMMENTS',
+                icon: 'comments',
+                href: '/admin/content/comments',
+                access: SecurityService.ACCESS_EDITOR
+            },
+            {
+                id: 'custom_objects',
+                title: 'CUSTOM_OBJECTS',
+                icon: 'sitemap',
+                href: '/admin/content/objects/types',
+                access: SecurityService.ACCESS_EDITOR
+            }
+        ]
+    });
+
+    var PLUGINS_NAV = Object.freeze({
+        id: 'plugins',
+        title: 'PLUGINS',
+        icon: 'puzzle-piece',
+        href: '#',
+        access: SecurityService.ACCESS_ADMINISTRATOR,
+        children: [
+            {
+                divider: true,
+                id: 'manage',
+                title: 'MANAGE',
+                icon: 'upload',
+                href: '/admin/plugins'
+            },
+            {
+                id: 'themes',
+                title: 'THEMES',
+                icon: 'magic',
+                href: '/admin/themes'
+            }
+        ]
+    });
+
+    var USERS_NAV = Object.freeze({
+        id: 'users',
+        title: 'USERS',
+        icon: 'users',
+        href: '#',
+        access: SecurityService.ACCESS_EDITOR,
+        children: [
+            {
+                id: 'manage',
+                title: 'MANAGE',
+                icon: 'users',
+                href: '/admin/users',
+                access: SecurityService.ACCESS_EDITOR
+            },
+            {
+                id: 'permissions',
+                title: 'PERMISSIONS',
+                icon: 'lock',
+                href: '/admin/users/permissions',
+                access: SecurityService.ACCESS_ADMINISTRATOR
+            }
+        ]
+    });
+
+    var VIEW_SITE_NAV = Object.freeze({
+        id: 'view_site',
+        title: 'VIEW_SITE',
+        icon: 'desktop',
+        href: '/',
+        access: SecurityService.ACCESS_WRITER
+    });
+
+    var LOGOUT_NAV = Object.freeze({
+        id: 'logout',
+        title: 'LOGOUT',
+        icon: 'power-off',
+        href: '/actions/logout',
+        access: SecurityService.ACCESS_WRITER
+    });
+
+    function buildSettingsNavigation(site) {
+        var settingsNav = {
+            id: 'settings',
+            title: 'SETTINGS',
+            icon: 'cogs',
+            href: '#',
+            access: SecurityService.ACCESS_WRITER,
+            children: [
+                {
+                    id: 'site_settings',
+                    title: 'SITE_SETTINGS',
+                    icon: 'cog',
+                    href: '/admin/site_settings',
+                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                },
+                {
+                    id: 'content_settings',
+                    title: 'CONTENT',
+                    icon: 'quote-right',
+                    href: '/admin/site_settings/content',
+                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                },
+                {
+                    id: 'email_settings',
+                    title: 'EMAIL',
+                    icon: 'envelope',
+                    href: '/admin/site_settings/email',
+                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                }
+            ]
+        };
+
+        if (pb.SiteService.isGlobal(site)) {
+            settingsNav.children.push({
+                id: 'library_settings',
+                title: 'LIBRARIES',
+                icon: 'book',
+                href: '/admin/site_settings/libraries',
+                access: SecurityService.ACCESS_ADMINISTRATOR
+            });
+        }
+        return Object.freeze(settingsNav);
+    }
+
 
     /**
      *
@@ -79,168 +252,18 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getDefaultNavigation
      * @returns {Array}
      */
-    function getDefaultNavigation() {
-        return util.clone(Object.freeze([
-            {
-                id: 'content',
-                title: 'CONTENT',
-                icon: 'quote-right',
-                href: '#',
-                access: SecurityService.ACCESS_WRITER,
-                children: [
-                    {
-                        id: 'navigation',
-                        title: 'NAVIGATION',
-                        icon: 'th-large',
-                        href: '/admin/content/navigation',
-                        access: SecurityService.ACCESS_EDITOR
-                    },
-                    {
-                        id: 'topics',
-                        title: 'TOPICS',
-                        icon: 'tags',
-                        href: '/admin/content/topics',
-                        access: SecurityService.ACCESS_EDITOR
-                    },
-                    {
-                        id: 'pages',
-                        title: 'PAGES',
-                        icon: 'file-o',
-                        href: '/admin/content/pages',
-                        access: SecurityService.ACCESS_EDITOR
-                    },
-                    {
-                        id: 'articles',
-                        title: 'ARTICLES',
-                        icon: 'files-o',
-                        href: '/admin/content/articles',
-                        access: SecurityService.ACCESS_WRITER
-                    },
-                    {
-                        id: 'media',
-                        title: 'MEDIA',
-                        icon: 'camera',
-                        href: '/admin/content/media',
-                        access: SecurityService.ACCESS_WRITER
-                    },
-                    {
-                        id: 'comments',
-                        title: 'COMMENTS',
-                        icon: 'comments',
-                        href: '/admin/content/comments',
-                        access: SecurityService.ACCESS_EDITOR
-                    },
-                    {
-                        id: 'custom_objects',
-                        title: 'CUSTOM_OBJECTS',
-                        icon: 'sitemap',
-                        href: '/admin/content/objects/types',
-                        access: SecurityService.ACCESS_EDITOR
-                    }
-                ]
-            },
-            {
-                id: 'plugins',
-                title: 'PLUGINS',
-                icon: 'puzzle-piece',
-                href: '#',
-                access: SecurityService.ACCESS_ADMINISTRATOR,
-                children: [
-                    {
-                        divider: true,
-                        id: 'manage',
-                        title: 'MANAGE',
-                        icon: 'upload',
-                        href: '/admin/plugins'
-                    },
-                    {
-                        id: 'themes',
-                        title: 'THEMES',
-                        icon: 'magic',
-                        href: '/admin/themes'
-                    }
-                ]
-            },
-            {
-                id: 'users',
-                title: 'USERS',
-                icon: 'users',
-                href: '#',
-                access: SecurityService.ACCESS_EDITOR,
-                children: [
-                    {
-                        id: 'manage',
-                        title: 'MANAGE',
-                        icon: 'users',
-                        href: '/admin/users',
-                        access: SecurityService.ACCESS_EDITOR
-                    },
-                    {
-                        id: 'permissions',
-                        title: 'PERMISSIONS',
-                        icon: 'lock',
-                        href: '/admin/users/permissions',
-                        access: SecurityService.ACCESS_ADMINISTRATOR
-                    },
-                ]
-            },
-            {
-                id: 'settings',
-                title: 'SETTINGS',
-                icon: 'cogs',
-                href: '#',
-                access: SecurityService.ACCESS_WRITER,
-                children: [
-                    {
-                        id: 'site_settings',
-                        title: 'SITE_SETTINGS',
-                        icon: 'cog',
-                        href: '/admin/site_settings',
-                        access: SecurityService.ACCESS_MANAGING_EDITOR
-                    },
-                    {
-                        id: 'content_settings',
-                        title: 'CONTENT',
-                        icon: 'quote-right',
-                        href: '/admin/site_settings/content',
-                        access: SecurityService.ACCESS_MANAGING_EDITOR
-                    },
-                    {
-                        id: 'email_settings',
-                        title: 'EMAIL',
-                        icon: 'envelope',
-                        href: '/admin/site_settings/email',
-                        access: SecurityService.ACCESS_MANAGING_EDITOR
-                    },
-                    {
-                        id: 'library_settings',
-                        title: 'LIBRARIES',
-                        icon: 'book',
-                        href: '/admin/site_settings/libraries',
-                        access: SecurityService.ACCESS_ADMINISTRATOR
-                    }
-                ]
-            },
-            {
-                id: 'view_site',
-                title: 'VIEW_SITE',
-                icon: 'desktop',
-                href: '/',
-                access: SecurityService.ACCESS_WRITER
-            },
-            {
-                id: 'logout',
-                title: 'LOGOUT',
-                icon: 'power-off',
-                href: '/actions/logout',
-                access: SecurityService.ACCESS_WRITER
-            }
-        ]));
+    function getDefaultNavigation(site) {
+        return util.clone([CONTENT_NAV, PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
     }
 
     function getMultiSiteNavigation() {
-        return util.clone(MULTISITE_NAV);
+        return util.clone([MULTISITE_NAV]);
     }
+
+    function getGlobalScopeNavigation(site) {
+        return util.clone([PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
+    }
+
 
     /**
      *
@@ -249,8 +272,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getAdditions
      * @returns {Array}
      */
-    function getAdditions() {
-        return util.clone(AdminNavigation.additions);
+    function getAdditions(site) {
+        return getAdditionsInScope(AdminNavigation.additions, site);
     };
 
     /**
@@ -260,9 +283,21 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getChildrenAdditions
      * @returns {Object}
      */
-    function getChildrenAdditions() {
-        return util.clone(AdminNavigation.childrenAdditions);
+    function getChildrenAdditions(site) {
+        return getAdditionsInScope(AdminNavigation.childrenAdditions, site);
     };
+
+    function getAdditionsInScope(additions, site) {
+        if (additions.hasOwnProperty(site)) {
+            return util.clone(additions[site]);
+        }
+        else if (additions.hasOwnProperty(pb.SiteService.GLOBAL_SITE)) {
+            return util.clone(additions[pb.SiteService.GLOBAL_SITE]);
+        }
+        else {
+            return util.clone(additions);
+        }
+    }
 
     /**
      *
@@ -271,20 +306,27 @@ module.exports = function AdminNavigationModule(pb) {
      * @method buildNavigation
      * @returns {Array}
      */
-    function buildNavigation(session) {
+    function buildNavigation(site) {
         var i;
         var navigation = [];
         var multiSiteAdditions = getMultiSiteNavigation();
-        var defaultNavigation = getDefaultNavigation();
-        var additions = getAdditions();
-        var childrenAdditions = getChildrenAdditions();
+        var defaultNavigation = getDefaultNavigation(site);
+        var additions = getAdditions(site);
+        var childrenAdditions = getChildrenAdditions(site);
 
-        util.arrayPushAll(defaultNavigation, navigation);
-        util.arrayPushAll(additions, navigation);
-
-        if(pb.config.multisite) {
+        if (pb.config.multisite) {
             util.arrayPushAll(multiSiteAdditions, navigation);
         }
+
+        if (pb.config.multisite && pb.SiteService.isGlobal(site)) {
+            // Don't include content or view site in the nav for multitenancy global scope.
+            util.arrayPushAll(getGlobalScopeNavigation(site), navigation);
+        }
+        else {
+            util.arrayPushAll(defaultNavigation, navigation);
+        }
+
+        util.arrayPushAll(additions, navigation);
 
         //retrieve the nav items to iterate over
         var ids = Object.keys(childrenAdditions);
@@ -343,9 +385,9 @@ module.exports = function AdminNavigationModule(pb) {
      * @param {Array} navigation
      * @returns {boolean}
      */
-    function isDuplicate(id, navigation) {
+    function isDuplicate(id, navigation, site) {
         if (!navigation) {
-            navigation = buildNavigation();
+            navigation = buildNavigation(site);
         }
 
         for (var i = 0; i < navigation.length; i++) {
@@ -354,7 +396,7 @@ module.exports = function AdminNavigationModule(pb) {
             if (node.id == id) {
                 return true;
             }
-            if (node.children && isDuplicate(id, node.children)) {
+            if (node.children && isDuplicate(id, node.children, site)) {
                 return true;
             }
         }
@@ -363,8 +405,9 @@ module.exports = function AdminNavigationModule(pb) {
 
     function exists(id, site) {
         var isGlobal = pb.SiteService.isGlobal(site);
-        return isDuplicate(id, buildNavigation(getSiteContext(site))) ||
-          (!isGlobal && isDuplicate(id, buildNavigation(getSiteContext(GLOBAL_SITE))))
+        var nav = buildNavigation(site);
+        return isDuplicate(id, nav) ||
+          (!isGlobal && isDuplicate(id, buildNavigation(pb.SiteService.GLOBAL_SITE)));
     }
 
     /**
@@ -374,8 +417,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @param {String} id
      * @return {Boolean}
      */
-    function isDefaultNode(id) {
-        return isDuplicate(id, getDefaultNavigation());
+    function isDefaultNode(id, site) {
+        return isDuplicate(id, getDefaultNavigation(site));
     };
 
     /**
@@ -387,10 +430,10 @@ module.exports = function AdminNavigationModule(pb) {
      * @param {Object} ls Localization service
      * @return {object} Admin navigation
      */
-    AdminNavigation.get = function (session, activeMenuItems, ls) {
+    AdminNavigation.get = function (session, activeMenuItems, ls, site) {
         var navigation = AdminNavigation.removeUnauthorized(
             session,
-            buildNavigation(session),
+            buildNavigation(site),
             activeMenuItems
         );
 
@@ -430,10 +473,6 @@ module.exports = function AdminNavigationModule(pb) {
         return AdminNavigation.addChildToSite(parentId, node, GLOBAL_SITE);
     };
 
-    function getSiteContext(site) {
-        return {adminSiteId: site};
-    }
-
     /**
      * Adds a new top level node
      * @static
@@ -471,7 +510,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @param site
      */
     AdminNavigation.removeFromSite = function (id, site) {
-        if (!isDuplicate(id, buildNavigation(getSiteContext(site)))) {
+        if (!isDuplicate(id, buildNavigation(site))) {
             return false;
         }
 

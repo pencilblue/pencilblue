@@ -66,7 +66,7 @@ module.exports = function(pb) {
                 self.getCommentDetails(comments, function(commentsWithDetails) {
                     var pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
                     var angularObjects = pb.ClientJs.getAngularObjects({
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls, self.site),
                         pills: pills,
                         comments: commentsWithDetails,
                         allowComments: contentSettings.allow_comments,

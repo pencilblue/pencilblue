@@ -50,7 +50,7 @@ module.exports = function(pb) {
             //build out the angular controller
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls, self.site),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 objectTypes: custObjTypes
             });

@@ -50,7 +50,7 @@ module.exports = function(pb) {
         var librariesService = new pb.LibrariesService();
         librariesService.getSettings(function(err, librarySettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'libraries'),
                 tabs: tabs,
                 librarySettings: librarySettings,

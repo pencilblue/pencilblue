@@ -80,7 +80,7 @@ module.exports = function(pb) {
             },
 
             navigation: function(callback) {
-                callback(null, pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls));
+                callback(null, pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls, self.site));
             },
 
             objectTypes: function(callback) {

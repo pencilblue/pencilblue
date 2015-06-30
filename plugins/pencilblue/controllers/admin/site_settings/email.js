@@ -55,7 +55,7 @@ module.exports = function(pb) {
         var emailService = new pb.EmailService(this.site);
         emailService.getSettings(function(err, emailSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'email', { site: self.site }),
                 tabs: tabs,
                 emailSettings: emailSettings

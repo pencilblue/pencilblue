@@ -60,7 +60,7 @@ module.exports = function AdminIndexControllerModule(pb) {
             contentInfo.push({name: name, count: data.pageCount, href: '/admin/content/pages'});
 
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService),
+                navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService, self.site),
                 contentInfo: contentInfo,
                 cluster: data.clusterStatus,
                 access: self.session.authentication.admin_level

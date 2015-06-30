@@ -82,7 +82,7 @@ module.exports = function(pb) {
         var self = this;
         pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, 'manage_pages', {site: self.site}, function(pills) {
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls, self.site),
                 pills: pills,
                 pages: self.getPageStatuses(pagesWithAuthor)
             });
