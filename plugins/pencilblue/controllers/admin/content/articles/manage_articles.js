@@ -39,7 +39,13 @@ module.exports = function(pb) {
         }
 
         var opts = {
-            select: pb.DAO.PROJECT_ALL,
+            select: {
+                headline: 1,
+                draft: 1,
+                url: 1,
+                author: 1,
+                publish_date: 1
+            },
             where: where,
             order: {publish_date: pb.DAO.ASC},
 
