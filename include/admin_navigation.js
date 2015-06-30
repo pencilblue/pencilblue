@@ -190,46 +190,6 @@ module.exports = function AdminNavigationModule(pb) {
         }
     ]);
 
-    var SETTINGS_NAV = Object.freeze([
-        {
-            id: 'settings',
-            title: 'SETTINGS',
-            icon: 'cogs',
-            href: '#',
-            access: SecurityService.ACCESS_WRITER,
-            children: [
-                {
-                    id: 'site_settings',
-                    title: 'SITE_SETTINGS',
-                    icon: 'cog',
-                    href: '/admin/site_settings',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
-                },
-                {
-                    id: 'content_settings',
-                    title: 'CONTENT',
-                    icon: 'quote-right',
-                    href: '/admin/site_settings/content',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
-                },
-                {
-                    id: 'email_settings',
-                    title: 'EMAIL',
-                    icon: 'envelope',
-                    href: '/admin/site_settings/email',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
-                },
-                {
-                    id: 'library_settings',
-                    title: 'LIBRARIES',
-                    icon: 'book',
-                    href: '/admin/site_settings/libraries',
-                    access: SecurityService.ACCESS_ADMINISTRATOR
-                }
-            ]
-        }
-    ]);
-
     var VIEW_SITE_NAV = Object.freeze([
         {
             id: 'view_site',
@@ -257,16 +217,62 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getDefaultNavigation
      * @returns {Array}
      */
-    function getDefaultNavigation() {
-        return util.clone(CONTENT_NAV.concat(PLUGINS_NAV, USERS_NAV, SETTINGS_NAV, VIEW_SITE_NAV, LOGOUT_NAV));
+    function getDefaultNavigation(site) {
+        return util.clone(CONTENT_NAV.concat(PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV));
     }
 
     function getMultiSiteNavigation() {
         return util.clone(MULTISITE_NAV);
     }
 
-    function getGlobalScopeNavigation() {
-        return util.clone(PLUGINS_NAV.concat(USERS_NAV, SETTINGS_NAV, LOGOUT_NAV));
+    function getGlobalScopeNavigation(site) {
+        return util.clone(PLUGINS_NAV.concat(USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV));
+    }
+
+    function buildSettingsNavigation(site) {
+        var settingsNav = [
+            {
+                id: 'settings',
+                title: 'SETTINGS',
+                icon: 'cogs',
+                href: '#',
+                access: SecurityService.ACCESS_WRITER,
+                children: [
+                    {
+                        id: 'site_settings',
+                        title: 'SITE_SETTINGS',
+                        icon: 'cog',
+                        href: '/admin/site_settings',
+                        access: SecurityService.ACCESS_MANAGING_EDITOR
+                    },
+                    {
+                        id: 'content_settings',
+                        title: 'CONTENT',
+                        icon: 'quote-right',
+                        href: '/admin/site_settings/content',
+                        access: SecurityService.ACCESS_MANAGING_EDITOR
+                    },
+                    {
+                        id: 'email_settings',
+                        title: 'EMAIL',
+                        icon: 'envelope',
+                        href: '/admin/site_settings/email',
+                        access: SecurityService.ACCESS_MANAGING_EDITOR
+                    }
+                ]
+            }
+        ];
+
+        if (pb.SiteService.isGlobal(site)) {
+            settingsNav.children.push({
+                  id: 'library_settings',
+                  title: 'LIBRARIES',
+                  icon: 'book',
+                  href: '/admin/site_settings/libraries',
+                  access: SecurityService.ACCESS_ADMINISTRATOR
+            });
+        }
+        return Object.freeze(settingsNav);
     }
 
     /**
@@ -306,20 +312,19 @@ module.exports = function AdminNavigationModule(pb) {
         var additions = getAdditions();
         var childrenAdditions = getChildrenAdditions();
 
-        if (pb.config.multisite && site === pb.SiteService.GLOBAL_SITE) {
+        if (pb.config.multisite) {
             util.arrayPushAll(multiSiteAdditions, navigation);
-            util.arrayPushAll(getGlobalScopeNavigation(), navigation);
-            util.arrayPushAll(additions, navigation);
         }
-        else if (pb.config.multisite && site) {
-            util.arrayPushAll(multiSiteAdditions, navigation);
-            util.arrayPushAll(defaultNavigation, navigation);
-            util.arrayPushAll(additions, navigation);
+
+        if (pb.config.multisite && pb.SiteService.isGlobal(site)) {
+            // Don't include content or view site in the nav for multitenancy global scope.
+            util.arrayPushAll(getGlobalScopeNavigation(), navigation);
         }
         else {
             util.arrayPushAll(defaultNavigation, navigation);
-            util.arrayPushAll(additions, navigation);
         }
+
+        util.arrayPushAll(additions, navigation);
 
         //retrieve the nav items to iterate over
         var ids = Object.keys(childrenAdditions);
