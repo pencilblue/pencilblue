@@ -290,6 +290,7 @@ module.exports = function Routes(pb){
             method: 'get',
             path: "/api/content/search",
             auth_required: true,
+            inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'content', 'search.js'),
             content_type: 'application/json'
