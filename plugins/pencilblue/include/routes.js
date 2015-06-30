@@ -998,9 +998,9 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'localization_controller.js'),
             content_type: 'text/javascript'
         },
-        
+
         //**********************API************************
-        
+
         //articles
         {
             method: 'get',
@@ -1123,6 +1123,13 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js'),
             request_body: ['application/json']
-        }
+        },
+      	{
+            method: 'get',
+            path: "/admin/elements/wysiwyg",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'elements', 'wysiwyg.js'),
+      	}
     ];
 };

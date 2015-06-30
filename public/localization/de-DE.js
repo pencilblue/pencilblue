@@ -312,6 +312,7 @@ module.exports = {
     wysiwyg: {
         NORMAL_TEXT: 'Normaler Text',
         QUOTE: 'Zitat',
+        PRE: 'Pre',
         HEADING_1: 'Überschrift 1',
         HEADING_2: 'Überschrift 2',
         HEADING_3: 'Überschrift 3',
