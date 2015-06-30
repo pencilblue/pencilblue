@@ -235,9 +235,9 @@ module.exports = function(pb) {
             var options = {
                 to: user.email,
                 replacements: {
-                    'verification_url': pb.config.siteRoot + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name
+                    verification_url: pb.UrlService.createSystemUrl('/actions/user/verify_email?email=' + encodeURIComponent(user.email) + '&code=' + encodeURIComponent(user.verification_code)),
+                    first_name: user.first_name,
+                    last_name: user.last_name
                 }
             };
             if(emailSettings.layout) {
@@ -264,7 +264,9 @@ module.exports = function(pb) {
     UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
         cb = cb || util.cb;
 
-        var verficationUrl = pb.UrlService.urlJoin(pb.config.siteRoot, '/actions/user/reset_password') + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
+        var verficationUrl = pb.UrlService.createSystemUrl('/actions/user/reset_password') + 
+            util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
+        
         var options = {
             to: user.email,
             subject: pb.config.siteName + ' Password Reset',

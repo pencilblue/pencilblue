@@ -1039,7 +1039,7 @@ module.exports = function RequestHandlerModule(pb) {
                 if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
                     result.success  = false;
                     result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
-                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.urlJoin(pb.config.siteRoot, '/admin');
+                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.createSystemUrl('/admin');
                     callback(result, result);
                     return;
                 }

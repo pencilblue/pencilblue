@@ -221,7 +221,8 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.formError = function(message, redirectLocation, cb) {
 
         this.session.error = message;
-        cb(pb.RequestHandler.generateRedirect(pb.config.siteRoot + redirectLocation));
+        var uri = pb.UrlService.createSystemUrl(redirectLocation);
+        cb(pb.RequestHandler.generateRedirect(uri));
     };
 
     /**

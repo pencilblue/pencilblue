@@ -169,7 +169,7 @@ module.exports = function DeleteControllerModule(pb) {
      * @return 
      */
     DeleteController.prototype.getSuccessRedirect = function() {
-        return pb.config.siteRoot;
+        return pb.UrlService.createSystemUrl('/');
     };
 
     /**
