@@ -592,7 +592,7 @@ module.exports = function Routes(pb){
         {
             method: 'get',
             path: "/api/admin/content/media/get_link",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: pb.SecurityService.ACCESS_USER,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'media', 'get_link.js'),
             content_type: 'application/json'
@@ -600,7 +600,7 @@ module.exports = function Routes(pb){
         {
             method: 'get',
             path: "/api/admin/content/media/get_preview",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: pb.SecurityService.ACCESS_USER,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'media', 'get_preview.js'),
             content_type: 'application/json'
@@ -998,9 +998,9 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'localization_controller.js'),
             content_type: 'text/javascript'
         },
-        
+
         //**********************API************************
-        
+
         //articles
         {
             method: 'get',
@@ -1075,7 +1075,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js')
         },
-        
+
         //topics
         {
             method: 'get',

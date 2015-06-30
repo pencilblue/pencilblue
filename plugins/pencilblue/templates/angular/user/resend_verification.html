@@ -1,0 +1,31 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+angular.module('pencilblueApp', ['validation'])
+.controller('PencilBlueController', function($scope, $rootScope, $http, $window, validationService) {
+  ^tmp_angular=admin=elements=is_field_valid^
+
+  $scope.usernameAvailable = null;
+
+  $scope.resendVerification = function() {
+    $scope.formSubmitted = true;
+
+    if(!validationService.isFormValid($scope.resendForm)) {
+      return;
+    }
+
+    $scope.saving = true;
+    var postURL = '/actions/user/resend_verification';
+
+    $http.post(postURL, {email: $scope.email})
+    .success(function(result) {
+      $scope.successMessage = result.message;
+      $scope.saving = false;
+      $scope.formSubmitted = false;
+    })
+    .error(function(error, status) {
+      $scope.errorMessage = error.message;
+      $scope.saving = false;
+    });
+  };
+});
+</script>
