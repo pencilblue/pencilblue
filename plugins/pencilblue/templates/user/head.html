@@ -1,19 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-        <title>^page_name^</title>
-        <meta name="description" content="^meta_desc^">
-        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="pencilblueApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>^page_name^</title>
+    <meta name="description" content="^meta_desc^">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta name="robots" content="noindex">
 
-        <link rel="stylesheet" type="text/css" href="^bootstrap_css_src^">
-        <link rel="stylesheet" type="text/css" href="^font_awesome_src^">
-        <link rel="stylesheet" type="text/css" href="/css/pencilblue_theme.css">
+    <link rel="shortcut icon" href="^site_icon^">
+    <link rel="stylesheet" type="text/css" href="^jquery_ui_css_src^">
+    <link rel="stylesheet" type="text/css" href="^bootstrap_css_src^">
+    <link rel="stylesheet" type="text/css" href="^font_awesome_src^">
+    <link rel="stylesheet" type="text/css" href="^ng_sortable_css_src^">
+    <link rel="stylesheet" type="text/css" href="^ng_sortable_style_css_src^">
+    <link rel="stylesheet" type="text/css" href="/css/admin.css">
 
-        <script type="text/javascript" src="^jquery_src^"></script>
-        <script type="text/javascript" src="^jquery_validate_src^"></script>
-        <script type="text/javascript" src="^bootstrap_js_src^"></script>
-        ^analytics^
-    </head>
-    <body>
+    <script type="text/javascript" src="^jquery_src^"></script>
+    <script type="text/javascript" src="^jquery_validate_src^"></script>
+    <script type="text/javascript" src="^jquery_ui_js_src^"></script>
+    <script type="text/javascript" src="^bootstrap_js_src^"></script>
+    <script type="text/javascript" src="^angular_src^"></script>
+    <script type="text/javascript" src="^angular_route_src^"></script>
+    <script type="text/javascript" src="^ng_sortable_js_src^"></script>
+    <script type="text/javascript" src="/js/form.js"></script>
+    ^localization_script^
+    ^analytics^
+  </head>
+  <body ng-controller="PencilBlueController">
+    <div id="wrap">
+      ^tmp_user=elements=navigation^

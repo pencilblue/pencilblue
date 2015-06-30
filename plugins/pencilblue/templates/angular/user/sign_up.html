@@ -1,0 +1,70 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript" src="/js/angular/services/password.js"></script>
+<script type="text/javascript">
+angular.module('pencilblueApp', ['validation', 'password'])
+.controller('PencilBlueController', function($scope, $rootScope, $http, $window, validationService, passwordService) {
+  ^tmp_angular=admin=elements=is_field_valid^
+
+  $scope.usernameAvailable = null;
+
+  $scope.getUsernameAvailability = function() {
+    $http.get('/api/user/get_username_available?username=' + $scope.user.username)
+    .success(function(result) {
+      $scope.usernameAvailable = result.data;
+    })
+    .error(function(error, status) {
+      $scope.errorMessage = error.message;
+    });
+  };
+
+  $scope.resetUsernameAvailability = function() {
+    $scope.usernameAvailable = null;
+  };
+
+  $scope.checkPasswordMatch = function() {
+    $scope.passwordMatch = passwordService.checkPasswordMatch($scope.user.password, $scope.user.confirm_password);
+  };
+
+  $scope.generatePassword = function() {
+    $scope.passwordGenerated = true;
+    $scope.user.password = passwordService.generatePassword();
+    $scope.user.confirm_password = $scope.user.password.toString();
+    $scope.checkPasswordMatch();
+  }
+
+  $scope.resetPasswordGenerated = function() {
+    $scope.passwordGenerated = false;
+  }
+
+  $scope.getPasswordInputType = function() {
+    return $scope.passwordGenerated ? 'text' : 'password';
+  }
+
+  $scope.signUpUser = function() {
+    $scope.formSubmitted = true;
+
+    if(!validationService.isFormValid($scope.signUpForm)) {
+      return;
+    }
+
+    $scope.saving = true;
+    if($scope.photoValue) {
+      $scope.user.photo = $scope.photoValue;
+    }
+
+    var postURL = '/actions/user/sign_up';
+
+    $http.post(postURL, $scope.user)
+    .success(function(result) {
+      $scope.successMessage = result.message;
+      $scope.saving = false;
+      $scope.user = {};
+      $scope.formSubmitted = false;
+    })
+    .error(function(error, status) {
+      $scope.errorMessage = error.message;
+      $scope.saving = false;
+    });
+  };
+});
+</script>

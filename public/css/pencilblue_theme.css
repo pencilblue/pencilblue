@@ -24,12 +24,9 @@ a:hover
     clear: both;
 }
 
-form .error
-{
-    font-size: .85em;
-    color: #AA0000;
-    width: 100%;
-    margin: 0;
+.form_error {
+  font-size: .9em;
+  color: #A94442;
 }
 
 .navbar
