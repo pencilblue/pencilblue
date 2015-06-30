@@ -67,7 +67,7 @@ module.exports = function WPManageUsersViewControllerModule(pb) {
         }];
 
         var objects = {
-            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
             pills: pills,
             tabs: tabs,
             users: self.session.importedUsers,

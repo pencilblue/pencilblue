@@ -75,7 +75,7 @@ module.exports = function(pb) {
             },
 
             navigation: function(callback) {
-                callback(null, pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls));
+                callback(null, pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls, self.site));
             },
 
             topic: function(callback) {

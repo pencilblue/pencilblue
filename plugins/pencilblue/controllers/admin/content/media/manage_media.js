@@ -65,7 +65,7 @@ module.exports = function(pb) {
         pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: self.site}, function(pills) {
             var angularObjects = pb.ClientJs.getAngularObjects(
                 {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site),
                     pills: pills,
                     media: pb.MediaService.formatMedia(mediaData)
                 });

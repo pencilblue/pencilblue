@@ -43,7 +43,7 @@ module.exports = function(pb) {
 
             //setup angular
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
                 installedPlugins: map.active,
                 inactivePlugins: map.inactive,

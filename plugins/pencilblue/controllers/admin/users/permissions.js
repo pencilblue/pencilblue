@@ -76,7 +76,7 @@ module.exports = function(pb) {
         pills = pb.AdminSubnavService.addSiteToPills(pills, this.siteName);
 
         var angularObjects = pb.ClientJs.getAngularObjects({
-            navigation: pb.AdminNavigation.get(this.session, ['users', 'permissions'], this.ls),
+            navigation: pb.AdminNavigation.get(this.session, ['users', 'permissions'], this.ls, this.site),
             pills: pills,
             roles: roleDNs,
             permissions: permissions,

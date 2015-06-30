@@ -60,7 +60,7 @@ module.exports = function(pb) {
         var contentService = new pb.ContentService(this.site, true);
         contentService.getSettings(function(err, contentSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'content', {site:self.site}),
                 tabs: tabs,
                 contentSettings: contentSettings

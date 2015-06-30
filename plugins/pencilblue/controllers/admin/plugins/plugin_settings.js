@@ -114,7 +114,7 @@ module.exports = function(pb) {
                 var angularObjects = pb.ClientJs.getAngularObjects({
                     pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, data),
                     tabs: tabs,
-                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
                     settings: clone,
                     pluginUID: uid,
                     type: data.settingType

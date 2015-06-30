@@ -48,7 +48,7 @@ module.exports = function(pb) {
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls, self.site),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 users: users,
                 currentUserId: self.session.authentication.user_id

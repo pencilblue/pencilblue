@@ -22,7 +22,7 @@ module.exports = function SiteFormModule(pb) {
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls, self.site),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 tabs: [{ active: 'active', href: '#editSite', icon: 'cog', title: self.ls.get('EDIT_SITE') }],
                 displayName: display,

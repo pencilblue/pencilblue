@@ -93,7 +93,7 @@ module.exports = function(pb) {
             },
 
             navigation: function(callback) {
-                callback(null, pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls));
+                callback(null, pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site));
             },
 
             topics: function(callback) {
