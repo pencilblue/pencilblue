@@ -3,7 +3,7 @@
     var setItem;
 
     angular.module('pencilblueApp', ['validation'])
-    .controller('PencilBlueController', function($scope, $http, validationService) {
+    .controller('PencilBlueController', function($scope, $http, $timeout, validationService) {
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
 
@@ -15,9 +15,19 @@
         };
         setItem = $scope.setItem;
 
+        $scope.setupTooltip = function() {
+          if(!angular.element('.content_search_tooltip').length) {
+            $timeout($scope.setupTooltip, 200);
+          }
+          else {
+            angular.element('.content_search_tooltip').tooltip();
+          }
+        };
+        $scope.setupTooltip();
+
         $scope.setNavItemValue = function(key, value) {
             $scope.navItem[key] = value;
-        }
+        };
 
         $scope.getUrlAvailability = function() {
           $http.get('/api/url/exists_for?url=' + $scope.navItem.url + '&type=section')
@@ -57,7 +67,7 @@
                 $scope.errorMessage = error.message;
                 $scope.saving = false;
             });
-        }
+        };
 
         $scope.getSaveObject = function() {
             var saveObject = {
@@ -89,6 +99,6 @@
             }
 
             return saveObject;
-        }
+        };
     });
 </script>
