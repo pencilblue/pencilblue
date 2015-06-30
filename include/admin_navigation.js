@@ -272,8 +272,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getAdditions
      * @returns {Array}
      */
-    function getAdditions() {
-        return util.clone(AdminNavigation.additions);
+    function getAdditions(site) {
+        return getAdditionsInScope(AdminNavigation.additions, site);
     };
 
     /**
@@ -283,9 +283,21 @@ module.exports = function AdminNavigationModule(pb) {
      * @method getChildrenAdditions
      * @returns {Object}
      */
-    function getChildrenAdditions() {
-        return util.clone(AdminNavigation.childrenAdditions);
+    function getChildrenAdditions(site) {
+        return getAdditionsInScope(AdminNavigation.childrenAdditions, site);
     };
+
+    function getAdditionsInScope(additions, site) {
+        if (additions.hasOwnProperty(site)) {
+            return util.clone(additions[site]);
+        }
+        else if (additions.hasOwnProperty(pb.SiteService.GLOBAL_SITE)) {
+            return util.clone(additions[pb.SiteService.GLOBAL_SITE]);
+        }
+        else {
+            return util.clone(additions);
+        }
+    }
 
     /**
      *
@@ -299,8 +311,8 @@ module.exports = function AdminNavigationModule(pb) {
         var navigation = [];
         var multiSiteAdditions = getMultiSiteNavigation();
         var defaultNavigation = getDefaultNavigation(site);
-        var additions = getAdditions();
-        var childrenAdditions = getChildrenAdditions();
+        var additions = getAdditions(site);
+        var childrenAdditions = getChildrenAdditions(site);
 
         if (pb.config.multisite) {
             util.arrayPushAll(multiSiteAdditions, navigation);
@@ -391,13 +403,11 @@ module.exports = function AdminNavigationModule(pb) {
         return false;
     };
 
-
-    //What is this supposed to do?
     function exists(id, site) {
         var isGlobal = pb.SiteService.isGlobal(site);
         var nav = buildNavigation(site);
         return isDuplicate(id, nav) ||
-          (!isGlobal && isDuplicate(id, buildNavigation(site)));
+          (!isGlobal && isDuplicate(id, buildNavigation(pb.SiteService.GLOBAL_SITE)));
     }
 
     /**
@@ -407,8 +417,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @param {String} id
      * @return {Boolean}
      */
-    function isDefaultNode(id) {
-        return isDuplicate(id, getDefaultNavigation());
+    function isDefaultNode(id, site) {
+        return isDuplicate(id, getDefaultNavigation(site));
     };
 
     /**
