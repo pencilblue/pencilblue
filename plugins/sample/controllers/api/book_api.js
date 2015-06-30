@@ -49,7 +49,7 @@ module.exports = function BookApiControllerModule(pb) {
              * @property service
              * @type {BookService}
              */
-            self.service = new BookService();
+            self.service = new BookService(self.getServiceContext());
             cb();
         });
 
