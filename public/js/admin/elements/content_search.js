@@ -23,10 +23,11 @@ $(document).ready(function() {
         url: '/api/content/' + angular.element('#content_type').scope().navItem.type + 's',
         dataType: 'json',
         data: {
-          q: $('#content_search').val(),
-          offset: 0,
-          limit: 10,
-          order: 'headline'
+          'q': $('#content_search').val(),
+          '$offset': 0,
+          '$limit': 8,
+          '$order': 'headline=1',
+          '$select': 'headline=1'
         },
         success: function(data) {
           response($.map(data.data, function(item) {
