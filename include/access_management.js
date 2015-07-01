@@ -190,6 +190,11 @@ module.exports = function(pb) {
                 session.authentication.user        = user;
                 session.authentication.user_id     = user[pb.DAO.getIdField()].toString();
                 session.authentication.admin_level = user.admin;
+                
+                //set locale if no preference already indicated for the session
+                if (!session.locale) {
+                    session.locale = user.locale;
+                }
                 cb(null, user);
             });
         };

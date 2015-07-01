@@ -100,7 +100,9 @@ module.exports = function ManageAccountModule(pb) {
                     icon: 'user',
                     title: this.ls.get('PERSONAL_INFO')
                 }
-            ]
+            ],
+            
+            locales: pb.Localization.getSupportedWithDisplay()
         };
     };
 

@@ -15,6 +15,7 @@
  */
 module.exports = {
     generic: {
+        LOCALE_DISPLAY: 'Deutsch (Deutschland)',
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'All rights reserved',
         NONE: 'keine',
@@ -436,7 +437,8 @@ module.exports = {
         NO_PERMISSIONS: 'Keines Ihrer installierten Plugins haben Berechtigungen konfiguriert.',
         CONFIRM_VERIFY: 'Sind Sie sicher, dass Siebestätigen wollen?',
         VERIFY: 'Bestätigen',
-        VERIFIED: 'wurde bestätigt'
+        VERIFIED: 'wurde bestätigt',
+        LOCALE_PREFERENCE: 'Locale Bevorzugt'
     },
     plugins: {
         MANAGE_PLUGINS: 'Plugins verwalten',

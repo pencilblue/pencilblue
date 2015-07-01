@@ -1,5 +1,6 @@
 module.exports = {
     generic: {
+        LOCALE_DISPLAY: 'Español (España)',
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'Todos los derechos reservados',
         NONE: 'Ninguno',
@@ -412,7 +413,8 @@ module.exports = {
         NO_PERMISSIONS: 'Ninguno de tus plugins instalados tienen establecidos permisos',
         CONFIRM_VERIFY: 'Estás seguro que deseas verificar',
         VERIFY: 'Verificar',
-        VERIFIED: 'Verificado'
+        VERIFIED: 'Verificado',
+        LOCALE_PREFERENCE: 'Preferencia Local'
     },
     plugins: {
         MANAGE_PLUGINS: 'Gestionar plugins',
