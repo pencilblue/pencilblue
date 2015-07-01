@@ -238,13 +238,6 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'resend_verification.js'),
             content_type: 'text/html'
         },
-        {
-            method: 'get',
-            path: "/user/verification_sent",
-            auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'verification_sent.js'),
-            content_type: 'text/html'
-        },
 
         {
             method: 'get',
