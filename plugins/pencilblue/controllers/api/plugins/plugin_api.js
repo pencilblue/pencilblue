@@ -60,6 +60,7 @@ module.exports = function(pb) {
         reset_settings: true,
         initialize: true,
         set_theme: true,
+        override: true
     };
 
     /**
