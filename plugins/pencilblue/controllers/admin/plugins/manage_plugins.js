@@ -54,7 +54,6 @@ module.exports = function(pb) {
                         return accepted;
                     });
                 }
-                console.log(availablePluginsMinusGlobal);
                 //setup angular
                 var angularObjects = pb.ClientJs.getAngularObjects({
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
