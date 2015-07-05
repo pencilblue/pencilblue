@@ -62,6 +62,7 @@ module.exports = function ProfileModule(pb) {
           }
 
           self.session.authentication.user = user;
+          self.session.locale = user.locale || self.session.locale;
           cb({
             content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('ACCOUNT') + ' ' + self.ls.get('EDITED'))
           });

@@ -9,6 +9,7 @@
 
 module.exports = {
     generic: {
+        LOCALE_DISPLAY: 'Polski (Polska)',
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'Wszystkie prawa zastrzeżone',
         NONE: 'Nic',
@@ -415,7 +416,8 @@ module.exports = {
         NO_PERMISSIONS: 'Żadna z zainstalowanych wtyczek nie ma ustawionych uprawnień',
         CONFIRM_VERIFY: 'Czy na pewno chcesz zweryfikować',
         VERIFY: 'Weryfikacja',
-        VERIFIED: 'Zweryfikowano'
+        VERIFIED: 'Zweryfikowano',
+        LOCALE_PREFERENCE: 'Locale Preferencje'
     },
     plugins: {
         MANAGE_PLUGINS: 'Zarządzaj wtyczkami',

@@ -1,5 +1,6 @@
 module.exports = {
     generic: {
+        LOCALE_DISPLAY: 'Român (România)',
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'Toate drepturile rezervate',
         NONE: 'Niciunul',
@@ -406,7 +407,8 @@ module.exports = {
         NO_PERMISSIONS: 'Niciunul din pluginurile instalate nu au permisiuni setate',
         CONFIRM_VERIFY: 'Esti sigur ca vrei sa verifici',
         VERIFY: 'Verifica',
-        VERIFIED: 'a fost verificat'
+        VERIFIED: 'a fost verificat',
+        LOCALE_PREFERENCE: 'Preferința locale'
     },
     plugins: {
         MANAGE_PLUGINS: 'Administreaza pluginuri',

@@ -172,7 +172,7 @@ module.exports = function(pb) {
      * @return {String}
      */
     DeleteController.prototype.getSuccessRedirect = function() {
-        return pb.config.siteRoot;
+        return pb.UrlService.createSystemUrl('/');
     };
 
     /**

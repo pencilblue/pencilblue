@@ -866,6 +866,8 @@ module.exports = function Routes(pb){
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'new_user.js'),
+            content_type: 'application/json',
+            request_body: ['application/json']
         },
         {
             method: 'post',
@@ -873,6 +875,8 @@ module.exports = function Routes(pb){
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
+            content_type: 'application/json',
+            request_body: ['application/json']
         },
         {
             method: 'delete',
@@ -998,6 +1002,13 @@ module.exports = function Routes(pb){
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'elements', 'wysiwyg.js'),
       	},
+        {
+            handler: 'setLocale',
+            path: "/user/locale",
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'locale_view_controller.js'),
+      	},
+        
         //articles
         {
             method: 'get',
