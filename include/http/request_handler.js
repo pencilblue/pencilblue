@@ -405,13 +405,9 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.prototype.handleRequest = function(){
 
-        //get locale preference
-        this.localizationService = new pb.Localization(this.req);
-
         //fist things first check for public resource
         if (RequestHandler.isPublicRoute(this.url.pathname)) {
-            this.servePublicContent();
-            return;
+            return this.servePublicContent();
         }
 
         //check for session cookie
@@ -421,6 +417,12 @@ module.exports = function RequestHandlerModule(pb) {
         //open session
         var self = this;
         pb.session.open(this.req, function(err, session){
+            if (util.isError(err)) {
+                return self.serveError(err);
+            }
+            
+            //get locale preference
+            self.localizationService = self.deriveLocalization(session);
 
             //set the session id when no session has started or the current one has
             //expired.
@@ -434,6 +436,22 @@ module.exports = function RequestHandlerModule(pb) {
             //continue processing
             self.onSessionRetrieved(err, session);
         });
+    };
+    
+    /**
+     * Derives the locale and localization instance.
+     * @method deriveLocalization
+     */
+    RequestHandler.prototype.deriveLocalization = function(session) {
+        
+        var userPreferredLocale = session.locale;
+        var browserIndicated = this.req.headers[pb.Localization.ACCEPT_LANG_HEADER];
+        if (browserIndicated) {
+            browserIndicated = ',' + browserIndicated;
+        }
+        
+        //get locale preference
+        return new pb.Localization(userPreferredLocale + '' + browserIndicated);
     };
 
     /**
@@ -1039,7 +1057,7 @@ module.exports = function RequestHandlerModule(pb) {
                 if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
                     result.success  = false;
                     result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
-                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.urlJoin(pb.config.siteRoot, '/admin');
+                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.createSystemUrl('/admin');
                     callback(result, result);
                     return;
                 }

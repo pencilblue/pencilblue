@@ -1,33 +1,28 @@
-^tmp_user=head^
-        <div id="container">
-            <div class="row-fluid">
-                <div class="col-md-4 col-md-offset-4">
-                    <div id="login_logo">
-                        <a href="^site_root^">
-                            <img src="^site_logo^"></img>
-                        </a>
-                    </div>
-                    ^error_success^
-                    <div class="panel panel-default">
-                        <div class="panel-heading">^loc_RESEND_VERIFICATION^</a></div>
-                        <div class="panel-body">
-                            <form id="sign_up_form" method="post" action="^site_root^/actions/user/resend_verification">
-                                <fieldset>
-                                    <div class="form-group">
-                                        <label>^loc_EMAIL^</label>
-                                        <input type="email" id="email" name="email" class="form-control"></input>
-                                    </div>
-                                    <input type="submit" class="btn btn-lg btn-info btn-block" value="^loc_SUBMIT^">
-                                </fieldset>
-                            </form>
-                        </div>
-                    </div>
-                    <div style="text-align: right">
-                        <a href="^site_root^"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_BACK_HOME^</a>
-                    </div>
-                </div>
-            </div>
+^tmp_head^
+  <div id="container" style="margin-top: .5em">
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4">
+        ^tmp_admin=elements=error_success^
+        <div class="panel panel-default">
+          <div class="panel-heading">^loc_RESEND_VERIFICATION^</a></div>
+          <div class="panel-body">
+            <form name="resendForm" ng-submit="resendVerification()" novalidate>
+              <div class="form-group" ng-class="{'has-error': !isFieldValid(resendForm.email)}">
+                <label>^loc_EMAIL^</label>
+                <input type="email" name="email" ng-model="email" class="form-control" required></input>
+                <div class="form_error" ng-if="!isFieldValid(resendForm.email)">^loc_REQUIRED_FIELD^</div>
+              </div>
+              <button type="submit" class="btn btn-lg btn-primary btn-block" ng-disabled="!isFieldValid(resendForm.email)">
+                <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SUBMIT^
+              </button>
+            </form>
+          </div>
         </div>
-        <script type="text/javascript" src="^site_root^/js/user/resend_verification.js"></script>
-    </body>
-</html>
+        <div style="text-align: right">
+          <a href="^site_root^"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_BACK_HOME^</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  ^tmp_angular=user=resend_verification^
+^tmp_footer^

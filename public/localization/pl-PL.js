@@ -9,6 +9,7 @@
 
 module.exports = {
     generic: {
+        LOCALE_DISPLAY: 'Polski (Polska)',
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'Wszystkie prawa zastrzeżone',
         NONE: 'Nic',
@@ -305,6 +306,7 @@ module.exports = {
     wysiwyg: {
         NORMAL_TEXT: 'Normalny tekst',
         QUOTE: 'Cytat',
+        PRE: 'Pre',
         HEADING_1: 'Nagłowek 1',
         HEADING_2: 'Nagłowek 2',
         HEADING_3: 'Nagłowek 3',
@@ -414,7 +416,8 @@ module.exports = {
         NO_PERMISSIONS: 'Żadna z zainstalowanych wtyczek nie ma ustawionych uprawnień',
         CONFIRM_VERIFY: 'Czy na pewno chcesz zweryfikować',
         VERIFY: 'Weryfikacja',
-        VERIFIED: 'Zweryfikowano'
+        VERIFIED: 'Zweryfikowano',
+        LOCALE_PREFERENCE: 'Locale Preferencje'
     },
     plugins: {
         MANAGE_PLUGINS: 'Zarządzaj wtyczkami',

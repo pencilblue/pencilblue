@@ -238,13 +238,6 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'resend_verification.js'),
             content_type: 'text/html'
         },
-        {
-            method: 'get',
-            path: "/user/verification_sent",
-            auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'verification_sent.js'),
-            content_type: 'text/html'
-        },
 
         {
             method: 'get',
@@ -592,7 +585,7 @@ module.exports = function Routes(pb){
         {
             method: 'get',
             path: "/api/admin/content/media/get_link",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: pb.SecurityService.ACCESS_USER,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'media', 'get_link.js'),
             content_type: 'application/json'
@@ -600,7 +593,7 @@ module.exports = function Routes(pb){
         {
             method: 'get',
             path: "/api/admin/content/media/get_preview",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: pb.SecurityService.ACCESS_USER,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'media', 'get_preview.js'),
             content_type: 'application/json'
@@ -873,6 +866,8 @@ module.exports = function Routes(pb){
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'new_user.js'),
+            content_type: 'application/json',
+            request_body: ['application/json']
         },
         {
             method: 'post',
@@ -998,8 +993,19 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'localization_controller.js'),
             content_type: 'text/javascript'
         },
-        
-        //**********************API************************
+      	{
+            method: 'get',
+            path: "/admin/elements/wysiwyg",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'elements', 'wysiwyg.js'),
+      	},
+        {
+            handler: 'setLocale',
+            path: "/user/locale",
+            auth_required: false,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'locale_view_controller.js'),
+      	},
         
         //articles
         {
@@ -1075,7 +1081,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js')
         },
-        
+
         //topics
         {
             method: 'get',
@@ -1122,6 +1128,55 @@ module.exports = function Routes(pb){
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js'),
+            request_body: ['application/json']
+        },
+
+        //pages
+        {
+            method: 'get',
+            path: "/api/content/pages/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/pages",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js')
+        },
+        {
+            method: 'delete',
+            path: "/api/content/pages/:id",
+            handler: "delete",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js')
+        },
+        {
+            method: 'post',
+            path: "/api/content/pages",
+            handler: "post",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js'),
+            request_body: ['application/json']
+        },
+        {
+            method: 'put',
+            path: "/api/content/pages/:id",
+            handler: "put",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js'),
             request_body: ['application/json']
         }
     ];

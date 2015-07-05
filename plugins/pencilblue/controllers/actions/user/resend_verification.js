@@ -17,61 +17,86 @@
 
 
 module.exports = function ResendVerificationModule(pb) {
-    
-    //pb dependencies
-    var util = pb.util;
-    
-    /**
-     * Resends an account verification email
-     */
-    function ResendVerification(){}
-    util.inherits(ResendVerification, pb.FormController);
+  //pb dependencies
+  var util = pb.util;
 
-    ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
-        var self = this;
+  /**
+   * Resends an account verification email
+   */
+  function ResendVerification(){}
+  util.inherits(ResendVerification, pb.FormController);
 
-        var message = this.hasRequiredParams(post, this.getRequiredFields());
-        if(message) {
-            return self.formError(message, '/user/resend_verification', cb);
+  ResendVerification.prototype.render = function(cb) {
+    var self = this;
+
+    this.getJSONPostParams(function(err, post) {
+      var message = self.hasRequiredParams(post, self.getRequiredFields());
+      if(message) {
+        cb({
+          code: 400,
+          content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+        });
+        return;
+      }
+
+      var dao = new pb.DAO();
+      dao.loadByValue('email', post.email, 'user', function(err, user) {
+        if(util.isError(err)) {
+          cb({
+            code: 400,
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('NOT_REGISTERED'))
+          });
+          return;
+        }
+        else if (!util.isNullOrUndefined(user)) {
+          cb({
+            code: 400,
+            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('USER_VERIFIED'))
+          });
+          return;
         }
 
-        var dao = new pb.DAO();
-        dao.loadByValue('email', post.email, 'user', function(err, user) {
-            if(util.isError(err)) {
-                return cb(err);
-            }
-            else if (!util.isNullOrUndefined(user)) {
-                return self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
-            }
-
-            dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
-                if(util.isError(err)) {
-                    return cb(err);
-                }
-                else if(util.isNullOrUndefined(user)) {
-                    return self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
-                }
-
-               user.verification_code = util.uniqueId();
-
-               dao.save(user, function(err, result) {
-                    if(util.isError(result)) {
-                        self.formError(self.ls.get('ERROR_SAVING'), '/user/resend_verification', cb);
-                        return;
-                    }
-
-                    self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
-                    self.redirect('/user/verification_sent', cb);
-                    pb.users.sendVerificationEmail(user, util.cb);
-                });
+        dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
+          if(util.isError(err)) {
+            cb({
+              code: 400,
+              content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('NOT_REGISTERED'))
             });
+            return;
+          }
+          else if(util.isNullOrUndefined(user)) {
+            cb({
+              code: 400,
+              content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('NOT_REGISTERED'))
+            });
+            return;
+          }
+
+          user.verification_code = util.uniqueId();
+
+          dao.save(user, function(err, result) {
+            if(util.isError(result)) {
+              cb({
+                code: 500,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+              });
+              return;
+            }
+
+            cb({
+              content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('VERIFICATION_SENT') + user.email)
+            });
+            pb.users.sendVerificationEmail(user, util.cb);
+          });
         });
-    };
+      });
+    });
+  };
 
-    ResendVerification.prototype.getRequiredFields = function() {
-        return ['email'];
-    };
+  ResendVerification.prototype.getRequiredFields = function() {
+    return ['email'];
+  };
 
-    //exports
-    return ResendVerification;
+  //exports
+  return ResendVerification;
 };
