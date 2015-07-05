@@ -866,6 +866,8 @@ module.exports = function Routes(pb){
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'new_user.js'),
+            content_type: 'application/json',
+            request_body: ['application/json']
         },
         {
             method: 'post',

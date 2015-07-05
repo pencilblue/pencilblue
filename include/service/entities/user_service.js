@@ -20,6 +20,12 @@ var async = require('async');
 var util  = require('../../util.js');
 
 module.exports = function(pb) {
+    
+    //pb dependencies
+    var DAO               = pb.DAO;
+    var SecurityService   = pb.SecurityService;
+    var ValidationService = pb.ValidationService;
+    var BaseObjectService = pb.BaseObjectService;
 
     /**
      * Service for performing user specific operations.
@@ -37,7 +43,7 @@ module.exports = function(pb) {
         context.type = TYPE;
         UserService.super_.call(this, context);
     }
-    util.inherits(UserService, pb.BaseObjectService);
+    util.inherits(UserService, BaseObjectService);
     
     /**
      * @private
@@ -47,6 +53,15 @@ module.exports = function(pb) {
      * @type {String}
      */
     var TYPE = 'user';
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property UNVERIFIED_TYPE
+     * @type {String}
+     */
+    var UNVERIFIED_TYPE = 'unverified_user';
 
     /**
      * Gets the full name of a user
@@ -306,7 +321,6 @@ module.exports = function(pb) {
 
     /**
      * Gets the total counts of a username and email in both the user and unverified_user collections
-     *
      * @method getExistingUsernameEmailCounts
      * @param {String}   username
      * @param {String}   email
@@ -329,19 +343,94 @@ module.exports = function(pb) {
         var tasks = {
             verified_username: function(callback) {
                 var expStr = util.escapeRegExp(username) + '$';
-                dao.count('user', getWhere({username: new RegExp(expStr, 'i')}), callback);
+                dao.count(TYPE, getWhere({username: new RegExp(expStr, 'i')}), callback);
             },
             verified_email: function(callback) {
-                dao.count('user', getWhere({email: email.toLowerCase()}), callback);
+                dao.count(TYPE, getWhere({email: email.toLowerCase()}), callback);
             },
             unverified_username: function(callback) {
-                dao.count('unverified_user', getWhere({username: new RegExp(username + '$', 'i')}), callback);
+                dao.count(UNVERIFIED_TYPE, getWhere({username: new RegExp(username + '$', 'i')}), callback);
             },
             unverified_email: function(callback) {
-                dao.count('unverified_user', getWhere({email: email.toLowerCase()}), callback);
+                dao.count(UNVERIFIED_TYPE, getWhere({email: email.toLowerCase()}), callback);
             },
         };
         async.series(tasks, cb);
+    };
+    
+    /**
+     * Indicates if there exists a user with the specified email value. The 
+     * field is expected to be a string value.  The values will be compare with 
+     * case ignored.
+     * @method isUsernameInUse
+     * @param {String} email
+     * @param {Object} [options]
+     * @param {String} [options.exclusionId]
+     * @param {Function} cb
+     */
+    UserService.prototype.isEmailInUse = function(email, options, cb) {
+        this._isFieldInUse(email, 'email', options, cb);
+    };
+    
+    /**
+     * Indicates if there exists a user with the specified username value. The 
+     * field is expected to be a string value.  The values will be compare with 
+     * case ignored.
+     * @method isUsernameInUse
+     * @param {String} username
+     * @param {Object} [options]
+     * @param {String} [options.exclusionId]
+     * @param {Function} cb
+     */
+    UserService.prototype.isUsernameInUse = function(username, options, cb) {
+        this._isFieldInUse(username, 'username', options, cb);
+    };
+    
+    /**
+     * Indicates if there exists a user with the specified property value. The 
+     * field is expected to be a string value.  The values will be compare with 
+     * case ignored.
+     * @private
+     * @method _isFieldInUse
+     * @param {String} value
+     * @param {String} field
+     * @param {Object} [options]
+     * @param {String} [options.exclusionId]
+     * @param {Function} cb
+     */
+    UserService.prototype._isFieldInUse = function(value, field, options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+        
+        var self = this;
+        var expressionStr = util.escapeRegExp(value) + '$';
+        var where = {};
+        where[field] = new RegExp(expressionStr, 'i');
+        
+        //set exclusion.  This would be if we are editing a user
+        if (ValidationService.isId(options.exclusionId, true)) {
+            where[DAO.getIdField()] = DAO.getNotIdField(id);
+        }
+        
+        var opts = {
+            where: where
+        };
+        var tasks = {
+            
+            verified: function(callback) {
+                self.count(opts, callback);
+            },
+            
+            unverified: function(callback) {
+                var dao = new pb.DAO();
+                dao.count(UNVERIFIED_TYPE, where, callback);
+            }
+        };
+        async.series(tasks, function(err, results) {
+            cb(err, results.verified > 0 || results.unverified > 0);
+        });
     };
 
     /**
@@ -376,7 +465,7 @@ module.exports = function(pb) {
             offset: options.offset
         };
         var dao = new pb.DAO();
-        dao.q('user', opts, cb);
+        dao.q(TYPE, opts, cb);
     };
 
     /**
@@ -391,9 +480,198 @@ module.exports = function(pb) {
         var where = pb.DAO.getIdWhere(uid);
         where.admin = {$gte: accessLevel};
         var dao = new pb.DAO();
-        dao.count('user', where, function(err, count) {
+        dao.count(TYPE, where, function(err, count) {
             cb(err, count === 1);
         });
     };
+    
+    /**
+     * 
+     * @method validate
+     * @param {Object} context
+     * @param {Object} context.data The DTO that was provided for persistence
+     * @param {UserService} context.service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    UserService.prototype.validate = function(context, cb) {
+        var self = this;
+        var obj = context.data;
+        var errors = context.validationErrors;
+        
+        var tasks = [
+            
+            //first name
+            function(callback) {
+                if (!ValidationService.isNonEmptyStr(obj.first_name, false)) {
+                    errors.push(BaseObjectService.validationFailure('first_name', 'First name is required'));
+                }
+                callback();
+            },
+            
+            //last name
+            function(callback) {
+                if (!ValidationService.isNonEmptyStr(obj.last_name, false)) {
+                    errors.push(BaseObjectService.validationFailure('last_name', 'Last name is required'));
+                }
+                callback();
+            },
+            
+            //username
+            function(callback) {
+                if (!ValidationService.isNonEmptyStr(obj.username, true)) {
+                    errors.push(BaseObjectService.validationFailure('username', 'Username is required'));
+                    return callback();
+                }
+                
+                //check to see if it is in use
+                var usernameOpts = {
+                    exclusionId: obj[DAO.getIdField()]
+                };
+                self.isUsernameInUse(obj.username, usernameOpts, function(err, isInUse) {
+                    if (isInUse) {
+                        errors.push(BaseObjectService.validationFailure('username', 'Username is already in use'));
+                    }
+                    callback(err);
+                });
+            },
+            
+            //email
+            function(callback) {
+                if (!ValidationService.isEmail(obj.email, true)) {
+                    errors.push(BaseObjectService.validationFailure('email', 'Email is required'));
+                    return callback();
+                }
+                
+                //check to see if it is in use
+                var usernameOpts = {
+                    exclusionId: obj[DAO.getIdField()]
+                };
+                self.isEmailInUse(obj.email, usernameOpts, function(err, isInUse) {
+                    if (isInUse) {
+                        errors.push(BaseObjectService.validationFailure('email', 'Email address is already in use'));
+                    }
+                    callback(err);
+                });
+            },
+            
+            //password
+            function(callback) {
+                if (!ValidationService.isNonEmptyStr(obj.password, true)) {
+                    errors.push(BaseObjectService.validationFailure('password', 'Password is required'));
+                }
+                callback();
+            },
+            
+            //admin
+            function(callback) {
+                if (!ValidationService.isInt(obj.admin, true, true)) {
+                    errors.push(BaseObjectService.validationFailure('admin', 'Role is required'));
+                    return callback();
+                }
+                else if (obj.admin > SecurityService.ACCESS_ADMINISTRATOR || obj.admin < SecurityService.ACCESS_USER) {
+                    errors.push(BaseObjectService.validationFailure('admin', 'An invalid role was provided'));
+                }
+                callback();
+            },
+            
+            //locale
+            function(callback) {
+                if (!ValidationService.isNonEmptyStr(obj.locale, true)) {
+                    errors.push(BaseObjectService.validationFailure('locale', 'Preferred locale is required'));
+                }
+                callback();
+            },
+            
+            //photo
+            function(callback) {
+                if (!ValidationService.isNonEmptyStr(obj.photo, false)) {
+                    errors.push(BaseObjectService.validationFailure('photo', 'An invalid photo was provided'));
+                }
+                callback();
+            },
+            
+            //position
+            function(callback) {
+                if (!ValidationService.isNonEmptyStr(obj.position, false)) {
+                    errors.push(BaseObjectService.validationFailure('position', 'An invalid position was provided'));
+                }
+                callback();
+            }
+        ];
+        async.series(tasks, cb);
+    };
+    
+    /**
+     * 
+     * @static
+     * @method 
+     * @param {Object} context
+     * @param {UserService} service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    UserService.format = function(context, cb) {
+        var dto = context.data;
+        dto.first_name = BaseObjectService.sanitize(dto.first_name);
+        dto.last_name = BaseObjectService.sanitize(dto.last_name);
+        dto.username = BaseObjectService.sanitize(dto.username);
+        dto.email = BaseObjectService.sanitize(dto.email);  
+        if (dto.email) {
+            dto.email = dto.email.toLowerCase();
+        }
+        dto.admin = parseInt(dto.admin);
+        dto.locale = BaseObjectService.sanitize(dto.locale);  
+        dto.photo = BaseObjectService.sanitize(dto.photo);  
+        dto.position = BaseObjectService.sanitize(dto.position);
+        cb(null);
+    };
+    
+    /**
+     * 
+     * @static
+     * @method 
+     * @param {Object} context
+     * @param {UserService} service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    UserService.merge = function(context, cb) {
+        var dto = context.data;
+        var obj = context.object;
+        
+        obj.first_name = dto.first_name;
+        obj.last_name = dto.last_name;
+        obj.username = dto.username;
+        obj.email = dto.email;
+        obj.admin = dto.admin;
+        obj.locale = dto.locale;
+        obj.photo = dto.photo;
+        obj.position = dto.position;
+        if (context.isCreate && dto.password) {
+            obj.password = pb.security.encrypt(dto.password);
+        }
+        cb(null);
+    };
+    
+    /**
+     * 
+     * @static
+     * @method validate
+     * @param {Object} context
+     * @param {Object} context.data The DTO that was provided for persistence
+     * @param {UserService} context.service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    UserService.validate = function(context, cb) {
+        context.service.validate(context, cb);
+    };
+    
+    //Event Registries
+    BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, UserService.format);
+    BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, UserService.merge);
+    BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, UserService.validate);
+    
     return UserService;
 };
