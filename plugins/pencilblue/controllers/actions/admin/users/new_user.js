@@ -40,7 +40,7 @@ module.exports = function(pb) {
             /**
              * 
              * @property service
-             * @type {TopicService}
+             * @type {UserService}
              */
             self.service = new UserService(self.getServiceContext());
                 
@@ -49,50 +49,22 @@ module.exports = function(pb) {
         NewUser.super_.prototype.init.apply(this, [context, init]);
     };
 
+    /**
+     *
+     * @method render
+     * @param {Function} cb
+     */
     NewUser.prototype.render = function(cb) {
         var self = this;
-
-        var post = this.body;
-        var message = self.hasRequiredParams(post, self.getRequiredFields());
-        if(message) {
-            cb({
-                code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-            });
-            return;
-        }
+        var post = this.body || {};
 
         if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
-            cb({
+            return cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
             });
-            return;
         }
 
-//        var user = pb.DocumentCreator.create('user', post);
-//        pb.users.isUserNameOrEmailTaken(user.username, user.email, post.id, function(err, isTaken) {
-//            if(util.isError(err) || isTaken) {
-//                cb({
-//                    code: 400,
-//                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
-//                });
-//                return;
-//            }
-//
-//            var dao = new pb.DAO();
-//            dao.save(user, function(err, result) {
-//                if(util.isError(err)) {
-//                    cb({
-//                        code: 500,
-//                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-//                    });
-//                    return;
-//                }
-//
-//                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('USER_CREATED'), result)});
-//            });
-//        });
         self.service.save(post, function(err, obj) {
             if (util.isError(err)) {
                 return cb(err);
@@ -105,10 +77,6 @@ module.exports = function(pb) {
                 code: 201
             });
         });
-    };
-
-    NewUser.prototype.getRequiredFields = function() {
-        return ['username', 'email', 'password', 'confirm_password', 'admin'];
     };
 
     //exports

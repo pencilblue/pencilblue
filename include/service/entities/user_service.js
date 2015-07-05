@@ -77,7 +77,7 @@ module.exports = function(pb) {
 
         var self = this;
         var dao  = new pb.DAO();
-        dao.loadById(userId, 'user', function(err, author){
+        dao.loadById(userId, TYPE, function(err, author){
             if (util.isError(err)) {
                 return callback(err, null);
             }
@@ -127,7 +127,7 @@ module.exports = function(pb) {
             where: pb.DAO.getIdInWhere(Object.keys(authorIds))
         };
         var dao = new pb.DAO();
-        dao.q('user', opts, function(err, authors) {
+        dao.q(TYPE, opts, function(err, authors) {
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -212,7 +212,7 @@ module.exports = function(pb) {
             }
         };
         var dao = new pb.DAO();
-        dao.q('user', opts, function(err, data){
+        dao.q(TYPE, opts, function(err, data){
             if (util.isError(err)) {
                 return cb(err, null);
             }
@@ -411,7 +411,7 @@ module.exports = function(pb) {
         
         //set exclusion.  This would be if we are editing a user
         if (ValidationService.isId(options.exclusionId, true)) {
-            where[DAO.getIdField()] = DAO.getNotIdField(id);
+            where[DAO.getIdField()] = DAO.getNotIdField(options.exclusionId);
         }
         
         var opts = {
