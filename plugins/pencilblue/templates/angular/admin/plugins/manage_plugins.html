@@ -104,6 +104,17 @@
 			doJobRetrieve();
 		};
 
+		$scope.isInstalled = function(pluginName) {
+			var result = $.grep($scope.installedPlugins, function(currentPlugin){
+				return currentPlugin.uid == pluginName;
+			});
+			if (result.length == 0) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+
 		$scope.onActionSuccess = function() {
 			$scope.actionIsComplete = true;
 			$scope.refreshPage();

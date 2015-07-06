@@ -35,27 +35,40 @@ module.exports = function(pb) {
         var self = this;
 
         var pluginService = new pb.PluginService(self.site);
-        pluginService.getPluginMap(function (err, map) {
+        var globalPluginService = new pb.PluginService();
+        pluginService.getPluginMap(function (err, sitePluginMap) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
                 return;
             }
-
-            //setup angular
-            var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
-                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
-                installedPlugins: map.active,
-                inactivePlugins: map.inactive,
-                availablePlugins: map.available,
-                siteUid: self.site
+            globalPluginService.getPluginMap(function(err, globalPluginMap) {
+                //filter globally installed plugins out of inactive
+                var availablePluginsMinusGlobal = sitePluginMap.available.filter(function(val) {
+                    var accepted = true;
+                    for (var i = 0; i < globalPluginMap.active.length; i++) {
+                        if (globalPluginMap.active[i].uid === val.uid) {
+                            accepted = false;
+                        }
+                    }
+                    return accepted;
+                });
+                //setup angular
+                var angularObjects = pb.ClientJs.getAngularObjects({
+                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
+                    installedPlugins: sitePluginMap.active,
+                    inactivePluginsMinusGlobal: sitePluginMap.inactive,
+                    availablePlugins: availablePluginsMinusGlobal,
+                    globalActivePlugins: globalPluginMap.active,
+                    siteUid: self.site
+                });
+                //load the template
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
+                    cb({content: result});
+                });
             });
-            //load the template
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
-                cb({content: result});
-            });
-        });
+        })
     };
 
     ManagePlugins.getSubNavItems = function(key, ls, data) {
