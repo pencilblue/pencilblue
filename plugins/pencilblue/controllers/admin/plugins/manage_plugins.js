@@ -42,18 +42,16 @@ module.exports = function(pb) {
                 return;
             }
             globalPluginService.getPluginMap(function(err, globalPluginMap) {
-                if(globalPluginMap.active.length > 0) {
-                    //filter globally installed plugins out of inactive
-                    var availablePluginsMinusGlobal = sitePluginMap.available.filter(function(val) {
-                        var accepted = true;
-                        for (var i = 0; i < globalPluginMap.active.length; i++) {
-                            if (globalPluginMap.active[i].uid === val.uid) {
-                                accepted = false;
-                            }
+                //filter globally installed plugins out of inactive
+                var availablePluginsMinusGlobal = sitePluginMap.available.filter(function(val) {
+                    var accepted = true;
+                    for (var i = 0; i < globalPluginMap.active.length; i++) {
+                        if (globalPluginMap.active[i].uid === val.uid) {
+                            accepted = false;
                         }
-                        return accepted;
-                    });
-                }
+                    }
+                    return accepted;
+                });
                 //setup angular
                 var angularObjects = pb.ClientJs.getAngularObjects({
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
