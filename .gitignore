@@ -24,3 +24,5 @@ config.json
 coverage/
 **/.DS_Store
 **/dump.rdb
+
+config.js
