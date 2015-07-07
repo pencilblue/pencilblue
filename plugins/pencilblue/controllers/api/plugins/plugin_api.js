@@ -59,7 +59,7 @@ module.exports = function(pb) {
         uninstall: true,
         reset_settings: true,
         initialize: true,
-        set_theme: true,
+        set_theme: true
     };
 
     /**
