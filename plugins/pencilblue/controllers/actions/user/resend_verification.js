@@ -17,24 +17,17 @@
 
 
 module.exports = function ResendVerificationModule(pb) {
-    
-    //pb dependencies
-    var util = pb.util;
-    var UserService = pb.UserService;
-    
-    /**
-     * Resends an account verification email
-     */
-    function ResendVerification(){}
-    util.inherits(ResendVerification, pb.FormController);
+  //pb dependencies
+  var util = pb.util;
 
-    ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
-        var self = this;
+  /**
+   * Resends an account verification email
+   */
+  function ResendVerification(){}
+  util.inherits(ResendVerification, pb.FormController);
 
-        var message = this.hasRequiredParams(post, this.getRequiredFields());
-        if(message) {
-            return self.formError(message, '/user/resend_verification', cb);
-        }
+  ResendVerification.prototype.render = function(cb) {
+    var self = this;
 
         var dao = new pb.SiteQueryService(self.site, true);
         dao.loadByValue('email', post.email, 'user', function(err, user) {
@@ -61,19 +54,32 @@ module.exports = function ResendVerificationModule(pb) {
                         return;
                     }
 
-                    self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
-                    self.redirect('/user/verification_sent', cb);
-                    var userService = new UserService(self.getServiceContext());
-                    userService.sendVerificationEmail(user, util.cb);
-                });
+          dao.save(user, function(err, result) {
+            if(util.isError(result)) {
+              cb({
+                code: 500,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+              });
+              return;
+            }
+
+            cb({
+              content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('VERIFICATION_SENT') + user.email)
+                self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
+                self.redirect('/user/verification_sent', cb);
+                var userService = new UserService(self.getServiceContext());
+                userService.sendVerificationEmail(user, util.cb);
             });
+          });
         });
-    };
+      });
+    });
+  };
 
-    ResendVerification.prototype.getRequiredFields = function() {
-        return ['email'];
-    };
+  ResendVerification.prototype.getRequiredFields = function() {
+    return ['email'];
+  };
 
-    //exports
-    return ResendVerification;
+  //exports
+  return ResendVerification;
 };

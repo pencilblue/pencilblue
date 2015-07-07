@@ -346,5 +346,42 @@ module.exports = function LocalizationModule(pb) {
         return pb.config.localization.defaultLocale || 'en_us';
     };
     
+    /**
+     * Retrieves the supported locales
+     * @static
+     * @method getSupported
+     * @return {Array}
+     */
+    Localization.getSupported = function() {
+        return util.clone(Localization.supported);
+    };
+    
+    /**
+     * Retrieves the supported locales as an array where each item in the array 
+     * contains a value (locale) and a name (locale specific representation of 
+     * the locale).
+     * @static
+     * @method getSupportedWithDisplay
+     * @return {Array}
+     */
+    Localization.getSupportedWithDisplay = function() {
+        var locales = [];
+        var supported = Localization.getSupported();
+        supported.forEach(function(locale) {
+
+            var package = Localization.getLocalizationPackage(locale);
+            if (!util.isObject(package)) {
+                return;
+            }
+
+            var kv = {
+                value: locale,
+                name: package.generic.LOCALE_DISPLAY
+            };
+            locales.push(kv);
+        });
+        return locales;
+    };
+    
     return Localization;
 };

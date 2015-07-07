@@ -18,15 +18,16 @@
 //dependencies
 var util = require('../include/util.js');
 
-module.exports = function FormControllerModule(pb) {
+module.exports = function(pb) {
     
     /**
      * Provides the basic functionality for implementing a controller that
      * needs access to a posted form.
      * @class FormController
+     * @extends BaseController
      * @constructor
      */
-    function FormController(){};
+    function FormController(){}
     util.inherits(FormController, pb.BaseController);
 
     /**

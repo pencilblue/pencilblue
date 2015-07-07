@@ -15,46 +15,29 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-$(document).ready(function()
-{
-  $('#login_form').validate({
-    rules:
-    {
-      username:
-      {
-        minlength: 2,
-        required: true
-      },
-      password:
-      {
-        required: true,
-      }
-    }
-  });
-});
+module.exports = function WysiwygModule(pb) {
 
-function checkForLogin(event)
-{
-  if(event.keyCode == 13)
-  {
-    login();
-  }
-}
+  //pb dependencies
+  var util = pb.util;
 
-function login()
-{
-  $('#password').rules('add',
-  {
-    required: true
-  });
-  $('#login_form').attr('action', '/actions/login');
-  $('#login_form').submit();
-}
+  /**
+  * Route controller for the wysiwyg AngularJS directive.
+  * @class WysiwygController
+  * @extends BaseController
+  * @constructor
+  */
+  function WysiwygController(){}
+  util.inherits(WysiwygController, pb.BaseController);
 
-function forgotPassword()
-{
-  $('#password').rules('remove');
+  /**
+  * @see BaseController#render
+  */
+  WysiwygController.prototype.render = function(cb) {
+    this.ts.load('admin/elements/wysiwyg_directive', function(error, result) {
+      cb({content: result});
+    });
+  };
 
-  $('#login_form').attr('action', '/actions/forgot_password');
-  $('#login_form').submit();
-}
+  //exports
+  return WysiwygController;
+};

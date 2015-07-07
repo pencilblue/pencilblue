@@ -118,7 +118,7 @@ module.exports = function(pb) {
                 limit: self.contentSettings.articles_per_page || 5,
                 order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}]
             };
-            pb.ArticleServiceV2.setPublishedClause(opts.where);
+            pb.ContentObjectService.setPublishedClause(opts.where);
             self.service.getBySection(section, opts, function(err, content) {
                 var result = {
                     section: section,

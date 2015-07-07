@@ -18,9 +18,9 @@
                             <label ng-bind="field.name"></label>
                             <input type="number" class="form-control" ng-model="customObject[field.name]"></input>
                         </div>
-                        <div class="form-group" ng-if="field.field_type == 'wysiwyg'">
-                            <label ng-bind="field.name"></label>
-                            <div id="{{getFieldUID(field)}}_wysiwyg"></div>
+                        <div class="form-group" ng-if="field.field_type === 'wysiwyg'">
+                          <label ng-bind="field.name"></label>
+                          <wysiwyg layout="customObject[field.name]"></wysiwyg>
                         </div>
                         <div class="form-group" ng-if="field.field_type == 'boolean'">
                             <label ng-bind="field.name"></label><br/>
@@ -84,9 +84,6 @@
                             </div>
                         </div>
                     </span>
-                    <div id="temp_wysiwyg" style="display:none">
-                        ^wysiwyg^
-                    </div>
                 </div>
                 <a class="btn btn-default" ng-href="/admin/content/objects/{{objectType._id}}">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
@@ -96,5 +93,6 @@
         </fieldset>
     </form>
 </div>
+^tmp_admin=elements=wysiwyg_scripts^
 ^tmp_angular=admin=content=objects=object_form^
 ^tmp_admin=footer^

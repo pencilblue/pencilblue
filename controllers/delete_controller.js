@@ -19,19 +19,20 @@
 var async = require('async');
 var util  = require('../include/util.js');
 
-module.exports = function DeleteControllerModule(pb) {
+module.exports = function(pb) {
 
     /**
      * Deletes objects from the database
+     * @class DeleteController
+     * @constructor
+     * @extends FormController
      */
     function DeleteController(){}
-
-    //inheritance
     util.inherits(DeleteController, pb.FormController);
 
     /**
      *
-     * @method 
+     * @method onPostParamsRetrieved
      * @param {Function} cb
      */
     DeleteController.prototype.onPostParamsRetrieved = function(post, cb) {
@@ -77,7 +78,7 @@ module.exports = function DeleteControllerModule(pb) {
         async.series(tasks, function(err, results){
 
             //process the results
-            if (err != null) {
+            if (err) {
                 self.onError(err, null, cb);
             }
             else {
@@ -88,7 +89,7 @@ module.exports = function DeleteControllerModule(pb) {
 
     /**
      *
-     * @method 
+     * @method getRequiredFields
      * @param {Function} cb
      */
     DeleteController.prototype.getRequiredFields = function () {
@@ -97,7 +98,7 @@ module.exports = function DeleteControllerModule(pb) {
 
     /**
      *
-     * @method 
+     * @method canDelete
      * @param {Function} cb
      */
     DeleteController.prototype.canDelete = function(cb) {
@@ -106,7 +107,7 @@ module.exports = function DeleteControllerModule(pb) {
 
     /**
      *
-     * @method 
+     * @method onBeforeDelete
      * @param {Function} cb
      */
     DeleteController.prototype.onBeforeDelete = function(cb) {
@@ -115,7 +116,7 @@ module.exports = function DeleteControllerModule(pb) {
 
     /**
      *
-     * @method 
+     * @method onAfterDelete
      * @param {Function} cb
      */
     DeleteController.prototype.onAfterDelete = function(cb) {
@@ -124,8 +125,8 @@ module.exports = function DeleteControllerModule(pb) {
 
     /**
      *
-     * @method 
-     * @return 
+     * @method getDeleteQuery
+     * @return {Object}
      */
     DeleteController.prototype.getDeleteQuery = function() {
         return pb.DAO.getIdWhere(this.query.id);
@@ -139,25 +140,27 @@ module.exports = function DeleteControllerModule(pb) {
      * @param {Function} cb
      */
     DeleteController.prototype.onError = function(err, message, cb) {
-        if (message == undefined || message == null) {
+        if (util.isNullOrUndefined(message)) {
             message = this.getDefaultErrorMessage();
         }
-        self.formError(message, this.getFormErrorRedirect(err, message), cb);
+        this.formError(message, this.getFormErrorRedirect(err, message), cb);
     };
 
     /**
      *
-     * @method 
+     * @method getFormErrorRedirect
+     * @param {Error} err
+     * @param {String} message
      * @return 
      */
-    DeleteController.prototype.getFormErrorRedirect = function(err, message) {
+    DeleteController.prototype.getFormErrorRedirect = function(/*err, message*/) {
         return '/';
     };
 
     /**
      *
-     * @method 
-     * @return 
+     * @method getDeleteCollection
+     * @return {String}
      */
     DeleteController.prototype.getDeleteCollection = function() {
         return 'IS NOT IMPLEMENTED';
@@ -165,26 +168,27 @@ module.exports = function DeleteControllerModule(pb) {
 
     /**
      *
-     * @method 
-     * @return 
+     * @method getSuccessRedirect
+     * @return {String}
      */
     DeleteController.prototype.getSuccessRedirect = function() {
-        return pb.config.siteRoot;
+        return pb.UrlService.createSystemUrl('/');
     };
 
     /**
      *
-     * @method 
-     * @return 
+     * @method getDataOnSuccess
+     * @param {Array} results
+     * @return {String}
      */
-    DeleteController.prototype.getDataOnSuccess = function(results) {
+    DeleteController.prototype.getDataOnSuccess = function(/*results*/) {
         return pb.RequestHandler.generateRedirect(this.getSuccessRedirect());
     };
 
     /**
      *
-     * @method 
-     * @return 
+     * @method getDefaultErrorMessage
+     * @return {String}
      */
     DeleteController.prototype.getDefaultErrorMessage = function() {
         return this.ls.get('ERROR_SAVING');

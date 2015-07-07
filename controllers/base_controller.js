@@ -32,7 +32,7 @@ module.exports = function BaseControllerModule(pb) {
      * @class BaseController
      * @constructor
      */
-    function BaseController(){};
+    function BaseController(){}
 
     //constants
     /**
@@ -256,7 +256,8 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.formError = function(message, redirectLocation, cb) {
 
         this.session.error = message;
-        cb(pb.RequestHandler.generateRedirect(redirectLocation));
+        var uri = pb.UrlService.createSystemUrl(redirectLocation);
+        cb(pb.RequestHandler.generateRedirect(uri));
     };
 
     /**
@@ -266,14 +267,14 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Function} cb
      */
     BaseController.prototype.displayErrorOrSuccessCallback = function(flag, cb) {
-        if(this.session['error']) {
-            var error = this.session['error'];
-            delete this.session['error'];
+        if(this.session.error) {
+            var error = this.session.error;
+            delete this.session.error;
             cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-danger', this.localizationService.get(error)), false));
         }
-        else if(this.session['success']) {
-            var success = this.session['success'];
-            delete this.session['success'];
+        else if(this.session.success) {
+            var success = this.session.success;
+            delete this.session.success;
             cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-success', this.localizationService.get(success)), false));
         }
         else {
@@ -369,7 +370,9 @@ module.exports = function BaseControllerModule(pb) {
             // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
             if (totalLength > 1e6) {
                 // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
-                cb(new PBError("POST limit reached! Maximum of 1MB.", 400), null);
+                var err = new Error("POST limit reached! Maximum of 1MB.");
+                err.code = 400;
+                cb(err, null);
             }
         });
         this.req.on('end', function () {
@@ -393,13 +396,13 @@ module.exports = function BaseControllerModule(pb) {
             if (typeof queryObject[requiredParameters[i]] === 'undefined') {
                 return this.localizationService.get('FORM_INCOMPLETE');
             }
-            else if (queryObject[requiredParameters[i]].length == 0) {
+            else if (queryObject[requiredParameters[i]].length === 0) {
                 return this.localizationService.get('FORM_INCOMPLETE');
             }
         }
 
-        if(queryObject['password'] && queryObject['confirm_password']) {
-            if(queryObject['password'] != queryObject['confirm_password']) {
+        if(queryObject.password && queryObject.confirm_password) {
+            if(queryObject.password !== queryObject.confirm_password) {
                 return this.localizationService.get('PASSWORD_MISMATCH');
             }
         }

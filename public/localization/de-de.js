@@ -15,6 +15,7 @@
  */
 var loc = {
     generic:{
+        LOCALE_DISPLAY: 'Deutsch (Deutschland)',
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'All rights reserved',
         NONE: 'keine',
@@ -177,13 +178,11 @@ var loc = {
         WYSIWYG: 'WYSIWYG',
         THUMBNAIL: 'Thumbnail'
     },
-    error:
-    {
+    error: {
     	ERROR: 'Fehler',
         PAGE_NOT_FOUND: 'Die Seite wurde nicht gefunden.'
     },
-    timestamp:
-    {
+    timestamp: {
         JAN: 'Januar',
         FEB: 'Februar',
         MAR: 'März',
@@ -199,20 +198,18 @@ var loc = {
         TIME_AM: 'AM',
         TIME_PM: 'PM'
     },
-    setup:
-    {
+    setup: {
         REGISTER_ADMIN: 'Bitte das erste admin Konto für die Site anlegen.'
     },
-    login:
-    {
+    login: {
         ADMIN_LOGIN: 'Autoren, Redakteure und Administratoren Anmeldung.',
         USERNAME_OR_EMAIL: 'Benutzername oder E-Mail Adresse.',
         INVALID_LOGIN: 'Diese Kombination von Benutzername und Passwort ist ungültig.',
         READY_TO_USE: 'Ihre pencilblue Installation kann nun benutzt werden.',
-        ACCOUNT_CREATED: 'Ihr Konto wurde erfolgreich angelegt; Sie können sich nun anmelden.'
+        ACCOUNT_CREATED: 'Ihr Konto wurde erfolgreich angelegt; Sie können sich nun anmelden.',
+        FORGOT_PASSWORD: 'Ich habe mein Passwort vergessen'
     },
-    admin:
-    {
+    admin: {
         DASHBOARD: 'Dashboard',
         CONTENT: 'Inhalte',
         PAGES: 'Seiten',
@@ -255,8 +252,7 @@ var loc = {
         URL_KEY: 'URL-Schlüssel',
         FEED_UNAVAILABLE: 'Kann den Nachrichten-Feed nicht laden.'
     },
-    topics:
-    {
+    topics: {
         MANAGE_TOPICS: 'Kategorien verwalten',
         NEW_TOPIC: 'Neue Kategorie',
         TOPIC_NAME: 'Name der Kategorie',
@@ -266,8 +262,7 @@ var loc = {
         IMPORT_TOPICS_HELP: 'Hier kann man eine CSV-Datei mit Kategorien nach PencilBlue importieren. Die Datei sollte sonst keine Informationen enthalten.',
         TOPICS_CSV_FILE: 'CSV-Datei mit Kategorien'
     },
-    media:
-    {
+    media: {
         MANAGE_MEDIA: 'Medien verwalten',
         NEW_MEDIA: 'Neues Medium',
         LINK_OR_UPLOAD: 'Linken oder hochladen',
@@ -289,8 +284,7 @@ var loc = {
         IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
         FILE_TOO_BIG: 'Die Datei größer ist als die zulässige Grenze ist'
     },
-    pages:
-    {
+    pages: {
         MANAGE_PAGES: 'Seiten verwalten',
         NEW_PAGE: 'Neue Seite',
         PAGE_URL: 'URL der Seite',
@@ -300,8 +294,7 @@ var loc = {
         SUBHEADING: 'Untertitel',
         PUBLISH_DATE: 'Datum der Veröffentlichung'
     },
-    articles:
-    {
+    articles: {
         MANAGE_ARTICLES: 'Beiträge verwalten',
         NEW_ARTICLE: 'Neuer Beitrag',
         ARTICLE_URL: 'URL des Beitrags',
@@ -320,6 +313,7 @@ var loc = {
     wysiwyg: {
         NORMAL_TEXT: 'Normaler Text',
         QUOTE: 'Zitat',
+        PRE: 'Pre',
         HEADING_1: 'Überschrift 1',
         HEADING_2: 'Überschrift 2',
         HEADING_3: 'Überschrift 3',
@@ -353,8 +347,7 @@ var loc = {
         MARKDOWN_VIEW: 'Markdown-Ansicht',
         TOGGLE_FULLSCREEN: 'Gesamten Bildschirm nutzen'
     },
-    comments:
-    {
+    comments: {
         MANAGE_COMMENTS: 'Kommentare verwalten',
 
         /*
@@ -367,8 +360,7 @@ var loc = {
         COMMENTS_DISABLED: 'Die Kommentarfunktion ist nicht aktiviert.',
         ENABLE_HERE: 'Aktivieren Sie sie hier'
     },
-    custom_objects:
-    {
+    custom_objects: {
         MANAGE_OBJECT_TYPES: 'Benutzer-definierte Objekttypen verwalten',
         NEW_OBJECT_TYPE: 'Neuer Benutzer-definierter Objekttyp',
         MANAGE_OBJECTS: 'Benutzer-definierte Objekte verwalten',
@@ -391,8 +383,7 @@ var loc = {
         DESCRIPTION: 'Beschreibung',
         INVALID_FIELD: 'Es wurde versucht, ein ungültiges Feld hinzuzufügen. Stellen Sie sicher, dass der Feldname eindeutig ist und keine unselektierten Feldtypen vorhanden sind.'
     },
-    users:
-    {
+    users: {
         MANAGE_USERS: 'Benutzer verwalten',
         UNVERIFIED_USERS: 'Nicht-verifizierte Benutzer',
         NEW_USER: 'Neuer Benutzer',
@@ -446,10 +437,10 @@ var loc = {
         NO_PERMISSIONS: 'Keines Ihrer installierten Plugins haben Berechtigungen konfiguriert.',
         CONFIRM_VERIFY: 'Sind Sie sicher, dass Siebestätigen wollen?',
         VERIFY: 'Bestätigen',
-        VERIFIED: 'wurde bestätigt'
+        VERIFIED: 'wurde bestätigt',
+        LOCALE_PREFERENCE: 'Locale Bevorzugt'
     },
-    plugins:
-    {
+    plugins: {
         MANAGE_PLUGINS: 'Plugins verwalten',
         NO_ACTIVE_PLUGINS: 'Keine aktivierten Plugins',
         NO_INACTIVE_PLUGINS: 'Keine deaktivierten Plugins',
@@ -461,12 +452,10 @@ var loc = {
         ACTIVATING: 'Aktiviert',
         ACTION_ERROR: 'Beim Abschließen der Aktion ist ein Fehler aufgetreten.'
     },
-    themes:
-    {
+    themes: {
         MANAGE_THEMES: 'Themen verwalten'
     },
-    site_settings:
-    {
+    site_settings: {
         CONFIGURATION: 'Konfiguration',
         EDIT_CONFIGURATION: 'Um die Konfiguration zu bearbeiten, müssen die die Datei "config.json" im Root-Verzeichnis anlegen.',
         SITE_NAME: 'Name der Site',

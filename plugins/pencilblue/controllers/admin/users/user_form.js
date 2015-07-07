@@ -96,6 +96,10 @@ module.exports = function(pb) {
                     delete user.password;
                     callback(err, user);
                 });
+            },
+            
+            locales: function(callback) {
+                callback(null, pb.Localization.getSupportedWithDisplay());
             }
         };
         async.series(tasks, cb);

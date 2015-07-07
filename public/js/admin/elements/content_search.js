@@ -16,43 +16,40 @@
 */
 
 $(document).ready(function() {
-    var input = $('#content_search');
-    input.autocomplete({
-        source: function( request, response ) {
-            var $scope = angular.element('#content_type').scope();
-            var site = $scope.site;
+  var input = $('#content_search');
+  input.autocomplete({
+    source: function(request, response) {
+      $.ajax({
+        url: '/api/content/' + angular.element('#content_type').scope().navItem.type + 's',
+        dataType: 'json',
+        data: {
+          'q': $('#content_search').val(),
+          '$offset': 0,
+          '$limit': 8,
+          '$order': 'headline=1',
+          '$select': 'headline=1'
+        },
+        success: function(data) {
+          response($.map(data.data, function(item) {
+            return {
+              value: item._id,
+              label: item.headline
+            };
+          }));
+        }
+      });
+    },
+    minLength: 0,
+    select: function(event, ui) {
+      setItem(ui.item.value);
+      $(this).val(ui.item.label);
+      return false;
+    }
+  });
 
-            $.ajax({
-                url: "/api/content/search",
-                dataType: "json",
-                data: {
-                   type: $scope.navItem.type,
-                   q: $('#content_search').val(),
-                   site: site
-                },
-                success: function( data ) {
-                    response( $.map( data.data, function( item ) {
-                        return {
-                            value: item._id,
-                            label: item.display
-                        };
-                    }));
-                }
-            });
-        },
-        minLength: 3,
-        select: function( event, ui ) {
-            setItem(ui.item.value);
-        	//var idFieldName = $('#selection_id_field').val();
-        	//$('#'+idFieldName).val(ui.item.value);
-            $(this).val(ui.item.label);
-            return false;
-        },
-         open: function() {
-                //$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-         },
-         close: function() {
-                //$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-         }
-    });
+  // Forces the source call to be made on input focus
+  input.bind('focus', function(event) {
+    var keydownEvent = $.Event('keydown');
+    input.trigger(keydownEvent);
+  });
 });

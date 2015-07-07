@@ -1,7 +1,8 @@
+<script type="text/javascript" src="/js/angular/directives/wysiwyg.js"></script>
 <script type="text/javascript" src="/js/angular/filters/parsable_date.js"></script>
 <script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
-	angular.module('pencilblueApp', ['inlineMedia', 'sectionSelect', 'topicSelect', 'parseDate', 'validation'])
+	angular.module('pencilblueApp', ['wysiwygElement', 'inlineMedia', 'sectionSelect', 'topicSelect', 'parseDate', 'validation'])
 	.controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window, validationService) {
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
@@ -10,6 +11,7 @@
 		$scope.urlAvailable = null;
 
 		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
+		$scope.article.article_media = $scope.article.article_media || [];
 		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
 		$scope.article.meta_keywords = $scope.article.meta_keywords ? $scope.article.meta_keywords.join(',') : '';
 		$scope.editingObject = $scope.article;
@@ -40,7 +42,7 @@
 		$scope.saveArticle = function(draft) {
 			$scope.formSubmitted = true;
 
-			if(!validationService.isFormValid($scope.articleForm)) {
+			if(!validationService.isFormValid($scope.articleForm) || !$scope.isWysiwygValid($scope.layout)) {
 				return;
 			}
 
@@ -109,7 +111,7 @@
 		};
 
 		$scope.getArticleData = function(draft, cb) {
-			var articleData = JSON.parse(JSON.stringify($scope.article));
+			var articleData = angular.copy($scope.article);
 			articleData.publish_date = (new Date($filter('parsableDate')($scope.article.publish_date))).getTime();
 			articleData.draft = draft ? 1 : 0;
 
@@ -128,15 +130,12 @@
 				topics.push($scope.article.article_topics[i]._id.toString());
 			}
 
-			var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
-			getWYSIWYGLayout(wysId, function(layout) {
-				articleData.article_media = media;
-				articleData.article_sections = sections;
-				articleData.article_topics = topics;
-				articleData.article_layout = layout;
+			articleData.article_media = media;
+			articleData.article_sections = sections;
+			articleData.article_topics = topics;
+			articleData.article_layout = $scope.layout;
 
-				cb(articleData);
-			});
+			cb(articleData);
 		};
 
 		$scope.previewArticle = function() {
