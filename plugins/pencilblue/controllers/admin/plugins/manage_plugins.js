@@ -62,7 +62,7 @@ module.exports = function(pb) {
                     globalActivePlugins: globalPluginMap.active,
                     siteUid: self.site
                 });
-                //load the templategit
+                //load the template
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
                     cb({content: result});
