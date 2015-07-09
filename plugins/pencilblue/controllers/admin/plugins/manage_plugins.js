@@ -57,12 +57,12 @@ module.exports = function(pb) {
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
                     pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
                     installedPlugins: sitePluginMap.active,
-                    inactivePluginsMinusGlobal: sitePluginMap.inactive,
+                    inactivePlugins: sitePluginMap.inactive,
                     availablePlugins: availablePluginsMinusGlobal,
                     globalActivePlugins: globalPluginMap.active,
                     siteUid: self.site
                 });
-                //load the template
+                //load the templategit
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
                     cb({content: result});
