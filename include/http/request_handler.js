@@ -405,9 +405,6 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.prototype.handleRequest = function(){
 
-        //get locale preference
-        this.localizationService = new pb.Localization(this.req);
-
         //fist things first check for public resource
         if (RequestHandler.isPublicRoute(this.url.pathname)) {
             this.servePublicContent();
@@ -603,6 +600,8 @@ module.exports = function RequestHandlerModule(pb) {
                 pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
                 activeTheme = RequestHandler.DEFAULT_THEME;
             }
+            //get locale preference
+            self.localizationService = new pb.Localization(self.req, activeTheme);
             self.onThemeRetrieved(activeTheme, route);
         });
     };
