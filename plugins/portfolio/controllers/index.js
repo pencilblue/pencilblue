@@ -183,7 +183,7 @@ module.exports = function IndexModule(pb) {
         var routes = [
             {
                 method: 'get',
-                path: '/port',
+                path: '/',
                 auth_required: false,
                 content_type: 'text/html'
             }

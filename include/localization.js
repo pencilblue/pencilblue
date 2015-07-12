@@ -144,9 +144,7 @@ module.exports = function LocalizationModule(pb) {
             pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, this.language);
         }
 
-
-
-        console.log(this.activeTheme);
+        //error checking
         if (!pb.validation.isNonEmptyStr(key, true)) {
             return null;
         }
