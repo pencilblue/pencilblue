@@ -73,7 +73,7 @@ module.exports = function DBMigrateModule(pb) {
 
         this.migrateContentAndPluginData = function(cb) {
             var self = this;
-            var tasks = pb.util.getTasks(MIGRATE_ALL, function (collections, i) {
+            var tasks = util.getTasks(MIGRATE_ALL, function (collections, i) {
                 return function (callback) {
                     self.migrateCollection(collections[i], self.siteUid, callback);
                 };
