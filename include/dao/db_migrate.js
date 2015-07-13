@@ -52,7 +52,6 @@ module.exports = function DBMigrateModule(pb) {
                             util.wrapTask(self, self.migrateSettings),
                             util.wrapTask(self, self.migrateUsers)
                         ];
-                        //self.migrateContentAndPluginData(cb);
                         async.series(tasks, function(err, result) {
                            cb(err, result);
                         });
