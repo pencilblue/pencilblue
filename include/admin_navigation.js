@@ -530,10 +530,10 @@ module.exports = function AdminNavigationModule(pb) {
         AdminNavigation.additions[site] = removeNode(id, AdminNavigation.additions[site]);
 
         var childAdditionsMap = AdminNavigation.childrenAdditions[site];
-        for (var parentId in  childAdditionsMap) {
-            childAdditionsMap[parentId] = removeNode(id, childAdditionsMap[parentId]);
-        }
-
+        util.forEach(childAdditionsMap, function(value, key) {
+            childAdditionsMap[key] = removeNode(id, value);
+        });
+        
         return true;
     };
 
