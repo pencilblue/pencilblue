@@ -44,22 +44,21 @@ module.exports = function DBMigrateModule(pb) {
             var self = this;
             var siteService = new pb.SiteService();
             siteService.getSiteMap(function (err, result) {
-                if (pb.config.multisite.enabled && result.active.length === 0 && result.inactive.length === 0) {
-                    self.createSite(function (err, isTaken, field, result) {
-                        self.siteUid = result.uid;
-                        var tasks = [
-                            util.wrapTask(self, self.migrateContentAndPluginData),
-                            util.wrapTask(self, self.migrateSettings),
-                            util.wrapTask(self, self.migrateUsers)
-                        ];
-                        async.series(tasks, function(err, result) {
-                           cb(err, result);
-                        });
+                if (!pb.config.multisite.enabled || result.active.length > 0 || result.inactive.length > 0) {
+                    return cb(null, true);
+                }
+
+                self.createSite(function (err, isTaken, field, result) {
+                    self.siteUid = result.uid;
+                    var tasks = [
+                        util.wrapTask(self, self.migrateContentAndPluginData),
+                        util.wrapTask(self, self.migrateSettings),
+                        util.wrapTask(self, self.migrateUsers)
+                    ];
+                    async.series(tasks, function(err, result) {
+                        cb(err, result);
                     });
-                }
-                else {
-                    cb(null, true);
-                }
+                });
             });
         };
 
