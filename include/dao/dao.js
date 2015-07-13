@@ -719,17 +719,8 @@ module.exports = function DAOModule(pb) {
      * exists, FALSE if not.
      */
     DAO.prototype.entityExists = function(entity, cb) {
-        var options = {
-            namesOnly: true
-        };
-
-        pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            db.listCollections({name: entity}, options).toArray(function(err, results) {
-                cb(err, util.isArray(results) && results.length === 1);
-            });
+        this.listCollections({name: entity}, function(err, results) {
+            cb(err, util.isArray(results) && results.length === 1);
         });
     };
 
@@ -761,18 +752,25 @@ module.exports = function DAOModule(pb) {
 
     /**
      * Gets all collection names
-     * @returns {DAO}
+     * @method listCollections
+     * @param {Object} [filter] The filter to specify what collection(s) to search for
+     * @param {Function} cb A callback that takes two parameters. The first, an
+     * Error, if occurred. The second is the result listCollections command.
      */
-    DAO.prototype.getAllCollections = function(cb) {
+    DAO.prototype.listCollections = function(filter, cb) {
+        var options = {
+          namesOnly: true
+        };
+
         pb.dbm.getDb(this.dbName, function(err, db) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            db.collections(function(err, items) {
+            db.listCollections(filter, options).toArray(function(err, results) {
                 if (util.isError(err)) {
                     return cb(err)
                 }
-                cb(err, items);
+                cb(err, results);
             });
         });
     };
