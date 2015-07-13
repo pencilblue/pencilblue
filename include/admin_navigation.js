@@ -311,12 +311,12 @@ module.exports = function AdminNavigationModule(pb) {
         var additions = getAdditions(site);
         var childrenAdditions = getChildrenAdditions(site);
 
-        if (pb.config.multisite) {
+        if (pb.config.multisite.enabled) {
             var multiSiteAdditions = getMultiSiteNavigation();
             util.arrayPushAll(multiSiteAdditions, navigation);
         }
 
-        if (pb.config.multisite && pb.SiteService.isGlobal(site)) {
+        if (pb.config.multisite.enabled && pb.SiteService.isGlobal(site)) {
             // Don't include content or view site in the nav for multitenancy global scope.
             util.arrayPushAll(getGlobalScopeNavigation(site), navigation);
         }

@@ -216,7 +216,7 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     SiteService.prototype.initSites = function(cb) {
-        if (pb.config.multisite && !pb.config.globalRoot) {
+        if (pb.config.multisite.enabled && !pb.config.multisite.globalRoot) {
             cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
         }
         else {
@@ -234,8 +234,8 @@ module.exports = function SiteServiceModule(pb) {
                     pb.RequestHandler.loadSite({
                         displayName: pb.SiteService.GLOBAL_SITE,
                         uid: pb.SiteService.GLOBAL_SITE,
-                        hostname: pb.config.multisite ? url.parse(pb.config.globalRoot).host : url.parse(pb.config.siteRoot).host,
-                        active: pb.config.multisite ? false : true
+                        hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
+                        active: pb.config.multisite.enabled ? false : true
                     });
                     cb(err, true);
                 }
@@ -347,7 +347,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb
      */
     SiteService.siteExists = function(siteUid, cb) {
-        if (pb.config.multisite && !(siteUid === SiteService.GLOBAL_SITE)) {
+        if (pb.config.multisite.enabled && !(siteUid === SiteService.GLOBAL_SITE)) {
             var dao = new pb.DAO();
             dao.exists(SITE_COLL, {uid: siteUid}, function (err, exists) {
                 cb(err, exists);

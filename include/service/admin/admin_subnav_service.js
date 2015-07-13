@@ -140,7 +140,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
      */
     AdminSubnavService.addSiteToPills = function (standardPills, siteName) {
         var pills = [];
-        if (siteName && pb.config.multisite) {
+        if (siteName && pb.config.multisite.enabled) {
             pills.push({
                 name: 'selected_site',
                 title: siteName,
@@ -164,7 +164,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
      */
     AdminSubnavService.getWithSite = function(key, ls, activePill, data, cb) {
         var standardPills = AdminSubnavService.get(key, ls, activePill, data);
-        if(pb.config.multisite) {
+        if(pb.config.multisite.enabled) {
             if(!data || !data.site) {
                 throw new Error('Data must include a field named "site"');
             }
