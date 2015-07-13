@@ -63,7 +63,9 @@ module.exports = function BaseAdminControllerModule(pb) {
    * @return {Object} the service context with onlyThisSite merged in
    */
   BaseAdminController.prototype.getServiceContext = function(){
-    return util.merge(BaseAdminController.super_.prototype.getServiceContext.apply(this), { onlyThisSite: true});
+    var context = BaseAdminController.super_.prototype.getServiceContext.apply(this);
+    context.onlyThisSite = true;
+    return context;
   };
 
 
