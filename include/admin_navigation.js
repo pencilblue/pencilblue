@@ -273,7 +273,7 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function getAdditions(site) {
         return getAdditionsInScope(AdminNavigation.additions, site);
-    };
+    }
 
     /**
      *
