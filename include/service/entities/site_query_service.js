@@ -28,7 +28,7 @@ module.exports = function SiteQueryServiceModule(pb) {
    * Create an instance of the site query service specific to the given site
    *
    * @param {String} siteUId UID of site, should already be sanitized by SiteService
-   * @param onlyThisSite {Boolean} for q, return results specific to this site instead of also looking in global
+   * @param {Boolean} onlyThisSite  for q, return results specific to this site instead of also looking in global
    * @constructor
    */
   function SiteQueryService(siteUId, onlyThisSite) {
@@ -48,7 +48,8 @@ module.exports = function SiteQueryServiceModule(pb) {
         siteEqualToSpecified[SITE_FIELD] = site;
 
         addToOr(where, [siteDoesNotExist, siteEqualToSpecified]);
-      } else {
+      }
+      else {
         where[SITE_FIELD] = site;
       }
     }
@@ -116,11 +117,21 @@ module.exports = function SiteQueryServiceModule(pb) {
     return !siteUId || siteUId === GLOBAL_SITE;
   }
 
+  function modifySave(site, objectToSave) {
+    if (pb.config.multisite && !(SITE_FIELD in objectToSave)) {
+      objectToSave[SITE_FIELD] = site;
+    }
+    // else do nothing
+    return objectToSave;
+  }
+
   /**
    * Overriding protected method of DAO to achieve site-aware query
+   * @override
    * @protected
-   * @param options
-   * @param callback
+   * @method _doQuery
+   * @param {Object} options
+   * @param {Function} callback
    */
   SiteQueryService.prototype._doQuery = function (options, callback) {
     var self = this;
@@ -144,7 +155,7 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   /**
    * Gets all collection names
-   * @param cb
+   * @param {Function} cb
    */
   SiteQueryService.prototype.getCollections = function (cb) {
     var dao = new pb.DAO();
@@ -158,9 +169,9 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   /**
    * Deletes all site specific content
-   * @param array of collection names
-   * @param siteid
-   * @param callback
+   * @param {Array} collections -  array of collection names
+   * @param {String} siteid - unique site id
+   * @param {Function} callback - callback function
    */
   SiteQueryService.prototype.deleteSiteSpecificContent = function (collections, siteid, callback) {
     var dao = new pb.DAO();
@@ -192,14 +203,6 @@ module.exports = function SiteQueryServiceModule(pb) {
     });
 
   };
-
-  function modifySave(site, objectToSave) {
-    if (pb.config.multisite && !(SITE_FIELD in objectToSave)) {
-      objectToSave[SITE_FIELD] = site;
-    }
-    // else do nothing
-    return objectToSave;
-  }
 
   return SiteQueryService;
 };
