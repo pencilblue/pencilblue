@@ -24,20 +24,24 @@ module.exports = function SiteServiceModule(pb) {
 
     /**
      * Service for performing site specific operations.
-     *
-     * @module Services
-     * @submodule Entities
      * @class SiteService
      * @constructor
      */
     function SiteService(){}
 
-    SiteService.GLOBAL_SITE = 'global';
+    SiteService.GLOBAL_SITE = 'global'; // represents default configuration, not actually a full site
     SiteService.NO_SITE = 'no-site';    // represents a site that doesn't exist
     SiteService.SITE_FIELD = 'site';
     SiteService.SITE_COLLECTION = 'site';
     var SITE_COLL = SiteService.SITE_COLLECTION;
 
+
+    /**
+     * Load full site config from the database using the unique id.
+     * @method getByUid
+     * @param {String} uid - unique id of site
+     * @param {Function} cb - the callback function
+     */
     SiteService.prototype.getByUid = function(uid, cb) {
         if(!uid || uid === SiteService.GLOBAL_SITE) {
             cb(null, {
@@ -53,21 +57,41 @@ module.exports = function SiteServiceModule(pb) {
         }
     };
 
+    /**
+     * Get all of the site objects in the database
+     * @method getAllSites
+     * @param {Function} cb - the callback function
+     */
     SiteService.prototype.getAllSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {} }, cb);
     };
 
+    /**
+     * Get all site objects where activated is true.
+     * @method getActiveSites
+     * @param {Function} cb - the callback function
+     */
     SiteService.prototype.getActiveSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {active: true} }, cb);
     };
 
+    /**
+     * Get all site objects where activated is false.
+     * @method getInactiveSites
+     * @param {Function} cb - the callback function
+     */
     SiteService.prototype.getInactiveSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, {where: {active: false}}, cb);
     };
 
+    /**
+     * Get all site objects segmented by active status.
+     * @method getSiteMap
+     * @param {Function} cb - the callback function
+     */
     SiteService.prototype.getSiteMap = function(cb) {
         var self  = this;
         var tasks = {
@@ -85,6 +109,12 @@ module.exports = function SiteServiceModule(pb) {
         });
     };
 
+    /**
+     * Get site name given a unique id.
+     * @method getSiteNameByUid
+     * @param {String} uid - unique id
+     * @param {Function} cb - the callback function
+     */
     SiteService.prototype.getSiteNameByUid = function(uid, cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, {select: pb.DAO.SELECT_ALL, where: {uid: uid} }, function(err, result) {
@@ -102,12 +132,11 @@ module.exports = function SiteServiceModule(pb) {
 
     /**
      * Checks to see if a proposed site display name or hostname is already in the system
-     *
      * @method isDisplayNameOrHostnameTaken
-     * @param {String}   displayName
-     * @param {String}   hostname
-     * @param {String}   id       Site object Id to exclude from the search
-     * @param {Function} cb       Callback function
+     * @param {String}   displayName - desired name to display
+     * @param {String}   hostname - hostname of the site
+     * @param {String}   id - Site object Id to exclude from the search
+     * @param {Function} cb - Callback function
      */
     SiteService.prototype.isDisplayNameOrHostnameTaken = function(displayName, hostname, id, cb) {
         this.getExistingDisplayNameHostnameCounts(displayName, hostname, id, function(err, results) {
@@ -127,10 +156,10 @@ module.exports = function SiteServiceModule(pb) {
      * Gets the total counts of a display name and hostname in the site collection
      *
      * @method getExistingDisplayNameHostnameCounts
-     * @param {String}   displayName
-     * @param {String}   hostname
-     * @param {String}   id       Site object Id to exclude from the search
-     * @param {Function} cb       Callback function
+     * @param {String}   displayName - site display name
+     * @param {String}   hostname - site hostname
+     * @param {String}   id - Site object Id to exclude from the search
+     * @param {Function} cb - Callback function
      */
     SiteService.prototype.getExistingDisplayNameHostnameCounts = function(displayName, hostname, id, cb) {
         if (util.isFunction(id)) {
@@ -157,6 +186,13 @@ module.exports = function SiteServiceModule(pb) {
         async.series(tasks, cb);
     };
 
+    /**
+     * Run a job to activate a site so that all of its routes are available.
+     * @method activateSite
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback to run after job is completed
+     * @returns {String} the job id
+     */
     SiteService.prototype.activateSite = function(siteUid, cb) {
         cb = cb || util.cb;
         var name = util.format("ACTIVATE_SITE_%s", siteUid);
@@ -168,6 +204,14 @@ module.exports = function SiteServiceModule(pb) {
         return job.getId();
     };
 
+
+    /**
+     * Run a job to set a site inactive so that only the admin routes are available.
+     * @method deactivateSite
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback to run after job is completed
+     * @returns {String} the job id
+     */
     SiteService.prototype.deactivateSite = function(siteUid, cb) {
         cb = cb || util.cb;
         var name = util.format("DEACTIVATE_SITE_%s", siteUid);
@@ -179,6 +223,13 @@ module.exports = function SiteServiceModule(pb) {
         return job.getId();
     };
 
+    /**
+     * Creates a site and saves it to the database.
+     * @method createSite
+     * @param {Object} site - the configurable site object to save
+     * @param {String} id - the site unique identifier for the database
+     * @param {Function} cb - callback function
+     */
     SiteService.prototype.createSite = function(site, id, cb) {
         site.active = false;
         site.uid = getUid();
@@ -200,6 +251,12 @@ module.exports = function SiteServiceModule(pb) {
         });
     };
 
+    /**
+     * Given a site uid, activate if the site exists so that user facing routes are on.
+     * @method startAcceptingSiteTraffic
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback function
+     */
     SiteService.prototype.startAcceptingSiteTraffic = function(siteUid, cb) {
         var dao = new pb.DAO();
         dao.loadByValue('uid', siteUid, 'site', function(err, site) {
@@ -216,6 +273,12 @@ module.exports = function SiteServiceModule(pb) {
         });
     };
 
+    /**
+     * Given a site uid, deactivate if the site exists so that user facing routes are off.
+     * @method stopAcceptingSiteTraffic
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback function
+     */
     SiteService.prototype.stopAcceptingSiteTraffic = function(siteUid, cb) {
         var dao = new pb.DAO();
         dao.loadByValue('uid', siteUid, 'site', function(err, site) {
@@ -232,6 +295,11 @@ module.exports = function SiteServiceModule(pb) {
         });
     };
 
+    /**
+     * Load all sites into memory.
+     * @method initSites
+     * @param {Function} cb
+     */
     SiteService.prototype.initSites = function(cb) {
         if (pb.config.multisite && !pb.config.globalRoot) {
             cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
@@ -260,11 +328,19 @@ module.exports = function SiteServiceModule(pb) {
         }
     };
 
-    function getUid()
-    {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
+    // Generate a site unique id.
+    function getUid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);
+        });
     }
 
+    /**
+     * Runs a site activation job when command is received.
+     * @static
+     * @method onActivateSiteCommandReceived
+     * @param {Object} command - the command to react to.
+     */
     SiteService.onActivateSiteCommandReceived = function(command) {
         if (!util.isObject(command)) {
             pb.log.error('SiteService: an invalid activate_site command object was passed. %s', util.inspect(command));
@@ -285,6 +361,12 @@ module.exports = function SiteServiceModule(pb) {
         });
     };
 
+    /**
+     * Runs a site deactivation job when command is received.
+     * @static
+     * @method onDeactivateSiteCommandReceived
+     * @param {Object} command - the command to react to.
+     */
     SiteService.onDeactivateSiteCommandReceived = function(command) {
         if (!util.isObject(command)) {
             pb.log.error('SiteService: an invalid deactivate_site command object was passed. %s', util.inspect(command));
@@ -306,30 +388,32 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
-     *
+     * Register activate and deactivate commands on initialization
      * @static
      * @method init
      */
     SiteService.init = function() {
-        //register for commands
         var commandService = pb.CommandService.getInstance();
         commandService.registerForType('deactivate_site', SiteService.onActivateSiteCommandReceived);
         commandService.registerForType('activate_site'  , SiteService.onDeactivateSiteCommandReceived);
     };
 
     /**
-     * Returns true iff siteid given is global
-     * @param siteid
-     * @returns {boolean}
+     * Returns true if siteid given is global or non-existant (to remain backwards compatible)
+     * @method isGlobal
+     * @param {String} siteid - the site id to check
+     * @returns {Boolean} true if global or does not exist
      */
     SiteService.isGlobal = function (siteid) {
         return (!siteid || siteid === SiteService.GLOBAL_SITE);
     };
 
     /**
-     * Returns true iff both site given are equal
-     * @param siteA
-     * @param siteB
+     * Returns true if both site ids given are equal
+     * @method areEqual
+     * @param {String} siteA - first site id to compare
+     * @param {String} siteB - second site id to compare
+     * @return {Boolean} true if equal, false otherwise
      */
     SiteService.areEqual = function (siteA, siteB) {
         if (SiteService.isGlobal(siteA) && SiteService.isGlobal(siteB)) {
@@ -339,19 +423,21 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
-     * Returns true iff actual is not set (falsey) or logically equivalent to expected in terms of sites
-     * @param actual
-     * @param expected
+     * Returns true if actual is not set (falsey) or logically equivalent to expected in terms of sites
+     * @method isNotSetOrEqual
+     * @param {String} actual - site to check
+     * @param {String} expected - site you expect to be equal
+     * @return {Boolean} true if actual exists and equals expected
      */
     SiteService.isNotSetOrEqual = function (actual, expected) {
         return !actual || SiteService.areEqual(actual, expected);
     };
 
     /**
-     * Central place to get the current site
-     *
-     * @param siteid
-     * @returns {string} SiteService.GLOBAL_SITE if not specified, or siteid otherwise
+     * Central place to get the current site. Backwards compatible cleansing
+     * @method getCurrentSite
+     * @param {String} siteid - site is to cleanse
+     * @returns {String} SiteService.GLOBAL_SITE if not specified, or siteid otherwise
      */
     SiteService.getCurrentSite = function (siteid) {
         return siteid || SiteService.GLOBAL_SITE;
@@ -360,8 +446,8 @@ module.exports = function SiteServiceModule(pb) {
     /**
      * Determines if a site exists matching siteUid
      * @method siteExists
-     * @param {String} siteUid
-     * @param {Function} cb
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback function
      */
     SiteService.siteExists = function(siteUid, cb) {
         if (pb.config.multisite && !(siteUid === SiteService.GLOBAL_SITE)) {
@@ -375,6 +461,12 @@ module.exports = function SiteServiceModule(pb) {
         }
     };
 
+    /**
+     * Return site field from object.
+     * @method getSiteFromObject
+     * @param {Object} object
+     * @returns {String} the value of the object's site field key
+     */
     SiteService.getSiteFromObject = function (object) {
         if (!object) {
             return SiteService.NO_SITE;
@@ -382,6 +474,12 @@ module.exports = function SiteServiceModule(pb) {
         return object[SiteService.SITE_FIELD];
     };
 
+    /**
+     * Determine whether http or https is being used for the site and return hostname attached to http(s)
+     * @method getHostWithProtocol
+     * @param {String} hostname
+     * @returns {String} hostname with protocol attached
+     */
     SiteService.getHostWithProtocol = function(hostname) {
         hostname = hostname.match(/^http/g) ? hostname : "//" + hostname;
         var urlObject = url.parse(hostname, false, true);
