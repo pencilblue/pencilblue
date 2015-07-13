@@ -160,7 +160,8 @@ module.exports = function DBManagerModule(pb) {
 
             this.dropUnconfiguredIndices(procedures, function(err) {
                 if(util.isError(err)) {
-                    pb.log.error('DBManager: Error occurred during index check/deletion ERROR[%s]', err.stack);
+                    cb(new Error('DBManager: Error occurred during index check/deletion ERROR[%s]', err.stack));
+                    return;
                 }
                 self.ensureIndices(procedures, cb);
             });
