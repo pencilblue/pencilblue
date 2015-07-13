@@ -229,6 +229,10 @@ module.exports = function DBManagerModule(pb) {
                             return result;
                         });
                         var indexCollection = index.ns.split('.')[1];
+
+                        //ignore any index relating to the "_id" field.
+                        //ignore all indices of the "session" collection as it is managed elsewhere.
+                        //use length and null/undefined check for if the index in question is not defined in pb.config.indices.
                         if(index.name !== '_id_' && indexCollection !== 'session' && (filteredIndex.length === 0 || util.isNullOrUndefined(filteredIndex))) {
                             dao.dropIndex(indexCollection, index.name, function(err, result) {
                                 if(util.isError(err)) {
