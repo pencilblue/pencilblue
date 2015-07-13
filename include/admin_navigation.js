@@ -481,6 +481,9 @@ module.exports = function AdminNavigationModule(pb) {
      * @param site
      */
     AdminNavigation.addToSite = function (node, site) {
+        if (util.isNullOrUndefined(site)) {
+            site = GLOBAL_SITE;
+        }
         if (exists(node.id, site)) {
             return false;
         }
@@ -490,14 +493,6 @@ module.exports = function AdminNavigationModule(pb) {
         }
         AdminNavigation.additions[site].push(node);
         return true;
-    };
-
-    AdminNavigation.add = function (node) {
-        return AdminNavigation.addToSite(node, GLOBAL_SITE);
-    };
-
-    AdminNavigation.remove = function (id) {
-        return AdminNavigation.removeFromSite(id, GLOBAL_SITE);
     };
 
     /**
