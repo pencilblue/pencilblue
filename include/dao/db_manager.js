@@ -232,18 +232,17 @@ module.exports = function DBManagerModule(pb) {
 
                         //ignore any index relating to the "_id" field.
                         //ignore all indices of the "session" collection as it is managed elsewhere.
-                        //use length and null/undefined check for if the index in question is not defined in pb.config.indices.
-                        if(index.name !== '_id_' && indexCollection !== 'session' && (filteredIndex.length === 0 || util.isNullOrUndefined(filteredIndex))) {
-                            dao.dropIndex(indexCollection, index.name, function(err, result) {
-                                if(util.isError(err)) {
-                                    pb.log.error('DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack);
-                                }
-                                callback(err, result);
-                            });
+                        //use length and null/undefined check for if the index in question is defined in pb.config.indices.
+                        if(index.name === '_id_' || indexCollection === 'session' || (filteredIndex.length !== 0 && !util.isNullOrUndefined(filteredIndex))) {
+                            return callback();
                         }
-                        else {
-                            callback();
-                        }
+
+                        dao.dropIndex(indexCollection, index.name, function (err, result) {
+                            if (util.isError(err)) {
+                                pb.log.error('DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack);
+                            }
+                            callback(err, result);
+                        });
                     };
                 });
                 async.parallel(tasks, function(err){
