@@ -308,12 +308,11 @@ module.exports = function AdminNavigationModule(pb) {
     function buildNavigation(site) {
         var i;
         var navigation = [];
-        var multiSiteAdditions = getMultiSiteNavigation();
-        var defaultNavigation = getDefaultNavigation(site);
         var additions = getAdditions(site);
         var childrenAdditions = getChildrenAdditions(site);
 
         if (pb.config.multisite) {
+            var multiSiteAdditions = getMultiSiteNavigation();
             util.arrayPushAll(multiSiteAdditions, navigation);
         }
 
@@ -322,6 +321,7 @@ module.exports = function AdminNavigationModule(pb) {
             util.arrayPushAll(getGlobalScopeNavigation(site), navigation);
         }
         else {
+            var defaultNavigation = getDefaultNavigation(site);
             util.arrayPushAll(defaultNavigation, navigation);
         }
 
