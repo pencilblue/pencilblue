@@ -71,17 +71,6 @@ module.exports = function BaseControllerModule(pb) {
      * @type {String}
      */
     var ALERT_PATTERN = '<div class="alert %s error_success">%s<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
-
-    /**
-     * The prefix in the content-type header that indicates the charset used in 
-     * the encoding
-     * @static
-     * @private
-     * @readonly
-     * @property CHARSET_HEADER_PREFIX
-     * @type {String}
-     */
-    var CHARSET_HEADER_PREFIX = 'charset=';
     
     /**
      * A mapping that converts the HTTP standard for content-type encoding and 
