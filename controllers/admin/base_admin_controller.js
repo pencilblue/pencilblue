@@ -23,7 +23,9 @@ module.exports = function BaseAdminControllerModule(pb) {
 
   /**
    * This class serves as a base class for all the controllers used in the admin control panel
+   * @class BaseAdminController
    * @constructor
+   * @extends BaseController
    */
   function BaseAdminController() {}
   util.inherits(BaseAdminController, BaseController);
@@ -31,8 +33,9 @@ module.exports = function BaseAdminControllerModule(pb) {
   /**
    * Initializes the admin controller with site-related info
    * @override
-   * @param props
-   * @param cb
+   * @method init
+   * @param {Object} props
+   * @param {Function} cb
    */
   BaseAdminController.prototype.init = function (props, cb) {
     var self = this;
@@ -41,6 +44,12 @@ module.exports = function BaseAdminControllerModule(pb) {
     });
   };
 
+  /**
+   * Initializes the admin controller with instance variables
+   * @override
+   * @method extendedInit
+   * @param {Function} cb
+   */
   BaseAdminController.prototype.extendedInit = function(cb) {
     this.siteQueryService = new pb.SiteQueryService(this.site, true);
     this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, true);
@@ -51,7 +60,7 @@ module.exports = function BaseAdminControllerModule(pb) {
    * Retrieves a context object that contains the necessary information for
    * service prototypes
    * @method getServiceContext
-   * @return {Object}
+   * @return {Object} the service context with onlyThisSite merged in
    */
   BaseAdminController.prototype.getServiceContext = function(){
     return util.merge(BaseAdminController.super_.prototype.getServiceContext.apply(this), { onlyThisSite: true});
@@ -65,6 +74,7 @@ module.exports = function BaseAdminControllerModule(pb) {
    * @param localizationService
    * @param activePill
    * @param data
+   * @return {Object} pill objects for admin console with site pill at the beginning
    */
   BaseAdminController.prototype.getAdminPills = function (navKey, localizationService, activePill, data) {
     var pills = pb.AdminSubnavService.get(navKey, localizationService, activePill, data);
