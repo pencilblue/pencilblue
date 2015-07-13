@@ -214,6 +214,10 @@ module.exports = function DBManagerModule(pb) {
             //to prevent a cirular dependency we do the require for DAO here.
             var DAO = require('./dao.js')(pb);
             this.getStoredIndices(function(err, storedIndices) {
+                if(util.isError(err)) {
+                    cb(new Error('DBManager: Failed to get stored indices ERROR[%s]', err.stack));
+                    return;
+                }
                 var dao = new DAO();
 
                 var tasks = util.getTasks(storedIndices, function(indices, i) {
