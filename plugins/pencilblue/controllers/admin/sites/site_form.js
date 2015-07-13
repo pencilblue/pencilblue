@@ -19,11 +19,21 @@ module.exports = function SiteFormModule(pb) {
 
     var util = pb.util;
 
+    /**
+     * Site Form renders a form to add/edit sites to the database.
+     * @constructor
+     * @extends BaseController
+     */
     function SiteForm(){}
     util.inherits(SiteForm, pb.BaseController);
 
     var SUB_NAV_KEY = 'sites_edit';
 
+    /**
+     * Renders the site form to create and edit sites.
+     * @method render
+     * @param {Function} cb - the callback function
+     */
     SiteForm.prototype.render = function(cb) {
         var self = this;
         var isNew = true;
@@ -57,7 +67,14 @@ module.exports = function SiteFormModule(pb) {
 
     };
 
-    SiteForm.getSubNavItems = function(key, ls, data) {
+    /**
+     * Gets an array of nav objects for pills.
+     * @method getSubNavItems
+     * @param key
+     * @param {Object} ls - the localization service
+     * @returns {Array} the array of nav objects to render.
+     */
+    SiteForm.getSubNavItems = function(key, ls) {
         return [{
             name: 'edit_sites',
             title: ls.get('EDIT_SITE'),

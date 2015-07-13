@@ -20,11 +20,21 @@ module.exports = function(pb) {
 
     var util = pb.util;
 
+    /**
+     * Renders a view to display and manage all the sites
+     * @constructor
+     * @extends BaseController
+     */
     function ManageSites(){}
     util.inherits(ManageSites, pb.BaseController);
 
     var SUB_NAV_KEY = 'sites_manage';
 
+    /**
+     * Render view to manage sites.
+     * @method render
+     * @param {Function} cb - callback function
+     */
     ManageSites.prototype.render = function(cb) {
         var self = this;
         var siteService = new pb.SiteService();
@@ -42,7 +52,14 @@ module.exports = function(pb) {
         });
     };
 
-    ManageSites.getSubNavItems = function(key, ls, data) {
+    /**
+     * Get array of nav items for nav pills.
+     * @method getSubNavItems
+     * @param {String} key
+     * @param {Object} ls
+     * @returns {Array} array of nav items
+     */
+    ManageSites.getSubNavItems = function(key, ls) {
         return [{
             name: 'manage_sites',
             title: ls.get('MANAGE_SITES'),
