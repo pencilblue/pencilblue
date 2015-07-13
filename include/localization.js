@@ -35,10 +35,14 @@ module.exports = function LocalizationModule(pb) {
      * @constructor
      * @param {Object} request The request object
      */
-    function Localization(request, activeTheme){
-        this.activeTheme = activeTheme;
+    function Localization(request){
+        this.activeTheme = 'pencilblue';
         //expected to be lowercase and of the form "en-us"
         this.language = Localization.best(request).toString();
+    }
+
+    Localization.prototype.setActiveTheme = function (activeTheme){
+        this.activeTheme = activeTheme;
     }
 
     /**

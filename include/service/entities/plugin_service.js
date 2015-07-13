@@ -1216,7 +1216,7 @@ module.exports = function PluginServiceModule(pb) {
                              pb.log.debug('PluginService:[%s] Registering localizations for locale [%s]', details.uid, locale);
                          }
 
-                         var result = pb.Localization.registerLocalizations(locale, localizations[locale], plugin.dirName);
+                         var result = pb.Localization.registerLocalizations(locale, localizations[locale], details.uid);
                          if (!result && pb.log.isDebug()) {
                              pb.log.debug('PluginService:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', details.uid, locale);
                          }
