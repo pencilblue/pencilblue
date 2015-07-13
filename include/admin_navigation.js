@@ -449,6 +449,9 @@ module.exports = function AdminNavigationModule(pb) {
      * @param site
      */
     AdminNavigation.addChildToSite = function (parentId, node, site) {
+        if (util.isNullOrUndefined(site)) {
+            site = GLOBAL_SITE;
+        }
         if (exists(node.id, site)) {
             return false;
         }
@@ -466,10 +469,6 @@ module.exports = function AdminNavigationModule(pb) {
 
         additionsMap[parentId].push(node);
         return true;
-    };
-
-    AdminNavigation.addChild = function (parentId, node) {
-        return AdminNavigation.addChildToSite(parentId, node, GLOBAL_SITE);
     };
 
     /**
