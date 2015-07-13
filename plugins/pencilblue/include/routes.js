@@ -1169,6 +1169,7 @@ module.exports = function Routes(pb){
             path: "/admin/elements/wysiwyg",
             access_level: pb.SecurityService.ACCESS_WRITER,
             auth_required: true,
+            inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'elements', 'wysiwyg.js'),
       	},
         {

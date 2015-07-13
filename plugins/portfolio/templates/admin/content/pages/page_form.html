@@ -8,7 +8,7 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="content">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.url)}">
-                        <label>^loc_ARTICLE_URL^</label>
+                        <label>^loc_PAGE_URL^</label>
                         <div class="input-group">
                             <span class="input-group-addon">/page/</span>
                             <input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" url-safe required></input>
@@ -28,6 +28,10 @@
                             <option value="">^loc_THEME_DEFAULT^</option>
                             <option ng-value="template.theme_uid + '|' + template.file" ng-repeat="template in templates" ng-bind="template.theme_name + ': ' + template.name" ng-selected="page.template === (template.theme_uid + '|' + template.file)"></option>
                         </select>
+                    </div>
+                    <div class="form-group" ng-if="availableAuthors.length">
+                        <label>^loc_AUTHOR^</label>
+                        <select class="form-control" ng-model="page.author" ng-options="availableAuthor._id as availableAuthor.name for availableAuthor in availableAuthors"></select>
                     </div>
                     ^tmp_admin=elements=hero_upload^
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.headline)}">
@@ -49,11 +53,9 @@
                         </div>
                         <div class="form_error" ng-if="!isFieldValid(pageForm.publish_date)">^loc_REQUIRED_FIELD^</div>
                     </div>
-                    <div class="form-group">
-                        <label>^loc_CONTENT^&nbsp;<span ng-bind="columnInches"></span></label>
-                        <div id="page_wysiwyg">
-                            ^wysiwyg^
-                        </div>
+                    <div class="form-group" ng-class="{'has-error': !isWysiwygValid(layout)}">
+                      <wysiwyg layout="layout" media="page.page_media"></wysiwyg>
+                      <div class="form_error" ng-if="!isWysiwygValid(layout)" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <div class="tab-pane" id="media">
@@ -79,6 +81,12 @@
                         <label>^loc_META_KEYWORDS^</label>
                         <input type="text" class="form-control" ng-model="page.meta_keywords" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
                     </div>
+                    <div class="form-group" ng-if="page.page_media.length">
+                        <label>^loc_THUMBNAIL^</label>
+                        <select class="form-control" ng-model="page.thumbnail">
+                            <option ng-value="media._id" ng-repeat="media in page.page_media" ng-selected="page.thumbnail === media._id" ng-bind="media.name" ng-if="media.media_type === 'image'"></option>
+                        </select>
+                    </div>
                 </div>
                 <a class="btn btn-default" href="/admin/content/pages">
                     <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
@@ -103,11 +111,16 @@
                     </ul>
                 </div>
                 <div class="spacer"></div>
-                <label id="draft_info" ng-if="page.draft">^loc_DRAFT_SAVED^ <span id="draft_time">{{page.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span></label>
+                <label id="draft_info" ng-if="page._id">
+                  <span ng-if="page.draft">^loc_DRAFT_SAVED^</span>
+                  <span ng-if="!page.draft">^loc_LAST_SAVED^</span>&nbsp;
+                  <span id="draft_time">{{page.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
+                </label>
             </div>
             <div class="additions" style="display: none"></div>
         </fieldset>
     </form>
 </div>
+^tmp_admin=elements=wysiwyg_scripts^
 ^tmp_angular=admin=content=pages=page_form^
 ^tmp_admin=footer^

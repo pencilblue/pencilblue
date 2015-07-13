@@ -40,7 +40,7 @@ module.exports = function SiteQueryServiceModule(pb) {
   util.inherits(SiteQueryService, DAO);
 
   function modifyLoadWhere(site, where) {
-    if (pb.config.multisite) {
+    if (pb.config.multisite.enabled) {
       where = _.clone(where);
       if (site === GLOBAL_SITE) {
         var siteDoesNotExist = {}, siteEqualToSpecified = {};
@@ -57,7 +57,7 @@ module.exports = function SiteQueryServiceModule(pb) {
   }
 
   function modifyLoadOptions(site, options) {
-    if (pb.config.multisite) {
+    if (pb.config.multisite.enabled) {
       var target = _.clone(options);
 
       target.where = target.where || {};

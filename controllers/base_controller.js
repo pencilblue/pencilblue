@@ -71,17 +71,6 @@ module.exports = function BaseControllerModule(pb) {
      * @type {String}
      */
     var ALERT_PATTERN = '<div class="alert %s error_success">%s<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
-
-    /**
-     * The prefix in the content-type header that indicates the charset used in 
-     * the encoding
-     * @static
-     * @private
-     * @readonly
-     * @property CHARSET_HEADER_PREFIX
-     * @type {String}
-     */
-    var CHARSET_HEADER_PREFIX = 'charset=';
     
     /**
      * A mapping that converts the HTTP standard for content-type encoding and 
@@ -132,7 +121,9 @@ module.exports = function BaseControllerModule(pb) {
         this.pathVars            = props.path_vars;
         this.query               = props.query;
         this.pageName            = '';
-        this.site                = props.site;
+        this.siteObj             = props.site;
+        this.site                = props.site.uid;
+        this.siteName            = SiteService.isGlobal(props.site.uid) ? props.site.uid : props.site.displayName;
 
         var tsOpts = {
             ls: this.localizationService,
@@ -163,7 +154,12 @@ module.exports = function BaseControllerModule(pb) {
                 cb(err, new pb.TemplateValue(data, false));
             });
         });
-
+        this.ts.registerLocal('site_root', function(flag, cb) {
+            cb(null, SiteService.getHostWithProtocol(self.siteObj.hostname) || self.ts.siteRoot);
+        });
+        this.ts.registerLocal('site_name', function(flag, cb) {
+            cb(null, self.siteName);
+        });
 
         /**
          *
@@ -181,27 +177,11 @@ module.exports = function BaseControllerModule(pb) {
             ts: this.ts,
             site: this.site,
             activeTheme: this.activeTheme,
-            onlyThisSite: true
+            onlyThisSite: true,
+            siteObj: this.siteObj
         };
 
-        var siteService = new SiteService();
-        siteService.getByUid(this.site, function (err, siteInfo) {
-            if(pb.util.isError(err)) {
-                self.reqHandler.serve404();
-                return;
-            }
-            self.siteObj = siteInfo;
-            self.siteName = SiteService.isGlobal(siteInfo.uid) ? siteInfo.uid : siteInfo.displayName;
-            self.context.siteObj = self.siteObj;
-
-            self.ts.registerLocal('site_root', function(flag, cb) {
-                cb(null, SiteService.getHostWithProtocol(self.siteObj.hostname) || self.ts.siteRoot);
-            });
-            self.ts.registerLocal('site_name', function(flag, cb) {
-                cb(null, self.siteName);
-            });
-            cb();
-        });
+        cb();
     };
     
     /**

@@ -273,7 +273,7 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function getAdditions(site) {
         return getAdditionsInScope(AdminNavigation.additions, site);
-    };
+    }
 
     /**
      *
@@ -308,20 +308,20 @@ module.exports = function AdminNavigationModule(pb) {
     function buildNavigation(site) {
         var i;
         var navigation = [];
-        var multiSiteAdditions = getMultiSiteNavigation();
-        var defaultNavigation = getDefaultNavigation(site);
         var additions = getAdditions(site);
         var childrenAdditions = getChildrenAdditions(site);
 
-        if (pb.config.multisite) {
+        if (pb.config.multisite.enabled) {
+            var multiSiteAdditions = getMultiSiteNavigation();
             util.arrayPushAll(multiSiteAdditions, navigation);
         }
 
-        if (pb.config.multisite && pb.SiteService.isGlobal(site)) {
+        if (pb.config.multisite.enabled && pb.SiteService.isGlobal(site)) {
             // Don't include content or view site in the nav for multitenancy global scope.
             util.arrayPushAll(getGlobalScopeNavigation(site), navigation);
         }
         else {
+            var defaultNavigation = getDefaultNavigation(site);
             util.arrayPushAll(defaultNavigation, navigation);
         }
 
@@ -449,6 +449,9 @@ module.exports = function AdminNavigationModule(pb) {
      * @param site
      */
     AdminNavigation.addChildToSite = function (parentId, node, site) {
+        if (util.isNullOrUndefined(site)) {
+            site = GLOBAL_SITE;
+        }
         if (exists(node.id, site)) {
             return false;
         }
@@ -468,10 +471,6 @@ module.exports = function AdminNavigationModule(pb) {
         return true;
     };
 
-    AdminNavigation.addChild = function (parentId, node) {
-        return AdminNavigation.addChildToSite(parentId, node, GLOBAL_SITE);
-    };
-
     /**
      * Adds a new top level node
      * @static
@@ -481,6 +480,9 @@ module.exports = function AdminNavigationModule(pb) {
      * @param site
      */
     AdminNavigation.addToSite = function (node, site) {
+        if (util.isNullOrUndefined(site)) {
+            site = GLOBAL_SITE;
+        }
         if (exists(node.id, site)) {
             return false;
         }
@@ -490,14 +492,6 @@ module.exports = function AdminNavigationModule(pb) {
         }
         AdminNavigation.additions[site].push(node);
         return true;
-    };
-
-    AdminNavigation.add = function (node) {
-        return AdminNavigation.addToSite(node, GLOBAL_SITE);
-    };
-
-    AdminNavigation.remove = function (id) {
-        return AdminNavigation.removeFromSite(id, GLOBAL_SITE);
     };
 
     /**
@@ -536,10 +530,10 @@ module.exports = function AdminNavigationModule(pb) {
         AdminNavigation.additions[site] = removeNode(id, AdminNavigation.additions[site]);
 
         var childAdditionsMap = AdminNavigation.childrenAdditions[site];
-        for (var parentId in  childAdditionsMap) {
-            childAdditionsMap[parentId] = removeNode(id, childAdditionsMap[parentId]);
-        }
-
+        util.forEach(childAdditionsMap, function(value, key) {
+            childAdditionsMap[key] = removeNode(id, value);
+        });
+        
         return true;
     };
 

@@ -38,17 +38,7 @@ module.exports = function IndexModule(pb) {
     Index.prototype.init = function (props, cb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
-            var siteService = new pb.SiteService();
-            siteService.getByUid(self.site, function(err, site) {
-                if (!site) {
-                    self.reqHandler.serve404();
-                }
-                else {
-                    self.siteObj = site;
-                    self.siteQueryService = new pb.SiteQueryService(site.uid);
-                    cb();
-                }
-            });
+            self.siteQueryService = new pb.SiteQueryService(self.site);
         });
     };
 
@@ -96,7 +86,7 @@ module.exports = function IndexModule(pb) {
                     }
                     self.ts.registerLocal('meta_keywords', homePageKeywords);
                     self.ts.registerLocal('meta_desc', homePageDescription);
-                    self.ts.registerLocal('meta_title', self.siteObj.displayName);
+                    self.ts.registerLocal('meta_title', self.siteName);
                     self.ts.registerLocal('meta_lang', localizationLanguage);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));

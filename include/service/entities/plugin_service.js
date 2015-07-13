@@ -38,7 +38,7 @@ module.exports = function PluginServiceModule(pb) {
      * @submodule Entities
      */
     function PluginService(siteUID){
-        if(pb.config.multisite && siteUID) {
+        if(pb.config.multisite.enabled && siteUID) {
             this.site = siteUID;
         } else {
             this.site = GLOBAL_SITE;

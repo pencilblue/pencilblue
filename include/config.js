@@ -121,11 +121,13 @@ Configuration.getBaseConfig = function(multisite) {
         docRoot:  Configuration.DOCUMENT_ROOT,
 
         //enables/disables multiple sites in a single pencilblue instance (multitenancy)
-        multisite: false,
+        multisite: {
+            enabled: false,
 
-        // When multisite is true, this is the hostname that will resolve to the global namespace.
-        // Only Admin routes will be activated for this hostname.
-        globalRoot: 'http://global.localhost:8080',
+            // When multisite.enabled is true, this is the hostname that will resolve to the global namespace.
+            // Only Admin routes will be activated for this hostname.
+            globalRoot: 'http://global.localhost:8080'
+        },
 
         //provides a configuration for connecting to persistent storage.  The
         //default configuration is meant for mongodb.
@@ -433,7 +435,7 @@ Configuration.load = function(filePaths) {
  * @method mergeWithBase
  */
 Configuration.mergeWithBase = function(overrides) {
-    var multisite = overrides ? overrides.multisite : false;
+    var multisite = overrides ? overrides.multisite.enabled : false;
     var baseConfig = Configuration.getBaseConfig(multisite);
 
     //merge in all overrides with the base configuration
