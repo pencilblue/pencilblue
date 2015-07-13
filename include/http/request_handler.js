@@ -652,11 +652,10 @@ module.exports = function RequestHandlerModule(pb) {
 
         //set the site -- how do we handle improper sites here?
         //TODO Handle global differently here when we pull through global site designation
-        this.siteObject = RequestHandler.sites[this.hostname]
+        this.site = RequestHandler.sites[this.hostname]
             ? RequestHandler.sites[this.hostname]
             : this.serve404();
-        this.site = this.siteObject.uid;
-
+        this.site.hostname = this.hostname;
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
         if (route == null) {
@@ -667,7 +666,7 @@ module.exports = function RequestHandlerModule(pb) {
 
         //get active theme
         var self = this;
-        var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.site);
+        var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.site.uid);
         settings.get('active_theme', function(err, activeTheme){
             if (!activeTheme) {
                 pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
@@ -690,7 +689,7 @@ module.exports = function RequestHandlerModule(pb) {
         var isSilly = pb.log.isSilly();
         var route   = RequestHandler.staticRoutes[path];
         if (!util.isNullOrUndefined(route)) {
-            if(route.themes[this.site] || route.themes[GLOBAL_SITE]) {
+            if(route.themes[this.site.uid] || route.themes[GLOBAL_SITE]) {
                 if (isSilly) {
                     pb.log.silly('RequestHandler: Found static route [%s]', path);
                 }
@@ -709,7 +708,7 @@ module.exports = function RequestHandlerModule(pb) {
                 pb.log.silly('RequestHandler: Comparing Path [%s] to Pattern [%s] Result [%s]', path, curr.pattern, result);
             }
             if (result) {
-                if(curr.themes[this.site] || curr.themes[GLOBAL_SITE]) {
+                if(curr.themes[this.site.uid] || curr.themes[GLOBAL_SITE]) {
                     return curr;
                 }
                 break;
@@ -771,20 +770,20 @@ module.exports = function RequestHandlerModule(pb) {
 
             //check for themed route
             var themesToCheck = [activeTheme, RequestHandler.DEFAULT_THEME];
-            if (this.site in route.themes) {
-                util.arrayPushAll(Object.keys(route.themes[this.site]), themesToCheck);
+            if (this.site.uid in route.themes) {
+                util.arrayPushAll(Object.keys(route.themes[this.site.uid]), themesToCheck);
             }
-            if (!pb.SiteService.isGlobal(this.site) && (pb.SiteService.GLOBAL_SITE in route.themes)) {
+            if (!pb.SiteService.isGlobal(this.site.uid) && (pb.SiteService.GLOBAL_SITE in route.themes)) {
                 util.arrayPushAll(Object.keys(route.themes[pb.SiteService.GLOBAL_SITE]), themesToCheck);
             }
             themesToCheck = _.uniq(themesToCheck);
             for (var j = 0; j < themesToCheck.length; j++) {
 
                 //see if theme supports method and provides support
-                if (RequestHandler.routeSupportsSiteTheme(route, themesToCheck[j], methods[i], this.site)) {
+                if (RequestHandler.routeSupportsSiteTheme(route, themesToCheck[j], methods[i], this.site.uid)) {
                     obj.theme  = themesToCheck[j];
                     obj.method = methods[i];
-                    obj.site   = this.site;
+                    obj.site   = this.site.uid;
                     return obj;
                 } else if (RequestHandler.routeSupportsGlobalTheme(route, themesToCheck[j], methods[i])) {
                     obj.theme  = themesToCheck[j];
@@ -820,8 +819,8 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
-        if (!this.siteObject.active && !inactiveSiteAccess) {
-            if (this.siteObject.uid === pb.SiteService.GLOBAL_SITE) {
+        if (!this.site.active && !inactiveSiteAccess) {
+            if (this.site.uid === pb.SiteService.GLOBAL_SITE) {
                 this.doRedirect('/admin');
                 return;
             }
