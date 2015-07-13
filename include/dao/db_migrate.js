@@ -112,7 +112,7 @@ module.exports = function DBMigrateModule(pb) {
         this.migrateCollection = function (collection, siteUid, cb) {
             var self = this;
             var dao = new pb.DAO();
-            dao.q(collection, {}, function (err, results) {
+            dao.q(collection, function (err, results) {
                 var tasks = util.getTasks(results, function (results, i) {
                     return function (callback) {
                         self.applySiteToDocument(results[i], siteUid, callback);
