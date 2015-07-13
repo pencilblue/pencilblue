@@ -193,7 +193,7 @@ module.exports = function(pb) {
             },
 
             media: function(callback) {
-                var mservice = new pb.MediaService(null, vars.siteid, true);
+                var mservice = new pb.MediaService(null, self.site, true);
                 mservice.get(callback);
             },
 
