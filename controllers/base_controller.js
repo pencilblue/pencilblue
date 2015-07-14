@@ -121,9 +121,9 @@ module.exports = function BaseControllerModule(pb) {
         this.pathVars            = props.path_vars;
         this.query               = props.query;
         this.pageName            = '';
-        this.siteObj             = props.site;
-        this.site                = props.site.uid;
-        this.siteName            = SiteService.isGlobal(props.site.uid) ? props.site.uid : props.site.displayName;
+        this.siteObj             = props.siteObj;
+        this.site                = props.site;
+        this.siteName            = props.siteName;
 
         var tsOpts = {
             ls: this.localizationService,
