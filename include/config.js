@@ -100,7 +100,7 @@ var OVERRIDE_FILE_PATHS = [
  * Retrieve the base configuration
  */
 Configuration.getBaseConfig = function(multisite) {
-    return util.clone({
+    return {
 
         //The name of the site.
         siteName: 'pencilblue',
@@ -375,7 +375,7 @@ Configuration.getBaseConfig = function(multisite) {
         //Pulls in the package.json file for PB and extracts the version so it is
         //available in the configuration.
         version: require(path.join(Configuration.DOCUMENT_ROOT, 'package.json')).version
-    });
+    };
 };
 
 /**
