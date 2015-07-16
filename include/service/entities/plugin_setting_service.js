@@ -3,10 +3,15 @@ var util = require('../../util.js');
 
 module.exports = function PluginSettingServiceModule(pb) {
 
-	var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+	  var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
     var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
-	function PluginSettingService(siteUID){
+    /**
+     * Constructor for service that retrieves plugin settings from the database.
+     * @param {String} siteUID - site unique id
+     * @constructor
+     */
+    function PluginSettingService(siteUID){
 		//construct settings services
         this.caching = pb.config.plugins.caching;
 
@@ -64,7 +69,7 @@ module.exports = function PluginSettingServiceModule(pb) {
     };
 
     /**
-     * Retrieves all of the settings for the specfied plugin.
+     * Retrieves all of the settings for the specified plugin.
      *
      * @method getSettings
      * @param pluginName The name of the plugin who's settings are being requested
@@ -75,10 +80,16 @@ module.exports = function PluginSettingServiceModule(pb) {
         this.pluginSettingsService.get(pluginName, cb);
     };
 
+    /**
+     * Gets the plugin settings for one site only.
+     * Will not default to global plugin settings for given plugin.
+     * @param {String} pluginName - name of plugin to retrieve settings for
+     * @param {Function} cb - callback function
+     */
     PluginSettingService.prototype.getSettingsBySite = function(pluginName, cb) {
     	var settings = getAdminPluginSettingsService(this);
     	settings.get(pluginName, cb);
-    }
+    };
 
     /**
      * Retrieves the settings for a plugin as hash of key/value pairs.  This 
@@ -305,10 +316,16 @@ module.exports = function PluginSettingServiceModule(pb) {
         this.themeSettingsService.get(pluginName, cb);
     };
 
+    /**
+     * Retrieves theme settings for specified plugin and for only the specified site.
+     * Will not default to global theme settings.
+     * @param {String} pluginName - the name of the plugin to get theme settings
+     * @param {Function} cb - callback function
+     */
     PluginSettingService.prototype.getThemeSettingsBySite = function(pluginName, cb) {
     	var settings = getAdminThemeSettingsService(this);
     	settings.get(pluginName, cb);
-    }
+    };
 
     /**
      * Retrieves the theme settings for a plugin as hash of key/value pairs.  This 
