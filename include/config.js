@@ -435,7 +435,8 @@ Configuration.load = function(filePaths) {
  * @method mergeWithBase
  */
 Configuration.mergeWithBase = function(overrides) {
-    var multisite = overrides ? overrides.multisite.enabled : false;
+    
+    var multisite = overrides && overrides.multisite ? overrides.multisite.enabled : false;
     var baseConfig = Configuration.getBaseConfig(multisite);
 
     //merge in all overrides with the base configuration
