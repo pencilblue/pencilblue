@@ -132,7 +132,7 @@ module.exports = function BaseControllerModule(pb) {
         };
 
 
-        this.ts = this.getTemplateService(tsOpts);
+        this.ts = new pb.TemplateService(tsOpts);
         this.ts.registerLocal('locale', this.ls.language);
         this.ts.registerLocal('error_success', function(flag, cb) {
             self.displayErrorOrSuccessCallback(flag, cb);
@@ -201,15 +201,6 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.requiresClientLocalization = function() {
         return true;
-    };
-
-    /**
-     * @method getTemplateService
-     * @param {Object} options for TemplateService
-     * @return {Object} TemplateService
-     */
-    BaseController.prototype.getTemplateService = function(tsOps) {
-        return new pb.TemplateService(tsOps);
     };
 
     /**
