@@ -169,35 +169,31 @@ module.exports = function AdminNavigationModule(pb) {
             title: 'SETTINGS',
             icon: 'cogs',
             href: '#',
-            access: SecurityService.ACCESS_WRITER,
+            access: SecurityService.ACCESS_ADMINISTRATOR,
             children: [
                 {
                     id: 'site_settings',
                     title: 'SITE_SETTINGS',
                     icon: 'cog',
-                    href: '/admin/site_settings',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                    href: '/admin/site_settings'
                 },
                 {
                     id: 'content_settings',
                     title: 'CONTENT',
                     icon: 'quote-right',
-                    href: '/admin/site_settings/content',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                    href: '/admin/site_settings/content'
                 },
                 {
                     id: 'email_settings',
                     title: 'EMAIL',
                     icon: 'envelope',
-                    href: '/admin/site_settings/email',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                    href: '/admin/site_settings/email'
                 },
                 {
                     id: 'library_settings',
                     title: 'LIBRARIES',
                     icon: 'book',
-                    href: '/admin/site_settings/libraries',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                    href: '/admin/site_settings/libraries'
                 }
             ]
         },
