@@ -93,7 +93,7 @@ module.exports = function LocalizationModule(pb) {
      * @method localize
      * @param {array} sets The localizations sets to search in
      * @param {string} text The text to localize
-     * @returns {string} The text where keys have been replaced with translated values
+     * @return {string} The text where keys have been replaced with translated values
      */
     Localization.prototype.localize = function(sets, text){
         if (pb.log.isSilly()) {
@@ -136,7 +136,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {String} key
      * @param {String|Integer|Float|Object} [args] The variable number of 
      * parameters to be injected into the localization value
-     * @returns {string} The formatted and localized string
+     * @return {string} The formatted and localized string
      */
     Localization.prototype.get = function() {
         var key = arguments[0];
@@ -187,7 +187,7 @@ module.exports = function LocalizationModule(pb) {
      *
      * @method best
      * @param {Object} request The request object
-     * @returns {string} Locale for the request
+     * @return {string} Locale for the request
      */
     Localization.best = function(request){
         var loc = 'en-us';
