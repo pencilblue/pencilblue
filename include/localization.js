@@ -36,9 +36,13 @@ module.exports = function LocalizationModule(pb) {
      * @param {Object} request The request object
      */
     function Localization(request){
-        
+        this.activeTheme = 'pencilblue';
         //expected to be lowercase and of the form "en-us"
         this.language = Localization.best(request).toString();
+    }
+
+    Localization.prototype.setActiveTheme = function (activeTheme){
+        this.activeTheme = activeTheme;
     }
 
     /**
@@ -153,6 +157,12 @@ module.exports = function LocalizationModule(pb) {
         var tmp;
         var val = null;
         var loc = Localization.storage[this.language];
+
+        if(typeof loc[this.activeTheme] !== 'undefined' && typeof loc[this.activeTheme][key] !== 'undefined')
+        {
+            return loc[this.activeTheme][key];
+        }
+
         for (var category in loc) {
             tmp = loc[category][key];
             if (tmp !== undefined) {
@@ -162,7 +172,7 @@ module.exports = function LocalizationModule(pb) {
         }
 
         if (val === null) {
-            
+
             var defaultLocale = Localization.getDefaultLocale().toLocaleLowerCase();
             if (this.language === defaultLocale) {
                 return val = key;
@@ -292,13 +302,13 @@ module.exports = function LocalizationModule(pb) {
      * @param {Object} localizations
      * @return {Boolean}
      */
-    Localization.registerLocalizations = function(locale, localizations) {
+    Localization.registerLocalizations = function(locale, localizations, pluginName) {
         if (!Localization.isSupported(locale) || !util.isObject(localizations)) {
             return false;
         }
         
         util.forEach(localizations, function(item, key) {
-            Localization.registerLocalization(locale, key, item);
+            Localization.registerLocalization(locale, key, item, pluginName);
         });
         return true;
     };
@@ -312,7 +322,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {String} value
      * @return {Boolean}
      */
-    Localization.registerLocalization = function(locale, key, value) {
+    Localization.registerLocalization = function(locale, key, value, pluginName) {
         if (!Localization.isSupported(locale)) {
             return false;
         }
@@ -320,21 +330,17 @@ module.exports = function LocalizationModule(pb) {
             return false;
         }
 
-        var wasSet    = false;
+        if(typeof pluginName === 'undefined')
+            pluginName = 'generic';
+
         var localeObj = Localization.getLocalizationPackage(locale);
-        for (var localizationArea in localeObj) {
 
-            if (localeObj[localizationArea][key] !== undefined) {
-                localeObj[localizationArea][key] = value;
-                wasSet = true;
-                break;
-            }
+        if (localeObj[pluginName] !== undefined) {
+            localeObj[pluginName][key] = value;
         }
-
-        //the key was not already found in the core set so just add it to the
-        //generic block.  All plugin localizations will end up here.
-        if (!wasSet) {
-            localeObj.generic[key] = value;
+        else {
+            localeObj[pluginName] = {};
+            localeObj[pluginName][key] = value;
         }
         return true;
     };

@@ -621,6 +621,7 @@ module.exports = function RequestHandlerModule(pb) {
                 pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
                 activeTheme = RequestHandler.DEFAULT_THEME;
             }
+            self.localizationService.setActiveTheme(activeTheme);
             self.onThemeRetrieved(activeTheme, route);
         });
     };
