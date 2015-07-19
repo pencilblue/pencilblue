@@ -1,7 +1,8 @@
+<script type="text/javascript" src="/js/angular/directives/wysiwyg.js"></script>
 <script type="text/javascript" src="/js/angular/filters/parsable_date.js"></script>
 <script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['inlineMedia', 'topicSelect', 'parseDate', 'validation'])
+    angular.module('pencilblueApp', ['wysiwygElement', 'inlineMedia', 'topicSelect', 'parseDate', 'validation'])
     .controller('PencilBlueController', function($scope, $sce, $http, $filter, $timeout, $window, validationService) {
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
@@ -9,6 +10,7 @@
 
         $scope.urlAvailable = null;
         $scope.page.publish_date = $filter('date')($scope.page.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
+        $scope.page.page_media = $scope.page.page_media || [];
         $scope.layout = $sce.trustAsHtml($scope.page.page_layout);
         $scope.page.meta_keywords = $scope.page.meta_keywords ? $scope.page.meta_keywords.join(',') : '';
         $scope.editingObject = $scope.page;
@@ -99,7 +101,7 @@
         };
 
         $scope.getPageData = function(draft, cb) {
-            var pageData = JSON.parse(JSON.stringify($scope.page));
+            var pageData = angular.copy($scope.page);
             pageData.publish_date = (new Date($filter('parsableDate')($scope.page.publish_date))).getTime();
             pageData.draft = draft ? 1 : 0;
 
@@ -113,14 +115,11 @@
                 topics.push($scope.page.page_topics[i]._id.toString());
             }
 
-            var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
-            getWYSIWYGLayout(wysId, function(layout) {
-                pageData.page_media = media;
-                pageData.page_topics = topics;
-                pageData.page_layout = layout;
+            pageData.page_media = media;
+            pageData.page_topics = topics;
+            pageData.page_layout = $scope.layout;
 
-                cb(pageData);
-            });
+            cb(pageData);
         };
 
         $scope.previewPage = function() {

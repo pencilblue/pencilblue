@@ -22,10 +22,10 @@ var async = require('async');
 module.exports = function(pb) {
     
     //pb dependencies
-    var DAO               = pb.DAO;
-    var ContentService    = pb.ContentService;
-    var BaseObjectService = pb.BaseObjectService;
-    var ValidationService = pb.ValidationService;
+    var DAO                  = pb.DAO;
+    var BaseObjectService    = pb.BaseObjectService;
+    var ContentObjectService = pb.ContentObjectService;
+    var ValidationService    = pb.ValidationService;
 
     /**
      * Provides functions to interact with articles
@@ -39,35 +39,10 @@ module.exports = function(pb) {
             context = {};
         }
         
-        /**
-         *
-         * @property contentSettings
-         * @type {Object}
-         */
-        this.contentSettings = context.contentSettings;
-        
         context.type = TYPE;
         ArticleServiceV2.super_.call(this, context);
     }
-    util.inherits(ArticleServiceV2, BaseObjectService);
-    
-    /**
-     * 
-     * @static
-     * @readonly
-     * @property BEFORE_RENDER
-     * @type {String}
-     */
-    ArticleServiceV2.BEFORE_RENDER = 'beforeRender';
-    
-    /**
-     * 
-     * @static
-     * @readonly
-     * @property AFTER_RENDER
-     * @type {String}
-     */
-    ArticleServiceV2.AFTER_RENDER = 'afterRender';
+    util.inherits(ArticleServiceV2, ContentObjectService);
     
     /**
      * 
@@ -80,115 +55,31 @@ module.exports = function(pb) {
     var TYPE = 'article';
     
     /**
-     *
-     * @method getPublished
-     * @param {Object} [options]
-     * @param {Object} [options.where]
-     * @param {Object} [options.select]
-     * @param {Array} [options.order]
-     * @param {Integer} [options.limit]
-     * @param {Integer} [options.offset]
-     * @param {Boolean} [options.render]
-     * @param {Function} cb
+     * Provides the options for rendering
+     * @method getRenderOptions
+     * @param {Object} options
+     * @return {Object}
      */
-    ArticleServiceV2.prototype.getPublished = function(options, cb) {
-        if (util.isFunction(options)) {
-            cb = options;
-            options = {};
+    ArticleServiceV2.prototype.getRenderOptions = function(options, isMultiple) {
+        if (isMultiple) {
+            return {
+                readMore: options && options.readMore !== undefined ? options.readMore : true
+            };
         }
-        
-        //ensure a where clause exists
-        if (!util.isObject(options.where)) {
-            options.where = {};
-        }
-        
-        //add where clause to weed out drafts
-        ArticleServiceV2.setPublishedClause(options.where);
-        
-        this.getAll(options, cb);
-    };
-    
-    /**
-     *
-     * @method getDrafts
-     * @param {Object} [options]
-     * @param {Object} [options.where]
-     * @param {Object} [options.select]
-     * @param {Array} [options.order]
-     * @param {Integer} [options.limit]
-     * @param {Integer} [options.offset]
-     * @param {Boolean} [options.render=false]
-     * @param {Function} cb
-     */
-    ArticleServiceV2.prototype.getDrafts = function(options, cb) {
-        if (util.isFunction(options)) {
-            cb = options;
-            options = {};
-        }
-        
-        //ensure a where clause exists
-        if (!util.isObject(options.where)) {
-            options.where = {};
-        }
-        
-        //add where clause to weed out published articles
-        options.where.draft = {
-            $in: [1, true]
-        };
-        
-        this.getAll(options, cb);
-    };
-    
-    /**
-     * 
-     * @method get
-     * @param {String} id
-     * @param {object} options
-     * @param {Boolean} [options.render=false]
-     * @param {Boolean} [options.readMore=false]
-     * @param {Function} cb
-     */
-    ArticleServiceV2.prototype.get = function(id, options, cb) {
-
-        var self = this;
-        var afterGet = function(err, article) {
-            if (util.isError(err) || article === null || !options || !options.render) {
-                return cb(err, article);
-            }
-
-            var renderOptions = {
+        else {
+            return {
                 readMore: options && options.readMore ? true : false
             };
-
-            //complete the rendering
-            self.render([article], renderOptions, function(err/*, articles*/) {
-                cb(err, article);
-            });
-        };
-        ArticleServiceV2.super_.prototype.get.apply(this, [id, options, afterGet]);
+        }
     };
-
+    
     /**
-     *
-     * @method getSingle
-     * @param {Object} [options]
-     * @param {Object} [options.select]
-     * @param {Object} [options.where]
-     * @param {Array} [options.order]
-     * @param {Integer} [options.offset]
-     * @param {Boolean} [options.readMore=false]
-     * @param {Function} cb
+     * Retrieves an instance of a content renderer
+     * @method getRenderer
+     * @return {ArticleRenderer}
      */
-    ArticleServiceV2.prototype.getSingle = function(options, cb) {
-        if (util.isFunction(options)) {
-            cb      = options;
-            options = {};
-        }
-        if (options.readMore === undefined) {
-            options.readMore = false;
-        }
-
-        ArticleServiceV2.super_.prototype.getSingle.apply(this, [options, cb]);
+    ArticleServiceV2.prototype.getRenderer = function() {
+        return new pb.ArticleRenderer();
     };
     
     /**
@@ -220,257 +111,13 @@ module.exports = function(pb) {
     };
     
     /**
-     *
-     * @method getAll
-     * @param {Object} [options]
-     * @param {Object} [options.where]
-     * @param {Object} [options.select]
-     * @param {Array} [options.order]
-     * @param {Integer} [options.limit]
-     * @param {Integer} [options.offset]
-     * @param {Boolean} [options.render=false]
-     * @param {Boolean} [options.readMore=true]
-     * @param {Function} cb
+     * Extracts an array of Topic IDs from the content that the content is associated with.
+     * @method getTopicsForContent
+     * @param {Object} content
+     * @return {Array} An array of strings representing the Topic IDs
      */
-    ArticleServiceV2.prototype.getAll = function(options, cb) {
-
-        var self = this;
-        var afterGetAll = function(err, articles) {
-            if (util.isError(err) || articles === null || articles.length === 0 || !options || !options.render) {
-                return cb(err, articles);
-            }
-
-            var renderOptions = {
-                readMore: options && options.readMore !== undefined ? options.readMore : true
-            };
-
-            //complete the rendering
-            self.render(articles, renderOptions, cb);
-        };
-        ArticleServiceV2.super_.prototype.getAll.apply(this, [options, afterGetAll]);
-    };
-    
-    /**
-     *
-     * @method render
-     * @param {Array} articles
-     * @param {Object} [options] An optional argument to provide rendering settings.
-     * @param {Boolean} [options.readMore] Specifies if article body content should be truncated, and read more links rendered.
-     * @param {Function} cb
-     */
-    ArticleServiceV2.prototype.render = function(articles, options, cb) {
-        if (arguments.length == 2 && util.isFunction(options)) { // if only two arguments were supplied
-            cb = options;
-            options = null;
-        }
-
-        if (!util.isArray(articles)) {
-            return cb(new Error('articles parameter must be an array'));
-        }
-        
-        var self  = this;
-        this.gatherDataForRender(articles, function(err, context) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            
-            //create tasks for each article
-            var tasks = util.getTasks(articles, function(articles, i) {
-                return function(callback) {
-
-                    //setup individual article context
-                    var articleContext = {
-                        service: self,
-                        data: articles[i]
-                    };
-                    if (options) {
-                        util.merge(options, articleContext);
-                    }
-                    util.merge(context, articleContext);
-                    
-                    //create tasks for each article
-                    var subTasks = [
-
-                        //before render
-                        util.wrapTask(self, self._emit, [ArticleServiceV2.BEFORE_RENDER, articleContext]),
-
-                        //perform render
-                        function(callback) {
-
-                            var renderer = new pb.ArticleRenderer();
-                            renderer.render(articles[i], articleContext, callback);
-                        },
-
-                        //after render
-                        util.wrapTask(self, self._emit, [ArticleServiceV2.AFTER_RENDER, articleContext])
-                    ];
-                    async.series(subTasks, callback);
-                };
-            });
-            async.parallel(tasks, function(err, results) {
-                cb(err, articles);
-            });
-        });
-    };
-    
-    /**
-     *
-     * @method gatherDataForRender
-     * @param {Array} articles
-     * @param {Function} cb
-     */
-    ArticleServiceV2.prototype.gatherDataForRender = function(articles, cb) {
-        if (!util.isArray(articles)) {
-            return cb(new Error('articles parameter must be an array'));
-        }
-        
-        var self = this;
-        var tasks = {
-            
-            articleCount: function(callback) {
-                callback(null, articles.length);
-            },
-            
-            authors: function(callback) {
-                
-                var opts = {
-                    where: DAO.getIdInWhere(articles, 'author')
-                };
-                var dao = new pb.DAO();
-                dao.q('user', opts, function(err, authors) {
-                    
-                    var authorHash = {};
-                    if (util.isArray(authors)) {
-                        
-                        authorHash = util.arrayToHash(authors, function(authors, i) {
-                            return authors[i][DAO.getIdField()] + '';
-                        });
-                    }
-                    callback(err, authorHash);
-                });
-            },
-            
-            contentSettings: function(callback) {
-                if (util.isObject(self.contentSettings)) {
-                    return callback(null, self.contentSettings);
-                }
-                
-                var contentService = new pb.ContentService();
-                contentService.getSettings(callback);
-            }
-        };
-        async.parallel(tasks, cb);
-    };
-    
-    /**
-     * Retrieves the SEO metadata for the specified content.  
-     * @method getMetaInfo
-     * @param {Object} article The article to retrieve information for
-     * @param {Function} cb A callback that takes two parameters.  The first is 
-     * an Error, if occurred.  The second is an object that contains 4 
-     * properties: 
-     * title - the SEO title, 
-     * description - the SEO description, 
-     * keywords - an array of SEO keywords that describe the content, 
-     * thumbnail - a URI path to the thumbnail image 
-     */
-    ArticleServiceV2.prototype.getMetaInfo = function(article, cb) {
-        if (util.isNullOrUndefined(article)) {
-            return cb(
-                new Error('The article parameter cannot be null'),
-                
-                //provided for backward compatibility
-                {
-                    title: '',
-                    description: '',
-                    thumbnail: '',
-                    keywords: []
-                }
-            );
-        }
-        
-        //compile the tasks necessary to gather the meta info
-        var tasks = {
-            
-            //figure out SEO title
-            title: function(callback) {
-                var title;
-                if (pb.ValidationService.isNonEmptyStr(article.seo_title, true)) {
-                    title = article.seo_title;
-                }
-                else {
-                    title = article.headline;
-                }
-                callback(null, title);
-            },
-            
-            //figure out the description by taking the explicit meta 
-            //description or stripping all HTML formatting from the body and 
-            //using it.
-            description: function(callback) {
-                var description = '';
-                if(util.isString(article.meta_desc)) {
-                    description = article.meta_desc;
-                }
-                else if(pb.ValidationService.isNonEmptyStr(article.layout, true)) {
-                    description = article.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
-                }
-                callback(null, description);
-            },
-            
-            keywords: function(callback) {
-                
-                var keywords  = util.arrayToHash(article.meta_keywords || []);
-                var topics    = article.article_topics || article.page_topics;
-                if (!util.isArray(topics) || topics.length <= 0) {
-                    return callback(null, Object.keys(keywords));
-                }
-                
-                //we know there are topics we need to retrieve them to set the 
-                //meta keywords
-                var opts = {
-                    select: {
-                        name: 1
-                    },
-                    where: pb.DAO.getIdInWhere(article.article_topics || article.page_topics)
-                };
-                var topicService = new pb.TopicService();
-                topicService.getAll(opts, function(err, topics) {
-                    if (util.isError(err)) {
-                        return callback(err);
-                    }
-
-                    //add to the key word hash.  It is ok if we overwrite an existing 
-                    //value since it is a hash. We just want a unique set.
-                    topics.forEach(function(topic) {
-                        keywords[topic.name] = true;
-                    });
-                    
-                    callback(null, Object.keys(keywords));
-                });
-            },
-            
-            thumbnail: function(callback) {
-                
-                //no media so skip
-                if (!pb.ValidationService.isNonEmptyStr(article.thumbnail, true)) {
-                    return callback(null, '');
-                }
-                
-                //media should exists so go get it
-                var mOpts = {
-                    select: {
-                        location: 1
-                    },
-                    where: pb.DAO.getIdWhere(article.thumbnail)
-                };
-                var mediaService = new pb.MediaService();
-                mediaService.get(mOpts, function(err, media) {
-                    callback(err, util.isNullOrUndefined(media) ? '' : media.location);
-                });
-            }
-        };
-        async.parallel(tasks, cb);
+    ArticleServiceV2.prototype.getTopicsForContent = function(content) {
+        return content.article_topics;
     };
     
     /**
@@ -507,7 +154,7 @@ module.exports = function(pb) {
      * @static
      * @method 
      * @param {Object} context
-     * @param {ArticleServiceV2} service An instance of the service that triggered 
+     * @param {ArticleServiceV2} context.service An instance of the service that triggered 
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -660,7 +307,7 @@ module.exports = function(pb) {
         }
         
         if (obj.draft !== 1 && obj.draft !== 0) {
-            errors.push(BaseObjectService.validationFailure('thumbnail', 'An invalid draft value was provided.  Must be 1 or 0'));
+            errors.push(BaseObjectService.validationFailure('draft', 'An invalid draft value was provided.  Must be 1 or 0'));
         }
         
         if (!ValidationService.isNonEmptyStr(obj.article_layout, true)) {
@@ -668,21 +315,6 @@ module.exports = function(pb) {
         }
         
         cb(null);
-    };
-    
-    /**
-     *
-     * @static
-     * @method setPublishedClause
-     * @param {Object} where
-     */
-    ArticleServiceV2.setPublishedClause = function(where) {
-        where.draft = {
-            $nin: [1, true]
-        };
-        where.publish_date = {
-            $lte: new Date()
-        };
     };
     
     /**

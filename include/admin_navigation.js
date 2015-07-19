@@ -233,7 +233,7 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function getAdditions() {
         return util.clone(AdminNavigation.additions);
-    };
+    }
 
     /**
      *
@@ -244,7 +244,7 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function getChildrenAdditions() {
         return util.clone(AdminNavigation.childrenAdditions);
-    };
+    }
 
     /**
      *
@@ -292,7 +292,7 @@ module.exports = function AdminNavigationModule(pb) {
         });
 
         return navigation;
-    };
+    }
 
     /**
      * @private
@@ -310,7 +310,7 @@ module.exports = function AdminNavigationModule(pb) {
             }
         });
         return navigation;
-    };
+    }
 
     /**
      * @private
@@ -328,7 +328,7 @@ module.exports = function AdminNavigationModule(pb) {
         for (var i = 0; i < navigation.length; i++) {
             var node = navigation[i];
 
-            if (node.id == id) {
+            if (node.id === id) {
                 return true;
             }
             if (node.children && isDuplicate(id, node.children)) {
@@ -336,7 +336,7 @@ module.exports = function AdminNavigationModule(pb) {
             }
         }
         return false;
-    };
+    }
 
     /**
      * @private
@@ -347,7 +347,7 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function isDefaultNode(id) {
         return isDuplicate(id, getDefaultNavigation());
-    };
+    }
 
     /**
      * Retrive the admin navigation hierarchy
@@ -425,7 +425,7 @@ module.exports = function AdminNavigationModule(pb) {
 
         function removeNode(id, navigation) {
             for (var i = 0; i < navigation.length; i++) {
-                if (navigation[i].id == id) {
+                if (navigation[i].id === id) {
                     navigation.splice(i, 1);
                     return navigation;
                 }
@@ -440,9 +440,9 @@ module.exports = function AdminNavigationModule(pb) {
 
         AdminNavigation.additions = removeNode(id, AdminNavigation.additions);
 
-        for (var parentId in AdminNavigation.childrenAdditions) {
-            AdminNavigation.childrenAdditions[parentId] = removeNode(id, AdminNavigation.childrenAdditions[parentId]);
-        }
+        util.forEach(AdminNavigation.childrenAdditions, function(node, parentId) {
+            AdminNavigation.childrenAdditions[parentId] = removeNode(id, node);
+        });
 
         return true;
     };
@@ -467,7 +467,7 @@ module.exports = function AdminNavigationModule(pb) {
             }
 
             for (var o = 0; o < activeItems.length; o++) {
-                if (activeItems[o] == adminNavigation[i].id) {
+                if (activeItems[o] === adminNavigation[i].id) {
                     adminNavigation[i].active = 'active';
                     break;
                 }
@@ -488,8 +488,8 @@ module.exports = function AdminNavigationModule(pb) {
                             }
                         }
 
-                        for (var o = 0; o < activeItems.length; o++) {
-                            if (activeItems[o] == adminNavigation[i].children[j].id) {
+                        for (var p = 0; p < activeItems.length; p++) {
+                            if (activeItems[p] == adminNavigation[i].children[j].id) {
                                 adminNavigation[i].children[j].active = 'active';
                                 break;
                             }

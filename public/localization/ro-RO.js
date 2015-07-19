@@ -1,6 +1,7 @@
 module.exports = {
     generic: {
-        PENCILBLUE: 'pencilblue',
+        LOCALE_DISPLAY: 'Român (România)',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Toate drepturile rezervate',
         NONE: 'Niciunul',
         LEFT: 'Stanga',
@@ -189,7 +190,7 @@ module.exports = {
         ADMIN_LOGIN: 'Login scriitor, editor si administrator',
         USERNAME_OR_EMAIL: 'Nume utilizator si adresa de email',
         INVALID_LOGIN: 'Combinatie nume de utilizator si parola gresita',
-        READY_TO_USE: 'Aplicatia ta pencilblue este gata pentru a fi folosita',
+        READY_TO_USE: 'Aplicatia ta PencilBlue este gata pentru a fi folosita',
         ACCOUNT_CREATED: 'Contul tau a fost creat cu succes, acum te poti loga'
     },
     admin: {
@@ -296,6 +297,7 @@ module.exports = {
     wysiwyg: {
         NORMAL_TEXT: 'Text normal',
         QUOTE: 'Citat',
+        PRE: 'Pre',
         HEADING_1: 'Heading 1',
         HEADING_2: 'Heading 2',
         HEADING_3: 'Heading 3',
@@ -405,7 +407,8 @@ module.exports = {
         NO_PERMISSIONS: 'Niciunul din pluginurile instalate nu au permisiuni setate',
         CONFIRM_VERIFY: 'Esti sigur ca vrei sa verifici',
         VERIFY: 'Verifica',
-        VERIFIED: 'a fost verificat'
+        VERIFIED: 'a fost verificat',
+        LOCALE_PREFERENCE: 'Preferința locale'
     },
     plugins: {
         MANAGE_PLUGINS: 'Administreaza pluginuri',

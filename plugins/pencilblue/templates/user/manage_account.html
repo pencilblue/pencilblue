@@ -1,70 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" ng-app="pencilblueApp">
-    <head>
-        <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-        <title>^page_name^</title>
-        <meta name="description" content="^meta_desc^">
-        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-        <meta name="robots" content="noindex">
-
-        <link rel="shortcut icon" href="^site_icon^">
-        <link rel="stylesheet" type="text/css" href="^jquery_ui_css_src^">
-        <link rel="stylesheet" type="text/css" href="^bootstrap_css_src^">
-        <link rel="stylesheet" type="text/css" href="^font_awesome_src^">
-        <link rel="stylesheet" type="text/css" href="^jquery_file_upload_css_src^">
-        <link rel="stylesheet" type="text/css" href="/css/admin.css">
-
-        <script type="text/javascript" src="^jquery_src^"></script>
-        <script type="text/javascript" src="^jquery_validate_src^"></script>
-        <script type="text/javascript" src="^jquery_ui_js_src^"></script>
-        <script type="text/javascript" src="^bootstrap_js_src^"></script>
-        <script type="text/javascript" src="^angular_src^"></script>
-        <script type="text/javascript" src="^angular_route_src^"></script>
-        <script type="text/javascript" src="/js/form.js"></script>
-        ^localization_script^
-        ^angular_script^
-        ^analytics^
-    </head>
-    <body ng-controller="PencilBlueController">
-        <div id="wrap">
-            ^tmp_user=elements=navigation^
-            <div class="col-md-9" style="padding: 0">
-                ^error_success^
-                ^tmp_admin=elements=sub_nav^
-                ^tmp_admin=elements=tab_nav^
-                <form id="manage_account_form" method="post" action="/actions/user/manage_account/profile">
-                    <fieldset>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="account_info">
-                                <div class="form-group">
-                                    <label>^loc_USERNAME^</label>
-                                    <input type="text" id="username" name="username" class="form-control" value="{{user.username}}"></input>
-                                </div>
-                                <div class="form-group">
-                                    <label>^loc_EMAIL^</label>
-                                    <input type="email" id="email" name="email" class="form-control" value="{{user.email}}"></input>
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="personal_info">
-                                <div class="form-group">
-                                    <label>^loc_FIRST_NAME^</label>
-                                    <input type="text" id="first_name" name="first_name" class="form-control" value="{{user.first_name}}"></input>
-                                </div>
-                                <div class="form-group">
-                                    <label>^loc_LAST_NAME^</label>
-                                    <input type="text" id="last_name" name="last_name" class="form-control" value="{{user.last_name}}"></input>
-                                </div>
-                                ^tmp_admin=elements=upload_and_link_photo^
-                            </div>
-                            <a type="button" class="btn btn-default" href="/">
-                                <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
-                            </button>
-                        </div>
-                    </fieldset>
-                </form>
+^tmp_user=head^
+  <div class="col-md-9" style="padding: 0">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form name="userForm" ng-submit="saveUser()" novalidate>
+      <fieldset>
+        <div class="tab-content">
+          <div class="tab-pane active" id="account_info">
+            <div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.username)}">
+              <label>^loc_USERNAME^</label>
+              <div class="input-group">
+                <input name="username" class="form-control" ng-model="user.username" ng-change="resetUsernameAvailability()" required></input>
+                <span class="input-group-btn">
+                  <button type="button" class="btn" ng-class="{'btn-default': usernameAvailable === null, 'btn-success': usernameAvailable === true, 'btn-danger': usernameAvailable === false}" ng-click="getUsernameAvailability()" ng-disabled="!canCheckUsername()">
+                    <span ng-if="usernameAvailable === null">^loc_CHECK^</span>
+                    <span ng-if="usernameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
+                    <span ng-if="usernameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+                  </button>
+                </span>
+              </div>
+              <div class="form_error" ng-if="!isFieldValid(userForm.username)">^loc_REQUIRED_FIELD^</div>
             </div>
-        ^tmp_admin=footer^
+            <div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.email)}">
+              <label>^loc_EMAIL^</label>
+              <input type="email" name="email" class="form-control" ng-model="user.email" required></input>
+              <div class="form_error" ng-if="!isFieldValid(userForm.email)">^loc_REQUIRED_FIELD^</div>
+            </div>
+            <div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.locale)}">
+                <label>^loc_LOCALE_PREFERENCE^</label>
+                <select name="locale" class="form-control" ng-model="user.locale" ng-options="localeOption.value as localeOption.name for localeOption in locales" required></select>
+                <div class="form_error" ng-if="!isFieldValid(userForm.admin)">^loc_REQUIRED_FIELD^</div>
+            </div>
+          </div>
+          <div class="tab-pane" id="personal_info">
+            <div class="form-group">
+              <label>^loc_FIRST_NAME^</label>
+              <input type="text" class="form-control" ng-model="user.first_name"></input>
+            </div>
+            <div class="form-group">
+              <label>^loc_LAST_NAME^</label>
+              <input type="text" class="form-control" ng-model="user.last_name"></input>
+            </div>
+            ^tmp_admin=elements=upload_and_link_photo^
+          </div>
+          <a class="btn btn-default" href="/">
+            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+          </a>
+          ^tmp_admin=elements=save_button^
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  ^tmp_angular=user=manage_account^
+^tmp_admin=footer^

@@ -15,7 +15,8 @@
  */
 module.exports = {
     generic: {
-        PENCILBLUE: 'pencilblue',
+        LOCALE_DISPLAY: 'Deutsch (Deutschland)',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'All rights reserved',
         NONE: 'keine',
         LEFT: 'linksbündig',
@@ -204,7 +205,7 @@ module.exports = {
         ADMIN_LOGIN: 'Autoren, Redakteure und Administratoren Anmeldung.',
         USERNAME_OR_EMAIL: 'Benutzername oder E-Mail Adresse.',
         INVALID_LOGIN: 'Diese Kombination von Benutzername und Passwort ist ungültig.',
-        READY_TO_USE: 'Ihre pencilblue Installation kann nun benutzt werden.',
+        READY_TO_USE: 'Ihre PencilBlue Installation kann nun benutzt werden.',
         ACCOUNT_CREATED: 'Ihr Konto wurde erfolgreich angelegt; Sie können sich nun anmelden.',
         FORGOT_PASSWORD: 'Ich habe mein Passwort vergessen'
     },
@@ -312,6 +313,7 @@ module.exports = {
     wysiwyg: {
         NORMAL_TEXT: 'Normaler Text',
         QUOTE: 'Zitat',
+        PRE: 'Pre',
         HEADING_1: 'Überschrift 1',
         HEADING_2: 'Überschrift 2',
         HEADING_3: 'Überschrift 3',
@@ -435,7 +437,8 @@ module.exports = {
         NO_PERMISSIONS: 'Keines Ihrer installierten Plugins haben Berechtigungen konfiguriert.',
         CONFIRM_VERIFY: 'Sind Sie sicher, dass Siebestätigen wollen?',
         VERIFY: 'Bestätigen',
-        VERIFIED: 'wurde bestätigt'
+        VERIFIED: 'wurde bestätigt',
+        LOCALE_PREFERENCE: 'Locale Bevorzugt'
     },
     plugins: {
         MANAGE_PLUGINS: 'Plugins verwalten',

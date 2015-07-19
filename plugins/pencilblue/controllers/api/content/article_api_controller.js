@@ -62,6 +62,36 @@ module.exports = function(pb) {
     };
     
     /**
+     * Processes the query string to develop the where clause for the query request
+     * @method processWhere
+     * @param {Object} q The hash of all query parameters from the request
+     * @return {Object}
+     */
+    ArticleApiController.prototype.processWhere = function(q) {
+        var where = null;
+        var failures = [];
+        
+        //build query & get results
+        var search = q.q;
+        if (pb.ValidationService.isNonEmptyStr(search, true)) {
+            
+            var patternStr = ".*" + util.escapeRegExp(search) + ".*";
+            var pattern = new RegExp(patternStr, "i");
+            where = {
+                $or: [
+                    {headline: pattern},
+                    {subheading: pattern},
+                ]
+            };
+        }
+
+        return {
+            where: where,
+            failures: failures
+        };
+    };
+    
+    /**
      * Retrieves comments for an article
      * @method getAllComments
      * @param {Function} cb

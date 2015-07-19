@@ -1,6 +1,7 @@
 module.exports = {
     generic: {
-        PENCILBLUE: 'pencilblue',
+        LOCALE_DISPLAY: 'English (United States)',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'All rights reserved',
         NONE: 'None',
         LEFT: 'Left',
@@ -194,7 +195,7 @@ module.exports = {
         ADMIN_LOGIN: 'Writer, editor, and administrator login',
         USERNAME_OR_EMAIL: 'Username or email address',
         INVALID_LOGIN: 'Invalid username and password combination',
-        READY_TO_USE: 'Your pencilblue installation is ready to use',
+        READY_TO_USE: 'Your PencilBlue installation is ready to use',
         ACCOUNT_CREATED: 'Your account was successfully created, you may now login',
         FORGOT_PASSWORD: 'I forgot my password'
     },
@@ -303,6 +304,7 @@ module.exports = {
     wysiwyg: {
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',
+        PRE: 'Pre',
         HEADING_1: 'Heading 1',
         HEADING_2: 'Heading 2',
         HEADING_3: 'Heading 3',
@@ -318,7 +320,7 @@ module.exports = {
         ADD_MEDIA: 'Add media',
         INSERT_MEDIA: 'Insert media',
         SELECT_MEDIA: 'Select media to insert',
-        ASSOCIATE_MEDIA: 'Associate media with the article',
+        ASSOCIATE_MEDIA: 'Associate media with the content',
         BOLD: 'Bold',
         ITALIC: 'Italic',
         UNDERLINE: 'Underline',
@@ -412,7 +414,8 @@ module.exports = {
         NO_PERMISSIONS: 'None of your installed plugins have permissions set',
         CONFIRM_VERIFY: 'Are you sure you want to verify',
         VERIFY: 'Verify',
-        VERIFIED: 'was verified'
+        VERIFIED: 'was verified',
+        LOCALE_PREFERENCE: 'Locale Preference'
     },
     plugins: {
         MANAGE_PLUGINS: 'Manage plugins',

@@ -1,5 +1,6 @@
+<script type="text/javascript" src="/js/angular/directives/wysiwyg.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', [])
+    angular.module('pencilblueApp', ['wysiwygElement'])
     .controller('PencilBlueController', function($scope, $http, $sce) {
         ^angular_objects^
 
@@ -33,19 +34,16 @@
         $scope.saveEmailSettings = function() {
             $scope.saving = true;
 
-            var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
-            getWYSIWYGLayout(wysId, function(layout) {
-                $scope.emailSettings.verification_content = layout;
+            $scope.emailSettings.verification_content = $scope.layout;
 
-                $http.post('/actions/admin/site_settings/email', $scope.emailSettings)
-                .success(function(result) {
-                    $scope.successMessage = result.message;
-                    $scope.saving = false;
-                })
-                .error(function(error, status) {
-                    $scope.errorMessage = error.message;
-                    $scope.saving = false;
-                });
+            $http.post('/actions/admin/site_settings/email', $scope.emailSettings)
+            .success(function(result) {
+                $scope.successMessage = result.message;
+                $scope.saving = false;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+                $scope.saving = false;
             });
         };
 
