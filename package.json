@@ -59,8 +59,8 @@
   },
   "licenses": [
     {
-      "type": "Apache License, Version 2.0",
-      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+      "type": "GNU GENERAL PUBLIC LICENSE Version 3",
+      "url": "http://www.gnu.org/licenses/gpl-3.0.html"
     }
   ],
   "readme": "See README file",
