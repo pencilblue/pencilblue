@@ -61,7 +61,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
         //Templates can reference the "head" and "footer" templates inside of the 
         //loaded template to ensure that the view is wrapped by the navigation and 
         //footer.
-        this.getNavigation(function(err, navigation, accountButtons) {
+        this.getNavigation(function(err, navItems) {
 
             //Create an instance of the text service.  Then we call the service for 
             //random text
@@ -115,8 +115,8 @@ module.exports = function RandomTextViewControllerModule(pb) {
             //Values provided to template service can be wrapped in an 
             //TemplateValue which contains an option to skip the encoding if the 
             //value itself is HTML.  
-            self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
-            self.ts.registerLocal('account_buttons', accountButtons);
+            self.ts.registerLocal('navigation', new pb.TemplateValue(navItems.navigation, false));
+            self.ts.registerLocal('account_buttons', navItems.accountButtons);
 
             //The template service is pretty simple.  More complex features such as 
             //loops are handled by providing a function to the template service 
@@ -191,18 +191,20 @@ module.exports = function RandomTextViewControllerModule(pb) {
 
     /**
      * Retrieves the navigation for the page.
-     * @param {function} cb Callback that provides three parameters: cb(Error, navigation, accountButtons);
+     * @param {function} cb Callback that provides two parameters: 
+     * cb(Error, {navigation "", accountButtons: "", themeSettings: {}});
      */
     RandomTextViewController.prototype.getNavigation = function(cb) {
 
-        var options = {
-            currUrl: this.req.url
-        };
-        TopMenuService.getTopMenu(this.session, this.localizationService, options, function(themeSettings, navigation, accountButtons) {
-            TopMenuService.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
-                cb(null, navigation, accountButtons);
-            });
-        });
+        //build out options starting with a service context object.  It 
+        //contains all the good stuff like localization, template service, 
+        //activeTheme, and session.
+        var options = this.getServiceContext();
+        options.currUrl = this.req.url;
+        
+        //create a new instance of the top menu service and request the navigation items
+        var service = new TopMenuService();
+        service.getNavItems(options, cb);
     };
     
     /**
