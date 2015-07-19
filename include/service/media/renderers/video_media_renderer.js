@@ -91,7 +91,7 @@ module.exports = function VideoMediaRendererModule(pb) {
     /**
      * Retrieves the style for the specified type of view
      * @static
-     * @meethod getStyle
+     * @method getStyle
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */

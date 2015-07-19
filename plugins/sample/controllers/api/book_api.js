@@ -28,7 +28,7 @@ module.exports = function BookApiControllerModule(pb) {
      * 
      * @author Brian Hyder <brian@pencilblue.org>
      * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
-     * @returns
+     * @return
      */
     function BookApiController(){
     

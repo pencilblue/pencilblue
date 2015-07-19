@@ -62,7 +62,7 @@ module.exports = function ReadOnlySimpleLayeredServiceModule(pb) {
      *
      * @static
      * @method makeReadOnly
-     * @param {EntityService}
+     * @param {EntityService} serviceInstance
      */
     ReadOnlySimpleLayeredService.makeReadOnly = function(serviceInstance) {
         serviceInstance.set = function(key, value, cb) {

@@ -58,6 +58,8 @@ module.exports = function LogFactory(config){
 
     /**
      * Determines if the root log level is set to debug or silly
+     * @method isDebug
+     * @return {Boolean}
      */
 	logger.isDebug = function(){
 		return logger.levels[logger.level] <= 1;
@@ -65,6 +67,8 @@ module.exports = function LogFactory(config){
 
     /**
      * Determines if the root log level is set to silly
+     * @method isSilly
+     * @return {Boolean}
      */
 	logger.isSilly = function(){
 		return logger.levels[logger.level] <= 0;

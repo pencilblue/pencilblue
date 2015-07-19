@@ -32,6 +32,8 @@ var winston = require('winston');
  * 1) copy "sample.config.json" to "/etc/pencilblue/config.json"
  * 2) Override the properties as desired.
  * 3) Add any custom properties you wish to provide for your specific purposes.
+ * @class Configuration
+ * @constructor
  */
 function Configuration(){}
 
@@ -689,6 +691,9 @@ var BASE_CONFIG = {
 
 /** 
  * Retrieve the base configuration
+ * @static
+ * @method getBaseConfig
+ * @return {Object}
  */
 Configuration.getBaseConfig = function() {
     return util.clone(BASE_CONFIG);
@@ -699,6 +704,10 @@ Configuration.getBaseConfig = function() {
  * NOTE: This should only be called once by the core code at startup.  Calling
  * this function after the server starts may cause unintended behavior across
  * the system.
+ * @static
+ * @method load
+ * @param {Array|String} filePaths
+ * @return {Object}
  */
 Configuration.load = function(filePaths) {
     if (util.isString(filePaths)) {

@@ -1891,7 +1891,7 @@ module.exports = function PluginServiceModule(pb) {
      * Validates the path of a main module file.  The path is considered valid if
      * the path points to JS file.  The path may be absolute or relative to the
      * specific plugin directory.
-     *
+     * @method validateMainModulePath
      * @param mmPath The relative or absolute path to the main module file
      * @param pluginDirName The name of the directory housing the plugin
      * @return {Boolean} TRUE if the path is valid, FALSE if not
@@ -1902,7 +1902,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Validates a setting from a details.json file.
-     *
+     * @method validateSetting
      * @param setting The setting to validate
      * @param position The position in the settings array where the setting resides
      * as a 0 based index.

@@ -172,7 +172,7 @@ module.exports = function(pb) {
      * @method authenticateSession
      * @param {Object} session
      * @param {Object} options
-     * @param {Authentication}
+     * @param {Authentication} authenticator
      * @param {Function} cb
      */
     SecurityService.authenticateSession = function(session, options, authenticator, cb){

@@ -8,8 +8,8 @@ module.exports = function GoogleAnalyticsModule(pb) {
      * GoogleAnalytics - A sample for exemplifying what the main module file should
      * look like.
      *
-     * @author Brian Hyder <brian@pencilblue.org>
-     * @copyright 2015 PencilBlue, LLC
+     * @class GoogleAnalytics
+     * @constructor
      */
     function GoogleAnalytics(){}
     
