@@ -16,7 +16,7 @@
 module.exports = {
     generic: {
         LOCALE_DISPLAY: 'Deutsch (Deutschland)',
-        PENCILBLUE: 'pencilblue',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'All rights reserved',
         NONE: 'keine',
         LEFT: 'linksbündig',
@@ -205,7 +205,7 @@ module.exports = {
         ADMIN_LOGIN: 'Autoren, Redakteure und Administratoren Anmeldung.',
         USERNAME_OR_EMAIL: 'Benutzername oder E-Mail Adresse.',
         INVALID_LOGIN: 'Diese Kombination von Benutzername und Passwort ist ungültig.',
-        READY_TO_USE: 'Ihre pencilblue Installation kann nun benutzt werden.',
+        READY_TO_USE: 'Ihre PencilBlue Installation kann nun benutzt werden.',
         ACCOUNT_CREATED: 'Ihr Konto wurde erfolgreich angelegt; Sie können sich nun anmelden.',
         FORGOT_PASSWORD: 'Ich habe mein Passwort vergessen'
     },
