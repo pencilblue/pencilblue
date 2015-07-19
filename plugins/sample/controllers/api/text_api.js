@@ -27,7 +27,7 @@ module.exports = function TextApiControllerModule(pb) {
      * 
      * @author Brian Hyder <brian@pencilblue.org>
      * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
-     * @returns
+     * @return
      */
     function TextApiController(){}
     util.inherits(TextApiController, pb.BaseController);

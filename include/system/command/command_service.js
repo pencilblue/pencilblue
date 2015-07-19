@@ -28,7 +28,7 @@ module.exports = function CommandServiceModule(pb) {
      * specific member.
      * @class CommandService
      * @constructor
-     * @param {CommandBroker}
+     * @param {CommandBroker} broker
      */
     function CommandService(broker){
         if (!broker) {

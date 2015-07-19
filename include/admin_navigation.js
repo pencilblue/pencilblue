@@ -218,7 +218,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method getDefaultNavigation
-     * @returns {Array}
+     * @return {Array}
      */
     function getDefaultNavigation() {
         return util.clone(DEFAULT_NAV);
@@ -229,7 +229,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method getAdditions
-     * @returns {Array}
+     * @return {Array}
      */
     function getAdditions() {
         return util.clone(AdminNavigation.additions);
@@ -240,7 +240,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method getChildrenAdditions
-     * @returns {Object}
+     * @return {Object}
      */
     function getChildrenAdditions() {
         return util.clone(AdminNavigation.childrenAdditions);
@@ -251,7 +251,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method buildNavigation
-     * @returns {Array}
+     * @return {Array}
      */
     function buildNavigation() {
         var i;
@@ -300,7 +300,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @method localizeNavigation
      * @param navigation
      * @param ls
-     * @returns {*}
+     * @return {*}
      */
     function localizeNavigation(navigation, ls) {
         navigation.forEach(function(nav) {
@@ -318,7 +318,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @method isDuplicate
      * @param {String} id
      * @param {Array} navigation
-     * @returns {boolean}
+     * @return {boolean}
      */
     function isDuplicate(id, navigation) {
         if (!navigation) {
@@ -374,7 +374,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @method addChild
      * @param {String} parentId
      * @param {Object} node
-     * @returns {Boolean}
+     * @return {Boolean}
      */
     AdminNavigation.addChild = function (parentId, node) {
         if (isDuplicate(node.id)) {
@@ -394,7 +394,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @static
      * @method add
      * @param {Object} node
-     * @returns {Boolean}
+     * @return {Boolean}
      */
     AdminNavigation.add = function (node) {
         if (isDuplicate(node.id)) {
@@ -411,7 +411,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @method remove
      * @param id
      * @param navigation
-     * @returns {boolean}
+     * @return {boolean}
      */
     AdminNavigation.remove = function (id) {
         if (!isDuplicate(id, buildNavigation())) {
@@ -453,7 +453,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @param {Object} session
      * @param {Array} adminNavigation
      * @param {Array} activeItems
-     * @returns {Array}
+     * @return {Array}
      */
     AdminNavigation.removeUnauthorized = function (session, adminNavigation, activeItems) {
         for (var i = 0; i < adminNavigation.length; i++) {
