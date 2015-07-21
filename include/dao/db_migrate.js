@@ -91,7 +91,7 @@ module.exports = function DBMigrateModule(pb) {
         this.migrateGlobalSubCollection = function(collection, siteSpecificArr, compareTo, cb) {
             var self = this;
             var dao = new pb.DAO();
-            dao.q(collection, {}, function(err, results) {
+            dao.q(collection, function(err, results) {
                 var tasks = util.getTasks(results, function(results, i) {
                     return function(callback) {
                       var uid = siteSpecificArr.indexOf(results[i][compareTo]) > -1? self.siteUid : pb.SiteService.GLOBAL_SITE;
