@@ -651,7 +651,6 @@ module.exports = function RequestHandlerModule(pb) {
         this.session = session;
 
         //set the site -- how do we handle improper sites here?
-        //TODO Handle global differently here when we pull through global site designation
         this.siteObj = RequestHandler.sites[this.hostname]
             ? RequestHandler.sites[this.hostname]
             : this.serve404();
