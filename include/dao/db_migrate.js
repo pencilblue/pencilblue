@@ -99,9 +99,7 @@ module.exports = function DBMigrateModule(pb) {
                     };
                 });
 
-                async.parallel(tasks, function(err, result) {
-                    cb(err, result);
-                });
+                async.parallel(tasks, cb);
             });
         };
 
