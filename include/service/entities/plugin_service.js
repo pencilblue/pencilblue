@@ -464,6 +464,7 @@ module.exports = function PluginServiceModule(pb) {
         this._pluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
     };
 
+
     PluginService.prototype.getPluginsWithThemesBySite = function(cb) {
         this._pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
     }
