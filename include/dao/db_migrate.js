@@ -44,23 +44,19 @@ module.exports = function DBMigrateModule(pb) {
             var self = this;
             var siteService = new pb.SiteService();
             siteService.getSiteMap(function (err, result) {
-                if (pb.config.multisite.enabled && result.active.length === 0 && result.inactive.length === 0) {
-                    self.createSite(function (err, isTaken, field, result) {
-                        self.siteUid = result.uid;
-                        var tasks = [
-                            util.wrapTask(self, self.migrateContentAndPluginData),
-                            util.wrapTask(self, self.migrateSettings),
-                            util.wrapTask(self, self.migrateUsers)
-                        ];
-                        //self.migrateContentAndPluginData(cb);
-                        async.series(tasks, function(err, result) {
-                           cb(err, result);
-                        });
-                    });
+                if (!pb.config.multisite.enabled || result.active.length > 0 || result.inactive.length > 0) {
+                    return cb(null, true);
                 }
-                else {
-                    cb(null, true);
-                }
+
+                self.createSite(function (err, isTaken, field, result) {
+                    self.siteUid = result.uid;
+                    var tasks = [
+                        util.wrapTask(self, self.migrateContentAndPluginData),
+                        util.wrapTask(self, self.migrateSettings),
+                        util.wrapTask(self, self.migrateUsers)
+                    ];
+                    async.series(tasks, cb);
+                });
             });
         };
 
@@ -75,15 +71,13 @@ module.exports = function DBMigrateModule(pb) {
 
         this.migrateContentAndPluginData = function(cb) {
             var self = this;
-            var tasks = pb.util.getTasks(MIGRATE_ALL, function (collections, i) {
+            var tasks = util.getTasks(MIGRATE_ALL, function (collections, i) {
                 return function (callback) {
                     self.migrateCollection(collections[i], self.siteUid, callback);
                 };
             });
 
-            async.parallel(tasks, function (err, result) {
-                cb(err, result);
-            });
+            async.parallel(tasks, cb);
         };
 
         this.migrateSettings = function (cb) {
@@ -114,16 +108,14 @@ module.exports = function DBMigrateModule(pb) {
         this.migrateCollection = function (collection, siteUid, cb) {
             var self = this;
             var dao = new pb.DAO();
-            dao.q(collection, {}, function (err, results) {
+            dao.q(collection, function (err, results) {
                 var tasks = util.getTasks(results, function (results, i) {
                     return function (callback) {
                         self.applySiteToDocument(results[i], siteUid, callback);
                     };
                 });
 
-                async.parallel(tasks, function (err, result) {
-                    cb(err, result);
-                });
+                async.parallel(tasks, cb);
             });
         };
 

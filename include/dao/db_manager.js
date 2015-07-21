@@ -160,7 +160,8 @@ module.exports = function DBManagerModule(pb) {
 
             this.dropUnconfiguredIndices(procedures, function(err) {
                 if(util.isError(err)) {
-                    pb.log.error('DBManager: Error occurred during index check/deletion ERROR[%s]', err.stack);
+                    cb(new Error('DBManager: Error occurred during index check/deletion ERROR[%s]', err.stack));
+                    return;
                 }
                 self.ensureIndices(procedures, cb);
             });
@@ -213,6 +214,10 @@ module.exports = function DBManagerModule(pb) {
             //to prevent a cirular dependency we do the require for DAO here.
             var DAO = require('./dao.js')(pb);
             this.getStoredIndices(function(err, storedIndices) {
+                if(util.isError(err)) {
+                    cb(new Error('DBManager: Failed to get stored indices ERROR[%s]', err.stack));
+                    return;
+                }
                 var dao = new DAO();
 
                 var tasks = util.getTasks(storedIndices, function(indices, i) {
@@ -224,17 +229,20 @@ module.exports = function DBManagerModule(pb) {
                             return result;
                         });
                         var indexCollection = index.ns.split('.')[1];
-                        if(index.name !== '_id_' && indexCollection !== 'session' && (filteredIndex.length === 0 || util.isNullOrUndefined(filteredIndex))) {
-                            dao.dropIndex(indexCollection, index.name, function(err, result) {
-                                if(util.isError(err)) {
-                                    pb.log.error('DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack);
-                                }
-                                callback(err, result);
-                            });
+
+                        //ignore any index relating to the "_id" field.
+                        //ignore all indices of the "session" collection as it is managed elsewhere.
+                        //use length and null/undefined check for if the index in question is defined in pb.config.indices.
+                        if(index.name === '_id_' || indexCollection === 'session' || (filteredIndex.length !== 0 && !util.isNullOrUndefined(filteredIndex))) {
+                            return callback();
                         }
-                        else {
-                            callback();
-                        }
+
+                        dao.dropIndex(indexCollection, index.name, function (err, result) {
+                            if (util.isError(err)) {
+                                pb.log.error('DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack);
+                            }
+                            callback(err, result);
+                        });
                     };
                 });
                 async.parallel(tasks, function(err){
