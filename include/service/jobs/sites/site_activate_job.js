@@ -22,6 +22,7 @@ module.exports = function SiteActivateJobModule(pb) {
     /**
      * Get tasks to activate sites across clusters.
      * @method getInitiatorTasks
+     * @override
      * @param {Function} cb - callback function
      */
     SiteActivateJob.prototype.getInitiatorTasks = function(cb) {
@@ -56,6 +57,7 @@ module.exports = function SiteActivateJobModule(pb) {
     /**
      * Get tasks to activate user facing, non-admin routes for the site.
      * @method getWorkerTasks
+     * @override
      * @param {Function} cb - callback function
      */
     SiteActivateJob.prototype.getWorkerTasks = function(cb) {
