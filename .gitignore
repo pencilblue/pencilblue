@@ -25,3 +25,5 @@ config.json
 **/dump.rdb
 
 config.js
+
+npm-debug.log
