@@ -303,13 +303,13 @@ module.exports = function LocalizationModule(pb) {
      * @param {Object} localizations
      * @return {Boolean}
      */
-    Localization.registerLocalizations = function(locale, localizations) {
+    Localization.registerLocalizations = function(locale, localizations, pluginName) {
         if (!Localization.isSupported(locale) || !util.isObject(localizations)) {
             return false;
         }
         
         util.forEach(localizations, function(item, key) {
-            Localization.registerLocalization(locale, key, item);
+            Localization.registerLocalization(locale, key, item, pluginName);
         });
         return true;
     };
