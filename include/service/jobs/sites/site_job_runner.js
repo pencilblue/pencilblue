@@ -2,6 +2,11 @@ var util = require('../../../util.js');
 
 module.exports = function SiteJobRunnerModule(pb) {
 
+    /**
+     * Setup for running site activation job.
+     * @constructor SiteJobRunner
+     * @extends ClusterJobRunner
+     */
     function SiteJobRunner() {
         SiteJobRunner.super_.call(this);
         
@@ -9,17 +14,41 @@ module.exports = function SiteJobRunnerModule(pb) {
     };
     util.inherits(SiteJobRunner, pb.ClusterJobRunner);
 
+    /**
+     * The site for this instance of SiteJobRunner
+     * @type {string} - default to empty string
+     */
     SiteJobRunner.prototype.site = '';
 
+    /**
+     * Set the site for an instance of SiteJobRunner.
+     * @param {String} site - site unique id
+     * @returns {Object} the instance in which the site was set.
+     */
     SiteJobRunner.prototype.setSite = function(site) {
         this.site = site;
         return this;
     }
 
+    /**
+     * Get the current site of this instance of SiteJobRunner.
+     * @returns {String} the site unique id
+     */
     SiteJobRunner.prototype.getSite = function() {
         return this.site;
     }
 
+    /**
+     *  Called when the tasks have completed execution and isInitiator = FALSE.  The
+     * function ispects the results of each processes' execution and attempts to
+     * decipher if an error occurred.  The function calls back with a result object
+     * that provides four properties: success (Boolean), id (String), pluginUid
+     * (String), results (Array of raw results).
+     * @override
+     * @param {Error} err - error in the process or null
+     * @param {Array} results - array of results from the tasks run
+     * @param {Function} cb - callback function
+     */
     SiteJobRunner.prototype.processClusterResults = function(err, results, cb) {
         if (util.isError(err)) {
             this.log(err.stack);

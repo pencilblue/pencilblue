@@ -464,6 +464,11 @@ module.exports = function PluginServiceModule(pb) {
         this._pluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
     };
 
+    /**
+     * Get plugins that contain a theme on a site level.
+     * @method getPluginsWithThemesBySite
+     * @param {Function} cb - callback function
+     */
     PluginService.prototype.getPluginsWithThemesBySite = function(cb) {
         this._pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
     }

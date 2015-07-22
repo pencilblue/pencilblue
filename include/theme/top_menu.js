@@ -95,7 +95,7 @@ module.exports = function TopMenuServiceModule(pb) {
      * @method getAccountButtons
      * @param {Object}   session
      * @param {Object}   ls      The localization service
-     * @param {String}   site    The current site
+     * @param {String}   [site]    The current site
      * @param {Function} cb      Callback function
      */
     TopMenuService.getAccountButtons = function(session, ls, site, cb) {
