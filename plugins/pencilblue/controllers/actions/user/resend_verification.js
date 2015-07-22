@@ -63,13 +63,10 @@ module.exports = function ResendVerificationModule(pb) {
               return;
             }
 
-            cb({
-              content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('VERIFICATION_SENT') + user.email)
-                self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
-                self.redirect('/user/verification_sent', cb);
-                var userService = new UserService(self.getServiceContext());
-                userService.sendVerificationEmail(user, util.cb);
-            });
+              cb({
+                  content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('VERIFICATION_SENT') + user.email)
+              });
+              pb.users.sendVerificationEmail(user, util.cb);
           });
         });
       });
