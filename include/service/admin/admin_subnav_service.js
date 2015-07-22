@@ -168,7 +168,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
             if(!data || !data.site) {
                 throw new Error('Data must include a field named "site"');
             }
-            new pb.SiteService().getSiteNameByUid(data.site, function(siteName) {
+            new pb.SiteService().getSiteNameByUid(data.site, function(err, siteName) {
                 var pills = AdminSubnavService.addSiteToPills(standardPills, siteName);
                 cb(pills);
             });
