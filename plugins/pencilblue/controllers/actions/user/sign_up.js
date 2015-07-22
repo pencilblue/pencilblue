@@ -49,7 +49,7 @@ module.exports = function SignUpModule(pb) {
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
             });
             return;
-        }
+          }
 
           var contentService = new pb.ContentService(self.site);
           contentService.getSettings(function(err, contentSettings) {
@@ -93,7 +93,7 @@ module.exports = function SignUpModule(pb) {
                 });
                 return;
               }
-                var dao = pb.SiteQueryService(self.site);
+                var dao = new pb.SiteQueryService(self.site);
                 dao.save(user, function(err, data) {
                     if(util.isError(err)) {
                         cb({
@@ -140,7 +140,6 @@ module.exports = function SignUpModule(pb) {
         };
         async.series(tasks, cb);
     };
-  };
 
   //exports
   return SignUp;

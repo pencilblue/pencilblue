@@ -257,9 +257,17 @@ module.exports = function(pb) {
 
         var siteService = new pb.SiteService();
         siteService.getByUid(self.context.site, function(err, siteInfo) {
+            if (pb.util.isError(err)) {
+                pb.log.error("UserService: Failed to load site with getByUid. ERROR[%s]", err.stack);
+                return cb(err, null);
+            }
             // We need to see if email settings have been saved with verification content
             var emailService = new pb.EmailService(self.context.site);
             emailService.getSettings(function (err, emailSettings) {
+                if (pb.util.isError(err)) {
+                    pb.log.error("UserService: Failed to load email settings. ERROR[%s]", err.stack);
+                    return cb(err, null);
+                }
                 var options = {
                     to: user.email,
                     replacements: {

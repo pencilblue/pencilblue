@@ -22,7 +22,6 @@ module.exports = function AdminNavigationModule(pb) {
 
     //PB dependencies
     var SecurityService = pb.SecurityService;
-    var _ = require('lodash');
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
