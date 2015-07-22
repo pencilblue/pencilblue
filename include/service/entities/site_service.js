@@ -122,11 +122,12 @@ module.exports = function SiteServiceModule(pb) {
 
             if(pb.util.isError(err)) {
                 pb.log.error(err);
+                return cb(err);
             }else if(result && result.length > 0) {
                 siteName = result[0].displayName;
             }
 
-            cb(siteName);
+            cb(null, siteName);
         });
     };
 
