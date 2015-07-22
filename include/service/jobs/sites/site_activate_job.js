@@ -92,11 +92,7 @@ module.exports = function SiteActivateJobModule(pb) {
             }
         ];
         async.series(tasks, function(err, results) {
-            if(util.isError(err)) {
-                cb(err);
-                return;
-            }
-            cb(null, true);
+            cb(err, !util.isError(err));
         });
     };
 
