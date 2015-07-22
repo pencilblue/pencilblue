@@ -3,7 +3,7 @@ var util = require('../../util.js');
 
 module.exports = function PluginSettingServiceModule(pb) {
 
-	  var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
     var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
     /**
