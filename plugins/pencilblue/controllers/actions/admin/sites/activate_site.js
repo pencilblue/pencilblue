@@ -25,13 +25,14 @@ module.exports = function(pb) {
 
     ActivateSite.prototype.render = function(cb)
     {
-		var self = this;
         var vars = this.pathVars;
 
         var message = this.hasRequiredParams(vars, ['id']);
         if(message) {
-            self.formError(message, '/admin/sites', cb);
-            return;
+            return cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+            });
         }
 
         var siteService = new pb.SiteService();
