@@ -206,6 +206,7 @@ module.exports = function PluginServiceModule(pb) {
                 pluginNames.push(siteNames[i] + '_' + sitePluginNames[j]);
             }
         }
+        return pluginNames;
     };
 
     PluginService.prototype.getActivePluginNamesBySite = function() {
