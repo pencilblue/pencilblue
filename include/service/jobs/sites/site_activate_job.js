@@ -4,8 +4,12 @@ var async = require('async');
 var util  = require('../../../util.js');
 
 module.exports = function SiteActivateJobModule(pb) {
-    var GLOBAL_PREFIX = 'global';
 
+    /**
+     * Job to activate a site in the database to start accepting traffic.
+     * @extends SiteJobRunner
+     * @constructor
+     */
     function SiteActivateJob(){
         SiteActivateJob.super_.call(this);
 
@@ -15,6 +19,12 @@ module.exports = function SiteActivateJobModule(pb) {
     };
     util.inherits(SiteActivateJob, pb.SiteJobRunner);
 
+    /**
+     * Get tasks to activate sites across clusters.
+     * @method getInitiatorTasks
+     * @override
+     * @param {Function} cb - callback function
+     */
     SiteActivateJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
         //progress function
@@ -44,6 +54,12 @@ module.exports = function SiteActivateJobModule(pb) {
         cb(null, tasks);
     };
 
+    /**
+     * Get tasks to activate user facing, non-admin routes for the site.
+     * @method getWorkerTasks
+     * @override
+     * @param {Function} cb - callback function
+     */
     SiteActivateJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
 
@@ -60,12 +76,11 @@ module.exports = function SiteActivateJobModule(pb) {
     };
 
     /**
-     *
+     * Set sites active in the database and activate the site in the RequestHandler.
      * @method doPersistenceTasks
+     * @param {Function} cb - callback function
      */
     SiteActivateJob.prototype.doPersistenceTasks = function(cb) {
-        var self = this;
-
         var siteUid   = this.getSite();
         var tasks     = [
             //set site to active in mongo

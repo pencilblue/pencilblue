@@ -50,8 +50,6 @@ function PencilBlue(config){
      * connection pool to the core DB.
      */
     this.init = function(){
-        var self = this;
-        
         var tasks = [
             this.initModules,
             this.initRequestHandler,
@@ -130,12 +128,21 @@ function PencilBlue(config){
         pluginService.initPlugins(cb);
     };
 
+    /**
+     * Move a single tenant solution to a multi-tenant solution.
+     * @static
+     * @method initSiteMigration
+     * @param {Function} cb - callback function
+     */
     this.initSiteMigration = function(cb) {
         pb.dbm.processMigration(cb);
     };
 
     /**
-     *
+     * Initializes site(s).
+     * @method initSites
+     * @static
+     * @param {Function} cb - callback function
      */
     this.initSites = function(cb)
     {

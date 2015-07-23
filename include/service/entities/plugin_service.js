@@ -28,6 +28,7 @@ var util    = require('../../util.js');
 module.exports = function PluginServiceModule(pb) {
 
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+
     /**
      * PluginService - Provides functions for interacting with plugins.
      * Install/uninstall, setting retrieval, plugin retrieval, etc.
@@ -64,7 +65,7 @@ module.exports = function PluginServiceModule(pb) {
         this.themeSettingsService  = PluginService.genSettingsService('theme_settings', caching.use_memory, caching.use_cache, 'ThemeSettingService');
     }
 
-    //constants
+    // Constants
     /**
      * The absolute path to the plugins directory for this PecilBlue installation
      * @property PLUGINS_DIR
@@ -86,7 +87,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     var PUBLIC_DIR_NAME   = 'public';
 
-    //statics
+    // Statics
     /**
      * A hash of the plugins that are installed and active in this instance of PB.
      * @property ACTIVE_PLUGINS
@@ -102,16 +103,6 @@ module.exports = function PluginServiceModule(pb) {
         }
         return null;
     }
-
-    /**
-     * The name of the collection where plugin descriptors are stored
-     * @private
-     * @static
-     * @readonly
-     * @property PLUGIN_COLL
-     * @type {String}
-     */
-    var PLUGIN_COLL = 'plugin';
     
     /**
      * The maximum number of retries to acquire 
@@ -197,6 +188,11 @@ module.exports = function PluginServiceModule(pb) {
         return merged;
     };
 
+    /**
+     * Get a array of active plugin names with site name as a prefix: site_name_plugin_name
+     * @method getAllActivePluginNames
+     * @returns {Array} array of active plugin names with site name prefix.
+     */
     PluginService.prototype.getAllActivePluginNames = function() {
         var pluginNames = [];
         var siteNames = Object.keys(ACTIVE_PLUGINS);
@@ -206,15 +202,9 @@ module.exports = function PluginServiceModule(pb) {
                 pluginNames.push(siteNames[i] + '_' + sitePluginNames[j]);
             }
         }
+        return pluginNames;
     };
 
-    PluginService.prototype.getActivePluginNamesBySite = function() {
-        var result = [];
-        if(ACTIVE_PLUGINS[this.site]) {
-            result = Object.keys(ACTIVE_PLUGINS[this.site]);
-        }
-        return result;
-    };
 
     /**
      * Retrieves a single setting for the specified plugin.
@@ -406,21 +396,24 @@ module.exports = function PluginServiceModule(pb) {
         settingService.resetThemeSettings(details, cb);
     };
 
+    /**
+     * Deletes the plugin settings for when plugin uninstalls.
+     * @param {String} pluginUid - the plugin unique id
+     * @param {Function} cb - callback function
+     */
     PluginService.prototype.purgePluginSettings = function(pluginUid, cb) {
         var settingService = getPluginSettingService(this);
         settingService.purgePluginSettings(pluginUid, cb);
     };
 
+    /**
+     * Deletes the theme settings for when plugin uninstalls.
+     * @param {String} pluginUid - the plugin unique id
+     * @param {Function} cb - callback function
+     */
     PluginService.prototype.purgeThemeSettings = function(pluginUid, cb) {
         var settingService = getPluginSettingService(this);
         settingService.purgeThemeSettings(pluginUid, cb);
-    }
-
-    function getPluginSettingService(self) {
-        if(!self.pluginSettingService) {
-            self.pluginSettingService = new pb.PluginSettingService(self.site);
-        }
-        return self.pluginSettingService;
     }
 
     /**
@@ -464,6 +457,11 @@ module.exports = function PluginServiceModule(pb) {
         this._pluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
     };
 
+    /**
+     * Get plugins that contain a theme on a site level.
+     * @method getPluginsWithThemesBySite
+     * @param {Function} cb - callback function
+     */
     PluginService.prototype.getPluginsWithThemesBySite = function(cb) {
         this._pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
     }
@@ -2290,6 +2288,13 @@ module.exports = function PluginServiceModule(pb) {
         commandService.registerForType('install_plugin_dependencies', PluginService.onInstallPluginDependenciesCommandReceived);
         commandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
     };
+
+    function getPluginSettingService(self) {
+        if(!self.pluginSettingService) {
+            self.pluginSettingService = new pb.PluginSettingService(self.site);
+        }
+        return self.pluginSettingService;
+    }
 
     //exports
     return PluginService;

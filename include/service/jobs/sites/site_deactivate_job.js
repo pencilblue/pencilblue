@@ -4,8 +4,12 @@ var async = require('async');
 var util  = require('../../../util.js');
 
 module.exports = function SiteDeactivateJobModule(pb) {
-    var GLOBAL_PREFIX = 'global';
 
+    /**
+     * Job to deactivate a site.
+     * @constructor SiteDeactivateJob
+     * @extends SiteJobRunner
+     */
     function SiteDeactivateJob(){
         SiteDeactivateJob.super_.call(this);
 
@@ -15,16 +19,20 @@ module.exports = function SiteDeactivateJobModule(pb) {
     };
     util.inherits(SiteDeactivateJob, pb.SiteJobRunner);
 
+    /**
+     * Get tasks to deactivate a site.
+     * @method getInitiatorTasks
+     * @override
+     * @param {Function} cb - callback function
+     */
     SiteDeactivateJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
 
         var activateCommand = {};
 
         //progress function
-        var jobId     = self.getId();
-        var site      = self.getSite();
         var tasks = [
-            //activate site in mongo
+            //deactivate site in mongo
             function(callback) {
                 self.doPersistenceTasks(function(err, results) {
                     self.onUpdate(100 / tasks.length);
@@ -35,12 +43,18 @@ module.exports = function SiteDeactivateJobModule(pb) {
                 });
             },
 
-            //add site to request handler site collection across cluster
+            //remove site to request handler site collection across cluster
             self.createCommandTask('deactivate_site', activateCommand)
         ];
         cb(null, tasks);
     };
 
+    /**
+     * Get task to stop accepting traffic for the site.
+     * @method getWorkerTasks
+     * @override
+     * @param {Function} cb - callback
+     */
     SiteDeactivateJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
 
@@ -57,8 +71,9 @@ module.exports = function SiteDeactivateJobModule(pb) {
     };
 
     /**
-     *
+     * Update site to active as false in database to deactivate.
      * @method doPersistenceTasks
+     * @param {Function} cb - callback
      */
     SiteDeactivateJob.prototype.doPersistenceTasks = function(cb) {
         var self = this;
