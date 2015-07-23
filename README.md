@@ -60,6 +60,7 @@ When submitting an issue or request for help please provide the following inform
 1. Step by step instructions to reproduce
 2. Configuration overrides (minus any credentials)
 3. Environment details: Linux, windows, hosting provider, local, etc.
+4. Log output. Set your logging.level configuration property to "silly".
 
 **Submitting a Pull Request:**
 
