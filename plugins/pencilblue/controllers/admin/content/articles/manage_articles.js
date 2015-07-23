@@ -92,13 +92,22 @@ module.exports = function(pb) {
 
     ManageArticles.prototype.getAngularObjects = function(site, articles, cb) {
         var self = this;
-        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: site}, function(pills) {
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: site}, function(err, pills) {
             var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls, self.site),
-                    pills: pills,
+                    pills: [],
                     articles: articles
                 });
+            //Log error. Don't return
+            if (util.isError(err)){
+                pb.log.error("ManageArticles: AdminSubnavService.getWithSite callback error. ERROR[%s]", err.stack);
+            }
+            //Only populate pills if we didn't fail
+            else {
+                angularObjects.pills = pills;
+            }
+            //TODO: err first arg for style. User experience error when no pills?
             cb(angularObjects);
         });
     };
