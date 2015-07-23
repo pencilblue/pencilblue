@@ -304,6 +304,11 @@ module.exports = function(pb) {
 
         var siteService = new pb.SiteService();
         siteService.getByUid(self.context.site, function(err, siteInfo) {
+            // Handle errors
+            if (pb.util.isError(err)) {
+                pb.log.error("UserService: Failed to load site with getByUid. ERROR[%s]", err.stack);
+                return cb(err, null);
+            }
             var root = pb.SiteService.getHostWithProtocol(siteInfo.hostname);
             var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password')
               + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
