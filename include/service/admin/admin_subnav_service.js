@@ -170,11 +170,11 @@ module.exports = function AdminSubnavServiceModule(pb) {
             }
             new pb.SiteService().getSiteNameByUid(data.site, function(err, siteName) {
                 var pills = AdminSubnavService.addSiteToPills(standardPills, siteName);
-                cb(pills);
+                cb(err, pills);
             });
         }
         else {
-            cb(standardPills);
+            cb(null, standardPills);
         }
     };
 
