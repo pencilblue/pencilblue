@@ -37,20 +37,18 @@ module.exports = function(pb) {
 
             var message = self.hasRequiredParams(post, self.getRequiredFields());
             if (message) {
-                cb({
+                return cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
                 });
-                return;
             }
 
             self.siteQueryService.loadById(post.id, 'article', function(err, article) {
                 if(util.isError(err) || article === null) {
-                    cb({
+                    return cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
                     });
-                    return;
                 }
 
                 //TODO should we keep track of contributors (users who edit)?
@@ -64,11 +62,10 @@ module.exports = function(pb) {
                     var testError = (error !== null && typeof error !== 'undefined');
                     
                     if( testError || exists || article.url.indexOf('/admin') === 0) {
-                        cb({
+                        return cb({
                             code: 400,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
                         });
-                        return;
                     }
 
                     self.siteQueryService.save(article, function(err, result) {
