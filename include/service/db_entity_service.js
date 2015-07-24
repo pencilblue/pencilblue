@@ -94,6 +94,7 @@ module.exports = function DbEntityServiceModule(pb) {
         var self = this;
         dao.loadByValueForOneSite(this.keyField, key, this.site, this.objType, function(err, result){
             if (util.isError(err)) {
+                pb.log.error("DbEntityService.loadByValueForOneSite encountered an error. ERROR[%s]", err.stack);
                 return cb(err);
             }
 
