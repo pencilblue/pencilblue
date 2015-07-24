@@ -199,8 +199,7 @@ module.exports = function(pb) {
 
             article: function(callback) {
                 if(!pb.validation.isIdStr(vars.id, true)) {
-                    callback(null, {});
-                    return;
+                    return callback(null, {});
                 }
 
                 //TODO call article service
