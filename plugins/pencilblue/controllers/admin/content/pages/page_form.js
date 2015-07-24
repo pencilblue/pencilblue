@@ -200,8 +200,7 @@ module.exports = function(pb) {
 
             page: function(callback) {
                 if(!vars.id) {
-                    callback(null, {});
-                    return;
+                    return callback(null, {});
                 }
 
                 self.siteQueryService.loadById(vars.id, 'page', callback);
