@@ -73,9 +73,9 @@ module.exports = function(pb) {
       self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
       self.ts.load('admin/content/pages/page_form', function(err, data) {
           var result = data;
-          self.checkForFormRefill(result, function(newResult) {
+          self.checkForFormRefill(result, function(err, newResult) {
               result = newResult;
-              cb({content: result});
+              cb(null, {content: result});
           });
       });
     };

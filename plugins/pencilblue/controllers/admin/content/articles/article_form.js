@@ -75,9 +75,9 @@ module.exports = function(pb) {
       self.ts.load('admin/content/articles/article_form', function(err, data) {
           self.onTemplateRetrieved('' + data, function(err, data) {
               var result = '' + data;
-              self.checkForFormRefill(result, function(newResult) {
+              self.checkForFormRefill(result, function(err, newResult) {
                   result = newResult;
-                  cb({content: result});
+                  cb(null, {content: result});
               });
           });
       });

@@ -281,9 +281,10 @@ module.exports = function BaseControllerModule(pb) {
         var self = this;
         
         this.getPostData(function(err, raw){
+            //Handle error
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                pb.log.error("BaseController.getPostParams encountered an error. ERROR[%s]", err.stack);
+                return cb(err, null);
             }
 
             //lookup encoding
@@ -305,7 +306,9 @@ module.exports = function BaseControllerModule(pb) {
         var self = this;
         
         this.getPostData(function(err, raw){
+            //Handle error
             if (util.isError(err)) {
+                pb.log.error("BaseController.getJSONPostParams encountered an error. ERROR[%s]", err.stack);
                 return cb(err, null);
             }
             
@@ -318,6 +321,7 @@ module.exports = function BaseControllerModule(pb) {
             try {
                 postParams = JSON.parse(raw.toString(encoding));
             }
+            //TODO - Needed? Can't we just pass err into the cb?
             catch(err) {
                 error = err;
             }
@@ -406,7 +410,7 @@ module.exports = function BaseControllerModule(pb) {
             delete this.session.fieldValues;
         }
 
-        cb(result);
+        cb(null, result);
     };
 
     /**
@@ -420,6 +424,7 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.sanitizeObject = function(obj) {
         if (!util.isObject(obj)) {
+            pb.log.warn("BaseController.sanitizeObject was not passed an object.");
             return;
         }
 
