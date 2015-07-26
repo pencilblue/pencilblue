@@ -239,7 +239,9 @@ module.exports = {
         SAVED: 'fue guardado',
         NARROW_RESULTS: 'Limitar resultados',
         URL_KEY: 'Clave de URL',
-        FEED_UNAVAILABLE: 'No se pudo cargar las noticias.'
+        FEED_UNAVAILABLE: 'No se pudo cargar las noticias.',
+        REQUESTS_TOTAL: 'Las solicitudes totales',
+        REQUESTS_CURRENT: 'solicitudes actuales'
     },
     topics: {
         MANAGE_TOPICS: 'Gestionar tópicos',

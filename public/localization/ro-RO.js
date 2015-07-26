@@ -234,7 +234,9 @@ module.exports = {
         SAVED: 'a fost salvat',
         NARROW_RESULTS: 'Restrange rezultatele',
         URL_KEY: 'URL Key',
-        FEED_UNAVAILABLE: 'Nu pot incarca fluxul de stiri.'
+        FEED_UNAVAILABLE: 'Nu pot incarca fluxul de stiri.',
+        REQUESTS_TOTAL: 'totale Cereri',
+        REQUESTS_CURRENT: 'Cereri de curent'
     },
     topics: {
         MANAGE_TOPICS: 'Administreaza topicuri',

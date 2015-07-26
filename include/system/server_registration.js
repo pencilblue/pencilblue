@@ -113,6 +113,10 @@ module.exports = function ServerRegistrationModule(pb) {
 
         pb_version: function(cb) {
             cb(null, pb.config.version);
+        },
+        
+        update_interval: function(cb) {
+            cb(null, pb.config.registry.update_interval);
         }
     };
 

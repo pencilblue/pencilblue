@@ -240,7 +240,9 @@ module.exports = {
         SAVED: 'was saved',
         NARROW_RESULTS: 'Narrow results',
         URL_KEY: 'URL Key',
-        FEED_UNAVAILABLE: 'Unable to load the news feed.'
+        FEED_UNAVAILABLE: 'Unable to load the news feed.',
+        REQUESTS_TOTAL: 'Total Requests',
+        REQUESTS_CURRENT: 'Current Requests'
     },
     topics: {
         MANAGE_TOPICS: 'Manage topics',

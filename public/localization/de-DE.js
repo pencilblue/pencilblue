@@ -250,7 +250,9 @@ module.exports = {
         SAVED: 'wurde gespeichert',
         NARROW_RESULTS: 'Resultate eingrenzen',
         URL_KEY: 'URL-Schlüssel',
-        FEED_UNAVAILABLE: 'Kann den Nachrichten-Feed nicht laden.'
+        FEED_UNAVAILABLE: 'Kann den Nachrichten-Feed nicht laden.',
+        REQUESTS_TOTAL: 'Total Anfragen',
+        REQUESTS_CURRENT: 'aktuelle Anfragen'
     },
     topics: {
         MANAGE_TOPICS: 'Kategorien verwalten',
