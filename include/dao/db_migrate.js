@@ -25,12 +25,28 @@ module.exports = function DBMigrateModule(pb) {
         'topic'
     ];
 
+    /**
+     * Array of security levels that will access admin console on a site level.
+     * @private
+     * @static
+     * @readonly
+     * @property SITE_SPECIFIC_USERS
+     * @type {string[]}
+     */
     var SITE_SPECIFIC_USERS = [
         pb.security.ACCESS_EDITOR,
         pb.security.ACCESS_WRITER,
         pb.security.ACCESS_USER
     ];
 
+    /**
+     * Site Settings that will migrate to a site level from global.
+     * @private
+     * @static
+     * @readonly
+     * @property SITE_SPECIFIC_SETTINGS
+     * @type {string[]}
+     */
     var SITE_SPECIFIC_SETTINGS = [
         'active_theme',
         'content_settings',
@@ -38,6 +54,11 @@ module.exports = function DBMigrateModule(pb) {
         'email_settings'
     ];
 
+    /**
+     * On run, transforms a single tenant instance to a multi-tenant instance where the site defined
+     * in the single tenant instance becomes a site under global's scope.
+     * @constructor DBMigrate
+     */
     function DBMigrate() {
 
         this.run = function (cb) {
