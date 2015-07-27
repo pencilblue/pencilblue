@@ -145,6 +145,9 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     RequestHandler.activateSite = function(site) {
+        if (!RequestHandler.sites[site.hostname]) {
+            RequestHandler.loadSite(site)
+        }
         RequestHandler.sites[site.hostname].active = true;
     };
 
