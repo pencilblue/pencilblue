@@ -129,7 +129,7 @@ module.exports = function AdminNavigationModule(pb) {
             {
                 id: 'custom_objects',
                 title: 'CUSTOM_OBJECTS',
-                icon: 'sitemap',
+                icon: 'cubes',
                 href: '/admin/content/objects/types',
                 access: SecurityService.ACCESS_EDITOR
             }
