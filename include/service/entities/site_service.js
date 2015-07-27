@@ -95,7 +95,6 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.getSiteMap = function(cb) {
         var self  = this;
         var tasks = {
-
              active: function(callback) {
                  self.getActiveSites(callback);
              },
@@ -104,9 +103,7 @@ module.exports = function SiteServiceModule(pb) {
                  self.getInactiveSites(callback);
              }
         };
-        async.series(tasks, function(err, results) {
-            cb(err, results);
-        });
+        async.series(tasks, cb);
     };
 
     /**

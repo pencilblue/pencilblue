@@ -2059,9 +2059,7 @@ module.exports = function PluginServiceModule(pb) {
                     });
                 };
             });
-            async.parallel(tasks, function(err, results) {
-                cb(err, results);
-            });
+            async.parallel(tasks, cb);
         });
     };
 
