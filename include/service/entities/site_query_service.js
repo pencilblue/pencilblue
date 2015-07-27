@@ -177,7 +177,7 @@ module.exports = function SiteQueryServiceModule(pb) {
     var dao = new pb.DAO();
     var tasks = util.getTasks(collections, function(collections, i) {
       return function(taskCallback) {
-        dao.delete({site: siteid}, collections[i].s.name, function(err, numberOfDeletedRecords) {
+        dao.delete({site: siteid}, collections[i].name, function(err, numberOfDeletedRecords) {
           if(util.isError(err) || !numberOfDeletedRecords) {
             taskCallback(null, " ");
           } else {
