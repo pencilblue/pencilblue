@@ -117,13 +117,13 @@ module.exports = function SiteServiceModule(pb) {
         dao.q(SITE_COLL, {select: pb.DAO.SELECT_ALL, where: {uid: uid} }, function(err, result) {
             var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
 
-            if(pb.util.isError(err)) {
+            if (pb.util.isError(err)) {
                 pb.log.error(err);
                 return cb(err);
-            }else if(result && result.length > 0) {
+            }
+            else if (result && result.length > 0) {
                 siteName = result[0].displayName;
             }
-
             cb(null, siteName);
         });
     };
