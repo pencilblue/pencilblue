@@ -9,7 +9,7 @@
                     $scope.actionPlugin = site;
                     $scope.actionProgress = '0';
                     $scope.consoleOutput = '';
-                    $('#progress_modal').modal({});
+                    angular.element('#progress_modal').modal();
                     $http.post('/actions/admin/sites/activate/' + site.uid)
                             .success(function(result) {
                                 $scope.onActivateOrDeactivateComplete(result);
@@ -24,7 +24,7 @@
                     $scope.actionPlugin = site;
                     $scope.actionProgress = '0';
                     $scope.consoleOutput = '';
-                    $('#progress_modal').modal({});
+                    angular.element('#progress_modal').modal();
                     $http.post('/actions/admin/sites/deactivate/' + site.uid)
                             .success(function(result) {
                                 $scope.onActivateOrDeactivateComplete(result);
