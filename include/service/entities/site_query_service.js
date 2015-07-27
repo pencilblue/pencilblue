@@ -118,7 +118,7 @@ module.exports = function SiteQueryServiceModule(pb) {
   }
 
   function modifySave(site, objectToSave) {
-    if (pb.config.multisite && !(SITE_FIELD in objectToSave)) {
+    if (pb.config.multisite.enabled && !(SITE_FIELD in objectToSave)) {
       objectToSave[SITE_FIELD] = site;
     }
     // else do nothing
