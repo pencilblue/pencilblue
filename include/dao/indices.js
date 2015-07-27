@@ -322,6 +322,13 @@ module.exports = function IndicesModule(multisite) {
             collection: 'lock',
             spec: {timeout: ASC},
             options: {expireAfterSeconds: 0}
+        },
+
+        //token
+        {
+            collection: 'auth_token',
+            spec: {value: ASC},
+            options: {unique: true}
         }
     ];
 };
