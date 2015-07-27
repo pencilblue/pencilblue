@@ -30,53 +30,50 @@ module.exports = function EditSiteActionModule(pb) {
     {
         var self = this;
         var siteid = this.pathVars.siteid;
-        this.getJSONPostParams(function(err, post) {
-            var message = self.hasRequiredParams(post, self.getRequiredFields());
-            if(message) {
-                cb({
-                    code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
-                });
-                return;
-            }
+        var message = self.hasRequiredParams(self.body, self.getRequiredFields());
+        if(message) {
+            cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+            });
+            return;
+        }
 
-            if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
-                cb({
-                    code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
-                });
-                return;
-            }
+        if(!pb.security.isAuthorized(self.session, {admin_level: self.body.admin})) {
+            cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+            });
+            return;
+        }
 
-            var siteService = new pb.SiteService();
-            var dao = new pb.DAO();
-            dao.loadByValue('uid', siteid, 'site', function(err, data) {
-                siteService.isDisplayNameOrHostnameTaken(post.displayName, post.hostname, data._id, function (err, isTaken, field) {
-                    if(isTaken) {
-                        cb({
-                            code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
-                        });
+        var siteService = new pb.SiteService();
+        var dao = new pb.DAO();
+        dao.loadByValue('uid', siteid, 'site', function(err, data) {
+            siteService.isDisplayNameOrHostnameTaken(self.body.displayName, self.body.hostname, data._id, function (err, isTaken, field) {
+                if(isTaken) {
+                    cb({
+                        code: 400,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
+                    });
 
-                    } else {
-                        data.displayName = post.displayName;
-                        data.hostname = post.hostname;
-                        dao.save(data, function(err, result) {
-                            if(err) {
-                                cb({
-                                    code: 400,
-                                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                                });
-                                return;
-                            }
-                            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
-                        });
-                    }
+                } else {
+                    data.displayName = self.body.displayName;
+                    data.hostname = self.body.hostname;
+                    dao.save(data, function(err, result) {
+                        if(err) {
+                            cb({
+                                code: 400,
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                            });
+                            return;
+                        }
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
+                    });
+                }
 
-                });
-            })
-
-        });
+            });
+        })
 
     };
 
