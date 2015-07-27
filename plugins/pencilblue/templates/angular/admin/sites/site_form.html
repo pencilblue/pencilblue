@@ -30,6 +30,7 @@
                 };
 
                 $scope.newSite = function() {
+                    $scope.saving = true;
                     $http.post('/actions/admin/sites/new',
                             {
                                 displayName: $scope.displayName,
