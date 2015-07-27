@@ -13,7 +13,6 @@
                     }
 
                     $scope.saving = true;
-                    console.log($scope.siteForm);
                     $http.post('/actions/admin/sites/edit/' + $scope.uid,
                             {
                                 displayName: $scope.displayName,
