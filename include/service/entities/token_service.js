@@ -18,7 +18,6 @@
 module.exports = function TokenServiceModule(pb) {
 
     //dependencies
-    var crypto = require('crypto');
     var util = pb.util;
 
     /**
@@ -28,6 +27,9 @@ module.exports = function TokenServiceModule(pb) {
      * @constructor
      * @module Services
      * @submodule Entities
+     * @param {Object} options
+     * @param {String} options.site - site uid
+     * @param {String} options.user - user id
      */
     function TokenService(options) {
         this.site = options.site;
@@ -35,6 +37,12 @@ module.exports = function TokenServiceModule(pb) {
         this.user = options.user;
     }
 
+    /**
+     * Generates and saves user token
+     *
+     * @method generateUserToken
+     * @param {Function} cb
+     */
     TokenService.prototype.generateUserToken = function(cb) {
         var self = this;
         var token = util.uniqueId();
@@ -48,16 +56,13 @@ module.exports = function TokenServiceModule(pb) {
 
     };
 
-    TokenService.prototype.saveToken = function(tokenInfo, cb) {
-        var doc = pb.DocumentCreator.create('auth_token', tokenInfo);
-        this.dao.save(doc, function(err, result) {
-            if(util.isError(err)) {
-                return cb(err, null);
-            }
-            cb(null, {token: tokenInfo.token});
-        });
-    };
-
+    /**
+     * Loads token information by token value and marks as used if found
+     *
+     * @method validateUserToken
+     * @param {String} token
+     * @param {Function} cb
+     */
     TokenService.prototype.validateUserToken = function(token, cb) {
         var self = this;
         this.dao.loadByValue('token', token, 'auth_token', function(err, tokenInfo){
@@ -80,6 +85,23 @@ module.exports = function TokenServiceModule(pb) {
                 };
                 cb(null, response);
             });
+        });
+    };
+
+    /**
+     * Saves token object
+     *
+     * @method saveToken
+     * @param {Object} tokenInfo - the token object to save
+     * @param {Function} cb
+     */
+    TokenService.prototype.saveToken = function(tokenInfo, cb) {
+        var doc = pb.DocumentCreator.create('auth_token', tokenInfo);
+        this.dao.save(doc, function(err, result) {
+            if(util.isError(err)) {
+                return cb(err, null);
+            }
+            cb(null, {token: tokenInfo.token});
         });
     };
 
