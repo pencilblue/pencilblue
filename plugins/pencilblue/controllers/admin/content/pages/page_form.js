@@ -73,9 +73,14 @@ module.exports = function(pb) {
       self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
       self.ts.load('admin/content/pages/page_form', function(err, data) {
           var result = data;
-          self.checkForFormRefill(result, function(newResult) {
+          self.checkForFormRefill(result, function(err, newResult) {
+              //Handle errors
+              if (util.isError(err)) {
+                  pb.log.error("PageFormController.checkForFormRefill encountered an error. ERROR[%s]", err.stack);
+                  return;
+              }
               result = newResult;
-              cb({content: result});
+              cb(null, {content: result});
           });
       });
     };
@@ -200,8 +205,7 @@ module.exports = function(pb) {
 
             page: function(callback) {
                 if(!vars.id) {
-                    callback(null, {});
-                    return;
+                    return callback(null, {});
                 }
 
                 self.siteQueryService.loadById(vars.id, 'page', callback);

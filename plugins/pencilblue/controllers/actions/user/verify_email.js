@@ -54,7 +54,11 @@ module.exports = function VerifyEmailModule(pb) {
                 }
 
                 dao.deleteById(unverifiedUser[pb.DAO.getIdField()], 'unverified_user', function(err, result)  {
-                    //TODO handle error
+                    //Handle errors
+                    if (util.isError(err)){
+                        pb.log.error("SiteQueryService.deleteById encountered an error. ERROR[%s]", err.stack);
+                        return;
+                    }
 
                     //convert to user
                     var user = unverifiedUser;

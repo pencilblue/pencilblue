@@ -60,7 +60,11 @@ module.exports = function(pb) {
             //retrieve the content settings or defaults if they have not yet been configured
             var contentService = new pb.ContentService(self.site);
             contentService.getSettings(function(err, contentSettings) {
-                //TODO handle error
+                // Handle error
+                if (util.isError(err)){
+                    pb.log.error("ContentService.getSettings encountered an error. ERROR[%s]", err.stack);
+                    return;
+                }
 
                 //retrieve any details
                 self.getCommentDetails(comments, function(commentsWithDetails) {
@@ -94,8 +98,7 @@ module.exports = function(pb) {
         var self = this;
 
         if(comments.length === 0) {
-            cb(comments);
-            return;
+            return cb(comments);
         }
 
         this.getCommentingUser = function(index) {
@@ -113,8 +116,7 @@ module.exports = function(pb) {
 
                     index++;
                     if(index >= comments.length) {
-                        cb(comments);
-                        return;
+                        return cb(comments);
                     }
 
                     self.getCommentingUser(index);

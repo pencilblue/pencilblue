@@ -75,9 +75,15 @@ module.exports = function(pb) {
       self.ts.load('admin/content/articles/article_form', function(err, data) {
           self.onTemplateRetrieved('' + data, function(err, data) {
               var result = '' + data;
-              self.checkForFormRefill(result, function(newResult) {
+              self.checkForFormRefill(result, function(err, newResult) {
+                  err = new Error();
+                  //Handle errors
+                  if (util.isError(err)) {
+                      pb.log.error("ArticleForm.checkForFormRefill encountered an error. ERROR[%s]", err.stack);
+                      return;
+                  }
                   result = newResult;
-                  cb({content: result});
+                  cb(null, {content: result});
               });
           });
       });
@@ -199,8 +205,7 @@ module.exports = function(pb) {
 
             article: function(callback) {
                 if(!pb.validation.isIdStr(vars.id, true)) {
-                    callback(null, {});
-                    return;
+                    return callback(null, {});
                 }
 
                 //TODO call article service
