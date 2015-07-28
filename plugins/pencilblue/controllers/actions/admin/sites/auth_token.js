@@ -35,7 +35,7 @@ module.exports = function AuthTokenControllerModule(pb) {
         var self = this;
         var options = {
             site: this.pathVars.siteid,
-            user:self.session.authentication.user_id
+            user: this.session.authentication.user_id
         };
         var tokenService = new pb.TokenService(options);
         tokenService.generateUserToken(function(err, tokenInfo) {
