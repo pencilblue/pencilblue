@@ -85,7 +85,7 @@ module.exports = function SiteDeactivateJobModule(pb) {
                 var dao = new pb.DAO();
                 dao.loadByValue('uid', siteUid, 'site', function(err, site) {
                     if(util.isError(err)) {
-                        return callback(err, null)
+                        return callback(err, null);
                     }
 
                     if (!site) {
