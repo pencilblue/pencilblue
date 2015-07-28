@@ -17,6 +17,9 @@
 
 module.exports = function AuthTokenControllerModule(pb) {
 
+    //dependencies
+    var util = pb.util;
+
     /**
      * Creates authentication token for administrators
      * and managing editors for cross site access
@@ -30,16 +33,22 @@ module.exports = function AuthTokenControllerModule(pb) {
 
     AuthTokenController.prototype.render = function(cb) {
         var self = this;
-        options = {
-            site: this.query.site,
+        var options = {
+            site: this.pathVars.siteid,
             user:self.session.authentication.user_id
         };
         var tokenService = new pb.TokenService(options);
-        tokenService.generateUserToken(function(err, token) {
+        tokenService.generateUserToken(function(err, tokenInfo) {
             if(pb.util.isError(err)) {
-                return self.serveError(err);
+                return cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+                });
             }
-            self.redirect('/admin/login/token/' + token, cb);
+            cb({
+                code: 200,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Token Created For User', tokenInfo)
+            });
         });
     };
 

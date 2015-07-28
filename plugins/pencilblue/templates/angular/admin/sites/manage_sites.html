@@ -19,6 +19,16 @@
                             });
                 };
 
+                $scope.authUserToSite = function(site) {
+                    $http.post('/actions/admin/sites/auth_token/' + site.uid)
+                            .success(function(result) {
+                                $scope.onTokenComplate(site, result);
+                            })
+                            .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
                 $scope.deactivateSite = function(site) {
                     site.name = site.displayName;
                     $scope.actionPlugin = site;
@@ -55,6 +65,18 @@
                             .error(function(error, status) {
                                 $scope.onActionFailure(error);
                             });
+                };
+
+                $scope.onTokenComplate = function(site, result) {
+                    console.log(site);
+                    console.log(result);
+//                    $http.jsonp('//' + site.hostname + '/actions/admin/login?' + result.data.token)
+//                            .success(function(result) {
+//                                console.log(result);
+//                            })
+//                            .error(function(error, status){
+//                                $scope.onActionFailure(error);
+//                            });
                 };
 
                 $scope.onActivateOrDeactivateComplete = function(result) {

@@ -15,11 +15,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var crypto = require('crypto');
-
 module.exports = function TokenServiceModule(pb) {
 
-    //
+    //dependencies
+    var crypto = require('crypto');
+
     /**
      * A service that manages tokens for non-password authentication.
      *
@@ -35,13 +35,29 @@ module.exports = function TokenServiceModule(pb) {
     }
 
     TokenService.prototype.generateUserToken = function(cb) {
+        var self = this;
         crypto.randomBytes(48, function(err, buf) {
             if(pb.util.isError(err)) {
                 return cb(err, null);
             }
-            var token = buf.toString('hex');
+            var token = buf.toString('base64');
             //TODO: Create and store token entity
-            cb(null, token);
+            var tokenInfo = {
+                token: token,
+                user: self.user,
+                used: false
+            }
+            self.saveToken(tokenInfo, cb);
+        });
+    };
+
+    TokenService.prototype.saveToken = function(tokenInfo, cb) {
+        var doc = pb.DocumentCreator.create('auth_token', tokenInfo);
+        this.dao.save(doc, function(err, result) {
+            if(pb.util.isError(err)) {
+                return cb(err, null);
+            }
+            cb(null, {token: tokenInfo.token});
         });
     };
 

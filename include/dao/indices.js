@@ -327,7 +327,7 @@ module.exports = function IndicesModule(multisite) {
         //token
         {
             collection: 'auth_token',
-            spec: {value: ASC},
+            spec: {token: ASC},
             options: {unique: true}
         }
     ];
