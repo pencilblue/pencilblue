@@ -62,13 +62,22 @@ module.exports = function(pb) {
 
     ManageMedia.prototype.getAngularObjects = function(mediaData, cb) {
         var self = this;
-        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: self.site}, function(pills) {
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: self.site}, function(err, pills) {
             var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site),
-                    pills: pills,
+                    pills: [],
                     media: pb.MediaService.formatMedia(mediaData)
                 });
+            //Log error. Don't return
+            if (util.isError(err)){
+                pb.log.error("ManageMedia: AdminSubnavService.getWithSite callback error. ERROR[%s]", err.stack);
+            }
+            //Only populate pills if we didn't fail
+            else {
+                angularObjects.pills = pills;
+            }
+            //TODO: err first arg for style. User experience error when no pills?
             cb(angularObjects);
         });
     };

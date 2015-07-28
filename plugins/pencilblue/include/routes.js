@@ -1127,6 +1127,7 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
+            request_body: ['application/json'],
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'new_site.js')
         },
         {
@@ -1135,6 +1136,7 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
+            request_body: ['application/json'],
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'edit_site.js')
         },
         {

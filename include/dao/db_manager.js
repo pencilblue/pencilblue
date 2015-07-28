@@ -245,9 +245,7 @@ module.exports = function DBManagerModule(pb) {
                         });
                     };
                 });
-                async.parallel(tasks, function(err){
-                    cb(err);
-                });
+                async.parallel(tasks, cb);
             });
         };
 

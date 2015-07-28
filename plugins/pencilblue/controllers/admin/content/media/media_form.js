@@ -65,11 +65,19 @@ module.exports = function(pb) {
 
     MediaForm.prototype.getAngularObjects = function(data, cb) {
         var self = this;
-        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, data.media, {site: data.media.site}, function(pills) {
-            data.pills = pills;
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, data.media, {site: data.media.site}, function(err, pills) {
+            data.pills = [];
+            //Log error. Don't return
+            if (util.isError(err)){
+                pb.log.error("MediaForm: AdminSubnavService.getWithSite callback error. ERROR[%s]", err.stack);
+            }
+            //Only populate pills if we didn't fail
+            else{
+                data.pills = pills;
+            }
+            //TODO: err first arg for style. User experience error when no pills?
             cb(pb.ClientJs.getAngularObjects(data));
         });
-
     };
 
     MediaForm.prototype.gatherData = function(vars, cb) {

@@ -118,7 +118,7 @@ module.exports = function SiteQueryServiceModule(pb) {
   }
 
   function modifySave(site, objectToSave) {
-    if (pb.config.multisite && !(SITE_FIELD in objectToSave)) {
+    if (pb.config.multisite.enabled && !(SITE_FIELD in objectToSave)) {
       objectToSave[SITE_FIELD] = site;
     }
     // else do nothing
@@ -177,7 +177,7 @@ module.exports = function SiteQueryServiceModule(pb) {
     var dao = new pb.DAO();
     var tasks = util.getTasks(collections, function(collections, i) {
       return function(taskCallback) {
-        dao.delete({site: siteid}, collections[i].s.name, function(err, numberOfDeletedRecords) {
+        dao.delete({site: siteid}, collections[i].name, function(err, numberOfDeletedRecords) {
           if(util.isError(err) || !numberOfDeletedRecords) {
             taskCallback(null, " ");
           } else {
