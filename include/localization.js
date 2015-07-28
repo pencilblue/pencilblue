@@ -22,6 +22,9 @@ var locale = require('locale');
 var util   = require('./util.js');
 
 module.exports = function LocalizationModule(pb) {
+    
+    //pb dependencies
+    var config = pb.config;
 
     /**
      * Provides functions to translate items based on keys.  Also
@@ -33,7 +36,9 @@ module.exports = function LocalizationModule(pb) {
      * @param {Object} request The request object
      */
     function Localization(request){
-        this.language = Localization.best(request).toString().toLowerCase().replace('-', '_');
+        
+        //expected to be lowercase and of the form "en-us"
+        this.language = Localization.best(request).toString();
     }
 
     /**
@@ -92,7 +97,7 @@ module.exports = function LocalizationModule(pb) {
      */
     Localization.prototype.localize = function(sets, text){
         if (pb.log.isSilly()) {
-            pb.log.silly('Localization: Localizing text - Locale ['+this.language+'] Sets '+JSON.stringify(sets));
+            pb.log.silly('Localization: Localizing text - Locale [%s] Sets %s', this.language, JSON.stringify(sets));
         }
 
         //get i18n from storage
@@ -112,7 +117,7 @@ module.exports = function LocalizationModule(pb) {
 
         // If the localization is for HTML output, load the localization into client side JS
         if (text.indexOf('<body') > -1)  {
-            text = text.concat(pb.ClientJs.includeJS(pb.config.siteRoot + '/localization/' + localizationLanguage + '.js'));
+            text = text.concat(pb.ClientJs.includeJS(pb.UrlService.createSystemUrl('api/localization/script?locale=' + this.language)));
         }
 
         return text;
@@ -136,7 +141,7 @@ module.exports = function LocalizationModule(pb) {
     Localization.prototype.get = function() {
         var key = arguments[0];
         if (pb.log.isSilly()) {
-            pb.log.silly('Localization: Localizing key ['+key+'] - Locale ['+this.language+']');
+            pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, this.language);
         }
 
         //error checking
@@ -158,8 +163,8 @@ module.exports = function LocalizationModule(pb) {
 
         if (val === null) {
             
-            var defaultLocale = Localization.getDefaultLocale();
-            if (this.language.toLowerCase() === defaultLocale.toLowerCase()) {
+            var defaultLocale = Localization.getDefaultLocale().toLocaleLowerCase();
+            if (this.language === defaultLocale) {
                 return val = key;
             }
             else {
@@ -239,7 +244,7 @@ module.exports = function LocalizationModule(pb) {
             }
 
             //convert file name to locale
-            var locale = file.toLowerCase().substring(0, file.indexOf('.')).replace(/-/g, '_');
+            var locale = file.toLowerCase().substring(0, file.indexOf('.'));
 
             //Register as a supported language
             Localization.storage[locale] = obj;
@@ -262,7 +267,7 @@ module.exports = function LocalizationModule(pb) {
         if (!locale) {
             return false;
         }
-        return Localization.getLocalizationPackage(locale) !== undefined;
+        return Localization.getLocalizationPackage(locale) ? true : false;
     };
 
     /**
@@ -276,7 +281,7 @@ module.exports = function LocalizationModule(pb) {
         if (!pb.validation.isNonEmptyStr(locale, true)) {
             return null;
         }
-        return Localization.storage[locale.replace('-', '_').toLowerCase()];
+        return Localization.storage[locale.toLowerCase()] || null;
     };
 
     /**
@@ -291,9 +296,10 @@ module.exports = function LocalizationModule(pb) {
         if (!Localization.isSupported(locale) || !util.isObject(localizations)) {
             return false;
         }
-        for (var key in localizations) {
-            Localization.registerLocalization(locale, key, localizations[key]);
-        }
+        
+        util.forEach(localizations, function(item, key) {
+            Localization.registerLocalization(locale, key, item);
+        });
         return true;
     };
 
@@ -343,7 +349,7 @@ module.exports = function LocalizationModule(pb) {
      * @return {String} The default locale
      */
     Localization.getDefaultLocale = function() {
-        return pb.config.localization.defaultLocale || 'en_us';
+        return config.localization.defaultLocale || 'en-US';
     };
     
     /**
