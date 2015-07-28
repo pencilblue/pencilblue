@@ -20,24 +20,25 @@ function ThemeService(useMemory, useCache) {
 	var objType  = 'theme';
 	var services = [];
 
-	//add in-memory service
+  var options = {
+      objType: objType,
+      timeout: pb.config.plugins.caching.memory_timeout
+  };
+
+  //add in-memory service
 	if (useMemory){
-        var options = {
-            objType: objType,
-            timeout: pb.config.plugins.caching.memory_timeout
-        };
 		services.push(new pb.MemoryEntityService(options));
 	}
 
 	//add cache service
 	if (useCache) {
-		services.push(new pb.CacheEntityService(objType));
+		services.push(new pb.CacheEntityService(options));
 	}
 
 	//always add JSON
 	services.push(new pb.JSONFSEntityService(objType));
 	this.service = new pb.ReadOnlySimpleLayeredService(services, 'ThemeService');
-};
+}
 
 //exports
 module.exports.ThemeService = ThemeService;

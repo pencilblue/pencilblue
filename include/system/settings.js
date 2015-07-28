@@ -67,22 +67,23 @@ module.exports = function SettingsModule(pb) {
         var valueField = 'value';
         var services = [];
 
+        var options = {
+            objType: objType,
+            valueField: valueField,
+            keyField: keyField,
+            timeout: pb.config.settings.memory_timeout,
+            site: site,
+            onlyThisSite: onlyThisSite
+        };
+
         //add in-memory service
         if (useMemory){
-            var options = {
-                objType: objType,
-                valueField: valueField,
-                keyField: keyField,
-                timeout: pb.config.settings.memory_timeout,
-                site: site,
-                onlyThisSite: onlyThisSite
-            };
             services.push(new pb.MemoryEntityService(options));
         }
 
         //add cache service
         if (useCache) {
-            services.push(new pb.CacheEntityService(objType, valueField, keyField, site, onlyThisSite));
+            services.push(new pb.CacheEntityService(options));
         }
 
         //always add db service

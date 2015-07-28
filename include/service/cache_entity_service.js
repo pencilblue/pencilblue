@@ -31,22 +31,23 @@ module.exports = function CacheEntityServiceModule(pb) {
      * @module Services
      * @class CacheEntityService
      * @constructor
-     * @param {String} [objType]
-     * @param {String} [valueField]
-     * @param {String} [keyField]
-     * @param {String} [site]
-     * @param {String} [onlyThisSite]
-     * @param {Integer} The number of seconds that a value will remain in cache 
+     * @param {Object} options
+     * @param {String} options.objType
+     * @param {String} options.keyField
+     * @param {String} [options.valueField=null]
+     * @param {String} [options.site=GLOBAL_SITE]
+     * @param {String} [options.onlyThisSite=false]
+     * @param {Integer} [options.timeout=0] The number of seconds that a value will remain in cache
      * before expiry.
      */
-    function CacheEntityService(objType, valueField, keyField, site, onlyThisSite, timeout){
+    function CacheEntityService(options){
         this.type       = 'Cache';
-        this.objType    = objType;
-        this.valueField = valueField ? valueField : null;
-        this.keyField   = keyField;
-        this.site = site || GLOBAL_SITE;
-        this.onlyThisSite = onlyThisSite ? true : false;
-        this.timeout    = timeout || 0;
+        this.objType    = options.objType;
+        this.keyField   = options.keyField;
+        this.valueField = options.valueField ? options.valueField : null;
+        this.site = options.site || GLOBAL_SITE;
+        this.onlyThisSite = options.onlyThisSite ? true : false;
+        this.timeout    = options.timeout || 0;
     }
 
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
@@ -68,28 +69,29 @@ module.exports = function CacheEntityServiceModule(pb) {
 
             //site specific value doesn't exist in cache
             if (result == null) {
-                if(self.site !== GLOBAL_SITE && !self.onlyThisSite) {
-                    pb.cache.get(keyValue(key, GLOBAL_SITE), function(err, result){
-                        if (util.isError(err)) {
-                            return cb(err, null);
-                        }
 
-                        //value doesn't exist in cache
-                        if (result == null) {
-                            return cb(null, null);
-                        }
-
-                        //make call back
-                        cb(null, getRightFieldFromValue(result, self.valueField));
-                    });
-                } else {
-                    cb(null, null);
+                if (self.site === GLOBAL_SITE || self.onlyThisSite) {
+                    return cb(null, null);
                 }
-                return;
-            }
 
-            //make call back
-            cb(null, getRightFieldFromValue(result, self.valueField));
+                pb.cache.get(keyValue(key, GLOBAL_SITE), function(err, result){
+                    if (util.isError(err)) {
+                        return cb(err, null);
+                    }
+
+                    //value doesn't exist in cache
+                    if (result == null) {
+                        return cb(null, null);
+                    }
+
+                    //make call back
+                    return cb(null, getRightFieldFromValue(result, self.valueField));
+                });
+            }
+            else {
+                //make call back
+                return cb(null, getRightFieldFromValue(result, self.valueField));
+            }
         });
     };
 

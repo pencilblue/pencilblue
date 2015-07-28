@@ -120,6 +120,7 @@ module.exports = function DAOModule(pb) {
         var self = this;
         this.loadByValueForOneSite(key, val, site, collection, opts, function(err, result) {
             if (util.isError(err)) {
+                pb.log.error("DAO.loadByValueForOneSite encountered an error. ERROR[%s]", err.stack);
                 return cb(err);
             }
 

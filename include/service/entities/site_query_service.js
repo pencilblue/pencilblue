@@ -158,8 +158,7 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {Function} cb
    */
   SiteQueryService.prototype.getCollections = function (cb) {
-    var dao = new pb.DAO();
-    dao.listCollections({}, function(err, items) {
+    this.listCollections({}, function(err, items) {
       if(pb.util.isError(err)) {
         pb.log.error(err);
       }
@@ -174,10 +173,10 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {Function} callback - callback function
    */
   SiteQueryService.prototype.deleteSiteSpecificContent = function (collections, siteid, callback) {
-    var dao = new pb.DAO();
+    var self = this;
     var tasks = util.getTasks(collections, function(collections, i) {
       return function(taskCallback) {
-        dao.delete({site: siteid}, collections[i].name, function(err, numberOfDeletedRecords) {
+        self.delete({site: siteid}, collections[i].name, function(err, numberOfDeletedRecords) {
           if(util.isError(err) || !numberOfDeletedRecords) {
             taskCallback(null, " ");
           } else {
@@ -192,7 +191,7 @@ module.exports = function SiteQueryServiceModule(pb) {
         pb.log.error(err);
         callback(err);
       }
-      dao.delete({uid: siteid}, 'site', function(err, result) {
+      self.delete({uid: siteid}, 'site', function(err, result) {
         if(util.isError(err)) {
           pb.log.error("SiteQueryService: Failed to delete record: ", err.stack);
           callback(err);

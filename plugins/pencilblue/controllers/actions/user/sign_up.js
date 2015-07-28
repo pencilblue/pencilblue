@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 var async = require('async');
 
 module.exports = function SignUpModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
     var BaseController = pb.BaseController;
@@ -30,7 +30,7 @@ module.exports = function SignUpModule(pb) {
      */
     function SignUp(){}
     util.inherits(SignUp, FormController);
-    
+
       SignUp.prototype.render = function(cb) {
         var self = this;
 
@@ -44,17 +44,22 @@ module.exports = function SignUpModule(pb) {
           post.last_name  = BaseController.sanitize(post.last_name);
           var message = self.hasRequiredParams(post, self.getRequiredFields());
           if(message) {
-            cb({
+            return cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
             });
-            return;
           }
 
           var contentService = new pb.ContentService(self.site);
           contentService.getSettings(function(err, contentSettings) {
-            //TODO handle error
-      
+            //Handle errors
+            if (util.isError(err)){
+                pb.log.error("ContentService.getSettings encountered an error. ERROR[%s]", err.stack);
+                return cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, err)
+                });
+            }
 
             var collection      = 'user';
             var successRedirect = '/user/login';
@@ -67,16 +72,16 @@ module.exports = function SignUpModule(pb) {
             }
 
             var user = pb.DocumentCreator.create(collection, post);
-              
+
             self.validateUniques(user, function(err, results) {
+              // Handle error
               if(util.isError(err)) {
-                cb({
+                return cb({
                   code: 400,
                   content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('EXISTING_USERNAME'))
                 });
-                return;
               }
-    
+
               //check for validation failures
               var errMsg = null;
               if (results.verified_username > 0 || results.unverified_username > 0) {
@@ -85,22 +90,22 @@ module.exports = function SignUpModule(pb) {
               else if (results.verified_email > 0 || results.unverified_email > 0) {
                 errMsg = self.ls.get('EXISTING_EMAIL');
               }
-    
+
+              // Handle error
               if (errMsg) {
-                cb({
+                return cb({
                   code: 400,
                   content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, errMsg)
                 });
-                return;
               }
                 var dao = new pb.SiteQueryService(self.site);
                 dao.save(user, function(err, data) {
+                    // Handle errors
                     if(util.isError(err)) {
-                        cb({
+                        return cb({
                             code: 500,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
                         });
-                        return;
                     }
 
                     cb({
