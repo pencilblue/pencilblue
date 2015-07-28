@@ -27,9 +27,14 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @submodule Storage
      * @class MemoryEntityService
      * @constructor
-     * @param {String} objType
-     * @param {String} valueField
-     * @param {String} keyField
+     * @param {Object} options
+     * @param {String} options.objType
+     * @param {String} options.keyField
+     * @param {String} [options.valueField=null]
+     * @param {String} [options.site=GLOBAL_SITE]
+     * @param {String} [options.onlyThisSite=false]
+     * @param {Integer} [options.timeout=0] The number of seconds that a value will remain in cache
+     * before expiry.
      */
     function MemoryEntityService(options){
         this.type       = TYPE;
@@ -40,7 +45,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         this.timers     = {};
         this.timeout    = options.timeout || 0;
         this.changeHandler = MemoryEntityService.createChangeHandler(this);
-        this.site       = options.site || 'global';
+        this.site       = options.site || GLOBAL_SITE;
         this.onlyThisSite = options.onlyThisSite ? true : false;
 
         //register change handler
