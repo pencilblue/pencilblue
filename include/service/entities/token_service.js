@@ -19,6 +19,7 @@ module.exports = function TokenServiceModule(pb) {
 
     //dependencies
     var crypto = require('crypto');
+    var util = pb.util;
 
     /**
      * A service that manages tokens for non-password authentication.
@@ -36,25 +37,21 @@ module.exports = function TokenServiceModule(pb) {
 
     TokenService.prototype.generateUserToken = function(cb) {
         var self = this;
-        crypto.randomBytes(48, function(err, buf) {
-            if(pb.util.isError(err)) {
-                return cb(err, null);
-            }
-            var token = buf.toString('base64');
-            //TODO: Create and store token entity
-            var tokenInfo = {
-                token: token,
-                user: self.user,
-                used: false
-            }
-            self.saveToken(tokenInfo, cb);
-        });
+        var token = util.uniqueId();
+        //TODO: Create and store token entity
+        var tokenInfo = {
+            token: token,
+            user: self.user,
+            used: false
+        }
+        this.saveToken(tokenInfo, cb);
+
     };
 
     TokenService.prototype.saveToken = function(tokenInfo, cb) {
         var doc = pb.DocumentCreator.create('auth_token', tokenInfo);
         this.dao.save(doc, function(err, result) {
-            if(pb.util.isError(err)) {
+            if(util.isError(err)) {
                 return cb(err, null);
             }
             cb(null, {token: tokenInfo.token});
@@ -62,7 +59,28 @@ module.exports = function TokenServiceModule(pb) {
     };
 
     TokenService.prototype.validateUserToken = function(token, cb) {
-        cb(null, true);
+        var self = this;
+        this.dao.loadByValue('token', token, 'auth_token', function(err, tokenInfo){
+            if(util.isError(err)) {
+                return cb(err, null);
+            }
+            if(!tokenInfo || tokenInfo.used) {
+                return cb(null, false);
+            }
+
+            tokenInfo.used = true;
+            self.saveToken(tokenInfo, function(err, result) {
+                if(util.isError(err)) {
+                    return cb(err, null);
+                }
+                var timeDiff = Date.now() - tokenInfo.created;
+                var response = {
+                    tokenInfo: result,
+                    valid: timeDiff < 300000
+                };
+                cb(null, response);
+            });
+        });
     };
 
     //exports
