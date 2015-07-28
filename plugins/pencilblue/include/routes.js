@@ -85,6 +85,14 @@ module.exports = function Routes(pb){
             content_type: 'application/json'
         },
         {
+            method: 'get',
+            path: "/actions/admin/sites/token_login",
+            auth_required: false,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'token_login.js'),
+            content_type: 'application/json'
+        },
+        {
             method: 'post',
             path: "/actions/forgot_password",
             access_level: 0,
