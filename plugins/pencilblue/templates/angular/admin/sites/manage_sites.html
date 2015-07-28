@@ -20,9 +20,9 @@
                 };
 
                 $scope.authUserToSite = function(site) {
-                    $http.post('/actions/admin/sites/auth_token/' + site.uid)
+                    $http.post('/actions/admin/sites/auth_token/' + encodeURIComponent(site.uid))
                             .success(function(result) {
-                                $scope.onTokenComplate(site, result);
+                                $scope.onTokenComplete(site, result.data);
                             })
                             .error(function(error, status) {
                                 $scope.onActionFailure(error);
@@ -67,16 +67,19 @@
                             });
                 };
 
-                $scope.onTokenComplate = function(site, result) {
-                    console.log(site);
-                    console.log(result);
-//                    $http.jsonp('//' + site.hostname + '/actions/admin/login?' + result.data.token)
-//                            .success(function(result) {
-//                                console.log(result);
-//                            })
-//                            .error(function(error, status){
-//                                $scope.onActionFailure(error);
-//                            });
+                $scope.onTokenComplete = function(site, data) {
+                    var url = '//' + site.hostname + '/actions/admin/sites/token_login?callback=angular.callbacks._0&token=' + data.token;
+                    console.log(url);
+                    $http.jsonp(url)
+                            .success(function(result) {
+                                console.log(result);
+                                window.location = '//' + site.hostname + '/admin';
+                            })
+                            .error(function(error, status){
+                                console.log(error);
+                                console.log(status);
+                                $scope.onActionFailure(error);
+                            });
                 };
 
                 $scope.onActivateOrDeactivateComplete = function(result) {
