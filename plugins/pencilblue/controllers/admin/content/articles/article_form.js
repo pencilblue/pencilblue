@@ -76,6 +76,12 @@ module.exports = function(pb) {
           self.onTemplateRetrieved('' + data, function(err, data) {
               var result = '' + data;
               self.checkForFormRefill(result, function(err, newResult) {
+                  err = new Error();
+                  //Handle errors
+                  if (util.isError(err)) {
+                      pb.log.error("ArticleForm.checkForFormRefill encountered an error. ERROR[%s]", err.stack);
+                      return;
+                  }
                   result = newResult;
                   cb(null, {content: result});
               });

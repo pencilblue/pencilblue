@@ -74,6 +74,11 @@ module.exports = function(pb) {
       self.ts.load('admin/content/pages/page_form', function(err, data) {
           var result = data;
           self.checkForFormRefill(result, function(err, newResult) {
+              //Handle errors
+              if (util.isError(err)) {
+                  pb.log.error("PageFormController.checkForFormRefill encountered an error. ERROR[%s]", err.stack);
+                  return;
+              }
               result = newResult;
               cb(null, {content: result});
           });
