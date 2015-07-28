@@ -480,19 +480,22 @@ module.exports = function PluginSettingServiceModule(pb) {
 
         //add in-memory service
         var services = [];
-        if (useMemory){
-            var options = {
-                objType: objType,
-                timeout: pb.config.plugins.caching.memory_timeout,
-                site: site,
-                onlyThisSite: onlyThisSite
-            };
+
+        var options = {
+            objType: objType,
+            timeout: pb.config.plugins.caching.memory_timeout,
+            site: site,
+            onlyThisSite: onlyThisSite
+        };
+
+        if (useMemory) {
             services.push(new pb.MemoryEntityService(options));
         }
 
         //add cache service
         if (useCache) {
-            services.push(new pb.CacheEntityService(objType, null, null, site, onlyThisSite));
+            options.timeout = 3600;
+            services.push(new pb.CacheEntityService(options));
         }
 
         //always add DB
