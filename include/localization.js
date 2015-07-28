@@ -22,7 +22,7 @@ var locale = require('locale');
 var util   = require('./util.js');
 
 module.exports = function LocalizationModule(pb) {
-    
+
     //pb dependencies
     var config = pb.config;
 
@@ -36,7 +36,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {Object} request The request object
      */
     function Localization(request){
-        
+
         //expected to be lowercase and of the form "en-us"
         this.language = Localization.best(request).toString();
     }
@@ -244,7 +244,7 @@ module.exports = function LocalizationModule(pb) {
             }
 
             //convert file name to locale
-            var locale = file.toLowerCase().substring(0, file.indexOf('.'));
+            var locale = file.toLowerCase().substring(0, file.indexOf('.')).replace(/-/g, '_');
 
             //Register as a supported language
             Localization.storage[locale] = obj;
@@ -296,7 +296,7 @@ module.exports = function LocalizationModule(pb) {
         if (!Localization.isSupported(locale) || !util.isObject(localizations)) {
             return false;
         }
-        
+
         util.forEach(localizations, function(item, key) {
             Localization.registerLocalization(locale, key, item);
         });
