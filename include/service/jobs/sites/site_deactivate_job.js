@@ -95,8 +95,7 @@ module.exports = function SiteDeactivateJobModule(pb) {
                     site.active = false;
                     dao.save(site, function(err, result) {
                         if(util.isError(err)) {
-                            cb(err, null);
-                            return;
+                            return cb(err, null);
                         }
 
                         pb.RequestHandler.deactivateSite(site);
