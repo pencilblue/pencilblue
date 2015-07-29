@@ -50,14 +50,14 @@ module.exports = function TokenLoginControllerModule(pb) {
             if(!result) {
                 return cb({
                     code: 400,
-                    content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, "Invalid Token"))
+                    content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_TOKEN')))
                 });
             }
             //TODO: Apply Authentication
 
             cb({
                 code: 200,
-                content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'User Authenticated By Token', result))
+                content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('TOKEN_LOGIN_SUCCESSFUL'), result))
             });
         });
     };

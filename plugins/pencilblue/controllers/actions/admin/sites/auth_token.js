@@ -47,7 +47,7 @@ module.exports = function AuthTokenControllerModule(pb) {
             }
             cb({
                 code: 200,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Token Created For User', tokenInfo)
+                content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('TOKEN_CREATED'), tokenInfo)
             });
         });
     };
