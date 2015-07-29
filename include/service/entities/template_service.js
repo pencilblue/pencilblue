@@ -125,7 +125,7 @@ module.exports = function(pb) {
          * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new pb.PluginService(this.siteUid);
+        this.pluginService = new pb.PluginService({site: this.siteUid});
 
         this.init();
     }

@@ -428,7 +428,7 @@ module.exports = function BlogModule(pb) {
     Blog.prototype.getSideNavigation = function(articles, cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService(this.site);
+        var pluginService = new pb.PluginService({site: this.site});
         pluginService.getSetting('show_side_navigation', 'portfolio', function(err, showSideNavigation) {
             if(!showSideNavigation) {
                 cb('', null);
