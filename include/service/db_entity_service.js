@@ -31,13 +31,13 @@ module.exports = function DbEntityServiceModule(pb) {
      * @param {String} valueField
      * @param {String} keyField
      */
-    function DbEntityService(objType, valueField, keyField, site, onlyThisSite){
+    function DbEntityService(options){
         this.type       = 'DB';
-        this.objType    = objType;
-        this.keyField   = keyField;
-        this.valueField = valueField ? valueField : null;
-        this.site       = site || GLOBAL_SITE;
-        this.onlyThisSite       = onlyThisSite ? true : false;
+        this.objType    = options.objType;
+        this.keyField   = options.keyField;
+        this.valueField = options.valueField ? options.valueField : null;
+        this.site       = options.site || GLOBAL_SITE;
+        this.onlyThisSite       = options.onlyThisSite ? true : false;
     }
 
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
