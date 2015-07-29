@@ -407,9 +407,18 @@ module.exports = function(pb) {
                 cb(err, new pb.TemplateValue(comments, false));
             });
         });
-        ats.load('elements/article', cb);
+        ats.load(self.getDefaultContentTemplatePath(), cb);
         
         options.contentIndex++;
+    };
+
+    /**
+     *
+     * @method getDefaultContentTemplatePath
+     * @return {String}
+     */
+    ContentViewLoader.prototype.getDefaultContentTemplatePath = function() {
+        return 'elements/article';
     };
     
     /**
@@ -452,7 +461,16 @@ module.exports = function(pb) {
                 cb(err, new pb.TemplateValue(results.join(''), false));
             });
         });
-        ts.load('elements/comments', cb);
+        ts.load(self.getDefaultCommentsTemplatePath(), cb);
+    };
+
+    /**
+     *
+     * @method getDefaultCommentsTemplatePath
+     * @return {String}
+     */
+    ContentViewLoader.prototype.getDefaultCommentsTemplatePath = function() {
+        return 'elements/comments';
     };
     
     /**
@@ -471,7 +489,16 @@ module.exports = function(pb) {
         cts.registerLocal('commenter_position', comment.commenter_position ? ', ' + comment.commenter_position : '');
         cts.registerLocal('content', comment.content);
         cts.registerLocal('timestamp', comment.timestamp);
-        cts.load('elements/comments/comment', cb);
+        cts.load(self.getDefaultCommentTemplatePath(), cb);
+    };
+
+    /**
+     *
+     * @method getDefaultCommentTemplatePath
+     * @return {String}
+     */
+    ContentViewLoader.prototype.getDefaultCommentTemplatePath = function() {
+        return 'elements/comments/comment';
     };
     
     /**
