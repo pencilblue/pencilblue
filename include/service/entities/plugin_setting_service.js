@@ -21,7 +21,7 @@ module.exports = function PluginSettingServiceModule(pb) {
             this.site = GLOBAL_SITE;
         }
 
-        this.pluginService = new pb.PluginService(this.site);
+        this.pluginService = new pb.PluginService({site: this.site});
 
         /**
          * A setting service that sets and retrieves the settings for plugins

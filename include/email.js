@@ -65,6 +65,8 @@ module.exports = function EmailServiceModule(pb) {
      */
     EmailService.prototype.sendFromTemplate = function(options, cb){
         var self = this;
+
+        //TODO: Move the instantiation of the template service to the constructor so it can be injectable with all of the other context properties it needs.
         var ts   = new pb.TemplateService({ site: this.site });
         if (options.replacements) {
             for(var key in options.replacements) {

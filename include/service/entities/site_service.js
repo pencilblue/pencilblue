@@ -174,14 +174,14 @@ module.exports = function SiteServiceModule(pb) {
         var dao   = new pb.DAO();
         var tasks = {
             displayName: function(callback) {
-                var expStr = util.escapeRegExp(displayName.toLowerCase) + '$';
+                var expStr = '^' + util.escapeRegExp(displayName.toLowerCase()) + '$';
                 dao.count('site', getWhere({displayName: new RegExp(expStr, 'i')}), callback);
             },
             hostname: function(callback) {
                 dao.count('site', getWhere({hostname: hostname.toLowerCase()}), callback);
             }
         };
-        async.series(tasks, cb);
+        async.parallel(tasks, cb);
     };
 
     /**
@@ -437,24 +437,6 @@ module.exports = function SiteServiceModule(pb) {
      */
     SiteService.getCurrentSite = function (siteid) {
         return siteid || SiteService.GLOBAL_SITE;
-    };
-
-    /**
-     * Determines if a site exists matching siteUid
-     * @method siteExists
-     * @param {String} siteUid - site unique id
-     * @param {Function} cb - callback function
-     */
-    SiteService.siteExists = function(siteUid, cb) {
-        if (pb.config.multisite.enabled && !(siteUid === SiteService.GLOBAL_SITE)) {
-            var dao = new pb.DAO();
-            dao.exists(SITE_COLL, {uid: siteUid}, function (err, exists) {
-                cb(err, exists);
-            });
-        }
-        else {
-            cb(null, true);
-        }
     };
 
     /**

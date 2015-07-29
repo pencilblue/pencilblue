@@ -71,7 +71,7 @@ module.exports = function(pb) {
     PluginApiController.prototype.render = function(cb) {
         var action     = this.pathVars.action;
         var identifier = this.pathVars.id;
-        this.pluginService = new pb.PluginService(this.site);
+        this.pluginService = new pb.PluginService({site: this.site});
 
         //validate action
         var errors = [];

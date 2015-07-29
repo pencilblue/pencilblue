@@ -67,7 +67,7 @@ module.exports = function PluginJobRunnerModule(pb) {
 
     PluginJobRunner.prototype.setSite = function(site) {
         this.site = site;
-        this.pluginService = new pb.PluginService(site);
+        this.pluginService = new pb.PluginService({site: site});
         return this;
     }
 

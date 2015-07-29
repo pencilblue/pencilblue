@@ -77,10 +77,10 @@ module.exports = function(pb) {
               //Handle errors
               if (util.isError(err)) {
                   pb.log.error("PageFormController.checkForFormRefill encountered an error. ERROR[%s]", err.stack);
-                  return;
+                  return cb(err);
               }
               result = newResult;
-              cb(null, {content: result});
+              cb({content: result});
           });
       });
     };

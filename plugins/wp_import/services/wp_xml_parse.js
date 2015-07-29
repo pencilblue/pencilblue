@@ -98,7 +98,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
 
                 //load settings
                 function(callback) {
-                    var pluginService = new pb.PluginService(self.site);
+                    var pluginService = new pb.PluginService({site: self.site});
                     pluginService.getSettingsKV('wp_import', function(err, settingsResult) {
                         settings = settingsResult;
                         callback(err);

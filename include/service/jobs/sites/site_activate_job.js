@@ -87,22 +87,22 @@ module.exports = function SiteActivateJobModule(pb) {
             function(callback) {
                 var dao = new pb.DAO();
                 dao.loadByValue('uid', siteUid, 'site', function(err, site) {
-                    if(util.isError(err)) {
-                        callback(err, null)
-                    } else if (!site) {
-                        callback(new Error('Site not found'), null);
-                    } else {
-                        site.active = true;
-                        dao.save(site, function(err, result) {
-                            if(util.isError(err)) {
-                                cb(err, null);
-                                return;
-                            }
-
-                            pb.RequestHandler.activateSite(site);
-                            callback(err, result)
-                        });
+                    if (util.isError(err)) {
+                        return callback(err, null);
                     }
+                    if (!site) {
+                        return callback(new Error('Site not found'), null);
+                    }
+
+                    site.active = true;
+                    dao.save(site, function(err, result) {
+                        if(util.isError(err)) {
+                            return cb(err, null);
+                        }
+
+                        pb.RequestHandler.activateSite(site);
+                        callback(err, result)
+                    });
                 });
             }
         ];

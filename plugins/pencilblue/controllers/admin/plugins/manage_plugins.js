@@ -34,7 +34,7 @@ module.exports = function(pb) {
     ManagePlugins.prototype.render = function (cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService(self.site);
+        var pluginService = new pb.PluginService({site: self.site});
         var globalPluginService = new pb.PluginService();
         pluginService.getPluginMap(function (err, sitePluginMap) {
             if (util.isError(err)) {

@@ -46,7 +46,7 @@ module.exports = function(pb) {
     PluginSettingsFormController.prototype.init = function (props, cb) {
         var self = this;
         pb.BaseAdminController.prototype.init.call(self, props, function () {
-            self.pluginService = new pb.PluginService(self.site);
+            self.pluginService = new pb.PluginService({site: self.site});
             cb();
         });
     };
