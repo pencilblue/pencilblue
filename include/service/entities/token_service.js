@@ -51,7 +51,12 @@ module.exports = function TokenServiceModule(pb) {
             user: self.user,
             used: false
         }
-        this.saveToken(tokenInfo, cb);
+        this.saveToken(tokenInfo, function(err, result) {
+            if(util.isError(err)) {
+                return cb(err, null);
+            }
+            cb(null, {token: result.token});
+        });
 
     };
 
@@ -102,7 +107,7 @@ module.exports = function TokenServiceModule(pb) {
             if(util.isError(err)) {
                 return cb(err, null);
             }
-            cb(null, {token: tokenInfo.token});
+            cb(null, result);
         });
     };
 

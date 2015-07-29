@@ -37,8 +37,7 @@ module.exports = function TokenLoginControllerModule(pb) {
             site: this.site
         };
         var callback = this.query.callback;
-        var tokenService = new pb.TokenService(options);
-        tokenService.validateUserToken(this.query.token, function(err, result) {
+        pb.security.authenticateSession(this.session, this.query.token, new pb.TokenAuthentication(options), function(err, user) {
 
             if(util.isError(err)) {
                 return cb({
@@ -47,17 +46,16 @@ module.exports = function TokenLoginControllerModule(pb) {
                 });
             }
 
-            if(!result) {
+            if(!user) {
                 return cb({
                     code: 400,
                     content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_TOKEN')))
                 });
             }
-            //TODO: Apply Authentication
 
             cb({
                 code: 200,
-                content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('TOKEN_LOGIN_SUCCESSFUL'), result))
+                content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('TOKEN_LOGIN_SUCCESSFUL')))
             });
         });
     };

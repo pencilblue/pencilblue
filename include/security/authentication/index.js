@@ -92,9 +92,39 @@ module.exports = function AuthenticationModule(pb) {
         var userDocument = pb.DocumentCreator.create('user', postObj);
         FormAuthentication.super_.prototype.authenticate.apply(this, [userDocument, cb]);
     };
-    
+
+    /**
+     *
+     * @class TokenAuthentication
+     * @constructor
+     */
+    function TokenAuthentication(options) {
+        this.options = options;
+    }
+
+    /**
+     * @method authenticate
+     */
+    TokenAuthentication.prototype.authenticate = function(token, cb) {
+        var tokenService = new pb.TokenService(this.options);
+        tokenService.validateUserToken(token, function(err, result) {
+            if(util.isError(err)) {
+                return cb(err, null);
+            }
+
+            if(!result.tokenInfo || !result.valid || !result.tokenInfo.user) {
+                return cb();
+            }
+
+            var dao = new pb.DAO();
+            dao.loadById(result.tokenInfo.user, 'user', cb);
+        });
+    };
+
+    //exports
     return {
         UsernamePasswordAuthentication: UsernamePasswordAuthentication,
-        FormAuthentication: FormAuthentication
+        FormAuthentication: FormAuthentication,
+        TokenAuthentication: TokenAuthentication
     };
 };

@@ -105,6 +105,7 @@ module.exports = function PB(config) {
     var Authentication                = require(path.join(config.docRoot, '/include/security/authentication'))(pb);
     pb.UsernamePasswordAuthentication = Authentication.UsernamePasswordAuthentication;
     pb.FormAuthentication             = Authentication.FormAuthentication;
+    pb.TokenAuthentication            = Authentication.TokenAuthentication;
 
     //setup user service
     pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);

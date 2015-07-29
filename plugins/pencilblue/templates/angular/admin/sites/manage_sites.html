@@ -23,7 +23,6 @@
                     $http.post('/actions/admin/sites/auth_token/' + encodeURIComponent(site.uid))
                             .success(function(result) {
                                 $scope.successMessage = result.message;
-                                $scope.onActionSuccess();
                                 $scope.onTokenComplete(site, result.data);
                             })
                             .error(function(error, status) {
@@ -74,7 +73,6 @@
                     $http.jsonp(url)
                             .success(function(result) {
                                 $scope.successMessage = result.message;
-                                $scope.onActionSuccess();
                                 window.location = '//' + site.hostname + '/admin';
                             })
                             .error(function(error, status){
