@@ -329,6 +329,11 @@ module.exports = function IndicesModule(multisite) {
             collection: 'auth_token',
             spec: {token: ASC},
             options: {unique: true}
+        },
+        {
+            collection: 'auth_token',
+            spec: {created: ASC},
+            options: {expireAfterSeconds: 25920000}
         }
     ];
 };
