@@ -33,7 +33,6 @@ module.exports = function TokenServiceModule(pb) {
      */
     function TokenService(options) {
         this.site = options.site;
-        this.dao = new pb.SiteQueryService(this.site, false);
         this.user = options.user;
     }
 
@@ -65,7 +64,8 @@ module.exports = function TokenServiceModule(pb) {
      */
     TokenService.prototype.validateUserToken = function(token, cb) {
         var self = this;
-        this.dao.loadByValue('token', token, 'auth_token', function(err, tokenInfo){
+        var dao = new pb.SiteQueryService(this.site, false);
+        dao.loadByValue('token', token, 'auth_token', function(err, tokenInfo){
             if(util.isError(err)) {
                 return cb(err, null);
             }
@@ -97,7 +97,8 @@ module.exports = function TokenServiceModule(pb) {
      */
     TokenService.prototype.saveToken = function(tokenInfo, cb) {
         var doc = pb.DocumentCreator.create('auth_token', tokenInfo);
-        this.dao.save(doc, function(err, result) {
+        var dao = new pb.SiteQueryService(this.site, false);
+        dao.save(doc, function(err, result) {
             if(util.isError(err)) {
                 return cb(err, null);
             }
