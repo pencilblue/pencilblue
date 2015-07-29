@@ -39,7 +39,7 @@ module.exports = function PluginServiceModule(pb) {
      * @submodule Entities
      */
     function PluginService(options){
-        if(pb.config.multisite.enabled && options) {
+        if(options) {
             this.site = options.site;
         } else {
             this.site = GLOBAL_SITE;
