@@ -65,7 +65,7 @@ module.exports = function GoogleAnalyticsModule(pb) {
      */
     GoogleAnalytics.onRequest = function(req, session, ls, cb) {
         var siteId = pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null;
-        var pluginService = new pb.PluginService(pb.SiteService.getCurrentSite(siteId));
+        var pluginService = new pb.PluginService({site: pb.SiteService.getCurrentSite(siteId)});
         pluginService.getSettingsKV('ga', function(err, settings) {
             if (util.isError(err)) {
                 return cb(err, '');

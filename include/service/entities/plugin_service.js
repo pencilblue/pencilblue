@@ -38,9 +38,9 @@ module.exports = function PluginServiceModule(pb) {
      * @module Services
      * @submodule Entities
      */
-    function PluginService(siteUID){
-        if(pb.config.multisite.enabled && siteUID) {
-            this.site = siteUID;
+    function PluginService(options){
+        if(options) {
+            this.site = options.site;
         } else {
             this.site = GLOBAL_SITE;
         }
@@ -2167,7 +2167,7 @@ module.exports = function PluginServiceModule(pb) {
             jobId: command.jobId
         }
         
-        var pluginService = new PluginService(command.site);
+        var pluginService = new PluginService({site: command.site});
         pluginService.uninstallPlugin(command.pluginUid, options, function(err, result) {
 
             var response = {

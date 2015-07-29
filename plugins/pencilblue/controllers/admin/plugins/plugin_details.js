@@ -78,7 +78,7 @@ module.exports = function(pb) {
     PluginDetailsViewController.prototype.getDetails = function (puid, cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService(self.site);
+        var pluginService = new pb.PluginService({site: self.site});
         pluginService.getPluginBySite(puid, function(err, plugin) {
             if (util.isError(err)) {
                 cb(err, plugin);
