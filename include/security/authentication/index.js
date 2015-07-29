@@ -82,6 +82,10 @@ module.exports = function AuthenticationModule(pb) {
     
     /**
      * @method authenticate
+     * @param {Object} postObj
+     * @param {String} postObj.username
+     * @param {String} postObj.password
+     * @param {Function} cb
      */
     FormAuthentication.prototype.authenticate = function(postObj, cb) {
         if (!util.isObject(postObj)) {
@@ -104,6 +108,8 @@ module.exports = function AuthenticationModule(pb) {
 
     /**
      * @method authenticate
+     * @param {String} token
+     * @param {Function} cb
      */
     TokenAuthentication.prototype.authenticate = function(token, cb) {
         var tokenService = new pb.TokenService(this.options);
