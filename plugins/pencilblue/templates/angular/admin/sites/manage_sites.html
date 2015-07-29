@@ -69,15 +69,11 @@
 
                 $scope.onTokenComplete = function(site, data) {
                     var url = '//' + site.hostname + '/actions/admin/sites/token_login?callback=angular.callbacks._0&token=' + data.token;
-                    console.log(url);
                     $http.jsonp(url)
                             .success(function(result) {
-                                console.log(result);
                                 window.location = '//' + site.hostname + '/admin';
                             })
                             .error(function(error, status){
-                                console.log(error);
-                                console.log(status);
                                 $scope.onActionFailure(error);
                             });
                 };

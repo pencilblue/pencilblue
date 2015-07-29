@@ -46,7 +46,7 @@ module.exports = function TokenLoginControllerModule(pb) {
                     content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING')))
                 });
             }
-            console.log(result);
+
             if(!result) {
                 return cb({
                     code: 400,
