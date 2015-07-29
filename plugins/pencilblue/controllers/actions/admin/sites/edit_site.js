@@ -26,25 +26,22 @@ module.exports = function EditSiteActionModule(pb) {
     function EditSiteAction(){}
     util.inherits(EditSiteAction, pb.BaseController);
 
-    EditSiteAction.prototype.render = function(cb)
-    {
+    EditSiteAction.prototype.render = function(cb) {
         var self = this;
         var siteid = this.pathVars.siteid;
         var message = self.hasRequiredParams(self.body, self.getRequiredFields());
         if(message) {
-            cb({
+            return cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
             });
-            return;
         }
 
         if(!pb.security.isAuthorized(self.session, {admin_level: self.body.admin})) {
-            cb({
+            return cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
             });
-            return;
         }
 
         var siteService = new pb.SiteService();
@@ -52,26 +49,23 @@ module.exports = function EditSiteActionModule(pb) {
         dao.loadByValue('uid', siteid, 'site', function(err, data) {
             siteService.isDisplayNameOrHostnameTaken(self.body.displayName, self.body.hostname, data._id, function (err, isTaken, field) {
                 if(isTaken) {
-                    cb({
+                    return cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
                     });
-
-                } else {
-                    data.displayName = self.body.displayName;
-                    data.hostname = self.body.hostname;
-                    dao.save(data, function(err, result) {
-                        if(err) {
-                            cb({
-                                code: 400,
-                                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                            });
-                            return;
-                        }
-                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
-                    });
                 }
 
+                data.displayName = self.body.displayName;
+                data.hostname = self.body.hostname;
+                dao.save(data, function(err, result) {
+                    if(err) {
+                        return cb({
+                            code: 400,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        });
+                    }
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
+                });
             });
         })
 
