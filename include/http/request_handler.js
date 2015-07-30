@@ -141,13 +141,12 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     RequestHandler.loadSite = function(site) {
-        RequestHandler.sites[site.hostname] = { active: site.active, uid: site.uid, displayName: site.displayName, hostname: site.hostname };
+        if (!RequestHandler.sites[site.hostname]) {
+            RequestHandler.sites[site.hostname] = { active: site.active, uid: site.uid, displayName: site.displayName, hostname: site.hostname };
+        }
     };
 
     RequestHandler.activateSite = function(site) {
-        if (!RequestHandler.sites[site.hostname]) {
-            RequestHandler.loadSite(site)
-        }
         RequestHandler.sites[site.hostname].active = true;
     };
 
