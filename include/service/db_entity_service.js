@@ -24,12 +24,14 @@ module.exports = function DbEntityServiceModule(pb) {
      * Database storage service
      *
      * @module Services
-     * @submodule Storage
-     * @class DbEntityService
+     * @class DBEntityService
      * @constructor
-     * @param {String} objType
-     * @param {String} valueField
-     * @param {String} keyField
+     * @param {Object} options
+     * @param {String} options.objType
+     * @param {String} options.keyField
+     * @param {String} [options.valueField=null]
+     * @param {String} [options.site=GLOBAL_SITE]
+     * @param {String} [options.onlyThisSite=false]
      */
     function DbEntityService(options){
         this.type       = 'DB';
