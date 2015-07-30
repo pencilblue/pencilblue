@@ -503,8 +503,8 @@ module.exports = function PluginServiceModule(pb) {
         }
 
         //always add DB
-        options.keyField = 'settings';
-        options.valueField = 'plugin_uid';
+        options.keyField = 'plugin_uid';
+        options.valueField = 'settings';
         services.push(new pb.DBEntityService(options));
         return new pb.SimpleLayeredService(services, serviceName);
     };
