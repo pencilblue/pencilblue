@@ -35,7 +35,7 @@
                 };
 
                 $scope.deleteSite = function(site) {
-                    $http.post('/actions/admin/sites/delete/' + site.uid)
+                    $http.delete('/actions/admin/sites/delete/' + site.uid)
                             .success(function(result) {
                                 $scope.successMessage = result.message;
                                 $scope.saving = false;

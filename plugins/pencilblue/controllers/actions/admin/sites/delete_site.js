@@ -33,16 +33,11 @@ module.exports = function DeleteSiteActionModule(pb) {
         siteQueryService.getCollections(function(err, allCollections) {
             siteQueryService.deleteSiteSpecificContent(allCollections, siteid, function(err, result) {
                 if(util.isError(err)) {
-                    cb({
-                        code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_REMOVING'))
-                    });
-                    return
+                    return cb(err);
                 }
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('REMOVE_SUCCESSFUL'), result)});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.SUCCESS, self.ls.get('REMOVE_SUCCESSFUL'), result)});
             });
         });
-
     };
 
     //exports

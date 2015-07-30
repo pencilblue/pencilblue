@@ -23,6 +23,7 @@ module.exports = function SiteQueryServiceModule(pb) {
   var _ = require('lodash');
   var util = pb.util;
   var DAO = pb.DAO;
+  var SiteService = pb.SiteService;
 
   /**
    * Create an instance of the site query service specific to the given site
@@ -158,7 +159,7 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {Function} cb
    */
   SiteQueryService.prototype.getCollections = function (cb) {
-    this.listCollections({}, function(err, items) {
+    this.listCollections({ name: { $nin: ["system.indexes", "system.namespaces"] }}, function(err, items) {
       if(pb.util.isError(err)) {
         pb.log.error(err);
       }
@@ -174,33 +175,45 @@ module.exports = function SiteQueryServiceModule(pb) {
    */
   SiteQueryService.prototype.deleteSiteSpecificContent = function (collections, siteid, callback) {
     var self = this;
-    var tasks = util.getTasks(collections, function(collections, i) {
-      return function(taskCallback) {
-        self.delete({site: siteid}, collections[i].name, function(err, numberOfDeletedRecords) {
-          if(util.isError(err) || !numberOfDeletedRecords) {
-            taskCallback(null, " ");
-          } else {
-            pb.log.silly(numberOfDeletedRecords + " site specific records associated with " + siteid + " were deleted");
-            taskCallback(err, numberOfDeletedRecords);
-          }
-        });
-      };
-    });
-    async.parallel(tasks, function(err, results) {
-      if(pb.util.isError(err)) {
-        pb.log.error(err);
-        callback(err);
+    var BaseObjectService = pb.BaseObjectService;
+
+    SiteService.siteExists(siteid, function (err, exists) {
+      if (util.isError(err)) {
+        return callback(err);
       }
-      self.delete({uid: siteid}, 'site', function(err, result) {
-        if(util.isError(err)) {
-          pb.log.error("SiteQueryService: Failed to delete record: ", err.stack);
-          callback(err);
+
+      if (!exists) {
+        return callback(BaseObjectService.validationError([BaseObjectService.validationFailure("siteid", "Invalid siteid")]));
+      }
+
+      var tasks = util.getTasks(collections, function (collections, i) {
+        return function (taskCallback) {
+          self.delete({site: siteid}, collections[i].name, function (err, commandResult) {
+            if (util.isError(err) || !commandResult) {
+              return taskCallback(err);
+            }
+
+            var numberOfDeletedRecords = commandResult.result.n;
+            pb.log.silly(numberOfDeletedRecords + " site specific " + collections[i].name + " records associated with " + siteid + " were deleted");
+            taskCallback(null, {collection: collections[i].name, recordsDeleted: numberOfDeletedRecords});
+          });
+        };
+      });
+      async.parallel(tasks, function(err, results) {
+        if (pb.util.isError(err)) {
+          pb.log.error(err);
+          return callback(err);
         }
-        pb.log.silly("Successfully deleted site from database: " + result);
-        callback(result);
+        self.delete({uid: siteid}, 'site', function(err, result) {
+          if (util.isError(err)) {
+            pb.log.error("SiteQueryService: Failed to delete site: %s \n%s", siteid, err.stack);
+            return callback(err);
+          }
+          pb.log.silly("Successfully deleted site %s from database: ", siteid);
+          callback(null, results);
+        });
       });
     });
-
   };
 
   return SiteQueryService;
