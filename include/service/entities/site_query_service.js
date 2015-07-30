@@ -33,8 +33,8 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @constructor
    * @param {Object} options
    * @param {String} siteUId UID of site, should already be sanitized by SiteService
-   * @param {Boolean} onlyThisSite  for q, return results specific to this site instead of also looking in global
    * @param {String} [options.site=GLOBAL_SITE]
+   * @param {Boolean} onlyThisSite  for q, return results specific to this site instead of also looking in global
    * @param {String} [options.onlyThisSite=false]
    */
   function SiteQueryService(options) {
