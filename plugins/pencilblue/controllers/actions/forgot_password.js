@@ -57,7 +57,7 @@ module.exports = function ForgotPasswordControllerModule(pb) {
         };
 
         //search for user
-        var dao = new pb.SiteQueryService(self.site, true);
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.loadByValues(query, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 return self.formError(self.ls.get('NOT_REGISTERED'), returnURL, cb);

@@ -28,13 +28,18 @@ module.exports = function SiteQueryServiceModule(pb) {
   /**
    * Create an instance of the site query service specific to the given site
    *
-   * @param {String} siteUId UID of site, should already be sanitized by SiteService
-   * @param {Boolean} onlyThisSite  for q, return results specific to this site instead of also looking in global
+   * @module Services
+   * @class SiteQueryService
    * @constructor
+   * @param {Object} options
+   * @param {String} [options.site=GLOBAL_SITE]
+   * @param {String} [options.onlyThisSite=false]
    */
-  function SiteQueryService(siteUId, onlyThisSite) {
-    this.siteUId = pb.SiteService.getCurrentSite(siteUId);
-    this.onlyThisSite = onlyThisSite;
+  function SiteQueryService(options) {
+    if(options) {
+      this.siteUId = options.site || GLOBAL_SITE;
+      this.onlyThisSite = options.onlyThisSite || false;
+    }
     DAO.call(this);
   }
 

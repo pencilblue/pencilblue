@@ -126,7 +126,7 @@ module.exports = function(pb) {
             },
             where: pb.DAO.getIdInWhere(Object.keys(authorIds))
         };
-        var dao = new pb.SiteQueryService(this.context.site);
+        var dao = new pb.SiteQueryService({site: this.context.site});
         dao.q('user', opts, function(err, authors) {
             if (util.isError(err)) {
                 return cb(err);
@@ -372,7 +372,7 @@ module.exports = function(pb) {
             return where;
         };
 
-        var dao = (pb.SiteService.isGlobal(self.context.site)) ? new pb.DAO() : new pb.SiteQueryService(self.context.site, false);
+        var dao = (pb.SiteService.isGlobal(self.context.site)) ? new pb.DAO() : new pb.SiteQueryService({site: self.context.site, onlyThisSite: false});
         var tasks = {
             verified_username: function(callback) {
                 var expStr = util.escapeRegExp(username) + '$';
