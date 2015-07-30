@@ -87,7 +87,7 @@ module.exports = function SettingsModule(pb) {
         }
 
         //always add db service
-        services.push(new pb.DBEntityService({objType: objType, valueField: valueField, keyField: keyField, site: site, onlyThisSite: onlyThisSite}));
+        services.push(new pb.DBEntityService(options));
 
         return new pb.SimpleLayeredService(services, 'SettingService' + count++);
     };
