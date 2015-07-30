@@ -24,6 +24,7 @@ module.exports = function DbEntityServiceModule(pb) {
      * Database storage service
      *
      * @module Services
+     * @submodule Storage
      * @class DbEntityService
      * @constructor
      * @param {Object} options
