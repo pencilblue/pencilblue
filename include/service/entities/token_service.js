@@ -45,12 +45,13 @@ module.exports = function TokenServiceModule(pb) {
     TokenService.prototype.generateUserToken = function(cb) {
         var self = this;
         var token = util.uniqueId();
-        //TODO: Create and store token entity
         var tokenInfo = {
             token: token,
             user: self.user,
-            used: false
-        }
+            used: false,
+            site: this.site
+        };
+
         this.saveToken(tokenInfo, function(err, result) {
             if(util.isError(err)) {
                 return cb(err, null);
@@ -69,7 +70,7 @@ module.exports = function TokenServiceModule(pb) {
      */
     TokenService.prototype.validateUserToken = function(token, cb) {
         var self = this;
-        var dao = new pb.SiteQueryService(this.site, false);
+        var dao = new pb.SiteQueryService(this.site, true);
         dao.loadByValue('token', token, 'auth_token', function(err, tokenInfo){
             if(util.isError(err)) {
                 return cb(err, null);
@@ -77,7 +78,7 @@ module.exports = function TokenServiceModule(pb) {
             if(!tokenInfo || tokenInfo.used) {
                 return cb(null, false);
             }
-
+            
             tokenInfo.used = true;
             self.saveToken(tokenInfo, function(err, result) {
                 if(util.isError(err)) {
