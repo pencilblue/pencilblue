@@ -124,6 +124,7 @@ module.exports = function BaseControllerModule(pb) {
         this.siteObj             = props.siteObj;
         this.site                = props.site;
         this.siteName            = props.siteName;
+        this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || self.ts.siteRoot;
 
         var tsOpts = {
             ls: this.localizationService,
@@ -155,7 +156,7 @@ module.exports = function BaseControllerModule(pb) {
             });
         });
         this.ts.registerLocal('site_root', function(flag, cb) {
-            cb(null, SiteService.getHostWithProtocol(self.siteObj.hostname) || self.ts.siteRoot);
+            cb(null, self.hostname);
         });
         this.ts.registerLocal('site_name', function(flag, cb) {
             cb(null, self.siteName);

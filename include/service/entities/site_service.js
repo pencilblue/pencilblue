@@ -185,6 +185,19 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
+     * Determines if a site exists matching siteUid
+     * @method siteExists
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback function
+     */
+    SiteService.siteExists = function(siteUid, cb) {
+        var dao = new pb.DAO();
+        dao.exists(SITE_COLL, {uid: siteUid}, function (err, exists) {
+            cb(err, exists);
+        });
+    };
+
+    /**
      * Run a job to activate a site so that all of its routes are available.
      * @method activateSite
      * @param {String} siteUid - site unique id

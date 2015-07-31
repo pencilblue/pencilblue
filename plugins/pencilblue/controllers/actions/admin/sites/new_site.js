@@ -65,6 +65,7 @@ module.exports = function NewSiteActionModule(pb) {
                 return;
             }
 
+            pb.RequestHandler.loadSite(site);
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_CREATED'), result)});
         });
 
