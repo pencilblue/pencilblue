@@ -27,11 +27,14 @@ module.exports = function EmailServiceModule(pb) {
      * @module Services
      * @class EmailService
      * @constructor
+     * @param {String} [options.site=GLOBAL_SITE]
+     * @param {String} [options.onlyThisSite=false]
      */
-    function EmailService(siteUid, onlyThisSite) {
-
-        this.site = pb.SiteService.getCurrentSite(siteUid);
-        this.onlyThisSite  = onlyThisSite;
+    function EmailService(options) {
+        if (options) {
+            this.site = pb.SiteService.getCurrentSite(options.site) || GLOBAL_SITE;
+            this.onlyThisSite = options.onlyThisSite || false;
+        }
     }
 
     /** 
