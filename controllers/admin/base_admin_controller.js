@@ -57,19 +57,6 @@ module.exports = function BaseAdminControllerModule(pb) {
   };
 
   /**
-   * Retrieves a context object that contains the necessary information for
-   * service prototypes
-   * @method getServiceContext
-   * @return {Object} the service context with onlyThisSite merged in
-   */
-  BaseAdminController.prototype.getServiceContext = function(){
-    var context = BaseAdminController.super_.prototype.getServiceContext.apply(this);
-    context.onlyThisSite = true;
-    return context;
-  };
-
-
-  /**
    * Centralized place to obtain the pills to be displayed on top of the admin controller
    *
    * @param navKey
