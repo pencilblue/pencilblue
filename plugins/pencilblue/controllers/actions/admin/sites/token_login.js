@@ -61,8 +61,8 @@ module.exports = function TokenLoginControllerModule(pb) {
         });
     };
 
-    function jsonpResponse(callbakck, data) {
-        return  callbakck + '(' + data + ')';
+    function jsonpResponse(callback, data) {
+        return  callback + '(' + data + ')';
     }
 
     //exports
