@@ -72,13 +72,10 @@ module.exports = function TokenServiceModule(pb) {
         var self = this;
         var dao = new pb.SiteQueryService(this.site, true);
         dao.loadByValue('token', token, 'auth_token', function(err, tokenInfo){
-            if(util.isError(err)) {
-                return cb(err, null);
+            if (util.isError(err) || !tokenInfo || tokenInfo.used) {
+                return cb(err, false);
             }
-            if(!tokenInfo || tokenInfo.used) {
-                return cb(null, false);
-            }
-            
+
             tokenInfo.used = true;
             self.saveToken(tokenInfo, function(err, result) {
                 if(util.isError(err)) {
