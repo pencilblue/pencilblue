@@ -101,9 +101,14 @@ module.exports = function AuthenticationModule(pb) {
      *
      * @class TokenAuthentication
      * @constructor
+     * @param {Object} options
+     * @param {String} options.site - site uid
+     * @param {String} options.user - user id
      */
     function TokenAuthentication(options) {
         this.options = options;
+        this.tokenService = new pb.TokenService(options);
+        this.userService = new pb.UserService(options);
     }
 
     /**
@@ -112,8 +117,8 @@ module.exports = function AuthenticationModule(pb) {
      * @param {Function} cb
      */
     TokenAuthentication.prototype.authenticate = function(token, cb) {
-        var tokenService = new pb.TokenService(this.options);
-        tokenService.validateUserToken(token, function(err, result) {
+        var self = this;
+        this.tokenService.validateUserToken(token, function(err, result) {
             if(util.isError(err)) {
                 return cb(err, null);
             }
@@ -121,9 +126,7 @@ module.exports = function AuthenticationModule(pb) {
             if(!result.tokenInfo || !result.valid || !result.tokenInfo.user) {
                 return cb();
             }
-
-            var dao = new pb.DAO();
-            dao.loadById(result.tokenInfo.user, 'user', cb);
+            self.userService.get(result.tokenInfo.user, cb);
         });
     };
 
