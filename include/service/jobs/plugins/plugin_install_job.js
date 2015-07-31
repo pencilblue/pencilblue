@@ -39,9 +39,14 @@ module.exports = function PluginInstallJobModule(pb) {
      * @constructor
      * @extends PluginJobRunner
      */
-    function PluginInstallJob(){
+    function PluginInstallJob(options){
+        if(options){
+          this.site = options.site || GLOBAL_SITE;
+        }
+
         PluginInstallJob.super_.call(this);
 
+       this.pluginService = new pb.PluginService(this.site);
         //initialize
         this.init();
         this.setParallelLimit(1);
