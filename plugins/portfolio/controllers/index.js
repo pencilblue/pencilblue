@@ -39,6 +39,7 @@ module.exports = function IndexModule(pb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
             self.siteQueryService = new pb.SiteQueryService({site: self.site});
+            cb();
         });
     };
 
