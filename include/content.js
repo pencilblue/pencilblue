@@ -28,11 +28,12 @@ module.exports = function(pb) {
      */
     function ContentService(options) {
         if(options) {
-            this.siteUid = pb.SiteService.getCurrentSite(options.site) || '';
+            this.siteUid = pb.SiteService.getCurrentSite(options.site) || pb.SiteService.GLOBAL_SITE;
             this.onlyThisSite = options.onlyThisSite || false;
+        } else {
+            this.siteUid = pb.SiteService.GLOBAL_SITE;
+            this.onlyThisSite = false;
         }
-        this.siteUid = '';
-        this.onlyThisSite = false;
         this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid, this.onlyThisSite);
     }
     
