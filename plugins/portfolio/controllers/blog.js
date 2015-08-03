@@ -39,7 +39,7 @@ module.exports = function BlogModule(pb) {
     Blog.prototype.init = function(props, cb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
-            self.navService = new pb.SectionService(self.site);
+            self.navService = new pb.SectionService({site: self.site});
             self.siteQueryService = new pb.SiteQueryService(self.site, true);
             cb();
         });

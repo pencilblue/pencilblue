@@ -72,7 +72,7 @@ module.exports = function TopMenuServiceModule(pb) {
                 },
 
                 formattedSections: function(callback) {
-                    var sectionService = new SectionService(siteUId);
+                    var sectionService = new SectionService({site: siteUId});
                     sectionService.getFormattedSections(localizationService, options.currUrl, function(err, formattedSections) {
                         callback(null, formattedSections);
                     });

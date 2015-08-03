@@ -29,10 +29,11 @@ module.exports = function SectionServiceModule(pb) {
      * @param {String} site uid
      * @param {Boolean} onlyThisSite should section service only return value set specifically by site rather than defaulting to global
      */
-    function SectionService(site, onlyThisSite) {
-        this.site = pb.SiteService.getCurrentSite(site);
-        this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, onlyThisSite);
-        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
+    function SectionService(options) {
+        this.site = pb.SiteService.getCurrentSite(options.site) || GLOBAL_SITE;
+        this.onlyThisSite = options.onlyThisSite || false;
+        this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, this.onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService(this.site, this.onlyThisSite) ;
     }
 
     /**
