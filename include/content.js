@@ -26,9 +26,14 @@ module.exports = function(pb) {
      * @class ContentService
      * @constructor
      */
-    function ContentService(site, onlyThisSite) {
-        this.siteUid = pb.SiteService.getCurrentSite(site);
-        this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid, onlyThisSite);
+    function ContentService(options) {
+        if(options) {
+            this.siteUid = pb.SiteService.getCurrentSite(options.site) || '';
+            this.onlyThisSite = options.onlyThisSite || false;
+        }
+        this.siteUid = '';
+        this.onlyThisSite = false;
+        this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid, this.onlyThisSite);
     }
     
     /**

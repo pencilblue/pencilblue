@@ -54,7 +54,7 @@ module.exports = function BlogModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService(self.site, true);
+        var contentService = new pb.ContentService({site: self.site, onlyThisSite: true});
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
                 var articleService = new pb.ArticleService(self.site, true);

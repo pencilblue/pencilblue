@@ -50,7 +50,7 @@ module.exports = function SignUpModule(pb) {
             });
           }
 
-          var contentService = new pb.ContentService(self.site);
+          var contentService = new pb.ContentService({site: self.site});
           contentService.getSettings(function(err, contentSettings) {
             //Handle errors
             if (util.isError(err)){

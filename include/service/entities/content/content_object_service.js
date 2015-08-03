@@ -351,7 +351,7 @@ module.exports = function(pb) {
                     return callback(null, self.contentSettings);
                 }
                 
-                var contentService = new pb.ContentService(self.site);
+                var contentService = new pb.ContentService({self: self.site});
                 contentService.getSettings(callback);
             }
         };
