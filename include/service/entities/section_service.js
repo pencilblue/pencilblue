@@ -32,7 +32,7 @@ module.exports = function SectionServiceModule(pb) {
     function SectionService(site, onlyThisSite) {
         this.site = pb.SiteService.getCurrentSite(site);
         this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, onlyThisSite);
-        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: onlyThisSite});
     }
 
     /**

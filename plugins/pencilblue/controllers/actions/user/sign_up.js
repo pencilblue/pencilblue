@@ -98,7 +98,7 @@ module.exports = function SignUpModule(pb) {
                   content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, errMsg)
                 });
               }
-                var dao = new pb.SiteQueryService(self.site);
+                var dao = new pb.SiteQueryService({site: self.site});
                 dao.save(user, function(err, data) {
                     // Handle errors
                     if(util.isError(err)) {
@@ -128,7 +128,7 @@ module.exports = function SignUpModule(pb) {
 
 
     SignUp.prototype.validateUniques = function(user, cb) {
-        var dao = new pb.SiteQueryService(this.site);
+        var dao = new pb.SiteQueryService({site: this.site});
         var tasks = {
             verified_username: function(callback) {
                 dao.count('user', {username: user.username}, callback);

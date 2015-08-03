@@ -39,7 +39,7 @@ module.exports = function VerifyUserModule(pb) {
         }
 
         //ensure existence
-        var dao = new pb.SiteQueryService(self.site, true);
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.loadById(vars.id, 'unverified_user', function(err, unverifiedUser) {
             if(unverifiedUser === null) {
                 return cb({
