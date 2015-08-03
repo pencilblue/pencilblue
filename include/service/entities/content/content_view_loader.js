@@ -36,6 +36,7 @@ module.exports = function(pb) {
         this.service = context.service;
         this.site = context.site;
         this.siteObj = context.siteObj;
+        this.hostname = context.hostname;
         this.onlyThisSite = context.onlyThisSite;
         this.activeTheme = context.activeTheme;
     };
@@ -521,8 +522,7 @@ module.exports = function(pb) {
      */
     ContentViewLoader.prototype.createContentPermalink = function(content) {
         var prefix = '/' + this.service.getType();
-        var hostname = pb.SiteService.getHostWithProtocol(this.siteObj.hostname);
-        return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url), hostname);
+        return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url), this.hostname);
     };
     
     /**

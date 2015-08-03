@@ -158,7 +158,7 @@ module.exports = function IndexModule(pb) {
                                     content.content = content.content.split('^hero_image^').join(settings.home_page_hero ? settings.home_page_hero : '');
                                     content.content = content.content.split('^callouts^').join(calloutsHTML);
 
-                                    content.content = self.ls.localize([], content.content);
+                                    content.content = self.ls.localize([], content.content, self.hostname);
 
                                     var angularData = pb.ClientJs.getAngularController({}, ['ngSanitize']);
                                     content.content = content.content.concat(angularData);

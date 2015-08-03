@@ -32,7 +32,7 @@ module.exports = function(pb) {
         var init = function(err) {
             
             //get content settings
-            var contentService = new pb.ContentService();
+            var contentService = new pb.ContentService(self.site, true);
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);

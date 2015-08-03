@@ -38,6 +38,7 @@ module.exports = function(pb) {
          * @type {CommentService}
          */
         this.commentService = new pb.CommentService(context);
+        this.hostname = context.hostname;
     }
     
     /**
@@ -375,7 +376,7 @@ module.exports = function(pb) {
     ArticleRenderer.prototype.getReadMoreLink = function(content, anchorContent) {
         
         var path = pb.UrlService.urlJoin(this.getContentLinkPrefix() + content.url);
-        return '<a href="' + pb.UrlService.createSystemUrl(path) + '">' + anchorContent + '</a>';
+        return '<a href="' + pb.UrlService.createSystemUrl(path, this.hostname) + '">' + anchorContent + '</a>';
     };
     
     /**
