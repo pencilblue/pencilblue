@@ -33,7 +33,7 @@ module.exports = function CustomObjectServiceModule(pb) {
         this.typesNametoId = {};
 
         this.site = pb.SiteService.getCurrentSite(siteUid);
-        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: onlyThisSite});
     }
 
     //statics

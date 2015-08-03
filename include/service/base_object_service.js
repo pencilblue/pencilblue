@@ -60,7 +60,7 @@ module.exports = function(pb) {
          * @property dao
          * @type {DAO}
          */
-        this.dao = new pb.SiteQueryService(context.site, context.onlyThisSite)
+        this.dao = new pb.SiteQueryService({site: context.site, onlyThisSite: context.onlyThisSite})
     }
     
     /**

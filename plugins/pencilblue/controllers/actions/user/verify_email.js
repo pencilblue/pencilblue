@@ -35,7 +35,7 @@ module.exports = function VerifyEmailModule(pb) {
             return;
         }
 
-        var dao = new pb.SiteQueryService(self.site, true);
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.count('user', {email: get.email}, function(err, count) {
             if(count > 0) {
                 self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);

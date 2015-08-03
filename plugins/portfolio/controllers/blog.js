@@ -39,8 +39,8 @@ module.exports = function BlogModule(pb) {
     Blog.prototype.init = function(props, cb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
-            self.navService = new pb.SectionService({site: self.site});
-            self.siteQueryService = new pb.SiteQueryService(self.site, true);
+            self.navService = new pb.SectionService(self.site);
+            self.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
             cb();
         });
     };
@@ -54,7 +54,7 @@ module.exports = function BlogModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService({site: self.site, onlyThisSite: true});
+        var contentService = new pb.ContentService(self.site, true);
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
                 var articleService = new pb.ArticleService(self.site, true);

@@ -36,7 +36,7 @@ module.exports = function ArticleServiceModule(pb) {
     function ArticleService(siteUid, onlyThisSite){
         this.object_type = ARTICLE_TYPE;
         this.site = pb.SiteService.getCurrentSite(siteUid);
-        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: onlyThisSite});
     }
     
     /**

@@ -29,7 +29,7 @@ module.exports = function ResendVerificationModule(pb) {
   ResendVerification.prototype.render = function(cb) {
     var self = this;
 
-        var dao = new pb.SiteQueryService(self.site, true);
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.loadByValue('email', post.email, 'user', function(err, user) {
             if(util.isError(err)) {
                 return cb(err);
