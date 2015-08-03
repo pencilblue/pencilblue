@@ -29,7 +29,7 @@ module.exports = function ResendVerificationModule(pb) {
   util.inherits(ResendVerification, pb.BaseController);
   ResendVerification.prototype.render = function(cb) {
     var self = this;
-    var contentService = new pb.ContentService(self.site, true);
+    var contentService = new pb.ContentService({site: self.site, onlyThisSite: true});
     contentService.getSettings(function(err, contentSettings) {
 
       /*if(!contentSettings.allow_comments || !contentSettings.require_verification) {

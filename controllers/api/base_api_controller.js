@@ -147,7 +147,7 @@ module.exports = function(pb) {
      * @param {String} rawOrder
      * @return {Object} Contains the order statement and an array of failures
      */
-    BaseApiController.prototype.processOrder = function(rawOrder) {console.log(rawOrder);
+    BaseApiController.prototype.processOrder = function(rawOrder) {
         var order = null;
         var failures = [];
 

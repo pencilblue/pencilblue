@@ -39,7 +39,7 @@ module.exports = function(pb) {
         var init = function(err) {
             //get content settings
             var serviceContext = self.getServiceContext();
-            var contentService = new pb.ContentService(self.site, serviceContext.onlyThisSite);
+            var contentService = new pb.ContentService({site: self.site, onlyThisSite: serviceContext.onlyThisSite});
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);

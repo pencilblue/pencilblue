@@ -55,14 +55,14 @@ module.exports = function PluginServiceModule(pb) {
          * @property pluginSettingsService
          * @type {SimpleLayeredService}
          */
-        this.pluginSettingsService = PluginService.genSettingsService('plugin_settings', caching.use_memory, caching.use_cache, 'PluginSettingService');
+        this.pluginSettingsService = PluginService.genSettingsService('plugin_settings', caching.use_memory, caching.use_cache, 'PluginSettingService', this.site);
 
         /**
          * A setting service that sets and retrieves the settings for plugins
          * @property pluginSettingsService
          * @type {SimpleLayeredService}
          */
-        this.themeSettingsService  = PluginService.genSettingsService('theme_settings', caching.use_memory, caching.use_cache, 'ThemeSettingService');
+        this.themeSettingsService  = PluginService.genSettingsService('theme_settings', caching.use_memory, caching.use_cache, 'ThemeSettingService', this.site);
     }
 
     // Constants
@@ -545,7 +545,7 @@ module.exports = function PluginServiceModule(pb) {
                 var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
 
                 //save it
-                var dao      = new pb.DAO();
+                var dao      = new pb.SiteQueryService({site: self.site});
                 dao.save(settings, function(err, result) {
                     cb(err, !util.isError(err));
                 });

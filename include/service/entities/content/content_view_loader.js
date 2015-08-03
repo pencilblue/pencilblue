@@ -235,7 +235,7 @@ module.exports = function(pb) {
                     return callback(null, self.contentSettings);
                 }
                 
-                var contentService = new pb.ContentService(self.site, self.onlyThisSite);
+                var contentService = new pb.ContentService({site: self.site, onlyThisSite: self.onlyThisSite});
                 contentService.getSettings(function(err, contentSettings) {
                     self.contentSettings = contentSettings;
                     callback(err, contentSettings);

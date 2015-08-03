@@ -72,7 +72,7 @@ module.exports = function TopMenuServiceModule(pb) {
                 },
 
                 formattedSections: function(callback) {
-                    var sectionService = new SectionService(siteUId);
+                    var sectionService = new SectionService({site: siteUId});
                     sectionService.getFormattedSections(localizationService, options.currUrl, function(err, formattedSections) {
                         callback(null, formattedSections);
                     });
@@ -105,7 +105,7 @@ module.exports = function TopMenuServiceModule(pb) {
             site = pb.siteService.GLOBAL_SITE;
         }
 
-        var contentService = new pb.ContentService(site);
+        var contentService = new pb.ContentService({site: site});
         contentService.getSettings(function(err, contentSettings) {
             if (util.isError(err)) {
                 return cb(err);
