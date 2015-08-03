@@ -41,7 +41,9 @@ module.exports = function PluginInstallJobModule(pb) {
      */
     function PluginInstallJob(options){
         if(options){
-          this.site = options.site || GLOBAL_SITE;
+          this.site = options.site || pb.SiteService.GLOBAL_SITE;
+        } else {
+            this.site = pb.SiteService.GLOBAL_SITE;
         }
 
         PluginInstallJob.super_.call(this);
