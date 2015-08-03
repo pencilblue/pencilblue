@@ -29,8 +29,10 @@ module.exports = function SectionServiceModule(pb) {
      * @param {String} site uid
      * @param {Boolean} onlyThisSite should section service only return value set specifically by site rather than defaulting to global
      */
-    function SectionService(site, onlyThisSite) {
-        this.site = pb.SiteService.getCurrentSite(site);
+<<<<<<< Temporary merge branch 1
+    function SectionService(options) {
+        this.site = pb.SiteService.getCurrentSite(options.site) || GLOBAL_SITE;
+        this.onlyThisSite = options.onlyThisSite || false;
         this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, onlyThisSite);
         this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: onlyThisSite});
     }

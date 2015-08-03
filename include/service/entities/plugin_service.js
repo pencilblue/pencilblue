@@ -545,7 +545,7 @@ module.exports = function PluginServiceModule(pb) {
                 var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
 
                 //save it
-                var dao      = new pb.SiteQueryService(self.site);
+                var dao      = new pb.SiteQueryService({site: self.site});
                 dao.save(settings, function(err, result) {
                     cb(err, !util.isError(err));
                 });
