@@ -58,7 +58,7 @@ module.exports = function(pb) {
             }
 
             //retrieve the content settings or defaults if they have not yet been configured
-            var contentService = new pb.ContentService(self.site);
+            var contentService = new pb.ContentService({site: self.site});
             contentService.getSettings(function(err, contentSettings) {
                 // Handle error
                 if (util.isError(err)){

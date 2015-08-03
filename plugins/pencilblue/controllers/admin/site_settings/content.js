@@ -57,7 +57,7 @@ module.exports = function(pb) {
             }
         ];
 
-        var contentService = new pb.ContentService(this.site, true);
+        var contentService = new pb.ContentService({site: this.site, onlyThisSite: true});
         contentService.getSettings(function(err, contentSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),

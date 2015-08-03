@@ -105,7 +105,7 @@ module.exports = function TopMenuServiceModule(pb) {
             site = pb.siteService.GLOBAL_SITE;
         }
 
-        var contentService = new pb.ContentService(site);
+        var contentService = new pb.ContentService({site: site});
         contentService.getSettings(function(err, contentSettings) {
             if (util.isError(err)) {
                 return cb(err);

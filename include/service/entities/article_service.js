@@ -194,7 +194,7 @@ module.exports = function ArticleServiceModule(pb) {
             //get authors
             self.getArticleAuthors(articles, function(err, authors) {
 
-                var contentService = new pb.ContentService(self.site);
+                var contentService = new pb.ContentService({site: self.site});
                 contentService.getSettings(function(err, contentSettings) {
 
                     var tasks = util.getTasks(articles, function(articles, i) {

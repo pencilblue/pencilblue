@@ -32,7 +32,7 @@ module.exports = function(pb) {
         var init = function(err) {
             
             //get content settings
-            var contentService = new pb.ContentService();
+            var contentService = new pb.ContentService({site: this.site});
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);
@@ -49,9 +49,6 @@ module.exports = function(pb) {
                 cvlContext.contentSettings = contentSettings;
                 cvlContext.service         = self.service;
                 self.contentViewLoader     = new pb.ContentViewLoader(cvlContext);
-                
-                //provide a dao
-                self.dao = new pb.DAO();
                 
                 cb(null, true);
             });
