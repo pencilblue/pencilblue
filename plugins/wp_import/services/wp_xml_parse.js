@@ -34,7 +34,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
      */
     function WPXMLParseService(site) {
         this.site = pb.SiteService.getCurrentSite(site);
-        this.siteQueryService = new pb.SiteQueryService(this.site, true);
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
     }
     
     /**
