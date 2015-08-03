@@ -69,7 +69,7 @@ module.exports = function CommentServiceModule(pb) {
          * @property contentService
          * @type {ContentService}
          */
-        this.contentService = new pb.ContentService();
+        this.contentService = new pb.ContentService(context);
     }
     util.inherits(CommentService, BaseObjectService);
     
