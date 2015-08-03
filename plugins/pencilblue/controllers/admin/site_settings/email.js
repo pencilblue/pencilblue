@@ -52,7 +52,7 @@ module.exports = function(pb) {
             }
         ];
 
-        var emailService = new pb.EmailService(this.site);
+        var emailService = new pb.EmailService({site: this.site});
         emailService.getSettings(function(err, emailSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),

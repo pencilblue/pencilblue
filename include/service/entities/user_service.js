@@ -262,7 +262,7 @@ module.exports = function(pb) {
                 return cb(err, null);
             }
             // We need to see if email settings have been saved with verification content
-            var emailService = new pb.EmailService(self.context.site);
+            var emailService = new pb.EmailService({site: self.context.site});
             emailService.getSettings(function (err, emailSettings) {
                 if (pb.util.isError(err)) {
                     pb.log.error("UserService: Failed to load email settings. ERROR[%s]", err.stack);
@@ -322,7 +322,7 @@ module.exports = function(pb) {
                     'last_name': user.last_name
                 }
             };
-            var emailService = new pb.EmailService(self.context.site);
+            var emailService = new pb.EmailService({site: self.context.site});
             emailService.sendFromTemplate(options, cb);
         });
     };
