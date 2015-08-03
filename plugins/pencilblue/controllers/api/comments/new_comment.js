@@ -65,7 +65,7 @@ module.exports = function NewCommentModule(pb) {
                     }
 
                     var timestamp  = pb.ContentService.getTimestampTextFromSettings(commentDocument.created, contentSettings, self.ls);
-                    commentDocument.timestamp = self.localizationService.localize(['timestamp'], timestamp);
+                    commentDocument.timestamp = self.localizationService.localize(['timestamp'], timestamp, self.hostname);
                     cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, 'comment created' , commentDocument)});
                 });
             });
