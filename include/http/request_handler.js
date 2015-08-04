@@ -24,6 +24,7 @@ var async   = require('async');
 var domain  = require('domain');
 var Cookies = require('cookies');
 var util    = require('../util.js');
+var _ = require('lodash');
 
 module.exports = function RequestHandlerModule(pb) {
 
@@ -41,6 +42,7 @@ module.exports = function RequestHandlerModule(pb) {
         this.req       = req;
         this.resp      = resp;
         this.url       = url.parse(req.url, true);
+        this.hostname  = req.headers.host;
     }
 
     /**
@@ -75,7 +77,8 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.storage = [];
     RequestHandler.index   = {};
-    
+    RequestHandler.sites = {};
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
     /**
      * The internal storage of static routes after they are validated and processed.
      * @private
@@ -137,6 +140,20 @@ module.exports = function RequestHandlerModule(pb) {
         };
     };
 
+    RequestHandler.loadSite = function(site) {
+        if (!RequestHandler.sites[site.hostname]) {
+            RequestHandler.sites[site.hostname] = { active: site.active, uid: site.uid, displayName: site.displayName, hostname: site.hostname };
+        }
+    };
+
+    RequestHandler.activateSite = function(site) {
+        RequestHandler.sites[site.hostname].active = true;
+    };
+
+    RequestHandler.deactivateSite = function(site) {
+        RequestHandler.sites[site.hostname].active = false;
+    };
+
     /**
      * Validates a route descriptor.  The specified object must have a "controller"
      * property that points to a valid file and the "path" property must specify a
@@ -159,14 +176,19 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} theme The plugin/theme uid
      * @return {Integer} The number of routes removed
      */
-    RequestHandler.unregisterThemeRoutes = function(theme) {
+    RequestHandler.unregisterThemeRoutes = function(theme, site) {
+        //resolve the site
+        if(!site)
+        {
+            site = GLOBAL_SITE;
+        }
 
         var routesRemoved = 0;
         
         //pattern routes
         for (var i = 0; i < RequestHandler.storage.length; i++) {
             var path   = RequestHandler.storage[i].path;
-            var result = RequestHandler.unregisterRoute(path, theme);
+            var result = RequestHandler.unregisterRoute(path, theme, site);
             if (result) {
                 routesRemoved++;
             }
@@ -174,7 +196,7 @@ module.exports = function RequestHandlerModule(pb) {
         
         //static routes
         Object.keys(RequestHandler.staticRoutes).forEach(function(path) {
-            var result = RequestHandler.unregisterRoute(path, theme);
+            var result = RequestHandler.unregisterRoute(path, theme, site);
             if (result) {
                 routesRemoved++;
             }
@@ -190,7 +212,13 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} The theme that owns the route
      * @return {Boolean} TRUE if the route was found and removed, FALSE if not
      */
-    RequestHandler.unregisterRoute = function(path, theme) {
+    RequestHandler.unregisterRoute = function(path, theme, site) {
+        //resolve the site
+        if(!site)
+        {
+            site = GLOBAL_SITE;
+        }
+
 
         //get the pattern to check for
         var pattern    = null;
@@ -215,14 +243,18 @@ module.exports = function RequestHandlerModule(pb) {
             return false;
         }
 
-        //check for theme
-        if (!descriptor.themes[theme]) {
+        //return false if specified site has no themes registered on that descriptor
+        //return false if theme doesnt exist on descriptor for that site
+        if (!descriptor || !descriptor.themes[site] || !descriptor.themes[site][theme]) {
             return false;
         }
 
         //remove from service
-        pb.log.debug('RequestHander: UnRegistered Route - Theme [%s] Path [%s]', theme, path);
-        delete descriptor.themes[theme];
+        delete descriptor.themes[site][theme];
+        descriptor.themes[site].size--;
+        if(descriptor.themes[site].size < 1) {
+            delete descriptor.themes[site];
+        }
         return true;
     };
 
@@ -247,7 +279,13 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} theme The plugin/theme UID
      * @return {Boolean} TRUE if the route was registered, FALSE if not
      */
-    RequestHandler.registerRoute = function(descriptor, theme){
+    RequestHandler.registerRoute = function(descriptor, theme, site){
+        //resolve empty site to global
+        if(!site)
+        {
+            site = GLOBAL_SITE;
+        }
+
         //validate route
         if (!RequestHandler.isValidRoute(descriptor)) {
             pb.log.error("Route Validation Failed for: "+JSON.stringify(descriptor));
@@ -296,12 +334,20 @@ module.exports = function RequestHandlerModule(pb) {
             };
         }
 
-        //set the descriptor for the theme and load the controller type
-        if (!routeDescriptor.themes[theme]) {
-            routeDescriptor.themes[theme] = {};
+        //if the site has no themes on this route, add it
+        if(!routeDescriptor.themes[site])
+        {
+            routeDescriptor.themes[site] = {};
+            routeDescriptor.themes[site].size = 0;
         }
-        routeDescriptor.themes[theme][descriptor.method]            = descriptor;
-        routeDescriptor.themes[theme][descriptor.method].controller = require(descriptor.controller)(pb);
+
+        //set the descriptor for the theme and load the controller type
+        if (!routeDescriptor.themes[site][theme]) {
+            routeDescriptor.themes[site][theme] = {};
+            routeDescriptor.themes[site].size++;
+        }
+        routeDescriptor.themes[site][theme][descriptor.method]            = descriptor;
+        routeDescriptor.themes[site][theme][descriptor.method].controller = require(descriptor.controller)(pb);
                                                                
        //only add the descriptor it is new.  We do it here because we need to 
        //know that the controller is good.
@@ -531,7 +577,7 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.isPublicRoute = function(path){
         var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', '/favicon.ico', '/docs/', '/bower_components/'];
         for (var i = 0; i < publicRoutes.length; i++) {
-            if (path.indexOf(publicRoutes[i]) === 0) {
+            if (path.indexOf(publicRoutes[i]) == 0) {
                 return true;
             }
         }
@@ -606,6 +652,12 @@ module.exports = function RequestHandlerModule(pb) {
         //set the session
         this.session = session;
 
+        //set the site -- how do we handle improper sites here?
+        this.siteObj = RequestHandler.sites[this.hostname]
+            ? RequestHandler.sites[this.hostname]
+            : this.serve404();
+        this.site = this.siteObj.uid;
+        this.siteName = this.siteObj.displayName;
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
         if (route == null) {
@@ -616,7 +668,8 @@ module.exports = function RequestHandlerModule(pb) {
 
         //get active theme
         var self = this;
-        pb.settings.get('active_theme', function(err, activeTheme){
+        var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.siteObj.uid);
+        settings.get('active_theme', function(err, activeTheme){
             if (!activeTheme) {
                 pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
                 activeTheme = RequestHandler.DEFAULT_THEME;
@@ -638,10 +691,12 @@ module.exports = function RequestHandlerModule(pb) {
         var isSilly = pb.log.isSilly();
         var route   = RequestHandler.staticRoutes[path];
         if (!util.isNullOrUndefined(route)) {
-            if (isSilly) {
-                pb.log.silly('RequestHandler: Found static route [%s]', path);
+            if(route.themes[this.siteObj.uid] || route.themes[GLOBAL_SITE]) {
+                if (isSilly) {
+                    pb.log.silly('RequestHandler: Found static route [%s]', path);
+                }
+                return route;
             }
-            return route;
         }
 
         //now do the hard work.  Iterate over the available patterns until a 
@@ -655,14 +710,16 @@ module.exports = function RequestHandlerModule(pb) {
                 pb.log.silly('RequestHandler: Comparing Path [%s] to Pattern [%s] Result [%s]', path, curr.pattern, result);
             }
             if (result) {
-                route = curr;
+                if(curr.themes[this.siteObj.uid] || curr.themes[GLOBAL_SITE]) {
+                    return curr;
+                }
                 break;
             }
         }
         
         //ensures we return null when route is not found for backward 
         //compatibility.
-        return route || null;
+        return null;
     };
 
     /**
@@ -685,10 +742,17 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} route
      * @param {String} theme The theme
      * @param {String} method HTTP method
+     * @param {string} site current site
      * @return {Boolean}
      */
-    RequestHandler.routeSupportsTheme = function(route, theme, method) {
-        return !util.isNullOrUndefined(route.themes[theme]) && RequestHandler.routeSupportsMethod(route.themes[theme], method);
+    RequestHandler.routeSupportsSiteTheme = function(route, theme, method, site) {
+        return !util.isNullOrUndefined(route.themes[site])
+            && !util.isNullOrUndefined(route.themes[site][theme]) 
+            && RequestHandler.routeSupportsMethod(route.themes[site][theme], method);
+    };
+
+    RequestHandler.routeSupportsGlobalTheme = function(route, theme, method) {
+        return RequestHandler.routeSupportsSiteTheme(route, theme, method, GLOBAL_SITE);
     };
 
     /**
@@ -701,20 +765,32 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Object} An object with two properties: theme and method
      */
     RequestHandler.prototype.getRouteTheme = function(activeTheme, route) {
-        var obj = {theme: null, method: null};
+        var obj = {theme: null, method: null, site: null};
 
         var methods = [this.req.method, 'ALL'];
         for (var i = 0; i < methods.length; i++) {
 
             //check for themed route
             var themesToCheck = [activeTheme, RequestHandler.DEFAULT_THEME];
-            util.arrayPushAll(Object.keys(route.themes), themesToCheck);
+            if (this.siteObj.uid in route.themes) {
+                util.arrayPushAll(Object.keys(route.themes[this.siteObj.uid]), themesToCheck);
+            }
+            if (!pb.SiteService.isGlobal(this.siteObj.uid) && (pb.SiteService.GLOBAL_SITE in route.themes)) {
+                util.arrayPushAll(Object.keys(route.themes[pb.SiteService.GLOBAL_SITE]), themesToCheck);
+            }
+            themesToCheck = _.uniq(themesToCheck);
             for (var j = 0; j < themesToCheck.length; j++) {
 
                 //see if theme supports method and provides support
-                if (RequestHandler.routeSupportsTheme(route, themesToCheck[j], methods[i])) {
+                if (RequestHandler.routeSupportsSiteTheme(route, themesToCheck[j], methods[i], this.siteObj.uid)) {
                     obj.theme  = themesToCheck[j];
                     obj.method = methods[i];
+                    obj.site   = this.siteObj.uid;
+                    return obj;
+                } else if (RequestHandler.routeSupportsGlobalTheme(route, themesToCheck[j], methods[i])) {
+                    obj.theme  = themesToCheck[j];
+                    obj.method = methods[i];
+                    obj.site   = GLOBAL_SITE;
                     return obj;
                 }
             }
@@ -739,12 +815,25 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //sanity check
-        if (rt.theme === null || rt.method === null) {
-            return this.serve404();
+        if (rt.theme === null || rt.method === null || rt.site === null) {
+            this.serve404();
+            return;
+        }
+
+        var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
+        if (!this.siteObj.active && !inactiveSiteAccess) {
+            if (this.siteObj.uid === pb.SiteService.GLOBAL_SITE) {
+                this.doRedirect('/admin');
+                return;
+            }
+            else {
+                this.serve404();
+                return;
+            }
         }
 
         //do security checks
-        this.checkSecurity(rt.theme, rt.method, function(err, result) {
+        this.checkSecurity(rt.theme, rt.method, rt.site, function(err, result) {
             if (pb.log.isSilly()) {
                 pb.log.silly('RequestHandler: Security Result=[%s]', result.success);
                 for (var key in result.results) {
@@ -753,7 +842,7 @@ module.exports = function RequestHandlerModule(pb) {
             }
             //all good
             if (result.success) {
-                return self.onSecurityChecksPassed(activeTheme, rt.theme, rt.method, route);
+                return self.onSecurityChecksPassed(activeTheme, rt.theme, rt.method, rt.site, route);
             }
 
             //handle failures through bypassing other processing and doing output
@@ -767,9 +856,10 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} activeTheme The user set active theme
      * @param {String} routeTheme The plugin/theme who's controller will handle the request
      * @param {String} method
+     * @param {String} site
      * @param {Object} route
      */
-    RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, routeTheme, method, route) {
+    RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, routeTheme, method, site, route) {
 
         //extract path variables
         var pathVars = {};
@@ -779,9 +869,9 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //execute controller
-        var ControllerType  = route.themes[routeTheme][method].controller;
+        var ControllerType  = route.themes[site][routeTheme][method].controller;
         var cInstance       = new ControllerType();
-        this.doRender(pathVars, cInstance, route.themes[routeTheme][method], activeTheme);
+        this.doRender(pathVars, cInstance, route.themes[site][routeTheme][method], activeTheme);
     };
 
     /**
@@ -813,6 +903,9 @@ module.exports = function RequestHandlerModule(pb) {
                 path_vars: pathVars,
                 query: self.url.query,
                 body: body,
+                site: self.site,
+                siteObj: self.siteObj,
+                siteName: self.siteName,
                 activeTheme: activeTheme
             };
             cInstance.init(props, function(){
@@ -1022,11 +1115,12 @@ module.exports = function RequestHandlerModule(pb) {
      * @method checkSecurity
      * @param {String} activeTheme
      * @param {String} method
+     * @param {String} site
      * @param {Function} cb
      */
-    RequestHandler.prototype.checkSecurity = function(activeTheme, method, cb){
+    RequestHandler.prototype.checkSecurity = function(activeTheme, method, site, cb){
         var self        = this;
-        this.themeRoute = this.route.themes[activeTheme][method];
+        this.themeRoute = this.route.themes[site][activeTheme][method];
 
         //verify if setup is needed
         var checkSystemSetup = function(callback) {
@@ -1057,7 +1151,7 @@ module.exports = function RequestHandlerModule(pb) {
                 if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
                     result.success  = false;
                     result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
-                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.createSystemUrl('/admin');
+                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.createSystemUrl('/admin', self.hostname);
                     callback(result, result);
                     return;
                 }
@@ -1182,11 +1276,18 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} url
      * @param {
      */
-    RequestHandler.urlExists = function(url, id, cb) {
+    RequestHandler.urlExists = function(url, id, site, cb) {
         var dao = new pb.DAO();
+        if(typeof site === 'function') {
+            cb = site;
+            site = undefined;
+        }
         var getTask = function(collection) {
             return function (callback) {
                 var where = {url: url};
+                if(site) {
+                    where.site = site;
+                }
                 if (id) {
                     where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(id);
                 }
@@ -1233,12 +1334,16 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} id
      * @param {Function} cb
      */
-    RequestHandler.isSystemSafeURL = function(url, id, cb) {
+    RequestHandler.isSystemSafeURL = function(url, id, site, cb) {
+        if(typeof site === 'function') {
+            cb = site;
+            site = undefined;
+        }
         if (url == null || RequestHandler.isAdminURL(url)) {
             cb(null, false);
             return;
         }
-        RequestHandler.urlExists(url, id, function(err, exists){
+        RequestHandler.urlExists(url, id, site, function(err, exists){
             cb(err, !exists);
         });
     };

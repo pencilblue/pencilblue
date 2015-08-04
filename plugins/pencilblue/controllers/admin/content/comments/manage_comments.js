@@ -26,7 +26,7 @@ module.exports = function(pb) {
      * @constructor
      */
     function ManageComments() {}
-    util.inherits(ManageComments, pb.BaseController);
+    util.inherits(ManageComments, pb.BaseAdminController);
 
     /**
      *
@@ -52,25 +52,29 @@ module.exports = function(pb) {
             order: {created: -1},
             limit: 500
         };
-        var dao  = new pb.DAO();
-        dao.q('comment', opts, function(err, comments) {
+        self.siteQueryService.q('comment', opts, function(err, comments) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
 
             //retrieve the content settings or defaults if they have not yet been configured
-            var contentService = new pb.ContentService();
+            var contentService = new pb.ContentService({site: self.site});
             contentService.getSettings(function(err, contentSettings) {
-                //TODO handle error
+                // Handle error
+                if (util.isError(err)){
+                    pb.log.error("ContentService.getSettings encountered an error. ERROR[%s]", err.stack);
+                    return;
+                }
 
                 //retrieve any details
-                self.getCommentDetails(comments, dao, function(commentsWithDetails) {
-                    var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
+                self.getCommentDetails(comments, function(commentsWithDetails) {
+                    var pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY);
                     var angularObjects = pb.ClientJs.getAngularObjects({
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls),
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'comments'], self.ls, self.site),
                         pills: pills,
                         comments: commentsWithDetails,
-                        allowComments: contentSettings.allow_comments
+                        allowComments: contentSettings.allow_comments,
+                        siteRoot: self.siteRoot
                     });
 
                     //load the template
@@ -88,24 +92,23 @@ module.exports = function(pb) {
      *
      * @method getCommentDetails
      * @param {Array} comments
-     * @param {DAO} dao
      * @param {Function} cb
      */
-    ManageComments.prototype.getCommentDetails = function(comments, dao, cb) {
+    ManageComments.prototype.getCommentDetails = function(comments, cb) {
         var self = this;
 
         if(comments.length === 0) {
-            cb(comments);
-            return;
+            return cb(comments);
         }
 
         this.getCommentingUser = function(index) {
-            dao.loadById(comments[index].commenter, 'user', function(err, user) {
+            self.dao = new pb.DAO();
+            self.dao.__proto__.loadById(comments[index].commenter, 'user', function(err, user) {
                 if(!util.isError(err) && user !== null) {
                     comments[index].user_name = user.first_name + ' ' + user.last_name;
                 }
 
-                dao.loadById(comments[index].article, 'article', function(err, article) {
+                self.dao.loadById(comments[index].article, 'article', function(err, article) {
                     if(!util.isError(err) && article !== null) {
                         comments[index].article_url = article.url;
                         comments[index].article_headline = article.headline;
@@ -113,8 +116,7 @@ module.exports = function(pb) {
 
                     index++;
                     if(index >= comments.length) {
-                        cb(comments);
-                        return;
+                        return cb(comments);
                     }
 
                     self.getCommentingUser(index);

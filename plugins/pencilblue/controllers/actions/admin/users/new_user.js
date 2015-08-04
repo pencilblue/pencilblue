@@ -69,7 +69,7 @@ module.exports = function(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             cb({
                 content: {
                     data: obj
@@ -77,6 +77,10 @@ module.exports = function(pb) {
                 code: 201
             });
         });
+    };
+
+    NewUser.prototype.getRequiredFields = function() {
+        return ['username', 'email', 'password', 'confirm_password', 'admin'];
     };
 
     //exports

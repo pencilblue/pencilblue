@@ -19,12 +19,13 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
     
     /**
      * Interface for managing pages
      */
     function ManagePages(){}
-    util.inherits(ManagePages, pb.BaseController);
+    util.inherits(ManagePages, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_pages';
@@ -37,8 +38,7 @@ module.exports = function(pb) {
             where: pb.DAO.ANYWHERE,
             order: {headline: pb.DAO.ASC}
         };
-        var dao  = new pb.DAO();
-        dao.q('page', opts, function(err, pages) {
+        self.siteQueryService.q('page', opts, function(err, pages) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
@@ -46,20 +46,16 @@ module.exports = function(pb) {
                 return self.redirect('/admin/content/pages/new', cb);
             }
 
-            pb.users.getAuthors(pages, function(err, pagesWithAuthor) {
-                var angularObjects = pb.ClientJs.getAngularObjects(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_pages'),
-                    pages: self.getPageStatuses(pagesWithAuthor)
-                });
-
-                var title = self.ls.get('MANAGE_PAGES');
-                self.setPageName(title);
-                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-                self.ts.load('admin/content/pages/manage_pages', function(err, data) {
-                    var result = '' + data;
-                    cb({content: result});
+            var userService = new UserService(self.getServiceContext());
+            userService.getAuthors(pages, function(err, pagesWithAuthor) {
+                self.getAngularObjects(pagesWithAuthor, function(angularObjects) {
+                    var title = self.ls.get('MANAGE_PAGES');
+                    self.setPageName(title);
+                    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                    self.ts.load('admin/content/pages/manage_pages', function(err, data) {
+                        var result = '' + data;
+                        cb({content: result});
+                    });
                 });
             });
         });
@@ -80,6 +76,27 @@ module.exports = function(pb) {
         }
 
         return pages;
+    };
+
+    ManagePages.prototype.getAngularObjects = function(pagesWithAuthor, cb) {
+        var self = this;
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, 'manage_pages', {site: self.site}, function(err, pills) {
+            var angularObjects = pb.ClientJs.getAngularObjects({
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls, self.site),
+                pills: [],
+                pages: self.getPageStatuses(pagesWithAuthor)
+            });
+            //Log error. Don't return
+            if (util.isError(err)) {
+                pb.log.error("ManagePages: AdminSubnavService.getWithState callback error. ERROR[%s]", error.stack);
+            }
+            //Only populate pills if we didn't fail
+            else {
+                angularObjects.pills = pills;
+            }
+            //TODO: err first arg for style. User experience error when no pills?
+            cb(angularObjects);
+        });
     };
 
     ManagePages.getSubNavItems = function(key, ls, data) {

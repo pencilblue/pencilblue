@@ -27,7 +27,7 @@ module.exports = function(pb) {
      * Interface for creating and editing topics
      */
     function TopicForm(){}
-    util.inherits(TopicForm, pb.BaseController);
+    util.inherits(TopicForm, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'topic_form';
@@ -47,7 +47,7 @@ module.exports = function(pb) {
             }
 
             self.topic = data.topic;
-            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.topic);
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.topic);
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.topic[pb.DAO.getIdField()] ? self.topic.name : self.ls.get('NEW_TOPIC'));
@@ -75,7 +75,7 @@ module.exports = function(pb) {
             },
 
             navigation: function(callback) {
-                callback(null, pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls));
+                callback(null, pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls, self.site));
             },
 
             topic: function(callback) {
@@ -84,8 +84,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.loadById(vars.id, 'topic', function(err, topic) {
+                self.siteQueryService.loadById(vars.id, 'topic', function(err, topic) {
                     callback(err, topic);
                 });
             }

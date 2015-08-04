@@ -37,37 +37,57 @@ module.exports = function SettingsModule(pb) {
     var count = 1;
 
     /**
+     * Creates a new instance of settings service with specified site, using the memory and cache settings of pb config
+     *
+     * @static
+     * @method getServiceBySite
+     * @param {String} site
+     * @param {Boolean=} onlyThisSite
+     */
+    SettingServiceFactory.getServiceBySite = function (site, onlyThisSite) {
+        if (pb.config.multisite.enabled) {
+            return SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, site, onlyThisSite);
+        }
+        return SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
+    };
+
+    /**
      * Creates a new instance of the settings service
      * @static
      * @method getService
      * @param {Boolean} useMemory
      * @param {Boolean} useCache
      * @return {SimpleLayeredService}
+     * @param site {String} siteId
+     * @param onlyThisSite {Boolean} whether this service should only return setting specified by site
      */
-    SettingServiceFactory.getService = function(useMemory, useCache) {
+    SettingServiceFactory.getService = function(useMemory, useCache, site, onlyThisSite) {
         var objType    = 'setting';
         var keyField   = 'key';
         var valueField = 'value';
         var services = [];
 
+        var options = {
+            objType: objType,
+            valueField: valueField,
+            keyField: keyField,
+            timeout: pb.config.settings.memory_timeout,
+            site: site,
+            onlyThisSite: onlyThisSite
+        };
+
         //add in-memory service
         if (useMemory){
-            var options = {
-                objType: objType,
-                valueField: valueField,
-                keyField: keyField,
-                timeout: pb.config.settings.memory_timeout
-            };
             services.push(new pb.MemoryEntityService(options));
         }
 
         //add cache service
         if (useCache) {
-            services.push(new pb.CacheEntityService(objType, valueField, keyField));
+            services.push(new pb.CacheEntityService(options));
         }
 
         //always add db service
-        services.push(new pb.DBEntityService(objType, valueField, keyField));
+        services.push(new pb.DBEntityService(options));
 
         return new pb.SimpleLayeredService(services, 'SettingService' + count++);
     };

@@ -7,8 +7,10 @@
  *
  */
 
-module.exports = {
-    generic: {
+var loc =
+{
+    generic:
+    {
         LOCALE_DISPLAY: 'Polski (Polska)',
         PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Wszystkie prawa zastrzeżone',
@@ -487,3 +489,13 @@ module.exports = {
         TEST_EMAIL_SUCCESS: 'Próbny e-mail został wysłany'
     }
 };
+
+//Allows for both server and client use
+if(typeof global !== 'undefined') {
+ global.loc = loc;
+ global.localizationLanguage = 'en-us';
+}
+
+if(typeof module !== 'undefined') {
+ module.exports = loc;
+}

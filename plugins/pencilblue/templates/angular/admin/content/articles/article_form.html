@@ -26,7 +26,7 @@
 		};
 
 		$scope.getUrlAvailability = function() {
-			$http.get('/api/url/exists_for?url=' + $scope.article.url + '&type=article')
+			$http.get('/api/url/exists_for?url=' + $scope.article.url + '&type=article&' + $scope.siteKey + '=' + $scope.site)
 			.success(function(result) {
 				$scope.urlAvailable = !result.data;
 			})

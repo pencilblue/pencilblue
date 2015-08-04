@@ -69,7 +69,7 @@ module.exports = function(pb) {
                 return cb(err);
             }
             else if (data.user === null) {
-                return self.redirect(UrlService.createSystemUrl('/'), cb);
+                return self.redirect(UrlService.createSystemUrl('/', self.hostname), cb);
             }
 
             delete data.user.password;

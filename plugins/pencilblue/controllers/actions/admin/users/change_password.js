@@ -19,13 +19,13 @@ module.exports = function ChangePasswordModule(pb) {
 
     //pb dependencies
     var util = pb.util;
-    var BaseController = pb.BaseController;
+    var BaseAdminController = pb.BaseAdminController;
 
     /**
      * Changes a user's password
      */
     function ChangePassword(){}
-    util.inherits(ChangePassword, BaseController);
+    util.inherits(ChangePassword, BaseAdminController);
 
     ChangePassword.prototype.render = function(cb) {
         var self = this;
@@ -57,9 +57,9 @@ module.exports = function ChangePasswordModule(pb) {
                 return;
             }
 
-            var dao = new pb.DAO();
-            dao.loadById(vars.id, 'user', function(err, user) {
+            self.siteQueryService.loadById(vars.id, 'user', function(err, user) {
                 if(util.isError(err) || user === null) {
+                    if (err) { pb.log.error(JSON.stringify(err)); }
                     cb({
                         code: 400,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
@@ -80,8 +80,9 @@ module.exports = function ChangePasswordModule(pb) {
                 delete user.new_password;
                 delete user.current_password;
 
-                dao.save(user, function(err, result) {
+                self.siteQueryService.save(user, function(err, result) {
                     if(util.isError(err)) {
+                        if (err) { pb.log.error(JSON.stringify(err)); }
                         return cb({
                             code: 500,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))

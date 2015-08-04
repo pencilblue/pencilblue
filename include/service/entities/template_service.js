@@ -37,6 +37,7 @@ module.exports = function(pb) {
      * @module Services
      * @submodule Entities
      * @param {Object} [localizationService] The localization service object
+     * @param {String} siteUid context site for this service
      */
     function TemplateService(opts){
         var localizationService;
@@ -82,18 +83,19 @@ module.exports = function(pb) {
             var objType  = 'template';
             var services = [];
 
+            var options = {
+                objType: objType,
+                timeout: pb.config.templates.memory_timeout
+            };
+
             //add in-memory service
             if (pb.config.templates.use_memory){
-                var options = {
-                    objType: objType,
-                    timeout: pb.config.templates.memory_timeout
-                };
                 services.push(new pb.MemoryEntityService(options));
             }
 
             //add cache service
             if (pb.config.templates.use_cache) {
-                services.push(new pb.CacheEntityService(objType));
+                services.push(new pb.CacheEntityService(options));
             }
 
             //always add fs service
@@ -115,12 +117,17 @@ module.exports = function(pb) {
          * @type {Function}
          */
         this.unregisteredFlagHandler = null;
-        
+
+        this.siteUid = pb.SiteService.getCurrentSite(opts.site);
+        this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid);
+
         /**
          * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new pb.PluginService();
+        this.pluginService = new pb.PluginService({site: this.siteUid});
+
+        this.init();
     }
 
     //constants
@@ -146,16 +153,7 @@ module.exports = function(pb) {
     var GLOBAL_CALLBACKS = {
         site_root: pb.config.siteRoot,
         site_name: pb.config.siteName,
-        site_logo: function(flag, callback) {
-            pb.settings.get('site_logo', function(err, logo) {
-                callback(null, logo ? logo : '/img/pb_logo.png');
-            });
-        },
         site_menu_logo: '/img/logo_menu.png',
-        site_icon: function(flag, callback) {
-            var pluginService = new pb.PluginService();
-            pluginService.getActiveIcon(callback);
-        },
         version: pb.config.version
     };
 
@@ -166,6 +164,27 @@ module.exports = function(pb) {
      */
     TemplateService.unregisteredFlagHandler = function(flag, cb) {
         cb(null, '^'+flag+'^');
+    };
+
+    /**
+     * Sets up the default flags required for the template service,
+     * including the flags that were previously considered to be global but
+     * now requires to be instanced with the TemplateService
+     *
+     * @method init
+     */
+    TemplateService.prototype.init = function () {
+        var self = this;
+
+        self.registerLocal('site_logo', function (err, callback) {
+           self.settingService.get('site_logo', function (err, logo) {
+               callback(err, logo || '/img/pb_logo.png');
+           });
+        });
+
+        self.registerLocal('site_icon', function (err, callback) {
+            self.pluginService.getActiveIcon(callback);
+        });
     };
 
     /**
@@ -246,7 +265,7 @@ module.exports = function(pb) {
         if (this.activeTheme) {
             return cb(null, this.activeTheme);
         }
-        pb.settings.get('active_theme', cb);
+        this.settingService.get('active_theme', cb);
     };
 
     /**
@@ -273,7 +292,9 @@ module.exports = function(pb) {
         if (hintedTheme) {
             paths.push(TemplateService.getCustomPath(this.getTheme(), relativePath));
         }
+
         this._getActiveTheme(function(err, activeTheme){
+
             if (activeTheme !== null) {
                 paths.push(TemplateService.getCustomPath(activeTheme, relativePath));
             }
@@ -543,8 +564,8 @@ module.exports = function(pb) {
      */
     TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
         var self = this;
-        
         this._getActiveTheme(function(err, activeTheme) {
+
             if(util.isError(err) || activeTheme == null) {
                 cb(err, []);
                 return;
@@ -622,10 +643,11 @@ module.exports = function(pb) {
      * Articles and pages.
      *
      * @method getAvailableContentTemplates
+     * @param site
      * @return {Array} An array of template definitions
      */
-    TemplateService.getAvailableContentTemplates = function() {
-        var templates = pb.PluginService.getActiveContentTemplates();
+    TemplateService.getAvailableContentTemplates = function(site) {
+        var templates = pb.PluginService.getActiveContentTemplates(site);
         templates.push(
             {
                 theme_uid: 'pencilblue',

@@ -51,7 +51,7 @@ module.exports = function(pb) {
         //calculate the redirect.  Referrer if provided otherwise head home
         var redirect = this.req.headers.referer;
         if (!ValidationService.isNonEmptyStr(redirect, true)) {
-            redirect = UrlService.createSystemUrl('/');
+            redirect = UrlService.createSystemUrl('/', this.hostname);
         }
 
         //when new locale is provided then set it in the session

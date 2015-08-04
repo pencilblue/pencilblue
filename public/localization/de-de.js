@@ -13,8 +13,8 @@
  *                         at end of file as well as some translations that I, at second view
  *                         disliked;-).
  */
-module.exports = {
-    generic: {
+var loc = {
+    generic:{
         LOCALE_DISPLAY: 'Deutsch (Deutschland)',
         PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'All rights reserved',
@@ -508,3 +508,13 @@ module.exports = {
         TEST_EMAIL_SUCCESS: 'Test-E-Mail wurde erfolgreich versandt.'
     }
 };
+
+//Allows for both server and client use
+if(global !== 'undefined') {
+ global.loc = loc;
+ global.localizationLanguage = 'en-us';
+}
+
+if(module !== 'undefined') {
+ module.exports = loc;
+}

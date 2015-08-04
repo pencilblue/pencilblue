@@ -16,20 +16,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 module.exports = function ProfileModule(pb) {
+    
+    //pb dependencies
+    var util = pb.util;
+    var BaseController = pb.BaseController;
+    var FormController = pb.FormController;
 
-  //pb dependencies
-  var util = pb.util;
-  var BaseController = pb.BaseController;
-  var FormController = pb.FormController;
+    /**
+     * Edits the logged in user's information
+     */
+    function Profile(){}
+    util.inherits(Profile, FormController);
 
-  /**
-  * Edits the logged in user's information
-  */
-  function Profile(){}
-  util.inherits(Profile, FormController);
+    Profile.prototype.render = function(cb) {
+        var self = this;
 
-  Profile.prototype.render = function(cb) {
-    var self = this;
+        post.photo = post.uploaded_image;
+        delete post.uploaded_image;
+        delete post.image_url;
 
     this.getJSONPostParams(function(err, post) {
       //sanitize
@@ -39,15 +43,12 @@ module.exports = function ProfileModule(pb) {
       post.last_name  = BaseController.sanitize(post.last_name);
       post.photo      = BaseController.sanitize(post.photo);
 
-      var dao = new pb.DAO();
-      dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
-        if(util.isError(err) || user === null) {
-          cb({
-            code: 500,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-          });
-          return;
-        }
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
+        dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
+            if(util.isError(err) || user === null) {
+                self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
+                return;
+            }
 
         //update the document
         delete post[pb.DAO.getIdField()];

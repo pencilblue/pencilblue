@@ -47,7 +47,7 @@ module.exports = function LoginViewControllerModule(pb) {
         }
 
         this.setPageName(' ' + this.ls.get('LOGIN'));
-        this.templateService.load('admin/login',  function(err, data) {
+        this.ts.load('admin/login',  function(err, data) {
             cb({content: data});
         });
     };

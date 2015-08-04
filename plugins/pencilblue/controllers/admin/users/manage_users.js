@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Interface for managing users
      */
     function ManageUsers(){}
-    util.inherits(ManageUsers, pb.BaseController);
+    util.inherits(ManageUsers, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_users';
@@ -38,18 +38,18 @@ module.exports = function(pb) {
                 admin: {$lte: self.session.authentication.user.admin}
             }
         };
-        var dao  = new pb.DAO();
-        dao.q('user', opts, function(err, users) {
+
+        self.siteQueryService.q('user', opts, function(err, users) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
             else if (users.length === 0) {
-                return self.redirect('/admin', cb);
+                return self.redirect('/admin/users/new', cb);
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls, self.site),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 users: users,
                 currentUserId: self.session.authentication.user_id
             });

@@ -61,8 +61,13 @@ module.exports = function AuthenticationModule(pb) {
             };
         }
 
+        var dao;
+        if (credentials.hasOwnProperty('site')) {
+            dao = new pb.SiteQueryService({site: credentials.site, onlyThisSite: false});
+        } else {
+            dao = new pb.DAO();
+        }
         //search for user
-        var dao = new pb.DAO();
         dao.loadByValues(query, 'user', cb);
     };
 

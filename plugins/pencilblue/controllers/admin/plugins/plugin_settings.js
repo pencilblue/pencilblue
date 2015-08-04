@@ -19,13 +19,12 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util           = pb.util;
-    var BaseController = pb.BaseController;
 
     /**
      * Interface for changing a plugin's settings
      * @class PluginSettingsFormController
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function PluginSettingsFormController(){
     
@@ -36,7 +35,21 @@ module.exports = function(pb) {
          */
         this.pluginService = new pb.PluginService();
     }
-    util.inherits(PluginSettingsFormController, BaseController);
+    util.inherits(PluginSettingsFormController, pb.BaseAdminController);
+
+    /**
+     * Initialize controller and plugin service
+     * @override
+     * @param props
+     * @param cb
+     */
+    PluginSettingsFormController.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseAdminController.prototype.init.call(self, props, function () {
+            self.pluginService = new pb.PluginService({site: self.site});
+            cb();
+        });
+    };
 
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
@@ -46,7 +59,7 @@ module.exports = function(pb) {
         var self = this;
 
         var uid = this.pathVars.id;
-        this.pluginService.getPlugin(uid, function(err, plugin) {
+        this.pluginService.getPluginBySite(uid, function(err, plugin) {
             if (util.isError(err)) {
                 throw err;
             }
@@ -99,9 +112,9 @@ module.exports = function(pb) {
                     settingType: self.getType()
                 };
                 var angularObjects = pb.ClientJs.getAngularObjects({
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, data),
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null, data),
                     tabs: tabs,
-                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
                     settings: clone,
                     pluginUID: uid,
                     type: data.settingType
@@ -120,7 +133,7 @@ module.exports = function(pb) {
     PluginSettingsFormController.prototype.post = function(cb) {
         var self = this;
         var post = this.body;
-
+        
         //retrieve settings
         var uid = this.pathVars.id;
         self.getSettings(uid, function(err, settings) {

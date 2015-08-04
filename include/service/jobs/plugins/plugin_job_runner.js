@@ -65,6 +65,16 @@ module.exports = function PluginJobRunnerModule(pb) {
         return this.pluginUid;
     };
 
+    PluginJobRunner.prototype.setSite = function(site) {
+        this.site = site;
+        this.pluginService = new pb.PluginService({site: site});
+        return this;
+    }
+
+    PluginJobRunner.prototype.getSite = function() {
+        return this.site;
+    }
+
     /**
      * Called when the tasks have completed execution and isInitiator = FALSE.  The
      * function ispects the results of each processes' execution and attempts to

@@ -42,6 +42,7 @@ module.exports = function PortfolioModule(pb) {
     Portfolio.onStartup = function(cb) {
         pb.AdminSubnavService.registerFor('plugin_settings', function(navKey, localization, data) {
             if(data.plugin.uid === 'portfolio') {
+                var href;
                 return [
                     {
                         name: 'home_page_settings',

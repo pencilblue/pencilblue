@@ -31,6 +31,7 @@
     "formidable": "1.0.17",
     "htmlencode": "0.0.4",
     "locale": "0.0.20",
+    "lodash": "^3.8.0",
     "mongodb": "2.0.33",
     "node-uuid": "1.4.3",
     "node.extend": "1.1.3",

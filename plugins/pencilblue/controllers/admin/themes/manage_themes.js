@@ -19,31 +19,29 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
-    var BaseController = pb.BaseController;
-    var DAO            = pb.DAO;
     var UrlService     = pb.UrlService;
     
     /**
      * Interface for managing themes
      */
     function ManageThemes(){}
-    util.inherits(ManageThemes, BaseController);
+    util.inherits(ManageThemes, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'themes_index';
 
-    ManageThemes.prototype.render = function(cb) {
+    ManageThemes.prototype.render = function (cb) {
         var self = this;
 
         //get plugs with themes
-        var pluginService = new pb.PluginService();
-        pluginService.getPluginsWithThemes(function(err, themes) {
+        var pluginService = new pb.PluginService({site: self.site});
+        pluginService.getPluginsWithThemesBySite(function (err, themes) {
             if (util.isError(err)) {
                 throw result;
             }
 
             //get active theme
-            pb.settings.get('active_theme', function(err, activeTheme) {
+            self.settings.get('active_theme', function(err, activeTheme) {
                 if (util.isError(err)) {
                     throw err;
                 }
@@ -56,7 +54,7 @@ module.exports = function(pb) {
 
                 });
 
-                pb.settings.get('site_logo', function(err, logo) {
+                self.settings.get('site_logo', function(err, logo) {
                     if(util.isError(err)) {
                         pb.log.error("ManageThemes: Failed to retrieve site logo: "+err.stack);
                     }
@@ -73,8 +71,8 @@ module.exports = function(pb) {
 
                     //setup angular
                     var angularObjects = pb.ClientJs.getAngularObjects({
-                        navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes'], self.ls),
-                        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
+                        navigation: pb.AdminNavigation.get(self.session, ['plugins', 'themes'], self.ls, self.site),
+                        pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
                         tabs: self.getTabs(),
                         themes: themes,
                         options: options,

@@ -19,19 +19,19 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var SiteService = pb.SiteService;
     
     /**
      * Interface for the site's email settings
      */
     function Email(){}
-    util.inherits(Email, pb.BaseController);
+    util.inherits(Email, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'site_email_settings';
 
     Email.prototype.render = function(cb) {
         var self = this;
-
         var tabs =
         [
             {
@@ -52,11 +52,11 @@ module.exports = function(pb) {
             }
         ];
 
-        var emailService = new pb.EmailService();
+        var emailService = new pb.EmailService({site: this.site});
         emailService.getSettings(function(err, emailSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'email'),
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'email', { site: self.site }),
                 tabs: tabs,
                 emailSettings: emailSettings
             });
@@ -70,7 +70,8 @@ module.exports = function(pb) {
     };
 
     Email.getSubNavItems = function(key, ls, data) {
-        return [{
+
+        var pills = [{
             name: 'configuration',
             title: ls.get('EMAIL'),
             icon: 'chevron-left',
@@ -80,12 +81,18 @@ module.exports = function(pb) {
             title: ls.get('CONTENT'),
             icon: 'quote-right',
             href: '/admin/site_settings/content'
-        }, {
-            name: 'libraries',
-            title: ls.get('LIBRARIES'),
-            icon: 'book',
-            href: '/admin/site_settings/libraries'
         }];
+
+        if(data && data.site === SiteService.GLOBAL_SITE) {
+            pills.push({
+                name: 'libraries',
+                title: ls.get('LIBRARIES'),
+                icon: 'book',
+                href: '/admin/site_settings/libraries'
+            });
+        }
+
+        return pills;
     };
 
     //register admin sub-nav

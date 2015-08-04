@@ -1,5 +1,7 @@
-module.exports = {
-    generic: {
+var loc =
+{
+    generic:
+    {
         LOCALE_DISPLAY: 'Español (España)',
         PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Todos los derechos reservados',
@@ -484,3 +486,13 @@ module.exports = {
         TEST_EMAIL_SUCCESS: 'Probar correo enviado exitosamente'
     }
 };
+
+//Allows for both server and client use
+if(typeof global !== 'undefined') {
+ global.loc = loc;
+ global.localizationLanguage = 'es-es';
+}
+
+if(typeof module !== 'undefined') {
+ module.exports = loc;
+}

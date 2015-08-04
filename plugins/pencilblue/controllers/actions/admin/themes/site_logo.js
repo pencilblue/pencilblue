@@ -20,16 +20,15 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util         = pb.util;
-    var MediaService = pb.MediaService;
-    
+
     /**
      * Saves the site's logo
      */
     function SiteLogo() {}
-    util.inherits(SiteLogo, pb.BaseController);
+    util.inherits(SiteLogo, pb.BaseAdminController);
 
     SiteLogo.prototype.render = function(cb) {
-        self = this;
+        var self = this;
 
         this.getJSONPostParams(function(err, post) {
             if (!pb.validation.validateNonEmptyStr(post.site_logo, true)) {
@@ -40,7 +39,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            pb.settings.set('site_logo', post.site_logo, function(err, result) {
+            self.settings.set('site_logo', post.site_logo, function(err, result) {
                 if (util.isError(err)) {
                     cb({
                         code: 500,

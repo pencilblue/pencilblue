@@ -1,5 +1,7 @@
-module.exports = {
-    generic: {
+var loc =
+{
+    generic:
+    {
         LOCALE_DISPLAY: 'Român (România)',
         PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Toate drepturile rezervate',
@@ -478,3 +480,13 @@ module.exports = {
         TEST_EMAIL_SUCCESS: 'Emailul de test a fost trimis cu succes'
     }
 };
+
+//Allows for both server and client use
+if(typeof global !== 'undefined') {
+    global.loc = loc;
+    global.localizationLanguage = 'ro-ro';
+}
+
+if(typeof module !== 'undefined') {
+    module.exports = loc;
+}

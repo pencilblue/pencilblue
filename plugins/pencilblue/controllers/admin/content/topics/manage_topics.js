@@ -23,16 +23,30 @@ module.exports = function(pb) {
     /**
      * Interface for managing topics
      */
-    function ManageTopics() {
-    
-        /**
-         * 
-         * @property service
-         * @type {TopicService}
-         */
-        this.service = new pb.TopicService();
-    }
-    util.inherits(ManageTopics, pb.BaseController);
+    function ManageTopics() {}
+    util.inherits(ManageTopics, pb.BaseAdminController);
+
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    ManageTopics.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+
+            /**
+             *
+             * @property service
+             * @type {TopicService}
+             */
+            self.service = new pb.TopicService(self.getServiceContext());
+
+            cb(err, true);
+        };
+        ManageTopics.super_.prototype.init.apply(this, [context, init]);
+    };
 
     var SUB_NAV_KEY = 'manage_topics';
 
@@ -60,8 +74,8 @@ module.exports = function(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls, self.site),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 topics: topics
             });
 

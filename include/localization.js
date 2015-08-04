@@ -93,9 +93,10 @@ module.exports = function LocalizationModule(pb) {
      * @method localize
      * @param {array} sets The localizations sets to search in
      * @param {string} text The text to localize
+     * @param {string} hostname The current hostname
      * @return {string} The text where keys have been replaced with translated values
      */
-    Localization.prototype.localize = function(sets, text){
+    Localization.prototype.localize = function(sets, text, hostname){
         if (pb.log.isSilly()) {
             pb.log.silly('Localization: Localizing text - Locale [%s] Sets %s', this.language, JSON.stringify(sets));
         }
@@ -117,7 +118,7 @@ module.exports = function LocalizationModule(pb) {
 
         // If the localization is for HTML output, load the localization into client side JS
         if (text.indexOf('<body') > -1)  {
-            text = text.concat(pb.ClientJs.includeJS(pb.UrlService.createSystemUrl('api/localization/script?locale=' + this.language)));
+            text = text.concat(pb.ClientJs.includeJS(pb.UrlService.createSystemUrl('api/localization/script?locale=' + this.language, hostname)));
         }
 
         return text;
@@ -244,7 +245,7 @@ module.exports = function LocalizationModule(pb) {
             }
 
             //convert file name to locale
-            var locale = file.toLowerCase().substring(0, file.indexOf('.'));
+            var locale = file.toLowerCase().substring(0, file.indexOf('.')).replace(/-/g, '_');
 
             //Register as a supported language
             Localization.storage[locale] = obj;

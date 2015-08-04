@@ -22,7 +22,6 @@ module.exports = function IndexModule(pb) {
     
     //pb dependencies
     var util          = pb.util;
-    var config        = pb.config;
     var PluginService = pb.PluginService;
     var TopMenu       = pb.TopMenuService;
     var MediaLoader   = pb.MediaLoader;
@@ -35,6 +34,14 @@ module.exports = function IndexModule(pb) {
      */
     function Index() {}
     util.inherits(Index, pb.BaseController);
+
+    Index.prototype.init = function (props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteQueryService = new pb.SiteQueryService({site: self.site});
+            cb();
+        });
+    };
 
     /**
     * This is the function that will be called by the system's RequestHandler.  It
@@ -56,12 +63,13 @@ module.exports = function IndexModule(pb) {
         };
 
         var options = {
-            currUrl: this.req.url
+            currUrl: this.req.url,
+            site: self.site
         };
         TopMenu.getTopMenu(self.session, self.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
-                
-                var pluginService = new pb.PluginService();
+                var pluginService = new pb.PluginService({site: self.site});
+
                 pluginService.getSettings('portfolio', function(err, portfolioSettings) {
                     var homePageKeywords = '';
                     var homePageDescription = '';
@@ -77,11 +85,10 @@ module.exports = function IndexModule(pb) {
                                 break;
                         }
                     }
-
                     self.ts.registerLocal('meta_keywords', homePageKeywords);
                     self.ts.registerLocal('meta_desc', homePageDescription);
-                    self.ts.registerLocal('meta_title', pb.config.siteName);
-                    self.ts.registerLocal('meta_lang', config.localization.defaultLocale);
+                    self.ts.registerLocal('meta_title', self.siteName);
+                    self.ts.registerLocal('meta_lang', localizationLanguage);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
                     self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));
@@ -96,8 +103,7 @@ module.exports = function IndexModule(pb) {
                         var opts = {
                             where: {settings_type: 'home_page'}
                         };
-                        var dao = new pb.DAO();
-                        dao.q('portfolio_theme_settings', opts, function(err, settings) {
+                        self.siteQueryService.q('portfolio_theme_settings', opts, function(err, settings) {
                             if (util.isError(err)) {
                                 self.reqHandler.serveError(err);
                             }
@@ -152,7 +158,7 @@ module.exports = function IndexModule(pb) {
                                     content.content = content.content.split('^hero_image^').join(settings.home_page_hero ? settings.home_page_hero : '');
                                     content.content = content.content.split('^callouts^').join(calloutsHTML);
 
-                                    content.content = self.ls.localize([], content.content);
+                                    content.content = self.ls.localize([], content.content, self.hostname);
 
                                     var angularData = pb.ClientJs.getAngularController({}, ['ngSanitize']);
                                     content.content = content.content.concat(angularData);

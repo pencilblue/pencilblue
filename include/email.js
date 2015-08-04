@@ -27,8 +27,15 @@ module.exports = function EmailServiceModule(pb) {
      * @module Services
      * @class EmailService
      * @constructor
+     * @param {String} [options.site=GLOBAL_SITE]
+     * @param {String} [options.onlyThisSite=false]
      */
-    function EmailService(){}
+    function EmailService(options) {
+        if (options) {
+            this.site = pb.SiteService.getCurrentSite(options.site) || GLOBAL_SITE;
+            this.onlyThisSite = options.onlyThisSite || false;
+        }
+    }
 
     /** 
      *
@@ -61,7 +68,9 @@ module.exports = function EmailServiceModule(pb) {
      */
     EmailService.prototype.sendFromTemplate = function(options, cb){
         var self = this;
-        var ts   = new pb.TemplateService();
+
+        //TODO: Move the instantiation of the template service to the constructor so it can be injectable with all of the other context properties it needs.
+        var ts   = new pb.TemplateService({ site: this.site });
         if (options.replacements) {
             for(var key in options.replacements) {
                 ts.registerLocal(key, options.replacements[key]);
@@ -155,7 +164,8 @@ module.exports = function EmailServiceModule(pb) {
      */
     EmailService.prototype.getSettings = function(cb) {
         var self = this;
-        pb.settings.get('email_settings', function(err, settings) {
+        var settingsService = pb.SettingServiceFactory.getServiceBySite(self.site, self.onlyThisSite);
+        settingsService.get('email_settings', function(err, settings) {
             cb(err, util.isError(err) || !settings ? EmailService.getDefaultSettings() : settings);
         });
     };
