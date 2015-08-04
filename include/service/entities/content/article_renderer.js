@@ -31,14 +31,10 @@ module.exports = function(pb) {
      * @constructor
      */
     function ArticleRenderer(context) {
-    
-        /**
-         *
-         * @property commentService
-         * @type {CommentService}
-         */
-        this.commentService = new pb.CommentService(context);
-        this.hostname = context.hostname;
+        if (context) {
+            this.commentService = new pb.CommentService(context);
+            this.hostname = context.hostname;
+        }
     }
     
     /**
