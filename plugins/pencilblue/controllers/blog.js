@@ -65,7 +65,9 @@ module.exports = function(pb) {
             }
             
             //render
-            var options = {};
+            var options = {
+                useDefaultTemplate: true
+            };
             self.contentViewLoader.render(articles, options, function(err, html) {
                 if (util.isError(err)) {
                     return cb(err);

@@ -22,7 +22,7 @@ var locale = require('locale');
 var util   = require('./util.js');
 
 module.exports = function LocalizationModule(pb) {
-
+    
     //pb dependencies
     var config = pb.config;
 
@@ -36,7 +36,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {Object} request The request object
      */
     function Localization(request){
-
+        
         //expected to be lowercase and of the form "en-us"
         this.language = Localization.best(request).toString();
     }
@@ -94,7 +94,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {array} sets The localizations sets to search in
      * @param {string} text The text to localize
      * @param {string} hostname The current hostname
-     * @returns {string} The text where keys have been replaced with translated values
+     * @return {string} The text where keys have been replaced with translated values
      */
     Localization.prototype.localize = function(sets, text, hostname){
         if (pb.log.isSilly()) {
@@ -137,7 +137,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {String} key
      * @param {String|Integer|Float|Object} [args] The variable number of 
      * parameters to be injected into the localization value
-     * @returns {string} The formatted and localized string
+     * @return {string} The formatted and localized string
      */
     Localization.prototype.get = function() {
         var key = arguments[0];
@@ -188,7 +188,7 @@ module.exports = function LocalizationModule(pb) {
      *
      * @method best
      * @param {Object} request The request object
-     * @returns {string} Locale for the request
+     * @return {string} Locale for the request
      */
     Localization.best = function(request){
         var loc = 'en-us';
@@ -297,7 +297,7 @@ module.exports = function LocalizationModule(pb) {
         if (!Localization.isSupported(locale) || !util.isObject(localizations)) {
             return false;
         }
-
+        
         util.forEach(localizations, function(item, key) {
             Localization.registerLocalization(locale, key, item);
         });

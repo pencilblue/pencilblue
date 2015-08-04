@@ -3,7 +3,7 @@ var loc =
     generic:
     {
         LOCALE_DISPLAY: 'Español (España)',
-        PENCILBLUE: 'pencilblue',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Todos los derechos reservados',
         NONE: 'Ninguno',
         LEFT: 'Izquierda',
@@ -197,7 +197,7 @@ var loc =
         ADMIN_LOGIN: 'Login de escritor, editor, administrador',
         USERNAME_OR_EMAIL: 'Nombre de usuario o dirección de correo',
         INVALID_LOGIN: 'Combinación nombre de usuario y contraseña incorrecta',
-        READY_TO_USE: 'La instalación de pencilblue está lista para ser usada',
+        READY_TO_USE: 'La instalación de PencilBlue está lista para ser usada',
         ACCOUNT_CREATED: 'Se ha creado tu cuenta exitosamente, ya puedes ingresar'
     },
     admin: {

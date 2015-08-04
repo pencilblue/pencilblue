@@ -57,6 +57,7 @@ module.exports = function AdminNavigationModule(pb) {
      *
      * @private
      * @static
+     * @readonly
      * @property MULTISITE_NAV
      * @returns {Array}
      */
@@ -74,6 +75,7 @@ module.exports = function AdminNavigationModule(pb) {
      *
      * @private
      * @static
+     * @readonly
      * @property CONTENT_NAV
      * @returns {Array}
      */
@@ -205,28 +207,28 @@ module.exports = function AdminNavigationModule(pb) {
             title: 'SETTINGS',
             icon: 'cogs',
             href: '#',
-            access: SecurityService.ACCESS_WRITER,
+            access: SecurityService.ACCESS_ADMINISTRATOR,
             children: [
                 {
                     id: 'site_settings',
                     title: 'SITE_SETTINGS',
                     icon: 'cog',
                     href: '/admin/site_settings',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                    access: SecurityService.ACCESS_ADMINISTRATOR
                 },
                 {
                     id: 'content_settings',
                     title: 'CONTENT',
                     icon: 'quote-right',
                     href: '/admin/site_settings/content',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                    access: SecurityService.ACCESS_ADMINISTRATOR
                 },
                 {
                     id: 'email_settings',
                     title: 'EMAIL',
                     icon: 'envelope',
                     href: '/admin/site_settings/email',
-                    access: SecurityService.ACCESS_MANAGING_EDITOR
+                    access: SecurityService.ACCESS_ADMINISTRATOR
                 }
             ]
         };
@@ -242,18 +244,11 @@ module.exports = function AdminNavigationModule(pb) {
         }
         return Object.freeze(settingsNav);
     }
-
-    /**
-     *
-     * @private
-     * @static
-     * @method getDefaultNavigation
-     * @returns {Array}
-     */
+    
     function getDefaultNavigation(site) {
         return util.clone([CONTENT_NAV, PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
     }
-
+    
     function getMultiSiteNavigation() {
         return util.clone([MULTISITE_NAV]);
     }
@@ -268,7 +263,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method getAdditions
-     * @returns {Array}
+     * @return {Array}
      */
     function getAdditions(site) {
         return getAdditionsInScope(AdminNavigation.additions, site);
@@ -279,7 +274,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method getChildrenAdditions
-     * @returns {Object}
+     * @return {Object}
      */
     function getChildrenAdditions(site) {
         return getAdditionsInScope(AdminNavigation.childrenAdditions, site);
@@ -302,7 +297,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method buildNavigation
-     * @returns {Array}
+     * @return {Array}
      */
     function buildNavigation(site) {
         var i;
@@ -363,7 +358,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @method localizeNavigation
      * @param navigation
      * @param ls
-     * @returns {*}
+     * @return {*}
      */
     function localizeNavigation(navigation, ls) {
         navigation.forEach(function(nav) {
@@ -381,7 +376,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @method isDuplicate
      * @param {String} id
      * @param {Array} navigation
-     * @returns {boolean}
+     * @return {boolean}
      */
     function isDuplicate(id, navigation, site) {
         if (!navigation) {
@@ -444,8 +439,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @method addChild
      * @param {String} parentId
      * @param {Object} node
-     * @returns {Boolean}
-     * @param site
+     * @param {String} site - site unique id
+     * @return {Boolean}
      */
     AdminNavigation.addChildToSite = function (parentId, node, site) {
         if (util.isNullOrUndefined(site)) {
@@ -475,8 +470,8 @@ module.exports = function AdminNavigationModule(pb) {
      * @static
      * @method addToSite
      * @param {Object} node
-     * @returns {Boolean}
      * @param site
+     * @return {Boolean}
      */
     AdminNavigation.addToSite = function (node, site) {
         if (util.isNullOrUndefined(site)) {
@@ -496,10 +491,10 @@ module.exports = function AdminNavigationModule(pb) {
     /**
      * Remove a navigation node
      * @static
-     * @method remove
+     * @method removeFromSite
      * @param id
-     * @returns {boolean}
      * @param site
+     * @return {boolean}
      */
     AdminNavigation.removeFromSite = function (id, site) {
         if (!isDuplicate(id, buildNavigation(site))) {
@@ -542,7 +537,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @param {Object} session
      * @param {Array} adminNavigation
      * @param {Array} activeItems
-     * @returns {Array}
+     * @return {Array}
      */
     AdminNavigation.removeUnauthorized = function (session, adminNavigation, activeItems) {
         for (var i = 0; i < adminNavigation.length; i++) {

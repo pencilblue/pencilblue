@@ -48,6 +48,7 @@ function PencilBlue(config){
      * To be called when the configuration is loaded.  The function is responsible
      * for triggered the startup of the HTTP connection listener as well as start a
      * connection pool to the core DB.
+     * @method init
      */
     this.init = function(){
         var tasks = [
@@ -334,14 +335,14 @@ function PencilBlue(config){
 
     /**
      * Starts up the instance of PencilBlue
-     *
+     * @method start
      */
     this.start = function() {
         var self = this;
         pb.system.onStart(function(){
             self.init();
         });
-    }
+    };
 };
 
 //start system only when the module is called directly

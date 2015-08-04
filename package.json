@@ -18,7 +18,7 @@
     "website",
     "platform"
   ],
-  "version": "0.4.1",
+  "version": "0.5.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/pencilblue/pencilblue.git"
@@ -52,7 +52,7 @@
   },
   "main": "./pencilblue.js",
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">= 0.11.0"
   },
   "scripts": {
     "start": "node pencilblue.js",
@@ -60,8 +60,8 @@
   },
   "licenses": [
     {
-      "type": "Apache License, Version 2.0",
-      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+      "type": "GNU GENERAL PUBLIC LICENSE Version 3",
+      "url": "http://www.gnu.org/licenses/gpl-3.0.html"
     }
   ],
   "readme": "See README file",
@@ -69,5 +69,5 @@
   "bugs": {
     "url": "https://github.com/pencilblue/pencilblue/issues"
   },
-  "_id": "pencilblue@0.4.0"
+  "_id": "pencilblue@0.5.0"
 }

@@ -138,7 +138,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @method _set
      * @param {String} key
      * @param {Object|String|Integer|Float|Boolean} value
-     * @param {Function} 
+     * @param {Function} cb
      */
     MemoryEntityService.prototype._set = function(key, value, cb) {
         var rawValue = null;

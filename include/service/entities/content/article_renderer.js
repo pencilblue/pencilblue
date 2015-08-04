@@ -358,10 +358,11 @@ module.exports = function(pb) {
     };
     
     /**
+     *
      * @method getReadMoreSpan
      * @param {Object} content
      * @param {String} anchorContent
-     * @reurn {String}
+     * @return {String}
      */
     ArticleRenderer.prototype.getReadMoreSpan = function(content, anchorContent) {
         return '&nbsp<span class="read_more">' + this.getReadMoreLink(content, anchorContent) + '</span>';

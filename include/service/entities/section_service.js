@@ -697,7 +697,7 @@ module.exports = function SectionServiceModule(pb) {
      *
      * @static
      * @method formatUrl
-     * @param {Object}
+     * @param {Object} navItem
      */
     SectionService.formatUrl = function(navItem) {
         if (util.isString(navItem.link)) {

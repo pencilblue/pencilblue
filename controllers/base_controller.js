@@ -422,7 +422,7 @@ module.exports = function BaseControllerModule(pb) {
      * (BaseController.getDefaultSanitizationRules) or those provided by the call
      * to BaseController.getSanitizationRules.
      * @method sanitizeObject
-     * @param {Object}
+     * @param {Object} obj
      */
     BaseController.prototype.sanitizeObject = function(obj) {
         if (!util.isObject(obj)) {
@@ -443,6 +443,7 @@ module.exports = function BaseControllerModule(pb) {
     /**
      *
      * @method getSanitizationRules
+     * @return {Object}
      */
     BaseController.prototype.getSanitizationRules = function() {
         return {};
