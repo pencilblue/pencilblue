@@ -57,7 +57,7 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {Boolean} [options.onlyThisSite=false] onlyThisSite for q, return results specific to this site instead of also looking in global
    */
     function SiteQueryService(options) {
-        if(!util.isObject(options) {
+        if(!util.isObject(options)) {
             options = {
                 site: GLOBAL_SITE,
                 onlyThisSite: false

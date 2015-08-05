@@ -95,7 +95,7 @@ module.exports = function CacheEntityServiceModule(pb) {
         });
     };
 
-    CacheEntityService.prototype.getRightFieldFromValue(result, valueField) {
+    CacheEntityService.prototype.getRightFieldFromValue = function(result, valueField) {
         var val = result;
         if (valueField != null){
             var rawVal = JSON.parse(result);
