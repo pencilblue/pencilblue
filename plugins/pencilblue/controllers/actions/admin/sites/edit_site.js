@@ -47,7 +47,7 @@ module.exports = function EditSiteActionModule(pb) {
         var siteService = new pb.SiteService();
         var dao = new pb.DAO();
         dao.loadByValue('uid', siteid, 'site', function(err, data) {
-            siteService.isDisplayNameOrHostnameTaken(self.body.displayName, self.body.hostname, data._id, function (err, isTaken, field) {
+            siteService.isDisplayNameOrHostnameTaken(self.body.displayName, self.body.hostname, data._id, function (err, isTaken/*, field*/) {
                 if(isTaken) {
                     return cb({
                         code: 400,
@@ -72,7 +72,7 @@ module.exports = function EditSiteActionModule(pb) {
     };
 
     EditSiteAction.prototype.getRequiredFields = function() {
-        return['displayName', 'hostname']
+        return['displayName', 'hostname'];
     };
 
     //exports

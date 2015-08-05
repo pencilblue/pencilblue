@@ -16,9 +16,8 @@
 */
 
 //dependencies 
-var url       = require('url');
-var Sanitizer = require('sanitize-html');
-var util      = require('../include/util.js');
+var url  = require('url');
+var util = require('../include/util.js');
 
 module.exports = function BaseControllerModule(pb) {
 

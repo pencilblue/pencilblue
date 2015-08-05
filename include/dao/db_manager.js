@@ -200,7 +200,7 @@ module.exports = function DBManagerModule(pb) {
                 };
                 cb(err, result);
             });
-        }
+        };
 
 
         /**

@@ -85,32 +85,32 @@ module.exports = function CacheEntityServiceModule(pb) {
                     }
 
                     //make call back
-                    return cb(null, getRightFieldFromValue(result, self.valueField));
+                    return cb(null, self.getRightFieldFromValue(result, self.valueField));
                 });
             }
             else {
                 //make call back
-                return cb(null, getRightFieldFromValue(result, self.valueField));
+                return cb(null, self.getRightFieldFromValue(result, self.valueField));
             }
         });
     };
 
-    function getRightFieldFromValue(result, valueField) {
+    CacheEntityService.prototype.getRightFieldFromValue(result, valueField) {
         var val = result;
         if (valueField != null){
             var rawVal = JSON.parse(result);
             val        = rawVal[valueField];
         }
         else {
-        try{
-            val = JSON.parse(val);
+            try{
+                val = JSON.parse(val);
+            }
+            catch(e) {
+                pb.log.error('CacheEntityService: an unparcable value was provided to the cache service. Type=%s Value=%s', this.objType, val);
+            }
         }
-        catch(e) {
-            pb.log.error('CacheEntityService: an unparcable value was provided to the cache service. Type=%s Value=%s', self.objType, val);
-        }
-    }
         return val;
-    }
+    };
 
     /**
      * Set a value in the cache

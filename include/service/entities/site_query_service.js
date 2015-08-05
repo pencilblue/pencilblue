@@ -15,15 +15,35 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//dependencies
+var async = require('async');
+var _ = require('lodash');
+
 module.exports = function SiteQueryServiceModule(pb) {
-  "use strict";
-  var async = require('async');
-  var SITE_FIELD = pb.SiteService.SITE_FIELD;
-  var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
-  var _ = require('lodash');
-  var util = pb.util;
-  var DAO = pb.DAO;
-  var SiteService = pb.SiteService;
+    "use strict";
+  
+    //pb dependencies
+    var util = pb.util;
+    var DAO = pb.DAO;
+    var SiteService = pb.SiteService;
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property SITE_FIELD
+     * @type {String}
+     */
+    var SITE_FIELD = pb.SiteService.SITE_FIELD;
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property GLOBAL_SITE
+     * @type {String}
+     */
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
   /**
    * Create an instance of the site query service specific to the given site
@@ -31,20 +51,43 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @module Services
    * @class SiteQueryService
    * @constructor
+   * @extends DAO
    * @param {Object} options
    * @param {String} [options.site=GLOBAL_SITE] UID of site, should already be sanitized by SiteService
    * @param {Boolean} [options.onlyThisSite=false] onlyThisSite for q, return results specific to this site instead of also looking in global
    */
-  function SiteQueryService(options) {
-    if(options) {
-      this.siteUId = options.site || GLOBAL_SITE;
-      this.onlyThisSite = options.onlyThisSite || false;
+    function SiteQueryService(options) {
+        if(!util.isObject(options) {
+            options = {
+                site: GLOBAL_SITE,
+                onlyThisSite: false
+            };
+        }
+
+        /**
+         * @property siteUid
+         * @type {String}
+         */
+        this.siteUid = options.site;
+           
+        /**
+         * @property onlyThisSite
+         * @type {Boolean}
+         */
+        this.onlyThisSite = options.onlyThisSite;
+
+        DAO.call(this);
     }
-    DAO.call(this);
-  }
+    util.inherits(SiteQueryService, DAO);
 
-  util.inherits(SiteQueryService, DAO);
-
+    /** 
+     * @private
+     * @static
+     * @method modifyLoadWhere
+     * @param {String} site
+     * @param {Object} where
+     * @returns {Object}
+     */
   function modifyLoadWhere(site, where) {
     if (pb.config.multisite.enabled) {
       where = _.clone(where);
@@ -62,6 +105,14 @@ module.exports = function SiteQueryServiceModule(pb) {
     return where;
   }
 
+    /** 
+     * @private
+     * @static
+     * @method modifyLoadOptions
+     * @param {String} site
+     * @param {Object} options
+     * @returns {Object}
+     */
   function modifyLoadOptions(site, options) {
     if (pb.config.multisite.enabled) {
       var target = _.clone(options);
@@ -74,62 +125,107 @@ module.exports = function SiteQueryServiceModule(pb) {
     return options;
   }
 
+    /** 
+     * @private
+     * @static
+     * @method addToOr
+     * @param {Object} whereClause
+     * @param {Array} conditions
+     */
   function addToOr(whereClause, conditions) {
     if ('$or' in whereClause) {
       var orClause = whereClause.$or;
       addToAnd(whereClause, [{$or: orClause}, {$or: conditions}]);
       delete whereClause.$or;
-    } else {
+    } 
+      else {
       whereClause.$or = conditions;
     }
   }
 
-  function addToAnd(whereClause, conditions) {
-    if ('$and' in whereClause) {
-      var andClause = whereClause.$and;
-      andClause.push.apply(andClause, conditions);
-    } else {
-      whereClause.$and = conditions;
-    }
-  }
-
-  function applySiteOperation(self, callback, delegate) {
-    if (siteSpecific(self)) {
-      delegate(self.siteUId, callback);
-    } else {
-      delegate(self.siteUId, function (err, cursor) {
-        if (util.isError(err)) {
-          callback(err, cursor);
-        } else {
-          cursor.count(function (countError, count) {
-            if (util.isError(countError)) {
-              callback(countError);
-            } else if (count) {
-              callback(err, cursor);
-            } else {
-              delegate(GLOBAL_SITE, callback);
-            }
-          });
+    /** 
+     * @private
+     * @static
+     * @method addToAnd
+     * @param {Object} whereClause
+     * @param {Array} conditions
+     */
+    function addToAnd(whereClause, conditions) {
+        if ('$and' in whereClause) {
+            var andClause = whereClause.$and;
+            andClause.push.apply(andClause, conditions);
+        } 
+        else {
+            whereClause.$and = conditions;
         }
-      })
     }
-  }
 
-  function siteSpecific(self) {
-    return self.onlyThisSite || isGlobal(self.siteUId);
-  }
+    /** 
+     * @private
+     * @static
+     * @method applySiteOperation
+     * @param {SiteQueryService} self
+     * @param {Function} callback
+     * @param {Function} delegate
+     */
+    function applySiteOperation(self, callback, delegate) {
+        if (siteSpecific(self)) {
+            return delegate(self.siteUid, callback);
+        } 
 
-  function isGlobal(siteUId) {
-    return !siteUId || siteUId === GLOBAL_SITE;
-  }
+        delegate(self.siteUid, function (err, cursor) {
+            if (util.isError(err)) {
+                return callback(err, cursor);
+            } 
 
-  function modifySave(site, objectToSave) {
-    if (pb.config.multisite.enabled && !(SITE_FIELD in objectToSave)) {
-      objectToSave[SITE_FIELD] = site;
+            cursor.count(function (countError, count) {
+                if (util.isError(countError)) {
+                    callback(countError);
+                } 
+                else if (count) {
+                    callback(err, cursor);
+                } 
+                else {
+                    delegate(GLOBAL_SITE, callback);
+                }
+            });
+        });
     }
-    // else do nothing
-    return objectToSave;
-  }
+
+    /**
+     * @private
+     * @method siteSpecific
+     * @param {SiteQueryService} self
+     * @returns {Boolean}
+     */
+    function siteSpecific(self) {
+        return self.onlyThisSite || isGlobal(self.siteUid);
+    }
+
+    /**
+     * @private
+     * @method isGlobal
+     * @param {String} siteUid
+     * @returns {Boolean}
+     */
+    function isGlobal(siteUid) {
+        return !siteUid || siteUid === GLOBAL_SITE;
+    }
+
+    /**
+     * @private
+     * @method modifySave
+     * @param {String} site
+     * @param {Object} objectToSave
+     * @returns {Object} The object to save
+     */
+    function modifySave(site, objectToSave) {
+        if (pb.config.multisite.enabled && !(SITE_FIELD in objectToSave)) {
+            objectToSave[SITE_FIELD] = site;
+        }
+        // else do nothing
+        return objectToSave;
+    }
 
   /**
    * Overriding protected method of DAO to achieve site-aware query
@@ -155,7 +251,7 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param callback
    */
   SiteQueryService.prototype.save = function (dbObj, options, callback) {
-    dbObj = modifySave(this.siteUId, dbObj);
+    dbObj = modifySave(this.siteUid, dbObj);
     DAO.prototype.save.call(this, dbObj, options, callback);
   };
 
@@ -209,7 +305,7 @@ module.exports = function SiteQueryServiceModule(pb) {
           pb.log.error(err);
           return callback(err);
         }
-        self.delete({uid: siteid}, 'site', function(err, result) {
+        self.delete({uid: siteid}, 'site', function(err/*, result*/) {
           if (util.isError(err)) {
             pb.log.error("SiteQueryService: Failed to delete site: %s \n%s", siteid, err.stack);
             return callback(err);

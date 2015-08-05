@@ -27,6 +27,13 @@ var util    = require('../../util.js');
 
 module.exports = function PluginServiceModule(pb) {
 
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property GLOBAL_SITE
+     * @type {String}
+     */
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
@@ -39,12 +46,20 @@ module.exports = function PluginServiceModule(pb) {
      * @submodule Entities
      */
     function PluginService(options){
-        if(options) {
-            this.site = options.site;
-        } else {
-            this.site = GLOBAL_SITE;
+        if (!util.isObject(options)) {
+            options = {};
         }
+        
+        /**
+         * @property site
+         * @type {String} 
+         */
+        this.site = options.site || GLOBAL_SITE;
 
+        /**
+         * @property _pluginRepository
+         * @type {PluginRepository}
+         */
         this._pluginRepository = pb.PluginRepository;
 
         //construct settings services

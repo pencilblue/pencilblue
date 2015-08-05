@@ -88,7 +88,7 @@ module.exports = function(pb) {
             });
             //Log error. Don't return
             if (util.isError(err)) {
-                pb.log.error("ManagePages: AdminSubnavService.getWithState callback error. ERROR[%s]", error.stack);
+                pb.log.error("ManagePages: AdminSubnavService.getWithState callback error. ERROR[%s]", err.stack);
             }
             //Only populate pills if we didn't fail
             else {
