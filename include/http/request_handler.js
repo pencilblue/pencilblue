@@ -750,6 +750,13 @@ module.exports = function RequestHandlerModule(pb) {
             RequestHandler.routeSupportsMethod(route.themes[site][theme], method);
     };
 
+    /**
+     * @static
+     * @method routeSupportsGlobalTheme
+     * @param {Object} route
+     * @param {String} theme
+     * @param {String} method
+     */
     RequestHandler.routeSupportsGlobalTheme = function(route, theme, method) {
         return RequestHandler.routeSupportsSiteTheme(route, theme, method, GLOBAL_SITE);
     };
