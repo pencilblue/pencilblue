@@ -779,14 +779,15 @@ describe('Util', function() {
             util.getDirectories.bind(54, function(err, results) {}).should.throwError();
         });
         
-        it('should callback with an array with 1 path', function(done) {
+        it('should callback with an array with 2 paths', function(done) {
             
             util.getDirectories('./controllers', function(err, results) {
                 
                 should.not.exist(err);
-                results.should.be.instanceof(Array).and.have.lengthOf(1);
+                results.should.be.instanceof(Array).and.have.lengthOf(2);
                 
                 var expected = [
+                    path.join('controllers', 'admin'),
                     path.join('controllers', 'api')
                 ];
                 results.should.eql(expected);
