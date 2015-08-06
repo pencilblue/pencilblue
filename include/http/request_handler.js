@@ -275,7 +275,7 @@ module.exports = function RequestHandlerModule(pb) {
      * through the setup process in order to pass validation
      * @param {Boolean} [descriptor.auth_required=false] If true, the user making the
      * request must have successfully authenticated against the system.
-     * @request {String} [descriptor.content_type='text/html'] The content type header sent with the response
+     * @param {String} [descriptor.content_type='text/html'] The content type header sent with the response
      * @param {String} theme The plugin/theme UID
      * @return {Boolean} TRUE if the route was registered, FALSE if not
      */
@@ -681,7 +681,7 @@ module.exports = function RequestHandlerModule(pb) {
     /**
      * Compares the path against the registered routes's to lookup the route object.
      * @method getRoute
-     * @path {String} path The URL path for the incoming request
+     * @param {String} path The URL path for the incoming request
      * @return {Object} The route object or NULL if the path does not match any route
      */
     RequestHandler.prototype.getRoute = function(path) {
@@ -1151,7 +1151,7 @@ module.exports = function RequestHandlerModule(pb) {
                 if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
                     result.success  = false;
                     result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
-                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.createSystemUrl('/admin');
+                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.createSystemUrl('/admin', self.hostname);
                     callback(result, result);
                     return;
                 }

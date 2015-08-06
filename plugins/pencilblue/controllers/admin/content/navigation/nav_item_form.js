@@ -82,7 +82,7 @@ module.exports = function(pb) {
 
             //get parents
             parents: function(callback) {
-                var sectionService = new SectionService(self.site, true);
+                var sectionService = new SectionService({site: self.site, onlyThisSite: true});
                 sectionService.getParentSelectList(self.pathVars.id, function(err, parents) {
                     if(util.isError(err)) {
                         callback(err, parents);

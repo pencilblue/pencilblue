@@ -34,7 +34,7 @@ module.exports = function UrlServiceModule(pb) {
     function UrlService(site, onlyThisSite) {
         this.site = pb.SiteService.getCurrentSite(site);
         this.onlyThisSite = onlyThisSite;
-        this.siteQueryService = new pb.SiteQueryService(this.site, this.onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
     }
 
     //dependencies
@@ -177,6 +177,9 @@ module.exports = function UrlServiceModule(pb) {
     };
     
     UrlService.createSystemUrl = function(path, hostname) {
+        if (!hostname) {
+            hostname = pb.config.siteRoot;
+        }
         return UrlService.urlJoin(hostname, path);
     };
 

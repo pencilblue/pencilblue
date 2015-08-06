@@ -27,6 +27,18 @@ module.exports = function(pb) {
     var Localization = pb.Localization;
     var ClientJs     = pb.ClientJs;
     
+    /**
+     * Renders a 1 or more pieces of content such as articles or pages
+     * @class ContentViewLoader
+     * @constructor
+     * @param {Object} context
+     * @param {TemplateService} context.ts
+     * @param {Localization} context.ls
+     * @param {Object} [context.contentSettings]
+     * @param {Object} context.session
+     * @param {ContentObjectService} context.service
+     * @param {String} context.activeTheme
+     */
     function ContentViewLoader(context) {
         this.ts = context.ts;
         this.ls = context.ls;
@@ -36,6 +48,7 @@ module.exports = function(pb) {
         this.service = context.service;
         this.site = context.site;
         this.siteObj = context.siteObj;
+        this.hostname = context.hostname;
         this.onlyThisSite = context.onlyThisSite;
         this.activeTheme = context.activeTheme;
     };
@@ -65,6 +78,9 @@ module.exports = function(pb) {
      * @method render
      * @param {Array} contentArray
      * @param {Object} options
+     * @param {Boolean} [options.useDefaultTemplate] Forces the default theme template to be selected
+     * @param {Object} [options.topic] The topic represented by the collection of content to be rendered
+     * @param {Object} [options.section] The section represented by the collection of content to be rendered
      * @param {Function} cb
      */
     ContentViewLoader.prototype.render = function(contentArray, options, cb) {
@@ -107,13 +123,16 @@ module.exports = function(pb) {
      * @method getTemplate
      * @param {Array|Object} content
      * @param {Object} options
+     * @param {Boolean} [options.useDefaultTemplate] Forces the default theme template to be selected
+     * @param {Object} [options.topic] The topic represented by the collection of content to be rendered
+     * @param {Object} [options.section] The section represented by the collection of content to be rendered
      * @param {Function} cb
      */
     ContentViewLoader.prototype.getTemplate = function(content, options, cb) {
 
         //check if we should just use whatever default there is.
         //this could fall back to an active theme or the default pencilblue theme.
-        if (util.isObject(options.topic) || util.isObject(options.section)) {
+        if (options.useDefaultTemplate || util.isObject(options.topic) || util.isObject(options.section)) {
             return cb(null, this.getDefaultTemplatePath());
         }
 
@@ -234,7 +253,7 @@ module.exports = function(pb) {
                     return callback(null, self.contentSettings);
                 }
                 
-                var contentService = new pb.ContentService(self.site, self.onlyThisSite);
+                var contentService = new pb.ContentService({site: self.site, onlyThisSite: self.onlyThisSite});
                 contentService.getSettings(function(err, contentSettings) {
                     self.contentSettings = contentSettings;
                     callback(err, contentSettings);
@@ -392,9 +411,18 @@ module.exports = function(pb) {
                 cb(err, new pb.TemplateValue(comments, false));
             });
         });
-        ats.load('elements/article', cb);
+        ats.load(self.getDefaultContentTemplatePath(), cb);
         
         options.contentIndex++;
+    };
+
+    /**
+     *
+     * @method getDefaultContentTemplatePath
+     * @return {String}
+     */
+    ContentViewLoader.prototype.getDefaultContentTemplatePath = function() {
+        return 'elements/article';
     };
     
     /**
@@ -437,7 +465,16 @@ module.exports = function(pb) {
                 cb(err, new pb.TemplateValue(results.join(''), false));
             });
         });
-        ts.load('elements/comments', cb);
+        ts.load(self.getDefaultCommentsTemplatePath(), cb);
+    };
+
+    /**
+     *
+     * @method getDefaultCommentsTemplatePath
+     * @return {String}
+     */
+    ContentViewLoader.prototype.getDefaultCommentsTemplatePath = function() {
+        return 'elements/comments';
     };
     
     /**
@@ -456,7 +493,16 @@ module.exports = function(pb) {
         cts.registerLocal('commenter_position', comment.commenter_position ? ', ' + comment.commenter_position : '');
         cts.registerLocal('content', comment.content);
         cts.registerLocal('timestamp', comment.timestamp);
-        cts.load('elements/comments/comment', cb);
+        cts.load(self.getDefaultCommentTemplatePath(), cb);
+    };
+
+    /**
+     *
+     * @method getDefaultCommentTemplatePath
+     * @return {String}
+     */
+    ContentViewLoader.prototype.getDefaultCommentTemplatePath = function() {
+        return 'elements/comments/comment';
     };
     
     /**
@@ -521,8 +567,7 @@ module.exports = function(pb) {
      */
     ContentViewLoader.prototype.createContentPermalink = function(content) {
         var prefix = '/' + this.service.getType();
-        var hostname = pb.SiteService.getHostWithProtocol(this.siteObj.hostname);
-        return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url), hostname);
+        return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url), this.hostname);
     };
     
     /**

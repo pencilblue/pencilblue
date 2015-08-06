@@ -120,7 +120,7 @@ module.exports = function SetupActionControllerModule(pb) {
             function(callback) {
                 var userDocument = pb.DocumentCreator.create('user', post);
 
-                var dao = new pb.SiteQueryService(pb.SiteService.GLOBAL_SITE);
+                var dao = new pb.SiteQueryService({site: pb.SiteService.GLOBAL_SITE});
                 dao.save(userDocument, callback);
             },
             function(callback) {

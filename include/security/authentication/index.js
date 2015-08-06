@@ -63,7 +63,7 @@ module.exports = function AuthenticationModule(pb) {
 
         var dao;
         if (credentials.hasOwnProperty('site')) {
-            dao = new pb.SiteQueryService(credentials.site, false);
+            dao = new pb.SiteQueryService({site: credentials.site, onlyThisSite: false});
         } else {
             dao = new pb.DAO();
         }

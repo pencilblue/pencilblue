@@ -79,7 +79,7 @@ module.exports = function(pb) {
      * @return {ArticleRenderer}
      */
     ArticleServiceV2.prototype.getRenderer = function() {
-        return new pb.ArticleRenderer();
+        return new pb.ArticleRenderer(this.context);
     };
     
     /**

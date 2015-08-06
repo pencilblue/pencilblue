@@ -30,14 +30,14 @@ module.exports = function NewCommentModule(pb) {
     NewComment.prototype.init = function (props, cb) {
         var self = this;
         pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteQueryService = new pb.SiteQueryService(self.site, true);
+            self.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
             cb();
         });
     };
 
     NewComment.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
-        var contentService = new pb.ContentService(self.site, true);
+        var contentService = new pb.ContentService({site: self.site, onlyThisSite: true});
         contentService.getSettings(function(err, contentSettings) {
             if(!contentSettings.allow_comments) {
                 cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'commenting not allowed'), code: 400});
@@ -65,7 +65,7 @@ module.exports = function NewCommentModule(pb) {
                     }
 
                     var timestamp  = pb.ContentService.getTimestampTextFromSettings(commentDocument.created, contentSettings, self.ls);
-                    commentDocument.timestamp = self.localizationService.localize(['timestamp'], timestamp);
+                    commentDocument.timestamp = self.localizationService.localize(['timestamp'], timestamp, self.hostname);
                     cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, 'comment created' , commentDocument)});
                 });
             });

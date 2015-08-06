@@ -66,7 +66,7 @@ module.exports = function(pb) {
             limit: MAX_RESULTS
         };
 
-        var queryService = new pb.SiteQueryService(this.site, true);
+        var queryService = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
         queryService.q(type, opts, function(err, items) {
             if (util.isError(err)) {
                 var content = BaseController.apiResponse(BaseController.API_FAILURE, '', '');

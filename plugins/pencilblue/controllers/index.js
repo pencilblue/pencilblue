@@ -41,7 +41,7 @@ module.exports = function IndexModule(pb) {
         var self = this;
 
         pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteQueryService = new pb.SiteQueryService(self.site, true);
+            self.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
             cb();
         });
     };
@@ -55,7 +55,7 @@ module.exports = function IndexModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService(self.site, true);
+        var contentService = new pb.ContentService({site: self.site, onlyThisSite: true});
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
                 

@@ -177,6 +177,7 @@ module.exports = function BaseControllerModule(pb) {
             ls: this.ls,
             ts: this.ts,
             site: this.site,
+            hostname: this.hostname,
             activeTheme: this.activeTheme,
             onlyThisSite: true,
             siteObj: this.siteObj
@@ -228,7 +229,7 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.formError = function(message, redirectLocation, cb) {
 
         this.session.error = message;
-        var uri = pb.UrlService.createSystemUrl(redirectLocation);
+        var uri = pb.UrlService.createSystemUrl(redirectLocation, this.hostname);
         cb(pb.RequestHandler.generateRedirect(uri));
     };
 
@@ -421,7 +422,7 @@ module.exports = function BaseControllerModule(pb) {
      * (BaseController.getDefaultSanitizationRules) or those provided by the call
      * to BaseController.getSanitizationRules.
      * @method sanitizeObject
-     * @param {Object}
+     * @param {Object} obj
      */
     BaseController.prototype.sanitizeObject = function(obj) {
         if (!util.isObject(obj)) {
@@ -442,6 +443,7 @@ module.exports = function BaseControllerModule(pb) {
     /**
      *
      * @method getSanitizationRules
+     * @return {Object}
      */
     BaseController.prototype.getSanitizationRules = function() {
         return {};

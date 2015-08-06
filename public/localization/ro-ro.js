@@ -3,7 +3,7 @@ var loc =
     generic:
     {
         LOCALE_DISPLAY: 'Român (România)',
-        PENCILBLUE: 'pencilblue',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Toate drepturile rezervate',
         NONE: 'Niciunul',
         LEFT: 'Stanga',
@@ -192,7 +192,7 @@ var loc =
         ADMIN_LOGIN: 'Login scriitor, editor si administrator',
         USERNAME_OR_EMAIL: 'Nume utilizator si adresa de email',
         INVALID_LOGIN: 'Combinatie nume de utilizator si parola gresita',
-        READY_TO_USE: 'Aplicatia ta pencilblue este gata pentru a fi folosita',
+        READY_TO_USE: 'Aplicatia ta PencilBlue este gata pentru a fi folosita',
         ACCOUNT_CREATED: 'Contul tau a fost creat cu succes, acum te poti loga'
     },
     admin: {

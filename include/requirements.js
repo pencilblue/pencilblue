@@ -21,7 +21,9 @@ var path = require('path');
 /**
  * Requirements - Responsible for declaring all of the system types and modules
  * needed to construct the system API object.
- * @copyright PencilBlue, all rights reserved.
+ * @class PB
+ * @param {Object} config
+ * @return {Object} The pb namespace
  */
 module.exports = function PB(config) {
     

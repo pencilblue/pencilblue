@@ -36,7 +36,7 @@ module.exports = function ArticleServiceModule(pb) {
     function ArticleService(siteUid, onlyThisSite){
         this.object_type = ARTICLE_TYPE;
         this.site = pb.SiteService.getCurrentSite(siteUid);
-        this.siteQueryService = new pb.SiteQueryService(this.site, onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: onlyThisSite});
     }
     
     /**
@@ -194,7 +194,7 @@ module.exports = function ArticleServiceModule(pb) {
             //get authors
             self.getArticleAuthors(articles, function(err, authors) {
 
-                var contentService = new pb.ContentService(self.site);
+                var contentService = new pb.ContentService({site: self.site});
                 contentService.getSettings(function(err, contentSettings) {
 
                     var tasks = util.getTasks(articles, function(articles, i) {
@@ -215,19 +215,19 @@ module.exports = function ArticleServiceModule(pb) {
 
     /**
      * Updates articles
-     *
+     * @method update
      * @param {String} articleId	id of article
      * @param {Object} fields	fields to update
      * @param {Object} options
      * @param {Function} cb      Callback function
      */
     ArticleService.prototype.update = function(articleId, fields, options, cb) {
-            if(!util.isObject(fields)){
-                    return cb(new Error('The fields parameter is required'));
-            }
+        if(!util.isObject(fields)){
+                return cb(new Error('The fields parameter is required'));
+        }
 
         var where = pb.DAO.getIdWhere(articleId);
-            var content_type = this.getContentType();
+        var content_type = this.getContentType();
 
         var dao  = new pb.DAO();
         dao.updateFields(content_type, where, fields, options, cb);
@@ -525,6 +525,7 @@ module.exports = function ArticleServiceModule(pb) {
      * Provided the content descriptor and the content settings object the 
      * function indicates if comments should be allowed within the given 
      * context of the content.
+     * @method allowComments
      * @param {Object} contentSettings The settings object retrieved from the 
      * content service
      * @param {Object} content The page or article that should or should not 
@@ -675,6 +676,7 @@ module.exports = function ArticleServiceModule(pb) {
 
     /**
      * Replaces an article or page layout's ^media_display^ tag with a media embed
+     * @method replaceMediaTag
      * @param {String}   layout        The HTML layout of the article or page
      * @param {String}   mediaTemplate The template of the media embed
      * @param {Function} cb            Callback function

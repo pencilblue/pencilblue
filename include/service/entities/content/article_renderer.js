@@ -31,13 +31,10 @@ module.exports = function(pb) {
      * @constructor
      */
     function ArticleRenderer(context) {
-    
-        /**
-         *
-         * @property commentService
-         * @type {CommentService}
-         */
-        this.commentService = new pb.CommentService(context);
+        if (context) {
+            this.commentService = new pb.CommentService(context);
+            this.hostname = context.hostname;
+        }
     }
     
     /**
@@ -357,10 +354,11 @@ module.exports = function(pb) {
     };
     
     /**
+     *
      * @method getReadMoreSpan
      * @param {Object} content
      * @param {String} anchorContent
-     * @reurn {String}
+     * @return {String}
      */
     ArticleRenderer.prototype.getReadMoreSpan = function(content, anchorContent) {
         return '&nbsp<span class="read_more">' + this.getReadMoreLink(content, anchorContent) + '</span>';
@@ -375,7 +373,7 @@ module.exports = function(pb) {
     ArticleRenderer.prototype.getReadMoreLink = function(content, anchorContent) {
         
         var path = pb.UrlService.urlJoin(this.getContentLinkPrefix() + content.url);
-        return '<a href="' + pb.UrlService.createSystemUrl(path) + '">' + anchorContent + '</a>';
+        return '<a href="' + pb.UrlService.createSystemUrl(path, this.hostname) + '">' + anchorContent + '</a>';
     };
     
     /**
