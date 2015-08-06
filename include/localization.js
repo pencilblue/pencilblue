@@ -245,7 +245,7 @@ module.exports = function LocalizationModule(pb) {
             }
 
             //convert file name to locale
-            var locale = file.toLowerCase().substring(0, file.indexOf('.')).replace(/-/g, '_');
+            var locale = file.toLowerCase().substring(0, file.indexOf('.'));
 
             //Register as a supported language
             Localization.storage[locale] = obj;
@@ -282,8 +282,7 @@ module.exports = function LocalizationModule(pb) {
         if (!pb.validation.isNonEmptyStr(locale, true)) {
             return null;
         }
-        if(locale && locale.indexOf('_')<0)
-            locale = locale.replace('-','_');
+
         return Localization.storage[locale.toLowerCase()] || null;
     };
 
