@@ -282,7 +282,7 @@ module.exports = function LocalizationModule(pb) {
         if (!pb.validation.isNonEmptyStr(locale, true)) {
             return null;
         }
-        if(locale && locale.indexOf('_')<0)
+        if (locale && locale.indexOf('_') < 0)
             locale = locale.replace('-','_');
         return Localization.storage[locale.toLowerCase()] || null;
     };
