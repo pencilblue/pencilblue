@@ -154,14 +154,12 @@ module.exports = function DBManagerModule(pb) {
         this.processIndices = function(procedures, cb) {
             var self = this;
             if (!util.isArray(procedures)) {
-                cb(new Error('The procedures parameter must be an array of Objects'));
-                return;
+                return cb(new Error('The procedures parameter must be an array of Objects'));
             }
 
             this.dropUnconfiguredIndices(procedures, function(err) {
                 if(util.isError(err)) {
-                    cb(new Error('DBManager: Error occurred during index check/deletion ERROR[%s]', err.stack));
-                    return;
+                    return cb(new Error(util.format('DBManager: Error occurred during index check/deletion ERROR[%s]', err.stack)));
                 }
                 self.ensureIndices(procedures, cb);
             });

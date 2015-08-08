@@ -236,6 +236,7 @@ module.exports = function PB(config) {
     pb.media.renderers.TrinketMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/trinket_media_renderer.js'))(pb),
     pb.media.renderers.StorifyMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/storify_media_renderer.js'))(pb),
     pb.media.renderers.KickStarterMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/kickstarter_media_renderer.js'))(pb);
+    pb.media.renderers.PdfMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/pdf_media_renderer.js'))(pb);
     
     //providers and service
     pb.MediaService = require(path.join(config.docRoot, '/include/service/entities/media_service.js'))(pb);

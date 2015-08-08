@@ -16,9 +16,9 @@
 */
 
 //dependencies
-var url = require('url');
+var HtmlEncoder = require('htmlencode');
 
-module.exports = function YouTubeMediaRendererModule(pb) {
+module.exports = function(pb) {
     
     //pb dependencies
     var util              = pb.util;
@@ -26,10 +26,10 @@ module.exports = function YouTubeMediaRendererModule(pb) {
 
     /**
      *
-     * @class YouTubeMediaRenderer
+     * @class PdfMediaRenderer
      * @constructor
      */
-    function YouTubeMediaRenderer(){}
+    function PdfMediaRenderer(){}
 
     /**
      * The media type supported by the provider
@@ -38,7 +38,21 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'youtube';
+    var TYPE = 'pdf';
+
+    /**
+     * The list of supported extensions
+     * @private
+     * @static
+     * @readonly
+     * @property SUPPORTED
+     * @type {Object}
+     */
+    var SUPPORTED = Object.freeze({
+        pdf: {
+            mime: 'application/pdf'
+        }
+    });
 
     /**
      * Provides the styles used by each type of view
@@ -50,17 +64,18 @@ module.exports = function YouTubeMediaRendererModule(pb) {
     var STYLES = Object.freeze({
 
         view: {
-            'max-width': "100%"
+            'max-width': "100%",
+            'max-height': "500px"
         },
 
         editor: {
-            width: "560px",
-            height: "315px"
+            width: "350px",
+            height: "350px"
         },
 
         post: {
-            width: "560px",
-            height: "315px"
+            width: "350px",
+            height: "350px"
         }
     });
     
@@ -70,8 +85,8 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @returns {Array}
      */
-    YouTubeMediaRenderer.getSupportedExtensions = function() {
-        return [];
+    PdfMediaRenderer.getSupportedExtensions = function() {
+        return Object.keys(SUPPORTED);
     };
 
     /**
@@ -81,7 +96,7 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    YouTubeMediaRenderer.getStyle = function(viewType) {
+    PdfMediaRenderer.getStyle = function(viewType) {
         return STYLES[viewType] || STYLES.view;
     };
 
@@ -91,7 +106,7 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    YouTubeMediaRenderer.getSupportedTypes = function() {
+    PdfMediaRenderer.getSupportedTypes = function() {
         var types = {};
         types[TYPE] = true;
         return types;
@@ -103,8 +118,8 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    YouTubeMediaRenderer.getName = function() {
-        return 'YouTubeMediaRenderer';
+    PdfMediaRenderer.getName = function() {
+        return 'PdfMediaRenderer';
     };
 
     /**
@@ -114,40 +129,9 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    YouTubeMediaRenderer.isSupported = function(urlStr) {
-        var details = url.parse(urlStr, true, true);
-        return YouTubeMediaRenderer.isFullSite(details) || YouTubeMediaRenderer.isBelgiumDomain(details);
-    };
-
-    /**
-     * Indicates if the passed URL to a media resource points to the main website 
-     * that provides the media represented by this media renderer
-     * @static
-     * @method isFullSite
-     * @param {Object|String} parsedUrl The URL string or URL object
-     * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
-     */
-    YouTubeMediaRenderer.isFullSite = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
-        }
-        return parsedUrl.host && parsedUrl.host.indexOf('youtube.com') >= 0 && parsedUrl.query.v;
-    };
-
-    /**
-     * Indicates if the passed URL to a media resource points to the website 
-     * that provides the media represented by this media renderer with a Belgian 
-     * domain (.be)
-     * @static
-     * @method isBelgiumDomain
-     * @param {Object|String} parsedUrl The URL string or URL object
-     * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
-     */
-    YouTubeMediaRenderer.isBelgiumDomain = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
-        }
-        return parsedUrl.host && parsedUrl.host.indexOf('youtu.be') >= 0 && parsedUrl.pathname.indexOf('/') >= 0;
+    PdfMediaRenderer.isSupported = function(urlStr) {
+        var ext = util.getExtension(urlStr, {lower: true, sep: '/'});
+        return SUPPORTED[ext] ? true : false;
     };
 
     /**
@@ -157,8 +141,8 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    YouTubeMediaRenderer.getType = function(urlStr) {
-        return YouTubeMediaRenderer.isSupported(urlStr) ? TYPE : null;
+    PdfMediaRenderer.getType = function(urlStr) {
+        return PdfMediaRenderer.isSupported(urlStr) ? TYPE : null;
     }
 
     /**
@@ -169,8 +153,8 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    YouTubeMediaRenderer.getIcon = function(type) {
-        return TYPE;
+    PdfMediaRenderer.getIcon = function(type) {
+        return 'fa-file-pdf-o';
     };
 
     /**
@@ -187,12 +171,12 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML 
      * formatted string
      */
-    YouTubeMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        YouTubeMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+    PdfMediaRenderer.renderByUrl = function(urlStr, options, cb) {
+        PdfMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            YouTubeMediaRenderer.render({location: mediaId}, options, cb);
+            PdfMediaRenderer.render({location: mediaId}, options, cb);
         });
     };
 
@@ -214,14 +198,34 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML 
      * formatted string
      */
-    YouTubeMediaRenderer.render = function(media, options, cb) {
+    PdfMediaRenderer.render = function(media, options, cb) {
         if (util.isFunction(options)) {
             cb = options;
             options = {};
         }
 
-        var embedUrl = YouTubeMediaRenderer.getEmbedUrl(media.location);
-        cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
+        //try to look up mime if not provided
+        var mime = media.mime;
+        if (!mime) {
+
+            var extension = SUPPORTED[util.getExtension(media.location, {lower: true})];
+            if (extension) {
+                mime = extension.mime;
+            }
+        }
+
+        //construct HTML snippet
+        var embedUrl = PdfMediaRenderer.getEmbedUrl(media.location);
+        var html = '<object ' + BaseMediaRenderer.getAttributeStr(options.attrs) + 
+            BaseMediaRenderer.getStyleAttrStr(options.style) +
+            ' data="' + HtmlEncoder.htmlEncode(embedUrl) + '"';
+
+        if (mime) {
+            html += ' type="' + mime + '"';
+        }
+        html += '<p>No plugin detected</p></object>';
+
+        cb(null, html);
     };
 
     /**
@@ -232,8 +236,8 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource 
      * represented by the media Id
      */
-    YouTubeMediaRenderer.getEmbedUrl = function(mediaId) {
-        return '//www.youtube.com/embed/' + mediaId;
+    PdfMediaRenderer.getEmbedUrl = function(mediaId) {
+        return mediaId;
     };
 
     /**
@@ -243,14 +247,8 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    YouTubeMediaRenderer.getMediaId = function(urlStr, cb) {
-        var details = url.parse(urlStr, true, true);
-        if (YouTubeMediaRenderer.isFullSite(details)) {
-            return cb(null, details.query.v);
-        }
-
-        //we now know that it has to be the belgium domain
-        cb(null, details.pathname.substr(details.pathname.lastIndexOf('/') + 1));
+    PdfMediaRenderer.getMediaId = function(urlStr, cb) {
+        cb(null, urlStr);
     };
 
     /**
@@ -263,10 +261,9 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an 
      * Object if meta was collected.  NULL if no meta was collected
      */
-    YouTubeMediaRenderer.getMeta = function(urlStr, isFile, cb) {
-        var details = url.parse(urlStr, true, true);
-
-        var meta = details.query;
+    PdfMediaRenderer.getMeta = function(urlStr, isFile, cb) {
+        var ext = util.getExtension(urlStr, {lower: true});
+        var meta = util.clone(SUPPORTED[ext]);
         cb(null, meta);
     };
 
@@ -279,10 +276,8 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or 
      * NULL if no thumbnail is available
      */
-    YouTubeMediaRenderer.getThumbnail = function(urlStr, cb) {
-        YouTubeMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            cb(err, 'http://img.youtube.com/vi/' + mediaId + '/0.jpg');
-        });
+    PdfMediaRenderer.getThumbnail = function(urlStr, cb) {
+        cb(null, '');
     };
 
     /**
@@ -291,10 +286,10 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    YouTubeMediaRenderer.getNativeUrl = function(media) {
-        return 'https://www.youtube.com/watch?v=' + media.location;
+    PdfMediaRenderer.getNativeUrl = function(media) {
+        return media.location;
     };
 
     //exports
-    return YouTubeMediaRenderer;
+    return PdfMediaRenderer;
 };
