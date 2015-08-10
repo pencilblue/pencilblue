@@ -70,7 +70,7 @@ module.exports = function TokenServiceModule(pb) {
      */
     TokenService.prototype.validateUserToken = function(token, cb) {
         var self = this;
-        var dao = new pb.SiteQueryService(this.site, true);
+        var dao = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
         dao.loadByValue('token', token, 'auth_token', function(err, tokenInfo){
             if (util.isError(err) || !tokenInfo || tokenInfo.used) {
                 return cb(err, false);
