@@ -56,5 +56,9 @@ module.exports = {
     "cluster": {
         "workers": 1,
         "self_managed": true
+    },
+    multisite: {
+        enabled: false,
+        globalRoot: 'http://global.localhost:8080'
     }
 };
