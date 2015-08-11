@@ -216,15 +216,14 @@ module.exports = function(pb) {
 
         //construct HTML snippet
         var embedUrl = PdfMediaRenderer.getEmbedUrl(media.location);
-        var html = '<object ' + BaseMediaRenderer.getAttributeStr(options.attrs) + 
+        var html = '<object ' + BaseMediaRenderer.getAttributeStr(options.attrs) + ' ' +
             BaseMediaRenderer.getStyleAttrStr(options.style) +
             ' data="' + HtmlEncoder.htmlEncode(embedUrl) + '"';
 
         if (mime) {
-            html += ' type="' + mime + '"';
+            html += ' type="' + mime + '">';
         }
         html += '<p>No plugin detected</p></object>';
-
         cb(null, html);
     };
 
