@@ -154,7 +154,7 @@ module.exports = function(pb) {
      * @return {String}
      */
     PdfMediaRenderer.getIcon = function(type) {
-        return 'fa-file-pdf-o';
+        return 'file-pdf-o';
     };
 
     /**

@@ -558,6 +558,7 @@ module.exports = function RequestHandlerModule(pb) {
             woff: 'application/x-font-woff',
             otf: 'font/opentype',
             ttf: 'font/truetype',
+            pdf: 'application/pdf',
             html: 'text/html'
         };
         var index = resourcePath.lastIndexOf('.');
