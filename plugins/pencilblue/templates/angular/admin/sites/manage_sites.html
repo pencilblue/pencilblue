@@ -19,6 +19,17 @@
                             });
                 };
 
+                $scope.authUserToSite = function(site) {
+                    $http.post('/actions/admin/sites/auth_token/' + encodeURIComponent(site.uid))
+                            .success(function(result) {
+                                $scope.successMessage = result.message;
+                                $scope.onTokenComplete(site, result.data);
+                            })
+                            .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
                 $scope.deactivateSite = function(site) {
                     site.name = site.displayName;
                     $scope.actionPlugin = site;
@@ -53,6 +64,18 @@
                                 cb(result);
                             })
                             .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
+                $scope.onTokenComplete = function(site, data) {
+                    var url = '//' + site.hostname + '/actions/admin/sites/token_login?callback=angular.callbacks._0&token=' + data.token;
+                    $http.jsonp(url)
+                            .success(function(result) {
+                                $scope.successMessage = result.message;
+                                window.location = '//' + site.hostname + '/admin';
+                            })
+                            .error(function(error, status){
                                 $scope.onActionFailure(error);
                             });
                 };

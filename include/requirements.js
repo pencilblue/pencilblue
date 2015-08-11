@@ -107,6 +107,7 @@ module.exports = function PB(config) {
     var Authentication                = require(path.join(config.docRoot, '/include/security/authentication'))(pb);
     pb.UsernamePasswordAuthentication = Authentication.UsernamePasswordAuthentication;
     pb.FormAuthentication             = Authentication.FormAuthentication;
+    pb.TokenAuthentication            = Authentication.TokenAuthentication;
 
     //setup user service
     pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
@@ -200,6 +201,7 @@ module.exports = function PB(config) {
     pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'))(pb);
     pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'))(pb);
     pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
+    pb.TokenService       = require(path.join(config.docRoot, '/include/service/entities/token_service.js'))(pb);
 
     //create plugin service
     pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);
