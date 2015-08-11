@@ -7,6 +7,7 @@ module.exports = function SiteDeactivateJobModule(pb) {
 
     /**
      * Job to deactivate a site.
+     * @class SiteDeactivateJob
      * @constructor SiteDeactivateJob
      * @extends SiteJobRunner
      */
@@ -16,7 +17,7 @@ module.exports = function SiteDeactivateJobModule(pb) {
         //initialize
         this.init();
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(SiteDeactivateJob, pb.SiteJobRunner);
 
     /**
@@ -58,7 +59,6 @@ module.exports = function SiteDeactivateJobModule(pb) {
     SiteDeactivateJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
 
-        var pluginUid = this.getPluginUid();
         var site = this.getSite();
         var tasks = [
 
@@ -76,7 +76,6 @@ module.exports = function SiteDeactivateJobModule(pb) {
      * @param {Function} cb - callback
      */
     SiteDeactivateJob.prototype.doPersistenceTasks = function(cb) {
-        var self = this;
 
         var siteUid   = this.getSite();
         var tasks     = [
@@ -104,7 +103,7 @@ module.exports = function SiteDeactivateJobModule(pb) {
                 });
             }
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err/*, results*/) {
             cb(err, !util.isError(err));
         });
     };

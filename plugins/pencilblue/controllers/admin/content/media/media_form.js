@@ -55,6 +55,17 @@ module.exports = function(pb) {
             data.media.media_topics = self.getMediaTopics(data);
             self.getAngularObjects(data, function(angularObjects) {
                 self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.get('NEW_MEDIA'));
+                self.ts.registerLocal('acceptable_extensions', function(flag, cb) {
+                    //get acceptable file extensions
+                    var extensions = pb.MediaService.getSupportedExtensions();
+                    for (var i = 0; i < extensions.length; i++) {
+                        if (extensions[i].charAt(0) !== '.') {
+                            extensions[i] = '.' + extensions[i];
+                        }
+                    }
+                    
+                    cb(null, new pb.TemplateValue(extensions.join(','), false));
+                });
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('admin/content/media/media_form', function(err, result) {
                     cb({content: result});
@@ -75,6 +86,7 @@ module.exports = function(pb) {
             else{
                 data.pills = pills;
             }
+            
             //TODO: err first arg for style. User experience error when no pills?
             cb(pb.ClientJs.getAngularObjects(data));
         });

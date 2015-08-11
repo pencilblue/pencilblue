@@ -162,6 +162,7 @@ module.exports = function Routes(pb){
             path: "/actions/user/resend_verification",
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'resend_verification.js'),
+            request_body: "application/json"
         },
         {
             method: 'post',

@@ -17,6 +17,7 @@
 
 module.exports = function SiteFormModule(pb) {
 
+    //pb dependencies
     var util = pb.util;
 
     /**
@@ -27,6 +28,12 @@ module.exports = function SiteFormModule(pb) {
     function SiteForm(){}
     util.inherits(SiteForm, pb.BaseController);
 
+    /**
+     * @private
+     * @static
+     * @property SUB_NAV_KEY
+     * @type {String}
+     */
     var SUB_NAV_KEY = 'sites_edit';
 
     /**
@@ -40,12 +47,17 @@ module.exports = function SiteFormModule(pb) {
         var id = this.pathVars.siteid;
         var dao = new pb.DAO();
         dao.loadByValue('uid', id, 'site', function(err, data) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            
+            var display, host, isActive, uid;
             if (data) {
                 isNew = false;
-                var display = data.displayName.toString();
-                var host = data.hostname.toString();
-                var isActive = data.active;
-                var uid = data.uid;
+                display = data.displayName.toString();
+                host = data.hostname.toString();
+                isActive = data.active;
+                uid = data.uid;
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects({

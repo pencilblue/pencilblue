@@ -81,19 +81,18 @@ module.exports = function(pb) {
     ManagePages.prototype.getAngularObjects = function(pagesWithAuthor, cb) {
         var self = this;
         pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, 'manage_pages', {site: self.site}, function(err, pills) {
-            var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls, self.site),
-                pills: [],
-                pages: self.getPageStatuses(pagesWithAuthor)
-            });
             //Log error. Don't return
             if (util.isError(err)) {
-                pb.log.error("ManagePages: AdminSubnavService.getWithState callback error. ERROR[%s]", error.stack);
+                pills = [];
+                pb.log.error("ManagePages: AdminSubnavService.getWithState callback error. ERROR[%s]", err.stack);
             }
-            //Only populate pills if we didn't fail
-            else {
-                angularObjects.pills = pills;
-            }
+            
+            var angularObjects = pb.ClientJs.getAngularObjects({
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'pages'], self.ls, self.site),
+                pills: pills,
+                pages: self.getPageStatuses(pagesWithAuthor)
+            });
+            
             //TODO: err first arg for style. User experience error when no pills?
             cb(angularObjects);
         });

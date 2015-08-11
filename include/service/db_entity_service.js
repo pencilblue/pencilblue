@@ -145,7 +145,7 @@ module.exports = function DbEntityServiceModule(pb) {
         siteIsGlobal[SITE_FIELD] = GLOBAL_SITE;
 
         if(!this.site || this.site === GLOBAL_SITE) {
-            where['$or'] = [
+            where.$or = [
                 hasNoSite,
                 siteIsGlobal
             ];

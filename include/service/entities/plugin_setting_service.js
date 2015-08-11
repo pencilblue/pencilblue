@@ -3,7 +3,22 @@ var util = require('../../util.js');
 
 module.exports = function PluginSettingServiceModule(pb) {
 
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property GLOBAL_SITE
+     * @type {String}
+     */
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property SITE_FIELD
+     * @type {String}
+     */
     var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
     /**
@@ -13,14 +28,26 @@ module.exports = function PluginSettingServiceModule(pb) {
      */
     function PluginSettingService(siteUID){
 		//construct settings services
+        
+        /**
+         *
+         * @property caching
+         * @type {Object}
+         */
         this.caching = pb.config.plugins.caching;
+        
+        /**
+         *
+         * @property site
+         * @type {String}
+         */
+        this.site = pb.config.multisite.enabled && siteUID ? siteUID : GLOBAL_SITE;
 
-        if(pb.config.multisite.enabled && siteUID) {
-            this.site = siteUID;
-        } else {
-            this.site = GLOBAL_SITE;
-        }
-
+        /**
+         *
+         * @property pluginService
+         * @type {PluginService}
+         */
         this.pluginService = new pb.PluginService({site: this.site});
 
         /**
@@ -28,14 +55,28 @@ module.exports = function PluginSettingServiceModule(pb) {
          * @property pluginSettingsService
          * @type {SimpleLayeredService}
          */
-        this.pluginSettingsService = genSettingsService('plugin_settings', this.caching.useMemory, this.caching.useCache, 'PluginSettingService', this.site);
+        this.pluginSettingsService = genSettingsService({
+            objType: 'plugin_settings', 
+            useMemory: this.caching.useMemory, 
+            useCache: this.caching.useCache, 
+            serviceName: 'PluginSettingService', 
+            site: this.site, 
+            onlyThisSite: false
+        });
 
         /**
          * A setting service that sets and retrieves the settings for plugins
          * @property pluginSettingsService
          * @type {SimpleLayeredService}
          */
-        this.themeSettingsService  = genSettingsService('theme_settings', this.caching.useMemory, this.caching.useCache, 'ThemeSettingService', this.site);
+        this.themeSettingsService  = genSettingsService({
+            objType: 'theme_settings', 
+            useMemory: this.caching.useMemory, 
+            useCache: this.caching.useCache, 
+            serviceName: 'ThemeSettingService', 
+            site: this.site, 
+            onlyThisSite: false
+        });
 	}
 
 	/**
@@ -51,8 +92,7 @@ module.exports = function PluginSettingServiceModule(pb) {
     PluginSettingService.prototype.getSetting = function(settingName, pluginName, cb) {
         this.getSettings(pluginName, function(err, settings) {
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                return cb(err, null);
             }
 
             var val = null;
@@ -132,10 +172,10 @@ module.exports = function PluginSettingServiceModule(pb) {
 
         //error checking
         if (!pb.PluginService.validateSettingValue(value)) {
-            cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
+            return cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
         }
         if (!pb.validation.validateNonEmptyStr(name, true)) {
-            cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
+            return cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
         }
 
         //retrieve the settings to modify
@@ -177,18 +217,15 @@ module.exports = function PluginSettingServiceModule(pb) {
 
         //error checking
         if (!settings) {
-            cb(new Error("PluginSettingService: The settings object is required when making changes to plugin settings"), false);
-            return;
+            return cb(new Error("PluginSettingService: The settings object is required when making changes to plugin settings"), false);
         }
         if (!pluginName) {
-            cb(new Error("PluginSettingService: The plugin name is required when making changes to plugin settings"), false);
-            return;
+            return cb(new Error("PluginSettingService: The plugin name is required when making changes to plugin settings"), false);
         }
 
         this.pluginService.isInstalled(pluginName, function(err, isInstalled) {
             if (util.isError(err) || !isInstalled) {
-                cb(err, false);
-                return;
+                return cb(err, false);
             }
 
             self.pluginSettingsService.set(pluginName, settings, function(err, result) {
@@ -212,17 +249,16 @@ module.exports = function PluginSettingServiceModule(pb) {
 
         //error checking
         if (!pb.PluginService.validateSettingValue(value)) {
-            cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
+            return cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
         }
         if (!pb.validation.validateNonEmptyStr(name, true)) {
-            cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
+            return cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
         }
 
         //retrieve the settings to modify
         this.getThemeSettingsBySite(pluginName, function(err, settings) {
             if (util.isError(err) || !settings) {
-                cb(err, false);
-                return;
+                return cb(err, false);
             }
 
             var wasFound = false;
@@ -257,18 +293,15 @@ module.exports = function PluginSettingServiceModule(pb) {
 
         //error checking
         if (!settings) {
-            cb(new Error("PluginSettingService: The settings object is required when making changes to theme settings"), false);
-            return;
+            return cb(new Error("PluginSettingService: The settings object is required when making changes to theme settings"), false);
         }
         if (!pluginName) {
-            cb(new Error("PluginSettingService: The plugin name is required when making changes to theme settings"), false);
-            return;
+            return cb(new Error("PluginSettingService: The plugin name is required when making changes to theme settings"), false);
         }
 
         this.pluginService.isInstalled(pluginName, function(err, isInstalled) {
             if (util.isError(err) || !isInstalled) {
-                cb(err, false);
-                return;
+                return cb(err, false);
             }
 
             self.themeSettingsService.set(pluginName, settings, function(err, result) {
@@ -288,8 +321,7 @@ module.exports = function PluginSettingServiceModule(pb) {
     PluginSettingService.prototype.getThemeSetting = function(settingName, pluginName, cb) {
         this.getThemeSettings(pluginName, function(err, settings) {
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                return cb(err, null);
             }
 
             var val = null;
@@ -391,8 +423,8 @@ module.exports = function PluginSettingServiceModule(pb) {
                 var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
 
                 //save it
-                var dao      = new pb.DAO();
-                dao.save(settings, function(err, result) {
+                var dao = new pb.DAO();
+                dao.save(settings, function(err/*, result*/) {
                     cb(err, !util.isError(err));
                 });
             });
@@ -416,22 +448,19 @@ module.exports = function PluginSettingServiceModule(pb) {
         //error checking
         var pluginName = details.uid;
         if (!details.theme || !details.theme.settings) {
-            cb(new Error("PluginService: Settings are required when attempting to reset a plugin's theme settings"), false);
-            return;
+            return cb(new Error("PluginService: Settings are required when attempting to reset a plugin's theme settings"), false);
         }
 
         //retrieve plugin to prove it exists (plus we need the id)
         this.pluginService.getPluginBySite(pluginName, function(err, plugin) {
             if (util.isError(err) || !plugin) {
-                cb(err, false);
-                return;
+                return cb(err, false);
             }
 
             //remove any existing settings
             self.themeSettingsService.purge(pluginName, function (err, result) {
                 if (util.isError(err) || !result) {
-                    cb(err, false);
-                    return;
+                    return cb(err, false);
                 }
 
                 //build the object to persist
@@ -445,18 +474,28 @@ module.exports = function PluginSettingServiceModule(pb) {
                 var settings = pb.DocumentCreator.create('theme_settings', baseDoc);
 
                 //save it
-                var dao      = new pb.DAO();
-                dao.save(settings, function(err, result) {
+                var dao = new pb.DAO();
+                dao.save(settings, function(err/*, result*/) {
                     cb(err, !util.isError(err));
                 });
             });
         });
     };
 
+    /**
+     * @method purgePluginSettings
+     * @param {String} pluginUid
+     * @param {Function} cb
+     */
     PluginSettingService.prototype.purgePluginSettings = function(pluginUid, cb) {
         this.pluginSettingsService.purge(pluginUid, cb);
     };
 
+    /**
+     * @method purgeThemeSettings
+     * @param {String} pluginUid
+     * @param {Function} cb
+     */
     PluginSettingService.prototype.purgeThemeSettings = function(pluginUid, cb) {
         this.themeSettingsService.purge(pluginUid, cb);
     };
@@ -467,33 +506,35 @@ module.exports = function PluginSettingServiceModule(pb) {
      *
      * @static
      * @method genSettingsService
-     * @param objType The type of object that will be dealt with.  (plugin_settings,
+     * @param {String} opts.objType The type of object that will be dealt with.  (plugin_settings,
      * theme_settings)
-     * @param useMemory {Boolean} Indicates if the generated layered service should
+     * @param {Boolean} opts.useMemory Indicates if the generated layered service should
      * use an in memory service.
-     * @param useCache {Boolean} Indicates if the generated layered service should
+     * @param {Boolean} opts.useCache Indicates if the generated layered service should
      * use a cache service.
      * @param serviceName The name of the service
+     * @param {String} opts.site
+     * @param {Boolean} opts.onlyThisSite
      * @return {SimpleLayeredService}
      */
-    function genSettingsService(objType, useMemory, useCache, serviceName, site, onlyThisSite) {
-
+    function genSettingsService(opts) {
+        
         //add in-memory service
         var services = [];
 
         var options = {
-            objType: objType,
-            site: site,
-            onlyThisSite: onlyThisSite
+            objType: opts.objType,
+            site: opts.site,
+            onlyThisSite: opts.onlyThisSite
         };
 
-        if (useMemory) {
+        if (opts.useMemory) {
        	    options.timeout = pb.config.plugins.caching.memory_timeout;
             services.push(new pb.MemoryEntityService(options));
         }
 
         //add cache service
-        if (useCache) {
+        if (opts.useCache) {
             services.push(new pb.CacheEntityService(options));
         }
 
@@ -501,19 +542,49 @@ module.exports = function PluginSettingServiceModule(pb) {
         options.keyField = 'plugin_uid';
         options.valueField = 'settings';
         services.push(new pb.DBEntityService(options));
-        return new pb.SimpleLayeredService(services, serviceName);
+        return new pb.SimpleLayeredService(services, opts.serviceName);
     };
 
+    /**
+     * @private
+     * @static
+     * @method getAdminPluginSettingsService
+     * @param {PluginSettingService}
+     * @returns {SimpleLayeredService}
+     */
     function getAdminPluginSettingsService(self) {
     	if(!self.adminPluginSettingsService) {
-    		self.adminPluginSettingsService = genSettingsService('plugin_settings', self.caching.useMemory, self.caching.useCache, 'PluginSettingService', self.site, true);
+            var opts = {
+                objType: 'plugin_settings', 
+                useMemory: self.caching.useMemory, 
+                useCache: self.caching.useCache, 
+                serviceName: 'PluginSettingService', 
+                site: self.site, 
+                onlyThisSite: true
+            };
+    		self.adminPluginSettingsService = genSettingsService(opts);
     	}
     	return self.adminPluginSettingsService;
     }
 
+    /**
+     * @private
+     * @static
+     * @method getAdminThemeSettingService
+     * @param {PluginSettingService}
+     * @returns {SimpleLayeredService}
+     */
     function getAdminThemeSettingsService(self) {
     	if(!self.adminThemeSettingsService) {
-    		self.adminThemeSettingsService = genSettingsService('theme_settings', self.caching.useMemory, self.caching.useCache, 'ThemeSettingService', self.site, true);
+            var opts = {
+                objType: 'theme_settings', 
+                useMemory: self.caching.useMemory, 
+                useCache: self.caching.useCache, 
+                serviceName: 'ThemeSettingService', 
+                site: self.site, 
+                onlyThisSite: true
+            };
+    		self.adminThemeSettingsService = genSettingsService(opts);
     	}
     	return self.adminThemeSettingsService;
     }
