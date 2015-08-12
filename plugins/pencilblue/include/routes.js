@@ -1128,7 +1128,8 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'site_form.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            handler: 'new'
         },
         {
             method: 'get',
@@ -1137,7 +1138,8 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'site_form.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            handler: 'edit'
         },
         {
             method: 'post',
