@@ -64,6 +64,16 @@ module.exports = function VineMediaRendererModule(pb) {
             height: "400px"
         }
     });
+    
+    /**
+     * Retrieves the supported extension types for the renderer.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array}
+     */
+    VineMediaRenderer.getSupportedExtensions = function() {
+        return [];
+    };
 
     /**
      * Retrieves the style for the specified type of view

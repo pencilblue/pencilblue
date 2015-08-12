@@ -7,8 +7,9 @@ module.exports = function SiteActivateJobModule(pb) {
 
     /**
      * Job to activate a site in the database to start accepting traffic.
-     * @extends SiteJobRunner
+     * @class SiteActivateJob
      * @constructor
+     * @extends SiteJobRunner
      */
     function SiteActivateJob(){
         SiteActivateJob.super_.call(this);
@@ -16,7 +17,7 @@ module.exports = function SiteActivateJobModule(pb) {
         //initialize
         this.init();
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(SiteActivateJob, pb.SiteJobRunner);
 
     /**
@@ -28,8 +29,8 @@ module.exports = function SiteActivateJobModule(pb) {
     SiteActivateJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
         //progress function
-        var jobId     = self.getId();
-        var site      = self.getSite();
+        var jobId = self.getId();
+        var site = self.getSite();
 
         var activateCommand = {
             jobId: jobId,
@@ -62,8 +63,6 @@ module.exports = function SiteActivateJobModule(pb) {
      */
     SiteActivateJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
-
-        var pluginUid = this.getPluginUid();
         var site = this.getSite();
         var tasks = [
 
@@ -101,7 +100,7 @@ module.exports = function SiteActivateJobModule(pb) {
                         }
 
                         pb.RequestHandler.activateSite(site);
-                        callback(err, result)
+                        callback(err, result);
                     });
                 });
             }

@@ -69,11 +69,11 @@ module.exports = function PluginJobRunnerModule(pb) {
         this.site = site;
         this.pluginService = new pb.PluginService({site: site});
         return this;
-    }
+    };
 
     PluginJobRunner.prototype.getSite = function() {
         return this.site;
-    }
+    };
 
     /**
      * Called when the tasks have completed execution and isInitiator = FALSE.  The

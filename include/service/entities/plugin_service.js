@@ -27,6 +27,13 @@ var util    = require('../../util.js');
 
 module.exports = function PluginServiceModule(pb) {
 
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property GLOBAL_SITE
+     * @type {String}
+     */
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
@@ -39,12 +46,20 @@ module.exports = function PluginServiceModule(pb) {
      * @submodule Entities
      */
     function PluginService(options){
-        if(options) {
-            this.site = options.site;
-        } else {
-            this.site = GLOBAL_SITE;
+        if (!util.isObject(options)) {
+            options = {};
         }
+        
+        /**
+         * @property site
+         * @type {String} 
+         */
+        this.site = options.site || GLOBAL_SITE;
 
+        /**
+         * @property _pluginRepository
+         * @type {PluginRepository}
+         */
         this._pluginRepository = pb.PluginRepository;
 
         //construct settings services
@@ -1116,10 +1131,10 @@ module.exports = function PluginServiceModule(pb) {
                  if (!mainModule) {
                      return cb(new Error('Failed to load main module for plugin '+plugin.uid));
                  }
-                 if(!ACTIVE_PLUGINS[plugin.site]) {
-                    ACTIVE_PLUGINS[plugin.site] = {};
+                 if(!ACTIVE_PLUGINS[site]) {
+                    ACTIVE_PLUGINS[site] = {};
                  }
-                 ACTIVE_PLUGINS[plugin.site][details.uid] = {
+                 ACTIVE_PLUGINS[site][details.uid] = {
                      main_module: mainModule,
                      public_dir: PluginService.getPublicPath(plugin.dirName),
                      permissions: map,
@@ -1158,17 +1173,18 @@ module.exports = function PluginServiceModule(pb) {
                             pb.log.error('PluginService:[INIT] Plugin %s failed to start. %s', details.uid, err.stack);
                         }
                     });
-                     d.run(function () {
-                         if (util.isFunction(mainModule.prototype.onStartup)) {
-                             mainModule = new mainModule(site);
+                    d.run(function () {
+                        if (util.isFunction(mainModule.prototype.onStartup)) {
+                            mainModule = new mainModule(site);
                         }
-                         if (util.isFunction(mainModule.onStartupWithContext)) {
-                             var context = {site: site};
-                             mainModule.onStartupWithContext(context, startupCallback);
-                         } else {
-                             mainModule.onStartup(startupCallback);
-                         }
-                         function startupCallback(err, didStart) {
+                        if (util.isFunction(mainModule.onStartupWithContext)) {
+                            var context = {site: site};
+                            mainModule.onStartupWithContext(context, startupCallback);
+                        } 
+                        else {
+                            mainModule.onStartup(startupCallback);
+                        }
+                        function startupCallback(err, didStart) {
                             if (util.isError(err)) {
                                 throw err;
                             }
@@ -1179,13 +1195,13 @@ module.exports = function PluginServiceModule(pb) {
                                 clearTimeout(timeoutProtect);
                                 callback(err, didStart);
                             }
-                         }
+                        }
                     });
                 }
-                 else {
-                     pb.log.warn("PluginService: Plugin %s did not provide an 'onStartup' function.", details.uid);
-                     callback(null, false);
-                 }
+                else {
+                    pb.log.warn("PluginService: Plugin %s did not provide an 'onStartup' function.", details.uid);
+                    callback(null, false);
+                }
              },
 
              //load services

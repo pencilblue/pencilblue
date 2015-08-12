@@ -444,7 +444,10 @@ var loc =
         INITIAL_DELETE_WARNING: 'You are attempting to delete this site and all content associated with it, including: ',
         FINAL_DELETE_WARNING: 'This action cannot be reversed. Are you sure you want to continue?',
         DELETE_SITE: 'Delete Site',
-        DANGER: 'Danger!'
+        DANGER: 'Danger!',
+        TOKEN_CREATED: 'Authentication Token Created',
+        INVALID_TOKEN: 'Invalid Token',
+        TOKEN_LOGIN_SUCCESSFUL: 'Successful Login By Token'
     },
     plugins:
     {

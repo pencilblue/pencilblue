@@ -160,7 +160,8 @@ module.exports = function(pb) {
             adminOptions = [
                 {name: ls.get('READER'), value: pb.SecurityService.ACCESS_USER},
                 {name: ls.get('WRITER'), value: pb.SecurityService.ACCESS_WRITER},
-                {name: ls.get('EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}]
+                {name: ls.get('EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}
+            ];
         }
         else {
             if (session.authentication.user.admin >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
@@ -310,8 +311,8 @@ module.exports = function(pb) {
                 return cb(err, null);
             }
             var root = pb.SiteService.getHostWithProtocol(siteInfo.hostname);
-            var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password')
-              + util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
+            var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password') + 
+                util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
             var options = {
                 to: user.email,
                 subject: siteInfo.displayName + ' Password Reset',
@@ -519,16 +520,14 @@ module.exports = function(pb) {
     };
 
     UserService.prototype.determineUserSiteScope = function(accessLevel, siteid) {
-        if (accessLevel === pb.SecurityService.ACCESS_MANAGING_EDITOR
-            || accessLevel === pb.SecurityService.ACCESS_ADMINISTRATOR) {
+        if (accessLevel === pb.SecurityService.ACCESS_MANAGING_EDITOR || 
+            accessLevel === pb.SecurityService.ACCESS_ADMINISTRATOR) {
             return pb.SiteService.GLOBAL_SITE;
         }
         else if (siteid === pb.SiteService.GLOBAL_SITE) {
             return null;
         }
-        else {
-            return siteid;
-        }
+        return siteid;
     };
     
     /**

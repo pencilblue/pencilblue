@@ -278,8 +278,14 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function getChildrenAdditions(site) {
         return getAdditionsInScope(AdminNavigation.childrenAdditions, site);
-    };
+    }
 
+    /**
+     * @private
+     * @method getAdditionsInScope
+     * @param {Object} additions
+     * @param {String} site
+     */
     function getAdditionsInScope(additions, site) {
         if (additions.hasOwnProperty(site)) {
             return util.clone(additions[site]);
@@ -287,9 +293,7 @@ module.exports = function AdminNavigationModule(pb) {
         else if (additions.hasOwnProperty(pb.SiteService.GLOBAL_SITE)) {
             return util.clone(additions[pb.SiteService.GLOBAL_SITE]);
         }
-        else {
-            return util.clone(additions);
-        }
+        return util.clone(additions);
     }
 
     /**
@@ -350,7 +354,7 @@ module.exports = function AdminNavigationModule(pb) {
         });
 
         return navigation;
-    };
+    }
 
     /**
      * @private
@@ -368,7 +372,7 @@ module.exports = function AdminNavigationModule(pb) {
             }
         });
         return navigation;
-    };
+    }
 
     /**
      * @private
@@ -394,7 +398,7 @@ module.exports = function AdminNavigationModule(pb) {
             }
         }
         return false;
-    };
+    }
 
     function exists(id, site) {
         var isGlobal = pb.SiteService.isGlobal(site);
@@ -412,7 +416,7 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function isDefaultNode(id, site) {
         return isDuplicate(id, getDefaultNavigation(site));
-    };
+    }
 
     /**
      * Retrive the admin navigation hierarchy
@@ -452,7 +456,7 @@ module.exports = function AdminNavigationModule(pb) {
 
         var additionsMap;
         if (!(site in AdminNavigation.childrenAdditions)) {
-            additionsMap = AdminNavigation.childrenAdditions[site] = {}
+            additionsMap = AdminNavigation.childrenAdditions[site] = {};
         } else {
             additionsMap = AdminNavigation.childrenAdditions[site];
         }

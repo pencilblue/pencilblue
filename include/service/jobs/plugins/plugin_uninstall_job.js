@@ -185,7 +185,7 @@ module.exports = function PluginUninstallJobModule(pb) {
                 siteIsGlobal[SITE_FIELD] = GLOBAL_PREFIX;
 
                 if(!site || site === GLOBAL_PREFIX) {
-                    where['$or'] = [
+                    where.$or = [
                         hasNoSite,
                         siteIsGlobal
                     ];
