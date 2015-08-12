@@ -65,6 +65,16 @@ module.exports = function VimeoMediaRendererModule(pb) {
             height: "281px"
         }
     });
+    
+    /**
+     * Retrieves the supported extension types for the renderer.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array}
+     */
+    VimeoMediaRenderer.getSupportedExtensions = function() {
+        return [];
+    };
 
     /**
      * Retrieves the style for the specified type of view

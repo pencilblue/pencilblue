@@ -68,7 +68,7 @@ module.exports = function(pb) {
                     cb({content: result});
                 });
             });
-        })
+        });
     };
 
     ManagePlugins.getSubNavItems = function(key, ls, data) {

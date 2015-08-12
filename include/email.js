@@ -32,7 +32,7 @@ module.exports = function EmailServiceModule(pb) {
      */
     function EmailService(options) {
         if (options) {
-            this.site = pb.SiteService.getCurrentSite(options.site) || GLOBAL_SITE;
+            this.site = pb.SiteService.getCurrentSite(options.site) || pb.SiteService.GLOBAL_SITE;
             this.onlyThisSite = options.onlyThisSite || false;
         }
     }

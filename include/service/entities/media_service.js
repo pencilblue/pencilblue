@@ -90,7 +90,8 @@ module.exports = function MediaServiceModule(pb) {
         pb.media.renderers.SlideShareMediaRenderer,
         pb.media.renderers.TrinketMediaRenderer,
         pb.media.renderers.StorifyMediaRenderer,
-        pb.media.renderers.KickStarterMediaRenderer
+        pb.media.renderers.KickStarterMediaRenderer,
+        pb.media.renderers.PdfMediaRenderer
     ];
 
     /**
@@ -846,10 +847,43 @@ module.exports = function MediaServiceModule(pb) {
     };
     
     /**
-     * Retrieves the singleton instance of CommandService.
+     * Provides a mechanism to retrieve all of the supported extension types 
+     * that can be uploaded into the system.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array} provides an array of strings
+     */
+    MediaService.getSupportedExtensions = function() {
+        
+        var extensions = {};
+        REGISTERED_MEDIA_RENDERERS.forEach(function(provider) {
+            
+            //for backward compatibility check for existence of extension retrieval
+            if (!util.isFunction(provider.getSupportedExtensions)) {
+                pb.log.warn('MediaService: Renderer %s does provide an implementation for getSupportedExtensions', provider.getName());
+                return;
+            }
+            
+            //retrieve the extensions
+            var exts = provider.getSupportedExtensions();
+            if (!util.isArray(exts)) {
+                return;
+            }
+            
+            //add them to the hash
+            exts.forEach(function(extension) {
+                extensions[extension] = true;
+            });
+        });
+        
+        return Object.keys(extensions);
+    };
+    
+    /**
+     * Retrieves the singleton instance of MediaProvider.
      * @static
      * @method getInstance
-     * @return {CommandService}
+     * @return {MediaProvider}
      */
     MediaService.getInstance = function() {
         if (INSTANCE) {

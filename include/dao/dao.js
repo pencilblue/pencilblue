@@ -152,7 +152,7 @@ module.exports = function DAOModule(pb) {
         var siteIsGlobal = {};
         siteIsGlobal[SITE_FIELD] = pb.SiteService.GLOBAL_SITE;
         where[key] = val;
-        where['$or'] = [
+        where.$or = [
              hasNoSite,
              siteIsGlobal
         ];    

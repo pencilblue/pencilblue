@@ -558,6 +558,7 @@ module.exports = function RequestHandlerModule(pb) {
             woff: 'application/x-font-woff',
             otf: 'font/opentype',
             ttf: 'font/truetype',
+            pdf: 'application/pdf',
             html: 'text/html'
         };
         var index = resourcePath.lastIndexOf('.');
@@ -653,9 +654,8 @@ module.exports = function RequestHandlerModule(pb) {
         this.session = session;
 
         //set the site -- how do we handle improper sites here?
-        this.siteObj = RequestHandler.sites[this.hostname]
-            ? RequestHandler.sites[this.hostname]
-            : this.serve404();
+        this.siteObj = RequestHandler.sites[this.hostname] ? 
+            RequestHandler.sites[this.hostname] : this.serve404();
         this.site = this.siteObj.uid;
         this.siteName = this.siteObj.displayName;
         //find the controller to hand off to
@@ -746,11 +746,18 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Boolean}
      */
     RequestHandler.routeSupportsSiteTheme = function(route, theme, method, site) {
-        return !util.isNullOrUndefined(route.themes[site])
-            && !util.isNullOrUndefined(route.themes[site][theme]) 
-            && RequestHandler.routeSupportsMethod(route.themes[site][theme], method);
+        return !util.isNullOrUndefined(route.themes[site]) && 
+            !util.isNullOrUndefined(route.themes[site][theme]) && 
+            RequestHandler.routeSupportsMethod(route.themes[site][theme], method);
     };
 
+    /**
+     * @static
+     * @method routeSupportsGlobalTheme
+     * @param {Object} route
+     * @param {String} theme
+     * @param {String} method
+     */
     RequestHandler.routeSupportsGlobalTheme = function(route, theme, method) {
         return RequestHandler.routeSupportsSiteTheme(route, theme, method, GLOBAL_SITE);
     };

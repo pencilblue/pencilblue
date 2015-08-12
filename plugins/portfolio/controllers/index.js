@@ -88,7 +88,7 @@ module.exports = function IndexModule(pb) {
                     self.ts.registerLocal('meta_keywords', homePageKeywords);
                     self.ts.registerLocal('meta_desc', homePageDescription);
                     self.ts.registerLocal('meta_title', self.siteName);
-                    self.ts.registerLocal('meta_lang', localizationLanguage);
+                    self.ts.registerLocal('meta_lang', pb.config.localization.defaultLocale);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
                     self.ts.registerLocal('account_buttons', new pb.TemplateValue(accountButtons, false));

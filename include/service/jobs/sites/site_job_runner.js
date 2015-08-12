@@ -11,7 +11,7 @@ module.exports = function SiteJobRunnerModule(pb) {
         SiteJobRunner.super_.call(this);
         
         this.siteService = new pb.SiteService();
-    };
+    }
     util.inherits(SiteJobRunner, pb.ClusterJobRunner);
 
     /**
@@ -28,7 +28,7 @@ module.exports = function SiteJobRunnerModule(pb) {
     SiteJobRunner.prototype.setSite = function(site) {
         this.site = site;
         return this;
-    }
+    };
 
     /**
      * Get the current site of this instance of SiteJobRunner.
@@ -36,7 +36,7 @@ module.exports = function SiteJobRunnerModule(pb) {
      */
     SiteJobRunner.prototype.getSite = function() {
         return this.site;
-    }
+    };
 
     /**
      *  Called when the tasks have completed execution and isInitiator = FALSE.  The
@@ -52,12 +52,11 @@ module.exports = function SiteJobRunnerModule(pb) {
     SiteJobRunner.prototype.processClusterResults = function(err, results, cb) {
         if (util.isError(err)) {
             this.log(err.stack);
-            cb(err, results);
-            return;
+            return cb(err, results);
         }
 
-        var firstErr = undefined;
-        var success  = true;
+        var firstErr;
+        var success = true;
         for (var i = 0; i < results.length; i++) {
             if (!results[i]) {
                 firstErr = util.format('An error occurred while attempting to execute the job for site [%s]. RESULT=[%s] TASK=[%d]', this.getSite(), util.inspect(results[i]), i);

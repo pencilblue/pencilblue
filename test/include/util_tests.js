@@ -785,12 +785,8 @@ describe('Util', function() {
                 
                 should.not.exist(err);
                 results.should.be.instanceof(Array).and.have.lengthOf(2);
-                
-                var expected = [
-                    path.join('controllers', 'admin'),
-                    path.join('controllers', 'api')
-                ];
-                results.should.eql(expected);
+                results.should.containEql(path.join('controllers', 'admin'))
+                results.should.containEql(path.join('controllers', 'api'));
                 done();
             });
         });

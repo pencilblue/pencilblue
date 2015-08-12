@@ -23,6 +23,24 @@ var ObjectID = require('mongodb').ObjectID;
 var util     = require('../util.js');
 
 module.exports = function DBManagerModule(pb) {
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property FILES_NAMESPACE
+     * @type {String}
+     */
+    var FILES_NAMESPACE = 'fs.files';
+    
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property CHUNKS_NAMESPACE
+     * @type {String}
+     */
+    var CHUNKS_NAMESPACE = 'fs.chunks';
 
     /**
      * Wrapper that protects against direct access to the active connection pools
@@ -154,14 +172,12 @@ module.exports = function DBManagerModule(pb) {
         this.processIndices = function(procedures, cb) {
             var self = this;
             if (!util.isArray(procedures)) {
-                cb(new Error('The procedures parameter must be an array of Objects'));
-                return;
+                return cb(new Error('The procedures parameter must be an array of Objects'));
             }
 
             this.dropUnconfiguredIndices(procedures, function(err) {
                 if(util.isError(err)) {
-                    cb(new Error('DBManager: Error occurred during index check/deletion ERROR[%s]', err.stack));
-                    return;
+                    return cb(new Error(util.format('DBManager: Error occurred during index check/deletion ERROR[%s]', err.stack)));
                 }
                 self.ensureIndices(procedures, cb);
             });
@@ -200,7 +216,7 @@ module.exports = function DBManagerModule(pb) {
                 };
                 cb(err, result);
             });
-        }
+        };
 
 
         /**
@@ -223,6 +239,17 @@ module.exports = function DBManagerModule(pb) {
                 var tasks = util.getTasks(storedIndices, function(indices, i) {
                     return function(callback) {
                         var index = indices[i];
+                        
+                        //special condition: When mongo is used as the media 
+                        //storage provider two special collections are created: 
+                        //"fs.chunks" and "fs.files".  These indices should be 
+                        //left alone and ignored.
+                        if (index.ns.indexOf(FILES_NAMESPACE, index.ns.length - FILES_NAMESPACE.length) !== -1 || 
+                            index.ns.indexOf(CHUNKS_NAMESPACE, index.ns.length - CHUNKS_NAMESPACE.length) !== -1) {
+                            pb.log.silly("DBManager: Skipping protected index for %s", index.ns);
+                            return callback();
+                        }
+                        
                         var filteredIndex = procedures.filter(function(procedure) {
                             var ns = pb.config.db.name + '.' + procedure.collection;
                             var result = ns === index.ns && self.compareIndices(index, procedure);

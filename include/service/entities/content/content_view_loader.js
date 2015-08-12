@@ -493,7 +493,7 @@ module.exports = function(pb) {
         cts.registerLocal('commenter_position', comment.commenter_position ? ', ' + comment.commenter_position : '');
         cts.registerLocal('content', comment.content);
         cts.registerLocal('timestamp', comment.timestamp);
-        cts.load(self.getDefaultCommentTemplatePath(), cb);
+        cts.load(this.getDefaultCommentTemplatePath(), cb);
     };
 
     /**
