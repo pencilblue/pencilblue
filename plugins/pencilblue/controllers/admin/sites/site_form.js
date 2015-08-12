@@ -17,78 +17,113 @@
 
 module.exports = function SiteFormModule(pb) {
 
-    var util = pb.util;
+  //pb dependencies
+  var util = pb.util;
 
-    /**
-     * Site Form renders a form to add/edit sites to the database.
-     * @constructor
-     * @extends BaseController
-     */
-    function SiteForm(){}
-    util.inherits(SiteForm, pb.BaseController);
+  /**
+   * Site Form renders a form to add/edit sites to the database.
+   * @constructor
+   * @extends BaseController
+   */
+  function SiteForm(){}
+  util.inherits(SiteForm, pb.BaseController);
 
-    var SUB_NAV_KEY = 'sites_edit';
+  /**
+   * @private
+   * @static
+   * @property SUB_NAV_KEY
+   * @type {String}
+   */
+  var SUB_NAV_KEY = 'sites_edit';
 
-    /**
-     * Renders the site form to create and edit sites.
-     * @method render
-     * @param {Function} cb - the callback function
-     */
-    SiteForm.prototype.render = function(cb) {
-        var self = this;
-        var isNew = true;
-        var id = this.pathVars.siteid;
-        var dao = new pb.DAO();
-        dao.loadByValue('uid', id, 'site', function(err, data) {
-            if (data) {
-                isNew = false;
-                var display = data.displayName.toString();
-                var host = data.hostname.toString();
-                var isActive = data.active;
-                var uid = data.uid;
-            }
+  /**
+   * Edit the site form to edit sites.
+   * @method edit
+   * @param {Function} cb - the callback function
+   */
+  SiteForm.prototype.edit = function(cb) {
+    var self = this;
+    var isNew = true;
+    var id = this.pathVars.siteid;
+    var dao = new pb.DAO();
+    dao.loadByValue('uid', id, 'site', function(err, data) {
+      if (util.isError(err)) {
+        return cb(err);
+      }
 
-            var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls, self.site),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-                tabs: [{ active: 'active', href: '#editSite', icon: 'cog', title: self.ls.get('EDIT_SITE') }],
-                displayName: display,
-                hostname: host,
-                isNew: isNew,
-                isActive: isActive,
-                uid: uid
-            });
+      var options = {};
+      if (data) {
+        options.isNew = false;
+        options.display = data.displayName.toString();
+        options.host = data.hostname.toString();
+        options.isActive = data.active;
+        options.uid = data.uid;
+      }
 
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/sites/site_form', function(err,result) {
-                cb({content: result});
-            });
-        });
+      setupAngularObj(self, options, cb);
+    });
 
-    };
+  };
 
-    /**
-     * Gets an array of nav objects for pills.
-     * @method getSubNavItems
-     * @param key
-     * @param {Object} ls - the localization service
-     * @returns {Array} the array of nav objects to render.
-     */
-    SiteForm.getSubNavItems = function(key, ls) {
-        return [{
-            name: 'edit_sites',
-            title: ls.get('EDIT_SITE'),
-            icon: 'chevron-left',
-            href: '/admin/sites'
-        }, {
-            name: 'new_site',
-            title: '',
-            icon: 'plus',
-            href: '/admin/sites/new'
-        }];
-    };
+  /**
+   * New the site form to create sites.
+   * @method new
+   * @param {Function} cb - the callback function
+   */
+  SiteForm.prototype.new = function(cb) {
+    var self = this;
+    var options = {isNew: true};
+    //todo:: refactor angular on site_form to remove unneeded properties
+    setupAngularObj(self, options, cb);
 
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, SiteForm.getSubNavItems);
+  };
 
-    return SiteForm;
+  function setupAngularObj(self, options, cb){
+    var isNew = options.isNew,
+      display = options.display,
+      host = options.host,
+      isActive = options.isActive,
+      uid = options.uid;
+
+    var angularObjects = pb.ClientJs.getAngularObjects({
+      navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls, self.site),
+      pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+      tabs: [{ active: 'active', href: '#editSite', icon: 'cog', title: self.ls.get('EDIT_SITE') }],
+      displayName: display,
+      hostname: host,
+      isNew: isNew,
+      isActive: isActive,
+      uid: uid
+    });
+
+    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+    self.ts.load('admin/sites/site_form', function(err,result) {
+      cb({content: result});
+    });
+  }
+
+  /**
+   * Gets an array of nav objects for pills.
+   * @method getSubNavItems
+   * @param key
+   * @param {Object} ls - the localization service
+   * @returns {Array} the array of nav objects to render.
+   */
+  SiteForm.getSubNavItems = function(key, ls) {
+    return [{
+      name: 'edit_sites',
+      title: ls.get('EDIT_SITE'),
+      icon: 'chevron-left',
+      href: '/admin/sites'
+    }, {
+      name: 'new_site',
+      title: '',
+      icon: 'plus',
+      href: '/admin/sites/new'
+    }];
+  };
+
+  pb.AdminSubnavService.registerFor(SUB_NAV_KEY, SiteForm.getSubNavItems);
+
+  return SiteForm;
 };
