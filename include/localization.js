@@ -282,7 +282,7 @@ module.exports = function LocalizationModule(pb) {
         if (!pb.validation.isNonEmptyStr(locale, true)) {
             return null;
         }
-        
+    
         return Localization.storage[locale.toLowerCase()] || null;
     };
 
