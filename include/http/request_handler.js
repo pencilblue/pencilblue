@@ -653,7 +653,7 @@ module.exports = function RequestHandlerModule(pb) {
         //set the session
         this.session = session;
 
-        //set the site -- how do we handle improper sites here?
+        //set the site
         this.siteObj = RequestHandler.sites[this.hostname];
 
         if (!this.siteObj) {
