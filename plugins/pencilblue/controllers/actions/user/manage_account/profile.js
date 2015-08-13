@@ -31,17 +31,17 @@ module.exports = function ProfileModule(pb) {
     Profile.prototype.render = function(cb) {
         var self = this;
 
+        var post = this.body;
         post.photo = post.uploaded_image;
         delete post.uploaded_image;
         delete post.image_url;
 
-    this.getJSONPostParams(function(err, post) {
-      //sanitize
-      post.email      = BaseController.sanitize(post.email);
-      post.username   = BaseController.sanitize(post.username);
-      post.first_name = BaseController.sanitize(post.first_name);
-      post.last_name  = BaseController.sanitize(post.last_name);
-      post.photo      = BaseController.sanitize(post.photo);
+        //sanitize
+        post.email      = BaseController.sanitize(post.email);
+        post.username   = BaseController.sanitize(post.username);
+        post.first_name = BaseController.sanitize(post.first_name);
+        post.last_name  = BaseController.sanitize(post.last_name);
+        post.photo      = BaseController.sanitize(post.photo);
 
         var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
@@ -50,28 +50,26 @@ module.exports = function ProfileModule(pb) {
                 return;
             }
 
-        //update the document
-        delete post[pb.DAO.getIdField()];
-        pb.DocumentCreator.update(post, user);
-        dao.save(user, function(err, result) {
-          if(util.isError(err)) {
-            cb({
-              code: 500,
-              content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+            //update the document
+            delete post[pb.DAO.getIdField()];
+            pb.DocumentCreator.update(post, user);
+            dao.save(user, function(err, result) {
+                if(util.isError(err)) {
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    });
+                }
+
+                self.session.authentication.user = user;
+                self.session.locale = user.locale || self.session.locale;
+                cb({
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('ACCOUNT') + ' ' + self.ls.get('EDITED'))
+                });
             });
-            return;
-          }
-
-          self.session.authentication.user = user;
-          self.session.locale = user.locale || self.session.locale;
-          cb({
-            content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('ACCOUNT') + ' ' + self.ls.get('EDITED'))
-          });
         });
-      });
-    });
-  };
+    };
 
-  //exports
-  return Profile;
+    //exports
+    return Profile;
 };

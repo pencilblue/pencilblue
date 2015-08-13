@@ -155,7 +155,8 @@ module.exports = function Routes(pb){
             path: "/actions/user/manage_account/profile",
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'manage_account', 'profile.js'),
-            content_type: 'text/html'
+            content_type: 'application/json',
+            request_body: ['application/json']
         },
         {
             method: 'post',

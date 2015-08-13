@@ -153,7 +153,7 @@ module.exports = function(pb) {
      * @param {String} type
      * @return {String}
      */
-    PdfMediaRenderer.getIcon = function(type) {
+    PdfMediaRenderer.getIcon = function(/*type*/) {
         return 'file-pdf-o';
     };
 

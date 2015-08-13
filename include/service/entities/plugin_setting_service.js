@@ -543,7 +543,7 @@ module.exports = function PluginSettingServiceModule(pb) {
         options.valueField = 'settings';
         services.push(new pb.DBEntityService(options));
         return new pb.SimpleLayeredService(services, opts.serviceName);
-    };
+    }
 
     /**
      * @private
@@ -588,5 +588,6 @@ module.exports = function PluginSettingServiceModule(pb) {
     	}
     	return self.adminThemeSettingsService;
     }
+    
 	return PluginSettingService;
-}
+};
