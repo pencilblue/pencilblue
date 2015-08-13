@@ -713,7 +713,34 @@ module.exports = function(pb) {
         context.service.validate(context, cb);
     };
     
+    /**
+     * Strips the password from one or more user objects when passed a valid 
+     * base object service event context
+     * @static
+     * @method removePassword
+     * @param {Object} context
+     * @param {Object} context.data The DTO that was provided for persistence
+     * @param {UserService} context.service An instance of the service that triggered 
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    UserService.removePassword = function(context, cb) {
+        var data = context.data;
+        if (util.isArray(data)) {
+            data.forEach(function(user) {
+                delete user.password;
+            });
+        }
+        else if (util.isObject(data)) {
+            delete data.password;
+        }
+        cb();
+    };
+    
     //Event Registries
+    BaseObjectService.on(TYPE + '.' + BaseObjectService.AFTER_SAVE, UserService.removePassword);
+    BaseObjectService.on(TYPE + '.' + BaseObjectService.GET, UserService.removePassword);
+    BaseObjectService.on(TYPE + '.' + BaseObjectService.GET_ALL, UserService.removePassword);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, UserService.format);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, UserService.merge);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, UserService.validate);
