@@ -67,8 +67,7 @@ module.exports = function EditSiteActionModule(pb) {
                     cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
                 });
             });
-        })
-
+        });
     };
 
     EditSiteAction.prototype.getRequiredFields = function() {

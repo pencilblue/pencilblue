@@ -13,7 +13,7 @@
 
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
 var async = require('async');
 var url = require('url');
@@ -181,14 +181,13 @@ module.exports = function SiteServiceModule(pb) {
 
             var result = results === null;
             if (!result) {
-                for(var key in results) {
-                    result |= results[key] > 0;
-                }
+                util.forEach(results, function(value) {
+                    result |= value > 0;
+                });
             }
             cb(err, result);
         });
     };
-
 
     /**
      * Gets the total counts of a display name and hostname in the site collection

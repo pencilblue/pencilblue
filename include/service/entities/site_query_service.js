@@ -265,7 +265,7 @@ module.exports = function SiteQueryServiceModule(pb) {
         pb.log.error(err);
       }
       cb(err, items);
-    })
+    });
   };
 
   /**

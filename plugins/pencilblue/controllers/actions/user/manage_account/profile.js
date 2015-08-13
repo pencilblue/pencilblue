@@ -1,77 +1,71 @@
 /*
-Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2015  PencilBlue, LLC
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = function ProfileModule(pb) {
+module.exports = function UserProfileApiControllerModule(pb) {
     
     //pb dependencies
-    var util = pb.util;
-    var BaseController = pb.BaseController;
-    var FormController = pb.FormController;
+    var util              = pb.util;
+    var BaseApiController = pb.BaseApiController;
+    var UserService       = pb.UserService;
 
     /**
      * Edits the logged in user's information
+     * @class UserProfileApiController
+     * @constructor
+     * @extends BaseApiController
      */
-    function Profile(){}
-    util.inherits(Profile, FormController);
-
-    Profile.prototype.render = function(cb) {
+    function UserProfileApiController(){}
+    util.inherits(UserProfileApiController, BaseApiController);
+    
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    UserProfileApiController.prototype.init = function(context, cb) {
         var self = this;
+        var init = function(err) {
+            
+            /**
+             * 
+             * @property service
+             * @type {UserService}
+             */
+            self.service = new UserService(self.getServiceContext());
+                
+            cb(err, true);
+        };
+        UserProfileApiController.super_.prototype.init.apply(this, [context, init]);
+    };
+    
+    /**
+     * Updates the authenticated user.  This overrides the typical 
+     * BaseApiController.put so we can force the user changes to only affect 
+     * the authenticated user.
+     * @method put
+     * @param {Function} cb
+     */
+    UserProfileApiController.prototype.put = function(cb) {
+        var dto = this.body || {};
+        dto[pb.DAO.getIdField()] = this.session.authentication.user_id;
+        this.service.save(dto, this.handleSave(cb, false));
+    };
 
-        post.photo = post.uploaded_image;
-        delete post.uploaded_image;
-        delete post.image_url;
-
-    this.getJSONPostParams(function(err, post) {
-      //sanitize
-      post.email      = BaseController.sanitize(post.email);
-      post.username   = BaseController.sanitize(post.username);
-      post.first_name = BaseController.sanitize(post.first_name);
-      post.last_name  = BaseController.sanitize(post.last_name);
-      post.photo      = BaseController.sanitize(post.photo);
-
-        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
-        dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
-            if(util.isError(err) || user === null) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/user/manage_account', cb);
-                return;
-            }
-
-        //update the document
-        delete post[pb.DAO.getIdField()];
-        pb.DocumentCreator.update(post, user);
-        dao.save(user, function(err, result) {
-          if(util.isError(err)) {
-            cb({
-              code: 500,
-              content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-            });
-            return;
-          }
-
-          self.session.authentication.user = user;
-          self.session.locale = user.locale || self.session.locale;
-          cb({
-            content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('ACCOUNT') + ' ' + self.ls.get('EDITED'))
-          });
-        });
-      });
-    });
-  };
-
-  //exports
-  return Profile;
+    //exports
+    return UserProfileApiController;
 };

@@ -105,7 +105,7 @@ module.exports = function SiteActivateJobModule(pb) {
                 });
             }
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err/*, results*/) {
             cb(err, !util.isError(err));
         });
     };
