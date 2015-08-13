@@ -249,7 +249,7 @@ module.exports = function SiteServiceModule(pb) {
         var job = new pb.SiteActivateJob();
         job.setRunAsInitiator(true);
         job.init(name);
-        job.setSite(siteUid);
+        job.setSite({uid: siteUid});
         job.run(cb);
         return job.getId();
     };
@@ -268,7 +268,28 @@ module.exports = function SiteServiceModule(pb) {
         var job = new pb.SiteDeactivateJob();
         job.setRunAsInitiator(true);
         job.init(name);
-        job.setSite(siteUid);
+        job.setSite({uid: siteUid});
+        job.run(cb);
+        return job.getId();
+    };
+
+    /**
+     * Run a job to update a site's hostname and/or displayname.
+     * @method editCreateSite
+     * @param {String} siteObj - site unique id
+     * @param {String} options.site - site unique id
+     * @param {String} options.hostname - result of site hostname edit/create
+     * @param {String} options.sitename - result of site display name edit/create
+     * @param {Function} cb - callback to run after job is completed
+     * @returns {String} the job id
+     */
+    SiteService.prototype.editCreateSite = function(options, cb) {
+        cb = cb || util.cb;
+        var name = util.format("DEACTIVATE_SITE_%s", options.site);
+        var job = new pb.SiteCreateEditJob();
+        job.setRunAsInitiator(true);
+        job.init(name);
+        job.setSite(options);
         job.run(cb);
         return job.getId();
     };

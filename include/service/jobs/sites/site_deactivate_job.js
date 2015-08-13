@@ -64,7 +64,7 @@ module.exports = function SiteDeactivateJobModule(pb) {
 
             //allow traffic to start routing for site
             function(callback) {
-                self.siteService.stopAcceptingSiteTraffic(site, callback);
+                self.siteService.stopAcceptingSiteTraffic(site.uid, callback);
             }
         ];
         cb(null, tasks);
@@ -77,12 +77,12 @@ module.exports = function SiteDeactivateJobModule(pb) {
      */
     SiteDeactivateJob.prototype.doPersistenceTasks = function(cb) {
 
-        var siteUid   = this.getSite();
+        var site   = this.getSite();
         var tasks     = [
             //set site to active in mongo
             function(callback) {
                 var dao = new pb.DAO();
-                dao.loadByValue('uid', siteUid, 'site', function(err, site) {
+                dao.loadByValue('uid', site.uid, 'site', function(err, site) {
                     if(util.isError(err)) {
                         return callback(err, null);
                     }
