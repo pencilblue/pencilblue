@@ -48,25 +48,16 @@ module.exports = function NewSiteActionModule(pb) {
 
         var siteService = new pb.SiteService();
         var site = pb.DocumentCreator.create('site', self.body);
-
-        siteService.createSite(site, self.body.id, function(err, isTaken, field, result) {
+        siteService.isDisplayNameOrHostnameTaken(site.displayName, site.hostname, site._id, function (err, isTaken/*, field*/) {
             if(isTaken) {
-                cb({
+                return cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
                 });
-
             }
-            if(util.isError(err)) {
-                cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                });
-                return;
-            }
-
-            pb.RequestHandler.loadSite(site);
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_CREATED'), result)});
+            var jobId = siteService.createSite(site);
+            var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Site Created', jobId);
+            cb({content: content});
         });
 
     };

@@ -275,17 +275,17 @@ module.exports = function SiteServiceModule(pb) {
 
     /**
      * Run a job to update a site's hostname and/or displayname.
-     * @method editCreateSite
-     * @param {String} siteObj - site unique id
-     * @param {String} options.site - site unique id
+     * @method editSite
+     * @param {Object} options - object containing site fields
+     * @param {String} options.uid - site uid
      * @param {String} options.hostname - result of site hostname edit/create
-     * @param {String} options.sitename - result of site display name edit/create
+     * @param {String} options.displayName - result of site display name edit/create
      * @param {Function} cb - callback to run after job is completed
      * @returns {String} the job id
      */
-    SiteService.prototype.editCreateSite = function(options, cb) {
+    SiteService.prototype.editSite = function(options, cb) {
         cb = cb || util.cb;
-        var name = util.format("DEACTIVATE_SITE_%s", options.site);
+        var name = util.format("EDIT_SITE%s", options.site);
         var job = new pb.SiteCreateEditJob();
         job.setRunAsInitiator(true);
         job.init(name);
@@ -297,29 +297,18 @@ module.exports = function SiteServiceModule(pb) {
     /**
      * Creates a site and saves it to the database.
      * @method createSite
-     * @param {Object} site - the configurable site object to save
+     * @param {Object} options - object containing site fields
+     * @param {String} options.uid - site unique id
+     * @param {String} options.hostname - result of site hostname edit/create
+     * @param {String} options.displayName - result of site display name edit/create
      * @param {String} id - the site unique identifier for the database
      * @param {Function} cb - callback function
      */
-    SiteService.prototype.createSite = function(site, id, cb) {
-        site.active = false;
-        site.uid = pb.util.uniqueId();
-        this.isDisplayNameOrHostnameTaken(site.displayName, site.hostname, id, function(err, isTaken, field) {
-            if(util.isError(err) || isTaken) {
-                cb(err, isTaken, field, null);
-                return;
-            }
-
-            var dao = new pb.DAO();
-            dao.save(site, function(err, result) {
-                if(util.isError(err)) {
-                    cb(err, false, null, null);
-                    return;
-                }
-
-                cb(null, false, null, result);
-            });
-        });
+    SiteService.prototype.createSite = function(options, cb) {
+        cb = cb || util.cb;
+        options.active = false;
+        options.uid = pb.util.uniqueId();
+        return this.editSite(options, cb);
     };
 
     /**
@@ -457,6 +446,32 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
+     * Runs a site deactivation job when command is received.
+     * @static
+     * @method onCreateEditSiteCommandReceived
+     * @param {Object} command - the command to react to.
+     */
+    SiteService.onCreateEditSiteCommandReceived = function(command) {
+        if (!util.isObject(command)) {
+            pb.log.error('SiteService: an invalid create_edit_site command object was passed. %s', util.inspect(command));
+            return;
+        }
+
+        var name = util.format("CREATE_EDIT_SITE%s", command.site);
+        var job = new pb.SiteCreateEditJob();
+        job.setRunAsInitiator(false);
+        job.init(name, command.jobId);
+        job.setSite(command.site);
+        job.run(function(err, result) {
+            var response = {
+                error: err ? err.stack : undefined,
+                result: result ? true : false
+            };
+            pb.CommandService.getInstance().sendInResponseTo(command, response);
+        });
+    };
+
+    /**
      * Register activate and deactivate commands on initialization
      * @static
      * @method init
@@ -465,6 +480,7 @@ module.exports = function SiteServiceModule(pb) {
         var commandService = pb.CommandService.getInstance();
         commandService.registerForType('deactivate_site', SiteService.onActivateSiteCommandReceived);
         commandService.registerForType('activate_site'  , SiteService.onDeactivateSiteCommandReceived);
+        commandService.registerForType('create_edit_site', SiteService.onCreateEditSiteCommandReceived);
     };
 
     /**

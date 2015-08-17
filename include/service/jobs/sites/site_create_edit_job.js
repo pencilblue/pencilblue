@@ -28,7 +28,13 @@ module.exports = function SiteCreateEditJobModule(pb) {
     SiteCreateEditJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
 
-        var activateCommand = {};
+        var jobId = self.getId();
+        var site = self.getSite();
+
+        var createEditCommand = {
+            jobId: jobId,
+            site: site
+        };
 
         //progress function
         var tasks = [
@@ -44,7 +50,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
             },
 
             //remove site to request handler site collection across cluster
-            self.createCommandTask('create_edit_site', activateCommand)
+            self.createCommandTask('create_edit_site', createEditCommand)
         ];
         cb(null, tasks);
     };
@@ -87,7 +93,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
                     }
 
                     if (!site) {
-                        return callback(new Error('Site not found'), null);
+                        site = pb.DocumentCreator.create('site', mySite);
                     }
 
                     site.hostname = mySite.hostname || site.hostname;
