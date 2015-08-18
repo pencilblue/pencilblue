@@ -56,7 +56,7 @@ module.exports = function NewSiteActionModule(pb) {
                 });
             }
             var jobId = siteService.createSite(site);
-            var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Site Created', jobId);
+            var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CREATING_SITE'), jobId);
             cb({content: content});
         });
 

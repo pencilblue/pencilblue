@@ -58,7 +58,7 @@ module.exports = function EditSiteActionModule(pb) {
                 data.displayName = self.body.displayName;
                 data.hostname = self.body.hostname;
                 var jobId = siteService.editSite(data);
-                var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Site Updated', jobId);
+                var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('UPDATING_SITE'), jobId);
                 cb({content: content});
             });
         });

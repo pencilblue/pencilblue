@@ -13,7 +13,6 @@
                     }
 
                     $scope.saving = true;
-                    $scope.actionPlugin = $scope.displayName;
                     $scope.actionProgress = '0';
                     $scope.consoleOutput = '';
                     angular.element('#progress_modal').modal();
@@ -23,8 +22,6 @@
                                 hostname: $scope.hostname
                             })
                             .success(function(result) {
-                                $scope.successMessage = result.message;
-                                $scope.saving = false;
                                 $scope.onCreateOrEditComplete(result);
                             })
                             .error(function(error, status) {
@@ -35,7 +32,6 @@
 
                 $scope.newSite = function() {
                     $scope.saving = true;
-                    $scope.actionPlugin = $scope.displayName;
                     $scope.actionProgress = '0';
                     $scope.consoleOutput = '';
                     angular.element('#progress_modal').modal();
@@ -45,8 +41,6 @@
                                 hostname: $scope.hostname
                             })
                             .success(function(result) {
-                                $scope.successMessage = result.message;
-                                $scope.saving = false;
                                 $scope.onCreateOrEditComplete(result);
                             })
                             .error(function(error, status) {
@@ -55,16 +49,8 @@
                             });
                 };
 
-                $scope.jobAction = function(actionType, identifier, data, cb) {
-                    $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
-                            .success(function(result) {
-                                cb(result);
-                            })
-                            .error(function(error, status) {
-                                $scope.onActionFailure(error);
-                            });
-                };
                 $scope.onCreateOrEditComplete = function(result) {
+                    $scope.actionPlugin = {name: result.message};
                     var jobId = result.data;
                     //poll for logs
                     var logHandle = null;
@@ -124,9 +110,19 @@
                     doJobRetrieve();
                 };
 
+                $scope.jobAction = function(actionType, identifier, data, cb) {
+                    $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
+                            .success(function(result) {
+                                cb(result);
+                            })
+                            .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
                 $scope.onActionSuccess = function() {
                     $scope.actionIsComplete = true;
-                    $scope.refreshPage();
+                    $window.location.href = '/admin/sites';
                 }
 
                 $scope.onActionFailure = function(error) {
