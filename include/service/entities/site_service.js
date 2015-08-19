@@ -307,7 +307,7 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.createSite = function(options, cb) {
         cb = cb || util.cb;
         options.active = false;
-        options.uid = pb.util.uniqueId();
+        options.uid = util.uniqueId();
         return this.editSite(options, cb);
     };
 
