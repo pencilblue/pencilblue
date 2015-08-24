@@ -3,42 +3,42 @@
 var async = require('async');
 var util  = require('../../../util.js');
 
-module.exports = function SiteActivateJobModule(pb) {
+module.exports = function SiteCreateEditJobModule(pb) {
 
     /**
-     * Job to activate a site in the database to start accepting traffic.
-     * @class SiteActivateJob
-     * @constructor
+     * Job to create/edit a site.
+     * @constructor SiteCreateEditJob
      * @extends SiteJobRunner
      */
-    function SiteActivateJob(){
-        SiteActivateJob.super_.call(this);
+    function SiteCreateEditJob(){
+        SiteCreateEditJob.super_.call(this);
 
         //initialize
         this.init();
         this.setParallelLimit(1);
-    }
-    util.inherits(SiteActivateJob, pb.SiteJobRunner);
+    };
+    util.inherits(SiteCreateEditJob, pb.SiteJobRunner);
 
     /**
-     * Get tasks to activate sites across clusters.
+     * Get tasks to create/edit a site.
      * @method getInitiatorTasks
      * @override
      * @param {Function} cb - callback function
      */
-    SiteActivateJob.prototype.getInitiatorTasks = function(cb) {
+    SiteCreateEditJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
-        //progress function
+
         var jobId = self.getId();
         var site = self.getSite();
 
-        var activateCommand = {
+        var createEditCommand = {
             jobId: jobId,
-            site: site.uid
+            site: site
         };
 
+        //progress function
         var tasks = [
-            //activate site in mongo
+            //create/edit site in mongo
             function(callback) {
                 self.doPersistenceTasks(function(err, results) {
                     self.onUpdate(100 / tasks.length);
@@ -49,67 +49,72 @@ module.exports = function SiteActivateJobModule(pb) {
                 });
             },
 
-            //add site to request handler site collection across cluster
-            self.createCommandTask('activate_site', activateCommand)
+            //remove site to request handler site collection across cluster
+            self.createCommandTask('create_edit_site', createEditCommand)
         ];
         cb(null, tasks);
     };
 
     /**
-     * Get tasks to activate user facing, non-admin routes for the site.
+     * Get task to stop accepting traffic for the site.
      * @method getWorkerTasks
      * @override
-     * @param {Function} cb - callback function
+     * @param {Function} cb - callback
      */
-    SiteActivateJob.prototype.getWorkerTasks = function(cb) {
+    SiteCreateEditJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
         var site = this.getSite();
         var tasks = [
 
             //allow traffic to start routing for site
             function(callback) {
-                self.siteService.startAcceptingSiteTraffic(site.uid, callback);
+                self.siteService.stopAcceptingSiteTraffic(site, callback);
             }
         ];
         cb(null, tasks);
     };
 
     /**
-     * Set sites active in the database and activate the site in the RequestHandler.
+     * Update site to active as false in database to create/edit.
      * @method doPersistenceTasks
-     * @param {Function} cb - callback function
+     * @param {Function} cb - callback
      */
-    SiteActivateJob.prototype.doPersistenceTasks = function(cb) {
-        var site   = this.getSite();
+    SiteCreateEditJob.prototype.doPersistenceTasks = function(cb) {
+        var self = this;
+
+        var mySite      = this.getSite();
         var tasks     = [
             //set site to active in mongo
             function(callback) {
                 var dao = new pb.DAO();
-                dao.loadByValue('uid', site.uid, 'site', function(err, site) {
-                    if (util.isError(err)) {
+                dao.loadByValue('uid', mySite.uid, 'site', function(err, site) {
+                    if(util.isError(err)) {
                         return callback(err, null);
                     }
+
                     if (!site) {
-                        return callback(new Error('Site not found'), null);
+                        site = pb.DocumentCreator.create('site', mySite);
                     }
 
-                    site.active = true;
+                    site.hostname = mySite.hostname || site.hostname;
+                    site.displayName = mySite.displayName || site.displayName;
+
                     dao.save(site, function(err, result) {
                         if(util.isError(err)) {
                             return cb(err, null);
                         }
 
-                        pb.RequestHandler.activateSite(site);
+                        pb.RequestHandler.loadSite(site);
                         callback(err, result);
                     });
                 });
             }
         ];
-        async.series(tasks, function(err/*, results*/) {
+        async.series(tasks, function(err, results) {
             cb(err, !util.isError(err));
         });
     };
 
     //exports
-    return SiteActivateJob;
+    return SiteCreateEditJob;
 };
