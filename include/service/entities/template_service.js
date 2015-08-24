@@ -618,12 +618,14 @@ module.exports = function(pb) {
             }
             return self.registerLocal(flag, value);
         };
-                                      
+                           
+        //process the queue until it is empty
         var completedResult = true;
         while (queue.length > 0 && completedResult) {
             var item = queue.shift();
-            register(item.prefix, item.key, item.value);
+            completedResult &= register(item.prefix, item.key, item.value);
         };
+        return completedResult;
     };
 
     /**
