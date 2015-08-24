@@ -68,7 +68,8 @@ module.exports = function SiteCreateEditJobModule(pb) {
 
             //allow traffic to start routing for site
             function(callback) {
-                self.siteService.stopAcceptingSiteTraffic(site, callback);
+                pb.RequestHandler.loadSite(site);
+                callback();
             }
         ];
         cb(null, tasks);

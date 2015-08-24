@@ -478,8 +478,8 @@ module.exports = function SiteServiceModule(pb) {
      */
     SiteService.init = function() {
         var commandService = pb.CommandService.getInstance();
-        commandService.registerForType('deactivate_site', SiteService.onActivateSiteCommandReceived);
-        commandService.registerForType('activate_site'  , SiteService.onDeactivateSiteCommandReceived);
+        commandService.registerForType('activate_site', SiteService.onActivateSiteCommandReceived);
+        commandService.registerForType('deactivate_site'  , SiteService.onDeactivateSiteCommandReceived);
         commandService.registerForType('create_edit_site', SiteService.onCreateEditSiteCommandReceived);
     };
 
