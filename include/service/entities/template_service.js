@@ -118,7 +118,16 @@ module.exports = function(pb) {
          */
         this.unregisteredFlagHandler = null;
 
+        /**
+         * @property siteUid
+         * @type {String}
+         */
         this.siteUid = pb.SiteService.getCurrentSite(opts.site);
+        
+        /**
+         * @property settingService
+         * @type {SettingService}
+         */
         this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid);
 
         /**
@@ -301,7 +310,7 @@ module.exports = function(pb) {
 
             var activePlugins = self.pluginService.getActivePluginNames();
             for (var i = 0; i < activePlugins.length; i++) {
-                if (hintedTheme !== activePlugins[i] && 'pencilblue' !== activePlugins[i]) {
+                if (hintedTheme !== activePlugins[i] && pb.config.plugins.default !== activePlugins[i]) {
                     paths.push(TemplateService.getCustomPath(activePlugins[i], relativePath));
                 }
             }
@@ -555,6 +564,69 @@ module.exports = function(pb) {
         this.localCallbacks[flag] = callbackFunctionOrValue;
         return true;
     };
+    
+    /**
+     * Registers a model with the template service.  It processes each 
+     * key/value pair in the object and creates a dot notated string 
+     * registration.  For the object { key: 'value' } with a model name of 
+     * "item" would result in 1 local value registration in which the key would 
+     * be "item.key".  If no model name existed the registered key would be: 
+     * "key". The algorithm fails fast.  On the first bad registeration the 
+     * algorithm stops registering keys and returns.  Additionally, if a bad 
+     * model object is pass an Error object is thrown.
+     * @method registerModel
+     * @param {Object} model The model is inspect
+     * @param {String} [modelName] The optional name of the model.  The name 
+     * will prefix all of the model's keys.
+     * @returns {Boolean} TRUE when all keys were successfully registered. 
+     * FALSE if a single items fails to register.
+     */
+    TemplateService.prototype.registerModel = function(model, modelName) {
+        if (!util.isObject(model)) {
+            throw new Error('The model parameter is required');
+        }
+        if (!util.isString(modelName)) {
+            modelName = '';
+        }
+        
+        //load up the first set of items
+        var queue = [];
+        util.forEach(model, function(val, key) {
+            queue.push({
+                key: key,
+                prefix: modelName,
+                value: val
+            });
+        });
+        
+        //create the processing function
+        var self = this;
+        var register = function(prefix, key, value) {
+            
+            var flag = (prefix ? prefix + '.' : prefix) + key;
+            if (util.isObject(value) && !(value instanceof TemplateValue)) {
+                
+                var result = true;
+                util.forEach(value, function(value, key) {
+                    queue.push({
+                        key: key,
+                        prefix: flag, 
+                        value: value
+                    });
+                });
+                return true;
+            }
+            return self.registerLocal(flag, value);
+        };
+                           
+        //process the queue until it is empty
+        var completedResult = true;
+        while (queue.length > 0 && completedResult) {
+            var item = queue.shift();
+            completedResult &= register(item.prefix, item.key, item.value);
+        };
+        return completedResult;
+    };
 
     /**
      * Retrieves the content template names and locations for the active theme.
@@ -573,13 +645,13 @@ module.exports = function(pb) {
 
             //function to retrieve plugin
             var getPlugin = function(uid, callback) {
-                if (uid === 'pencilblue') {
+                if (uid === pb.config.plugins.default) {
 
                     //load pencilblue plugin
-                    var file = pb.PluginService.getDetailsPath('pencilblue');
+                    var file = pb.PluginService.getDetailsPath(pb.config.plugins.default);
                     pb.PluginService.loadDetailsFile(file, function(err, pb) {
                         if (pb) {
-                            pb.dirName = 'pencilblue';
+                            pb.dirName = pb.config.plugins.default;
                         }
                         callback(err, pb);
                     });
@@ -650,7 +722,7 @@ module.exports = function(pb) {
         var templates = pb.PluginService.getActiveContentTemplates(site);
         templates.push(
             {
-                theme_uid: 'pencilblue',
+                theme_uid: pb.config.plugins.default,
                 theme_name: 'PencilBlue',
                 name: "Default",
                 file: "index"
@@ -685,7 +757,7 @@ module.exports = function(pb) {
      * @return {string} The absolute path
      */
     TemplateService.getDefaultPath = function(templateLocation){
-        return path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'templates', templateLocation + '.html');
+        return path.join(pb.config.docRoot, 'plugins', pb.config.plugins.default, 'templates', templateLocation + '.html');
     };
 
     /**

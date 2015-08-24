@@ -46,10 +46,10 @@ module.exports = function(pb) {
                     throw err;
                 }
 
-                //add default pencil blue theme
+                //add default theme
                 var options = util.copyArray(themes);
                 options.push({
-                    uid: 'pencilblue',
+                    uid: pb.config.plugins.default,
                     name: 'PencilBlue'
 
                 });

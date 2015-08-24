@@ -213,8 +213,8 @@ module.exports = function PluginUninstallJobModule(pb) {
 
                     //check if we need to reset the active theme
                     if (activeTheme === pluginUid) {
-                        self.log('Uninstalling the active theme.  Switching to pencilblue');
-                        settings.set('active_theme', 'pencilblue', function(err, result) {
+                        self.log('Uninstalling the active theme.  Switching to:' + pb.config.plugins.default);
+                        settings.set('active_theme', pb.config.plugins.default, function(err, result) {
                             callback(err, result ? true : false);
                         });
                     }
