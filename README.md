@@ -24,6 +24,8 @@ The first open source content management system to meet all the needs of a moder
 Installation
 -----
 
+[![LAUNCH ON OpenShift](http://launch-shifter.rhcloud.com/launch/LAUNCH ON.svg)](https://hub.openshift.com/quickstarts/deploy/159-pencilblue)
+
 The instructions below assume that Node.js and MongoDB are installed on your machine. If they are not then please visit http://nodejs.org and http://www.mongodb.org to install them.
 
 ##### PencilBlue Command-line interface
@@ -60,6 +62,7 @@ When submitting an issue or request for help please provide the following inform
 1. Step by step instructions to reproduce
 2. Configuration overrides (minus any credentials)
 3. Environment details: Linux, windows, hosting provider, local, etc.
+4. Log output. Set your logging.level configuration property to "silly".
 
 **Submitting a Pull Request:**
 
