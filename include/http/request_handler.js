@@ -66,7 +66,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @property DEFAULT_THEME
      * @type {String}
      */
-    RequestHandler.DEFAULT_THEME = 'pencilblue';
+    RequestHandler.DEFAULT_THEME = pb.config.plugins.default;
 
     /**
      * The internal storage of routes after they are validated and processed.

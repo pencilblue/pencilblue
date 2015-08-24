@@ -248,7 +248,12 @@ Configuration.getBaseConfig = function(multisite) {
                 //in memory before being flushed.  A value of 0 indicates that the
                 //values will not be purged from memory once expired.
                 memory_timeout: 0
-            }
+            },
+            
+            //The default plugin.  Allows for the default plugin to be 
+            //referenced from a single location.  The property can be overriden 
+            //but may have unexpected behavior.
+            default: 'pencilblue'
         },
 
         //PB provides a process registry.  It utilizes the cache to register

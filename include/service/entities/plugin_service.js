@@ -800,7 +800,7 @@ module.exports = function PluginServiceModule(pb) {
                     //skip pencilblue
                     var parts   = directories[i].split(path.sep);
                     var dirName = parts[parts.length - 1];
-                    if (dirName === 'pencilblue') {
+                    if (dirName === pb.config.plugins.default) {
                         callback(null, true);
                         return;
                     }
