@@ -34,7 +34,7 @@ module.exports = function SiteActivateJobModule(pb) {
 
         var activateCommand = {
             jobId: jobId,
-            site: site.uid
+            site: site
         };
 
         var tasks = [

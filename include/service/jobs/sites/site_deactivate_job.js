@@ -29,7 +29,12 @@ module.exports = function SiteDeactivateJobModule(pb) {
     SiteDeactivateJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
 
-        var activateCommand = {};
+        var jobId = self.getId();
+        var site = self.getSite();
+        var deactivateCommand = {
+            jobId: jobId,
+            site: site
+        };
 
         //progress function
         var tasks = [
@@ -45,7 +50,7 @@ module.exports = function SiteDeactivateJobModule(pb) {
             },
 
             //remove site to request handler site collection across cluster
-            self.createCommandTask('deactivate_site', activateCommand)
+            self.createCommandTask('deactivate_site', deactivateCommand)
         ];
         cb(null, tasks);
     };
