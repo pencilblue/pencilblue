@@ -20,6 +20,7 @@ var async = require('async');
 var util  = require('../../../util.js');
 
 module.exports = function PluginInstallJobModule(pb) {
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * A system job that coordinates the uninstall of a plugin across the cluster.
@@ -38,9 +39,16 @@ module.exports = function PluginInstallJobModule(pb) {
      * @constructor
      * @extends PluginJobRunner
      */
-    function PluginInstallJob(){
+    function PluginInstallJob(options){
+        if(options){
+          this.site = options.site || pb.SiteService.GLOBAL_SITE;
+        } else {
+            this.site = pb.SiteService.GLOBAL_SITE;
+        }
+
         PluginInstallJob.super_.call(this);
 
+       this.pluginService = new pb.PluginService(this.site);
         //initialize
         this.init();
         this.setParallelLimit(1);
@@ -59,13 +67,14 @@ module.exports = function PluginInstallJobModule(pb) {
         //progress function
         var jobId     = self.getId();
         var pluginUid = self.getPluginUid();
+        var site      = self.getSite();
         var tasks = [
 
             //verify that the plugin is not already installed
             function(callback) {
                 self.log("Verifying that plugin %s is not already installed", pluginUid);
 
-                pb.plugins.isInstalled(pluginUid, function(err, isInstalled){
+                self.pluginService.isInstalled(pluginUid, function(err, isInstalled){
                     if (util.isError(err)) {
                         callback(err, !isInstalled);
                     }
@@ -84,19 +93,8 @@ module.exports = function PluginInstallJobModule(pb) {
                 job.setRunAsInitiator(true)
                 .init(name, jobId)
                 .setPluginUid(pluginUid)
-                .setChunkOfWorkPercentage(1/3)
-                .run(callback);
-            },
-
-            //install dependencies across cluster
-            function(callback) {
-
-                var name = util.format("INSTALL_DEPENDENCIES_%s", pluginUid);
-                var job  = new pb.PluginDependenciesJob();
-                job.setRunAsInitiator(true)
-                .init(name, jobId)
-                .setPluginUid(pluginUid)
-                .setChunkOfWorkPercentage(1/3)
+                .setSite(site)
+                .setChunkOfWorkPercentage(1/2)
                 .run(callback);
             },
 
@@ -119,7 +117,8 @@ module.exports = function PluginInstallJobModule(pb) {
                 job.setRunAsInitiator(true)
                 .init(name, jobId)
                 .setPluginUid(pluginUid)
-                .setChunkOfWorkPercentage(1/3)
+                .setSite(site)
+                .setChunkOfWorkPercentage(1/2)
                 .run(callback);
             }
         ];
@@ -144,6 +143,7 @@ module.exports = function PluginInstallJobModule(pb) {
         var self = this;
 
         var pluginUid = this.getPluginUid();
+        var site      = this.getSite();
         var details   = null;
         var tasks     = [
 
@@ -166,13 +166,14 @@ module.exports = function PluginInstallJobModule(pb) {
                  clone.dirName = pluginUid;
 
                  var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
+                 pluginDescriptor.site = site || GLOBAL_SITE;
                  self.dao.save(pluginDescriptor, callback);
              },
 
              //load plugin settings
              function(callback) {
                  self.log("Adding settings for %s", details.uid);
-                 pb.plugins.resetSettings(details, callback);
+                 self.pluginService.resetSettings(details, callback);
              },
 
              //load theme settings
@@ -180,7 +181,7 @@ module.exports = function PluginInstallJobModule(pb) {
                  if (details.theme && details.theme.settings) {
                      self.log("Adding theme settings for %s", details.uid);
 
-                     pb.plugins.resetThemeSettings(details, callback);
+                     self.pluginService.resetThemeSettings(details, callback);
                  }
                  else {
                      callback(null, true);

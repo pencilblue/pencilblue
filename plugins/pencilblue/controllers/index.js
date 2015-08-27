@@ -29,9 +29,22 @@ module.exports = function IndexModule(pb) {
 
     /**
      * Index page of the pencilblue theme
+     * @deprecated Since 0.4.1
+     * @class Index
+     * @constructor
+     * @extends BaseController
      */
     function Index(){}
     util.inherits(Index, pb.BaseController);
+
+    Index.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
+            cb();
+        });
+    };
 
     Index.prototype.render = function(cb) {
         var self = this;
@@ -42,17 +55,17 @@ module.exports = function IndexModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService({site: self.site, onlyThisSite: true});
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
                 
-                var articleService = new pb.ArticleService();
+                var articleService = new pb.ArticleService(self.site, true);
                 articleService.getMetaInfo(data.content[0], function(err, meta) {
                     self.ts.registerLocal('meta_keywords', meta.keywords);
                     self.ts.registerLocal('meta_desc', data.section.description || meta.description);
                     self.ts.registerLocal('meta_title', data.section.name || meta.title);
                     self.ts.registerLocal('meta_thumbnail', meta.thumbnail);
-                    self.ts.registerLocal('meta_lang', localizationLanguage);
+                    self.ts.registerLocal('meta_lang', pb.config.localization.defaultLocale);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
                     self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));
@@ -168,7 +181,7 @@ module.exports = function IndexModule(pb) {
         //the theme is specified, we ensure that the theme is installed and
         //initialized otherwise we let the template service figure out how to
         //delegate.
-        if (!pb.PluginService.isActivePlugin(pieces[0])) {
+        if (!pb.PluginService.isActivePlugin(pieces[0], this.site)) {
             pb.log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
             cb(null, pieces[1]);
             return;
@@ -221,8 +234,11 @@ module.exports = function IndexModule(pb) {
         var topic   = this.req.pencilblue_topic   || null;
         var article = this.req.pencilblue_article || null;
         var page    = this.req.pencilblue_page    || null;
+        
+        //get service context
+        var opts = this.getServiceContext();
 
-        var service = new ArticleService();
+        var service = new ArticleService(this.site, true);
         if(this.req.pencilblue_preview) {
             if(this.req.pencilblue_preview == page || article) {
                 if(page) {
@@ -231,10 +247,10 @@ module.exports = function IndexModule(pb) {
                 var where = pb.DAO.getIdWhere(page || article);
                 where.draft = {$exists: true};
                 where.publish_date = {$exists: true};
-                service.find(where, articleCallback);
+                service.find(where, opts, articleCallback);
             }
             else {
-                service.find({}, articleCallback);
+                service.find({}, opts, articleCallback);
             }
         }
         else if(section) {
@@ -251,7 +267,7 @@ module.exports = function IndexModule(pb) {
             service.findById(page, articleCallback);
         }
         else{
-            service.find({}, articleCallback);
+            service.find({}, opts, articleCallback);
         }
     };
 
@@ -261,7 +277,9 @@ module.exports = function IndexModule(pb) {
         var isPage           = content.object_type === 'page';
         var showByLine       = contentSettings.display_bylines && !isPage;
         var showTimestamp    = contentSettings.display_timestamp && !isPage;
-        var ats              = new pb.TemplateService(this.ls);
+        
+        
+        var ats              = this.ts.getChildInstance();
         var contentUrlPrefix = isPage ? '/page/' : '/article/';
         self.ts.reprocess = false;
         ats.registerLocal('article_permalink', pb.UrlService.urlJoin(pb.config.siteRoot, contentUrlPrefix, content.url));
@@ -340,7 +358,7 @@ module.exports = function IndexModule(pb) {
 
     Index.prototype.renderComment = function(comment, cb) {
 
-        var cts = new pb.TemplateService(this.ls);
+        var cts = this.ts.getChildInstance();
         cts.reprocess = false;
         cts.registerLocal('commenter_photo', comment.commenter_photo ? comment.commenter_photo : '');
         cts.registerLocal('display_photo', comment.commenter_photo ? 'block' : 'none');
@@ -380,12 +398,19 @@ module.exports = function IndexModule(pb) {
 
     Index.prototype.getNavigation = function(cb) {
         var options = {
-            currUrl: this.req.url
+            currUrl: this.req.url,
+            site: this.site,
+            session: this.session,
+            ls: this.ls,
+            activeTheme: this.activeTheme
         };
-        TopMenu.getTopMenu(this.session, this.ls, options, function(themeSettings, navigation, accountButtons) {
-            TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
-                cb(themeSettings, navigation, accountButtons);
-            });
+        
+        var menuService = new pb.TopMenuService();
+        menuService.getNavItems(options, function(err, navItems) {
+            if (util.isError(err)) {
+                pb.log.error('Index: %s', err.stack);
+            }
+            cb(navItems.themeSettings, navItems.navigation, navItems.accountButtons);
         });
     };
 

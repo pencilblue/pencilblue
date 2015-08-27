@@ -15,52 +15,61 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = function SectionModule(pb) {
+module.exports = function(pb) {
     
     //pb dependencies
-    var util  = pb.util;
+    var util = pb.util;
 
     /**
      * Loads a section
+     * @class SectionViewController
+     * @constructor
+     * @extends BaseController
      */
-    function Section(){}
-    util.inherits(Section, pb.BaseController);
+    function SectionViewController(){}
+    util.inherits(SectionViewController, pb.BaseController);
 
-
-    Section.prototype.init = function(context, cb) {
+    /**
+     * @method init
+     * @param {Object} content
+     * @param {Function} cb
+     */
+    SectionViewController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
             //get content settings
-            var contentService = new pb.ContentService();
+            var serviceContext = self.getServiceContext();
+            var contentService = new pb.ContentService({site: self.site, onlyThisSite: serviceContext.onlyThisSite});
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
-                
                 //create the service
                 self.contentSettings = contentSettings;
-                self.service         = new pb.ArticleServiceV2();
+                var asContext = self.getServiceContext();
+                asContext.contentSettings = contentSettings;
+                self.service = new pb.ArticleServiceV2(asContext);
                 
                 //create the loader context
-                var context = {
-                    service: self.service,
-                    session: self.session,
-                    req: self.req,
-                    ts: self.ts,
-                    ls: self.ls,
-                    contentSettings: contentSettings
-                };
-                self.contentViewLoader = new pb.ContentViewLoader(context);
-                self.dao     = new pb.DAO();
+                var cvlContext             = self.getServiceContext();
+                cvlContext.contentSettings = contentSettings;
+                cvlContext.service         = self.service;
+                self.contentViewLoader     = new pb.ContentViewLoader(cvlContext);
+                
+                //provide a dao
+                self.dao                   = new pb.DAO();
                 
                 cb(null, true);
             });
         };
-        Section.super_.prototype.init.apply(this, [context, init]);
+        SectionViewController.super_.prototype.init.apply(this, [context, init]);
     };
     
-    Section.prototype.render = function(cb) {
+    /**
+     * @method render
+     * @param {Function} cb
+     */
+    SectionViewController.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
         
@@ -88,9 +97,16 @@ module.exports = function SectionModule(pb) {
         });
     };
     
-    Section.prototype.getContent = function(custUrl, cb) {
+    /**
+     * Retrieves the content to be displayed and rendered
+     * @method getContent
+     * @param {String} custUrl The URL slug of the section
+     * @param {Function} cb
+     */
+    SectionViewController.prototype.getContent = function(custUrl, cb) {
         var self = this;
             
+        //lookup by URL
         self.dao.loadByValue('url', custUrl, 'section', function(err, section) {
             if (util.isError(err) || section == null) {
                 return cb(null, null);
@@ -102,7 +118,7 @@ module.exports = function SectionModule(pb) {
                 limit: self.contentSettings.articles_per_page || 5,
                 order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}]
             };
-            pb.ArticleServiceV2.setPublishedClause(opts.where);
+            pb.ContentObjectService.setPublishedClause(opts.where);
             self.service.getBySection(section, opts, function(err, content) {
                 var result = {
                     section: section,
@@ -114,5 +130,5 @@ module.exports = function SectionModule(pb) {
     };
 
     //exports
-    return Section;
+    return SectionViewController;
 };

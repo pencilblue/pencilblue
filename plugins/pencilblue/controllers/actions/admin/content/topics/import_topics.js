@@ -31,7 +31,7 @@ module.exports = function(pb) {
      * @constructor
      */
     function ImportTopics(){}
-    util.inherits(ImportTopics, pb.BaseController);
+    util.inherits(ImportTopics, pb.BaseAdminController);
 
     ImportTopics.prototype.render = function(cb) {
         var self  = this;
@@ -65,20 +65,18 @@ module.exports = function(pb) {
     };
 
     ImportTopics.prototype.saveTopics = function(topics, cb) {
-        var content = {completed: false};
-
+        var self = this;
         //create tasks
-        var dao = new pb.DAO();
         var tasks = util.getTasks(topics, function(topicArry, index) {
             return function(callback) {
 
-                dao.count('topic', {name: topicArry[index].trim()}, function(err, count){
+                self.siteQueryService.count('topic', {name: topicArry[index].trim()}, function(err, count){
                     if (count > 0) {
                         return callback(null, true);
                     }
 
                     var topicDocument = pb.DocumentCreator.create('topic', {name: topicArry[index].trim()});
-                    dao.save(topicDocument, callback);
+                    self.siteQueryService.save(topicDocument, callback);
                 });
 
             };

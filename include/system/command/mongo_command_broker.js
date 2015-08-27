@@ -19,6 +19,7 @@
 var util    = require('../../util.js');
 var process = require('process');
 var domain  = require('domain');
+var async   = require('async');
 
 module.exports = function MongoCommandBrokerModule(pb) {
 
@@ -203,45 +204,16 @@ module.exports = function MongoCommandBrokerModule(pb) {
 
         //get a reference to the collection
         var self = this;
-        var db = pb.dbm[pb.config.db.name];
-        db.collection(COMMAND_Q_COLL, function(err, collection) {
+        var db = pb.dbm.getDb(function(err, db) {
             if (util.isError(err)) {
                 return cb(err);
             }
-
-            //execute a seed query
-            var latest = collection.find({}).sort({ $natural: -1 }).limit(1);
-
-            //pull off the 1st object as a no-op
-            latest.nextObject(function(err, doc) {
+            
+            db.collection(COMMAND_Q_COLL, function(err, collection) {
                 if (util.isError(err)) {
-                    pb.log.error('MongoCommandBroker: Error while waiting for the next command: %s', err.stack);
+                    return cb(err);
                 }
 
-                //build afunction that is capable of being called multiple times.  
-                //It executes the actual query with a trailing cursor.  As each new 
-                //document is generated it is pull off and handed off to a delegate 
-                //for processing
-                var loop = function() {
-                    var query = { created: { $gt: new Date() }};
-
-                    var options = { tailable: true, awaitdata: true, numberOfRetries: -1 };
-                    var cursor = collection.find(query, options).sort({ $natural: 1 });
-
-                    (function next() {
-                        cursor.nextObject(function(err, command) {
-                            if (util.isError(err)) {
-                                throw err;
-                            }
-
-                            if (command) {
-                                self.onCommandReceived(command.channel, command);
-                            }
-
-                            process.nextTick(next);
-                        });
-                    })();
-                };
 
                 //wrap it all up in a container so we can mitigate the crises that 
                 //will inevitably ensue from dropped or timed out cursor connections.  
@@ -261,13 +233,92 @@ module.exports = function MongoCommandBrokerModule(pb) {
                     loop();
                 });
                 d.run(function() {
-                    process.nextTick(loop);
+                    //process.nextTick(loop);
+                    self.listen(null, collection);
                 });
 
                 SUBSCRIBERS[channel] = onCommandReceived;
                 cb(null, true);
             });
         });
+    };
+    
+    MongoCommandBroker.prototype.listen = function(latest, collection) {
+        var self = this;
+        
+        this.latest(latest, collection, function(err, latest) {
+//            if (util.isError(err)) {
+//                pb.log.error('MongoBroker: %s', err.stack);
+//                throw err;
+//            }
+            
+            self._listen(latest, collection);
+        });
+    };
+    
+    MongoCommandBroker.prototype.latest = function(latest, collection, cb) {
+
+        
+        collection.find(latest ? { created: {$gt: new Date() }} : null)
+        .sort({ $natural: -1 })
+        .limit(1)
+        .nextObject(function (err, doc) {
+            if (err || doc) {
+                return cb(err, doc);
+            }
+
+            collection.insert({ dummy: true, created: new Date() }, { dummy: true, created: new Date() }, function (err, docs) {
+                cb(err, docs[0]);
+            });
+        });
+    };
+                        
+    MongoCommandBroker.prototype._listen = function(latest, collection) {
+        var self = this;
+        
+        //enter listen loop
+        async.whilst(
+            function() { return true; },
+            getListener(collection, self, latest),
+            function(err) {
+                if (util.isError(err)) {
+                    pb.log.error('MongoCommandBroker: %s\n%s', err.message, err.stack);
+                }
+                process.nextTick(function() {
+                    self.listen(latest, collection);
+                });
+            }
+        );
+    };
+    
+    function getListener(collection, instance, latest) {
+        return function(callback) {
+            
+            var query = { created: { $gte: new Date() }};
+            var options = { tailable: true, awaitdata: true, numberOfRetries: Number.MAX_VALUE, tailableRetryInterval: 200 };
+            var cursor = collection.find(query, options);
+            
+            var next = function() {
+                
+                cursor.nextObject(function(err, command) {
+                    if (util.isError(err) || cursor.isClosed() || !util.isObject(command)) {
+                        return callback(err);
+                    }
+                    else if (!command.dummy) {
+                        //dispatch command
+                        instance.onCommandReceived(command.channel, command);
+                    }
+                    else {
+                        /* no op */
+                    }
+                    
+                    //trigger wait for next object
+                    process.nextTick(next);
+                });
+            };
+            
+            process.nextTick(next);
+        };
     };
 
     //exports

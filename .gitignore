@@ -5,6 +5,7 @@ public/media/
 public/docs/
 public/bower_components/
 log/
+coverage/
 out
 plugins/*
 !plugins/pencilblue
@@ -19,7 +20,10 @@ plugins/*
 !plugins/wp_import/**
 **/node_modules
 **/node_modules/**
-config.js
 config.json
 **/.DS_Store
 **/dump.rdb
+
+config.js
+
+npm-debug.log

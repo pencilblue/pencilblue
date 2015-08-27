@@ -63,11 +63,21 @@ module.exports = function InstagramMediaRendererModule(pb) {
             height: "475px"
         }
     });
+    
+    /**
+     * Retrieves the supported extension types for the renderer.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array}
+     */
+    InstagramMediaRenderer.getSupportedExtensions = function() {
+        return [];
+    };
 
     /**
      * Retrieves the style for the specified type of view
      * @static
-     * @meethod getStyle
+     * @method getStyle
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */

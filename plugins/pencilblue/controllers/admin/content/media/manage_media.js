@@ -24,14 +24,13 @@ module.exports = function(pb) {
      * Interface for managing media
      */
     function ManageMedia(){}
-    util.inherits(ManageMedia, pb.BaseController);
+    util.inherits(ManageMedia, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_media';
 
     ManageMedia.prototype.render = function(cb) {
         var self = this;
-
         var options = {
             select: {
                 name: 1,
@@ -43,26 +42,43 @@ module.exports = function(pb) {
             order: {created: pb.DAO.DESC},
             format_media: true
         };
-        var mservice = new pb.MediaService();
-        mservice.get(options, function(err, mediaData) {
+        var mediaService = new pb.MediaService(null, self.site, true);
+        mediaService.get(options, function(err, mediaData) {
             if(util.isError(mediaData) || mediaData.length === 0) {
                 self.redirect('/admin/content/media/new', cb);
                 return;
             }
 
-            var angularObjects = pb.ClientJs.getAngularObjects(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_media'),
-                media: pb.MediaService.formatMedia(mediaData)
+            self.getAngularObjects(mediaData, function(angularObjects) {
+                var title = self.ls.get('MANAGE_MEDIA');
+                self.setPageName(title);
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/media/manage_media', function(err, result) {
+                    cb({content: result});
+                });
             });
+        });
+    };
 
-            var title = self.ls.get('MANAGE_MEDIA');
-            self.setPageName(title);
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/content/media/manage_media', function(err, result) {
-               cb({content: result});
-            });
+    ManageMedia.prototype.getAngularObjects = function(mediaData, cb) {
+        var self = this;
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: self.site}, function(err, pills) {
+            var angularObjects = pb.ClientJs.getAngularObjects(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site),
+                    pills: [],
+                    media: pb.MediaService.formatMedia(mediaData)
+                });
+            //Log error. Don't return
+            if (util.isError(err)){
+                pb.log.error("ManageMedia: AdminSubnavService.getWithSite callback error. ERROR[%s]", err.stack);
+            }
+            //Only populate pills if we didn't fail
+            else {
+                angularObjects.pills = pills;
+            }
+            //TODO: err first arg for style. User experience error when no pills?
+            cb(angularObjects);
         });
     };
 

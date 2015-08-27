@@ -2,7 +2,8 @@ var loc =
 {
     generic:
     {
-        PENCILBLUE: 'pencilblue',
+        LOCALE_DISPLAY: 'Español (España)',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Todos los derechos reservados',
         NONE: 'Ninguno',
         LEFT: 'Izquierda',
@@ -169,13 +170,11 @@ var loc =
         ERROR_SETTING_SYS_INITIALIZED: 'Ocurrió un error al intentar establecer la configuración de inicialización del sistema',
         ERROR_SETTING_CALLHOME: 'Ocurrió un error al intentar establecer la configuración de reportes del sistema'
     },
-    error:
-    {
+    error: {
     	ERROR: 'Error',
         PAGE_NOT_FOUND: 'La página no puede ser encontrada'
     },
-    timestamp:
-    {
+    timestamp: {
         JAN: 'Enero',
         FEB: 'Febrero',
         MAR: 'Marzo',
@@ -191,20 +190,17 @@ var loc =
         TIME_AM: 'AM',
         TIME_PM: 'PM'
     },
-    setup:
-    {
+    setup: {
         REGISTER_ADMIN: 'Registra la primera cuenta de administrado del site'
     },
-    login:
-    {
+    login: {
         ADMIN_LOGIN: 'Login de escritor, editor, administrador',
         USERNAME_OR_EMAIL: 'Nombre de usuario o dirección de correo',
         INVALID_LOGIN: 'Combinación nombre de usuario y contraseña incorrecta',
-        READY_TO_USE: 'La instalación de pencilblue está lista para ser usada',
+        READY_TO_USE: 'La instalación de PencilBlue está lista para ser usada',
         ACCOUNT_CREATED: 'Se ha creado tu cuenta exitosamente, ya puedes ingresar'
     },
-    admin:
-    {
+    admin: {
         DASHBOARD: 'Menú',
         CONTENT: 'Contenido',
         PAGES: 'Paginas',
@@ -247,8 +243,7 @@ var loc =
         URL_KEY: 'Clave de URL',
         FEED_UNAVAILABLE: 'No se pudo cargar las noticias.'
     },
-    topics:
-    {
+    topics: {
         MANAGE_TOPICS: 'Gestionar tópicos',
         NEW_TOPIC: 'Nuevo tópico',
         TOPIC_NAME: 'Nombre del tópico',
@@ -258,8 +253,7 @@ var loc =
         IMPORT_TOPICS_HELP: 'Here you can import a CSV file of topic names into PencilBlue. The file should contain no other information.',
         TOPICS_CSV_FILE: 'CSV file containing topic names',
     },
-    media:
-    {
+    media: {
         MANAGE_MEDIA: 'Gestionar multimedia',
         NEW_MEDIA: 'Nuevo multimedia',
         LINK_OR_UPLOAD: 'Enlazar o subir',
@@ -281,8 +275,7 @@ var loc =
         IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, o .svg',
         FILE_TOO_BIG: 'El archivo supera el límite permitido'
     },
-    pages:
-    {
+    pages: {
         MANAGE_PAGES: 'Gestionar páginas',
         NEW_PAGE: 'Nueva página',
         PAGE_URL: 'URL de página',
@@ -292,8 +285,7 @@ var loc =
         SUBHEADING: 'Subtítulo',
         PUBLISH_DATE: 'Fecha de publicación'
     },
-    articles:
-    {
+    articles: {
         MANAGE_ARTICLES: 'Gestionar artículos',
         NEW_ARTICLE: 'Nuevo artículo',
         ARTICLE_URL: 'URL de artículo',
@@ -313,6 +305,7 @@ var loc =
     wysiwyg: {
         NORMAL_TEXT: 'Texto normal',
         QUOTE: 'Cita',
+        PRE: 'Pre',
         HEADING_1: 'Encabezado 1',
         HEADING_2: 'Encabezado 2',
         HEADING_3: 'Encabezado 3',
@@ -346,15 +339,13 @@ var loc =
         MARKDOWN_VIEW: 'Vista Markdown',
         TOGGLE_FULLSCREEN: 'Cambiar pantalla completa'
     },
-    comments:
-    {
+    comments: {
         MANAGE_COMMENTS: 'Gestionar comentarios',
         CONFIRM_DELETE_COMMENT: 'Estás seguro que quieres eliminar este comentario por',
         COMMENTS_DISABLED: 'Comentarios desactivador',
         ENABLE_HERE: 'Habilítalos aquí'
     },
-    custom_objects:
-    {
+    custom_objects: {
         MANAGE_OBJECT_TYPES: 'Gestionar tipos de objeto',
         NEW_OBJECT_TYPE: 'Nuevo tipo de objeto',
         MANAGE_OBJECTS: 'Gestionar objetos',
@@ -377,8 +368,7 @@ var loc =
         DESCRIPTION: 'Descripciónn',
         INVALID_FIELD: 'Se ingresó un campo inválido. Asegúrate que no haya campos con nombre duplicados o sin tipo'
     },
-    users:
-    {
+    users: {
         MANAGE_USERS: 'Gestionar usuarios',
         UNVERIFIED_USERS: 'Usuarios sin verificar',
         NEW_USER: 'Nuevo usuario',
@@ -425,10 +415,10 @@ var loc =
         NO_PERMISSIONS: 'Ninguno de tus plugins instalados tienen establecidos permisos',
         CONFIRM_VERIFY: 'Estás seguro que deseas verificar',
         VERIFY: 'Verificar',
-        VERIFIED: 'Verificado'
+        VERIFIED: 'Verificado',
+        LOCALE_PREFERENCE: 'Preferencia Local'
     },
-    plugins:
-    {
+    plugins: {
         MANAGE_PLUGINS: 'Gestionar plugins',
         NO_ACTIVE_PLUGINS: 'No hay plugins activos',
         NO_INACTIVE_PLUGINS: 'No hay plugins inactivos',
@@ -440,12 +430,10 @@ var loc =
         ACTIVATING: 'Activando',
         ACTION_ERROR: 'Occurrió un error intentando completar la acción'
     },
-    themes:
-    {
+    themes: {
         MANAGE_THEMES: 'Gestionar temas'
     },
-    site_settings:
-    {
+    site_settings: {
         CONFIGURATION: 'Configuración',
         EDIT_CONFIGURATION: 'Para cambiar la configuración, crea un archivo config.json en el directorio raíz.',
         SITE_NAME: 'Nombre del sitio',

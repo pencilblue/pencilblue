@@ -19,17 +19,24 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
-    
+    var BaseAdminController = pb.BaseAdminController;
     /**
      * Edits a nav item
      */
     function EditNavItem(){}
-    util.inherits(EditNavItem, pb.BaseController);
+    util.inherits(EditNavItem, BaseAdminController);
+
+    EditNavItem.prototype.init = function (props, cb) {
+        var self = this;
+        BaseAdminController.prototype.init.call(self, props, function () {
+            self.sectionService = new pb.SectionService({site: self.site, onlyThisSite: true});
+            cb();
+        });
+    };
 
     EditNavItem.prototype.render = function(cb){
         var self = this;
         var vars = this.pathVars;
-        var dao = new pb.DAO();
 
         var message = this.hasRequiredParams(vars, ['id']);
         if (message) {
@@ -42,7 +49,7 @@ module.exports = function(pb) {
 
         this.getJSONPostParams(function(err, post) {
             //load object
-            dao.loadById(vars.id, 'section', function(err, navItem) {
+            self.siteQueryService.loadById(vars.id, 'section', function(err, navItem) {
                 if(util.isError(err) || !util.isObject(navItem)) {
                     cb({
                         code: 400,
@@ -63,8 +70,7 @@ module.exports = function(pb) {
                 pb.SectionService.trimForType(navItem);
 
                 //validate
-                var navService = new pb.SectionService();
-                navService.save(navItem, function(err, result) {
+                self.sectionService.save(navItem, function(err, result) {
                     if(util.isError(err)) {
                         cb({
                             code: 500,
@@ -89,13 +95,11 @@ module.exports = function(pb) {
     };
 
     EditNavItem.prototype.deleteOrphans = function(navItem, cb) {
-        var service = new pb.SectionService();
-        service.deleteChildren(navItem[pb.DAO.getIdField()], cb);
+        this.sectionService.deleteChildren(navItem[pb.DAO.getIdField()], cb);
     };
 
     EditNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {
-        var service = new pb.SectionService();
-        service.updateNavMap(navItem, cb);
+        this.sectionService.updateNavMap(navItem, cb);
     };
 
     EditNavItem.getHtmlErrorMsg = function(validationErrors) {

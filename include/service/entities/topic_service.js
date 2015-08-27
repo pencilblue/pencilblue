@@ -16,17 +16,28 @@
 */
 
 //dependencies
-var util              = require('../../util.js');
+var util = require('../../util.js');
 
 module.exports = function(pb) {
     
     //pb dependencies
     var BaseObjectService = pb.BaseObjectService;
     
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property TYPE
+     * @type {String}
+     */
     var TYPE = 'topic';
     
     /**
-     *
+     * Provides interactions with topics
+     * @class TopicService
+     * @extends BaseObjectService
+     * @constructor
+     * @param {Object} context
      */
     function TopicService(context) {
         if (!util.isObject(context)) {

@@ -2,7 +2,8 @@ var loc =
 {
     generic:
     {
-        PENCILBLUE: 'pencilblue',
+        LOCALE_DISPLAY: 'English (United States)',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'All rights reserved',
         NONE: 'None',
         LEFT: 'Left',
@@ -68,13 +69,16 @@ var loc =
     	INSTALLED_ON: 'Installed On',
 		VERSION: 'Version',
 		ACTIVE_PLUGINS: 'Active Plugins',
+        GLOBAL_PLUGINS: 'Global Active Plugins',
 		INACTIVE_PLUGINS: 'Inactive Plugins',
 		AVAILABLE_PLUGINS: 'Available Plugins',
 		RESET_SETTINGS: 'Reset Settings',
+        OVERRIDE: 'Override',
 		UNINSTALL: 'Uninstall',
 		INSTALL: 'Install',
 		ACTIVE_PLUGIN_DESCRIPTION: 'Plugins that you have already installed and started up successfully when the system started.',
 		INACTIVE_PLUGIN_DESCRIPTION: 'Plugins that are installed or partially installed but failed to start properly.',
+        GLOBAL_ACTIVE_DESCRIPTION: 'Plugins that are installed globally. Overriding will allow you to change the settings for this plugin on only this site.',
 		AVAILABLE_PLUGIN_DESCRIPTION: 'Plugins that are available are downloaded and are ready to be installed.',
 		PLEASE_WAIT: 'Please Wait',
 		VALID_ACTION_REQUIRED: 'A valid action is required',
@@ -159,6 +163,7 @@ var loc =
         UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
         OBJECT_NOT_FOUND: 'The requested object was not found in the system',
         REQUIRED_FIELD: 'This field is required',
+        SITE_MUST_DEACTIVATE: 'This site must be deactivated before you can edit the hostname',
         INVALID_FILE: 'An invalid file was supplied',
         COMPLETE: 'Complete',
         WYSIWYG: 'WYSIWYG',
@@ -169,13 +174,11 @@ var loc =
         ERROR_SETTING_SYS_INITIALIZED: 'An error occurred while attempting to set the system initialized setting',
         ERROR_SETTING_CALLHOME: 'An error occurred while attempting to set the system reporting preference'
     },
-    error:
-    {
+    error: {
     	ERROR: 'Error',
         PAGE_NOT_FOUND: 'The page can not be found'
     },
-    timestamp:
-    {
+    timestamp: {
         JAN: 'January',
         FEB: 'February',
         MAR: 'March',
@@ -191,20 +194,18 @@ var loc =
         TIME_AM: 'AM',
         TIME_PM: 'PM'
     },
-    setup:
-    {
+    setup: {
         REGISTER_ADMIN: 'Register the site\'s first admin account'
     },
-    login:
-    {
+    login: {
         ADMIN_LOGIN: 'Writer, editor, and administrator login',
         USERNAME_OR_EMAIL: 'Username or email address',
         INVALID_LOGIN: 'Invalid username and password combination',
-        READY_TO_USE: 'Your pencilblue installation is ready to use',
-        ACCOUNT_CREATED: 'Your account was successfully created, you may now login'
+        READY_TO_USE: 'Your PencilBlue installation is ready to use',
+        ACCOUNT_CREATED: 'Your account was successfully created, you may now login',
+        FORGOT_PASSWORD: 'I forgot my password'
     },
-    admin:
-    {
+    admin: {
         DASHBOARD: 'Dashboard',
         CONTENT: 'Content',
         PAGES: 'Pages',
@@ -222,6 +223,7 @@ var loc =
         SETTINGS: 'Settings',
         VIEW_SITE: 'View site',
         SITE_SETTINGS: 'Site settings',
+        MANAGE_SITES: 'Manage Sites',
         SITE_LOGO: 'Site logo',
         AUTHOR: 'Author',
         ACCOUNT: 'Account',
@@ -245,10 +247,10 @@ var loc =
         SAVED: 'was saved',
         NARROW_RESULTS: 'Narrow results',
         URL_KEY: 'URL Key',
-        FEED_UNAVAILABLE: 'Unable to load the news feed.'
+        FEED_UNAVAILABLE: 'Unable to load the news feed.',
+        ETC: 'And other items...'
     },
-    topics:
-    {
+    topics: {
         MANAGE_TOPICS: 'Manage topics',
         NEW_TOPIC: 'New topic',
         TOPIC_NAME: 'Topic name',
@@ -258,8 +260,7 @@ var loc =
         IMPORT_TOPICS_HELP: 'Here you can import a CSV file of topic names into PencilBlue. The file should contain no other information.',
         TOPICS_CSV_FILE: 'CSV file containing topic names',
     },
-    media:
-    {
+    media: {
         MANAGE_MEDIA: 'Manage media',
         NEW_MEDIA: 'New media',
         LINK_OR_UPLOAD: 'Link or upload',
@@ -281,8 +282,7 @@ var loc =
         IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
         FILE_TOO_BIG: 'The file is larger than the allowed limit'
     },
-    pages:
-    {
+    pages: {
         MANAGE_PAGES: 'Manage pages',
         NEW_PAGE: 'New page',
         PAGE_URL: 'Page URL',
@@ -292,8 +292,7 @@ var loc =
         SUBHEADING: 'Subheading',
         PUBLISH_DATE: 'Publish date'
     },
-    articles:
-    {
+    articles: {
         MANAGE_ARTICLES: 'Manage articles',
         NEW_ARTICLE: 'New article',
         ARTICLE_URL: 'Article URL',
@@ -313,6 +312,7 @@ var loc =
     wysiwyg: {
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',
+        PRE: 'Pre',
         HEADING_1: 'Heading 1',
         HEADING_2: 'Heading 2',
         HEADING_3: 'Heading 3',
@@ -328,7 +328,7 @@ var loc =
         ADD_MEDIA: 'Add media',
         INSERT_MEDIA: 'Insert media',
         SELECT_MEDIA: 'Select media to insert',
-        ASSOCIATE_MEDIA: 'Associate media with the article',
+        ASSOCIATE_MEDIA: 'Associate media with the content',
         BOLD: 'Bold',
         ITALIC: 'Italic',
         UNDERLINE: 'Underline',
@@ -346,15 +346,13 @@ var loc =
         MARKDOWN_VIEW: 'Markdown view',
         TOGGLE_FULLSCREEN: 'Toggle fullscreen'
     },
-    comments:
-    {
+    comments: {
         MANAGE_COMMENTS: 'Manage comments',
         CONFIRM_DELETE_COMMENT: 'Are you sure you want to delete this comment by',
         COMMENTS_DISABLED: 'Comments are disabled',
         ENABLE_HERE: 'Enable them here'
     },
-    custom_objects:
-    {
+    custom_objects: {
         MANAGE_OBJECT_TYPES: 'Manage object types',
         NEW_OBJECT_TYPE: 'New object type',
         MANAGE_OBJECTS: 'Manage objects',
@@ -377,8 +375,7 @@ var loc =
         DESCRIPTION: 'Description',
         INVALID_FIELD: 'Invalid field was submitted. Make sure there are no duplicate field names or unselected field types'
     },
-    users:
-    {
+    users: {
         MANAGE_USERS: 'Manage users',
         UNVERIFIED_USERS: 'Unverified users',
         NEW_USER: 'New user',
@@ -425,7 +422,34 @@ var loc =
         NO_PERMISSIONS: 'None of your installed plugins have permissions set',
         CONFIRM_VERIFY: 'Are you sure you want to verify',
         VERIFY: 'Verify',
-        VERIFIED: 'was verified'
+        VERIFIED: 'was verified',
+        LOCALE_PREFERENCE: 'Locale Preference'
+    },
+    sites: {
+        EXISTING_HOSTNAME: 'That hostname is already in use',
+        EXISTING_DISPLAYNAME: 'That display name is already in use',
+        DUPLICATE_INFO: 'Each site must have a unique hostname',
+        SITE_CREATED: 'The site was successfully created',
+        CREATING_SITE: 'Creating New Site',
+        ERROR_ACTIVATING: 'There was an error activating',
+        ERROR_DEACTIVATING: 'There was an error deactivating',
+        SITE_ACTIVATED: 'Site activated',
+        SITE_DEACTIVATED: 'Site deactivated',
+        ACTIVATE: 'Activate',
+        DEACTIVATE: 'Deactivate',
+        EDIT_SITE: 'Edit Site',
+        NEW_SITE: 'New Site',
+        SITE_UPDATED: 'Site was successfully updated',
+        UPDATING_SITE: 'Updating Site',
+        ERROR_REMOVING: 'There was an error removing your site',
+        REMOVE_SUCCESSFUL: 'Site removed successfully',
+        INITIAL_DELETE_WARNING: 'You are attempting to delete this site and all content associated with it, including: ',
+        FINAL_DELETE_WARNING: 'This action cannot be reversed. Are you sure you want to continue?',
+        DELETE_SITE: 'Delete Site',
+        DANGER: 'Danger!',
+        TOKEN_CREATED: 'Authentication Token Created',
+        INVALID_TOKEN: 'Invalid Token',
+        TOKEN_LOGIN_SUCCESSFUL: 'Successful Login By Token'
     },
     plugins:
     {
@@ -440,12 +464,10 @@ var loc =
         ACTIVATING: 'Activating',
         ACTION_ERROR: 'An error occurred while attempting to complete the action'
     },
-    themes:
-    {
+    themes: {
         MANAGE_THEMES: 'Manage themes'
     },
-    site_settings:
-    {
+    site_settings:  {
         CONFIGURATION: 'Configuration',
         EDIT_CONFIGURATION: 'To edit the configuration, create a config.json file in the root directory',
         SITE_NAME: 'Site name',
@@ -495,7 +517,8 @@ var loc =
         SEND: 'Send',
         USE_CDN: 'Use CDNs (default)',
         USE_BOWER: 'Use Bower',
-        TEST_EMAIL_SUCCESS: 'Test email successfully sent'
+        TEST_EMAIL_SUCCESS: 'Test email successfully sent',
+        CANNOT_SIGN_UP_GLOBAL: 'You cannot sign up on global; an admin must create a global user within admin panel',
     }
 };
 

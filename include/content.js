@@ -17,7 +17,7 @@
 
 var util = require('./util.js');
 
-module.exports = function ContentServiceModule(pb) {
+module.exports = function(pb) {
 
     /**
      * Service for content settings retrieval
@@ -26,7 +26,16 @@ module.exports = function ContentServiceModule(pb) {
      * @class ContentService
      * @constructor
      */
-    function ContentService(){}
+    function ContentService(options) {
+        if(options) {
+            this.siteUid = pb.SiteService.getCurrentSite(options.site) || pb.SiteService.GLOBAL_SITE;
+            this.onlyThisSite = options.onlyThisSite || false;
+        } else {
+            this.siteUid = pb.SiteService.GLOBAL_SITE;
+            this.onlyThisSite = false;
+        }
+        this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid, this.onlyThisSite);
+    }
     
     /**
      *
@@ -66,20 +75,30 @@ module.exports = function ContentServiceModule(pb) {
     });
 
     /**
-     * Retrieves the content settings
-     *
+     * A long named alias of 'get'
      * @method getSettings
      * @param {Function} cb Callback function
      */
     ContentService.prototype.getSettings = function(cb){
-        pb.settings.get(CONTENT_SETTINGS_REF, function(err, settings){
+        this.get(cb);
+    };
+    
+    /**
+     * Retrieves the content settings.  When settings are not found in storage 
+     * the service will generate defaults and persist them.
+     * @method get
+     * @param {Function} cb Callback function
+     */
+    ContentService.prototype.get = function(cb) {
+        var self = this;
+        this.settingService.get(CONTENT_SETTINGS_REF, function(err, settings){
             if (settings) {
                 return cb(err, settings);
             }
 
             //set default settings if they don't exist
             settings = ContentService.getDefaultSettings();
-            pb.settings.set(CONTENT_SETTINGS_REF, settings, function(err, result) {
+            self.settingService.set(CONTENT_SETTINGS_REF, settings, function(err, result) {
                 cb(err, settings);
             });
         });

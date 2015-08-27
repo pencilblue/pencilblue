@@ -15,18 +15,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = function ArticleModule(pb) {
+module.exports = function(pb) {
     
     //pb dependencies
-    var util  = pb.util;
+    var util = pb.util;
     
     /**
      * Loads a single article
+     * @class ArticleViewController
+     * @constructor
+     * @extends BaseController
      */
-    function Article(){}
-    util.inherits(Article, pb.BaseController);
+    function ArticleViewController(){}
+    util.inherits(ArticleViewController, pb.BaseController);
 
-    Article.prototype.init = function(context, cb) {
+    /**
+     * @method init
+     * @param {Object} content
+     * @param {Function} cb
+     */
+    ArticleViewController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
             if (util.isError(err)) {
@@ -43,10 +51,14 @@ module.exports = function ArticleModule(pb) {
             
             cb(null, true);
         };
-        Article.super_.prototype.init.apply(this, [context, init]);
+        ArticleViewController.super_.prototype.init.apply(this, [context, init]);
     };
 
-    Article.prototype.render = function(cb) {
+    /**
+     * @method render
+     * @param {Function} cb
+     */
+    ArticleViewController.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
         
@@ -77,21 +89,42 @@ module.exports = function ArticleModule(pb) {
         });
     };
     
-    Article.prototype.getWhereClause = function(custUrl) {
+    /**
+     * Builds out the where clause for finding the article to render.  Because 
+     * MongoDB has an object ID represented by 12 characters we must account 
+     * for this condition by building a where clause with an "or" condition.  
+     * Otherwise we will only query on the url key
+     * @method getWhereClause
+     * @param {String} custUrl Represents the article's ID or its slug
+     * @return {Object} An object representing the where clause to use in the 
+     * query to locate the article
+     */
+    ArticleViewController.prototype.getWhereClause = function(custUrl) {
+        
+        //put a check to look up by ID *FIRST*
+        var conditions = [];
+        if(pb.validation.isIdStr(custUrl, true)) {
+            conditions.push(pb.DAO.getIdWhere(custUrl));
+        }
+        
+        //put a check to look up by URL
+        conditions.push({
+            url: custUrl 
+        });
         
         //check for object ID as the custom URL
-        var where  = null;
-        if(pb.validation.isIdStr(custUrl, true)) {
-            where = pb.DAO.getIdWhere(custUrl);
+        var where;
+        if (conditions.length > 1) {
+            where = {
+                $or: conditions
+            };
         }
         else {
-            where = {
-                url: custUrl
-            };
+            where = conditions[0];
         }
         return where;
     };
 
     //exports
-    return Article;
+    return ArticleViewController;
 };

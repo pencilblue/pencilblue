@@ -8,11 +8,11 @@
             <table class="table table-responsive table-condensed table-bordered">
                 <tr>
                     <td><b>^loc_SITE_NAME^</b></td>
-                    <td>^site_name^</td>
+                    <td ng-bind="config.siteName"></td>
                 </tr>
                 <tr>
                     <td><b>^loc_SITE_ROOT^</b></td>
-                    <td>^site_root^</td>
+                    <td ng-bind="config.siteRoot"></td>
                 </tr>
                 <tr>
                     <td><b>^loc_DOCUMENT_ROOT^</b></td>
@@ -52,7 +52,7 @@
                 </tr>
             </table>
         </div>
-        <button type="submit" class="btn btn-primary" ng-disabled="saving">
+        <button type="submit" class="btn btn-primary" ng-disabled="saving || !isGlobalSite">
             <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_APPLY_SETTINGS^
         </button>
     </form>

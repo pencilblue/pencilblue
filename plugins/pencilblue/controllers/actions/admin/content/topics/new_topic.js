@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Creates a new topic
      */
     function NewTopic(){}
-    util.inherits(NewTopic, pb.BaseController);
+    util.inherits(NewTopic, pb.BaseAdminController);
 
     NewTopic.prototype.render = function(cb) {
         var self = this;
@@ -39,8 +39,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            var dao = new pb.DAO();
-            dao.count('topic', {name: post.name}, function(err, count) {
+            self.siteQueryService.count('topic', {name: post.name}, function(err, count) {
                 if(count > 0) {
                     cb({
                         code: 400,
@@ -50,7 +49,7 @@ module.exports = function(pb) {
                 }
 
                 var topicDocument = pb.DocumentCreator.create('topic', post);
-                dao.save(topicDocument, function(err, result) {
+                self.siteQueryService.save(topicDocument, function(err, result) {
                     if(util.isError(err)) {
                         return cb({
                             code: 500,

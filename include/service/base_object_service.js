@@ -56,11 +56,11 @@ module.exports = function(pb) {
         this.type = context.type;
         
         /**
-         * An instance of DAO to be used to interact with the persitence layer
+         * An instance of DAO to be used to interact with the persistence layer
          * @property dao
          * @type {DAO}
          */
-        this.dao = new pb.DAO();
+        this.dao = new pb.SiteQueryService({site: context.site, onlyThisSite: context.onlyThisSite});
     }
     
     /**
@@ -390,7 +390,7 @@ module.exports = function(pb) {
      * Retrieves a single resource by the specified query. The function will 
      * callback with the object that was found or NULL if no object could be 
      * found. The function will trigger the "getAll" event.  
-     * @method getAll
+     * @method getSingle
      * @param {Object} [options]
      * @param {Object} [options.select]
      * @param {Object} [options.where]
@@ -541,6 +541,13 @@ module.exports = function(pb) {
         }
     };
     
+    /**
+     * Deletes an object by ID
+     * @method deleteById
+     * @param {String} id
+     * @param {Object} options
+     * @param {Function} cb
+     */
     BaseObjectService.prototype.deleteById = function(id, options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
@@ -551,6 +558,12 @@ module.exports = function(pb) {
         this.deleteSingle(options, cb);
     };
     
+    /**
+     * Deletes a single item based on the specified query in the options
+     * @method deleteSingle
+     * @param {Object} options
+     * @param {Function} cb
+     */
     BaseObjectService.prototype.deleteSingle = function(options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
@@ -593,19 +606,24 @@ module.exports = function(pb) {
     BaseObjectService.prototype._emit = function(event, data, cb) {
         pb.log.silly('BaseObjectService: Emitting events: [%s, %s.%s]', event, this.type, event);
         
-        var self = this;
-        var tasks = [
-            
-            //global events
-            function(callback) {
+        var self  = this;
+        var tasks = [];
+        
+        //global events
+        if (events.listeners(event).length > 0) {
+            tasks.push(function(callback) {
                 events.emit(event, data, callback);
-            },
-            
-            //object specific events
-            function(callback) {
-                events.emit(self.type + '.' + event, data, callback);
-            }
-        ];
+            });
+        }
+        
+        //object specific
+        var eventName = self.type + '.' + event;
+        if (events.listeners(eventName).length > 0) {
+            tasks.push(function(callback) {
+                
+                events.emit(eventName, data, callback);
+            });
+        }
         async.series(tasks, cb);
     };
     
@@ -665,11 +683,26 @@ module.exports = function(pb) {
     };
     
     /**
+     * Creates a new Error representative of an action that was performed that 
+     * the current principal did not have authroization to perform.
+     * @static
+     * @method forbiddenError
+     * @param {String} message
+     * @return {Error}
+     */
+    BaseObjectService.forbiddenError = function(message) {
+        var error = new Error(message || 'Forbidden');
+        error.code = 403;
+        return error;
+    };
+    
+    /**
      * Strips HTML formatting from a string value
      * @static
      * @method sanitize
      * @param {String} value
      * @param {Object} [config]
+     * @return {String}
      */
     BaseObjectService.sanitize = function(value, config) {
         if (!value) {
@@ -682,9 +715,11 @@ module.exports = function(pb) {
     };
     
     /**
-     * The sanitization rules that apply to Pages and Articles
+     * The sanitization rules that apply to Pages, Articles, and other fields 
+     * that are allowed to have HTML
      * @static
      * @method getContentSanitizationRules
+     * @return {Object}
      */
     BaseObjectService.getContentSanitizationRules = function() {
         return {
@@ -716,8 +751,10 @@ module.exports = function(pb) {
     };
 
     /**
+     * Retrieves the default sanitization rules for string fields.
      * @static
      * @method getDefaultSanitizationRules
+     * @return {Object}
      */
     BaseObjectService.getDefaultSanitizationRules = function() {
         return {
@@ -726,41 +763,97 @@ module.exports = function(pb) {
         };
     };
     
+    /**
+     * Parses an ISO date string.  When an invalid date string is pass a NULL 
+     * value is returned.
+     * @static
+     * @method getDate
+     * @param {String} dateStr
+     * @return {Date}
+     */
     BaseObjectService.getDate = function(dateStr) {
         var val = Date.parse(dateStr);
         return isNaN(val) ? null : new Date(val);
     };
     
     /**
-     *
+     * Determines the maximum number of results that can be returned for a 
+     * query.  The specified limit must be a positive integer.  The result will 
+     * be the minimum of the MAX_RESULTS constant and the specified limit.
      * @static
      * @method getLimit
      * @param {Integer} limit
+     * @return {Integer}
      */
     BaseObjectService.getLimit = function(limit) {
         return util.isNullOrUndefined(limit) || isNaN(limit) || limit <= 0 ? MAX_RESULTS : Math.min(limit, MAX_RESULTS);
     };
     
+    /**
+     * Registers a listener for the specified event.
+     * @static
+     * @method on
+     * @param {String} event
+     * @param {Function} listener
+     * @return {?}
+     */
     BaseObjectService.on = function(event, listener) {
         return events.on(event, listener);
     };
     
+    /**
+     * Registers a listener to fire a single time for the specfied event
+     * @static
+     * @method once
+     * @param {String} event
+     * @param {Function} listener
+     * @return {?}
+     */
     BaseObjectService.once = function(event, listener) {
         return events.once(event, listener);
     };
     
+    /**
+     * Removes the listener from the specified event
+     * @static 
+     * @method removeListener
+     * @param {String} event
+     * @param {Function} listener
+     * @return {?}
+     */
     BaseObjectService.removeListener = function(event, listener) {
         return events.removeListener(event, listener);
     };
     
+    /**
+     * Removes all listeners for the specified event
+     * @static
+     * @method removeAllListeners
+     * @param {String} event
+     * @return {?}
+     */
     BaseObjectService.removeAllListeners = function(event) {
         return events.removeAllListeners(event);
     };
     
+    /**
+     * Sets the maximum number of listeners for the emitter
+     * @static
+     * @method setMaxListeners
+     * @param {Integer} n
+     * @return {?}
+     */
     BaseObjectService.setMaxListeners = function(n) {
         return events.setMaxListeners(n);
     };
     
+    /**
+     * Returns a list of the listeners for the specified event
+     * @static
+     * @method listeners
+     * @param {String} event
+     * @return {Array}
+     */
     BaseObjectService.listeners = function(event) {
         return events.listeners(event);
     };

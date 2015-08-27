@@ -394,6 +394,11 @@ Util.copyArray = function(array) {
 	return clone;
 };
 
+Util.dedupeArray = function(array) {
+    var hash = Util.arrayToHash(array);
+    return Object.keys(hash);
+};
+
 /**
  * Pushes all of one array's values into another
  * @static

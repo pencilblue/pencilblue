@@ -37,18 +37,45 @@ module.exports = function(pb) {
      * @module Services
      * @submodule Entities
      * @param {Object} [localizationService] The localization service object
+     * @param {String} siteUid context site for this service
      */
-    function TemplateService(localizationService){
-        this.localCallbacks      = {
+    function TemplateService(opts){
+        var localizationService;
+        if (!opts || (opts instanceof pb.Localization)) {
+            localizationService = opts;
+            opts = {};
+        }
+        else {
+            localizationService = opts.ls;
+        }
+        
+        /**
+         * @property localCallbacks
+         * @type {Object}
+         */
+        this.localCallbacks = {
             year: (new Date()).getFullYear()
         };
 
+        /**
+         * @property localizationService
+         * @type {Localization}
+         */
         this.localizationService = null;
         if (localizationService) {
             this.localizationService = localizationService;
         }
+        
+        /**
+         * @property activeTheme
+         */
+        this.activeTheme = opts.activeTheme;
 
-        //set the prioritized template as not specified
+        /**
+         * The prioritized theme when selecting templates
+         * @property theme
+         * @type {String}
+         */
         this.theme = null;
 
         //ensure template loader is initialized
@@ -56,18 +83,19 @@ module.exports = function(pb) {
             var objType  = 'template';
             var services = [];
 
+            var options = {
+                objType: objType,
+                timeout: pb.config.templates.memory_timeout
+            };
+
             //add in-memory service
             if (pb.config.templates.use_memory){
-                var options = {
-                    objType: objType,
-                    timeout: pb.config.templates.memory_timeout
-                };
                 services.push(new pb.MemoryEntityService(options));
             }
 
             //add cache service
             if (pb.config.templates.use_cache) {
-                services.push(new pb.CacheEntityService(objType));
+                services.push(new pb.CacheEntityService(options));
             }
 
             //always add fs service
@@ -89,12 +117,26 @@ module.exports = function(pb) {
          * @type {Function}
          */
         this.unregisteredFlagHandler = null;
+
+        /**
+         * @property siteUid
+         * @type {String}
+         */
+        this.siteUid = pb.SiteService.getCurrentSite(opts.site);
         
+        /**
+         * @property settingService
+         * @type {SettingService}
+         */
+        this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid);
+
         /**
          * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new pb.PluginService();
+        this.pluginService = new pb.PluginService({site: this.siteUid});
+
+        this.init();
     }
 
     //constants
@@ -120,16 +162,7 @@ module.exports = function(pb) {
     var GLOBAL_CALLBACKS = {
         site_root: pb.config.siteRoot,
         site_name: pb.config.siteName,
-        site_logo: function(flag, callback) {
-            pb.settings.get('site_logo', function(err, logo) {
-                callback(null, logo ? logo : '/img/pb_logo.png');
-            });
-        },
         site_menu_logo: '/img/logo_menu.png',
-        site_icon: function(flag, callback) {
-            var pluginService = new pb.PluginService();
-            pluginService.getActiveIcon(callback);
-        },
         version: pb.config.version
     };
 
@@ -140,6 +173,27 @@ module.exports = function(pb) {
      */
     TemplateService.unregisteredFlagHandler = function(flag, cb) {
         cb(null, '^'+flag+'^');
+    };
+
+    /**
+     * Sets up the default flags required for the template service,
+     * including the flags that were previously considered to be global but
+     * now requires to be instanced with the TemplateService
+     *
+     * @method init
+     */
+    TemplateService.prototype.init = function () {
+        var self = this;
+
+        self.registerLocal('site_logo', function (err, callback) {
+           self.settingService.get('site_logo', function (err, logo) {
+               callback(err, logo || '/img/pb_logo.png');
+           });
+        });
+
+        self.registerLocal('site_icon', function (err, callback) {
+            self.pluginService.getActiveIcon(callback);
+        });
     };
 
     /**
@@ -208,6 +262,20 @@ module.exports = function(pb) {
     TemplateService.prototype.setReprocess = function(reprocess) {
         this.reprocess = reprocess ? true : false;
     };
+    
+    /**
+     * Retrieves the active theme.  When not provided the service retrieves it 
+     * from the settings service.
+     * @private
+     * @method _getActiveTheme
+     * @param {Function} cb
+     */
+    TemplateService.prototype._getActiveTheme = function(cb) {
+        if (this.activeTheme) {
+            return cb(null, this.activeTheme);
+        }
+        this.settingService.get('active_theme', cb);
+    };
 
     /**
      * Retrieves the raw template based on a priority.  The path to the template is
@@ -233,14 +301,16 @@ module.exports = function(pb) {
         if (hintedTheme) {
             paths.push(TemplateService.getCustomPath(this.getTheme(), relativePath));
         }
-        pb.settings.get('active_theme', function(err, activeTheme){
+
+        this._getActiveTheme(function(err, activeTheme){
+
             if (activeTheme !== null) {
                 paths.push(TemplateService.getCustomPath(activeTheme, relativePath));
             }
 
             var activePlugins = self.pluginService.getActivePluginNames();
             for (var i = 0; i < activePlugins.length; i++) {
-                if (hintedTheme !== activePlugins[i] && 'pencilblue' !== activePlugins[i]) {
+                if (hintedTheme !== activePlugins[i] && pb.config.plugins.default !== activePlugins[i]) {
                     paths.push(TemplateService.getCustomPath(activePlugins[i], relativePath));
                 }
             }
@@ -494,6 +564,69 @@ module.exports = function(pb) {
         this.localCallbacks[flag] = callbackFunctionOrValue;
         return true;
     };
+    
+    /**
+     * Registers a model with the template service.  It processes each 
+     * key/value pair in the object and creates a dot notated string 
+     * registration.  For the object { key: 'value' } with a model name of 
+     * "item" would result in 1 local value registration in which the key would 
+     * be "item.key".  If no model name existed the registered key would be: 
+     * "key". The algorithm fails fast.  On the first bad registeration the 
+     * algorithm stops registering keys and returns.  Additionally, if a bad 
+     * model object is pass an Error object is thrown.
+     * @method registerModel
+     * @param {Object} model The model is inspect
+     * @param {String} [modelName] The optional name of the model.  The name 
+     * will prefix all of the model's keys.
+     * @returns {Boolean} TRUE when all keys were successfully registered. 
+     * FALSE if a single items fails to register.
+     */
+    TemplateService.prototype.registerModel = function(model, modelName) {
+        if (!util.isObject(model)) {
+            throw new Error('The model parameter is required');
+        }
+        if (!util.isString(modelName)) {
+            modelName = '';
+        }
+        
+        //load up the first set of items
+        var queue = [];
+        util.forEach(model, function(val, key) {
+            queue.push({
+                key: key,
+                prefix: modelName,
+                value: val
+            });
+        });
+        
+        //create the processing function
+        var self = this;
+        var register = function(prefix, key, value) {
+            
+            var flag = (prefix ? prefix + '.' : prefix) + key;
+            if (util.isObject(value) && !(value instanceof TemplateValue)) {
+                
+                var result = true;
+                util.forEach(value, function(value, key) {
+                    queue.push({
+                        key: key,
+                        prefix: flag, 
+                        value: value
+                    });
+                });
+                return true;
+            }
+            return self.registerLocal(flag, value);
+        };
+                           
+        //process the queue until it is empty
+        var completedResult = true;
+        while (queue.length > 0 && completedResult) {
+            var item = queue.shift();
+            completedResult &= register(item.prefix, item.key, item.value);
+        };
+        return completedResult;
+    };
 
     /**
      * Retrieves the content template names and locations for the active theme.
@@ -503,8 +636,8 @@ module.exports = function(pb) {
      */
     TemplateService.prototype.getTemplatesForActiveTheme = function(cb) {
         var self = this;
-        
-        pb.settings.get('active_theme', function(err, activeTheme) {
+        this._getActiveTheme(function(err, activeTheme) {
+
             if(util.isError(err) || activeTheme == null) {
                 cb(err, []);
                 return;
@@ -512,13 +645,13 @@ module.exports = function(pb) {
 
             //function to retrieve plugin
             var getPlugin = function(uid, callback) {
-                if (uid === 'pencilblue') {
+                if (uid === pb.config.plugins.default) {
 
                     //load pencilblue plugin
-                    var file = pb.PluginService.getDetailsPath('pencilblue');
+                    var file = pb.PluginService.getDetailsPath(pb.config.plugins.default);
                     pb.PluginService.loadDetailsFile(file, function(err, pb) {
                         if (pb) {
-                            pb.dirName = 'pencilblue';
+                            pb.dirName = pb.config.plugins.default;
                         }
                         callback(err, pb);
                     });
@@ -553,7 +686,11 @@ module.exports = function(pb) {
      */
     TemplateService.prototype.getChildInstance = function() {
         
-        var childTs                     = new TemplateService(this.localizationService);
+        var opts = {
+            ls: this.localizationService,
+            activeTheme: this.activeTheme
+        };
+        var childTs                     = new TemplateService(opts);
         childTs.theme                   = this.theme;
         childTs.localCallbacks          = util.merge(this.localCallbacks, {});
         childTs.reprocess               = this.reprocess;
@@ -578,13 +715,14 @@ module.exports = function(pb) {
      * Articles and pages.
      *
      * @method getAvailableContentTemplates
+     * @param site
      * @return {Array} An array of template definitions
      */
-    TemplateService.getAvailableContentTemplates = function() {
-        var templates = pb.PluginService.getActiveContentTemplates();
+    TemplateService.getAvailableContentTemplates = function(site) {
+        var templates = pb.PluginService.getActiveContentTemplates(site);
         templates.push(
             {
-                theme_uid: 'pencilblue',
+                theme_uid: pb.config.plugins.default,
                 theme_name: 'PencilBlue',
                 name: "Default",
                 file: "index"
@@ -619,7 +757,7 @@ module.exports = function(pb) {
      * @return {string} The absolute path
      */
     TemplateService.getDefaultPath = function(templateLocation){
-        return path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'templates', templateLocation + '.html');
+        return path.join(pb.config.docRoot, 'plugins', pb.config.plugins.default, 'templates', templateLocation + '.html');
     };
 
     /**

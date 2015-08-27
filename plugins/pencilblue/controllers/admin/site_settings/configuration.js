@@ -19,15 +19,15 @@
 var fs = require('fs');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for displaying the site's configuration settings
      */
     function Configuration(){}
-    util.inherits(Configuration, pb.BaseController);
+    util.inherits(Configuration, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'site_configuration';
@@ -41,21 +41,28 @@ module.exports = function(pb) {
                 return;
             }
 
+            if(typeof callHome === 'undefined') {
+              callHome = true;
+            }
+
             var config = {
+                siteName: self.siteObj.displayName,
+                siteRoot: self.siteObj.hostname,
                 documentRoot: pb.config.docRoot,
                 siteIP: pb.config.siteIP,
                 sitePort: pb.config.sitePort,
                 dbType: pb.config.db.type,
                 dbName: pb.config.db.name,
                 dbServers: pb.config.db.servers,
-                callHome: callHome || true,
+                callHome: callHome,
                 configSet: fs.existsSync(pb.config.docRoot + '/config.json')
             };
 
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'configuration'),
-                config: config
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'configuration', {site: self.site}),
+                config: config,
+                isGlobalSite: pb.SiteService.isGlobal(self.site)
             });
 
             self.setPageName(self.ls.get('CONFIGURATION'));
@@ -67,7 +74,7 @@ module.exports = function(pb) {
     };
 
     Configuration.getSubNavItems = function(key, ls, data) {
-        return [{
+        var pills = [{
             name: 'configuration',
             title: ls.get('CONFIGURATION'),
             icon: 'refresh',
@@ -82,12 +89,18 @@ module.exports = function(pb) {
             title: ls.get('EMAIL'),
             icon: 'envelope',
             href: '/admin/site_settings/email'
-        }, {
-            name: 'libraries',
-            title: ls.get('LIBRARIES'),
-            icon: 'book',
-            href: '/admin/site_settings/libraries'
         }];
+
+        if(data && data.site === pb.SiteService.GLOBAL_SITE) {
+            pills.push({
+                name: 'libraries',
+                title: ls.get('LIBRARIES'),
+                icon: 'book',
+                href: '/admin/site_settings/libraries'
+            });
+        }
+
+        return pills;
     };
 
     //register admin sub-nav

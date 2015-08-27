@@ -26,7 +26,7 @@ module.exports = function AudioMediaRendererModule(pb) {
 
     /**
      *
-     * @class VideoMediaRenderer
+     * @class AudioMediaRenderer
      * @constructor
      */
     function AudioMediaRenderer(){}
@@ -84,11 +84,21 @@ module.exports = function AudioMediaRendererModule(pb) {
             height: "35px"
         }
     });
+    
+    /**
+     * Retrieves the supported extension types for the renderer.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array}
+     */
+    AudioMediaRenderer.getSupportedExtensions = function() {
+        return Object.keys(SUPPORTED);
+    };
 
     /**
      * Retrieves the style for the specified type of view
      * @static
-     * @meethod getStyle
+     * @method getStyle
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */

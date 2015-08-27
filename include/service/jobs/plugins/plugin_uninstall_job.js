@@ -56,6 +56,9 @@ module.exports = function PluginUninstallJobModule(pb) {
      */
     PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND = 'uninstall_plugin';
 
+    var GLOBAL_PREFIX = 'global';
+    var SITE_FIELD = pb.SiteService.SITE_FIELD;
+
     /**
      * Retrieves the tasks needed to contact each process in the cluster to
      * uninstall the plugin.
@@ -68,7 +71,7 @@ module.exports = function PluginUninstallJobModule(pb) {
         var command = {
             pluginUid: self.getPluginUid(),
             jobId: self.getId(),
-
+            site: self.getSite(),
             //we provide a progress function to update the job listing
             progress: function(indexOfExecutingTask, totalTasks) {
 
@@ -101,24 +104,30 @@ module.exports = function PluginUninstallJobModule(pb) {
         var self = this;
 
         var pluginUid = this.getPluginUid();
+        var site = this.getSite();
         var tasks = [
 
             //call onUninstall
             function(callback) {
-                if (!pb.PluginService.isActivePlugin(pluginUid)) {
+                if (!pb.PluginService.isPluginActiveBySite(pluginUid, site)) {
                     self.log("Skipping call to plugin's onUninstall function.  Main module was not active.");
                     callback(null, true);
                     return;
                 }
 
-                var mm = pb.PluginService.getActiveMainModule(pluginUid);
-                if (util.isFunction(mm.onUninstall)) {
+                var mm = pb.PluginService.getActiveMainModule(pluginUid, site);
+                if (util.isFunction(mm.onUninstall) || util.isFunction(mm.onUninstallWithContext)) {
                     self.log('Calling plugin onUnstall', pluginUid);
 
                     var d = domain.create();
                     d.on('error', callback);
                     d.run(function() {
-                        mm.onUninstall(callback);
+                        if (util.isFunction(mm.onUninstall)) {
+                            mm.onUninstall(callback);
+                        } else {
+                            var context = {site: site};
+                            mm.onUninstallWithContext(context, callback);
+                        }
                     });
                 }
                 else {
@@ -129,7 +138,7 @@ module.exports = function PluginUninstallJobModule(pb) {
 
             //unregister routes
             function(callback) {
-                var routesRemoved = pb.RequestHandler.unregisterThemeRoutes(pluginUid);
+                var routesRemoved = pb.RequestHandler.unregisterThemeRoutes(pluginUid, site);
                 self.log('Unregistered %d routes', routesRemoved);
                 process.nextTick(function(){callback(null, true);});
             },
@@ -147,17 +156,16 @@ module.exports = function PluginUninstallJobModule(pb) {
             //remove settings
             function(callback) {
                 self.log('Attemping to remove plugin settings');
-
-                pb.plugins.pluginSettingsService.purge(pluginUid, function (err, result) {
+                self.pluginService.purgePluginSettings(pluginUid, function (err, result) {
                     callback(err, !util.isError(err) && result);
+
                 });
             },
 
             //remove theme settings
             function(callback) {
                 self.log('Attemping to remove theme settings');
-
-                pb.plugins.themeSettingsService.purge(pluginUid, function (err, result) {
+                self.pluginService.purgeThemeSettings(pluginUid, function (err, result) {
                     callback(err, !util.isError(err) && result);
                 });
             },
@@ -169,6 +177,22 @@ module.exports = function PluginUninstallJobModule(pb) {
                 var where = {
                     uid: pluginUid
                 };
+
+                var hasNoSite = {};
+                hasNoSite[SITE_FIELD] = { $exists : false};
+
+                var siteIsGlobal = {};
+                siteIsGlobal[SITE_FIELD] = GLOBAL_PREFIX;
+
+                if(!site || site === GLOBAL_PREFIX) {
+                    where.$or = [
+                        hasNoSite,
+                        siteIsGlobal
+                    ];
+                } else {
+                    where[SITE_FIELD] = site;
+                }
+
                 var dao = new pb.DAO();
                 dao.delete(where, 'plugin', function(err, result) {
                     callback(err, !util.isError(err));
@@ -181,16 +205,16 @@ module.exports = function PluginUninstallJobModule(pb) {
 
                 //retrieve the plugin so we can see if the value matches what we
                 //are uninstalling
-                pb.settings.get('active_theme', function(err, activeTheme) {
+                var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, site, true);
+                settings.get('active_theme', function(err, activeTheme) {
                     if (util.isError(err)) {
                         return callback(err, false);
                     }
 
                     //check if we need to reset the active theme
                     if (activeTheme === pluginUid) {
-                        self.log('Uninstalling the active theme.  Switching to pencilblue');
-
-                        pb.settings.set('active_theme', 'pencilblue', function(err, result) {
+                        self.log('Uninstalling the active theme.  Switching to:' + pb.config.plugins.default);
+                        settings.set('active_theme', pb.config.plugins.default, function(err, result) {
                             callback(err, result ? true : false);
                         });
                     }
@@ -202,7 +226,7 @@ module.exports = function PluginUninstallJobModule(pb) {
 
             //remove from ACTIVE_PLUGINS//unregister services
             function(callback) {
-                var result = pb.PluginService.deactivatePlugin(pluginUid);
+                var result = pb.PluginService.deactivatePlugin(pluginUid, site);
                 process.nextTick(function(){callback(null, result);});
             }
         ];

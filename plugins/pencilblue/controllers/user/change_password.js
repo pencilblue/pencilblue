@@ -16,10 +16,10 @@
 */
 
 module.exports = function ChangePasswordFormControllerModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for logged in user to change password
      * @class ChangePasswordFormController
@@ -38,7 +38,7 @@ module.exports = function ChangePasswordFormControllerModule(pb) {
         var self = this;
 
         //retrieve user
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.redirect('/', cb);
@@ -47,8 +47,7 @@ module.exports = function ChangePasswordFormControllerModule(pb) {
 
 
             self.setPageName(self.ls.get('CHANGE_PASSWORD'));
-            self.ts.registerLocal('angular_script', pb.ClientJs.getAngularController(self.gatherData()));
-            self.ts.registerLocal('hide_current', self.session.authentication.reset_password ? 'display: none' : '');
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(pb.ClientJs.getAngularObjects(self.gatherData()), false));
             self.ts.load('user/change_password', function(err, result) {
 
                 cb({content: result});

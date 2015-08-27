@@ -24,6 +24,8 @@ The first open source content management system to meet all the needs of a moder
 Installation
 -----
 
+[![LAUNCH ON OpenShift](http://launch-shifter.rhcloud.com/launch/LAUNCH ON.svg)](https://hub.openshift.com/quickstarts/deploy/159-pencilblue)
+
 The instructions below assume that Node.js and MongoDB are installed on your machine. If they are not then please visit http://nodejs.org and http://www.mongodb.org to install them.
 
 ##### PencilBlue Command-line interface
@@ -50,3 +52,23 @@ The instructions below assume that Node.js and MongoDB are installed on your mac
  sudo forever start pencilblue.js
  ```
  7. Navigate to the site root you specified in a configuration file or http://localhost:8080 by default.
+
+##### Help & Support
+Aways start with our wiki or [code level documentation](http://pencilblue.github.io/).  The source never lies.  Additionally, always feel free to leave questions on our issues page or reach out to us on Twitter at [@GetPencilBlue](https://twitter.com/GetPencilBlue).
+
+**Submitting Issues:**
+When submitting an issue or request for help please provide the following information.
+
+1. Step by step instructions to reproduce
+2. Configuration overrides (minus any credentials)
+3. Environment details: Linux, windows, hosting provider, local, etc.
+4. Log output. Set your logging.level configuration property to "silly".
+
+**Submitting a Pull Request:**
+
+1. Provide a detailed description of what changed.  
+2. Reference any related issues by number so they can be tracked and linked back to the PR.
+3. Document any new functions so they show up in our auto-generated documentation
+4. Create tests for any new functionality
+5. RUN ```npm test```
+6. Bug fixes should be merged to master & features should be merged to the next release branch

@@ -21,26 +21,41 @@ module.exports = function BookApiControllerModule(pb) {
     var util              = pb.util;
     var BaseApiController = pb.BaseApiController;
     var PluginService     = pb.PluginService;
-    var BookService       = PluginService.getService('BookService', 'sample');
 
     /**
      * BookApiController - A sample controller to demonstrate how to build an API
      * 
      * @author Brian Hyder <brian@pencilblue.org>
      * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
-     * @returns
+     * @return
      */
-    function BookApiController(){
-    
-        /**
-         * An instance of BookService that the underlying BaseApiController can 
-         * leverage
-         * @property service
-         * @type {BookService}
-         */
-        this.service = new BookService();
-    }
-    util.inherits(BookApiController, pb.BaseApiController);
+    function BookApiController(){}
+    util.inherits(BookApiController, BaseApiController);
+
+
+    /**
+     * Calls init of BaseController and sets BookService based on the current site
+     *
+     * @param props
+     * @param cb
+     */
+    BookApiController.prototype.init = function(props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            var BookService = PluginService.getService('BookService', 'sample', self.site);
+            /**
+             * An instance of BookService that the underlying BaseApiController can
+             * leverage
+             * @property service
+             * @type {BookService}
+             */
+            self.service = new BookService(self.getServiceContext());
+            cb();
+        });
+
+    };
+
+
 
 
     /**

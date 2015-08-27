@@ -779,17 +779,14 @@ describe('Util', function() {
             util.getDirectories.bind(54, function(err, results) {}).should.throwError();
         });
         
-        it('should callback with an array with 1 path', function(done) {
+        it('should callback with an array with 2 paths', function(done) {
             
             util.getDirectories('./controllers', function(err, results) {
                 
                 should.not.exist(err);
-                results.should.be.instanceof(Array).and.have.lengthOf(1);
-                
-                var expected = [
-                    'controllers/api'
-                ];
-                results.should.eql(expected);
+                results.should.be.instanceof(Array).and.have.lengthOf(2);
+                results.should.containEql(path.join('controllers', 'admin'))
+                results.should.containEql(path.join('controllers', 'api'));
                 done();
             });
         });
@@ -944,7 +941,7 @@ describe('Util', function() {
         
         it('should return "" when passed a path with no extension', function() {
             
-            var result = util.getExtension('./controllers/config');
+            var result = util.getExtension(path.join('.', 'controllers', 'config'));
             should.strictEqual(null, result);
         });
         

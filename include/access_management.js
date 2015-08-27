@@ -161,7 +161,7 @@ module.exports = function(pb) {
     SecurityService.getRoleName = function(accessLevel) {
         var val = ROLE_VAL_TO_NAME[accessLevel];
         if (!val) {
-            throw new PBError(util.format("An invalid access level [%s] was provided", accessLevel), 500);
+            throw new Error(util.format("An invalid access level [%s] was provided", accessLevel));
         }
         return val;
     };
@@ -172,15 +172,14 @@ module.exports = function(pb) {
      * @method authenticateSession
      * @param {Object} session
      * @param {Object} options
-     * @param {Authentication}
+     * @param {Authentication} authenticator
      * @param {Function} cb
      */
     SecurityService.authenticateSession = function(session, options, authenticator, cb){
         var doAuthentication = function(session, options, authenticator, cb) {
             authenticator.authenticate(options, function(err, user) {
-                if (util.isError(err) || user == null) {
-                    cb(err, user);
-                    return;
+                if (util.isError(err) || !util.isObject(user)) {
+                    return cb(err, user);
                 }
 
                 //remove password from data to be cached
@@ -191,6 +190,11 @@ module.exports = function(pb) {
                 session.authentication.user        = user;
                 session.authentication.user_id     = user[pb.DAO.getIdField()].toString();
                 session.authentication.admin_level = user.admin;
+                
+                //set locale if no preference already indicated for the session
+                if (!session.locale) {
+                    session.locale = user.locale;
+                }
                 cb(null, user);
             });
         };
@@ -208,7 +212,7 @@ module.exports = function(pb) {
 
         //check if authentication is required
         if (requirements[SecurityService.AUTHENTICATED]) {
-            if (session.authentication.user_id == null) {
+            if (session.authentication.user_id === null) {
                 return false;
             }
         }
@@ -269,6 +273,20 @@ module.exports = function(pb) {
             password.push(PASSWORD_CHARS[parseInt(Math.random() * PASSWORD_CHARS.length)]);
         }
         return password.join('');
+    };
+    
+    /**
+     *
+     * @static
+     * @method getPrincipal
+     * @param {Object} session
+     * @return {Object} The authenticated user principal or NULL if not authenticated
+     */
+    SecurityService.getPrincipal = function(session) {
+        if (util.isObject(session) && util.isObject(session.authentication)) {
+            return session.authentication.user;
+        }
+        return null;
     };
 
     return SecurityService;

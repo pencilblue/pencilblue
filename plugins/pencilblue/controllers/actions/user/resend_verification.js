@@ -17,58 +17,59 @@
 
 
 module.exports = function ResendVerificationModule(pb) {
-    
-    //pb dependencies
-    var util = pb.util;
-    
-    /**
-     * Resends an account verification email
-     */
-    function ResendVerification(){}
-    util.inherits(ResendVerification, pb.FormController);
+  //pb dependencies
+  var util = pb.util;
 
-    ResendVerification.prototype.onPostParamsRetrieved = function(post, cb) {
+  /**
+   * Resends an account verification email
+   */
+  function ResendVerification(){}
+  util.inherits(ResendVerification, pb.FormController);
+
+    ResendVerification.prototype.render = function(cb) {
         var self = this;
+        var post = this.body;
 
-        var message = this.hasRequiredParams(post, this.getRequiredFields());
-        if(message) {
-            self.formError(message, '/user/resend_verification', cb);
-            return;
-        }
-
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.loadByValue('email', post.email, 'user', function(err, user) {
-            if(util.isError(err) || user === null) {
-                self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
-                return;
+            if(util.isError(err)) {
+                return cb(err);
+            }
+            else if (!util.isNullOrUndefined(user)) {
+                return self.formError(self.ls.get('USER_VERIFIED'), '/user/login', cb);
             }
 
             dao.loadByValue('email', post.email, 'unverified_user', function(err, user) {
-                if(util.isError(err) || user === null) {
-                    self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
-                    return;
+                if(util.isError(err)) {
+                    return cb(err);
+                }
+                else if(util.isNullOrUndefined(user)) {
+                    return self.formError(self.ls.get('NOT_REGISTERED'), '/user/sign_up', cb);
                 }
 
-               user.verification_code = util.uniqueId();
+                user.verification_code = util.uniqueId();
 
-               dao.save(user, function(err, result) {
+                dao.save(user, function(err, result) {
                     if(util.isError(result)) {
-                        self.formError(self.ls.get('ERROR_SAVING'), '/user/resend_verification', cb);
-                        return;
+                        return cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        });
                     }
 
-                    self.session.success = self.ls.get('VERIFICATION_SENT') + user.email;
-                    self.redirect('/user/verification_sent', cb);
+                    cb({
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('VERIFICATION_SENT') + user.email)
+                    });
                     pb.users.sendVerificationEmail(user, util.cb);
                 });
             });
         });
     };
 
-    ResendVerification.prototype.getRequiredFields = function() {
-        return ['email'];
-    };
+  ResendVerification.prototype.getRequiredFields = function() {
+    return ['email'];
+  };
 
-    //exports
-    return ResendVerification;
+  //exports
+  return ResendVerification;
 };

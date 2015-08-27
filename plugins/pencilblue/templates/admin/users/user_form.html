@@ -31,6 +31,11 @@
 						<select name="admin" class="form-control" ng-model="user.admin" ng-options="adminOption.value as adminOption.name for adminOption in adminOptions" required></select>
 						<div class="form_error" ng-if="!isFieldValid(userForm.admin)">^loc_REQUIRED_FIELD^</div>
 					</div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.locale)}">
+						<label>^loc_LOCALE_PREFERENCE^</label>
+						<select name="locale" class="form-control" ng-model="user.locale" ng-options="localeOption.value as localeOption.name for localeOption in locales" required></select>
+						<div class="form_error" ng-if="!isFieldValid(userForm.admin)">^loc_REQUIRED_FIELD^</div>
+					</div>
 					<div ng-if="!user._id">
 						<div class="form-group" ng-class="{'has-error': !isFieldValid(userForm.password)}">
 							<label>^loc_PASSWORD^</label>

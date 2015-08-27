@@ -29,12 +29,16 @@ module.exports = function AdminIndexControllerModule(pb) {
      * @constructor
      */
     function AdminIndexController(){}
-    util.inherits(AdminIndexController, pb.BaseController);
+    util.inherits(AdminIndexController, pb.BaseAdminController);
 
     /**
-     * @see BaseController#render
+     *
+     * @method onSiteValidated
+     * @param site
+     * @param cb
+     *
      */
-    AdminIndexController.prototype.render = function(cb) {
+    AdminIndexController.prototype.render = function (cb) {
         var self = this;
 
         //gather all the data
@@ -48,7 +52,7 @@ module.exports = function AdminIndexControllerModule(pb) {
                {
                    name: name,
                    count: data.articleCount,
-                   href: '/admin/content/articles',
+                   href: '/admin/content/articles'
                },
             ];
 
@@ -56,7 +60,7 @@ module.exports = function AdminIndexControllerModule(pb) {
             contentInfo.push({name: name, count: data.pageCount, href: '/admin/content/pages'});
 
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService),
+                navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService, self.site),
                 contentInfo: contentInfo,
                 cluster: data.clusterStatus,
                 access: self.session.authentication.admin_level
@@ -80,18 +84,17 @@ module.exports = function AdminIndexControllerModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Object)
      */
     AdminIndexController.prototype.gatherData = function(cb) {
+        var self = this;
         var tasks = {
 
             //article count
             articleCount: function(callback) {
-                var dao    = new pb.DAO();
-                dao.count('article', pb.DAO.ANYWHERE, callback);
+                self.siteQueryService.count('article', pb.DAO.ANYWHERE, callback);
             },
 
             //page count
             pageCount: function(callback) {
-                var dao    = new pb.DAO();
-                dao.count('page', pb.DAO.ANYWHERE, callback);
+                self.siteQueryService.count('page', pb.DAO.ANYWHERE, callback);
             },
 
             //cluster status
