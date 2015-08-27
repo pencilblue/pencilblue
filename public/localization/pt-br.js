@@ -502,7 +502,7 @@ var loc =
 //Allows for both server and client use
 if(typeof global !== 'undefined') {
  global.loc = loc;
- global.localizationLanguage = 'en-us';
+ global.localizationLanguage = 'pt-BR';
 }
 
 if(typeof module !== 'undefined') {
