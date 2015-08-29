@@ -18,7 +18,7 @@
 //dependencies
 var fs     = require('fs');
 var path   = require('path');
-var locale = require('locale');
+var Locale = require('locale');
 var util   = require('./util.js');
 
 module.exports = function LocalizationModule(pb) {
@@ -40,6 +40,13 @@ module.exports = function LocalizationModule(pb) {
         //expected to be lowercase and of the form "en-us"
         this.language = Localization.best(request).toString();
     }
+    
+    /**
+     *
+     * @property JS_EXT
+     * @type {String}
+     */
+    var JS_EXT = '.js';
 
     /**
      * 
@@ -67,6 +74,24 @@ module.exports = function LocalizationModule(pb) {
      * @type {String}
      */
     Localization.ACCEPT_LANG_HEADER = 'accept-language';
+    
+    /**
+     *
+     * @static
+     * @readonly
+     * @property LOCALE_PART_SEP
+     * @type {String}
+     */
+    Localization.LOCALE_PART_SEP = '-';
+    
+    /**
+     *
+     * @static
+     * @readonly
+     * @property KEY_SEP
+     * @type {String}
+     */
+    Localization.KEY_SEP = '.';
 
     /**
      * 
@@ -82,9 +107,17 @@ module.exports = function LocalizationModule(pb) {
      * @static
      * @readonly
      * @property supported
-     * @type {Locale}
+     * @type {Locales}
      */
     Localization.supported = null;
+    
+    /**
+     * @static
+     * @readonly
+     * @property supportedLookup
+     * @type {Object}
+     */
+    Localization.supportedLookup = {};
 
     /**
      * Localizes a string by searching for keys within the template and replacing
@@ -191,14 +224,16 @@ module.exports = function LocalizationModule(pb) {
      * @return {string} Locale for the request
      */
     Localization.best = function(request){
-        var loc = 'en-us';
+        
+        var locales;
+        var loc = Localization.getDefaultLocale();
         if (request) {
-            if (typeof request == 'string') {
-                var locales = new locale.Locales(request);
+            if (util.isString(request)) {
+                locales = new Locale.Locales(request);
                 loc = locales.best(Localization.supported);
             }
             else if (request.headers[Localization.ACCEPT_LANG_HEADER]){
-                var locales = new locale.Locales(request.headers[Localization.ACCEPT_LANG_HEADER]);
+                locales = new Locale.Locales(request.headers[Localization.ACCEPT_LANG_HEADER]);
                 loc = locales.best(Localization.supported);
             }
         }
@@ -211,50 +246,49 @@ module.exports = function LocalizationModule(pb) {
      * send the user based on their list of acceptable languages.
      *
      * @method init
+     * @param {Function} cb
      */
-    Localization.init = function() {
+    Localization.init = function(cb) {
         var supportedLocales = [];
         Localization.storage = {};
 
         //create path to localization directory
+        var options = {
+            recursive: false,
+            filter: function(filePath) { return filePath.indexOf(JS_EXT) === filePath.length - JS_EXT.length; }
+        };
         var localizationDir = path.join(pb.config.docRoot, 'public', 'localization');
-        var files = fs.readdirSync(localizationDir);
-        files.forEach(function(file) {
-            if (file === '.' || file === '..') {
-                return;   
+        util.getFiles(localizationDir, options, function(err, files) {
+            if (util.isError(err)) {
+                return cb(err);
             }
+            
+            var compoundedResult = true;
+            files.forEach(function(file) {
+                
+                //parse the file
+                var obj = null;
+                try {
+                    obj = require(file);
+                }
+                catch(e) {
+                    pb.log.warn('Localization: Failed to load core localization file [%s]. %s', absolutePath, e.stack);
+                    
+                    //we failed so skip this file
+                    return;
+                }
 
-            //check extension
-            var ext   = '';
-            var index = file.lastIndexOf('.');
-            if (index >= 0) {
-                ext = file.substring(index);
-            }
-            if (ext != '.js') {
-                return;
-            }
-
-            //parse the file
-            var obj          = {generic: {}};
-            var absolutePath = path.join(localizationDir, file);
-            try {
-                obj = require(absolutePath);
-            }
-            catch(e) {
-                pb.log.warn('Localization: Failed to load core localization file [%s]. %s', absolutePath, e.stack);
-            }
-
-            //convert file name to locale
-            var locale = file.toLowerCase().substring(0, file.indexOf('.'));
-
-            //Register as a supported language
-            Localization.storage[locale] = obj;
-            supportedLocales.push(locale);
+                //convert file name to locale
+                var localeObj = Localization.parseLocaleStr(file);
+                
+                //register the localization as defaults (call private method)
+                compoundedResult &= Localization._registerLocale(localeObj, obj);
+            });
+            
+            //set the supported locales
+            pb.log.debug("Localization: Supporting - " + JSON.stringify(Object.keys(Localization.supportedLookup)));
+            cb(null, compoundedResult);
         });
-
-        //set the supported locales
-        pb.log.debug("Localization: Supporting - " + JSON.stringify(supportedLocales));
-        Localization.supported = new locale.Locales(supportedLocales);
     };
 
     /**
@@ -268,7 +302,12 @@ module.exports = function LocalizationModule(pb) {
         if (!locale) {
             return false;
         }
-        return Localization.getLocalizationPackage(locale) ? true : false;
+        
+        //make sure the locale is properly formatted
+        var localeObj = Localization.parseLocaleStr(locale);
+        locale = Localization.formatLocale(localeObj.language, localeObj.countryCode);
+        
+        return Localization.supportedLookup[locale] ? true : false;
     };
 
     /**
@@ -287,57 +326,187 @@ module.exports = function LocalizationModule(pb) {
     };
 
     /**
-     *
+     * @deprecated since 0.5.0
      * @static
      * @method registerLocalizations
      * @param {String} locale
      * @param {Object} localizations
      * @return {Boolean}
      */
-    Localization.registerLocalizations = function(locale, localizations) {
-        if (!Localization.isSupported(locale) || !util.isObject(localizations)) {
-            return false;
-        }
-        
-        util.forEach(localizations, function(item, key) {
-            Localization.registerLocalization(locale, key, item);
-        });
-        return true;
+    Localization.registerLocalizations = function(locale, localizations, options) {
+        pb.log.warn('Localization: Localization.registerLocalizations is deprecated. Use Localization.registerLocale');
+        return Localization.registerLocale(locale, localizations, options);
     };
-
+    
     /**
      *
      * @static
-     * @method registerLocalization
+     * @method registerLocale
+     * @param {String} locale
+     * @param {Object} localizations
+     * @return {Boolean}
+     */
+    Localization.registerLocale = function(locale, localizations, options) {
+        if (!util.isObject(options)) {
+            throw new Error('options parameter is required');
+        }
+        if (!util.isString(options.plugin)) {
+            throw new Error('options.plugin is required');
+        }
+         
+        return Localization._registerLocale(locale, localizations, options);
+    };
+                
+    Localization._registerLocale = function(locale, localizations, options) {
+        if (util.isString(locale)) {
+            locale = Localization.parseLocaleStr(locale);
+        }
+        if (util.isObject(locale)) {
+            if (!util.isString(locale.language)) {
+                throw new Error('locale.language is required');
+            }
+        }
+        else {
+            throw new Error('locale parameter is required');
+        }
+        if (!util.isObject(localizations)) {
+            throw new Error('localizations parameter is required');
+        }
+        
+        //load up top level keys into the queue
+        var queue = [];
+        var processObj = function(prefix, obj) {
+            util.forEach(obj, function(val, key) {
+                queue.push({
+                    key: prefix ? prefix + Localization.KEY_SEP + key : key,
+                    val: val
+                });
+            });
+        };
+        processObj(null, localizations);
+        
+        var compoundedResult = true;
+        while(queue.length > 0) {
+            var item = queue.shift();
+            if (util.isObject(item.val)) {
+                processObj(item.key, item.val);
+            }
+            else if (util.isString(item.val)){
+                compoundedResult &= Localization._registerLocalization(locale, item.key, item.val, options);
+            }
+            else {
+                compoundedResult = false;
+                pb.log.warn('Localization: Locale [%s] key [%s] provided an invalid value: %s', Localization.formatLocale(locale.language, locale.countryCode), item.key, JSON.stringify(item.val));
+            }
+        }
+        
+        //ensure that we add the supported localization
+        if (compoundedResult && !Localization.isSupported(locale)) {
+            Localization.supportedLookup[Localization.formatLocale(locale.language, locale.countryCode)] = locale;
+            Localization.supported = new Locale.Locales(Object.keys(Localization.supportedLookup));
+        }
+        return compoundedResult;
+    };
+
+    /**
+     * @private
+     * @static
+     * @method _registerLocalization
      * @param {String} locale
      * @param {String} key
      * @param {String} value
+     * @param {Object} options
+     * @param {String} options.plugin
      * @return {Boolean}
      */
-    Localization.registerLocalization = function(locale, key, value) {
-        if (!Localization.isSupported(locale)) {
-            return false;
+    Localization.registerLocalization = function(locale, key, value, options) {
+        if (!util.isObject(options)) {
+            throw new Error('options parameter is required');
         }
-        else if (!util.isString(key) || !util.isString(value)) {
-            return false;
+        if (!util.isString(options.plugin)) {
+            throw new Error('options.plugin is required');
         }
-
-        var wasSet    = false;
-        var localeObj = Localization.getLocalizationPackage(locale);
-        for (var localizationArea in localeObj) {
-
-            if (localeObj[localizationArea][key] !== undefined) {
-                localeObj[localizationArea][key] = value;
-                wasSet = true;
-                break;
+        
+        return Localization._registerLocalization(locale, key, value, options);
+    };
+    
+    /**
+     * @private
+     * @static
+     * @method _registerLocalization
+     * @param {String} locale
+     * @param {String} key
+     * @param {String} value
+     * @param {Object} [options]
+     * @param {String} [options.plugin]
+     * @return {Boolean}
+     */
+    Localization._registerLocalization = function(locale, key, value, options) {
+        if (util.isString(locale)) {
+            locale = Localization.parseLocaleStr(locale);
+        }
+        if (util.isObject(locale)) {
+            if (!util.isString(locale.language)) {
+                throw new Error('locale.language is required');
             }
         }
-
-        //the key was not already found in the core set so just add it to the
-        //generic block.  All plugin localizations will end up here.
-        if (!wasSet) {
-            localeObj.generic[key] = value;
+        else {
+            throw new Error('locale is required');
         }
+        if (!util.isString(key)) {
+            throw new Error('key parameter is required');
+        }
+        if (!util.isString(value)) {
+            throw new Error('value parameter is required');
+        }
+        
+        //set defaults
+        if (!util.isObject(options)) {
+            options = {};
+        }
+        
+        //parse the key
+        var keyParts = key.split(Localization.KEY_SEP);
+        
+        //set a quick reference to the existing storage hash
+        var l = Localization.storage;
+        
+        //ensure that the key path exists and set a reference to the block that 
+        //represents the key.  We are essentially walking the tree to get to 
+        //the key.  When a child node does not exist we create it.
+        var keyBlock = null;
+        keyParts.forEach(function(part) {
+            if (util.isNullOrUndefined(l[part])) {
+                l[part] = {};
+            }
+            keyBlock = l[part];
+        });
+        
+        //ensure that the language block exists
+        if (util.isNullOrUndefined(keyBlock[locale.language])) {
+            keyBlock[locale.language] = {};
+        }
+        var insertionBlock = keyBlock[locale.language];
+        
+        //check to see if we need to move to a counry code block
+        if (util.isString(locale.countryCode)) {
+            if (util.isNullOrUndefined(insertionBlock[locale.countryCode])) {
+                insertionBlock[locale.countryCode] = {};
+            }
+            insertionBlock = insertionBlock[locale.countryCode];
+        }
+        
+        //check to see if we are setting a default localization or a plugin specific one
+        if (util.isString(options.plugin)) {
+            if (util.isNullOrUndefined(insertionBlock.plugins)) {
+                insertionBlock.plugins = {};
+            }
+            insertionBlock.plugins[options.plugin] = value;
+        }
+        else { //we are inserting a system default
+            insertionBlock.default = value;
+        }
+
         return true;
     };
        
@@ -389,6 +558,48 @@ module.exports = function LocalizationModule(pb) {
             locales.push(kv);
         });
         return locales;
+    };
+    
+    Localization.parseLocaleStr = function(filePath) {
+        if (util.isObject(filePath)) {
+            if (!util.isString(filePath.language)) {
+                throw new Error('filePath.language parameter is required');
+            }
+            if (!util.isString(filePath.countryCode)) {
+                throw new Error('filePath.countryCode parameter is required');
+            }
+            
+            //we have a valid locale we can stop
+            return filePath;
+        }
+        if (!util.isString(filePath)) {
+            throw new Error('filePath parameter is required');
+        }
+        
+        var lastSlashPos = filePath.lastIndexOf(path.sep);
+        var extPos = filePath.lastIndexOf(JS_EXT);
+        if (extPos < 0) {
+            extPos = filePath.length;
+        }
+        var locale = filePath.substr(lastSlashPos + 1, extPos - lastSlashPos).toLocaleLowerCase();
+        
+        var parts = locale.split(Localization.LOCALE_PART_SEP);
+        return {
+            language: parts[0],
+            countryCode: parts[1]
+        };
+    };
+    
+    Localization.formatLocale = function(language, countryCode) {
+        if (!util.isString(language)) {
+            throw new Error('language parameter is required');
+        }
+        
+        var localeStr = language.toLowerCase();
+        if (util.isString(countryCode)) {
+            localeStr += Localization.LOCALE_PART_SEP + countryCode.toUpperCase();
+        }
+        return localeStr;
     };
     
     return Localization;
