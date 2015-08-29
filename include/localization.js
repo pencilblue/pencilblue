@@ -118,6 +118,14 @@ module.exports = function LocalizationModule(pb) {
      * @type {Object}
      */
     Localization.supportedLookup = {};
+    
+    /**
+     * @static
+     * @readonly
+     * @property PARAM_REPLACEMENT_REGEX
+     * @type {RegExp}
+     */
+    Localization.PARAM_REPLACEMENT_REGEX = /{([^{}]*)}/g;
 
     /**
      * Localizes a string by searching for keys within the template and replacing
@@ -497,6 +505,10 @@ module.exports = function LocalizationModule(pb) {
         }
         
         //check to see if we are setting a default localization or a plugin specific one
+        var valueBlock = {
+            value: value,
+            isParameterized: Localization.containsParameters(value)
+        };
         if (util.isString(options.plugin)) {
             if (util.isNullOrUndefined(insertionBlock.plugins)) {
                 insertionBlock.plugins = {};
@@ -531,6 +543,48 @@ module.exports = function LocalizationModule(pb) {
      */
     Localization.getSupported = function() {
         return util.clone(Localization.supported);
+    };
+    
+    Localization.containsParameters = function(localizationValue) {
+        if (!util.isString(localizationValue)) {
+            throw new Error('localizationParameter is required');
+        }
+        return localizationValue.search(Localization.PARAM_REPLACEMENT_REGEX) >= 0;
+    };
+    
+    Localization.replaceParameters = function(value, params, defaultVal) {
+        if (!util.isString(value)) {
+            throw new Error('value parameter is required');
+        }
+        if (!util.isObject(params)) {
+            throw new Error('params parameter is required');
+        }
+        
+        //We went with a homegrown solution here because it is ~4 times faster 
+        //than the regex expression solution: 
+        //http://stackoverflow.com/questions/1408289/how-can-i-do-string-interpolation-in-javascri
+        var prev = null;
+        var isOpen = false;
+        var variable = '';
+        var val = '';
+        for (var i = 0; i < value.length; i++) {
+            if (!isOpen && value[i] === '{' && prev !== '%') {
+                isOpen = true;
+            }
+            else if (isOpen && value[i] === '}') {
+                val += params[variable] || defaultVal || variable;
+                isOpen = false;
+                variable = '';
+            }
+            else if (isOpen) {
+                variable += value[i];
+            }
+            else {
+                val += value[i];
+            }
+            prev = value[i];
+        }
+        return val;
     };
     
     /**
@@ -581,7 +635,7 @@ module.exports = function LocalizationModule(pb) {
         if (extPos < 0) {
             extPos = filePath.length;
         }
-        var locale = filePath.substr(lastSlashPos + 1, extPos - lastSlashPos).toLocaleLowerCase();
+        var locale = filePath.substr(lastSlashPos + 1, extPos - lastSlashPos - 1).toLocaleLowerCase();
         
         var parts = locale.split(Localization.LOCALE_PART_SEP);
         return {
