@@ -144,16 +144,18 @@ module.exports = function LocalizationModule(pb) {
         }
 
         //get i18n from storage
-        var loc = Localization.storage[this.language];
+        var loc = Localization.storage;
         if (util.isNullOrUndefined(loc)) {
             throw new Error("Failed to set a language. LANG="+util.inspect(this.language));
         }
         for (var key in loc.generic) {
-            text = text.split('^loc_' + key + '^').join(loc.generic[key]);
+            var genericVal = this.g('generic' + Localization.KEY_SEP + key, {}, {});
+            text = text.split('^loc_' + key + '^').join(genericVal);
         }
 
         for (var i = 0; i < sets.length; i++) {
             for(var key in loc[sets[i]])  {
+                var setVal = this.g(sets[i] + Localization.KEY_SEP + key, {}, {});
                 text = text.split('^loc_' + key + '^').join(loc[sets[i]][key]);
             }
         }
