@@ -39,6 +39,7 @@ module.exports = function LocalizationModule(pb) {
         
         //expected to be lowercase and of the form "en-us"
         this.language = Localization.best(request).toString();
+        this.localeObj = Localization.parseLocaleStr(this.language);
     }
     
     /**
@@ -173,7 +174,7 @@ module.exports = function LocalizationModule(pb) {
      * function is greater than 1.  See 
      * http://nodejs.org/api/util.html#util_util_format_format for details on 
      * suppored formatting.
-     *
+     * @deprecated Since 0.5.0
      * @method get
      * @param {String} key
      * @param {String|Integer|Float|Object} [args] The variable number of 
@@ -190,37 +191,172 @@ module.exports = function LocalizationModule(pb) {
         if (!pb.validation.isNonEmptyStr(key, true)) {
             return null;
         }
-
-        //get i18n from storage
-        var tmp;
-        var val = null;
-        var loc = Localization.storage[this.language];
-        for (var category in loc) {
-            tmp = loc[category][key];
-            if (tmp !== undefined) {
-                val = tmp;
-                break;
-            }
+        
+        //create a key that can be converted over to what we need
+        var convertedKey;
+        if (!util.isNullOrUndefined(Localization.storage[key])) {
+            convertedKey = key;
         }
-
-        if (val === null) {
+        else {
+            var topLevelKeys = Object.keys(Localization.storage);
+            for (var i = 0; i < topLevelKeys.length; i++) {
+                
+                if (!util.isNullOrUndefined(Localization.storage[topLevelKeys[i]][key])) {
+                    convertedKey = topLevelKeys[i] + Localization.KEY_SEP + key;
+                    break;
+                }
+            }
             
-            var defaultLocale = Localization.getDefaultLocale().toLocaleLowerCase();
-            if (this.language === defaultLocale) {
-                return val = key;
-            }
-            else {
-                //TODO keep going down available languages
-                //fall back to default language
-                var localization = new Localization(defaultLocale);
-                return localization.get.apply(localization, arguments);
+            //just assign the key.  Won't find anything though.
+            if (util.isNullOrUndefined(convertedKey)) {
+                convertedKey = key;
             }
         }
-        else if (arguments.length > 1){
+
+
+        var val = this.g(convertedKey, {}, {});
+        if (val !== null) {
+            
             arguments[0] = val;
             val = util.format.apply(util, arguments);
         }
         return val;
+    };
+    
+    Localization.prototype.g = function() {
+        var key = arguments[0];
+        var params = arguments[1] || {};
+        var options = arguments[2] || { 
+            site: pb.SiteService.GLOBAL_SITE,
+        };
+        
+        //log operation
+        if (pb.log.isSilly()) {
+            pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, this.language);
+        }
+        
+        //error checking
+        if (!util.isString(key)) {
+            throw new Error('key parameter is required');
+        }
+        if (!util.isObject(params)) {
+            throw new Error('params parameter is required');
+        }
+        if (!util.isObject(options)) {
+            throw new Error('options parameter must be an object');
+        }
+        
+        //TODO retrieve active plugins for site to narrow down which plugins should be examined during retrieval
+        //TODO check instance cache for key
+        
+        //get the current local as object
+        var locale = this.localeObj;
+        
+        //get theme to prioritize 
+        var plugin = options.plugin || this.activeTheme;
+        
+        //define convenience functions
+        var processValue = function(localization) {
+            return localization.isParameterized ? 
+                Localization.replaceParameters(localization.value, params, options.defaultParamVal) : 
+                localization.value;
+        };
+        
+        var processKeyBlock = function(keyBlock) {
+            
+            //check for plugin specific
+            if (!util.isNullOrUndefined(keyBlock.plugins)) {
+                var pluginsBlock = keyBlock.plugins
+                
+                //check for active plugin first
+                if (!util.isNullOrUndefined(pluginsBlock[plugin])) {
+                    
+                    //we found a plugin specific value
+                    return processValue(pluginsBlock[plugin]);
+                }
+                
+                //check to see if the other plugins support the key
+                var pluginsToInspect = Object.keys(pluginsBlock);
+                for (var j = 0; j < pluginsToInspect.length; j++) {
+                    
+                    //skip the active plugin bc we've already checked it
+                    if (plugin === pluginsToInspect[j]) {
+                        continue;
+                    }
+                    
+                    //examine the plugin
+                    if (!util.isNullOrUndefined(pluginsBlock[pluginsToInspect[j]])) {
+                    
+                        //we found a country & plugin specific value
+                        return processValue(pluginsBlock[pluginsToInspect[j]]);
+                    }
+                }
+            }
+            
+            //no plugin specific key was found.  Now check the defaults
+            if (!util.isNullOrUndefined(keyBlock.default)) {
+                return processValue(keyBlock.default);
+            }
+            
+            //counldn't find it in this block
+            return null;
+        };
+        
+        var processLanguageBlock = function(langBlock) {
+            if (!util.isObject(langBlock)) {
+                return null;
+            }
+            
+            //check for country specific
+            if (util.isString(locale.countryCode) && !util.isNullOrUndefined(langBlock[locale.countryCode])) {
+
+                var countryResult = processKeyBlock(langBlock[locale.countryCode]);
+                if (util.isString(countryResult)) {
+                    return countryResult;
+                }
+            }
+
+            //we failed to find the value in a country specific block.  We need to 
+            //move on to the language
+            var langResult = processKeyBlock(langBlock);
+            if (util.isString(langResult)) {
+                return langResult;
+            }
+
+            //we counldn't find it in this locale
+            return null;
+        };
+        
+        //key create key path
+        var keyBlock = Localization.storage;
+        var parts = key.split(Localization.KEY_SEP);
+        for (var i = 0; i < parts.length; i++) {
+            if (util.isNullOrUndefined(keyBlock[parts[i]])) {
+                
+                //the key doesn't exist
+                return key;
+            }
+            
+            keyBlock = keyBlock[parts[i]];
+        }
+
+        //we found the key.  Now we need to dig around and figure out which 
+        //value to pick
+        var result = processLanguageBlock(keyBlock[locale.language]);
+        if (!util.isString(result)) {
+            
+            //check to see if we should fall back to the default locale
+            var defaultLocale = Localization.parseLocaleStr(Localization.getDefaultLocale());
+            if (defaultLocale.language !== this.localeObj.language || defaultLocale.countryCode !== this.localeObj.countryCode) {
+                result = processLanguageBlock(keyBlock[defaultLocale.language]);
+            }
+            else {
+                result = options.defaultVal;
+            }
+        }
+        
+        //finally, if we have a string result return it otherwise settle on the key
+        return util.isString(result) ? result : key;
     };
 
     /**
@@ -513,10 +649,10 @@ module.exports = function LocalizationModule(pb) {
             if (util.isNullOrUndefined(insertionBlock.plugins)) {
                 insertionBlock.plugins = {};
             }
-            insertionBlock.plugins[options.plugin] = value;
+            insertionBlock.plugins[options.plugin] = valueBlock;
         }
         else { //we are inserting a system default
-            insertionBlock.default = value;
+            insertionBlock.default = valueBlock;
         }
 
         return true;
@@ -635,12 +771,17 @@ module.exports = function LocalizationModule(pb) {
         if (extPos < 0) {
             extPos = filePath.length;
         }
-        var locale = filePath.substr(lastSlashPos + 1, extPos - lastSlashPos - 1).toLocaleLowerCase();
+        var locale = filePath.substr(lastSlashPos + 1, extPos - lastSlashPos - 1);
         
         var parts = locale.split(Localization.LOCALE_PART_SEP);
+        var lang = parts[0] ? parts[0].toLowerCase() : null;
+        var countryCode = parts[1] ? parts[1].toUpperCase() : null;
         return {
-            language: parts[0],
-            countryCode: parts[1]
+            language: lang,
+            countryCode: countryCode,
+            toString: function() {
+                return Localization.formatLocale(this.lang, this.countryCode);
+            }
         };
     };
     

@@ -109,7 +109,16 @@ module.exports = function RandomTextViewControllerModule(pb) {
                     //The localization service also supports parameterized localizations 
                     //to handle cases where different languages structure subjects and 
                     //predicates differently.
-                    var parameterizedLocalizedStr = self.ls.get('PARAMETERIZED_KEY', 'apple', 28, { some: 'value'});
+                    var params = { 
+                        someString: 'apple', 
+                        someNumber: 28, 
+                        json: JSON.stringify({ some: 'value'})
+                    };
+                    var options = {
+                        defaultVal: 'The Key Was Not Found',
+                        defaultParamVal: 'N/A'
+                    };
+                    var parameterizedLocalizedStr = self.ls.g('PARAMETERIZED_KEY', params, options);
                     cb(null, parameterizedLocalizedStr);
                 },
                 
