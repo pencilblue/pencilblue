@@ -350,6 +350,8 @@ module.exports = function LocalizationModule(pb) {
             //check to see if we should fall back to the default locale
             var defaultLocale = Localization.parseLocaleStr(Localization.getDefaultLocale());
             if (defaultLocale.language !== this.localeObj.language || defaultLocale.countryCode !== this.localeObj.countryCode) {
+                
+                locale = defaultLocale;
                 result = processLanguageBlock(keyBlock[defaultLocale.language]);
             }
             else {
