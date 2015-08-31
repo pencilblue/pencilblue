@@ -459,7 +459,8 @@ module.exports = function(pb) {
                 var key = flag.substring(LOCALIZATION_PREFIX_LEN);
                 var opts = {
                     site: self.siteUid,
-                    plugin: self.activeTheme
+                    plugin: self.activeTheme,
+                    defaultVal: null
                 };
                 var val = self.localizationService.g(key, {}, opts);
                 if (!util.isString(val)) {

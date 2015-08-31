@@ -335,8 +335,9 @@ module.exports = function LocalizationModule(pb) {
         for (var i = 0; i < parts.length; i++) {
             if (util.isNullOrUndefined(keyBlock[parts[i]])) {
                 
-                //the key doesn't exist
-                return key;
+                //the key doesn't exist. create an empty block
+                keyBlock = {};
+                break;
             }
             
             keyBlock = keyBlock[parts[i]];
@@ -360,7 +361,7 @@ module.exports = function LocalizationModule(pb) {
         }
         
         //finally, if we have a string result return it otherwise settle on the key
-        return util.isString(result) ? result : key;
+        return util.isString(result) || options.defaultVal !== undefined ? result : key;
     };
 
     /**
@@ -440,7 +441,10 @@ module.exports = function LocalizationModule(pb) {
     };
 
     /**
-     *
+     * Determines if there have been keys registered for the specified locale.  
+     * An example locale string would be: en-US.  Where the characters to the 
+     * left of the dash are the language code and the characters to the right 
+     * of the dash represent the country code.
      * @static
      * @method isSupported
      * @param {String} locale
@@ -465,7 +469,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {String} locale
      * @return {Object}
      */
-    Localization.getLocalizationPackage = function(locale) {
+    Localization.getLocalizationPackage = function(locale) {//TODO fix this
         if (!pb.validation.isNonEmptyStr(locale, true)) {
             return null;
         }
@@ -616,18 +620,15 @@ module.exports = function LocalizationModule(pb) {
         //parse the key
         var keyParts = key.split(Localization.KEY_SEP);
         
-        //set a quick reference to the existing storage hash
-        var l = Localization.storage;
-        
         //ensure that the key path exists and set a reference to the block that 
         //represents the key.  We are essentially walking the tree to get to 
         //the key.  When a child node does not exist we create it.
-        var keyBlock = null;
+        var keyBlock = Localization.storage;
         keyParts.forEach(function(part) {
-            if (util.isNullOrUndefined(l[part])) {
-                l[part] = {};
+            if (util.isNullOrUndefined(keyBlock[part])) {
+                keyBlock[part] = {};
             }
-            keyBlock = l[part];
+            keyBlock = keyBlock[part];
         });
         
         //ensure that the language block exists
@@ -740,14 +741,11 @@ module.exports = function LocalizationModule(pb) {
         var supported = Localization.getSupported();
         supported.forEach(function(locale) {
 
-            var package = Localization.getLocalizationPackage(locale);
-            if (!util.isObject(package)) {
-                return;
-            }
+            var localization = new Localization(locale);
 
             var kv = {
                 value: locale,
-                name: package.generic.LOCALE_DISPLAY
+                name: localization.g('generic.LOCALE_DISPLAY', {}, {})
             };
             locales.push(kv);
         });
