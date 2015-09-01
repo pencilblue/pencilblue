@@ -40,6 +40,13 @@ module.exports = function LocalizationModule(pb) {
         //expected to be lowercase and of the form "en-us"
         this.language = Localization.best(request).toString();
         this.localeObj = Localization.parseLocaleStr(this.language);
+        
+        /**
+         * Stores the keys already retrieved for the instance to prevent duplicate retrieval.
+         * @property cache
+         * @type {Object}
+         */
+        this.cache = {};
     }
     
     /**
@@ -119,6 +126,14 @@ module.exports = function LocalizationModule(pb) {
      * @type {Object}
      */
     Localization.supportedLookup = {};
+    
+    /**
+     * @static
+     * @readonly
+     * @property keys
+     * @type {Object}
+     */
+    Localization.keys = {};
     
     /**
      * @static
@@ -249,7 +264,6 @@ module.exports = function LocalizationModule(pb) {
         }
         
         //TODO retrieve active plugins for site to narrow down which plugins should be examined during retrieval
-        //TODO check instance cache for key
         
         //get the current local as object
         var locale = this.localeObj;
@@ -258,7 +272,13 @@ module.exports = function LocalizationModule(pb) {
         var plugin = options.plugin || this.activeTheme;
         
         //define convenience functions
+        var self = this;
         var processValue = function(localization) {
+            
+            //set cache
+            self.cache[key] = localization;
+            
+            //finish processing the value
             return localization.isParameterized ? 
                 Localization.replaceParameters(localization.value, params, options.defaultParamVal) : 
                 localization.value;
@@ -267,8 +287,8 @@ module.exports = function LocalizationModule(pb) {
         var processKeyBlock = function(keyBlock) {
             
             //check for plugin specific
-            if (!util.isNullOrUndefined(keyBlock.plugins)) {
-                var pluginsBlock = keyBlock.plugins
+            if (!util.isNullOrUndefined(keyBlock.__plugins)) {
+                var pluginsBlock = keyBlock.__plugins
                 
                 //check for active plugin first
                 if (!util.isNullOrUndefined(pluginsBlock[plugin])) {
@@ -296,8 +316,8 @@ module.exports = function LocalizationModule(pb) {
             }
             
             //no plugin specific key was found.  Now check the defaults
-            if (!util.isNullOrUndefined(keyBlock.default)) {
-                return processValue(keyBlock.default);
+            if (!util.isNullOrUndefined(keyBlock.__default)) {
+                return processValue(keyBlock.__default);
             }
             
             //counldn't find it in this block
@@ -310,11 +330,15 @@ module.exports = function LocalizationModule(pb) {
             }
             
             //check for country specific
-            if (util.isString(locale.countryCode) && !util.isNullOrUndefined(langBlock[locale.countryCode])) {
+            if (util.isString(locale.countryCode)) {
 
-                var countryResult = processKeyBlock(langBlock[locale.countryCode]);
-                if (util.isString(countryResult)) {
-                    return countryResult;
+                var countryKey = k(locale.countryCode);
+                if (!util.isNullOrUndefined(langBlock[countryKey])) {
+                    
+                    var countryResult = processKeyBlock(langBlock[countryKey]);
+                    if (util.isString(countryResult)) {
+                        return countryResult;
+                    }
                 }
             }
 
@@ -329,15 +353,28 @@ module.exports = function LocalizationModule(pb) {
             return null;
         };
         
+        var finalize = function(result) {
+            return util.isString(result) || options.defaultVal !== undefined ? result : key;
+        };
+        
+        //verify that key even exists
+        if (!Localization.keys[key]) {
+            return finalize(options.defaultVal);
+        }
+        else if (this.cache[key]) {
+            
+            //we have already processed this key once for this instance
+            return finalize(processValue(this.cache[key]));
+        }
+        
         //key create key path
         var keyBlock = Localization.storage;
         var parts = key.split(Localization.KEY_SEP);
         for (var i = 0; i < parts.length; i++) {
-            if (util.isNullOrUndefined(keyBlock[parts[i]])) {
+            if (util.isNullOrUndefined(keyBlock[parts[i]]) || !keyBlock[parts[i]].__isKey) {
                 
-                //the key doesn't exist. create an empty block
-                keyBlock = {};
-                break;
+                //the key doesn't exist. Time to bail out
+                return finalize(options.defaultVal);
             }
             
             keyBlock = keyBlock[parts[i]];
@@ -345,7 +382,8 @@ module.exports = function LocalizationModule(pb) {
 
         //we found the key.  Now we need to dig around and figure out which 
         //value to pick
-        var result = processLanguageBlock(keyBlock[locale.language]);
+        var langKey = k(locale.language);
+        var result = processLanguageBlock(keyBlock[langKey]);
         if (!util.isString(result)) {
             
             //check to see if we should fall back to the default locale
@@ -353,7 +391,8 @@ module.exports = function LocalizationModule(pb) {
             if (defaultLocale.language !== this.localeObj.language || defaultLocale.countryCode !== this.localeObj.countryCode) {
                 
                 locale = defaultLocale;
-                result = processLanguageBlock(keyBlock[defaultLocale.language]);
+                langKey = k(defaultLocale.language);
+                result = processLanguageBlock(keyBlock[langKey]);
             }
             else {
                 result = options.defaultVal;
@@ -361,7 +400,7 @@ module.exports = function LocalizationModule(pb) {
         }
         
         //finally, if we have a string result return it otherwise settle on the key
-        return util.isString(result) || options.defaultVal !== undefined ? result : key;
+        return finalize(result);
     };
 
     /**
@@ -400,6 +439,7 @@ module.exports = function LocalizationModule(pb) {
     Localization.init = function(cb) {
         var supportedLocales = [];
         Localization.storage = {};
+        Localization.keys = {};
 
         //create path to localization directory
         var options = {
@@ -626,23 +666,34 @@ module.exports = function LocalizationModule(pb) {
         var keyBlock = Localization.storage;
         keyParts.forEach(function(part) {
             if (util.isNullOrUndefined(keyBlock[part])) {
-                keyBlock[part] = {};
+                keyBlock[part] = {
+                    __isKey: true
+                };
+            }
+            else if (!keyBlock[part].__isKey) {;
+                
+                //bad news bears. They tried to provide a key in a protected 
+                //namespace.  Basically all the things with "__" prefixes
+                return false;
             }
             keyBlock = keyBlock[part];
         });
         
         //ensure that the language block exists
-        if (util.isNullOrUndefined(keyBlock[locale.language])) {
-            keyBlock[locale.language] = {};
+        var langKey = k(locale.language);
+        if (util.isNullOrUndefined(keyBlock[langKey])) {
+            keyBlock[langKey] = {};
         }
-        var insertionBlock = keyBlock[locale.language];
+        var insertionBlock = keyBlock[langKey];
         
         //check to see if we need to move to a counry code block
         if (util.isString(locale.countryCode)) {
-            if (util.isNullOrUndefined(insertionBlock[locale.countryCode])) {
-                insertionBlock[locale.countryCode] = {};
+            
+            var countryKey = k(locale.countryCode);
+            if (util.isNullOrUndefined(insertionBlock[countryKey])) {
+                insertionBlock[countryKey] = {};
             }
-            insertionBlock = insertionBlock[locale.countryCode];
+            insertionBlock = insertionBlock[countryKey];
         }
         
         //check to see if we are setting a default localization or a plugin specific one
@@ -651,14 +702,18 @@ module.exports = function LocalizationModule(pb) {
             isParameterized: Localization.containsParameters(value)
         };
         if (util.isString(options.plugin)) {
-            if (util.isNullOrUndefined(insertionBlock.plugins)) {
-                insertionBlock.plugins = {};
+            if (util.isNullOrUndefined(insertionBlock.__plugins)) {
+                insertionBlock.__plugins = {};
             }
-            insertionBlock.plugins[options.plugin] = valueBlock;
+            insertionBlock.__plugins[options.plugin] = valueBlock;
         }
         else { //we are inserting a system default
-            insertionBlock.default = valueBlock;
+            insertionBlock.__default = valueBlock;
         }
+        
+        //track the keys to know if they exist.  A performance boost in 
+        //building localization packages, lookups, and removal from system.
+        Localization.keys[key] = true;
 
         return true;
     };
@@ -798,6 +853,10 @@ module.exports = function LocalizationModule(pb) {
         }
         return localeStr;
     };
+    
+    function k(key) {
+        return '__' + key;
+    }
     
     return Localization;
 };
