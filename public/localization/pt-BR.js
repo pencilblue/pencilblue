@@ -1,5 +1,6 @@
 module.exports = {
     generic: {
+        LOCALE_DISPLAY: 'Português (Brasil)',
         PENCILBLUE: 'pencilblue',
         ALL_RIGHTS: 'Todos os direitos reservados',
         NONE: 'Vazio',
@@ -195,7 +196,8 @@ module.exports = {
         USERNAME_OR_EMAIL: 'Username or email address',
         INVALID_LOGIN: 'Invalid username and password combination',
         READY_TO_USE: 'Your pencilblue installation is ready to use',
-        ACCOUNT_CREATED: 'Your account was successfully created, you may now login'
+        ACCOUNT_CREATED: 'Your account was successfully created, you may now login',
+        FORGOT_PASSWORD: 'Esqueci minha senha'
     },
     admin: {
         DASHBOARD: 'Dashboard',
@@ -302,6 +304,7 @@ module.exports = {
     wysiwyg: {
         NORMAL_TEXT: 'Normal text',
         QUOTE: 'Quote',
+        PRE: 'Pré',
         HEADING_1: 'Heading 1',
         HEADING_2: 'Heading 2',
         HEADING_3: 'Heading 3',
@@ -411,7 +414,8 @@ module.exports = {
         NO_PERMISSIONS: 'Nenhum plugin instalado tem permissão',
         CONFIRM_VERIFY: 'Você tem certeza que quer verificar?',
         VERIFY: 'Verificar',
-        VERIFIED: 'verificado'
+        VERIFIED: 'verificado',
+        LOCALE_PREFERENCE: 'Preferência local'
     },
     plugins: {
         MANAGE_PLUGINS: 'Gerenciar plugins',
