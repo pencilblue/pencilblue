@@ -509,12 +509,36 @@ module.exports = function LocalizationModule(pb) {
      * @param {String} locale
      * @return {Object}
      */
-    Localization.getLocalizationPackage = function(locale) {//TODO fix this
+    Localization.getLocalizationPackage = function(locale, options) {
         if (!pb.validation.isNonEmptyStr(locale, true)) {
             return null;
         }
 
-        return Localization.storage[locale.toLowerCase()] || null;
+        var ls = new Localization(locale);
+        var package = {};
+        var keys = Object.keys(Localization.keys);
+        keys.forEach(function(key) {
+            var result = ls.g(key, {}, options);
+            
+            var parts = key.split(Localization.KEY_SEP);
+            if (parts.length === 1) {
+                package[key] = result;
+                return;
+            }
+            
+            var block = package;
+            for (var i = 0; i < parts.length; i++) {
+                if (i == parts.length - 1) {
+                    block[parts[i]] = result;
+                    break;
+                }
+                else if (util.isNullOrUndefined(block[parts[i]])) {
+                    block[parts[i]] = {};
+                }
+                block = block[parts[i]];
+            }
+        });
+        return package;
     };
 
     /**
