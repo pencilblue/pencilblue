@@ -588,6 +588,14 @@ module.exports = function LocalizationModule(pb) {
         if (!util.isObject(localizations)) {
             throw new Error('localizations parameter is required');
         }
+        if (!util.isObject(options)) {
+            options = {};
+        }
+        
+        //log it
+        if (pb.log.isSilly()) {
+            pb.log.silly('Localization: Registering locale [%s] for plugin [%s]', Localization.formatLocale(locale.language, locale.countryCode), options.plugin ? options.plugin : 'SYSTEM');
+        }
         
         //load up top level keys into the queue
         var queue = [];
@@ -615,7 +623,7 @@ module.exports = function LocalizationModule(pb) {
                 pb.log.warn('Localization: Locale [%s] key [%s] provided an invalid value: %s', Localization.formatLocale(locale.language, locale.countryCode), item.key, JSON.stringify(item.val));
             }
         }
-        
+
         //ensure that we add the supported localization
         if (compoundedResult && !Localization.isSupported(locale)) {
             Localization.supportedLookup[Localization.formatLocale(locale.language, locale.countryCode)] = locale;
@@ -746,7 +754,7 @@ module.exports = function LocalizationModule(pb) {
         
         //iterate over all of the keys
         var result = true;
-        Localization.keys.forEach(function(key) {
+        Object.keys(Localization.keys).forEach(function(key) {
             result &= Localization.unregisterLocalization(locale, key, options);
         });
         return result;
@@ -769,6 +777,11 @@ module.exports = function LocalizationModule(pb) {
         }
         if (!util.isObject(options)) {
             options = {};
+        }
+        
+        //ensure that the key even exists
+        if (!util.isString(Localization.keys[key])) {
+            return false;
         }
         
         //walk the tree looking for the key
@@ -972,9 +985,6 @@ module.exports = function LocalizationModule(pb) {
     }
     
     function findKeyBlock(key) {
-        if (!util.isString(Localization.keys[key])) {
-            return null;
-        }
         
         //parse the key
         var keyParts = key.split(Localization.KEY_SEP);
