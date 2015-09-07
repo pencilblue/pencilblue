@@ -687,21 +687,10 @@ module.exports = function LocalizationModule(pb) {
         //ensure that the key path exists and set a reference to the block that 
         //represents the key.  We are essentially walking the tree to get to 
         //the key.  When a child node does not exist we create it.
-        var keyBlock = Localization.storage;
-        keyParts.forEach(function(part) {
-            if (util.isNullOrUndefined(keyBlock[part])) {
-                keyBlock[part] = {
-                    __isKey: true
-                };
-            }
-            else if (!keyBlock[part].__isKey) {;
-                
-                //bad news bears. They tried to provide a key in a protected 
-                //namespace.  Basically all the things with "__" prefixes
-                return false;
-            }
-            keyBlock = keyBlock[part];
-        });
+        var keyBlock = findKeyBlock(key);
+        if (keyBlock === null) {
+            return false;
+        }
         
         //ensure that the language block exists
         var langKey = k(locale.language);
@@ -740,6 +729,106 @@ module.exports = function LocalizationModule(pb) {
         Localization.keys[key] = true;
 
         return true;
+    };
+    
+    Localization.unregisterLocale = function(locale, options) {
+        if (util.isString(locale)) {
+            locale = Localization.parseLocaleStr(locale);
+        }
+        if (util.isObject(locale)) {
+            if (!util.isString(locale.language)) {
+                throw new Error('locale.language is required');
+            }
+        }
+        else {
+            throw new Error('locale is required');
+        }
+        
+        //iterate over all of the keys
+        var result = true;
+        Localization.keys.forEach(function(key) {
+            result &= Localization.unregisterLocalization(locale, key, options);
+        });
+        return result;
+    };
+    
+    Localization.unregisterLocalization = function(locale, key, options) {
+        if (util.isString(locale)) {
+            locale = Localization.parseLocaleStr(locale);
+        }
+        if (util.isObject(locale)) {
+            if (!util.isString(locale.language)) {
+                throw new Error('locale.language is required');
+            }
+        }
+        else {
+            throw new Error('locale is required');
+        }
+        if (!util.isString(key)) {
+            throw new Error('key parameter is required');
+        }
+        if (!util.isObject(options)) {
+            options = {};
+        }
+        
+        //walk the tree looking for the key
+        var keyBlock = findKeyBlock(key);
+        if (keyBlock === null) {
+            return false;
+        }
+        
+        var langKey = k(locale.language);
+        var langBlock = keyBlock[langKey];
+        if (util.isNullOrUndefined(langBlock)) {
+            
+            //the language could not be found
+            return false;
+        }
+        
+        //check for country
+        if (util.isString(locale.countryCode)) {
+            
+            var countryKey = k(locale.countryCode);
+            if (!util.isNullOrUndefined(langBlock[countryKey])) {
+                
+                var countryBlock = langBlock[countryKey];//translate to plugin key
+                if (util.isString(options.plugin)) {
+                    
+                    if (util.isString(countryBlock[options.plugin])) {
+                        delete countryBlock[options.plugin];
+                        return true;
+                    }
+                    
+                    //we were asked to target the plugin only
+                    return false;
+                }
+            }
+            
+            if (util.isString(keyBlock[countryKey].__default)) {
+                delete keyBlock[countryKey].__default;
+                return true;
+            }
+            return false;
+        }
+        
+        //check the plugin at the lang level
+        if (util.isString(options.plugin) && util.isObject(langBlock.__plugins)) {
+                    
+            if (util.isString(langBlock.__plugins[options.plugin])) {
+                delete langBlock.__plugins[options.plugin];
+                return true;
+            }
+
+            //we were asked to target the plugin only
+            return false;
+        }
+        
+        //finally check the default
+        if (util.isString(langBlock.__default)) {
+            delete langBlock.__default;
+            return true;
+        }
+        return false;
     };
        
     /**
@@ -880,6 +969,34 @@ module.exports = function LocalizationModule(pb) {
     
     function k(key) {
         return '__' + key;
+    }
+    
+    function findKeyBlock(key) {
+        if (!util.isString(Localization.keys[key])) {
+            return null;
+        }
+        
+        //parse the key
+        var keyParts = key.split(Localization.KEY_SEP);
+        
+        //walk the tree looking for the storage structure
+        var keyBlock = Localization.storage;
+        keyParts.forEach(function(part) {
+            if (util.isNullOrUndefined(keyBlock[part])) {
+                keyBlock[part] = {
+                    __isKey: true
+                };
+            }
+            else if (!keyBlock[part].__isKey) {;
+                
+                //bad news bears. They tried to provide a key in a protected 
+                //namespace.  Basically all the things with "__" prefixes
+                return null;
+            }
+            keyBlock = keyBlock[part];
+        });
+        
+        return keyBlock;
     }
     
     return Localization;
