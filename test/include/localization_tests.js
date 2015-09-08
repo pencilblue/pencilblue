@@ -58,7 +58,7 @@ describe('Localization', function() {
 
     describe('Localization.isSupported', function() {
 
-        var acceptable = ['pl-PL', 'en-us', 'es-es', 'ro-RO'];
+        var acceptable = ['pl-PL', 'en-us', 'es-es', 'ro-RO', 'fr-fr', 'pt-br'];
         acceptable.forEach(function(locale) {
 
             it('should return true when provided '+locale, function() {
