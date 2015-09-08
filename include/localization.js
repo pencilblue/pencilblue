@@ -164,13 +164,13 @@ module.exports = function LocalizationModule(pb) {
             throw new Error("Failed to set a language. LANG="+util.inspect(this.language));
         }
         for (var key in loc.generic) {
-            var genericVal = this.g('generic' + Localization.KEY_SEP + key, {}, {});
+            var genericVal = this.g('generic' + Localization.KEY_SEP + key/*, {empty options}*/);
             text = text.split('^loc_' + key + '^').join(genericVal);
         }
 
         for (var i = 0; i < sets.length; i++) {
             for(var key in loc[sets[i]])  {
-                var setVal = this.g(sets[i] + Localization.KEY_SEP + key, {}, {});
+                var setVal = this.g(sets[i] + Localization.KEY_SEP + key/*, {empty options}*/);
                 text = text.split('^loc_' + key + '^').join(loc[sets[i]][key]);
             }
         }
@@ -231,7 +231,7 @@ module.exports = function LocalizationModule(pb) {
         }
 
 
-        var val = this.g(convertedKey, {}, {});
+        var val = this.g(convertedKey/*, {empty options}*/);
         if (val !== null) {
             
             arguments[0] = val;
@@ -240,11 +240,20 @@ module.exports = function LocalizationModule(pb) {
         return val;
     };
     
+    /**
+     *
+     * @method g
+     * @param {String} key
+     * @param {Object} params
+     * @param {Object} [options]
+     * @param {String} [options.site=global]
+     * @returns {String}
+     */
     Localization.prototype.g = function() {
         var key = arguments[0];
-        var params = arguments[1] || {};
-        var options = arguments[2] || { 
+        var options = arguments[1] || { 
             site: pb.SiteService.GLOBAL_SITE,
+            params: {}
         };
         
         //log operation
@@ -256,12 +265,15 @@ module.exports = function LocalizationModule(pb) {
         if (!util.isString(key)) {
             throw new Error('key parameter is required');
         }
-        if (!util.isObject(params)) {
-            throw new Error('params parameter is required');
-        }
         if (!util.isObject(options)) {
             throw new Error('options parameter must be an object');
         }
+        
+        var params = options.params || {};
+        if (!util.isObject(params)) {
+            throw new Error('params parameter is required');
+        }
+        
         
         //TODO retrieve active plugins for site to narrow down which plugins should be examined during retrieval
         
@@ -518,7 +530,7 @@ module.exports = function LocalizationModule(pb) {
         var package = {};
         var keys = Object.keys(Localization.keys);
         keys.forEach(function(key) {
-            var result = ls.g(key, {}, options);
+            var result = ls.g(key, options);
             
             var parts = key.split(Localization.KEY_SEP);
             if (parts.length === 1) {
@@ -926,7 +938,7 @@ module.exports = function LocalizationModule(pb) {
 
             var kv = {
                 value: locale,
-                name: localization.g('generic.LOCALE_DISPLAY', {}, {})
+                name: localization.g('generic.LOCALE_DISPLAY'/*, {empty options}*/)
             };
             locales.push(kv);
         });

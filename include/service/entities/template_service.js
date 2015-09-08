@@ -460,9 +460,10 @@ module.exports = function(pb) {
                 var opts = {
                     site: self.siteUid,
                     plugin: self.activeTheme,
-                    defaultVal: null
+                    defaultVal: null,
+                    params: {/*TODO use the model for this*/}
                 };
-                var val = self.localizationService.g(key, {}, opts);
+                var val = self.localizationService.g(key, opts);
                 if (!util.isString(val)) {
                     
                     //TODO this is here to be backwards compatible. Remove in 0.6.0
