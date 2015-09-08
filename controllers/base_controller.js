@@ -229,7 +229,7 @@ module.exports = function BaseControllerModule(pb) {
 
         this.session.error = message;
         var uri = pb.UrlService.createSystemUrl(redirectLocation, this.hostname);
-        cb(pb.RequestHandler.generateRedirect(uri));
+        cb(pb.RequestHandler.generateRedirect(uri, false));
     };
 
     /**
@@ -483,9 +483,14 @@ module.exports = function BaseControllerModule(pb) {
      * Redirects a request to a different location
      * @method redirect
      * @param {String} location
+     * @param {Boolean} [fullyQualified=false]
      * @param {Function} cb
      */
-    BaseController.prototype.redirect = function(location, cb){
+    BaseController.prototype.redirect = function(location, fullyQualified, cb){
+        if (util.isFunction(fullyQualified)) {
+            cb = fullyQualified;
+            fullyQualified = false;
+        }
         cb(pb.RequestHandler.generateRedirect(location));
     };
 

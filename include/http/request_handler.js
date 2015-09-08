@@ -134,7 +134,11 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} location The fully qualified or relative URL to be redirected to
      * @return {Object} The object for the controller to call back with.
      */
-    RequestHandler.generateRedirect = function (location) {
+    RequestHandler.generateRedirect = function (location, fullyQualified) {
+        if (!fullyQualified) {
+            location = pb.UrlService.urlJoin(pb.config.siteRoot, location);
+        }
+        
         return {
             redirect: location
         };
@@ -296,6 +300,15 @@ module.exports = function RequestHandlerModule(pb) {
         }
         else {
             descriptor.method = 'ALL'
+        }
+        
+        //ensure the path is updated to match the site root
+        var parsedSiteRoot = url.parse(pb.config.siteRoot);
+        if (!descriptor.path || descriptor.path === '/') {
+            descriptor.path = parsedSiteRoot.path;
+        }
+        else {
+            descriptor.path = pb.UrlService.urlJoin(parsedSiteRoot.path, descriptor.path);
         }
 
         //get pattern and path variables
