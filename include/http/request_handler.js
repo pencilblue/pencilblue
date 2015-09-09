@@ -1345,6 +1345,7 @@ module.exports = function RequestHandlerModule(pb) {
                 url = url.substring(1);
             }
 
+            //TODO modify this to work with a site root with a sub-path #737
             var pieces = url.split('/');
             return pieces.length > 0 && pieces[0].indexOf('admin') == 0;
         }

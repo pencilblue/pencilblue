@@ -279,7 +279,7 @@ module.exports = function ArticleServiceModule(pb) {
 
             if(article.article_layout.indexOf('^read_more^') > -1) {
               if(articleCount > 1) {
-                article.article_layout = article.article_layout.substr(0, article.article_layout.indexOf('^read_more^')) + ' <a href="' + pb.config.siteRoot + '/article/' + article.url + '">' + contentSettings.read_more_text + '...</a>';
+                article.article_layout = article.article_layout.substr(0, article.article_layout.indexOf('^read_more^')) + ' <a href="' + pb.UrlService.createSystemUrl('/article/' + article.url) + '">' + contentSettings.read_more_text + '...</a>';
               }
               else {
                 article.article_layout = article.article_layout.split('^read_more^').join('');
@@ -324,7 +324,7 @@ module.exports = function ArticleServiceModule(pb) {
                     // Cutoff the article at the right number of paragraphs
                     for(i = 0; i < tempLayoutArray.length && i < contentSettings.auto_break_articles; i++) {
                         if(i === contentSettings.auto_break_articles -1 && i != tempLayoutArray.length - 1) {
-                            newLayout += tempLayoutArray[i] + '&nbsp;<a href="' + pb.config.siteRoot + '/article/' + article.url + '">' + contentSettings.read_more_text + '...</a>' + breakString;
+                            newLayout += tempLayoutArray[i] + '&nbsp;<a href="' + pb.UrlService.createSystemUrl('/article/' + article.url) + '">' + contentSettings.read_more_text + '...</a>' + breakString;
                             continue;
                         }
                         newLayout += tempLayoutArray[i] + breakString;

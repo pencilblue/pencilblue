@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <title>^site_name^^page_name^</title>
+    <title>^site_name^ - ^page_name^</title>
     <meta name="description" content="^meta_desc^">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
     <meta name="robots" content="noindex">
@@ -26,9 +26,9 @@
           </div>
           ^error_success^
           <div class="panel panel-default">
-            <div class="panel-heading">^loc_LOGIN^ | <a href="/user/sign_up">^loc_CREATE_ACCOUNT^</a></div>
+            <div class="panel-heading">^loc_LOGIN^ | <a href="^url_/user/sign_up^">^loc_CREATE_ACCOUNT^</a></div>
             <div class="panel-body">
-              <form id="login_form" method="post" action="/actions/login">
+              <form id="login_form" method="post" action="^url_/actions/login^">
                 <fieldset>
                   <div class="form-group">
                     <label>^loc_USERNAME_OR_EMAIL^</label>

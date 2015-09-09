@@ -23,6 +23,7 @@ module.exports = function TopMenuServiceModule(pb) {
 
     //dependencies
     var SectionService = pb.SectionService;
+    var UrlService     = pb.UrlService;
 
     /**
      * Service for top menu navigation.
@@ -119,17 +120,17 @@ module.exports = function TopMenuServiceModule(pb) {
                         {
                             icon: 'user',
                             title: ls.get('ACCOUNT'),
-                            href: '/user/manage_account'
+                            href: UrlService.createSystemUrl('/user/manage_account')
                         },
                         {
                             icon: 'rss',
                             title: ls.get('SUBSCRIBE'),
-                            href: '/feed'
+                            href: UrlService.createSystemUrl('/feed')
                         },
                         {
                             icon: 'power-off',
                             title: ls.get('LOGOUT'),
-                            href: '/actions/logout'
+                            href: UrlService.createSystemUrl('/actions/logout')
                         }
                     ];
 
@@ -140,12 +141,12 @@ module.exports = function TopMenuServiceModule(pb) {
                         {
                             icon: 'user',
                             title: ls.get('ACCOUNT'),
-                            href: '/user/sign_up'
+                            href: UrlService.createSystemUrl('/user/sign_up')
                         },
                         {
                             icon: 'rss',
                             title: ls.get('SUBSCRIBE'),
-                            href: '/feed'
+                            href: UrlService.createSystemUrl('/feed')
                         }
                     ];
                 }
@@ -156,7 +157,7 @@ module.exports = function TopMenuServiceModule(pb) {
                     {
                         icon: 'rss',
                         title: ls.get('SUBSCRIBE'),
-                        href: '/feed'
+                        href: UrlService.createSystemUrl('/feed')
                     }
                 ];
             }

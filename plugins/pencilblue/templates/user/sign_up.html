@@ -4,7 +4,7 @@
       <div class="col-md-4 col-md-offset-4">
         ^tmp_admin=elements=error_success^
         <div class="panel panel-default">
-          <div class="panel-heading">^loc_CREATE_ACCOUNT^ | <a href="/user/login">^loc_LOGIN_EXISTING^</a></div>
+          <div class="panel-heading">^loc_CREATE_ACCOUNT^ | <a href="^url_/user/login^">^loc_LOGIN_EXISTING^</a></div>
           <div class="panel-body">
             <form name="signUpForm" ng-submit="signUpUser()" novalidate>
               <div class="form-group" ng-class="{'has-error': !isFieldValid(signUpForm.username)}">
@@ -61,7 +61,7 @@
           </div>
         </div>
         <div style="text-align: right">
-          <a href="/"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_BACK_HOME^</a>
+          <a href="^url_/^"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_BACK_HOME^</a>
         </div>
       </div>
     </div>

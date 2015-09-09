@@ -19,6 +19,8 @@ var util = require('../../util.js');
 
 module.exports = function AdminSubnavServiceModule(pb) {
 
+    var UrlService = pb.UrlService;
+    
     /**
      * Provides the ability to manage the admin section's sub-nav.  It manages
      * callbacks for specific areas of the admin section that will build a structure
@@ -145,7 +147,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
                 name: 'selected_site',
                 title: siteName,
                 icon: 'sitemap',
-                href: '/admin/sites'
+                href: UrlService.createSystemUrl('/admin/sites')
             });
         }
         pills = pills.concat(standardPills);

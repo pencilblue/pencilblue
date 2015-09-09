@@ -178,7 +178,11 @@ module.exports = function UrlServiceModule(pb) {
     
     UrlService.createSystemUrl = function(path, hostname) {
         if (!hostname) {
-            hostname = pb.config.siteRoot;
+            var siteRootPath = url.parse(pb.config.siteRoot).path;
+            if (!path || path === '/') {
+                return siteRootPath;
+            }
+            hostname = siteRootPath;
         }
         return UrlService.urlJoin(hostname, path);
     };

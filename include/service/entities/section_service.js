@@ -22,6 +22,8 @@ var util    = require('../../util.js');
 
 module.exports = function SectionServiceModule(pb) {
 
+    var UrlService = pb.UrlService;
+    
     /**
      * Service for managing the site's navigation
      * @class SectionService
@@ -65,7 +67,7 @@ module.exports = function SectionServiceModule(pb) {
                 name: 'new_nav_item',
                 title: '',
                 icon: 'plus',
-                href: '/admin/content/navigation/new'
+                href: UrlService.createSystemUrl('/admin/content/navigation/new')
             }
         ];
     };

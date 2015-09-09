@@ -463,6 +463,9 @@ module.exports = function(pb) {
                 });
                 return;
             }
+            else if (flag.indexOf('url_') == 0) {
+                return self.handleUrlReplacement(flag, cb);
+            }
             else {
 
                 //log result
@@ -502,6 +505,11 @@ module.exports = function(pb) {
         this.load(templatePath, function(err, template) {
             cb(err, template);
         });
+    };
+    
+    TemplateService.prototype.handleUrlReplacement = function(flag, cb) {
+        var url = flag.substr('url_'.length + 1);
+        cb(null, pb.UrlService.createSystemUrl(url));
     };
 
     /**

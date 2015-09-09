@@ -22,6 +22,8 @@ module.exports = function AdminNavigationModule(pb) {
 
     //PB dependencies
     var SecurityService = pb.SecurityService;
+    var UrlService = pb.UrlService;
+    
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
@@ -65,7 +67,7 @@ module.exports = function AdminNavigationModule(pb) {
             id: 'site_entity',
             title: 'MANAGE_SITES',
             icon: 'sitemap',
-            href: '/admin/sites',
+            href: UrlService.createSystemUrl('/admin/sites'),
             access: SecurityService.ACCESS_ADMINISTRATOR
 
         }
@@ -90,49 +92,49 @@ module.exports = function AdminNavigationModule(pb) {
                 id: 'navigation',
                 title: 'NAVIGATION',
                 icon: 'th-large',
-                href: '/admin/content/navigation',
+                href: UrlService.createSystemUrl('/admin/content/navigation'),
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'topics',
                 title: 'TOPICS',
                 icon: 'tags',
-                href: '/admin/content/topics',
+                href: UrlService.createSystemUrl('/admin/content/topics'),
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'pages',
                 title: 'PAGES',
                 icon: 'file-o',
-                href: '/admin/content/pages',
+                href: UrlService.createSystemUrl('/admin/content/pages'),
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'articles',
                 title: 'ARTICLES',
                 icon: 'files-o',
-                href: '/admin/content/articles',
+                href: UrlService.createSystemUrl('/admin/content/articles'),
                 access: SecurityService.ACCESS_WRITER
             },
             {
                 id: 'media',
                 title: 'MEDIA',
                 icon: 'camera',
-                href: '/admin/content/media',
+                href: UrlService.createSystemUrl('/admin/content/media'),
                 access: SecurityService.ACCESS_WRITER
             },
             {
                 id: 'comments',
                 title: 'COMMENTS',
                 icon: 'comments',
-                href: '/admin/content/comments',
+                href: UrlService.createSystemUrl('/admin/content/comments'),
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'custom_objects',
                 title: 'CUSTOM_OBJECTS',
                 icon: 'cubes',
-                href: '/admin/content/objects/types',
+                href: UrlService.createSystemUrl('/admin/content/objects/types'),
                 access: SecurityService.ACCESS_EDITOR
             }
         ]
@@ -150,13 +152,13 @@ module.exports = function AdminNavigationModule(pb) {
                 id: 'manage',
                 title: 'MANAGE',
                 icon: 'upload',
-                href: '/admin/plugins'
+                href: UrlService.createSystemUrl('/admin/plugins')
             },
             {
                 id: 'themes',
                 title: 'THEMES',
                 icon: 'magic',
-                href: '/admin/themes'
+                href: UrlService.createSystemUrl('/admin/themes')
             }
         ]
     });
@@ -172,14 +174,14 @@ module.exports = function AdminNavigationModule(pb) {
                 id: 'manage',
                 title: 'MANAGE',
                 icon: 'users',
-                href: '/admin/users',
+                href: UrlService.createSystemUrl('/admin/users'),
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'permissions',
                 title: 'PERMISSIONS',
                 icon: 'lock',
-                href: '/admin/users/permissions',
+                href: UrlService.createSystemUrl('/admin/users/permissions'),
                 access: SecurityService.ACCESS_ADMINISTRATOR
             }
         ]
@@ -189,7 +191,7 @@ module.exports = function AdminNavigationModule(pb) {
         id: 'view_site',
         title: 'VIEW_SITE',
         icon: 'desktop',
-        href: '/',
+        href: UrlService.createSystemUrl('/'),
         access: SecurityService.ACCESS_WRITER
     });
 
@@ -197,7 +199,7 @@ module.exports = function AdminNavigationModule(pb) {
         id: 'logout',
         title: 'LOGOUT',
         icon: 'power-off',
-        href: '/actions/logout',
+        href: UrlService.createSystemUrl('/actions/logout'),
         access: SecurityService.ACCESS_WRITER
     });
 
@@ -213,21 +215,21 @@ module.exports = function AdminNavigationModule(pb) {
                     id: 'site_settings',
                     title: 'SITE_SETTINGS',
                     icon: 'cog',
-                    href: '/admin/site_settings',
+                    href: UrlService.createSystemUrl('/admin/site_settings'),
                     access: SecurityService.ACCESS_ADMINISTRATOR
                 },
                 {
                     id: 'content_settings',
                     title: 'CONTENT',
                     icon: 'quote-right',
-                    href: '/admin/site_settings/content',
+                    href: UrlService.createSystemUrl('/admin/site_settings/content'),
                     access: SecurityService.ACCESS_ADMINISTRATOR
                 },
                 {
                     id: 'email_settings',
                     title: 'EMAIL',
                     icon: 'envelope',
-                    href: '/admin/site_settings/email',
+                    href: UrlService.createSystemUrl('/admin/site_settings/email'),
                     access: SecurityService.ACCESS_ADMINISTRATOR
                 }
             ]
@@ -238,7 +240,7 @@ module.exports = function AdminNavigationModule(pb) {
                 id: 'library_settings',
                 title: 'LIBRARIES',
                 icon: 'book',
-                href: '/admin/site_settings/libraries',
+                href: UrlService.createSystemUrl('/admin/site_settings/libraries'),
                 access: SecurityService.ACCESS_ADMINISTRATOR
             });
         }
