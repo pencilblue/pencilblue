@@ -1,14 +1,31 @@
 <script type="text/javascript" src="/js/angular/services/search.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript" src="/js/angular/factories/admin/topic.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['search', 'paginate'])
-    .controller('PencilBlueController', function($scope, $http, searchService, paginationService) {
+    angular.module('pencilblueApp', [
+      'search',
+      'paginate',
+      'pencilblue.factories.admin.topics'
+    ])
+    .controller('PencilBlueController', function($scope, $http, searchService, paginationService, topicFactory) {
         ^angular_objects^
 
         $scope.searchText = '';
         $scope.paginationIndex = 0;
         $scope.paginationLimit = 50;
         $scope.deleteNameKey = 'name';
+
+        $scope.getTopics = function() {
+          topicFactory.getTopics(function(error, topics) {
+            if(error) {
+              $scope.errorMessage = error.message;
+              return;
+            }
+
+            $scope.topics = topics;
+            $scope.paginate(0);
+          });
+        };
 
         $scope.search = function() {
             searchService.search($scope.searchText, $scope.topics, ['name'], function(topics) {
@@ -42,30 +59,31 @@
 
         $scope.deleteObject = function() {
             if(!$scope.objectToDelete) {
-                return;
+              return;
             }
 
             $scope.deleting = true;
-            $http({method: 'DELETE', url: '/actions/admin/content/topics/' + $scope.objectToDelete._id})
-            .success(function(result) {
-                for(var i = 0; i < $scope.topics.length; i ++) {
-                    if($scope.topics[i]._id.toString() === $scope.objectToDelete._id.toString()) {
-                        $scope.topics.splice(i, 1);
-                        break;
-                    }
-                }
-                $scope.deleting = false;
-                $scope.successMessage = result.message;
-                $scope.paginate(0);
-                $('#confirm_delete_modal').modal('hide');
-            })
-            .error(function(error, status) {
+            topicFactory.deleteTopic($scope.objectToDelete._id, function(error, result) {
+              if(error) {
                 $scope.deleting = false;
                 $scope.errorMessage = error.message;
                 $('#confirm_delete_modal').modal('hide');
+                return;
+              }
+
+              for(var i = 0; i < $scope.topics.length; i ++) {
+                if($scope.topics[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+                  $scope.topics.splice(i, 1);
+                  break;
+                }
+              }
+              $scope.deleting = false;
+              $scope.successMessage = result.message;
+              $scope.paginate(0);
+              $('#confirm_delete_modal').modal('hide');
             });
         }
 
-        $scope.paginate(0);
+        $scope.getTopics();
     });
 </script>

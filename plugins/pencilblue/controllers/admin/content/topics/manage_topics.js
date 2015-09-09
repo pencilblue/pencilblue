@@ -16,75 +16,31 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for managing topics
      */
     function ManageTopics() {}
     util.inherits(ManageTopics, pb.BaseAdminController);
 
-    /**
-     * Initializes the controller
-     * @method init
-     * @param {Object} context
-     * @param {Function} cb
-     */
-    ManageTopics.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err) {
-
-            /**
-             *
-             * @property service
-             * @type {TopicService}
-             */
-            self.service = new pb.TopicService(self.getServiceContext());
-
-            cb(err, true);
-        };
-        ManageTopics.super_.prototype.init.apply(this, [context, init]);
-    };
-
     var SUB_NAV_KEY = 'manage_topics';
 
     ManageTopics.prototype.render = function(cb) {
         var self = this;
 
-        this.service.getAll(function(err, topics) {
-            if (util.isError(err)) {
-                self.reqHandler.serveError(err);
-            }
-            else if(topics.length === 0) {
+        var angularObjects = pb.ClientJs.getAngularObjects({
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls, self.site),
+            pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
+        });
 
-                //none to manage
-                return self.redirect('/admin/content/topics/new', cb);
-            }
-
-            //currently, mongo cannot do case-insensitive sorts.  We do it manually
-            //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
-            topics.sort(function(a, b) {
-                var x = a.name.toLowerCase();
-                var y = b.name.toLowerCase();
-
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-            });
-
-            var angularObjects = pb.ClientJs.getAngularObjects(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls, self.site),
-                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-                topics: topics
-            });
-
-            self.setPageName(self.ls.get('MANAGE_TOPICS'));
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/content/topics/manage_topics', function(err, data) {
-                var result = '' + data;
-                cb({content: result});
-            });
+        self.setPageName(self.ls.get('MANAGE_TOPICS'));
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/content/topics/manage_topics', function(err, data) {
+            var result = '' + data;
+            cb({content: result});
         });
     };
 
