@@ -141,9 +141,12 @@ Configuration.getBaseConfig = function(multisite) {
 
             //the name of the default DB for the system
             name: 'pencil_blue',
-
-            //http://docs.mongodb.org/manual/core/write-concern/
-            writeConcern: 1,
+            
+            options: {
+                
+                //http://docs.mongodb.org/manual/core/write-concern/
+                w: 1
+            },
 
             //PB provides the ability to log queries.  This is handy during
             //development to see how many trips to the DB a single request is
