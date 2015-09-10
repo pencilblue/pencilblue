@@ -3,7 +3,7 @@
   .factory('topicFactory', function($http) {
     return {
       getTopics: function(cb) {
-        $http.get('/api/admin/content/topics')
+        $http.get('/api/content/topics')
         .success(function(result) {
           cb(null, result.data);
         })
@@ -15,7 +15,7 @@
       deleteTopic: function(id, cb) {
         $http({
           method: 'DELETE',
-          url: '/api/admin/content/topics/' + id
+          url: '/api/content/topics/' + id
         })
         .success(function(result) {
           cb(null, result);

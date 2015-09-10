@@ -1370,25 +1370,6 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js'),
             request_body: ['application/json']
-        },
-
-        {
-            method: 'get',
-            path: "/api/admin/content/topics",
-            auth_required: true,
-            inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
-            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/content/topics/get_topics.js'),
-            content_type: 'application/json'
-        },
-        {
-            method: 'delete',
-            path: "/api/admin/content/topics/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
-            auth_required: true,
-            inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/content/topics/delete_topic.js'),
-            content_type: 'application/json'
-        },
+        }
     ];
 };
