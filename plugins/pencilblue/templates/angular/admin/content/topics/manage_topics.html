@@ -31,32 +31,54 @@
 
         $scope.topics = topics;
         $scope.paginationTotal = total;
-        $scope.paginate($scope.paginationIndex);
         cb(topics, total);
       });
     };
 
     $scope.search = function() {
-      searchService.search($scope.searchText, $scope.topics, ['name'], function(topics) {
-        $scope.topics = topics;
-        $scope.paginate(0);
-      });
-    }
+      $scope.paginate(0, true);
+    };
 
     $scope.clearSearch = function() {
       $scope.searchText = '';
-      $scope.search();
-    }
+      $scope.paginate(0, true);
+    };
 
-    $scope.paginate = function(paginationIndex) {
-      if(!paginationService.paginationValid(paginationIndex, $scope.paginationIndex, $scope.paginationPages.length)) {
+    $scope.queryTopics = function(cb) {
+      if(!cb) {
+        cb = function() {};
+      }
+
+      $scope.topics = null;
+
+      topicFactory.searchTopics($scope.searchText, $scope.paginationLimit, $scope.paginationIndex, function(error, topics, total) {
+        if(error) {
+          $scope.errorMessage = error.message;
+          return;
+        }
+
+        $scope.topics = topics;
+        $scope.paginationTotal = total;
+        cb(topics, total);
+      });
+    };
+
+    $scope.paginate = function(paginationIndex, force) {
+      if(!force && !paginationService.paginationValid(paginationIndex, $scope.paginationIndex, $scope.paginationPages.length)) {
         return;
       }
 
       $scope.paginationIndex = paginationIndex;
-      $scope.getTopics(function() {
-        $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
-      });
+      if($scope.searchText.length) {
+        $scope.queryTopics(function() {
+          $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
+        });
+      }
+      else {
+        $scope.getTopics(function() {
+          $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
+        });
+      }
     };
 
     $scope.pageButtonVisible = function(testIndex) {

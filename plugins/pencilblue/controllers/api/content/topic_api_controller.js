@@ -23,14 +23,14 @@ module.exports = function(pb) {
     var SecurityService = pb.SecurityService;
 
     /**
-     * 
+     *
      * @class TopicApiController
      * @constructor
      * @extends BaseApiController
      */
     function TopicApiController(){}
     util.inherits(TopicApiController, pb.BaseApiController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -40,17 +40,38 @@ module.exports = function(pb) {
     TopicApiController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
+
             /**
-             * 
+             *
              * @property service
              * @type {TopicService}
              */
             self.service = new TopicService(self.getServiceContext());
-                
+
             cb(err, true);
         };
         TopicApiController.super_.prototype.init.apply(this, [context, init]);
+    };
+
+    TopicApiController.prototype.processWhere = function(q) {
+        var where = null;
+        var failures = [];
+
+        //build query & get results
+        var search = q.q;
+        if (pb.ValidationService.isNonEmptyStr(search, true)) {
+
+            var patternStr = ".*" + util.escapeRegExp(search) + ".*";
+            var pattern = new RegExp(patternStr, "i");
+            where = {
+              name: pattern
+            };
+        }
+
+        return {
+            where: where,
+            failures: failures
+        };
     };
 
     //exports

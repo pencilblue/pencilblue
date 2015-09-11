@@ -12,6 +12,16 @@
         });
       },
 
+      searchTopics: function(query, limit, offset, cb) {
+        $http.get('/api/content/topics?$limit=' + limit + '&$offset=' + offset + '&q=' + query)
+        .success(function(result) {
+          cb(null, result.data, result.total);
+        })
+        .error(function(error) {
+          cb(error);
+        });
+      },
+
       deleteTopic: function(id, cb) {
         $http({
           method: 'DELETE',

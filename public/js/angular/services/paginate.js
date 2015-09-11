@@ -74,4 +74,4 @@ angular.module('paginate', [])
 
 		return false;
 	};
-})
+});

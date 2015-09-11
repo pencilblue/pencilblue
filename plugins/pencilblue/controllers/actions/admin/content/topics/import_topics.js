@@ -21,10 +21,10 @@ var formidable = require('formidable');
 var async      = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Imports a CSV of topics
      * @class ImportTopics
@@ -91,7 +91,7 @@ module.exports = function(pb) {
                 });
             }
 
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, loc.topics.TOPICS_CREATED)});
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('TOPICS_CREATED'))});
         });
     };
 
