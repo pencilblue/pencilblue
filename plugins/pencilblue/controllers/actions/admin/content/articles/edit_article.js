@@ -22,6 +22,7 @@ module.exports = function(pb) {
 
     /**
      * Edits an article
+     * @deprecated Since 0.5.0
      */
     function EditArticle(){}
     util.inherits(EditArticle, pb.BaseAdminController);

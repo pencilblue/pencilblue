@@ -142,10 +142,10 @@ module.exports = function(pb) {
         
         if (util.isArray(dto.meta_keywords)) {
             for (var i = 0; i < dto.meta_keywords.length; i++) {
-                dto.meta_keywords[i] = BaseObjectService.getDate(dto.meta_keywords[i]);  
+                dto.meta_keywords[i] = BaseObjectService.sanitize(dto.meta_keywords[i]);
             }
         }
-        
+
         cb(null);
     };
     
