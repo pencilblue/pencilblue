@@ -72,7 +72,7 @@ module.exports = function(pb) {
     /**
      * Retrieves an instance of a content renderer
      * @method getRenderer
-     * @return {ArticleRenderer}
+     * @return {PageRenderer}
      */
     PageService.prototype.getRenderer = function() {
         return new pb.PageRenderer();
@@ -110,7 +110,7 @@ module.exports = function(pb) {
         
         if (util.isArray(dto.meta_keywords)) {
             for (var i = 0; i < dto.meta_keywords.length; i++) {
-                dto.meta_keywords[i] = BaseObjectService.getDate(dto.meta_keywords[i]);  
+                dto.meta_keywords[i] = BaseObjectService.sanitize(dto.meta_keywords[i]);
             }
         }
         
@@ -133,8 +133,8 @@ module.exports = function(pb) {
         obj.author = dto.author;
         obj.publish_date = dto.publish_date;
         obj.meta_keywords = dto.meta_keywords;
-        obj.page_media = dto.article_media;
-        obj.page_topics = dto.article_topics;
+        obj.page_media = dto.page_media;
+        obj.page_topics = dto.page_topics;
         obj.url = dto.url;
         obj.template = dto.template;
         obj.headline = dto.headline;
@@ -145,7 +145,7 @@ module.exports = function(pb) {
         obj.meta_desc = dto.meta_desc;
         obj.thumbnail = dto.thumbnail;
         obj.draft = dto.draft;
-        obj.page_layout = dto.article_layout;
+        obj.page_layout = dto.page_layout;
 
         cb(null);
     };
@@ -188,7 +188,7 @@ module.exports = function(pb) {
         
         if (!util.isArray(obj.page_media)) {
             if (!util.isNullOrUndefined(obj.page_media)) {
-                errors.push(BaseObjectService.validationFailure('page_media', 'Article Media must be an array'));
+                errors.push(BaseObjectService.validationFailure('page_media', 'Page Media must be an array'));
             }
         }
         else {
@@ -202,7 +202,7 @@ module.exports = function(pb) {
         
         if (!util.isArray(obj.page_topics)) {
             if (!util.isNullOrUndefined(obj.page_topics)) {
-                errors.push(BaseObjectService.validationFailure('page_topics', 'Article topics must be an array'));
+                errors.push(BaseObjectService.validationFailure('page_topics', 'Page topics must be an array'));
             }
         }
         else {
@@ -250,7 +250,7 @@ module.exports = function(pb) {
             errors.push(BaseObjectService.validationFailure('draft', 'An invalid draft value was provided.  Must be 1 or 0'));
         }
         
-        if (!ValidationService.isNonEmptyStr(obj.article_layout, true)) {
+        if (!ValidationService.isNonEmptyStr(obj.page_layout, true)) {
             errors.push(BaseObjectService.validationFailure('page_layout', 'The layout is required'));
         }
         

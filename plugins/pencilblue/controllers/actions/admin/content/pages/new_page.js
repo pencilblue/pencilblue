@@ -22,6 +22,7 @@ module.exports = function(pb) {
 
     /**
      * Creates a new page
+     * @deprecated Since 0.5.0
      * @class NewPagePostController
      * @constructor
      * @extends BaseAdminController

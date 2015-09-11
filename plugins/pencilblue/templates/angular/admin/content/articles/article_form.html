@@ -13,7 +13,7 @@
 		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
 		$scope.article.article_media = $scope.article.article_media || [];
 		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
-		$scope.article.meta_keywords = $scope.article.meta_keywords ? $scope.article.meta_keywords.join(',') : '';
+		$scope.article.meta_keywords = $scope.article.meta_keywords ? $scope.article.meta_keywords.join(', ') : '';
 		$scope.editingObject = $scope.article;
 		$scope.variablePrefix = 'article';
 
@@ -141,16 +141,14 @@
 					var keywords = words.split(",");
 					for (var i = 0; i < keywords.length; i++) {
 						if (keywords[i].trim().length > 0) {
-							articleData.meta_keywords.push(keywords[i]);
+							articleData.meta_keywords.push(keywords[i].trim());
 						}
 					}
 				}
 			}
 
 			// This sometimes defaults to "undefined" instead of "false" on page load
-			if (typeof articleData.allow_comments == "undefined") {
-				articleData.allow_comments = false;
-			}
+			articleData.allow_comments = articleData.allow_comments ? true : false;
 
 			articleData.article_media = media;
 			articleData.article_sections = sections;
@@ -166,7 +164,7 @@
 					$window.open('/preview/article/' + $scope.article._id);
 				}
 			});
-		}
+		};
 
 		$('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
 		$timeout($scope.saveArticleDraft, 30000);
