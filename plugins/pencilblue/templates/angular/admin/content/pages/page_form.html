@@ -63,7 +63,7 @@
                     .success(function(result) {
                         $scope.successMessage = 'SUCCESS';
                         $scope.saving = false;
-                        $window.location = '/admin/content/pages/' + result.data._id.toString();
+                        $window.location = '/admin/content/pages/' + result._id.toString();
                     })
                     .error(function(error, status) {
                         $scope.errorMessage = error.message;

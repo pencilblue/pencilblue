@@ -69,11 +69,11 @@
 						$scope.successMessage = 'SUCCESS';
 						$scope.saving = false;
 
-						if(!result.data._id) {
+						if(!result._id) {
 							$window.location = '/admin/content/articles';
 							return;
 						}
-						$window.location = '/admin/content/articles/' + result.data._id.toString();
+						$window.location = '/admin/content/articles/' + result._id.toString();
 					})
 					.error(function(error, status) {
 						$scope.errorMessage = error.message;
