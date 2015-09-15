@@ -503,7 +503,7 @@ module.exports = function LocalizationModule(pb) {
      * @return {Boolean}
      */
     Localization.isSupported = function(locale) {
-        if (!locale) {
+        if (!util.isString(locale) || locale.length === 0) {
             return false;
         }
         
@@ -974,15 +974,15 @@ module.exports = function LocalizationModule(pb) {
         return {
             language: lang,
             countryCode: countryCode,
-            toString: function() {
-                return Localization.formatLocale(this.lang, this.countryCode);
-            }
         };
     };
     
     Localization.formatLocale = function(language, countryCode) {
         if (!util.isString(language)) {
             throw new Error('language parameter is required');
+        }
+        if (!util.isNullOrUndefined(countryCode) && !util.isString(countryCode)) {
+            throw new Error('countryCode parameter must be a string');
         }
         
         var localeStr = language.toLowerCase();

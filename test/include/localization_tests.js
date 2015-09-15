@@ -68,7 +68,7 @@ describe('Localization', function() {
             });
         });
 
-        var unacceptable = ['en-GB', 'ar-SY'];
+        var unacceptable = ['en-GB', 'ar-SY', undefined, false, 0, 1, 2.2, null, ''];
         unacceptable.forEach(function(locale) {
 
             it('should return false when provided '+locale, function() {
@@ -169,5 +169,63 @@ describe('Localization', function() {
             var result = Localization.replaceParameters(val, params);
             result.should.eql("PencilBlue is an amazing CMS.  It is quite comprehensive and provides a lot of features.");
         });
+    });
+    
+    describe('Localization.formatLocale', function() {
+        
+        [1, 2.2, false, {}, [], null, undefined].forEach(function(param) {
+            it('should throw an error when a non-string language parameter ' + param + ' is provided', function() {
+                Localization.formatLocale.bind(null, param).should.throwError();
+            });
+        });
+        
+        [1, 2.2, false, {}, []].forEach(function(param) {
+            it('should throw an error when a non-string countryCode parameter ' + param + ' is provided', function() {
+                Localization.formatLocale.bind(null, 'en', param).should.throwError();
+            });
+        });
+        
+        it('should format the locale with no country code when provided just the language', function() {
+            
+            var language = 'en';
+            var result = Localization.formatLocale(language);
+            result.should.eql(language);
+        });
+        
+        it('should format the locale with a country code when provided the language & country code', function() {
+            
+            var language = 'EN';
+            var countryCode = 'us';
+            var result = Localization.formatLocale(language, countryCode);
+            result.should.eql('en-US');
+        });
+    });
+    
+    describe('Localization.parseLocaleStr', function() {
+        //TODO
+    });
+    
+    describe('Localization.getSupportedWithDisplay', function() {
+        //TODO
+    });
+    
+    describe('Localization.getSupported', function() {
+        //TODO
+    });
+    
+    describe('Localization.containsParameters', function() {
+        //TODO
+    });
+    
+    describe('Localization.unregisterLocale', function() {
+        //TODO
+    });
+    
+    describe('Localization.registerLocalization', function() {
+        //TODO
+    });
+    
+    describe('Localization.registerLocale', function() {
+        //TODO
     });
 });
