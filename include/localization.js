@@ -950,8 +950,8 @@ module.exports = function LocalizationModule(pb) {
             if (!util.isString(filePath.language)) {
                 throw new Error('filePath.language parameter is required');
             }
-            if (!util.isString(filePath.countryCode)) {
-                throw new Error('filePath.countryCode parameter is required');
+            if (!util.isNullOrUndefined(filePath.countryCode) && !util.isString(filePath.countryCode)) {
+                throw new Error('filePath.countryCode parameter must be a string');
             }
             
             //we have a valid locale we can stop
@@ -961,7 +961,11 @@ module.exports = function LocalizationModule(pb) {
             throw new Error('filePath parameter is required');
         }
         
-        var lastSlashPos = filePath.lastIndexOf(path.sep);
+        //detect what file path separator we are using. Unix first then windows
+        var lastSlashPos = filePath.lastIndexOf('/');
+        if (lastSlashPos < 0) {
+            lastSlashPos = filePath.lastIndexOf('\\');
+        }
         var extPos = filePath.lastIndexOf(JS_EXT);
         if (extPos < 0) {
             extPos = filePath.length;

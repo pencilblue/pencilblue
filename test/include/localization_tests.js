@@ -202,7 +202,29 @@ describe('Localization', function() {
     });
     
     describe('Localization.parseLocaleStr', function() {
-        //TODO
+        
+        [
+            ['en', 'en', null], 
+            ['PO', 'po', null], 
+            ['Ro', 'ro', null], 
+            ['eS', 'es', null], 
+            ['/unix/file/path/en.json', 'en', null], 
+            ['C:\\windows\\file\\path\\en.js', 'en', null],
+            ['en-US', 'en', 'US'], 
+            ['PO-us', 'po', 'US'], 
+            ['Ro-Ro', 'ro', 'RO'], 
+            ['eS-Es', 'es', 'ES'], 
+            ['/unix/file/path/en-US.json', 'en', 'US'], 
+            ['C:\\windows\\file\\path\\EN-us.js', 'en', 'US']
+        ].forEach(function(testCaseParams) {
+            
+            it('should parse the locale as language lower case and country code upper case (when provided)', function() {
+                
+                var result = Localization.parseLocaleStr(testCaseParams[0]);
+                result.language.should.eql(testCaseParams[1]);
+                should.strictEqual(result.countryCode, testCaseParams[2]);
+            });
+        });
     });
     
     describe('Localization.getSupportedWithDisplay', function() {
