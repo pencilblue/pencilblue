@@ -225,6 +225,41 @@ describe('Localization', function() {
                 should.strictEqual(result.countryCode, testCaseParams[2]);
             });
         });
+        
+        it('should return the locale object when passed in', function() {
+            var locale = {
+                language: 'en',
+                countryCode: 'US'
+            };
+            var result = Localization.parseLocaleStr(locale);
+            result.should.eql(locale);
+        });
+        
+        [
+            1,
+            2.1,
+            true,
+            [],
+            {},
+            null,
+            undefined,
+            { language: 1, countryCode: 'US' },
+            { language: 1.2, countryCode: 'US' },
+            { language: false, countryCode: 'US' },
+            { language: [], countryCode: 'US' },
+            { language: {}, countryCode: 'US' },
+            { language: null, countryCode: 'US' },
+            { language: "en", countryCode: 1 },
+            { language: "en", countryCode: 2.2 },
+            { language: "en", countryCode: false },
+            { language: "en", countryCode: [] },
+            { language: "en", countryCode: {} },
+        ].forEach(function(locale) {
+            
+            it('should throw when provided an invalid locale '+ JSON.stringify(locale), function() {
+                Localization.parseLocaleStr.bind(null, locale).should.throwError();
+            });
+        });
     });
     
     describe('Localization.getSupportedWithDisplay', function() {
