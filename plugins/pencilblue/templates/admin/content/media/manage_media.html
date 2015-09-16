@@ -3,7 +3,10 @@
     ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
     ^tmp_admin=elements=search_input^
-    <div class="table_container">
+    <div ng-if="!media">
+      <i class="fa fa-4x fa-circle-o-notch fa-spin"></i>
+    </div>
+    <div class="table_container" ng-if="media">
         <table class="table table-responsive table-condensed">
             ^tmp_admin=elements=table_headers^
             <tr ng-repeat="mediaItem in media track by mediaItem._id" ng-if="!mediaItem.hidden && !mediaItem.paginated">

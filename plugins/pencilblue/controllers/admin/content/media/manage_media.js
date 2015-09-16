@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for managing media
      */
@@ -31,7 +31,20 @@ module.exports = function(pb) {
 
     ManageMedia.prototype.render = function(cb) {
         var self = this;
-        var options = {
+
+        var angularObjects = pb.ClientJs.getAngularObjects({
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site),
+            pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
+        });
+
+        var title = self.ls.get('MANAGE_MEDIA');
+        self.setPageName(title);
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/content/media/manage_media', function(err, result) {
+            cb({content: result});
+        });
+
+        /*var options = {
             select: {
                 name: 1,
                 caption: 1,
@@ -57,10 +70,10 @@ module.exports = function(pb) {
                     cb({content: result});
                 });
             });
-        });
+        });*/
     };
 
-    ManageMedia.prototype.getAngularObjects = function(mediaData, cb) {
+    /*ManageMedia.prototype.getAngularObjects = function(mediaData, cb) {
         var self = this;
         pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: self.site}, function(err, pills) {
             var angularObjects = pb.ClientJs.getAngularObjects(
@@ -80,7 +93,7 @@ module.exports = function(pb) {
             //TODO: err first arg for style. User experience error when no pills?
             cb(angularObjects);
         });
-    };
+    };*/
 
     ManageMedia.getSubNavItems = function(key, ls, data) {
         return [{
