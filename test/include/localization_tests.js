@@ -1,5 +1,6 @@
 
 //depedencies
+var path          = require('path');
 var should        = require('should');
 var Configuration = require('../../include/config.js');
 var Lib           = require('../../lib');
@@ -263,15 +264,59 @@ describe('Localization', function() {
     });
     
     describe('Localization.getSupportedWithDisplay', function() {
-        //TODO
+        
+        it('should return an array with the same number of items as locale files', function(done) {
+            getLocalizationFiles(function(err, files) {
+                should.not.exist(err);
+                
+                var result = Localization.getSupportedWithDisplay();
+                files.length.should.eql(result.length);
+                
+                done();
+            });
+        });
     });
     
     describe('Localization.getSupported', function() {
-        //TODO
+        
+        it('should return an array with the same number of items as locale files', function(done) {
+            getLocalizationFiles(function(err, files) {
+                should.not.exist(err);
+                
+                var result = Localization.getSupported();
+                files.length.should.eql(result.length);
+                
+                done();
+            });
+        });
     });
     
     describe('Localization.containsParameters', function() {
-        //TODO
+        
+        [1, 2.2, false, [], {}, null, undefined].forEach(function(val) {
+            
+            it('should throw an error when provided an invalid value '+ val, function() {
+                Localization.containsParameters.bind(null, val).should.throwError();
+            });
+        });
+        
+        [
+            ["", false],
+            ["hello.world", false],
+            ["hello this is just a simple test", false],
+            ["hello {this is my", false],
+            ["} hello world", false],
+            ["}{ what about", false],
+            ["{what about}", true],
+            ["This is {param1} good {param2}", true]
+        ].forEach(function(testCaseParams) {
+            
+            it('should inspect the value and determine if parameters are found within it', function() {
+                console.log(testCaseParams);
+                var result = Localization.containsParameters(testCaseParams[0]);
+                result.should.eql(testCaseParams[1]);
+            });
+        });
     });
     
     describe('Localization.unregisterLocale', function() {
@@ -285,4 +330,13 @@ describe('Localization', function() {
     describe('Localization.registerLocale', function() {
         //TODO
     });
+    
+    function getLocalizationFiles(cb) {
+        var options = {
+            recursive: false,
+            filter: function(filePath) { return filePath.indexOf('.js') === filePath.length - '.js'.length; }
+        };
+        var dir = path.join(pb.config.docRoot, 'public/localization');
+        pb.utils.getFiles(dir, options, cb);
+    }
 });

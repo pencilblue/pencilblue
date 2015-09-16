@@ -930,19 +930,16 @@ module.exports = function LocalizationModule(pb) {
      * @return {Array}
      */
     Localization.getSupportedWithDisplay = function() {
-        var locales = [];
+
         var supported = Localization.getSupported();
-        supported.forEach(function(locale) {
+        return supported.map(function(locale) {
 
             var localization = new Localization(locale);
-
-            var kv = {
+            return {
                 value: locale,
                 name: localization.g('generic.LOCALE_DISPLAY'/*, {empty options}*/)
             };
-            locales.push(kv);
         });
-        return locales;
     };
     
     Localization.parseLocaleStr = function(filePath) {
