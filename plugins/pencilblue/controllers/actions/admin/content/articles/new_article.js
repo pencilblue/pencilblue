@@ -22,6 +22,7 @@ module.exports = function(pb) {
 
     /**
      * Creates a new article
+     * @deprecated Since 0.5.0
      */
     function NewArticlePostController(){}
     util.inherits(NewArticlePostController, pb.BaseAdminController);
