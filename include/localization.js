@@ -247,7 +247,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {Object} params
      * @param {Object} [options]
      * @param {String} [options.site=global]
-     * @returns {String}
+     * @return {String}
      */
     Localization.prototype.g = function() {
         var key = arguments[0];
@@ -575,28 +575,14 @@ module.exports = function LocalizationModule(pb) {
      * @return {Boolean}
      */
     Localization.registerLocale = function(locale, localizations, options) {
-        if (!util.isObject(options)) {
-            throw new Error('options parameter is required');
-        }
-        if (!util.isString(options.plugin)) {
-            throw new Error('options.plugin is required');
-        }
+        assertOptions(options);
          
         return Localization._registerLocale(locale, localizations, options);
     };
                 
     Localization._registerLocale = function(locale, localizations, options) {
-        if (util.isString(locale)) {
-            locale = Localization.parseLocaleStr(locale);
-        }
-        if (util.isObject(locale)) {
-            if (!util.isString(locale.language)) {
-                throw new Error('locale.language is required');
-            }
-        }
-        else {
-            throw new Error('locale parameter is required');
-        }
+        locale = parseLocale(locale);
+        
         if (!util.isObject(localizations)) {
             throw new Error('localizations parameter is required');
         }
@@ -656,17 +642,13 @@ module.exports = function LocalizationModule(pb) {
      * @return {Boolean}
      */
     Localization.registerLocalization = function(locale, key, value, options) {
-        if (!util.isObject(options)) {
-            throw new Error('options parameter is required');
-        }
-        if (!util.isString(options.plugin)) {
-            throw new Error('options.plugin is required');
-        }
+        assertOptions(options);
         
         return Localization._registerLocalization(locale, key, value, options);
     };
     
     /**
+     * 
      * @private
      * @static
      * @method _registerLocalization
@@ -678,17 +660,7 @@ module.exports = function LocalizationModule(pb) {
      * @return {Boolean}
      */
     Localization._registerLocalization = function(locale, key, value, options) {
-        if (util.isString(locale)) {
-            locale = Localization.parseLocaleStr(locale);
-        }
-        if (util.isObject(locale)) {
-            if (!util.isString(locale.language)) {
-                throw new Error('locale.language is required');
-            }
-        }
-        else {
-            throw new Error('locale is required');
-        }
+        locale = parseLocale(locale);
         if (!util.isString(key)) {
             throw new Error('key parameter is required');
         }
@@ -751,18 +723,18 @@ module.exports = function LocalizationModule(pb) {
         return true;
     };
     
+    /**
+     * Removes a locale and all keys associated with it.  Optionally, the 
+     * operation can be scoped to a single plugin.
+     * @static
+     * @method unregisterLocale
+     * @param {String|Object} locale 
+     * @param {Object} [options]
+     * @param {String} [options.plugin]
+     * @returns {Boolean}
+     */
     Localization.unregisterLocale = function(locale, options) {
-        if (util.isString(locale)) {
-            locale = Localization.parseLocaleStr(locale);
-        }
-        if (util.isObject(locale)) {
-            if (!util.isString(locale.language)) {
-                throw new Error('locale.language is required');
-            }
-        }
-        else {
-            throw new Error('locale is required');
-        }
+        locale = parseLocale(locale);
         
         //iterate over all of the keys
         var result = true;
@@ -772,18 +744,21 @@ module.exports = function LocalizationModule(pb) {
         return result;
     };
     
+    /**
+     * Unregisters a single key for the given locale.  The locale can be just 
+     * the language or the combination of the language and country code.  
+     * Additionally, the operation can be scoped to a single plugin.
+     * @static
+     * @method unregisterLocalization
+     * @param {String|Object} locale 
+     * @param {String} key
+     * @param {Object} [options]
+     * @param {String} [options.plugin]
+     * @returns {Boolean}
+     */
     Localization.unregisterLocalization = function(locale, key, options) {
-        if (util.isString(locale)) {
-            locale = Localization.parseLocaleStr(locale);
-        }
-        if (util.isObject(locale)) {
-            if (!util.isString(locale.language)) {
-                throw new Error('locale.language is required');
-            }
-        }
-        else {
-            throw new Error('locale is required');
-        }
+        locale = parseLocale(locale);
+        
         if (!util.isString(key)) {
             throw new Error('key parameter is required');
         }
@@ -879,6 +854,13 @@ module.exports = function LocalizationModule(pb) {
         return util.clone(Localization.supported);
     };
     
+    /**
+     * Determines if a raw localization value contains named parameters
+     * @static
+     * @method containsParameters
+     * @param {String} localizationValue 
+     * @return {Boolean}
+     */
     Localization.containsParameters = function(localizationValue) {
         if (!util.isString(localizationValue)) {
             throw new Error('localizationParameter is required');
@@ -886,6 +868,18 @@ module.exports = function LocalizationModule(pb) {
         return localizationValue.search(Localization.PARAM_REPLACEMENT_REGEX) >= 0;
     };
     
+    /**
+     * Given a raw localization value and a set of parameters the function will 
+     * attempt to replace the named parameters in the raw value with the values 
+     * provided in the params.  When a named parameter is found that was not 
+     * provided a value the defaultVal parameter value is used.
+     * @static
+     * @method replaceParameters
+     * @param {String} value
+     * @param {Object} params
+     * @param {String} [defaultVal]
+     * @return {String}
+     */
     Localization.replaceParameters = function(value, params, defaultVal) {
         if (!util.isString(value)) {
             throw new Error('value parameter is required');
@@ -942,6 +936,14 @@ module.exports = function LocalizationModule(pb) {
         });
     };
     
+    /**
+     * Parses a locale or file path to a locale file and extracts the language 
+     * and country code into an object.
+     * @static 
+     * @method parseLocaleStr
+     * @param {String} filePath
+     * @return {Object}
+     */
     Localization.parseLocaleStr = function(filePath) {
         if (util.isObject(filePath)) {
             if (!util.isString(filePath.language)) {
@@ -978,6 +980,15 @@ module.exports = function LocalizationModule(pb) {
         };
     };
     
+    /**
+     * Formats a language and an optional country code into a proper locale 
+     * format (lang-COUNTRY)
+     * @static
+     * @method formatLocale
+     * @param {String} language
+     * @param {String} [countryCode]
+     * @return {String}
+     */
     Localization.formatLocale = function(language, countryCode) {
         if (!util.isString(language)) {
             throw new Error('language parameter is required');
@@ -993,10 +1004,72 @@ module.exports = function LocalizationModule(pb) {
         return localeStr;
     };
     
+    /**
+     * Asserts that the options parameter is provided and that it contains a 
+     * property "plugin" that is a string.
+     * @private
+     * @static
+     * @method assertOptions
+     * @param {Object} options
+     * @param {String} options.plugin
+     */
+    function assertOptions(options) {
+        if (!util.isObject(options)) {
+            throw new Error('options parameter is required');
+        }
+        if (!util.isString(options.plugin)) {
+            throw new Error('options.plugin is required');
+        }
+    }
+    
+    /**
+     * Takes a locale object or string representation.  When a string it is 
+     * parsed to an object.  When an object is passed it is verified.  The 
+     * function throws an error when it finds invalid format.
+     * @private
+     * @static
+     * @method parseLocale
+     * @param {String|Object} locale
+     * @return {Object}
+     */
+    function parseLocale(locale) {
+        if (util.isString(locale)) {
+            locale = Localization.parseLocaleStr(locale);
+        }
+        if (util.isObject(locale)) {
+            if (!util.isString(locale.language)) {
+                throw new Error('locale.language is required');
+            }
+        }
+        else {
+            throw new Error('locale is required');
+        }
+        return locale;
+    }
+    
+    /**
+     * Formats a given key to be formatted as a "private" property in the 
+     * storage structure.  This is to prevent collisions between localization 
+     * keys.
+     * @private
+     * @static
+     * @method k
+     * @param {String} key
+     * @return {String}
+     */
     function k(key) {
         return '__' + key;
     }
     
+    /**
+     * Navigates the storage structure to find where a localization key's 
+     * values live
+     * @private
+     * @static
+     * @method findKeyBlock
+     * @param {String} key
+     * @return {Object} The object that contains the values for the key
+     */
     function findKeyBlock(key) {
         
         //parse the key

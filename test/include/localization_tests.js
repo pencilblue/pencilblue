@@ -312,7 +312,6 @@ describe('Localization', function() {
         ].forEach(function(testCaseParams) {
             
             it('should inspect the value and determine if parameters are found within it', function() {
-                console.log(testCaseParams);
                 var result = Localization.containsParameters(testCaseParams[0]);
                 result.should.eql(testCaseParams[1]);
             });
