@@ -2,18 +2,20 @@
   angular.module('pencilblue.factories.admin.topics', [])
   .factory('topicFactory', function($http) {
     return {
-      getTopics: function(limit, offset, cb) {
-        $http.get('/api/content/topics?$limit=' + limit + '&$offset=' + offset)
-        .success(function(result) {
-          cb(null, result.data, result.total);
-        })
-        .error(function(error) {
-          cb(error);
-        });
-      },
+      getTopics: function(options, cb) {
+        var queryString = '';
+        for(var key in options) {
+          if(queryString.length) {
+            queryString += '&';
+          }
+          else {
+            queryString += '?';
+          }
 
-      searchTopics: function(query, limit, offset, cb) {
-        $http.get('/api/content/topics?$limit=' + limit + '&$offset=' + offset + '&q=' + query)
+          queryString += key + '=' + options[key];
+        }
+
+        $http.get('/api/content/topics' + queryString)
         .success(function(result) {
           cb(null, result.data, result.total);
         })

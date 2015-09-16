@@ -23,7 +23,10 @@
 
       $scope.topics = null;
 
-      topicFactory.getTopics($scope.paginationLimit, $scope.paginationIndex, function(error, topics, total) {
+      topicFactory.getTopics({
+        $limit: $scope.paginationLimit,
+        $offset: $scope.paginationIndex
+      }, function(error, topics, total) {
         if(error) {
           $scope.errorMessage = error.message;
           return;
@@ -44,14 +47,18 @@
       $scope.paginate(0, true);
     };
 
-    $scope.queryTopics = function(cb) {
+    $scope.query = function(cb) {
       if(!cb) {
         cb = function() {};
       }
 
       $scope.topics = null;
 
-      topicFactory.searchTopics($scope.searchText, $scope.paginationLimit, $scope.paginationIndex, function(error, topics, total) {
+      topicFactory.getTopics({
+        q: $scope.searchText,
+        $limit: $scope.paginationLimit,
+        $offset: $scope.paginationIndex
+      }, function(error, topics, total) {
         if(error) {
           $scope.errorMessage = error.message;
           return;
@@ -70,7 +77,7 @@
 
       $scope.paginationIndex = paginationIndex;
       if($scope.searchText.length) {
-        $scope.queryTopics(function() {
+        $scope.query(function() {
           $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
         });
       }
