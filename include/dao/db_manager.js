@@ -88,6 +88,10 @@ module.exports = function DBManagerModule(pb) {
                 return cb(null, dbs[name]);
             }
 
+            //clone the config and set the name that is being asked for
+            var config  = util.clone(pb.config);
+            config.db.name = name;
+            
             //build the connection string for the mongo cluster
             var dbURL   = DBManager.buildConnectionStr(pb.config);
             var options = pb.config.db.options;
@@ -374,6 +378,7 @@ module.exports = function DBManagerModule(pb) {
      */
     DBManager.buildConnectionStr = function(config) {
         var str = PROTOCOL_PREFIX;
+        var options = '?';
         for (var i = 0; i < config.db.servers.length; i++) {
 
             //check for prefix for backward compatibility
@@ -381,12 +386,20 @@ module.exports = function DBManagerModule(pb) {
             if (hostAndPort.indexOf(PROTOCOL_PREFIX) === 0) {
                 hostAndPort = hostAndPort.substring(PROTOCOL_PREFIX.length);
             }
+            
+            //check for options
+            var parts = hostAndPort.split('?');
+            if (parts.length > 1) {
+                options += (options.length > 1 ? '&' : '') + parts[1]; 
+            }
+            hostAndPort = parts[0];
+            
             if (i > 0) {
                 str += ',';
             }
             str += hostAndPort;
         };
-        return pb.UrlService.urlJoin(str, config.db.name);
+        return pb.UrlService.urlJoin(str, config.db.name) + options;
     };
 
     //exports
