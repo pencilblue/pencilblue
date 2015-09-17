@@ -108,7 +108,7 @@ describe('ErrorFormatters', function() {
             var params = {
                 error: error
             };
-            ErrorFormatters.xml(params, function(err, result){console.log(result);
+            ErrorFormatters.xml(params, function(err, result){
                 
                 result.should.be.type('string');
                 next(err);
