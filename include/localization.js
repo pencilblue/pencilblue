@@ -34,8 +34,13 @@ module.exports = function LocalizationModule(pb) {
      * @class Localization
      * @constructor
      * @param {Object} request The request object
+     * @param {Object} [options]
+     * @param {String} [options.activeTheme]
      */
-    function Localization(request){
+    function Localization(request, options){
+        if (!util.isObject(options)) {
+            options = {};
+        }
         
         //expected to be lowercase and of the form "en-us"
         this.language = Localization.best(request).toString();
@@ -47,6 +52,12 @@ module.exports = function LocalizationModule(pb) {
          * @type {Object}
          */
         this.cache = {};
+        
+        /**
+         * The currently active theme that should be prioritized when 
+         * performing key lookup
+         */
+        this.activeTheme = options.activeTheme;
     }
     
     /**
@@ -241,12 +252,14 @@ module.exports = function LocalizationModule(pb) {
     };
     
     /**
-     *
+     * 
      * @method g
      * @param {String} key
      * @param {Object} params
      * @param {Object} [options]
      * @param {String} [options.site=global]
+     * @param {Object} [options.params={}]
+     * @param {Object} [options.plugin]
      * @return {String}
      */
     Localization.prototype.g = function() {
@@ -515,10 +528,11 @@ module.exports = function LocalizationModule(pb) {
     };
 
     /**
-     *
+     * Retrieves the localization package for the specified locale
      * @static
      * @method getLocalizationPackage
      * @param {String} locale
+     * @param {Object} [options] See options for Localization.g
      * @return {Object}
      */
     Localization.getLocalizationPackage = function(locale, options) {
@@ -567,11 +581,14 @@ module.exports = function LocalizationModule(pb) {
     };
     
     /**
-     *
+     * Registers a localization package for the provided locale and plugin.
+     * @private
      * @static
-     * @method registerLocale
-     * @param {String} locale
+     * @method _registerLocale
+     * @param {String|Object} locale
      * @param {Object} localizations
+     * @param {Object} [options]
+     * @param {String} [options.string]
      * @return {Boolean}
      */
     Localization.registerLocale = function(locale, localizations, options) {
@@ -579,7 +596,19 @@ module.exports = function LocalizationModule(pb) {
          
         return Localization._registerLocale(locale, localizations, options);
     };
-                
+            
+    /**
+     * Registers a localization package for the provided locale.  Optionally, 
+     * the packaged can be scoped to a specific plugin.
+     * @private
+     * @static
+     * @method _registerLocale
+     * @param {String|Object} locale
+     * @param {Object} localizations
+     * @param {Object} [options]
+     * @param {String} [options.string]
+     * @return {Boolean}
+     */
     Localization._registerLocale = function(locale, localizations, options) {
         locale = parseLocale(locale);
         
@@ -631,6 +660,7 @@ module.exports = function LocalizationModule(pb) {
     };
 
     /**
+     * Registers a single localization key for the provided locale and plugin.
      * @private
      * @static
      * @method _registerLocalization
@@ -648,7 +678,7 @@ module.exports = function LocalizationModule(pb) {
     };
     
     /**
-     * 
+     * Registers a single localization key for the provided locale.  Optionally, the localization can be scoped to a single plugin.
      * @private
      * @static
      * @method _registerLocalization
