@@ -454,8 +454,22 @@ module.exports = function(pb) {
                 return;
             }
             else if (flag.indexOf(LOCALIZATION_PREFIX) == 0 && self.localizationService) {//localization
-                cb(null, self.localizationService.get(flag.substring(LOCALIZATION_PREFIX_LEN)));
-                return;
+                
+                //TODO how do we express params?  Other template vars?
+                var key = flag.substring(LOCALIZATION_PREFIX_LEN);
+                var opts = {
+                    site: self.siteUid,
+                    plugin: self.activeTheme,
+                    defaultVal: null,
+                    params: {/*TODO use the model for this*/}
+                };
+                var val = self.localizationService.g(key, opts);
+                if (!util.isString(val)) {
+                    
+                    //TODO this is here to be backwards compatible. Remove in 0.6.0
+                    val = self.localizationService.get(key);
+                }
+                return cb(null, val);
             }
             else if (flag.indexOf(TEMPLATE_PREFIX) == 0) {//sub-templates
                 self.handleTemplateReplacement(flag, function(err, template) {
