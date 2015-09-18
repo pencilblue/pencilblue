@@ -94,7 +94,7 @@ module.exports = function DBManagerModule(pb) {
             
             //build the connection string for the mongo cluster
             var dbURL   = DBManager.buildConnectionStr(pb.config);
-            var options = pb.config.db.options;
+            var options = config.db.options;
 
             pb.log.debug("Attempting connection to: %s with options: %s", dbURL, JSON.stringify(options));
             var self = this;
