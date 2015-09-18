@@ -66,7 +66,9 @@
             }
           }
 
-          scope.setElement('p');
+          if(!$document[0].queryCommandState('insertorderedlist') && !$document[0].queryCommandState('insertunorderedlist') && !scope.getSelection().length) {
+            scope.setElement('p');
+          }
           return scope.availableElements[0];
         };
 
