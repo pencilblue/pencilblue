@@ -68,7 +68,7 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @returns {Array}
+     * @return {Array}
      */
     TrinketMediaRenderer.getSupportedExtensions = function() {
         return [];

@@ -89,7 +89,7 @@ module.exports = function AudioMediaRendererModule(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @returns {Array}
+     * @return {Array}
      */
     AudioMediaRenderer.getSupportedExtensions = function() {
         return Object.keys(SUPPORTED);

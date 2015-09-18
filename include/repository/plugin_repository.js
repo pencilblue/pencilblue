@@ -50,6 +50,7 @@ module.exports = function PluginRepositoryModule(pb) {
 
     /**
      * Empty constructor because this object uses static methods.
+     * @class PluginRepository
      * @constructor
      */
     function PluginRepository() {}

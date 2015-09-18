@@ -57,7 +57,7 @@ module.exports = function(pb) {
      * @method getSubNavItems
      * @param {String} key
      * @param {Object} ls
-     * @returns {Array} array of nav items
+     * @return {Array} array of nav items
      */
     ManageSites.getSubNavItems = function(key, ls) {
         return [{

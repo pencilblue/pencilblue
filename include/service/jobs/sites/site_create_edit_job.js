@@ -7,6 +7,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
 
     /**
      * Job to create/edit a site.
+     * @class SiteCreateEditJob
      * @constructor SiteCreateEditJob
      * @extends SiteJobRunner
      */

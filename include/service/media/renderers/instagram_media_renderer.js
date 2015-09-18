@@ -68,7 +68,7 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @returns {Array}
+     * @return {Array}
      */
     InstagramMediaRenderer.getSupportedExtensions = function() {
         return [];

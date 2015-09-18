@@ -86,7 +86,7 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @method modifyLoadWhere
      * @param {String} site
      * @param {Object} where
-     * @returns {Object}
+     * @return {Object}
      */
   function modifyLoadWhere(site, where) {
     if (pb.config.multisite.enabled) {
@@ -111,7 +111,7 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @method modifyLoadOptions
      * @param {String} site
      * @param {Object} options
-     * @returns {Object}
+     * @return {Object}
      */
   function modifyLoadOptions(site, options) {
     if (pb.config.multisite.enabled) {
@@ -196,7 +196,7 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @private
      * @method siteSpecific
      * @param {SiteQueryService} self
-     * @returns {Boolean}
+     * @return {Boolean}
      */
     function siteSpecific(self) {
         return self.onlyThisSite || isGlobal(self.siteUid);
@@ -206,7 +206,7 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @private
      * @method isGlobal
      * @param {String} siteUid
-     * @returns {Boolean}
+     * @return {Boolean}
      */
     function isGlobal(siteUid) {
         return !siteUid || siteUid === GLOBAL_SITE;
@@ -217,7 +217,7 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @method modifySave
      * @param {String} site
      * @param {Object} objectToSave
-     * @returns {Object} The object to save
+     * @return {Object} The object to save
      */
     function modifySave(site, objectToSave) {
         if (pb.config.multisite.enabled && !(SITE_FIELD in objectToSave)) {
@@ -245,7 +245,7 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   /**
    * Wrapper for site-aware DAO.save.  Saves object to database
-   *
+   * @method save
    * @param dbObj
    * @param options
    * @param callback
@@ -257,6 +257,7 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   /**
    * Gets all collection names
+   * @method getCollections
    * @param {Function} cb
    */
   SiteQueryService.prototype.getCollections = function (cb) {
@@ -270,6 +271,7 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   /**
    * Deletes all site specific content
+   * @method deleteSiteSpecificContent
    * @param {Array} collections -  array of collection names
    * @param {String} siteid - unique site id
    * @param {Function} callback - callback function

@@ -592,7 +592,7 @@ module.exports = function(pb) {
      * @param {Object} model The model is inspect
      * @param {String} [modelName] The optional name of the model.  The name 
      * will prefix all of the model's keys.
-     * @returns {Boolean} TRUE when all keys were successfully registered. 
+     * @return {Boolean} TRUE when all keys were successfully registered. 
      * FALSE if a single items fails to register.
      */
     TemplateService.prototype.registerModel = function(model, modelName) {

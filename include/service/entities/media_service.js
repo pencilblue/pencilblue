@@ -851,7 +851,7 @@ module.exports = function MediaServiceModule(pb) {
      * that can be uploaded into the system.
      * @static
      * @method getSupportedExtensions
-     * @returns {Array} provides an array of strings
+     * @return {Array} provides an array of strings
      */
     MediaService.getSupportedExtensions = function() {
 

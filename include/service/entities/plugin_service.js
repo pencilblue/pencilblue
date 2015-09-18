@@ -206,7 +206,7 @@ module.exports = function PluginServiceModule(pb) {
     /**
      * Get a array of active plugin names with site name as a prefix: site_name_plugin_name
      * @method getAllActivePluginNames
-     * @returns {Array} array of active plugin names with site name prefix.
+     * @return {Array} array of active plugin names with site name prefix.
      */
     PluginService.prototype.getAllActivePluginNames = function() {
         var pluginNames = [];
@@ -342,8 +342,8 @@ module.exports = function PluginServiceModule(pb) {
      * Retrieves the theme settings for the specified plugin
      *
      * @method getThemeSettings
-     * @param pluginName The uid of the plugin
-     * @param cb A callback that provides two parameters: cb(err, settingsObject)
+     * @param {String} pluginName The uid of the plugin
+     * @param {Function} cb A callback that provides two parameters: cb(err, settingsObject)
      */
     PluginService.prototype.getThemeSettings = function(pluginName, cb) {
         var settingService = getPluginSettingService(this);
@@ -352,9 +352,9 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Retrieves the theme settings for the specified plugin only for the site set in the current plugin service
-     *
-     * @param pluginName
-     * @param cb
+     * @method getThemeSettingsBySite
+     * @param {String} pluginName
+     * @param {Function} cb
      */
     PluginService.prototype.getThemeSettingsBySite = function (pluginName, cb) {
         var settingService = getPluginSettingService(this);
@@ -386,8 +386,8 @@ module.exports = function PluginServiceModule(pb) {
      * persisted.
      *
      * @method resetSettings
-     * @param details The details object to extract the settings from
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
+     * @param {Object} details The details object to extract the settings from
+     * @param {Function} cb A callback that provides two parameters: cb(error, TRUE/FALSE).
      * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
      */
     PluginService.prototype.resetSettings = function(details, cb) {
@@ -402,8 +402,8 @@ module.exports = function PluginServiceModule(pb) {
      * the callback.
      *
      * @method resetThemeSettings
-     * @param details The details object to extract the settings from
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
+     * @param {Object} details The details object to extract the settings from
+     * @param {Function} cb A callback that provides two parameters: cb(error, TRUE/FALSE).
      * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
      */
     PluginService.prototype.resetThemeSettings = function(details, cb) {
@@ -413,6 +413,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Deletes the plugin settings for when plugin uninstalls.
+     * @method purgePluginSettings
      * @param {String} pluginUid - the plugin unique id
      * @param {Function} cb - callback function
      */
@@ -423,6 +424,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Deletes the theme settings for when plugin uninstalls.
+     * @method purgeThemeSettings
      * @param {String} pluginUid - the plugin unique id
      * @param {Function} cb - callback function
      */

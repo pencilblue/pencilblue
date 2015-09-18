@@ -107,7 +107,7 @@ module.exports = function SiteFormModule(pb) {
    * @method getSubNavItems
    * @param key
    * @param {Object} ls - the localization service
-   * @returns {Array} the array of nav objects to render.
+   * @return {Array} the array of nav objects to render.
    */
   SiteForm.getSubNavItems = function(key, ls) {
     return [{
