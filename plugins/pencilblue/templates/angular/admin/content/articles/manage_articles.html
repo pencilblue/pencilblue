@@ -17,6 +17,7 @@
 		$scope.paginationLimit = 25;
 		$scope.paginationPages = [];
 		$scope.deleteNameKey = 'headline';
+		$scope.orderString = 'publish_date=0'
 
 		$scope.tableHeaders = [{
 			name: loc.articles.HEADLINE,
@@ -41,8 +42,8 @@
 		}, {
 			name: loc.articles.PUBLISH_DATE,
 			field: 'publish_date',
-			sortAsc: true,
-			sortDesc: false
+			sortAsc: false,
+			sortDesc: true
 		}];
 
 		$scope.getArticles = function(cb) {
@@ -54,7 +55,8 @@
 
       articleFactory.getArticles({
         $limit: $scope.paginationLimit,
-        $offset: $scope.paginationIndex
+        $offset: $scope.paginationIndex,
+				$order: $scope.orderString
       }, function(error, articles, total) {
         if(error) {
           $scope.errorMessage = error.message;
@@ -103,7 +105,8 @@
       articleFactory.getArticles({
         q: $scope.searchText,
         $limit: $scope.paginationLimit,
-        $offset: $scope.paginationIndex
+        $offset: $scope.paginationIndex,
+				$order: $scope.orderString
       }, function(error, articles, total) {
         if(error) {
           $scope.errorMessage = error.message;
@@ -139,6 +142,11 @@
 		};
 
 		$scope.sort = function(headerIndex) {
+			var targetHeader = sortService.setSortHeader($scope.articles, $scope.tableHeaders, headerIndex);
+			$scope.orderString = targetHeader.field + '=' + (targetHeader.sortDesc ? '0' : '1');
+			$scope.paginate(0, true);
+
+			return;
 			sortService.sortByHeader($scope.articles, $scope.tableHeaders, headerIndex, function(articles, headers) {
 				$scope.articles = articles;
 				$scope.headers = headers;
@@ -180,6 +188,5 @@
 		}
 
 		$scope.paginate(0);
-		//$scope.sort(4);
 	});
 </script>
