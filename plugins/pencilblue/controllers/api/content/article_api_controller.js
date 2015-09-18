@@ -22,16 +22,17 @@ module.exports = function(pb) {
     var ArticleServiceV2 = pb.ArticleServiceV2;
     var SecurityService  = pb.SecurityService;
     var CommentService   = pb.CommentService;
+    var UserService      = pb.UserService;
 
     /**
-     * 
+     *
      * @class ArticleApiController
      * @constructor
      * @extends BaseApiController
      */
     function ArticleApiController(){}
     util.inherits(ArticleApiController, pb.BaseApiController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -41,26 +42,47 @@ module.exports = function(pb) {
     ArticleApiController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
+
             /**
-             * 
+             *
              * @property service
              * @type {ArticleServiceV2}
              */
             self.service = new ArticleServiceV2(self.getServiceContext());
-            
+
             /**
              *
              * @property commentService
              * @type {CommentService}
              */
             self.commentService = new CommentService(self.getServiceContext());
-                
+
             cb(err, true);
         };
         ArticleApiController.super_.prototype.init.apply(this, [context, init]);
     };
-    
+
+    ArticleApiController.prototype.getAll = function(cb) {
+        var self = this;
+        var options = this.processQuery();
+
+        this.service.getAllWithCount(options, function(err, obj) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            else if (util.isNullOrUndefined(obj)) {
+                return self.notFound(cb);
+            }
+
+            var userService = new UserService(self.getServiceContext());
+            userService.getAuthors(obj.data, function(err, articlesWithAuthorNames) {
+              cb({
+                  content: obj
+              });
+            });
+        });
+    };
+
     /**
      * Processes the query string to develop the where clause for the query request
      * @method processWhere
@@ -70,11 +92,11 @@ module.exports = function(pb) {
     ArticleApiController.prototype.processWhere = function(q) {
         var where = null;
         var failures = [];
-        
+
         //build query & get results
         var search = q.q;
         if (pb.ValidationService.isNonEmptyStr(search, true)) {
-            
+
             var patternStr = ".*" + util.escapeRegExp(search) + ".*";
             var pattern = new RegExp(patternStr, "i");
             where = {
@@ -90,7 +112,7 @@ module.exports = function(pb) {
             failures: failures
         };
     };
-    
+
     /**
      * Retrieves comments for an article
      * @method getAllComments
@@ -101,7 +123,7 @@ module.exports = function(pb) {
         options.where.article = this.pathVars.articleId;
         this.commentService.getAllWithCount(options, this.handleGet(cb));
     };
-    
+
     /**
      * Adds a comment to an article
      * @method addComment
@@ -112,7 +134,7 @@ module.exports = function(pb) {
         dto.article = this.pathVars.articleId;
         this.commentService.save(dto, this.handleSave(cb, true));
     };
-    
+
     /**
      * Deletes a comment from an article
      * @method deleteComment

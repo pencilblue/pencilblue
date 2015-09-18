@@ -16,11 +16,11 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
     var UserService = pb.UserService;
-    
+
     /**
      * Interface for managing articles
      */
@@ -36,6 +36,21 @@ module.exports = function(pb) {
         if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: pb.SecurityService.ACCESS_EDITOR})) {
             where.author = this.session.authentication.user_id;
         }
+
+        var angularObjects = pb.ClientJs.getAngularObjects({
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls, self.site),
+            pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
+        });
+
+        var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
+        self.setPageName(self.ls.get('MANAGE_ARTICLES'));
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/content/articles/manage_articles', function (err, data) {
+            var result = '' + data;
+            cb({content: result});
+        });
+
+        return;
 
         var opts = {
             select: {
@@ -98,7 +113,7 @@ module.exports = function(pb) {
                 pills = [];
                 pb.log.error("ManageArticles: AdminSubnavService.getWithSite callback error. ERROR[%s]", err.stack);
             }
-            
+
             var angularObjects = pb.ClientJs.getAngularObjects(
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls, self.site),
