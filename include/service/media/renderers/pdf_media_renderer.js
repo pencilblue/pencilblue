@@ -236,7 +236,7 @@ module.exports = function(pb) {
      * represented by the media Id
      */
     PdfMediaRenderer.getEmbedUrl = function(mediaId) {
-        return mediaId;
+        return BaseMediaRenderer.getEmbedUrl(mediaId);
     };
 
     /**

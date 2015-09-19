@@ -225,7 +225,7 @@ module.exports = function ImageMediaRendererModule(pb) {
      * represented by the media Id
      */
     ImageMediaRenderer.getEmbedUrl = function(mediaId) {
-        return mediaId;
+        return BaseMediaRenderer.getEmbedUrl(mediaId);
     };
 
     /**

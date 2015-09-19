@@ -48,6 +48,7 @@ module.exports = function(pb) {
             var config = {
                 siteName: self.siteObj.displayName,
                 siteRoot: self.siteObj.hostname,
+                mediaRoot: pb.config.media.urlRoot ? pb.config.media.urlRoot : self.siteObj.hostname,
                 documentRoot: pb.config.docRoot,
                 siteIP: pb.config.siteIP,
                 sitePort: pb.config.sitePort,
