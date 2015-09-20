@@ -32,7 +32,6 @@ module.exports = function(pb) {
 
     ManageArticles.prototype.render = function(cb) {
         var self = this;
-        var where = {};
         if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: pb.SecurityService.ACCESS_EDITOR})) {
             where.author = this.session.authentication.user_id;
         }
@@ -42,7 +41,6 @@ module.exports = function(pb) {
             pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
         });
 
-        var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
         self.setPageName(self.ls.get('MANAGE_ARTICLES'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/articles/manage_articles', function (err, data) {

@@ -62,6 +62,11 @@ module.exports = function(pb) {
         ArticleApiController.super_.prototype.init.apply(this, [context, init]);
     };
 
+    /**
+     * Retrieves one or more resources from a collection.
+     * @method getAll
+     * @param {Function} cb
+     */
     ArticleApiController.prototype.getAll = function(cb) {
         var self = this;
         var options = this.processQuery();

@@ -21,16 +21,17 @@ module.exports = function(pb) {
     var util            = pb.util;
     var PageService     = pb.PageService;
     var SecurityService = pb.SecurityService;
+    var UserService     = pb.UserService;
 
     /**
-     * 
+     *
      * @class PageApiController
      * @constructor
      * @extends BaseApiController
      */
     function PageApiController(){}
     util.inherits(PageApiController, pb.BaseApiController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -40,19 +41,45 @@ module.exports = function(pb) {
     PageApiController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
+
             /**
-             * 
+             *
              * @property service
              * @type {ArticleServiceV2}
              */
             self.service = new PageService(self.getServiceContext());
-                
+
             cb(err, true);
         };
         PageApiController.super_.prototype.init.apply(this, [context, init]);
     };
-    
+
+    /**
+     * Retrieves one or more resources from a collection.
+     * @method getAll
+     * @param {Function} cb
+     */
+    PageApiController.prototype.getAll = function(cb) {
+        var self = this;
+        var options = this.processQuery();
+
+        this.service.getAllWithCount(options, function(err, obj) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            else if (util.isNullOrUndefined(obj)) {
+                return self.notFound(cb);
+            }
+
+            var userService = new UserService(self.getServiceContext());
+            userService.getAuthors(obj.data, function(err, pagesWithAuthorNames) {
+              cb({
+                  content: obj
+              });
+            });
+        });
+    };
+
     /**
      * Processes the query string to develop the where clause for the query request
      * @method processWhere
@@ -62,11 +89,11 @@ module.exports = function(pb) {
     PageApiController.prototype.processWhere = function(q) {
         var where = null;
         var failures = [];
-        
+
         //build query & get results
         var search = q.q;
         if (pb.ValidationService.isNonEmptyStr(search, true)) {
-            
+
             var patternStr = ".*" + util.escapeRegExp(search) + ".*";
             var pattern = new RegExp(patternStr, "i");
             where = {
