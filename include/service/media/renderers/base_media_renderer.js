@@ -61,6 +61,19 @@ module.exports = function BaseMediaRenderer(pb) {
     };
 
     /**
+     * Retrieves the source URI that will be used when generating the rendering.
+     * This base implementation prepends the configured media urlRoot value to the media URI.
+     * @static
+     * @method getEmbedUrl
+     * @param {String} mediaId The unique (only to the type) media identifier
+     * @return {String} A properly formatted URI string that points to the resource
+     * represented by the media Id
+     */
+    BaseMediaRenderer.getEmbedUrl = function(mediaId) {
+        return pb.UrlService.urlJoin(pb.config.media.urlRoot, mediaId);
+    };
+
+    /**
      * Generates an attribute string from a hash of key/value pairs
      * @static
      * @method getAttributeStr

@@ -42,7 +42,7 @@ describe('ArticleRenderer', function() {
             var service = new ArticleRenderer();
             service.formatLayoutForReadMore(article, context);
 
-            var count = (article.article_layout.match(/Read More/g)).length
+            var count = (article.article_layout.match(/Read More/g)).length;
             count.should.eql(1);
         });
 

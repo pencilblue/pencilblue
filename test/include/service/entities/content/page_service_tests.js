@@ -15,7 +15,7 @@ describe('PageService', function() {
       var page2 = getPage();
 
       // Set expected date to the parsed version of the date being passed to the service
-      page2.publish_date = pb.BaseObjectService.getDate(page2.publish_date)
+      page2.publish_date = pb.BaseObjectService.getDate(page2.publish_date);
 
       PageService.format({data: page}, function() {});
       should.deepEqual(page, page2);
