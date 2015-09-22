@@ -337,6 +337,7 @@ function PencilBlue(config){
      */
     this.start = function() {
         var self = this;
+        pb.system.registerSignalHandlers(true);
         pb.system.onStart(function(){
             self.init();
         });
