@@ -1,21 +1,14 @@
 <script type="text/javascript" src="/js/angular/services/search.js"></script>
 <script type="text/javascript" src="/js/angular/services/sort.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
-<script type="text/javascript" src="/js/angular/factories/admin/media.js"></script>
 <script type="text/javascript">
-	angular.module('pencilblueApp', [
-		'search',
-		'sort',
-		'paginate',
-		'pencilblue.factories.admin.media'
-	])
+	angular.module('pencilblueApp', ['search', 'sort', 'paginate'])
 	.controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService) {
 		^angular_objects^
 
 		$scope.searchText = '';
 		$scope.paginationIndex = 0;
 		$scope.paginationLimit = 25;
-		$scope.paginationPages = [];
 		$scope.deleteNameKey = 'name';
 
 		$scope.tableHeaders = [{
@@ -39,76 +32,25 @@
 			sortDesc: false
 		}];
 
-		$scope.getMedia = function(cb) {
-      if(!cb) {
-        cb = function() {};
-      }
-
-      $scope.media = null;
-
-      mediaFactory.getMedia({
-        $limit: $scope.paginationLimit,
-        $offset: $scope.paginationIndex
-      }, function(error, media, total) {
-        if(error) {
-          $scope.errorMessage = error.message;
-          return;
-        }
-
-        $scope.media = media;
-        $scope.paginationTotal = total;
-        cb(media, total);
-      });
-    };
-
 		$scope.search = function() {
-      $scope.paginate(0, true);
-    };
+			searchService.search($scope.searchText, $scope.media, ['name'], function(media) {
+				$scope.media = media;
+				$scope.paginate(0);
+			});
+		}
 
-    $scope.clearSearch = function() {
-      $scope.searchText = '';
-      $scope.paginate(0, true);
-    };
+		$scope.clearSearch = function() {
+			$scope.searchText = '';
+			$scope.search();
+		}
 
-    $scope.query = function(cb) {
-      if(!cb) {
-        cb = function() {};
-      }
-
-      $scope.media = null;
-
-      mediaFactory.getMedia({
-        q: $scope.searchText,
-        $limit: $scope.paginationLimit,
-        $offset: $scope.paginationIndex
-      }, function(error, media, total) {
-        if(error) {
-          $scope.errorMessage = error.message;
-          return;
-        }
-
-        $scope.media = media;
-        $scope.paginationTotal = total;
-        cb(media, total);
-      });
-    };
-
-		$scope.paginate = function(paginationIndex, force) {
-			if(!force && !paginationService.paginationValid(paginationIndex, $scope.paginationIndex, $scope.paginationPages.length)) {
-        return;
-      }
-
+		$scope.paginate = function(paginationIndex) {
 			$scope.paginationIndex = paginationIndex;
-      if($scope.searchText.length) {
-        $scope.query(function() {
-          $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
-        });
-      }
-      else {
-        $scope.getMedia(function() {
-          $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
-        });
-      }
+
+			paginationService.paginate($scope.media, $scope.paginationIndex, $scope.paginationLimit, function(media, paginationPages) {
+				$scope.media = media;
+				$scope.paginationPages = paginationPages;
+			})
 		}
 
 		$scope.pageButtonVisible = function(testIndex) {
@@ -154,6 +96,6 @@
 			});
 		}
 
-		$scope.paginate(0);
+		$scope.sort(3);
 	});
 </script>

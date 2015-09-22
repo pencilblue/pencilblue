@@ -45,7 +45,7 @@ module.exports = function MediaServiceModule(pb) {
         if (!provider) {
             throw new Error('A valid media provider is required. Please check your configuration');
         }
-
+        
         /**
          *
          * @property provider
@@ -53,7 +53,7 @@ module.exports = function MediaServiceModule(pb) {
          */
         this.provider = provider;
     }
-
+    
     /**
      *
      * @private
@@ -365,7 +365,7 @@ module.exports = function MediaServiceModule(pb) {
     };
 
     /**
-     * Determines if the media URI is a file.  It is determined to be a file if and
+     * Determines if the media URI is a file.  It is determined to be a file if and 
      * only if the URI does not begin with "http" or "//".
      * @static
      * @method isFile
@@ -380,8 +380,8 @@ module.exports = function MediaServiceModule(pb) {
      * @method getMediaDescriptor
      * @param {String} mediaURL
      * @param {Boolean} isFile Indicates if the media resource was uploaded to the server.
-     * @param {Function} cb A callback with two parameters. First, an Error if
-     * occurred and second is an object that describes the media resource described
+     * @param {Function} cb A callback with two parameters. First, an Error if 
+     * occurred and second is an object that describes the media resource described 
      * by the given media URL
      */
     MediaService.prototype.getMediaDescriptor = function(mediaUrl, cb) {
@@ -426,19 +426,19 @@ module.exports = function MediaServiceModule(pb) {
     };
 
     /**
-     * Renders a resource by type and location (mediaId).
+     * Renders a resource by type and location (mediaId).  
      * @method renderByLocation
      * @param {Object} options
      * @param {String} options.location The unique media identifier for the type
-     * @param {String} [options.type] The type of provider that knows how to render
+     * @param {String} [options.type] The type of provider that knows how to render 
      * the resource
-     * @param {Object} [options.attrs] The desired HTML attributes that will be
+     * @param {Object} [options.attrs] The desired HTML attributes that will be 
      * added to the element that provides the rendering
      * @param {Object} [options.style] The desired style overrides for the media
-     * @param {String} [options.view] The view type that the media will be rendered
-     * for (view, editor, post).  Any style options provided will override those
+     * @param {String} [options.view] The view type that the media will be rendered 
+     * for (view, editor, post).  Any style options provided will override those 
      * provided by the default style associated with the view.
-     * @param {Function} cb A callback that provides two parameters.  An Error if
+     * @param {Function} cb A callback that provides two parameters.  An Error if 
      * exists and the rendered HTML content for the media resource.
      */
     MediaService.prototype.renderByLocation = function(options, cb) {
@@ -456,18 +456,18 @@ module.exports = function MediaServiceModule(pb) {
     };
 
     /**
-     * Renders a media resource by ID where ID refers the to the media descriptor
+     * Renders a media resource by ID where ID refers the to the media descriptor 
      * id.
      * @method renderById
      * @param {String} The media resource ID
      * @param {Object} options
-     * @param {Object} [options.attrs] The desired HTML attributes that will be
+     * @param {Object} [options.attrs] The desired HTML attributes that will be 
      * added to the element that provides the rendering
      * @param {Object} [options.style] The desired style overrides for the media
-     * @param {String} [options.view] The view type that the media will be rendered
-     * for (view, editor, post).  Any style options provided will override those
+     * @param {String} [options.view] The view type that the media will be rendered 
+     * for (view, editor, post).  Any style options provided will override those 
      * provided by the default style associated with the view.
-     * @param {Function} cb A callback that provides two parameters. An Error if
+     * @param {Function} cb A callback that provides two parameters. An Error if 
      * exists and the rendered HTML content for the media resource.
      */
     MediaService.prototype.renderById = function(id, options, cb) {
@@ -475,7 +475,7 @@ module.exports = function MediaServiceModule(pb) {
 
         self.siteQueryService.loadById(id, MediaService.COLL, function (err, media) {
             if (util.isError(err)) {
-                return cb(err);
+                return cb(err);   
             }
             else if (!media) {
                 return cb(null, null);
@@ -491,13 +491,13 @@ module.exports = function MediaServiceModule(pb) {
      * @method render
      * @param {String} The media resource ID
      * @param {Object} options
-     * @param {Object} [options.attrs] The desired HTML attributes that will be
+     * @param {Object} [options.attrs] The desired HTML attributes that will be 
      * added to the element that provides the rendering
      * @param {Object} [options.style] The desired style overrides for the media
-     * @param {String} [options.view] The view type that the media will be rendered
-     * for (view, editor, post).  Any style options provided will override those
+     * @param {String} [options.view] The view type that the media will be rendered 
+     * for (view, editor, post).  Any style options provided will override those 
      * provided by the default style associated with the view.
-     * @param {Function} cb A callback that provides two parameters. An Error if
+     * @param {Function} cb A callback that provides two parameters. An Error if 
      * exists and the rendered HTML content for the media resource.
      */
     MediaService.prototype.renderByFlag = function(flag, options, cb) {
@@ -528,13 +528,13 @@ module.exports = function MediaServiceModule(pb) {
      * @method render
      * @param {String} The media resource ID
      * @param {Object} options
-     * @param {Object} [options.attrs] The desired HTML attributes that will be
+     * @param {Object} [options.attrs] The desired HTML attributes that will be 
      * added to the element that provides the rendering
      * @param {Object} [options.style] The desired style overrides for the media
-     * @param {String} [options.view] The view type that the media will be rendered
-     * for (view, editor, post).  Any style options provided will override those
+     * @param {String} [options.view] The view type that the media will be rendered 
+     * for (view, editor, post).  Any style options provided will override those 
      * provided by the default style associated with the view.
-     * @param {Function} cb A callback that provides two parameters. An Error if
+     * @param {Function} cb A callback that provides two parameters. An Error if 
      * exists and the rendered HTML content for the media resource.
      */
     MediaService.prototype.render = function(media, options, cb) {
@@ -554,14 +554,14 @@ module.exports = function MediaServiceModule(pb) {
     };
 
     /**
-     * Retrieves the base style for the given renderer and view.  Overrides will be
+     * Retrieves the base style for the given renderer and view.  Overrides will be 
      * applied on top of the base style.
      * @static
      * @method getStyleForView
      * @param {MediaRenderer} renderer An implementation of MediaRenderer
-     * @param {String} view The view to retrieve the default styling for (view,
+     * @param {String} view The view to retrieve the default styling for (view, 
      * editor, post)
-     * @param {Object} [overrides] A hash of style properties that will be applied
+     * @param {Object} [overrides] A hash of style properties that will be applied 
      * to the base style for the given view
      */
     MediaService.getStyleForView = function(renderer, view, overrides) {
@@ -580,7 +580,7 @@ module.exports = function MediaServiceModule(pb) {
      * @static
      * @method getRendererByType
      * @param {String} type The media type
-     * @return {MediaRenderer} A media renderer interface implementation or NULL if
+     * @return {MediaRenderer} A media renderer interface implementation or NULL if 
      * none support the given type.
      */
     MediaService.getRendererByType = function(type) {
@@ -607,7 +607,7 @@ module.exports = function MediaServiceModule(pb) {
      * @method getRendererByType
      * @param {String} mediaUrl The media URL
      * @param {Boolean} isFile TRUE if the URL represents an uploaded file, FALSE if not
-     * @return {MediaRenderer} A media renderer interface implementation or NULL if
+     * @return {MediaRenderer} A media renderer interface implementation or NULL if 
      * none support the given URL.
      */
     MediaService.getRenderer = function(mediaUrl, isFile) {
@@ -637,7 +637,7 @@ module.exports = function MediaServiceModule(pb) {
      * @static
      * @method getMediaFlag
      * @param {String} mid The media descriptor ID
-     * @param {Object} [options] The list of attributes to be provided to the
+     * @param {Object} [options] The list of attributes to be provided to the 
      * rendering element.
      * @return {String}
      */
@@ -663,7 +663,7 @@ module.exports = function MediaServiceModule(pb) {
     };
 
     /**
-     * Given a content string the function will search for and extract the first
+     * Given a content string the function will search for and extract the first 
      * occurance of a media flag. The parsed value that is returned will include:
      * <ul>
      * <li>startIndex - The index where the flag was found to start</li>
@@ -707,7 +707,7 @@ module.exports = function MediaServiceModule(pb) {
     };
 
     /**
-     * Parses a media flag and returns each part in an object. The parsed value that
+     * Parses a media flag and returns each part in an object. The parsed value that 
      * is returned will include:
      * <ul>
      * <li>id - The media descriptor id that is referenced by the media flag</li>
@@ -749,9 +749,9 @@ module.exports = function MediaServiceModule(pb) {
     };
 
     /**
-     * The default editor implementations all for three position values to declared
-     * for embeded media (none, left, right, center).  These values map to HTML
-     * alignments.  This function retrieves the HTML style attribute for the
+     * The default editor implementations all for three position values to declared 
+     * for embeded media (none, left, right, center).  These values map to HTML 
+     * alignments.  This function retrieves the HTML style attribute for the 
      * provided position.
      * @static
      * @method getStyleForPosition
@@ -845,40 +845,40 @@ module.exports = function MediaServiceModule(pb) {
         });
         return media;
     };
-
+    
     /**
-     * Provides a mechanism to retrieve all of the supported extension types
+     * Provides a mechanism to retrieve all of the supported extension types 
      * that can be uploaded into the system.
      * @static
      * @method getSupportedExtensions
-     * @return {Array} provides an array of strings
+     * @returns {Array} provides an array of strings
      */
     MediaService.getSupportedExtensions = function() {
-
+        
         var extensions = {};
         REGISTERED_MEDIA_RENDERERS.forEach(function(provider) {
-
+            
             //for backward compatibility check for existence of extension retrieval
             if (!util.isFunction(provider.getSupportedExtensions)) {
                 pb.log.warn('MediaService: Renderer %s does provide an implementation for getSupportedExtensions', provider.getName());
                 return;
             }
-
+            
             //retrieve the extensions
             var exts = provider.getSupportedExtensions();
             if (!util.isArray(exts)) {
                 return;
             }
-
+            
             //add them to the hash
             exts.forEach(function(extension) {
                 extensions[extension] = true;
             });
         });
-
+        
         return Object.keys(extensions);
     };
-
+    
     /**
      * Retrieves the singleton instance of MediaProvider.
      * @static
@@ -889,18 +889,18 @@ module.exports = function MediaServiceModule(pb) {
         if (INSTANCE) {
             return INSTANCE;
         }
-
+        
         INSTANCE = MediaService.loadMediaProvider();
         if (INSTANCE === null) {
             throw new Error('A valid media provider was not available: PROVIDER_PATH: '+pb.config.media.provider+' TRIED='+JSON.stringify(paths));
         }
     };
-
+    
     /**
      *
      * @static
      * @method loadMediaProvider
-     * @return {MediaProvider} An instance of a media provider or NULL when no
+     * @return {MediaProvider} An instance of a media provider or NULL when no 
      * provider can be loaded.
      */
     MediaService.loadMediaProvider = function() {
@@ -910,7 +910,7 @@ module.exports = function MediaServiceModule(pb) {
         else if (pb.config.media.provider === 'mongo') {
             return new pb.media.providers.MongoMediaProvider();
         }
-
+        
         var instance = null;
         var paths = [path.join(pb.config.docRoot, pb.config.media.provider), pb.config.media.provider];
         for(var i = 0; i < paths.length; i++) {
