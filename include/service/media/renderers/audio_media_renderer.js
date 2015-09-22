@@ -243,7 +243,7 @@ module.exports = function AudioMediaRendererModule(pb) {
      * represented by the media Id
      */
     AudioMediaRenderer.getEmbedUrl = function(mediaId) {
-        return mediaId;
+        return BaseMediaRenderer.getEmbedUrl(mediaId);
     };
 
     /**

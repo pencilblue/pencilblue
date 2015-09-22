@@ -15,7 +15,7 @@ describe('ArticleServiceV2', function() {
       var article2 = getArticle();
 
       // Set expected date to the parsed version of the date being passed to the service
-      article2.publish_date = pb.BaseObjectService.getDate(article2.publish_date)
+      article2.publish_date = pb.BaseObjectService.getDate(article2.publish_date);
 
       ArticleServiceV2.format({data: article}, function() {});
       should.deepEqual(article, article2);

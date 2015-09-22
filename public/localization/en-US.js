@@ -437,6 +437,7 @@ module.exports = {
         EDIT_CONFIGURATION: 'To edit the configuration, create a config.json file in the root directory',
         SITE_NAME: 'Site name',
         SITE_ROOT: 'Site root',
+        MEDIA_ROOT: 'Media root',
         DOCUMENT_ROOT: 'Document root',
         IP_ADDRESS: 'IP address',
         PORT: 'Port',

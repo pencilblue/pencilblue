@@ -354,6 +354,11 @@ Configuration.getBaseConfig = function(multisite) {
             provider: 'fs',
             parent_dir: 'public',
 
+            //The root media URL.  Example values: '//cdn.mydomain.com' or
+            //'http://example-bucket.s3-website-us-east-1.amazonaws.com'.  Use this
+            //if media is served from a domain other than the site root.
+            urlRoot: '',
+
             //The maximum size of media files that can be uploaded to the server in
             //bytes
             max_upload_size: 2 * 1024 * 1024
@@ -459,6 +464,11 @@ Configuration.mergeWithBase = function(overrides) {
     //special check to ensure that there is no ending slash on the site root
     if (config.siteRoot.lastIndexOf('/') === (config.siteRoot.length - 1)) {
         config.siteRoot = config.siteRoot.substring(0, config.siteRoot.length - 1);
+    }
+
+    //special check to ensure that there is no ending slash on the media root
+    if (config.media.urlRoot.lastIndexOf('/') === (config.media.urlRoot.length - 1)) {
+        config.media.urlRoot = config.media.urlRoot.substring(0, config.media.urlRoot.length - 1);
     }
     
 	return config;
