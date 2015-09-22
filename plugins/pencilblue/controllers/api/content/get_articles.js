@@ -31,6 +31,7 @@ module.exports = function(pb) {
      * Get articles within indices, for real time pagination
      */
     function GetArticles(){}
+
     util.inherits(GetArticles, BaseController);
     
     GetArticles.prototype.init = function(context, cb) {
@@ -67,12 +68,12 @@ module.exports = function(pb) {
 
     GetArticles.prototype.render = function(cb) {
         var self = this;
+
         
         this.getContent(function(err, articles) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
             var options = {};
             self.contentViewLoader.onContent(articles, options, function(err, content) {
                 if (util.isError(err)) {

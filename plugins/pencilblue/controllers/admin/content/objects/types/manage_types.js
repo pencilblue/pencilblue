@@ -24,10 +24,10 @@ module.exports = function(pb) {
      * Interface for managing object types
      * @class ManageObjectTypes
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function ManageObjectTypes() {}
-    util.inherits(ManageObjectTypes, pb.BaseController);
+    util.inherits(ManageObjectTypes, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_object_types';
@@ -35,7 +35,7 @@ module.exports = function(pb) {
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
 
-        var service = new pb.CustomObjectService();
+        var service = new pb.CustomObjectService(self.site, true);
         service.findTypes(function(err, custObjTypes) {
 
             //none to manage
@@ -50,8 +50,8 @@ module.exports = function(pb) {
             //build out the angular controller
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_object_types'),
+                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls, self.site),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 objectTypes: custObjTypes
             });
 

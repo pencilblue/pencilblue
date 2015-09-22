@@ -24,10 +24,10 @@ module.exports = function(pb) {
      * Adds new media
      * @class NewMediaApiController
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function NewMediaApiController(){}
-    util.inherits(NewMediaApiController, pb.BaseController);
+    util.inherits(NewMediaApiController, pb.BaseAdminController);
 
     NewMediaApiController.prototype.render = function(cb) {
         var self = this;
@@ -43,7 +43,7 @@ module.exports = function(pb) {
             }
 
             var mediaDocument = pb.DocumentCreator.create('media', post);
-            var mediaService = new pb.MediaService();
+            var mediaService = new pb.MediaService(null, self.site);
             mediaService.save(mediaDocument, function(err, result) {
                 if(util.isError(err)) {
                     return cb({

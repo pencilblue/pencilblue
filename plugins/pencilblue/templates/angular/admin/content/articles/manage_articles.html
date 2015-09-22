@@ -83,11 +83,11 @@
 			}
 
 			$scope.deleting = true;
-			$http({method: 'DELETE', url: '/actions/admin/content/articles/' + $scope.objectToDelete._id})
+			$http({method: 'DELETE', url: '/api/content/articles/' + $scope.objectToDelete._id})
 			.success(function(result) {
 				$scope.articles.splice($scope.objectToDeleteIndex, 1);
 				$scope.deleting = false;
-				$scope.successMessage = result.message;
+				$scope.successMessage = $scope.objectToDelete.headline + " was deleted";
 				$scope.paginate(0);
 				$('#confirm_delete_modal').modal('hide');
 			})

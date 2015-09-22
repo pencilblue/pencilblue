@@ -29,7 +29,7 @@ module.exports = function(pb) {
      * @constructor
      */
     function MediaForm(){}
-    util.inherits(MediaForm, pb.BaseController);
+    util.inherits(MediaForm, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'media_form';
@@ -53,21 +53,47 @@ module.exports = function(pb) {
 
             self.media = data.media;
             data.media.media_topics = self.getMediaTopics(data);
-            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.media);
-            var angularObjects = pb.ClientJs.getAngularObjects(data);
-
-            self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.get('NEW_MEDIA'));
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/content/media/media_form', function(err, result) {
-                cb({content: result});
+            self.getAngularObjects(data, function(angularObjects) {
+                self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.get('NEW_MEDIA'));
+                self.ts.registerLocal('acceptable_extensions', function(flag, cb) {
+                    //get acceptable file extensions
+                    var extensions = pb.MediaService.getSupportedExtensions();
+                    for (var i = 0; i < extensions.length; i++) {
+                        if (extensions[i].charAt(0) !== '.') {
+                            extensions[i] = '.' + extensions[i];
+                        }
+                    }
+                    
+                    cb(null, new pb.TemplateValue(extensions.join(','), false));
+                });
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/media/media_form', function(err, result) {
+                    cb({content: result});
+                });
             });
         });
-        return;
+    };
+
+    MediaForm.prototype.getAngularObjects = function(data, cb) {
+        var self = this;
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, data.media, {site: data.media.site}, function(err, pills) {
+            data.pills = [];
+            //Log error. Don't return
+            if (util.isError(err)){
+                pb.log.error("MediaForm: AdminSubnavService.getWithSite callback error. ERROR[%s]", err.stack);
+            }
+            //Only populate pills if we didn't fail
+            else{
+                data.pills = pills;
+            }
+            
+            //TODO: err first arg for style. User experience error when no pills?
+            cb(pb.ClientJs.getAngularObjects(data));
+        });
     };
 
     MediaForm.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var dao = new pb.DAO();
 
         var tasks = {
             tabs: function(callback) {
@@ -87,7 +113,7 @@ module.exports = function(pb) {
             },
 
             navigation: function(callback) {
-                callback(null, pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls));
+                callback(null, pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site));
             },
 
             topics: function(callback) {
@@ -96,16 +122,19 @@ module.exports = function(pb) {
                     where: pb.DAO.ANYWHERE,
                     order: {name: pb.DAO.ASC}
                 };
-                dao.q('topic', opts, callback);
+                self.siteQueryService.q('topic', opts, callback);
             },
 
             media: function(callback) {
                 if(!vars.id) {
-                    return callback(null, {media_topics: []});
+                    return callback(null, {
+                        media_topics: [],
+                        site: self.site
+                    });
                 }
 
-                var mservice = new pb.MediaService();
-                mservice.loadById(vars.id, callback);
+                var mediaService = new pb.MediaService(null, self.site, true);
+                mediaService.loadById(vars.id, callback);
             }
         };
         async.series(tasks, cb);

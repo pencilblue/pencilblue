@@ -31,6 +31,9 @@ var util    = require('../util.js');
  */
 module.exports = function System(pb){
     
+    //pb dependencies
+    var log = pb.log;
+    
     /**
      *
      * @private

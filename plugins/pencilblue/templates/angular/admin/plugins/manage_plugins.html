@@ -17,7 +17,6 @@
 					successCb = $scope.onInstallOrUninstallComplete;
 					break;
 			}
-
 			$http.post("/api/plugins/" + actionType + "/" + encodeURIComponent(plugin.uid))
 			.success(function(result) {
 				successCb(result);
@@ -104,6 +103,20 @@
 			};
 			doJobRetrieve();
 		};
+
+		$scope.isInstalled = function(pluginName) {
+			var isInstalled;
+			angular.forEach($scope.installedPlugins, function(plugin) {
+				if (pluginName === plugin.uid) {
+					isInstalled = true;
+				}
+			});
+			if (isInstalled === true) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 
 		$scope.onActionSuccess = function() {
 			$scope.actionIsComplete = true;

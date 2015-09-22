@@ -12,7 +12,7 @@
         $scope.page.publish_date = $filter('date')($scope.page.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
         $scope.page.page_media = $scope.page.page_media || [];
         $scope.layout = $sce.trustAsHtml($scope.page.page_layout);
-        $scope.page.meta_keywords = $scope.page.meta_keywords ? $scope.page.meta_keywords.join(',') : '';
+        $scope.page.meta_keywords = $scope.page.meta_keywords ? $scope.page.meta_keywords.join(', ') : '';
         $scope.editingObject = $scope.page;
         $scope.variablePrefix = 'page';
 
@@ -21,7 +21,7 @@
         };
 
         $scope.getUrlAvailability = function() {
-            $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page')
+            $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page&' + $scope.siteKey + '=' + $scope.site)
             .success(function(result) {
                 $scope.urlAvailable = !result.data;
             })
@@ -45,10 +45,11 @@
             $scope.getPageData(draft, function(pageData) {
                 $scope.saving = true;
                 if(pageData._id) {
-                    $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
+                    // Update an existing page
+                    $http.put('/api/content/pages/' + $scope.page._id, pageData)
                     .success(function(result) {
-                        $scope.successMessage = result.message;
-                        $scope.page.last_modified = result.data.last_modified;
+                        $scope.successMessage = 'SUCCESS';
+                        $scope.page.last_modified = result.last_modified;
                         $scope.saving = false;
                     })
                     .error(function(error, status) {
@@ -57,11 +58,12 @@
                     });
                 }
                 else {
-                    $http.post('/actions/admin/content/pages', pageData)
+                    // Save a new page
+                    $http.post('/api/content/pages', pageData)
                     .success(function(result) {
-                        $scope.successMessage = result.message;
+                        $scope.successMessage = 'SUCCESS';
                         $scope.saving = false;
-                        $window.location = '/admin/content/pages/' + result.data._id.toString();
+                        $window.location = '/admin/content/pages/' + result._id.toString();
                     })
                     .error(function(error, status) {
                         $scope.errorMessage = error.message;
@@ -79,9 +81,9 @@
             $scope.page.draft = true;
             $scope.getPageData(true, function(pageData) {
                 $scope.saving = true;
-                $http.post('/actions/admin/content/pages/' + $scope.page._id, pageData)
+                $http.put('/api/content/pages/' + $scope.page._id, pageData)
                 .success(function(result) {
-                    $scope.page.last_modified = result.data.last_modified;
+                    $scope.page.last_modified = result.last_modified;
                     $timeout($scope.savePageDraft, 30000);
                     $scope.saving = false;
 
@@ -102,7 +104,7 @@
 
         $scope.getPageData = function(draft, cb) {
             var pageData = angular.copy($scope.page);
-            pageData.publish_date = (new Date($filter('parsableDate')($scope.page.publish_date))).getTime();
+            pageData.publish_date = (new Date($filter('parsableDate')($scope.page.publish_date))).toISOString();
             pageData.draft = draft ? 1 : 0;
 
             var media = [];
@@ -114,6 +116,23 @@
             for(var i = 0; i < $scope.page.page_topics.length; i++) {
                 topics.push($scope.page.page_topics[i]._id.toString());
             }
+
+            // Convert keyword string into array, trimming any excess whitespace and commas
+            if (typeof pageData.meta_keywords == "string") {
+                var words = pageData.meta_keywords.trim();
+                pageData.meta_keywords = [];
+
+                if (words.length > 0) {
+                    var keywords = words.split(",");
+                    for (var i = 0; i < keywords.length; i++) {
+                        if (keywords[i].trim().length > 0) {
+                            pageData.meta_keywords.push(keywords[i].trim());
+                        }
+                    }
+                }
+            }
+
+            pageData.allow_comments = pageData.allow_comments ? true : false;
 
             pageData.page_media = media;
             pageData.page_topics = topics;
@@ -128,7 +147,7 @@
                     $window.open('/preview/page/' + $scope.page._id);
                 }
             });
-        }
+        };
 
         $('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
         $timeout($scope.savePageDraft, 30000);

@@ -28,7 +28,7 @@ module.exports = function(pb) {
 
     NavigationMap.prototype.render = function(cb) {
         var self = this;
-
+        var mySettings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.site, true);
         this.getJSONPostParams(function(err, post) {
             if(util.isError(err)) {
                 cb({
@@ -56,7 +56,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            pb.settings.set('section_map', sectionMap, function(err, data) {
+            mySettings.set('section_map', sectionMap, function(err, data) {
                 if(util.isError(err)) {
                     cb({
                         code: 400,

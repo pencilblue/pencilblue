@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Interface for the site's content settings
      */
     function Content(){}
-    util.inherits(Content, pb.BaseController);
+    util.inherits(Content, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'content_settings';
@@ -57,11 +57,11 @@ module.exports = function(pb) {
             }
         ];
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService({site: this.site, onlyThisSite: true});
         contentService.getSettings(function(err, contentSettings) {
             var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'content'),
+                navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'content', {site:self.site}),
                 tabs: tabs,
                 contentSettings: contentSettings
             });
@@ -75,7 +75,8 @@ module.exports = function(pb) {
     };
 
     Content.getSubNavItems = function(key, ls, data) {
-        return [{
+
+        var subNavItems = [{
             name: 'configuration',
             title: ls.get('CONTENT'),
             icon: 'chevron-left',
@@ -85,12 +86,18 @@ module.exports = function(pb) {
             title: ls.get('EMAIL'),
             icon: 'envelope',
             href: '/admin/site_settings/email'
-        }, {
-            name: 'libraries',
-            title: ls.get('LIBRARIES'),
-            icon: 'book',
-            href: '/admin/site_settings/libraries'
         }];
+
+        if (data.site === pb.SiteService.GLOBAL_SITE) {
+            subNavItems.push({
+                name: 'libraries',
+                title: ls.get('LIBRARIES'),
+                icon: 'book',
+                href: '/admin/site_settings/libraries'
+            });
+        }
+
+        return subNavItems;
     };
 
     //register admin sub-nav

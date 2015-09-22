@@ -19,20 +19,19 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
     
     /**
      * Interface for managing articles
      */
     function ManageArticles(){}
-    util.inherits(ManageArticles, pb.BaseController);
+    util.inherits(ManageArticles, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_articles';
 
     ManageArticles.prototype.render = function(cb) {
         var self = this;
-        var dao  = new pb.DAO();
-
         var where = {};
         if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: pb.SecurityService.ACCESS_EDITOR})) {
             where.author = this.session.authentication.user_id;
@@ -50,7 +49,7 @@ module.exports = function(pb) {
             order: {publish_date: pb.DAO.ASC},
 
         };
-        dao.q('article', opts, function(err, articles) {
+        self.siteQueryService.q('article', opts, function(err, articles) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
@@ -58,21 +57,17 @@ module.exports = function(pb) {
                 return self.redirect('/admin/content/articles/new', cb);
             }
 
-            pb.users.getAuthors(articles, function(err, articlesWithAuthorNames) {
+            var userService = new UserService(self.getServiceContext());
+            userService.getAuthors(articles, function(err, articlesWithAuthorNames) {
                 articles = self.getArticleStatuses(articlesWithAuthorNames);
-                var angularObjects = pb.ClientJs.getAngularObjects(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-                    articles: articles
-                });
-
-                var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
-                self.setPageName(manageArticlesStr);
-                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-                self.ts.load('admin/content/articles/manage_articles',  function(err, data) {
-                    var result = '' + data;
-                    cb({content: result});
+                self.getAngularObjects(self.site, articles, function (angularObjects) {
+                    var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
+                    self.setPageName(manageArticlesStr);
+                    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                    self.ts.load('admin/content/articles/manage_articles', function (err, data) {
+                        var result = '' + data;
+                        cb({content: result});
+                    });
                 });
             });
         });
@@ -93,6 +88,26 @@ module.exports = function(pb) {
         }
 
         return articles;
+    };
+
+    ManageArticles.prototype.getAngularObjects = function(site, articles, cb) {
+        var self = this;
+        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: site}, function(err, pills) {
+            //Log error. Don't return
+            if (util.isError(err)){
+                pills = [];
+                pb.log.error("ManageArticles: AdminSubnavService.getWithSite callback error. ERROR[%s]", err.stack);
+            }
+            
+            var angularObjects = pb.ClientJs.getAngularObjects(
+                {
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls, self.site),
+                    pills: pills,
+                    articles: articles
+                });
+            //TODO: err first arg for style. User experience error when no pills?
+            cb(angularObjects);
+        });
     };
 
     ManageArticles.getSubNavItems = function(key, ls, data) {

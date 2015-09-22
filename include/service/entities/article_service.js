@@ -33,8 +33,10 @@ module.exports = function ArticleServiceModule(pb) {
      * @constructor
      *
      */
-    function ArticleService(){
+    function ArticleService(siteUid, onlyThisSite){
         this.object_type = ARTICLE_TYPE;
+        this.site = pb.SiteService.getCurrentSite(siteUid);
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: onlyThisSite});
     }
     
     /**
@@ -45,7 +47,7 @@ module.exports = function ArticleServiceModule(pb) {
      * @property ARTICLE_TYPE
      * @type {String}
      */
-    var ARTICLE_TYPE = 'article'
+    var ARTICLE_TYPE = 'article';
     
     /**
      *
@@ -181,8 +183,7 @@ module.exports = function ArticleServiceModule(pb) {
         }
 
         var self = this;
-        var dao  = new pb.DAO();
-        dao.q(this.getContentType(), {where: where, select: select, order: order, limit: limit, offset: offset}, function(err, articles) {
+        self.siteQueryService.q(this.getContentType(), {where: where, select: select, order: order, limit: limit, offset: offset}, function(err, articles) {
             if (util.isError(err)) {
                 return cb(err, []);
             }
@@ -193,7 +194,7 @@ module.exports = function ArticleServiceModule(pb) {
             //get authors
             self.getArticleAuthors(articles, function(err, authors) {
 
-                var contentService = new pb.ContentService();
+                var contentService = new pb.ContentService({site: self.site});
                 contentService.getSettings(function(err, contentSettings) {
 
                     var tasks = util.getTasks(articles, function(articles, i) {
@@ -486,7 +487,7 @@ module.exports = function ArticleServiceModule(pb) {
      * thumbnail - a URI path to the thumbnail image 
      */
     ArticleService.prototype.getMetaInfo = function(article, cb) {
-        var serviceV2 = new pb.ArticleServiceV2();
+        var serviceV2 = new pb.ArticleServiceV2({site: this.site});
         serviceV2.getMetaInfo(article, cb);
     };
 

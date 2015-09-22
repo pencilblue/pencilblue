@@ -86,6 +86,16 @@ module.exports = function ImageMediaRendererModule(pb) {
         post: {
         }
     });
+    
+    /**
+     * Retrieves the supported extension types for the renderer.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array}
+     */
+    ImageMediaRenderer.getSupportedExtensions = function() {
+        return Object.keys(SUPPORTED);
+    };
 
     /**
      * Retrieves the style for the specified type of view
@@ -215,7 +225,7 @@ module.exports = function ImageMediaRendererModule(pb) {
      * represented by the media Id
      */
     ImageMediaRenderer.getEmbedUrl = function(mediaId) {
-        return mediaId;
+        return BaseMediaRenderer.getEmbedUrl(mediaId);
     };
 
     /**
