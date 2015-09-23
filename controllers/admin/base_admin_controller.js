@@ -58,7 +58,7 @@ module.exports = function BaseAdminControllerModule(pb) {
 
   /**
    * Centralized place to obtain the pills to be displayed on top of the admin controller
-   * @method getAdminPills
+   *
    * @param navKey
    * @param localizationService
    * @param activePill

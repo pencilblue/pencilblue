@@ -4,7 +4,6 @@ module.exports = function SiteJobRunnerModule(pb) {
 
     /**
      * Setup for running site activation job.
-     * @class SiteJobRunner
      * @constructor SiteJobRunner
      * @extends ClusterJobRunner
      */
@@ -17,19 +16,17 @@ module.exports = function SiteJobRunnerModule(pb) {
 
     /**
      * The site for this instance of SiteJobRunner
-     * @property site
      * @type {string} - default to empty string
      */
     SiteJobRunner.prototype.site = '';
 
     /**
      * Set the site for an instance of SiteJobRunner.
-     * @method setSite
      * @param {Object} options -
      * @param {String} options.uid - site unique id
      * @param {String} options.hostname - result of site hostname edit/create
      * @param {String} options.displayName - result of site display name edit/create
-     * @return {Object} the instance in which the site was set.
+     * @returns {Object} the instance in which the site was set.
      */
     SiteJobRunner.prototype.setSite = function(options) {
         this.site = options;
@@ -38,8 +35,7 @@ module.exports = function SiteJobRunnerModule(pb) {
 
     /**
      * Get the current site of this instance of SiteJobRunner.
-     * @method getSite
-     * @return {Object} the site object
+     * @returns {Object} the site object
      */
     SiteJobRunner.prototype.getSite = function() {
         return this.site;
@@ -52,7 +48,6 @@ module.exports = function SiteJobRunnerModule(pb) {
      * that provides four properties: success (Boolean), id (String), pluginUid
      * (String), results (Array of raw results).
      * @override
-     * @method processClusterResults
      * @param {Error} err - error in the process or null
      * @param {Array} results - array of results from the tasks run
      * @param {Function} cb - callback function
