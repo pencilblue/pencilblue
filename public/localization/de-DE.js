@@ -13,8 +13,8 @@
  *                         at end of file as well as some translations that I, at second view
  *                         disliked;-).
  */
-var loc = {
-    generic:{
+module.exports = {
+    generic: {
         LOCALE_DISPLAY: 'Deutsch (Deutschland)',
         PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'All rights reserved',
@@ -460,6 +460,7 @@ var loc = {
         EDIT_CONFIGURATION: 'Um die Konfiguration zu bearbeiten, müssen die die Datei "config.json" im Root-Verzeichnis anlegen.',
         SITE_NAME: 'Name der Site',
         SITE_ROOT: 'Root-Verzeichnis der Site',
+        MEDIA_ROOT: 'Root-Verzeichnis der Medientyp',
         DOCUMENT_ROOT: 'Basisverzeichnis für Dokumente',
         IP_ADDRESS: 'IP Adresse',
         PORT: 'Port',
@@ -508,13 +509,3 @@ var loc = {
         TEST_EMAIL_SUCCESS: 'Test-E-Mail wurde erfolgreich versandt.'
     }
 };
-
-//Allows for both server and client use
-if(global !== 'undefined') {
- global.loc = loc;
- global.localizationLanguage = 'en-us';
-}
-
-if(module !== 'undefined') {
- module.exports = loc;
-}

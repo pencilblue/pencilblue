@@ -348,7 +348,7 @@ module.exports = function AdminNavigationModule(pb) {
 
 
             if (!util.isArray(nav.children)) {
-                navigation[i].children = [];
+                nav.children = [];
             }
             util.arrayPushAll(children, nav.children);
         });

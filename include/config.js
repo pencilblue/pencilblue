@@ -141,9 +141,12 @@ Configuration.getBaseConfig = function(multisite) {
 
             //the name of the default DB for the system
             name: 'pencil_blue',
-
-            //http://docs.mongodb.org/manual/core/write-concern/
-            writeConcern: 1,
+            
+            options: {
+                
+                //http://docs.mongodb.org/manual/core/write-concern/
+                w: 1
+            },
 
             //PB provides the ability to log queries.  This is handy during
             //development to see how many trips to the DB a single request is
@@ -248,7 +251,12 @@ Configuration.getBaseConfig = function(multisite) {
                 //in memory before being flushed.  A value of 0 indicates that the
                 //values will not be purged from memory once expired.
                 memory_timeout: 0
-            }
+            },
+            
+            //The default plugin.  Allows for the default plugin to be 
+            //referenced from a single location.  The property can be overriden 
+            //but may have unexpected behavior.
+            default: 'pencilblue'
         },
 
         //PB provides a process registry.  It utilizes the cache to register
@@ -345,6 +353,11 @@ Configuration.getBaseConfig = function(multisite) {
 
             provider: 'fs',
             parent_dir: 'public',
+
+            //The root media URL.  Example values: '//cdn.mydomain.com' or
+            //'http://example-bucket.s3-website-us-east-1.amazonaws.com'.  Use this
+            //if media is served from a domain other than the site root.
+            urlRoot: '',
 
             //The maximum size of media files that can be uploaded to the server in
             //bytes
@@ -451,6 +464,11 @@ Configuration.mergeWithBase = function(overrides) {
     //special check to ensure that there is no ending slash on the site root
     if (config.siteRoot.lastIndexOf('/') === (config.siteRoot.length - 1)) {
         config.siteRoot = config.siteRoot.substring(0, config.siteRoot.length - 1);
+    }
+
+    //special check to ensure that there is no ending slash on the media root
+    if (config.media.urlRoot.lastIndexOf('/') === (config.media.urlRoot.length - 1)) {
+        config.media.urlRoot = config.media.urlRoot.substring(0, config.media.urlRoot.length - 1);
     }
     
 	return config;

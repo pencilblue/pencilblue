@@ -22,17 +22,20 @@ module.exports = function SiteJobRunnerModule(pb) {
 
     /**
      * Set the site for an instance of SiteJobRunner.
-     * @param {String} site - site unique id
+     * @param {Object} options -
+     * @param {String} options.uid - site unique id
+     * @param {String} options.hostname - result of site hostname edit/create
+     * @param {String} options.displayName - result of site display name edit/create
      * @returns {Object} the instance in which the site was set.
      */
-    SiteJobRunner.prototype.setSite = function(site) {
-        this.site = site;
+    SiteJobRunner.prototype.setSite = function(options) {
+        this.site = options;
         return this;
     };
 
     /**
      * Get the current site of this instance of SiteJobRunner.
-     * @returns {String} the site unique id
+     * @returns {Object} the site object
      */
     SiteJobRunner.prototype.getSite = function() {
         return this.site;

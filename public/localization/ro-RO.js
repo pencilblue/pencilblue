@@ -1,7 +1,5 @@
-var loc =
-{
-    generic:
-    {
+module.exports = {
+    generic: {
         LOCALE_DISPLAY: 'Român (România)',
         PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Toate drepturile rezervate',
@@ -432,6 +430,7 @@ var loc =
         EDIT_CONFIGURATION: 'Pentru a edita configurarea creaza un fisier config.json in folderul radacina',
         SITE_NAME: 'Nume sit',
         SITE_ROOT: 'Radacina sit',
+        MEDIA_ROOT: 'Radacina media',
         DOCUMENT_ROOT: 'Radacina document',
         IP_ADDRESS: 'Adresa IP',
         PORT: 'Port',
@@ -480,13 +479,3 @@ var loc =
         TEST_EMAIL_SUCCESS: 'Emailul de test a fost trimis cu succes'
     }
 };
-
-//Allows for both server and client use
-if(typeof global !== 'undefined') {
-    global.loc = loc;
-    global.localizationLanguage = 'ro-ro';
-}
-
-if(typeof module !== 'undefined') {
-    module.exports = loc;
-}

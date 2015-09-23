@@ -3,42 +3,42 @@
 var async = require('async');
 var util  = require('../../../util.js');
 
-module.exports = function SiteDeactivateJobModule(pb) {
+module.exports = function SiteCreateEditJobModule(pb) {
 
     /**
-     * Job to deactivate a site.
-     * @class SiteDeactivateJob
-     * @constructor SiteDeactivateJob
+     * Job to create/edit a site.
+     * @constructor SiteCreateEditJob
      * @extends SiteJobRunner
      */
-    function SiteDeactivateJob(){
-        SiteDeactivateJob.super_.call(this);
+    function SiteCreateEditJob(){
+        SiteCreateEditJob.super_.call(this);
 
         //initialize
         this.init();
         this.setParallelLimit(1);
-    }
-    util.inherits(SiteDeactivateJob, pb.SiteJobRunner);
+    };
+    util.inherits(SiteCreateEditJob, pb.SiteJobRunner);
 
     /**
-     * Get tasks to deactivate a site.
+     * Get tasks to create/edit a site.
      * @method getInitiatorTasks
      * @override
      * @param {Function} cb - callback function
      */
-    SiteDeactivateJob.prototype.getInitiatorTasks = function(cb) {
+    SiteCreateEditJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
 
         var jobId = self.getId();
         var site = self.getSite();
-        var deactivateCommand = {
+
+        var createEditCommand = {
             jobId: jobId,
             site: site
         };
 
         //progress function
         var tasks = [
-            //deactivate site in mongo
+            //create/edit site in mongo
             function(callback) {
                 self.doPersistenceTasks(function(err, results) {
                     self.onUpdate(100 / tasks.length);
@@ -50,7 +50,7 @@ module.exports = function SiteDeactivateJobModule(pb) {
             },
 
             //remove site to request handler site collection across cluster
-            self.createCommandTask('deactivate_site', deactivateCommand)
+            self.createCommandTask('create_edit_site', createEditCommand)
         ];
         cb(null, tasks);
     };
@@ -61,58 +61,61 @@ module.exports = function SiteDeactivateJobModule(pb) {
      * @override
      * @param {Function} cb - callback
      */
-    SiteDeactivateJob.prototype.getWorkerTasks = function(cb) {
+    SiteCreateEditJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
-
         var site = this.getSite();
         var tasks = [
 
             //allow traffic to start routing for site
             function(callback) {
-                self.siteService.stopAcceptingSiteTraffic(site.uid, callback);
+                pb.RequestHandler.loadSite(site);
+                callback();
             }
         ];
         cb(null, tasks);
     };
 
     /**
-     * Update site to active as false in database to deactivate.
+     * Update site to active as false in database to create/edit.
      * @method doPersistenceTasks
      * @param {Function} cb - callback
      */
-    SiteDeactivateJob.prototype.doPersistenceTasks = function(cb) {
+    SiteCreateEditJob.prototype.doPersistenceTasks = function(cb) {
+        var self = this;
 
-        var site   = this.getSite();
+        var mySite      = this.getSite();
         var tasks     = [
             //set site to active in mongo
             function(callback) {
                 var dao = new pb.DAO();
-                dao.loadByValue('uid', site.uid, 'site', function(err, site) {
+                dao.loadByValue('uid', mySite.uid, 'site', function(err, site) {
                     if(util.isError(err)) {
                         return callback(err, null);
                     }
 
                     if (!site) {
-                        return callback(new Error('Site not found'), null);
+                        site = pb.DocumentCreator.create('site', mySite);
                     }
 
-                    site.active = false;
+                    site.hostname = mySite.hostname || site.hostname;
+                    site.displayName = mySite.displayName || site.displayName;
+
                     dao.save(site, function(err, result) {
                         if(util.isError(err)) {
                             return cb(err, null);
                         }
 
-                        pb.RequestHandler.deactivateSite(site);
+                        pb.RequestHandler.loadSite(site);
                         callback(err, result);
                     });
                 });
             }
         ];
-        async.series(tasks, function(err/*, results*/) {
+        async.series(tasks, function(err, results) {
             cb(err, !util.isError(err));
         });
     };
 
     //exports
-    return SiteDeactivateJob;
+    return SiteCreateEditJob;
 };

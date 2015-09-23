@@ -72,7 +72,7 @@ angular.module('pencilblueApp', ['validation', 'uploadPhoto'])
 
     $http.post(postURL, $scope.user)
     .success(function(result) {
-      $scope.successMessage = result.message;
+      $scope.successMessage = 'Account Edited';
       $scope.saving = false;
     })
     .error(function(error, status) {

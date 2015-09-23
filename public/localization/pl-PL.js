@@ -7,10 +7,8 @@
  *
  */
 
-var loc =
-{
-    generic:
-    {
+module.exports = {
+    generic: {
         LOCALE_DISPLAY: 'Polski (Polska)',
         PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Wszystkie prawa zastrzeżone',
@@ -441,6 +439,7 @@ var loc =
         EDIT_CONFIGURATION: 'Aby zedytować ustawienia stwórz plik config.json w katalogu głównym',
         SITE_NAME: 'Nazwa strony',
         SITE_ROOT: 'Katalog główny strony',
+        MEDIA_ROOT: 'Korzeń mediów',
         DOCUMENT_ROOT: 'Document root',
         IP_ADDRESS: 'Adres IP',
         PORT: 'Port',
@@ -489,13 +488,3 @@ var loc =
         TEST_EMAIL_SUCCESS: 'Próbny e-mail został wysłany'
     }
 };
-
-//Allows for both server and client use
-if(typeof global !== 'undefined') {
- global.loc = loc;
- global.localizationLanguage = 'en-us';
-}
-
-if(typeof module !== 'undefined') {
- module.exports = loc;
-}

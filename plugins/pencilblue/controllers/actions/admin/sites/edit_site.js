@@ -57,18 +57,11 @@ module.exports = function EditSiteActionModule(pb) {
 
                 data.displayName = self.body.displayName;
                 data.hostname = self.body.hostname;
-                dao.save(data, function(err, result) {
-                    if(err) {
-                        return cb({
-                            code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                        });
-                    }
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_UPDATED'), result)});
-                });
+                var jobId = siteService.editSite(data);
+                var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('UPDATING_SITE'), jobId);
+                cb({content: content});
             });
-        })
-
+        });
     };
 
     EditSiteAction.prototype.getRequiredFields = function() {

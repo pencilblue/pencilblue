@@ -68,7 +68,7 @@ module.exports = function SiteActivateJobModule(pb) {
 
             //allow traffic to start routing for site
             function(callback) {
-                self.siteService.startAcceptingSiteTraffic(site, callback);
+                self.siteService.startAcceptingSiteTraffic(site.uid, callback);
             }
         ];
         cb(null, tasks);
@@ -80,12 +80,12 @@ module.exports = function SiteActivateJobModule(pb) {
      * @param {Function} cb - callback function
      */
     SiteActivateJob.prototype.doPersistenceTasks = function(cb) {
-        var siteUid   = this.getSite();
+        var site   = this.getSite();
         var tasks     = [
             //set site to active in mongo
             function(callback) {
                 var dao = new pb.DAO();
-                dao.loadByValue('uid', siteUid, 'site', function(err, site) {
+                dao.loadByValue('uid', site.uid, 'site', function(err, site) {
                     if (util.isError(err)) {
                         return callback(err, null);
                     }
@@ -105,7 +105,7 @@ module.exports = function SiteActivateJobModule(pb) {
                 });
             }
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err/*, results*/) {
             cb(err, !util.isError(err));
         });
     };

@@ -87,9 +87,7 @@ function PencilBlue(config){
         
         HtmlEncoder.EncodeType = 'numerical';
         
-        pb.Localization.init();
-        
-        cb(null, true);
+        pb.Localization.init(cb);
     };
     
     /**
@@ -339,6 +337,7 @@ function PencilBlue(config){
      */
     this.start = function() {
         var self = this;
+        pb.system.registerSignalHandlers(true);
         pb.system.onStart(function(){
             self.init();
         });

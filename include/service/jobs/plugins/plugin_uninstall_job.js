@@ -56,7 +56,7 @@ module.exports = function PluginUninstallJobModule(pb) {
      */
     PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND = 'uninstall_plugin';
 
-    var GLOBAL_PREFIX = 'global';
+    var GLOBAL_PREFIX = pb.SiteService.GLOBAL_SITE;
     var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
     /**
@@ -145,12 +145,20 @@ module.exports = function PluginUninstallJobModule(pb) {
 
             //remove localization
             function(callback) {
-                //TODO refactor localization to figure out how to remove only those
-                //that were overriden. For now any overriden localizations will be
-                //left until the server cycles.  This is not ideal but will suffice
-                //for most use cases.  The only affected use case is if a default
-                //label is overriden.
-                process.nextTick(function(){callback(null, true);});
+                
+                //retrieve localizations
+                self.pluginService.getLocalizations(pluginUid, function(err, localizations) {
+                    if (util.isError(err)) {
+                        return callback(err);
+                    }
+                    
+                    //remove all localizations
+                    var result = true;
+                    Object.keys(localizations).forEach(function(locale) {
+                        result &= pb.Localization.unregisterLocale(locale, { plugin: pluginUid });
+                    });
+                    callback(null, result);
+                });
             },
 
             //remove settings
@@ -213,8 +221,8 @@ module.exports = function PluginUninstallJobModule(pb) {
 
                     //check if we need to reset the active theme
                     if (activeTheme === pluginUid) {
-                        self.log('Uninstalling the active theme.  Switching to pencilblue');
-                        settings.set('active_theme', 'pencilblue', function(err, result) {
+                        self.log('Uninstalling the active theme.  Switching to:' + pb.config.plugins.default);
+                        settings.set('active_theme', pb.config.plugins.default, function(err, result) {
                             callback(err, result ? true : false);
                         });
                     }

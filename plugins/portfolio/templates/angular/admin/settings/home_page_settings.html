@@ -1,5 +1,6 @@
+<script type="text/javascript" src="/js/angular/directives/wysiwyg.js"></script>
 <script type="text/javascript">
-	angular.module('pencilblueApp', ['uploadPhoto', 'inlineMedia'])
+	angular.module('pencilblueApp', ['wysiwygElement', 'uploadPhoto', 'inlineMedia'])
 	.controller('PencilBlueController', function($scope, $rootScope, $sce, $http) {
 		^angular_objects^
 
@@ -18,21 +19,18 @@
 			}
 			$scope.homePageSettings.page_media = media;
 
-			var wysId = $('.wysiwyg').attr('id').substring('wysiwg_'.length + 1);
-			getWYSIWYGLayout(wysId, function(layout) {
-				$scope.homePageSettings.page_layout = layout;
+			$scope.homePageSettings.page_layout = $scope.layout;
 
-				$scope.saving = true;
+			$scope.saving = true;
 
-				$http.post('/actions/admin/plugins/settings/portfolio/home_page', $scope.homePageSettings)
-				.success(function(result) {
-					$scope.successMessage = result.message;
-					$scope.saving = false;
-				})
-				.error(function(error, status) {
-					$scope.errorMessage = error.message;
-					$scope.saving = false;
-				});
+			$http.post('/actions/admin/plugins/settings/portfolio/home_page', $scope.homePageSettings)
+			.success(function(result) {
+				$scope.successMessage = result.message;
+				$scope.saving = false;
+			})
+			.error(function(error, status) {
+				$scope.errorMessage = error.message;
+				$scope.saving = false;
 			});
 		};
 	});

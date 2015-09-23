@@ -66,7 +66,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @property DEFAULT_THEME
      * @type {String}
      */
-    RequestHandler.DEFAULT_THEME = 'pencilblue';
+    RequestHandler.DEFAULT_THEME = pb.config.plugins.default;
 
     /**
      * The internal storage of routes after they are validated and processed.
@@ -141,9 +141,7 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     RequestHandler.loadSite = function(site) {
-        if (!RequestHandler.sites[site.hostname]) {
-            RequestHandler.sites[site.hostname] = { active: site.active, uid: site.uid, displayName: site.displayName, hostname: site.hostname };
-        }
+        RequestHandler.sites[site.hostname] = { active: site.active, uid: site.uid, displayName: site.displayName, hostname: site.hostname };
     };
 
     RequestHandler.activateSite = function(site) {
@@ -653,9 +651,16 @@ module.exports = function RequestHandlerModule(pb) {
         //set the session
         this.session = session;
 
-        //set the site -- how do we handle improper sites here?
-        this.siteObj = RequestHandler.sites[this.hostname] ? 
-            RequestHandler.sites[this.hostname] : this.serve404();
+        //set the site
+        this.siteObj = RequestHandler.sites[this.hostname];
+
+        if (!this.siteObj) {
+            var hostnameErr = new Error("The host (" + this.hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
+            pb.log.error(hostnameErr);
+            this.serveError(hostnameErr);
+            return;
+        }
+
         this.site = this.siteObj.uid;
         this.siteName = this.siteObj.displayName;
         //find the controller to hand off to

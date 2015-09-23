@@ -246,7 +246,7 @@ module.exports = function VideoMediaRendererModule(pb) {
      * represented by the media Id
      */
     VideoMediaRenderer.getEmbedUrl = function(mediaId) {
-        return mediaId;
+        return BaseMediaRenderer.getEmbedUrl(mediaId);
     };
 
     /**
