@@ -421,6 +421,7 @@ module.exports = function DAOModule(pb) {
      * @param {Array} objArray The array of objects to persist
      * @param {String} collection The collection to persist the objects to
      * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#initializeunorderedbulkop
+     * @param {Boolean} [options.replace=true] Indicates if the default should be to update the fields available or to replace the document
      * @param {Function} cb A callback that takes two arguments.  The first is an
      * error, if occurred. The second is the second parameter of the callback
      * described here: http://mongodb.github.io/node-mongodb-native/api-generated/unordered.html#execute
@@ -441,6 +442,9 @@ module.exports = function DAOModule(pb) {
         else if (!util.isString(collection)) {
             return cb(new Error('COLLECTION_MUST_BE_STR'));
         }
+        
+        //ensure we have default options
+        options.replace = util.isNullOrUndefined(options.replace) ? true : !!options.replace;
 
         //retrieve db reference
         this.getDb(function(err, db) {
@@ -457,8 +461,9 @@ module.exports = function DAOModule(pb) {
 
                 item.object_type = collection;
                 DAO.updateChangeHistory(item);
-                if (item[DAO.getIdField()]) {
-                    batch.update(item);
+                if (item._id) {
+                    batch.find({_id: item._id})
+                        .updateOne(options.replace ? item : {$set: item });
                 }
                 else {
                     batch.insert(item);
