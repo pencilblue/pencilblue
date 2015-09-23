@@ -136,7 +136,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
      * @method addSiteToPills
      * @param {Array} standardPills list of pills
      * @param {String} siteName name of the site to add to the pill
-     * @return {Array} a list of pills with site name added
+     * @returns {Array} a list of pills with site name added
      */
     AdminSubnavService.addSiteToPills = function (standardPills, siteName) {
         var pills = [];

@@ -69,7 +69,7 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @return {Array}
+     * @returns {Array}
      */
     SlideShareMediaRenderer.getSupportedExtensions = function() {
         return [];

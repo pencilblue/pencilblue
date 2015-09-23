@@ -70,7 +70,7 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @return {Array}
+     * @returns {Array}
      */
     VimeoMediaRenderer.getSupportedExtensions = function() {
         return [];

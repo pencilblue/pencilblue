@@ -57,14 +57,10 @@ module.exports = function DBMigrateModule(pb) {
     /**
      * On run, transforms a single tenant instance to a multi-tenant instance where the site defined
      * in the single tenant instance becomes a site under global's scope.
-     * @class DBMigrate
      * @constructor DBMigrate
      */
     function DBMigrate() {
 
-        /**
-         * @method run
-         */
         this.run = function (cb) {
             var self = this;
             var siteService = new pb.SiteService();
@@ -85,9 +81,6 @@ module.exports = function DBMigrateModule(pb) {
             });
         };
 
-        /**
-         * @method createSite
-         */
         this.createSite = function (cb) {
             var siteService = new pb.SiteService();
             var site = pb.DocumentCreator.create('site', {
@@ -97,9 +90,6 @@ module.exports = function DBMigrateModule(pb) {
             siteService.createSite(site, '', cb);
         };
 
-        /**
-         * @method migrateContentAndPluginData
-         */
         this.migrateContentAndPluginData = function(cb) {
             var self = this;
             var tasks = util.getTasks(MIGRATE_ALL, function (collections, i) {
@@ -111,23 +101,14 @@ module.exports = function DBMigrateModule(pb) {
             async.parallel(tasks, cb);
         };
 
-        /**
-         * @method migrateSettings
-         */
         this.migrateSettings = function (cb) {
             this.migrateGlobalSubCollection('setting', SITE_SPECIFIC_SETTINGS, 'key', cb);
         };
 
-        /**
-         * @method migrateUsers
-         */
         this.migrateUsers = function(cb) {
             this.migrateGlobalSubCollection('user', SITE_SPECIFIC_USERS, 'admin', cb);
         };
 
-        /**
-         * @method migrateGlobalSubCollection
-         */
         this.migrateGlobalSubCollection = function(collection, siteSpecificArr, compareTo, cb) {
             var self = this;
             var dao = new pb.DAO();
@@ -143,9 +124,6 @@ module.exports = function DBMigrateModule(pb) {
             });
         };
 
-        /**
-         * @method migrateCollection
-         */
         this.migrateCollection = function (collection, siteUid, cb) {
             var self = this;
             var dao = new pb.DAO();
@@ -160,9 +138,6 @@ module.exports = function DBMigrateModule(pb) {
             });
         };
 
-        /**
-         * @method applySiteToDocument
-         */
         this.applySiteToDocument = function (document, siteUid, callback) {
             document[pb.SiteService.SITE_FIELD] = siteUid;
             var dao = new pb.DAO();
@@ -170,4 +145,5 @@ module.exports = function DBMigrateModule(pb) {
         };
     }
     return DBMigrate;
+
 };

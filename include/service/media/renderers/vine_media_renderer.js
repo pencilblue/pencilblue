@@ -69,7 +69,7 @@ module.exports = function VineMediaRendererModule(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @return {Array}
+     * @returns {Array}
      */
     VineMediaRenderer.getSupportedExtensions = function() {
         return [];

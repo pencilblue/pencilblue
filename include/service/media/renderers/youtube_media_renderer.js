@@ -68,7 +68,7 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @return {Array}
+     * @returns {Array}
      */
     YouTubeMediaRenderer.getSupportedExtensions = function() {
         return [];

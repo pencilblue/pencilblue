@@ -23,9 +23,8 @@ module.exports = function PluginSettingServiceModule(pb) {
 
     /**
      * Constructor for service that retrieves plugin settings from the database.
-     * @class PluginSettingService
-     * @constructor
      * @param {String} siteUID - site unique id
+     * @constructor
      */
     function PluginSettingService(siteUID){
 		//construct settings services
@@ -124,7 +123,6 @@ module.exports = function PluginSettingServiceModule(pb) {
     /**
      * Gets the plugin settings for one site only.
      * Will not default to global plugin settings for given plugin.
-     * @method getSettingsBySite
      * @param {String} pluginName - name of plugin to retrieve settings for
      * @param {Function} cb - callback function
      */
@@ -353,7 +351,6 @@ module.exports = function PluginSettingServiceModule(pb) {
     /**
      * Retrieves theme settings for specified plugin and for only the specified site.
      * Will not default to global theme settings.
-     * @method getThemeSettingsBySite
      * @param {String} pluginName - the name of the plugin to get theme settings
      * @param {Function} cb - callback function
      */
@@ -515,7 +512,7 @@ module.exports = function PluginSettingServiceModule(pb) {
      * use an in memory service.
      * @param {Boolean} opts.useCache Indicates if the generated layered service should
      * use a cache service.
-     * @param {String} opts.serviceName The name of the service
+     * @param serviceName The name of the service
      * @param {String} opts.site
      * @param {Boolean} opts.onlyThisSite
      * @return {SimpleLayeredService}
@@ -552,8 +549,8 @@ module.exports = function PluginSettingServiceModule(pb) {
      * @private
      * @static
      * @method getAdminPluginSettingsService
-     * @param {PluginSettingService} self
-     * @return {SimpleLayeredService}
+     * @param {PluginSettingService}
+     * @returns {SimpleLayeredService}
      */
     function getAdminPluginSettingsService(self) {
     	if(!self.adminPluginSettingsService) {
@@ -574,8 +571,8 @@ module.exports = function PluginSettingServiceModule(pb) {
      * @private
      * @static
      * @method getAdminThemeSettingService
-     * @param {PluginSettingService} self
-     * @return {SimpleLayeredService}
+     * @param {PluginSettingService}
+     * @returns {SimpleLayeredService}
      */
     function getAdminThemeSettingsService(self) {
     	if(!self.adminThemeSettingsService) {

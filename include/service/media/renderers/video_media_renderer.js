@@ -92,7 +92,7 @@ module.exports = function VideoMediaRendererModule(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @return {Array}
+     * @returns {Array}
      */
     VideoMediaRenderer.getSupportedExtensions = function() {
         return Object.keys(SUPPORTED);

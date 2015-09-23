@@ -83,7 +83,7 @@ module.exports = function(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @return {Array}
+     * @returns {Array}
      */
     PdfMediaRenderer.getSupportedExtensions = function() {
         return Object.keys(SUPPORTED);

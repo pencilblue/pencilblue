@@ -68,7 +68,7 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * Retrieves the supported extension types for the renderer.
      * @static
      * @method getSupportedExtensions
-     * @return {Array}
+     * @returns {Array}
      */
     KickStarterMediaRenderer.getSupportedExtensions = function() {
         return [];

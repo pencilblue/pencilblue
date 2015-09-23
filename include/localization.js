@@ -43,16 +43,7 @@ module.exports = function LocalizationModule(pb) {
         }
         
         //expected to be lowercase and of the form "en-us"
-        /**
-         * @property language
-         * @type {String}
-         */
         this.language = Localization.best(request).toString();
-        
-        /**
-         * @property localeObj
-         * @type {Object}
-         */
         this.localeObj = Localization.parseLocaleStr(this.language);
         
         /**
@@ -65,8 +56,6 @@ module.exports = function LocalizationModule(pb) {
         /**
          * The currently active theme that should be prioritized when 
          * performing key lookup
-         * @property activeTheme
-         * @type {String}
          */
         this.activeTheme = options.activeTheme;
     }
@@ -772,7 +761,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {String|Object} locale 
      * @param {Object} [options]
      * @param {String} [options.plugin]
-     * @return {Boolean}
+     * @returns {Boolean}
      */
     Localization.unregisterLocale = function(locale, options) {
         locale = parseLocale(locale);
@@ -795,7 +784,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {String} key
      * @param {Object} [options]
      * @param {String} [options.plugin]
-     * @return {Boolean}
+     * @returns {Boolean}
      */
     Localization.unregisterLocalization = function(locale, key, options) {
         locale = parseLocale(locale);
