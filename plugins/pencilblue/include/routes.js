@@ -514,14 +514,6 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),
             content_type: 'text/html'
         },
-        {
-            method: 'delete',
-            path: "/actions/admin/content/articles/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
-            auth_required: true,
-            inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'articles', 'delete_article.js'),
-        },
 
         // PAGES
         {
@@ -567,15 +559,6 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'pages', 'edit_page.js'),
-            content_type: 'text/html'
-        },
-        {
-            method: 'delete',
-            path: "/actions/admin/content/pages/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
-            auth_required: true,
-            inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'pages', 'delete_page.js'),
             content_type: 'text/html'
         },
 
