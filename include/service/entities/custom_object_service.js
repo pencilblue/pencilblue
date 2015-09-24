@@ -361,8 +361,11 @@ module.exports = function CustomObjectServiceModule(pb) {
 
         //make sure we have the type for the object passed in
         getCustObjType(custObjType, function(err, custObjType) {
-            if (util.isError(err) || util.isNullOrUndefined(custObjType)) {
+            if (util.isError(err)) {
                return cb(err);
+            }
+            else if (util.isNullOrUndefined(custObjType)) {
+                return cb(new Error('An invalid custom object type: ' + custObjType + ' was found.'));
             }
 
             var tasks = util.getTasks(Object.keys(custObjType.fields), function(fieldNames, i) {
