@@ -34,12 +34,12 @@ module.exports = function(pb) {
      * @constructor
      * @extends BaseObjectService
      */
-    function ArticleServiceV2(context, options){
+    function ArticleServiceV2(context){
         if (!util.isObject(context)) {
             context = {};
         }
-        this.site = this.site = pb.SiteService.getCurrentSite(options.site);
-        this.onlyThisSite = options.onlyThisSite;
+        this.site = this.site = pb.SiteService.getCurrentSite(context.site);
+        this.onlyThisSite = context.onlyThisSite;
         context.type = TYPE;
         ArticleServiceV2.super_.call(this, context);
     }
@@ -80,7 +80,7 @@ module.exports = function(pb) {
      * @return {ArticleRenderer}
      */
     ArticleServiceV2.prototype.getRenderer = function() {
-        return new pb.ArticleRenderer(this.context, { site: this.site, onlyThisSite: this.onlyThisSite });
+        return new pb.ArticleRenderer(this.context);
     };
 
     /**

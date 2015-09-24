@@ -47,7 +47,7 @@ module.exports = function(pb) {
              * @property service
              * @type {ArticleServiceV2}
              */
-            self.service = new ArticleServiceV2(self.getServiceContext(), { site: self.site, onlyThisSite: self.onlyThisSite });
+            self.service = new ArticleServiceV2(self.getServiceContext());
 
             /**
              *

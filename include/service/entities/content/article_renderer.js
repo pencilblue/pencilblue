@@ -30,13 +30,13 @@ module.exports = function(pb) {
      * @class ArticleRenderer
      * @constructor
      */
-    function ArticleRenderer(context, options) {
+    function ArticleRenderer(context) {
         if (context) {
             this.commentService = new pb.CommentService(context);
             this.hostname = context.hostname;
         }
-        this.site = pb.SiteService.getCurrentSite(options.site);
-        this.onlyThisSite = options.onlyThisSite;
+        this.site = pb.SiteService.getCurrentSite(context.site);
+        this.onlyThisSite = context.onlyThisSite;
     }
 
     /**

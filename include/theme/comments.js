@@ -62,7 +62,7 @@ module.exports = function CommentServiceModule(pb) {
          * @property articleService
          * @type {ArticleService}
          */
-        this.articleService = new pb.ArticleServiceV2(context, { site: context.site, onlyThisSite: context.onlyThisSite});
+        this.articleService = new pb.ArticleServiceV2(context);
 
         /**
          *

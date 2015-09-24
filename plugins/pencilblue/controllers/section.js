@@ -36,20 +36,19 @@ module.exports = function(pb) {
      */
     SectionViewController.prototype.init = function(context, cb) {
         var self = this;
-        var opts = { site: self.site, onlyThisSite: self.onlyThisSite };
         var init = function(err) {
             //get content settings
             var serviceContext = self.getServiceContext();
-            var contentService = new pb.ContentService(opts);
+            var contentService = new pb.ContentService(context);
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
                 //create the service
                 self.contentSettings = contentSettings;
-                var asContext = self.getServiceContext();
+                var asContext = serviceContext;
                 asContext.contentSettings = contentSettings;
-                self.service = new pb.ArticleServiceV2(asContext, opts);
+                self.service = new pb.ArticleServiceV2(asContext);
 
                 //create the loader context
                 var cvlContext             = self.getServiceContext();

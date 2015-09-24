@@ -51,7 +51,7 @@ module.exports = function(pb) {
                 //create the service
                 var asContext = self.getServiceContext();
                 asContext.contentSettings = contentSettings;
-                self.service = new pb.ArticleServiceV2(asContext, { site: self.site, onlyThisSite: self.onlyThisSite });
+                self.service = new pb.ArticleServiceV2(asContext);
 
                 //create the loader context
                 var cvlContext  = self.getServiceContext();

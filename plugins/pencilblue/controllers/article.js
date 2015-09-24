@@ -42,7 +42,7 @@ module.exports = function(pb) {
             }
 
             //create the service
-            self.service = new pb.ArticleServiceV2(self.getServiceContext(), {site: self.site, onlyThisSite: self.onlyThisSite});
+            self.service = new pb.ArticleServiceV2(self.getServiceContext());
 
             //create the loader context
             var context     = self.getServiceContext();

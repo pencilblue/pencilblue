@@ -42,7 +42,7 @@ module.exports = function FeedModule(pb) {
             }
 
             //create the service
-            self.service = new pb.ArticleServiceV2(self.getServiceContext(), {site: self.site, onlyThisSite: self.onlyThisSite});
+            self.service = new pb.ArticleServiceV2(self.getServiceContext());
 
             cb(null, true);
         };
