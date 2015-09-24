@@ -2,14 +2,16 @@
 <script type="text/javascript" src="/js/angular/services/sort.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
 <script type="text/javascript" src="/js/angular/factories/admin/page.js"></script>
+<script type="text/javascript" src="/js/angular/services/article.js"></script>
 <script type="text/javascript">
     angular.module('pencilblueApp', [
       'search',
       'sort',
       'paginate',
-      'pencilblue.factories.admin.pages'
+      'pencilblue.factories.admin.pages',
+      'pencilblue.services.article'
     ])
-    .controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService, pageFactory) {
+    .controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService, pageFactory, articleService) {
         ^angular_objects^
 
         $scope.searchText = '';
@@ -63,28 +65,11 @@
               return;
             }
 
-            $scope.pages = $scope.setPageStatuses(pages);
+            $scope.pages = articleService.setArticleStatuses(pages);
             $scope.paginationTotal = total;
             cb(pages, total);
           });
         };
-
-    		$scope.setPageStatuses = function(pages) {
-    			var now = new Date();
-    			for(var i = 0; i < pages.length; i++) {
-    				if(pages[i].draft) {
-    					pages[i].status = loc.articles.DRAFT
-    				}
-    				else if(pages[i].publish_date > now) {
-    					pages[i].status = loc.articles.UNPUBLISHED;
-    				}
-    				else {
-    					pages[i].status = loc.articles.PUBLISHED;
-    				}
-    			}
-
-    			return pages;
-    		}
 
         $scope.search = function() {
           $scope.paginate(0, true);
@@ -113,7 +98,7 @@
               return;
             }
 
-            $scope.pages = $scope.setPageStatuses(pages);
+            $scope.pages = articleService.setArticleStatuses(pages);
             $scope.paginationTotal = total;
             cb(pages, total);
           });
