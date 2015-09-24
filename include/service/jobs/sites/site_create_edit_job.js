@@ -87,6 +87,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
         var tasks     = [
             //set site to active in mongo
             function(callback) {
+                var sos = new pb.SiteObjectService();
                 var dao = new pb.DAO();
                 dao.loadByValue('uid', mySite.uid, 'site', function(err, site) {
                     if(util.isError(err)) {
@@ -100,7 +101,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
                     site.hostname = mySite.hostname || site.hostname;
                     site.displayName = mySite.displayName || site.displayName;
 
-                    dao.save(site, function(err, result) {
+                    sos.save(site, function(err, result) {
                         if(util.isError(err)) {
                             return cb(err, null);
                         }
