@@ -1,25 +1,25 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2015  PencilBlue, LLC
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //dependencies
 var path = require('path');
 
 module.exports = function IndexModule(pb) {
-    
+
     //pb dependencies
     var util          = pb.util;
     var PluginService = pb.PluginService;
@@ -44,16 +44,16 @@ module.exports = function IndexModule(pb) {
     };
 
     /**
-    * This is the function that will be called by the system's RequestHandler.  It
-    * will map the incoming route to the ones below and then instantiate this
-    * prototype.  The request handler will then proceed to call this function.
-    * Its callback should contain everything needed in order to provide a response.
-    *
-    * @param cb The callback.  It does not require a an error parameter.  All
-    * errors should be handled by the controller and format the appropriate
-    *  response.  The system will attempt to catch any catastrophic errors but
-    *  makes no guarantees.
-    */
+     * This is the function that will be called by the system's RequestHandler.  It
+     * will map the incoming route to the ones below and then instantiate this
+     * prototype.  The request handler will then proceed to call this function.
+     * Its callback should contain everything needed in order to provide a response.
+     *
+     * @param cb The callback.  It does not require a an error parameter.  All
+     * errors should be handled by the controller and format the appropriate
+     *  response.  The system will attempt to catch any catastrophic errors but
+     *  makes no guarantees.
+     */
     Index.prototype.render = function(cb) {
         var self = this;
 
@@ -152,7 +152,7 @@ module.exports = function IndexModule(pb) {
                                 if(!settings.page_layout) {
                                     settings.page_layout = '';
                                 }
-                                var mediaLoader = new MediaLoader();
+                                var mediaLoader = new MediaLoader({site: self.site, onlyThisSite: self.onlyThisSite});
                                 mediaLoader.start(settings.page_layout, function(err, layout) {
                                     content.content = content.content.split('^layout^').join(layout);
                                     content.content = content.content.split('^hero_image^').join(settings.home_page_hero ? settings.home_page_hero : '');
@@ -174,17 +174,17 @@ module.exports = function IndexModule(pb) {
     };
 
     /**
-    * Provides the routes that are to be handled by an instance of this prototype.
-    * The route provides a definition of path, permissions, authentication, and
-    * expected content type.
-    * Method is optional
-    * Path is required
-    * Permissions are optional
-    * Access levels are optional
-    * Content type is optional
-    *
-    * @param cb A callback of the form: cb(error, array of objects)
-    */
+     * Provides the routes that are to be handled by an instance of this prototype.
+     * The route provides a definition of path, permissions, authentication, and
+     * expected content type.
+     * Method is optional
+     * Path is required
+     * Permissions are optional
+     * Access levels are optional
+     * Content type is optional
+     *
+     * @param cb A callback of the form: cb(error, array of objects)
+     */
     Index.getRoutes = function(cb) {
         var routes = [
             {
