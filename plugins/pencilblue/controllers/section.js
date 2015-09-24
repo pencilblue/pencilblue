@@ -39,14 +39,14 @@ module.exports = function(pb) {
         var init = function(err) {
             //get content settings
             var serviceContext = self.getServiceContext();
-            var contentService = new pb.ContentService(context);
+            var contentService = new pb.ContentService(serviceContext);
             contentService.getSettings(function(err, contentSettings) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
                 //create the service
                 self.contentSettings = contentSettings;
-                var asContext = serviceContext;
+                var asContext = self.getServiceContext();
                 asContext.contentSettings = contentSettings;
                 self.service = new pb.ArticleServiceV2(asContext);
 

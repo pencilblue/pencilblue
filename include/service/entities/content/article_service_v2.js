@@ -33,12 +33,13 @@ module.exports = function(pb) {
      * @class ArticleServiceV2
      * @constructor
      * @extends BaseObjectService
+     * @param {Object} context
      */
     function ArticleServiceV2(context){
         if (!util.isObject(context)) {
             context = {};
         }
-        this.site = this.site = pb.SiteService.getCurrentSite(context.site);
+        this.site = pb.SiteService.getCurrentSite(context.site);
         this.onlyThisSite = context.onlyThisSite;
         context.type = TYPE;
         ArticleServiceV2.super_.call(this, context);
