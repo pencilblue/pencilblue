@@ -8,14 +8,14 @@ var ArticleRenderer = require('../../../../../include/service/entities/content/a
         CommentService: function(){},
         SiteService: { getCurrentSite: function(){} }
     });
-var siteOpts = {site: 'PencilBlue', onlyThisSite: true};
+var fakeContext = {site: 'PencilBlue', onlyThisSite: true};
 
 describe('ArticleRenderer', function() {
     describe('ArticleRenderer.containsReadMoreFlag', function() {
         it('should recognize read_more flags', function() {
             var article = getArticle();
 
-            var renderer = new ArticleRenderer({}, siteOpts);
+            var renderer = new ArticleRenderer(fakeContext);
             var containsReadMore = renderer.containsReadMoreFlag(article);
             containsReadMore.should.eql(true);
         });
@@ -30,7 +30,7 @@ describe('ArticleRenderer', function() {
                 contentSettings: {read_more_text: 'Read More'}
             };
 
-            var service = new ArticleRenderer({}, siteOpts);
+            var service = new ArticleRenderer(fakeContext);
             service.formatLayoutForReadMore(article, context);
 
             article.article_layout.indexOf('<a href="http://www.test.com/article/test_article">Read More</a>').should.be.above(0);
@@ -45,7 +45,7 @@ describe('ArticleRenderer', function() {
                 contentSettings: {read_more_text: 'Read More'}
             };
 
-            var service = new ArticleRenderer({}, siteOpts);
+            var service = new ArticleRenderer(fakeContext);
             service.formatLayoutForReadMore(article, context);
 
             var count = (article.article_layout.match(/Read More/g)).length;
@@ -60,7 +60,7 @@ describe('ArticleRenderer', function() {
                 contentSettings: {read_more_text: 'Read More'}
             };
 
-            var service = new ArticleRenderer({}, siteOpts);
+            var service = new ArticleRenderer(fakeContext);
             service.formatLayoutForReadMore(article, context);
 
             article.article_layout.indexOf('Read More').should.be.below(0);
