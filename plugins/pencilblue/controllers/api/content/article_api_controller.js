@@ -22,7 +22,6 @@ module.exports = function(pb) {
     var ArticleServiceV2 = pb.ArticleServiceV2;
     var SecurityService  = pb.SecurityService;
     var CommentService   = pb.CommentService;
-    var UserService      = pb.UserService;
 
     /**
      *
@@ -79,13 +78,16 @@ module.exports = function(pb) {
                 return self.notFound(cb);
             }
 
-            var userService = new UserService(self.getServiceContext());
-            userService.getAuthors(obj.data, function(err, articlesWithAuthorNames) {
-              cb({
-                  content: obj
-              });
+            cb({
+                content: obj
             });
         });
+    };
+
+    ArticleApiController.prototype.processQuery = function() {
+        var options = ArticleApiController.super_.prototype.processQuery.apply(this);
+        options.render = !!this.query.render; //pass 1 for true, 0 or nothing for false
+        return options;
     };
 
     /**

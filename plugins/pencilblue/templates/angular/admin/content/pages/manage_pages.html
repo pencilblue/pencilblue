@@ -58,7 +58,8 @@
           pageFactory.getPages({
             $limit: $scope.paginationLimit,
             $offset: $scope.paginationIndex,
-    				$order: $scope.orderString
+    				$order: $scope.orderString,
+            render: 1
           }, function(error, pages, total) {
             if(error) {
               $scope.errorMessage = error.message;
@@ -91,7 +92,8 @@
             q: $scope.searchText,
             $limit: $scope.paginationLimit,
             $offset: $scope.paginationIndex,
-    				$order: $scope.orderString
+    				$order: $scope.orderString,
+            render: 1
           }, function(error, pages, total) {
             if(error) {
               $scope.errorMessage = error.message;

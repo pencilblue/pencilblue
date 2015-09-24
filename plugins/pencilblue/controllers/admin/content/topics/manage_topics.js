@@ -36,7 +36,7 @@ module.exports = function(pb) {
             pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
         });
 
-        self.setPageName(self.ls.g('MANAGE_TOPICS'));
+        self.setPageName(self.ls.get('MANAGE_TOPICS'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/topics/manage_topics', function(err, data) {
             var result = '' + data;

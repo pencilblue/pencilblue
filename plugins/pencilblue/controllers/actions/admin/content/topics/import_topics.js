@@ -47,7 +47,7 @@ module.exports = function(pb) {
 
             fs.readFile(files[0].path, function(err, data) {
                 if(util.isError(err)) {
-                    self.formError(self.ls.g('ERROR_SAVING'), '/admin/content/topics/import_topics', cb);
+                    self.formError(self.ls.get('ERROR_SAVING'), '/admin/content/topics/import_topics', cb);
                     return;
                 }
 
@@ -55,7 +55,7 @@ module.exports = function(pb) {
                 if(topics.length <= 1) {
                     cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('INVALID_FILE'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_FILE'))
                     });
                 }
 
@@ -87,11 +87,11 @@ module.exports = function(pb) {
             if(util.isError(err)) {
                 return cb({
                     code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('ERROR_SAVING'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
                 });
             }
 
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('TOPICS_CREATED'))});
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('TOPICS_CREATED'))});
         });
     };
 
