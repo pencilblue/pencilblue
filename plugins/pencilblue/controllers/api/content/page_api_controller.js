@@ -53,31 +53,19 @@ module.exports = function(pb) {
         };
         PageApiController.super_.prototype.init.apply(this, [context, init]);
     };
-
+    
     /**
-     * Retrieves one or more resources from a collection.
-     * @method getAll
-     * @param {Function} cb
+     * Process the generic API options as well as the page specific "render" option
+     * @method processQuery
+     * @return {Object}
      */
-    PageApiController.prototype.getAll = function(cb) {
-        var self = this;
-        var options = this.processQuery();
-
-        this.service.getAllWithCount(options, function(err, obj) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            else if (util.isNullOrUndefined(obj)) {
-                return self.notFound(cb);
-            }
-
-            var userService = new UserService(self.getServiceContext());
-            userService.getAuthors(obj.data, function(err, pagesWithAuthorNames) {
-              cb({
-                  content: obj
-              });
-            });
-        });
+    PageApiController.prototype.processQuery = function() {
+        var options = PageApiController.super_.prototype.processQuery.apply(this);
+        options.render = !!this.query.render; //pass 1 for true, 0 or nothing for false
+        if (options.render) {
+            options.renderBylines = true
+        }
+        return options;
     };
 
     /**

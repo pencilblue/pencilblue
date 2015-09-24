@@ -58,7 +58,8 @@
       articleFactory.getArticles({
         $limit: $scope.paginationLimit,
         $offset: $scope.paginationIndex,
-				$order: $scope.orderString
+        $order: $scope.orderString,
+        render: 1
       }, function(error, articles, total) {
         if(error) {
           $scope.errorMessage = error.message;

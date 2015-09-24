@@ -18,8 +18,8 @@
         $scope.paginationIndex;
         $scope.paginationLimit = 25;
         $scope.paginationPages = [];
-    		$scope.deleteNameKey = 'headline';
-    		$scope.orderString = 'publish_date=0'
+        $scope.deleteNameKey = 'headline';
+        $scope.orderString = 'publish_date=0'
 
         $scope.tableHeaders = [{
             name: loc.pages.HEADLINE,
@@ -92,7 +92,7 @@
             q: $scope.searchText,
             $limit: $scope.paginationLimit,
             $offset: $scope.paginationIndex,
-    				$order: $scope.orderString,
+            $order: $scope.orderString,
             render: 1
           }, function(error, pages, total) {
             if(error) {

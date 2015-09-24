@@ -61,12 +61,16 @@ module.exports = function(pb) {
      * @return {Object}
      */
     PageService.prototype.getRenderOptions = function(options, isMultiple) {
-        return {
+        if (!util.isObject(options)) {
+            options = {};
+        }
+        
+        return util.merge(options, {
             readMore: false,
             renderComments: false,
             renderBylines: false,
             renderTimestamp: false
-        };
+        });
     };
     
     /**
