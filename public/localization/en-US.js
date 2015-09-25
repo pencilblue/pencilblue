@@ -170,7 +170,8 @@ module.exports = {
     },
     error: {
     	ERROR: 'Error',
-        PAGE_NOT_FOUND: 'The page can not be found'
+      PAGE_NOT_FOUND: 'The page can not be found',
+      SERVER_ERROR_CODE_500:'Internal server error'
     },
     timestamp: {
         JAN: 'January',
