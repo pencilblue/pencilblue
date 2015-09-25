@@ -16,7 +16,7 @@
 */
 
 module.exports = function ImageMediaRendererModule(pb) {
-    
+
     //pb dependencies
     var util              = pb.util;
     var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
@@ -86,7 +86,7 @@ module.exports = function ImageMediaRendererModule(pb) {
         post: {
         }
     });
-    
+
     /**
      * Retrieves the supported extension types for the renderer.
      * @static
