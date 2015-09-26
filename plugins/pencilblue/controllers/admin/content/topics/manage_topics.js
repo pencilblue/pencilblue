@@ -36,7 +36,7 @@ module.exports = function(pb) {
             pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
         });
 
-        self.setPageName(self.ls.get('MANAGE_TOPICS'));
+        self.setPageName(self.ls.g('topics.MANAGE_TOPICS'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/topics/manage_topics', function(err, data) {
             var result = '' + data;
@@ -47,7 +47,7 @@ module.exports = function(pb) {
     ManageTopics.getSubNavItems = function(key, ls, data) {
         return [{
             name: SUB_NAV_KEY,
-            title: ls.get('MANAGE_TOPICS'),
+            title: ls.g('topics.MANAGE_TOPICS'),
             icon: 'refresh',
             href: '/admin/content/topics'
         }, {

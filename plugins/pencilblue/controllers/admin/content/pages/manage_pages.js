@@ -38,7 +38,7 @@ module.exports = function(pb) {
             pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
         });
 
-        self.setPageName(self.ls.get('MANAGE_PAGES'));
+        self.setPageName(self.ls.g('pages.MANAGE_PAGES'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         self.ts.load('admin/content/pages/manage_pages', function(err, data) {
             var result = '' + data;
@@ -49,7 +49,7 @@ module.exports = function(pb) {
     ManagePages.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_pages',
-            title: ls.get('MANAGE_PAGES'),
+            title: ls.g('pages.MANAGE_PAGES'),
             icon: 'refresh',
             href: '/admin/content/pages'
         }, {
