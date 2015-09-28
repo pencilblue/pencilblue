@@ -1225,27 +1225,27 @@ module.exports = function PluginServiceModule(pb) {
              },
 
              //process localization
-            function(callback) {
+             function(callback) {
 
-                self.getLocalizations(plugin.dirName, function(err, localizations) {
-                    for (var locale in localizations) {
-                        if (pb.log.isDebug()) {
-                            pb.log.debug('PluginService:[%s] Registering localizations for locale [%s]', details.uid, locale);
-                        }
+                 self.getLocalizations(plugin.dirName, function(err, localizations) {
+                     for (var locale in localizations) {
+                         if (pb.log.isDebug()) {
+                             pb.log.debug('PluginService:[%s] Registering localizations for locale [%s]', details.uid, locale);
+                         }
 
-                        var opts = {
-                            site: self.site,
-                            plugin: details.uid
-                        };
-                        var result = pb.Localization.registerLocale(locale, localizations[locale], opts);
-                        if (!result && pb.log.isDebug()) {
-                            pb.log.debug('PluginService:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', details.uid, locale);
-                        }
-                    }
-                  callback(null, !util.isError(err) && result);
-                });
-            }
-          ];
+                         var opts = {
+                             site: self.site,
+                             plugin: details.uid
+                         };
+                         var result = pb.Localization.registerLocale(locale, localizations[locale], opts);
+                         if (!result && pb.log.isDebug()) {
+                             pb.log.debug('PluginService:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', details.uid, locale);
+                         }
+                     }
+                     callback(null, !util.isError(err) && result);
+                 });
+             }
+        ];
         async.series(tasks, function(err, results) {
             //cleanup on error
             if (util.isError(err) && details && details.uid) {
