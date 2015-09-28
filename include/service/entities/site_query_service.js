@@ -260,13 +260,20 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {Function} cb
    */
   SiteQueryService.prototype.getCollections = function (cb) {
-    this.listCollections({ name: { $nin: ["system.indexes", "system.namespaces"] }}, function(err, items) {
-      if(pb.util.isError(err)) {
-        pb.log.error(err);
-      }
-      cb(err, items);
-    });
-  };
+      this.listCollections({}, function(err, items) {
+          if(pb.util.isError(err)) {
+            pb.log.error(err);
+          }
+
+          for(var i = 0; i<items.length; i++) {
+              if(items[i].name.indexOf('system.indexes') != -1 || items[i].name.indexOf('system.namespaces') != -1){
+                items.splice(i, 1);
+              }
+          }
+
+          cb(err, items);
+      });
+    };
 
   /**
    * Deletes all site specific content
