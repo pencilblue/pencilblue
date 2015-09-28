@@ -67,10 +67,6 @@ module.exports = function LocalizationModule(pb) {
      */
     var JS_EXT = '.js';
 
-    Localization.prototype.setActiveTheme = function (activeTheme){
-      this.activeTheme = activeTheme;
-    };
-
     /**
      * 
      * @static
@@ -245,24 +241,6 @@ module.exports = function LocalizationModule(pb) {
             }
         }
 
-<<<<<<< HEAD
-        //get i18n from storage
-        var tmp;
-        var val = null;
-        var loc = Localization.storage[this.language];
-
-        if(loc && loc[this.activeTheme] && loc[this.activeTheme][key])
-        {
-          return loc[this.activeTheme][key];
-        }
-
-
-      for (var category in loc) {
-            tmp = loc[category][key];
-            if (tmp !== undefined) {
-                val = tmp;
-                break;
-=======
 
         var val = this.g(convertedKey/*, {empty options}*/);
         if (val !== null) {
@@ -387,7 +365,6 @@ module.exports = function LocalizationModule(pb) {
                         return countryResult;
                     }
                 }
->>>>>>> e45af6bf6ed32a704451218e6d32af078e52d5c3
             }
 
             //we failed to find the value in a country specific block.  We need to 
@@ -694,29 +671,6 @@ module.exports = function LocalizationModule(pb) {
      * @param {String} options.plugin
      * @return {Boolean}
      */
-<<<<<<< HEAD
-    Localization.registerLocalization = function(locale, key, value, pluginName) {
-      if (!Localization.isSupported(locale)) {
-        return false;
-      }
-      else if (!util.isString(key) || !util.isString(value)) {
-        return false;
-      }
-
-      if(!pluginName)
-        pluginName = 'generic';
-
-      var localeObj = Localization.getLocalizationPackage(locale);
-
-      if (localeObj[pluginName] !== undefined) {
-        localeObj[pluginName][key] = value;
-      }
-      else {
-        localeObj[pluginName] = {};
-        localeObj[pluginName][key] = value;
-      }
-      return true;
-=======
     Localization.registerLocalization = function(locale, key, value, options) {
         assertOptions(options);
         
@@ -905,7 +859,6 @@ module.exports = function LocalizationModule(pb) {
             return true;
         }
         return false;
->>>>>>> e45af6bf6ed32a704451218e6d32af078e52d5c3
     };
        
     /**
