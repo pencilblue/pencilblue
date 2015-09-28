@@ -49,16 +49,17 @@
 			}
 
 			var item = $(feed).find('rss').find('item');
+			item = $(item[0]);
 
-			$scope.newsTitle = item.find('title').html();
-			$scope.newsLink = item.find('link').html();
+			$scope.newsTitle = item.find('title').text();
+			$scope.newsLink = item.find('link').text();
 
 			var copy = item.find('encoded');
 			if(copy.length === 0) {
 				copy = item.find('content\\:encoded');
 			}
 
-			$scope.newsCopy = $scope.cleanNewsCopy(copy.html());
+			$scope.newsCopy = $scope.cleanNewsCopy(copy.text());
 		});
 	});
 </script>

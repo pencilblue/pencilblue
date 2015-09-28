@@ -66,9 +66,10 @@
             }
           }
 
-          if(!$document[0].queryCommandState('insertorderedlist') && !$document[0].queryCommandState('insertunorderedlist') && !scope.getSelection().length) {
+          /*if(!$document[0].queryCommandState('insertorderedlist') && !$document[0].queryCommandState('insertunorderedlist') && !scope.getSelection().length) {
             scope.setElement('p');
-          }
+          }*/
+          
           return scope.availableElements[0];
         };
 
@@ -86,7 +87,6 @@
 
         scope.clearStyles = function() {
           scope.formatAction('removeFormat');
-          scope.setElement('p');
         };
 
         scope.showInsertLinkModal = function() {
