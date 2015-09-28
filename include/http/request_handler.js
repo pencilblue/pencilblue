@@ -559,9 +559,7 @@ module.exports = function RequestHandlerModule(pb) {
       var cInstance = new NotFound();
       self.doRender({}, cInstance, {});
 
-      if (pb.log.isSilly()) {
-        pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL=" + this.url.href);
-      }
+      pb.log.silly('RequestHandler: No Route Found, Sending 404 for URL=%s', this.url.href);
     });
   };
 
@@ -599,9 +597,7 @@ module.exports = function RequestHandlerModule(pb) {
       var cInstance = new NotFound(params);
       self.doRender({}, cInstance, {});
 
-      if (pb.log.isSilly()) {
-        pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL=" + this.url.href);
-      }
+      pb.log.silly('RequestHandler: No Route Found, Sending 404 for URL=%s', this.url.href);
     });
 
     return true;
