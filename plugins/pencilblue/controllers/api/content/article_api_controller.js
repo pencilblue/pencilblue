@@ -62,6 +62,17 @@ module.exports = function(pb) {
     };
 
     /**
+     * Process the generic API options as well as the article specific "render" option
+     * @method processQuery
+     * @return {Object}
+     */
+    ArticleApiController.prototype.processQuery = function() {
+        var options = ArticleApiController.super_.prototype.processQuery.apply(this);
+        options.render = !!this.query.render; //pass 1 for true, 0 or nothing for false
+        return options;
+    };
+
+    /**
      * Processes the query string to develop the where clause for the query request
      * @method processWhere
      * @param {Object} q The hash of all query parameters from the request

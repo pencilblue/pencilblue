@@ -78,7 +78,7 @@ module.exports = function(pb) {
                     });
 
                     //load the template
-                    self.setPageName(self.ls.get('MANAGE_COMMENTS'));
+                    self.setPageName(self.ls.g('comments.MANAGE_COMMENTS'));
                     self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                     self.ts.load('admin/content/comments/manage_comments', function(err, result) {
                         cb({content: result});
@@ -138,7 +138,7 @@ module.exports = function(pb) {
     ManageComments.getSubNavItems = function(key, ls, data) {
         return [{
             name: SUB_NAV_KEY,
-            title: ls.get('MANAGE_COMMENTS'),
+            title: ls.g('comments.MANAGE_COMMENTS'),
             icon: 'refresh',
             href: '/admin/content/comments'
         }];

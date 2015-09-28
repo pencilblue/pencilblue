@@ -16,11 +16,11 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
     var UserService = pb.UserService;
-    
+
     /**
      * Interface for managing articles
      */
@@ -32,88 +32,27 @@ module.exports = function(pb) {
 
     ManageArticles.prototype.render = function(cb) {
         var self = this;
-        var where = {};
         if(!pb.security.isAuthorized(this.session, {logged_in: true, admin_level: pb.SecurityService.ACCESS_EDITOR})) {
             where.author = this.session.authentication.user_id;
         }
 
-        var opts = {
-            select: {
-                headline: 1,
-                draft: 1,
-                url: 1,
-                author: 1,
-                publish_date: 1
-            },
-            where: where,
-            order: {publish_date: pb.DAO.ASC},
-
-        };
-        self.siteQueryService.q('article', opts, function(err, articles) {
-            if(util.isError(err)) {
-                return self.reqHandler.serveError(err);
-            }
-            else if (articles.length <= 0) {
-                return self.redirect('/admin/content/articles/new', cb);
-            }
-
-            var userService = new UserService(self.getServiceContext());
-            userService.getAuthors(articles, function(err, articlesWithAuthorNames) {
-                articles = self.getArticleStatuses(articlesWithAuthorNames);
-                self.getAngularObjects(self.site, articles, function (angularObjects) {
-                    var manageArticlesStr = self.ls.get('MANAGE_ARTICLES');
-                    self.setPageName(manageArticlesStr);
-                    self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-                    self.ts.load('admin/content/articles/manage_articles', function (err, data) {
-                        var result = '' + data;
-                        cb({content: result});
-                    });
-                });
-            });
+        var angularObjects = pb.ClientJs.getAngularObjects({
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls, self.site),
+            pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
         });
-    };
 
-    ManageArticles.prototype.getArticleStatuses = function(articles) {
-        var now = new Date();
-        for(var i = 0; i < articles.length; i++) {
-            if(articles[i].draft) {
-                articles[i].status = this.ls.get('DRAFT');
-            }
-            else if(articles[i].publish_date > now) {
-                articles[i].status = this.ls.get('UNPUBLISHED');
-            }
-            else {
-                articles[i].status = this.ls.get('PUBLISHED');
-            }
-        }
-
-        return articles;
-    };
-
-    ManageArticles.prototype.getAngularObjects = function(site, articles, cb) {
-        var self = this;
-        pb.AdminSubnavService.getWithSite(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {site: site}, function(err, pills) {
-            //Log error. Don't return
-            if (util.isError(err)){
-                pills = [];
-                pb.log.error("ManageArticles: AdminSubnavService.getWithSite callback error. ERROR[%s]", err.stack);
-            }
-            
-            var angularObjects = pb.ClientJs.getAngularObjects(
-                {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls, self.site),
-                    pills: pills,
-                    articles: articles
-                });
-            //TODO: err first arg for style. User experience error when no pills?
-            cb(angularObjects);
+        self.setPageName(self.ls.g('articles.MANAGE_ARTICLES'));
+        self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.load('admin/content/articles/manage_articles', function (err, data) {
+            var result = '' + data;
+            cb({content: result});
         });
     };
 
     ManageArticles.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_articles',
-            title: ls.get('MANAGE_ARTICLES'),
+            title: ls.g('articles.MANAGE_ARTICLES'),
             icon: 'refresh',
             href: '/admin/content/articles'
         }, {
