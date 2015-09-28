@@ -20,6 +20,7 @@ module.exports = function HomePageSettingsModule(pb) {
     //pb dependencies
     var util          = pb.util;
     var PluginService = pb.PluginService;
+    var SUB_NAV_KEY = 'portfolio_home_page_settings';
     
     /**
      * Settings for the display of home page content in the Portfolio theme
@@ -27,16 +28,10 @@ module.exports = function HomePageSettingsModule(pb) {
      * @author Blake Callens <blake@pencilblue.org>
      */
     function HomePageSettings() {}
-    util.inherits(HomePageSettings, pb.BaseController);
+    util.inherits(HomePageSettings, pb.BaseAdminController);
 
     HomePageSettings.prototype.render = function(cb) {
         var self = this;
-
-        var content = {
-            content_type: "text/html",
-            code: 200
-        };
-
         var tabs = [
             {
                 active: 'active',
@@ -56,27 +51,18 @@ module.exports = function HomePageSettingsModule(pb) {
             }
         ];
 
-        var pills = [
-        {
-            name: 'content_settings',
-            title: self.ls.get('HOME_PAGE_SETTINGS'),
-            icon: 'chevron-left',
-            href: '/admin/plugins/portfolio/settings'
-        }];
-
         var opts = {
             where: {settings_type: 'home_page'}
         };
-        var dao  = new pb.DAO();
-        dao.q('portfolio_theme_settings', opts, function(err, homePageSettings) {
+        self.siteQueryService.q('portfolio_theme_settings', opts, function(err, homePageSettings) {
             if(homePageSettings.length > 0) {
                 homePageSettings = homePageSettings[0];
             }
             else {
-                homePageSettings = {callouts: [{}, {}, {}]};
+                homePageSettings = {callouts: [{}, {}, {}], site:self.site};
             }
 
-            var mservice = new pb.MediaService();
+            var mservice = new pb.MediaService(self.site, true);
             mservice.get(function(err, media) {
                 if(homePageSettings.page_media) {
                     var pageMedia = [];
@@ -93,8 +79,8 @@ module.exports = function HomePageSettingsModule(pb) {
                 }
 
                 var objects = {
-                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                    pills: pills,
+                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
                     tabs: tabs,
                     media: media,
                     homePageSettings: homePageSettings
@@ -109,18 +95,32 @@ module.exports = function HomePageSettingsModule(pb) {
         });
     };
 
+    HomePageSettings.getSubNavItems = function(key, ls, data) {
+        return [
+            {
+                name: 'content_settings',
+                title: ls.get('HOME_PAGE_SETTINGS'),
+                icon: 'chevron-left',
+                href: '/admin/plugins/portfolio/settings'
+            }
+        ];
+    };
+
     HomePageSettings.getRoutes = function(cb) {
         var routes = [
             {
                 method: 'get',
                 path: '/admin/plugins/portfolio/settings/home_page',
                 auth_required: true,
+                inactive_site_access: true,
                 access_level: pb.SecurityService.ACCESS_EDITOR,
                 content_type: 'text/html'
             }
         ];
         cb(null, routes);
     };
+    //register admin sub-nav
+    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, HomePageSettings.getSubNavItems);
 
     //exports
     return HomePageSettings;

@@ -19,16 +19,15 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util         = pb.util;
-    var mediaService = pb.MediaService;
-    
+
     /**
      * Edits media
      * @class EditMediaActionController
-     * @extends FormController
+     * @extends BaseAdminController
      * @constructor
      */
     function EditMediaActionController(){}
-    util.inherits(EditMediaActionController, pb.BaseController);
+    util.inherits(EditMediaActionController, pb.BaseAdminController);
 
     /**
      *
@@ -50,7 +49,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            var mediaService = new pb.MediaService();
+            var mediaService = new pb.MediaService(null, self.site);
             mediaService.loadById(vars.id, function(err, media) {
                 if(util.isError(err) || media === null) {
                     cb({

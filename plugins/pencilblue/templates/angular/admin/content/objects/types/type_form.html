@@ -12,7 +12,7 @@
             itemMoved: function (event) {},
             orderChanged: function(event) {},
             containment: '#object_fields'
-        }
+        };
 
         // Move key/value of fields to an array, so ng-sortable will work with it
         var fieldArray = [];
@@ -107,7 +107,7 @@
             }
             saveObject.fields = fields;
 
-            var postURL = '/actions/admin/content/objects/types'
+            var postURL = '/actions/admin/content/objects/types';
             if(saveObject._id) {
                 postURL += '/' + saveObject._id;
             }

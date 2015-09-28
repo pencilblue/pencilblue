@@ -9,11 +9,9 @@
                 <div class="tab-pane active" id="home_layout">
                     ^tmp_admin=elements=hero_upload^
                     <div class="form-group">
-                        <label>^loc_CONTENT^&nbsp;<span id="column_inches"></span></label>
-                        <div id="page_wysiwyg">
-                            ^wysiwyg^
-                        </div>
-                    </div>
+                      <label>^loc_CONTENT^</label>
+          						<wysiwyg layout="layout" media="homePageSettings.page_media"></wysiwyg>
+          					</div>
                 </div>
                 <div class="tab-pane" id="media">
                     ^tmp_admin=elements=inline_media^
@@ -79,5 +77,6 @@
 
     </div>
 </div>
+^tmp_admin=elements=wysiwyg_scripts^
 ^tmp_angular=admin=settings=home_page_settings^
 ^tmp_admin=footer^

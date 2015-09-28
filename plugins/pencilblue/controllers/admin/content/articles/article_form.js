@@ -22,12 +22,13 @@ module.exports = function(pb) {
 
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
 
     /**
      * Interface for creating and editing articles
      */
     function ArticleForm(){}
-    util.inherits(ArticleForm, pb.BaseController);
+    util.inherits(ArticleForm, pb.BaseAdminController);
 
     ArticleForm.prototype.render = function(cb) {
         var self  = this;
@@ -49,7 +50,8 @@ module.exports = function(pb) {
             }
 
             if(self.session.authentication.user.admin >= pb.SecurityService.ACCESS_EDITOR) {
-              pb.users.getWriterOrEditorSelectList(self.article.author, true, function(err, availableAuthors) {
+                var userService = new UserService(self.getServiceContext());
+                userService.getWriterOrEditorSelectList(self.article.author, true, function(err, availableAuthors) {
                 if(availableAuthors && availableAuthors.length > 1) {
                   results.availableAuthors = availableAuthors;
                 }
@@ -73,7 +75,12 @@ module.exports = function(pb) {
       self.ts.load('admin/content/articles/article_form', function(err, data) {
           self.onTemplateRetrieved('' + data, function(err, data) {
               var result = '' + data;
-              self.checkForFormRefill(result, function(newResult) {
+              self.checkForFormRefill(result, function(err, newResult) {
+                  //Handle errors
+                  if (util.isError(err)) {
+                      pb.log.error("ArticleForm.checkForFormRefill encountered an error. ERROR[%s]", err.stack);
+                      return cb(err);
+                  }
                   result = newResult;
                   cb({content: result});
               });
@@ -86,6 +93,7 @@ module.exports = function(pb) {
     };
 
     ArticleForm.prototype.getAngularObjects = function(tabs, data) {
+        var self = this;
         if(data.article[pb.DAO.getIdField()]) {
             var media = [];
             var i, j;
@@ -127,14 +135,16 @@ module.exports = function(pb) {
         }
 
         var objects = {
-            navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls),
-            pills: pb.AdminSubnavService.get(this.getActivePill(), this.ls, this.getActivePill(), data),
+            navigation: pb.AdminNavigation.get(this.session, ['content', 'articles'], this.ls, this.site),
+            pills: self.getAdminPills(this.getActivePill(), this.ls, this.getActivePill(), data),
             tabs: tabs,
             templates: data.templates,
             sections: data.sections,
             topics: data.topics,
             media: data.media,
-            article: data.article
+            article: data.article,
+            siteKey: pb.SiteService.SITE_FIELD,
+            site: self.site
         };
         if(data.availableAuthors) {
           objects.availableAuthors = data.availableAuthors;
@@ -162,10 +172,9 @@ module.exports = function(pb) {
 
     ArticleForm.prototype.gatherData = function(vars, cb) {
         var self  = this;
-        var dao   = new pb.DAO();
         var tasks = {
             templates: function(callback) {
-                callback(null, pb.TemplateService.getAvailableContentTemplates());
+                callback(null, pb.TemplateService.getAvailableContentTemplates(self.site));
             },
 
             sections: function(callback) {
@@ -176,10 +185,7 @@ module.exports = function(pb) {
                     },
                     order: {name: pb.DAO.ASC}
                 };
-                var where = {
-                    type: {$in: ['container', 'section']}
-                };
-                dao.q('section', opts, callback);
+                self.siteQueryService.q('section', opts, callback);
             },
 
             topics: function(callback) {
@@ -188,22 +194,21 @@ module.exports = function(pb) {
                     where: pb.DAO.ANYWHERE,
                     order: {name: pb.DAO.ASC}
                 };
-                dao.q('topic', opts, callback);
+                self.siteQueryService.q('topic', opts, callback);
             },
 
             media: function(callback) {
-                var mservice = new pb.MediaService();
+                var mservice = new pb.MediaService(null, self.site, true);
                 mservice.get(callback);
             },
 
             article: function(callback) {
                 if(!pb.validation.isIdStr(vars.id, true)) {
-                    callback(null, {});
-                    return;
+                    return callback(null, {});
                 }
 
                 //TODO call article service
-                dao.loadById(vars.id, 'article', callback);
+                self.siteQueryService.loadById(vars.id, 'article', callback);
             }
         };
         async.parallelLimit(tasks, 2, cb);

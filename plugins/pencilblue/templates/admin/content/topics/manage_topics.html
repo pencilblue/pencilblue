@@ -1,18 +1,22 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^tmp_admin=elements=error_success^
-    ^tmp_admin=elements=sub_nav^
-    ^tmp_admin=elements=search_input^
-    <div>
-        <div class="btn-group" ng-repeat="topic in topics track by topic._id" style="margin: 0 .5em .5em 0" ng-if="!topic.hidden && !topic.paginated">
-            <a class="btn btn-primary" ng-href="/admin/content/topics/{{topic._id}}" ng-bind="topic.name"></a>
-            <button class="btn btn-primary" type="button" ng-click="confirmDelete(topic)">
-                <i class="fa fa-trash"></i>
-            </button>
-        </div>
+  ^tmp_admin=elements=error_success^
+  ^tmp_admin=elements=sub_nav^
+  ^tmp_admin=elements=search_input^
+  <div ng-if="!topics">
+    <i class="fa fa-4x fa-circle-o-notch fa-spin"></i>
+  </div>
+  <div ng-if="topics" ng-cloak>
+    <div class="btn-group" ng-repeat="topic in topics track by topic._id" style="margin: 0 .5em .5em 0" ng-if="!topic.hidden && !topic.paginated">
+      <a class="btn btn-primary" ng-href="/admin/content/topics/{{topic._id}}" ng-bind="topic.name"></a>
+      <button class="btn btn-primary" type="button" ng-click="confirmDelete(topic)">
+        <i class="fa fa-trash"></i>
+      </button>
     </div>
+    <div class="clearfix"></div>
     ^tmp_admin=elements=pagination^
-    ^tmp_admin=elements=delete_modal^
+  </div>
 </div>
+^tmp_admin=elements=delete_modal^
 ^tmp_angular=admin=content=topics=manage_topics^
 ^tmp_admin=footer^

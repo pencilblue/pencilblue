@@ -16,7 +16,7 @@
 module.exports = {
     generic: {
         LOCALE_DISPLAY: 'Deutsch (Deutschland)',
-        PENCILBLUE: 'pencilblue',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'All rights reserved',
         NONE: 'keine',
         LEFT: 'linksbündig',
@@ -205,7 +205,7 @@ module.exports = {
         ADMIN_LOGIN: 'Autoren, Redakteure und Administratoren Anmeldung.',
         USERNAME_OR_EMAIL: 'Benutzername oder E-Mail Adresse.',
         INVALID_LOGIN: 'Diese Kombination von Benutzername und Passwort ist ungültig.',
-        READY_TO_USE: 'Ihre pencilblue Installation kann nun benutzt werden.',
+        READY_TO_USE: 'Ihre PencilBlue Installation kann nun benutzt werden.',
         ACCOUNT_CREATED: 'Ihr Konto wurde erfolgreich angelegt; Sie können sich nun anmelden.',
         FORGOT_PASSWORD: 'Ich habe mein Passwort vergessen'
     },
@@ -460,6 +460,7 @@ module.exports = {
         EDIT_CONFIGURATION: 'Um die Konfiguration zu bearbeiten, müssen die die Datei "config.json" im Root-Verzeichnis anlegen.',
         SITE_NAME: 'Name der Site',
         SITE_ROOT: 'Root-Verzeichnis der Site',
+        MEDIA_ROOT: 'Root-Verzeichnis der Medientyp',
         DOCUMENT_ROOT: 'Basisverzeichnis für Dokumente',
         IP_ADDRESS: 'IP Adresse',
         PORT: 'Port',

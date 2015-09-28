@@ -48,18 +48,19 @@ function PencilBlue(config){
      * To be called when the configuration is loaded.  The function is responsible
      * for triggered the startup of the HTTP connection listener as well as start a
      * connection pool to the core DB.
+     * @method init
      */
     this.init = function(){
-        var self = this;
-        
         var tasks = [
             this.initModules,
             this.initRequestHandler,
             this.initDBConnections,
             this.initDBIndices,
             util.wrapTask(this, this.initServer),
+            this.initSiteMigration,
             this.initSessions,
             this.initPlugins,
+            this.initSites,
             this.initServerRegistration,
             this.initCommandService,
             this.initLibraries
@@ -86,9 +87,7 @@ function PencilBlue(config){
         
         HtmlEncoder.EncodeType = 'numerical';
         
-        pb.Localization.init();
-        
-        cb(null, true);
+        pb.Localization.init(cb);
     };
     
     /**
@@ -127,6 +126,30 @@ function PencilBlue(config){
         var pluginService = new pb.PluginService();
         pluginService.initPlugins(cb);
     };
+
+    /**
+     * Move a single tenant solution to a multi-tenant solution.
+     * @static
+     * @method initSiteMigration
+     * @param {Function} cb - callback function
+     */
+    this.initSiteMigration = function(cb) {
+        pb.dbm.processMigration(cb);
+    };
+
+    /**
+     * Initializes site(s).
+     * @method initSites
+     * @static
+     * @param {Function} cb - callback function
+     */
+    this.initSites = function(cb)
+    {
+        pb.SiteService.init();
+
+        var siteService = new pb.SiteService();
+        siteService.initSites(cb);
+    }
 
     /**
      * Attempts to initialize a connection pool to the core database
@@ -310,14 +333,15 @@ function PencilBlue(config){
 
     /**
      * Starts up the instance of PencilBlue
-     *
+     * @method start
      */
     this.start = function() {
         var self = this;
+        pb.system.registerSignalHandlers(true);
         pb.system.onStart(function(){
             self.init();
         });
-    }
+    };
 };
 
 //start system only when the module is called directly

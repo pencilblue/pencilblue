@@ -1,19 +1,19 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2015  PencilBlue, LLC
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //dependencies
 var path           = require('path');
@@ -31,15 +31,23 @@ module.exports = function FeedModule(pb) {
     /**
      * RSS Feed
      */
-    function ArticleFeed(){
-        
-        /**
-         *
-         *
-         */
-        this.service = new ArticleServiceV2();
-    }
+    function ArticleFeed(){}
     util.inherits(ArticleFeed, pb.BaseController);
+
+    ArticleFeed.prototype.init = function(props, cb) {
+        var self = this;
+        var init = function(err) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+
+            //create the service
+            self.service = new pb.ArticleServiceV2(self.getServiceContext());
+
+            cb(null, true);
+        };
+        ArticleFeed.super_.prototype.init.apply(this, [props, init]);
+    };
 
     ArticleFeed.prototype.render = function(cb) {
         var self = this;
@@ -66,19 +74,19 @@ module.exports = function FeedModule(pb) {
                     var tasks = util.getTasks(articles, function(articles, i) {
                         return function(callback) {
 
-                                self.ts.registerLocal('url', '/article/' + articles[i].url);
-                                self.ts.registerLocal('title', articles[i].headline);
-                                self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
-                                self.ts.registerLocal('author', articles[i].author_name);
-                                self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
-                                self.ts.registerLocal('content', new pb.TemplateValue(articles[i].layout, false));
-                                self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
-                                    var categories = '';
-                                    for(var j = 0; j < articles[i].section_names.length; j++) {
-                                        categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
-                                    }
-                                    onFlagProccessed(null, new pb.TemplateValue(categories, false));
-                                });
+                            self.ts.registerLocal('url', '/article/' + articles[i].url);
+                            self.ts.registerLocal('title', articles[i].headline);
+                            self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
+                            self.ts.registerLocal('author', articles[i].author_name);
+                            self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
+                            self.ts.registerLocal('content', new pb.TemplateValue(articles[i].layout, false));
+                            self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
+                                var categories = '';
+                                for(var j = 0; j < articles[i].section_names.length; j++) {
+                                    categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
+                                }
+                                onFlagProccessed(null, new pb.TemplateValue(categories, false));
+                            });
 
                             process.nextTick(function() {
                                 self.ts.load('xml_feeds/rss/item', callback);
@@ -132,7 +140,7 @@ module.exports = function FeedModule(pb) {
                 });
             }
         });
-        
+
         //build query to lookup sections that apply
         var opts = {
             select: {name: 1},
@@ -150,17 +158,17 @@ module.exports = function FeedModule(pb) {
             sectionsHash = util.arrayToHash(sections, function(sections, i) {
                 return sections[i][idField];
             });
-            
+
             //set for each article
             articles.forEach(function(article) {
                 article.section_names = [];
                 if (!util.isArray(article.article_sections)) {
                     return;
                 }
-                    
+
                 //add all section names
                 article.article_sections.forEach(function(sectionId) {
-                    
+
                     var section = sectionsHash[sectionId];
                     if (section) {
                         article.section_names.push(section.name);

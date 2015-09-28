@@ -29,7 +29,8 @@ module.exports = function(pb) {
      * @class UrlApiController
      * @constructor
      */
-    function UrlApiController() {};
+    function UrlApiController() {
+    }
     util.inherits(UrlApiController, ApiActionController);
 
     //constants
@@ -107,7 +108,13 @@ module.exports = function(pb) {
             id: this.query.id,
             url: this.query.url
         };
-        var service = new UrlService();
+        var service;
+        var SITE_FIELD = pb.SiteService.SITE_FIELD;
+        if (SITE_FIELD in this.query) {
+            service = new UrlService(this.query[SITE_FIELD], true);
+        } else {
+            service = new UrlService();
+        }
         service.existsForType(params, function(err, exists) {
             if (util.isError(err)) {
                 var content = BaseController.apiResponse(BaseController.API_FAILURE, err.message);

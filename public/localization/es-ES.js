@@ -1,7 +1,7 @@
 module.exports = {
     generic: {
         LOCALE_DISPLAY: 'Español (España)',
-        PENCILBLUE: 'pencilblue',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Todos los derechos reservados',
         NONE: 'Ninguno',
         LEFT: 'Izquierda',
@@ -195,7 +195,7 @@ module.exports = {
         ADMIN_LOGIN: 'Login de escritor, editor, administrador',
         USERNAME_OR_EMAIL: 'Nombre de usuario o dirección de correo',
         INVALID_LOGIN: 'Combinación nombre de usuario y contraseña incorrecta',
-        READY_TO_USE: 'La instalación de pencilblue está lista para ser usada',
+        READY_TO_USE: 'La instalación de PencilBlue está lista para ser usada',
         ACCOUNT_CREATED: 'Se ha creado tu cuenta exitosamente, ya puedes ingresar'
     },
     admin: {
@@ -436,6 +436,7 @@ module.exports = {
         EDIT_CONFIGURATION: 'Para cambiar la configuración, crea un archivo config.json en el directorio raíz.',
         SITE_NAME: 'Nombre del sitio',
         SITE_ROOT: 'Raíz del sitio',
+        MEDIA_ROOT: 'Raíz del multimedia',
         DOCUMENT_ROOT: 'Document root',
         IP_ADDRESS: 'Dirección IP',
         PORT: 'Puerto',

@@ -1,7 +1,7 @@
 module.exports = {
     generic: {
         LOCALE_DISPLAY: 'Român (România)',
-        PENCILBLUE: 'pencilblue',
+        PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Toate drepturile rezervate',
         NONE: 'Niciunul',
         LEFT: 'Stanga',
@@ -190,7 +190,7 @@ module.exports = {
         ADMIN_LOGIN: 'Login scriitor, editor si administrator',
         USERNAME_OR_EMAIL: 'Nume utilizator si adresa de email',
         INVALID_LOGIN: 'Combinatie nume de utilizator si parola gresita',
-        READY_TO_USE: 'Aplicatia ta pencilblue este gata pentru a fi folosita',
+        READY_TO_USE: 'Aplicatia ta PencilBlue este gata pentru a fi folosita',
         ACCOUNT_CREATED: 'Contul tau a fost creat cu succes, acum te poti loga'
     },
     admin: {
@@ -430,6 +430,7 @@ module.exports = {
         EDIT_CONFIGURATION: 'Pentru a edita configurarea creaza un fisier config.json in folderul radacina',
         SITE_NAME: 'Nume sit',
         SITE_ROOT: 'Radacina sit',
+        MEDIA_ROOT: 'Radacina media',
         DOCUMENT_ROOT: 'Radacina document',
         IP_ADDRESS: 'Adresa IP',
         PORT: 'Port',

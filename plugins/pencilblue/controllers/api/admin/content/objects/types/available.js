@@ -37,7 +37,7 @@ module.exports = function(pb) {
             });
         }
 
-        var service = new pb.CustomObjectService();
+        var service = new pb.CustomObjectService(self.site, true);
         service.typeExists(get.name, function(err, exists) {
             if (util.isError(err)) {
                 return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, err.stack, false)});

@@ -59,14 +59,15 @@ module.exports = function(pb) {
             where: {
                 $or: [
                     {headline: pattern},
-                    {subheading: pattern},
+                    {subheading: pattern}
                 ]
             },
             order: pb.DAO.NATURAL_ORDER,
             limit: MAX_RESULTS
         };
-        var dao = new pb.DAO();
-        dao.q(type, opts, function(err, items) {
+
+        var queryService = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
+        queryService.q(type, opts, function(err, items) {
             if (util.isError(err)) {
                 var content = BaseController.apiResponse(BaseController.API_FAILURE, '', '');
                 return cb({content: content, code: 500});

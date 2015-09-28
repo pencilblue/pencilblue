@@ -26,7 +26,16 @@ module.exports = function(pb) {
      * @class ContentService
      * @constructor
      */
-    function ContentService(){}
+    function ContentService(options) {
+        if(options) {
+            this.siteUid = pb.SiteService.getCurrentSite(options.site) || pb.SiteService.GLOBAL_SITE;
+            this.onlyThisSite = options.onlyThisSite || false;
+        } else {
+            this.siteUid = pb.SiteService.GLOBAL_SITE;
+            this.onlyThisSite = false;
+        }
+        this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid, this.onlyThisSite);
+    }
     
     /**
      *
@@ -81,14 +90,15 @@ module.exports = function(pb) {
      * @param {Function} cb Callback function
      */
     ContentService.prototype.get = function(cb) {
-        pb.settings.get(CONTENT_SETTINGS_REF, function(err, settings){
+        var self = this;
+        this.settingService.get(CONTENT_SETTINGS_REF, function(err, settings){
             if (settings) {
                 return cb(err, settings);
             }
 
             //set default settings if they don't exist
             settings = ContentService.getDefaultSettings();
-            pb.settings.set(CONTENT_SETTINGS_REF, settings, function(err, result) {
+            self.settingService.set(CONTENT_SETTINGS_REF, settings, function(err, result) {
                 cb(err, settings);
             });
         });

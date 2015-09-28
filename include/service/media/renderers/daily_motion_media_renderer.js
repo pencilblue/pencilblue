@@ -67,11 +67,21 @@ module.exports = function AudioMediaRendererModule(pb) {
             height: "270px"
         }
     });
+    
+    /**
+     * Retrieves the supported extension types for the renderer.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array}
+     */
+    DailyMotionMediaRenderer.getSupportedExtensions = function() {
+        return [];
+    };
 
     /**
      * Retrieves the style for the specified type of view
      * @static
-     * @meethod getStyle
+     * @method getStyle
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */

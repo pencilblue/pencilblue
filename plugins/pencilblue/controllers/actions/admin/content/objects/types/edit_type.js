@@ -24,10 +24,10 @@ module.exports = function(pb) {
      * Edits an object type
      * @class EditObjectType
      * @constructor
-     * @extends FormController
+     * @extends BaseAdminController
      */
     function EditObjectType(){}
-    util.inherits(EditObjectType, pb.BaseController);
+    util.inherits(EditObjectType, pb.BaseAdminController);
 
     EditObjectType.prototype.render = function(cb) {
         var self    = this;
@@ -40,7 +40,7 @@ module.exports = function(pb) {
             });
         }
 
-        var service = new pb.CustomObjectService();
+        var service = new pb.CustomObjectService(self.site, true);
         service.loadTypeById(vars.id, function(err, custObjType) {
             if(util.isError(err) || !util.isObject(custObjType)) {
                 return cb({

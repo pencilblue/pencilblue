@@ -210,6 +210,8 @@ module.exports = function SessionModule(pb) {
     
     /**
      * Shuts down the sesison handler and the associated session store
+     * @method shutdown
+     * @param {Function} cb
      */
     SessionHandler.prototype.shutdown = function(cb){
         cb = cb || util.cb;

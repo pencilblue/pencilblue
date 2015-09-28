@@ -24,14 +24,11 @@ module.exports = function RandomTextViewControllerModule(pb) {
     var util           = pb.util;
     var PluginService  = pb.PluginService;
     var TopMenuService = pb.TopMenuService;
-    var TextService    = PluginService.getService('textService', 'sample');
 
     /**
-     * RandomTextViewController - A sample controller to show how to register a controller and 
+     * RandomTextViewController - A sample controller to show how to register a 
+     * controller and 
      * routes for the controller.
-     * 
-     * @author Brian Hyder <brian@pencilblue.org>
-     * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
      * @class RandomTextViewController
      * @constructor
      * @extends BaseController
@@ -61,10 +58,11 @@ module.exports = function RandomTextViewControllerModule(pb) {
         //Templates can reference the "head" and "footer" templates inside of the 
         //loaded template to ensure that the view is wrapped by the navigation and 
         //footer.
-        this.getNavigation(function(err, navigation, accountButtons) {
+        this.getNavigation(function(err, navItems) {
 
             //Create an instance of the text service.  Then we call the service for 
             //random text
+            var TextService = PluginService.getService('textService', 'sample', self.site);
             var textService = new TextService();
             var text        = textService.getText();
 
@@ -90,33 +88,61 @@ module.exports = function RandomTextViewControllerModule(pb) {
             //process template files and render a view.  The template service 
             //provides some flags out of the box.  For example, "^year^" is 
             //provided out of the box to provide the current 4 digit year.  In 
-            //addition, developers can specifiy their own flags will be replaced 
+            //addition, developers can specifiy their own flags that will be replaced 
             //with values when encountered by the template service.  The 
             //"registerLocal" and "registerGlobal" functions accept raw values or 
-            //functions.  
-            self.ts.registerLocal('sample_plugin_icon', PluginService.genPublicPath('sample', 'imgs/sample.ico'));
-            self.ts.registerLocal('sample_text', text);
+            //functions.  Additionally, a model object can be defined and passed 
+            //to the "registerModel" function in order to keep the functional calls 
+            //to a minimum.
+            var model = {
+                'sample_plugin_icon': PluginService.genPublicPath('sample', 'imgs/sample.ico'),
+                
+                'sample_text': text,
+                
+                //The templating service also supports registering flags with functions.  
+                //The allows controllers to execute complex features only when the flag 
+                //is actually encountered.  This is primarily beneficial when 
+                //functionality is abstracted in a common controller prototype.
+                'parameterized_text': function(flag, cb) {
 
-            //The templating service also supports registering flags with functions.  
-            //The allows controllers to execute complex features only when the flag 
-            //is actually encountered.  This is primarily beneficial when 
-            //functionality is abstracted in a common controller prototype.
-            self.ts.registerLocal('parameterized_text', function(flag, cb) {
 
+                    //The localization service also supports parameterized localizations 
+                    //to handle cases where different languages structure subjects and 
+                    //predicates differently.
+                    var options = {
+                        defaultVal: 'The Key Was Not Found',
+                        defaultParamVal: 'N/A',
+                        params: { 
+                            someString: 'apple', 
+                            someNumber: 28, 
+                            json: JSON.stringify({ some: 'value'})
+                        }
+                    };
+                    var parameterizedLocalizedStr = self.ls.g('PARAMETERIZED_KEY', options);
+                    cb(null, parameterizedLocalizedStr);
+                },
+                
+                //by default, the template service HTML encodes all template flags. 
+                //Values provided to template service can be wrapped in an 
+                //TemplateValue which contains an option to skip the encoding if the 
+                //value itself is HTML. 
+                'navigation': new pb.TemplateValue(navItems.navigation, false),
+                
+                'account_buttons': new pb.TemplateValue(navItems.accountButtons, false),
+                
+                //the service also supports nested objects and keys.  
+                parent: {
+                    
+                    child: {
+                        
+                        name: "Billy Bob"
+                    }
+                }
+            };
 
-                //The localization service also supports parameterized localizations 
-                //to handle cases where different languages structure subjects and 
-                //predicates differently.
-                var parameterizedLocalizedStr = self.ls.get('PARAMETERIZED_KEY', 'apple', 28, { some: 'value'});
-                cb(null, parameterizedLocalizedStr);
-            });
-
-            //by default, the template service HTML encodes all template flags. 
-            //Values provided to template service can be wrapped in an 
-            //TemplateValue which contains an option to skip the encoding if the 
-            //value itself is HTML.  
-            self.ts.registerLocal('navigation', new pb.TemplateValue(navigation, false));
-            self.ts.registerLocal('account_buttons', accountButtons);
+             
+            //self.ts.registerLocal('navigation', new pb.TemplateValue(navItems.navigation, false));
+            //self.ts.registerLocal('account_buttons', navItems.accountButtons);
 
             //The template service is pretty simple.  More complex features such as 
             //loops are handled by providing a function to the template service 
@@ -129,7 +155,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
                 "c",
                 "d"
             ];
-            self.ts.registerLocal('items', function(flag, cb) {
+            model.items = function(flag, cb) {
                 if (i >= items.length) {
 
                     //we are done iterating so we shouldn't continue to 
@@ -157,7 +183,11 @@ module.exports = function RandomTextViewControllerModule(pb) {
                 //as the second argument to specify that the value should not be 
                 //HTML encoded.
                 cb(null, new pb.TemplateValue(content, false));
-            });
+            };
+            
+            //here we register the model so that our values will be rendered in 
+            //the view
+            self.ts.registerModel(model/*, optional model name can be provided here */);
 
             //to generate the rendered view the template service can be called.  
             //The path specified to the template service is relative to the 
@@ -191,18 +221,20 @@ module.exports = function RandomTextViewControllerModule(pb) {
 
     /**
      * Retrieves the navigation for the page.
-     * @param {function} cb Callback that provides three parameters: cb(Error, navigation, accountButtons);
+     * @param {function} cb Callback that provides two parameters: 
+     * cb(Error, {navigation "", accountButtons: "", themeSettings: {}});
      */
     RandomTextViewController.prototype.getNavigation = function(cb) {
 
-        var options = {
-            currUrl: this.req.url
-        };
-        TopMenuService.getTopMenu(this.session, this.localizationService, options, function(themeSettings, navigation, accountButtons) {
-            TopMenuService.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
-                cb(null, navigation, accountButtons);
-            });
-        });
+        //build out options starting with a service context object.  It 
+        //contains all the good stuff like localization, template service, 
+        //activeTheme, and session.
+        var options = this.getServiceContext();
+        options.currUrl = this.req.url;
+        
+        //create a new instance of the top menu service and request the navigation items
+        var service = new TopMenuService();
+        service.getNavItems(options, cb);
     };
     
     /**

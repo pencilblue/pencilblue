@@ -148,6 +148,7 @@ module.exports = function ClusterJobRunnerModule(pb) {
     /**
      * Called when the tasks have completed execution and isInitiator = FALSE. The
      * function blindly passes the results of the tasks back to the callback.
+     * @method processWorkerResults
      * @param {Error} err The error that occurred (if any) during task execution
      * @param {Array} results An array containing the result of each executed task
      * @param {Function} cb A callback that provides two parameters: The first is

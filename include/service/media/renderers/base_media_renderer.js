@@ -19,7 +19,7 @@
 var HtmlEncoder = require('htmlencode');
 
 module.exports = function BaseMediaRenderer(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
 
@@ -54,10 +54,26 @@ module.exports = function BaseMediaRenderer(pb) {
             style = {};
         }
 
-        return '<'+elementName+' src="' + HtmlEncoder.htmlEncode(srcUrl) + '" ' + 
-            BaseMediaRenderer.getAttributeStr(attrs) + 
-            BaseMediaRenderer.getStyleAttrStr(style) + 
+        return '<'+elementName+' src="' + HtmlEncoder.htmlEncode(srcUrl) + '" ' +
+            BaseMediaRenderer.getAttributeStr(attrs) +
+            BaseMediaRenderer.getStyleAttrStr(style) +
             '></' + elementName + '>';
+    };
+
+    /**
+     * Retrieves the source URI that will be used when generating the rendering.
+     * This base implementation prepends the configured media urlRoot value to the media URI.
+     * @static
+     * @method getEmbedUrl
+     * @param {String} mediaId The unique (only to the type) media identifier
+     * @return {String} A properly formatted URI string that points to the resource
+     * represented by the media Id
+     */
+    BaseMediaRenderer.getEmbedUrl = function(mediaId) {
+        if(mediaId.indexOf('http://') === 0 || mediaId.indexOf('https://') === 0 || mediaId.indexOf('//') === 0) {
+          return mediaId;
+        }
+        return pb.UrlService.urlJoin(pb.config.media.urlRoot, mediaId);
     };
 
     /**
@@ -79,7 +95,7 @@ module.exports = function BaseMediaRenderer(pb) {
     };
 
     /**
-     * Generates a style string from a hash of key/value pairs.  The string 
+     * Generates a style string from a hash of key/value pairs.  The string
      * includes the 'sytle="[STUFF HERE]"' wrapper
      * @static
      * @method getStyleAttrStr
