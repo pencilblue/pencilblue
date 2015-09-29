@@ -204,7 +204,6 @@ module.exports = function PB(config) {
     pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'))(pb);
     pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
     pb.TokenService       = require(path.join(config.docRoot, '/include/service/entities/token_service.js'))(pb);
-    pb.SiteObjectService  = require(path.join(config.docRoot, '/include/service/entities/site_object_service.js'))(pb);
 
     //create plugin service
     pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);
