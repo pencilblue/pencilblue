@@ -67,13 +67,16 @@ module.exports = {
     	INSTALLED_ON: 'Installed On',
 		VERSION: 'Version',
 		ACTIVE_PLUGINS: 'Active Plugins',
+        GLOBAL_PLUGINS: 'Global Active Plugins',
 		INACTIVE_PLUGINS: 'Inactive Plugins',
 		AVAILABLE_PLUGINS: 'Available Plugins',
 		RESET_SETTINGS: 'Reset Settings',
+        OVERRIDE: 'Override',
 		UNINSTALL: 'Uninstall',
 		INSTALL: 'Install',
 		ACTIVE_PLUGIN_DESCRIPTION: 'Plugins that you have already installed and started up successfully when the system started.',
 		INACTIVE_PLUGIN_DESCRIPTION: 'Plugins that are installed or partially installed but failed to start properly.',
+        GLOBAL_ACTIVE_DESCRIPTION: 'Plugins that are installed globally. Overriding will allow you to change the settings for this plugin on only this site.',
 		AVAILABLE_PLUGIN_DESCRIPTION: 'Plugins that are available are downloaded and are ready to be installed.',
 		PLEASE_WAIT: 'Please Wait',
 		VALID_ACTION_REQUIRED: 'A valid action is required',
@@ -158,6 +161,7 @@ module.exports = {
         UNSUPPORTED_MEDIA: 'The supplied media type is unsupported',
         OBJECT_NOT_FOUND: 'The requested object was not found in the system',
         REQUIRED_FIELD: 'This field is required',
+        SITE_MUST_DEACTIVATE: 'This site must be deactivated before you can edit the hostname',
         INVALID_FILE: 'An invalid file was supplied',
         COMPLETE: 'Complete',
         WYSIWYG: 'WYSIWYG',
@@ -217,6 +221,7 @@ module.exports = {
         SETTINGS: 'Settings',
         VIEW_SITE: 'View site',
         SITE_SETTINGS: 'Site settings',
+        MANAGE_SITES: 'Manage Sites',
         SITE_LOGO: 'Site logo',
         AUTHOR: 'Author',
         ACCOUNT: 'Account',
@@ -242,7 +247,8 @@ module.exports = {
         URL_KEY: 'URL Key',
         FEED_UNAVAILABLE: 'Unable to load the news feed.',
         REQUESTS_TOTAL: 'Total Requests',
-        REQUESTS_CURRENT: 'Current Requests'
+        REQUESTS_CURRENT: 'Current Requests',
+        ETC: 'And other items...'
     },
     topics: {
         MANAGE_TOPICS: 'Manage topics',
@@ -419,7 +425,34 @@ module.exports = {
         VERIFIED: 'was verified',
         LOCALE_PREFERENCE: 'Locale Preference'
     },
-    plugins: {
+    sites: {
+        EXISTING_HOSTNAME: 'That hostname is already in use',
+        EXISTING_DISPLAYNAME: 'That display name is already in use',
+        DUPLICATE_INFO: 'Each site must have a unique hostname',
+        SITE_CREATED: 'The site was successfully created',
+        CREATING_SITE: 'Creating New Site',
+        ERROR_ACTIVATING: 'There was an error activating',
+        ERROR_DEACTIVATING: 'There was an error deactivating',
+        SITE_ACTIVATED: 'Site activated',
+        SITE_DEACTIVATED: 'Site deactivated',
+        ACTIVATE: 'Activate',
+        DEACTIVATE: 'Deactivate',
+        EDIT_SITE: 'Edit Site',
+        NEW_SITE: 'New Site',
+        SITE_UPDATED: 'Site was successfully updated',
+        UPDATING_SITE: 'Updating Site',
+        ERROR_REMOVING: 'There was an error removing your site',
+        REMOVE_SUCCESSFUL: 'Site removed successfully',
+        INITIAL_DELETE_WARNING: 'You are attempting to delete this site and all content associated with it, including: ',
+        FINAL_DELETE_WARNING: 'This action cannot be reversed. Are you sure you want to continue?',
+        DELETE_SITE: 'Delete Site',
+        DANGER: 'Danger!',
+        TOKEN_CREATED: 'Authentication Token Created',
+        INVALID_TOKEN: 'Invalid Token',
+        TOKEN_LOGIN_SUCCESSFUL: 'Successful Login By Token'
+    },
+    plugins:
+    {
         MANAGE_PLUGINS: 'Manage plugins',
         NO_ACTIVE_PLUGINS: 'No active plugins',
         NO_INACTIVE_PLUGINS: 'No inactive plugins',
@@ -439,6 +472,7 @@ module.exports = {
         EDIT_CONFIGURATION: 'To edit the configuration, create a config.json file in the root directory',
         SITE_NAME: 'Site name',
         SITE_ROOT: 'Site root',
+        MEDIA_ROOT: 'Media root',
         DOCUMENT_ROOT: 'Document root',
         IP_ADDRESS: 'IP address',
         PORT: 'Port',
@@ -484,6 +518,7 @@ module.exports = {
         SEND: 'Send',
         USE_CDN: 'Use CDNs (default)',
         USE_BOWER: 'Use Bower',
-        TEST_EMAIL_SUCCESS: 'Test email successfully sent'
+        TEST_EMAIL_SUCCESS: 'Test email successfully sent',
+        CANNOT_SIGN_UP_GLOBAL: 'You cannot sign up on global; an admin must create a global user within admin panel',
     }
 };

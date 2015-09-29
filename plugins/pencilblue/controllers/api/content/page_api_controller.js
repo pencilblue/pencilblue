@@ -21,16 +21,17 @@ module.exports = function(pb) {
     var util            = pb.util;
     var PageService     = pb.PageService;
     var SecurityService = pb.SecurityService;
+    var UserService     = pb.UserService;
 
     /**
-     * 
+     *
      * @class PageApiController
      * @constructor
      * @extends BaseApiController
      */
     function PageApiController(){}
     util.inherits(PageApiController, pb.BaseApiController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -40,19 +41,33 @@ module.exports = function(pb) {
     PageApiController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
+
             /**
-             * 
+             *
              * @property service
              * @type {ArticleServiceV2}
              */
             self.service = new PageService(self.getServiceContext());
-                
+
             cb(err, true);
         };
         PageApiController.super_.prototype.init.apply(this, [context, init]);
     };
     
+    /**
+     * Process the generic API options as well as the page specific "render" option
+     * @method processQuery
+     * @return {Object}
+     */
+    PageApiController.prototype.processQuery = function() {
+        var options = PageApiController.super_.prototype.processQuery.apply(this);
+        options.render = !!this.query.render; //pass 1 for true, 0 or nothing for false
+        if (options.render) {
+            options.renderBylines = true
+        }
+        return options;
+    };
+
     /**
      * Processes the query string to develop the where clause for the query request
      * @method processWhere
@@ -62,11 +77,11 @@ module.exports = function(pb) {
     PageApiController.prototype.processWhere = function(q) {
         var where = null;
         var failures = [];
-        
+
         //build query & get results
         var search = q.q;
         if (pb.ValidationService.isNonEmptyStr(search, true)) {
-            
+
             var patternStr = ".*" + util.escapeRegExp(search) + ".*";
             var pattern = new RegExp(patternStr, "i");
             where = {

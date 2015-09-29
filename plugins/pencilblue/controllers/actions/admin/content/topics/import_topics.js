@@ -21,17 +21,17 @@ var formidable = require('formidable');
 var async      = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Imports a CSV of topics
      * @class ImportTopics
      * @constructor
      */
     function ImportTopics(){}
-    util.inherits(ImportTopics, pb.BaseController);
+    util.inherits(ImportTopics, pb.BaseAdminController);
 
     ImportTopics.prototype.render = function(cb) {
         var self  = this;
@@ -55,7 +55,7 @@ module.exports = function(pb) {
                 if(topics.length <= 1) {
                     cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_FILE'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_FILE'))
                     });
                 }
 
@@ -65,20 +65,18 @@ module.exports = function(pb) {
     };
 
     ImportTopics.prototype.saveTopics = function(topics, cb) {
-        var content = {completed: false};
-
+        var self = this;
         //create tasks
-        var dao = new pb.DAO();
         var tasks = util.getTasks(topics, function(topicArry, index) {
             return function(callback) {
 
-                dao.count('topic', {name: topicArry[index].trim()}, function(err, count){
+                self.siteQueryService.count('topic', {name: topicArry[index].trim()}, function(err, count){
                     if (count > 0) {
                         return callback(null, true);
                     }
 
                     var topicDocument = pb.DocumentCreator.create('topic', {name: topicArry[index].trim()});
-                    dao.save(topicDocument, callback);
+                    self.siteQueryService.save(topicDocument, callback);
                 });
 
             };
@@ -89,11 +87,11 @@ module.exports = function(pb) {
             if(util.isError(err)) {
                 return cb({
                     code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'))
                 });
             }
 
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, loc.topics.TOPICS_CREATED)});
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('topics.TOPICS_CREATED'))});
         });
     };
 

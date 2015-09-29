@@ -24,10 +24,10 @@ module.exports = function(pb) {
      * Edits an object
      * @class EditObject
      * @constructor
-     * @extends FormController
+     * @extends BaseAdminController
      */
     function EditObject(){}
-    util.inherits(EditObject, pb.BaseController);
+    util.inherits(EditObject, pb.BaseAdminController);
 
     EditObject.prototype.render = function(cb) {
         var self = this;
@@ -41,7 +41,7 @@ module.exports = function(pb) {
             return;
         }
 
-        var service = new pb.CustomObjectService();
+        var service = new pb.CustomObjectService(self.site, true);
         service.loadById(vars.id, function(err, custObj) {
             if (util.isError(err)) {
                 return cb(err);

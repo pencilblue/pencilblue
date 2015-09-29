@@ -40,7 +40,7 @@ module.exports = function(pb) {
         }
 
         //ensure existence
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.loadById(vars.id, 'unverified_user', function(err, user) {
             if(user === null) {
                 cb({

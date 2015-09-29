@@ -63,6 +63,16 @@ module.exports = function YouTubeMediaRendererModule(pb) {
             height: "315px"
         }
     });
+    
+    /**
+     * Retrieves the supported extension types for the renderer.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array}
+     */
+    YouTubeMediaRenderer.getSupportedExtensions = function() {
+        return [];
+    };
 
     /**
      * Retrieves the style for the specified type of view

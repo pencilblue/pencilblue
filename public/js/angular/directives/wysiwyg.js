@@ -66,25 +66,27 @@
             }
           }
 
-          scope.setElement('p');
+          /*if(!$document[0].queryCommandState('insertorderedlist') && !$document[0].queryCommandState('insertunorderedlist') && !scope.getSelection().length) {
+            scope.setElement('p');
+          }*/
+          
           return scope.availableElements[0];
         };
 
-        scope.formatAction = function(action, arguments) {
+        scope.formatAction = function(action, args) {
           if(scope.wysiwyg.currentView !== 'editable') {
             return;
           }
 
-          $document[0].execCommand(action, false, arguments);
+          $document[0].execCommand(action, false, args);
         };
 
         scope.isFormatActive = function(type) {
-          return $document[0].queryCommandState(type)
+          return $document[0].queryCommandState(type);
         };
 
         scope.clearStyles = function() {
           scope.formatAction('removeFormat');
-          scope.setElement('p');
         };
 
         scope.showInsertLinkModal = function() {
@@ -95,7 +97,7 @@
           }
 
           scope.layoutLink.text = scope.getSelection();
-          scope.saveSelection();
+          scope.saveSelection(true);
           angular.element(element).find('[insert-link-modal]').modal('show');
         };
 
@@ -112,6 +114,7 @@
         };
 
         scope.insertReadMore = function() {
+          scope.saveSelection(true);
           scope.restoreSelection();
           scope.formatAction('inserthtml', '<hr class="read_more_break"></hr>');
         };
@@ -126,7 +129,7 @@
 
         scope.showInsertMediaModal = function() {
           angular.element(element).find('[contenteditable]').focus();
-          scope.saveSelection();
+          scope.saveSelection(true);
           angular.element(element).find('[insert-media-modal]').modal('show');
         };
 
@@ -154,14 +157,15 @@
           return mediaFormat;
         };
 
-        scope.saveSelection = function() {
-          if(!angular.element(element).find('[contenteditable]').is(':focus')) {
+        scope.saveSelection = function(force) {
+          if(!angular.element(element).find('[contenteditable]').is(':focus') && !force) {
             return;
           }
 
           if(scope.editableSelection) {
             rangy.removeMarkers(scope.editableSelection);
           }
+
           scope.editableSelection = rangy.saveSelection();
         };
 
@@ -306,7 +310,7 @@
             var mediaTags = ['^' + angular.element(this).attr('media-tag') + '^'];
             var subTags = angular.element(this).find('[media-tag]');
             for(var j = 0; j < subTags.length; j++) {
-              mediaTags.push('^' + $(subTags[j]).attr('media-tag') + '^')
+              mediaTags.push('^' + $(subTags[j]).attr('media-tag') + '^');
             }
 
             angular.element(this).replaceWith(mediaTags.concat(''));
@@ -316,7 +320,7 @@
               scope.convertReadMore();
             }
           });
-        }
+        };
 
         scope.$watch('wysiwyg.layout', function(newVal, oldVal) {
           if(scope.wysiwyg.currentView !== 'editable') {
@@ -332,7 +336,7 @@
             scope.wysiwyg.markdown = toMarkdown(scope.layout);
           }
 
-          scope.saveSelection();
+          //scope.saveSelection();
         });
 
         scope.$watch('layout', function(newVal, oldVal) {
@@ -402,6 +406,6 @@
           ngModel.$setViewValue(html);
         }
       }
-    }
+    };
   });
 }());

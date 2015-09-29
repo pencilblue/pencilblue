@@ -13,7 +13,7 @@
 		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
 		$scope.article.article_media = $scope.article.article_media || [];
 		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
-		$scope.article.meta_keywords = $scope.article.meta_keywords ? $scope.article.meta_keywords.join(',') : '';
+		$scope.article.meta_keywords = $scope.article.meta_keywords ? $scope.article.meta_keywords.join(', ') : '';
 		$scope.editingObject = $scope.article;
 		$scope.variablePrefix = 'article';
 
@@ -26,7 +26,7 @@
 		};
 
 		$scope.getUrlAvailability = function() {
-			$http.get('/api/url/exists_for?url=' + $scope.article.url + '&type=article')
+			$http.get('/api/url/exists_for?url=' + $scope.article.url + '&type=article&' + $scope.siteKey + '=' + $scope.site)
 			.success(function(result) {
 				$scope.urlAvailable = !result.data;
 			})
@@ -50,10 +50,11 @@
 			$scope.getArticleData(draft, function(articleData) {
 				$scope.saving = true;
 				if(articleData._id) {
-					$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
+					// Update an existing article
+					$http.put('/api/content/articles/' + $scope.article._id, articleData)
 					.success(function(result) {
-						$scope.successMessage = result.message;
-						$scope.article.last_modified = result.data.last_modified;
+						$scope.successMessage = 'SUCCESS';
+						$scope.article.last_modified = result.last_modified;
 						$scope.saving = false;
 					})
 					.error(function(error, status) {
@@ -62,16 +63,17 @@
 					});
 				}
 				else {
-					$http.post('/actions/admin/content/articles', articleData)
+					// Save a new article
+					$http.post('/api/content/articles', articleData)
 					.success(function(result) {
-						$scope.successMessage = result.message;
+						$scope.successMessage = 'SUCCESS';
 						$scope.saving = false;
 
-						if(!result.data._id) {
+						if(!result._id) {
 							$window.location = '/admin/content/articles';
 							return;
 						}
-						$window.location = '/admin/content/articles/' + result.data._id.toString();
+						$window.location = '/admin/content/articles/' + result._id.toString();
 					})
 					.error(function(error, status) {
 						$scope.errorMessage = error.message;
@@ -89,9 +91,9 @@
 			$scope.article.draft = true;
 			$scope.getArticleData(true, function(articleData) {
 				$scope.saving = true;
-				$http.post('/actions/admin/content/articles/' + $scope.article._id, articleData)
+				$http.put('/api/content/articles/' + $scope.article._id, articleData)
 				.success(function(result) {
-					$scope.article.last_modified = result.data.last_modified;
+					$scope.article.last_modified = result.last_modified;
 					$timeout($scope.saveArticleDraft, 30000);
 					$scope.saving = false;
 
@@ -112,7 +114,7 @@
 
 		$scope.getArticleData = function(draft, cb) {
 			var articleData = angular.copy($scope.article);
-			articleData.publish_date = (new Date($filter('parsableDate')($scope.article.publish_date))).getTime();
+			articleData.publish_date = (new Date($filter('parsableDate')($scope.article.publish_date))).toISOString();
 			articleData.draft = draft ? 1 : 0;
 
 			var media = [];
@@ -130,6 +132,24 @@
 				topics.push($scope.article.article_topics[i]._id.toString());
 			}
 
+			// Convert keyword string into array, trimming any excess whitespace and commas
+			if (typeof articleData.meta_keywords == "string") {
+				var words = articleData.meta_keywords.trim();
+				articleData.meta_keywords = [];
+
+				if (words.length > 0) {
+					var keywords = words.split(",");
+					for (var i = 0; i < keywords.length; i++) {
+						if (keywords[i].trim().length > 0) {
+							articleData.meta_keywords.push(keywords[i].trim());
+						}
+					}
+				}
+			}
+
+			// This sometimes defaults to "undefined" instead of "false" on page load
+			articleData.allow_comments = articleData.allow_comments ? true : false;
+
 			articleData.article_media = media;
 			articleData.article_sections = sections;
 			articleData.article_topics = topics;
@@ -144,7 +164,7 @@
 					$window.open('/preview/article/' + $scope.article._id);
 				}
 			});
-		}
+		};
 
 		$('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
 		$timeout($scope.saveArticleDraft, 30000);

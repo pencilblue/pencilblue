@@ -37,7 +37,7 @@ module.exports = function(pb) {
 
         this.ts.registerLocal('urls', function(flag, cb) {
 
-            var dao   = new pb.DAO();
+            var dao   = new pb.SiteQueryService({site: self.site, onlyThisSite: self.onlyThisSite});
             var today = new Date();
             var descriptors = {
                 section: {
@@ -83,6 +83,7 @@ module.exports = function(pb) {
     SiteMap.prototype.processObjects = function(objArray, urlPrefix, priority, cb) {
         var self = this;
         var ts   = new pb.TemplateService(this.ls);
+        ts.registerLocal("site_root", new pb.TemplateValue(self.hostname, false));
         ts.registerLocal('change_freq', 'daily');
         ts.registerLocal('priority', priority);
 

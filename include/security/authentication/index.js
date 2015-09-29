@@ -61,8 +61,13 @@ module.exports = function AuthenticationModule(pb) {
             };
         }
 
+        var dao;
+        if (credentials.hasOwnProperty('site')) {
+            dao = new pb.SiteQueryService({site: credentials.site, onlyThisSite: false});
+        } else {
+            dao = new pb.DAO();
+        }
         //search for user
-        var dao = new pb.DAO();
         dao.loadByValues(query, 'user', cb);
     };
 
@@ -77,6 +82,10 @@ module.exports = function AuthenticationModule(pb) {
     
     /**
      * @method authenticate
+     * @param {Object} postObj
+     * @param {String} postObj.username
+     * @param {String} postObj.password
+     * @param {Function} cb
      */
     FormAuthentication.prototype.authenticate = function(postObj, cb) {
         if (!util.isObject(postObj)) {
@@ -87,9 +96,44 @@ module.exports = function AuthenticationModule(pb) {
         var userDocument = pb.DocumentCreator.create('user', postObj);
         FormAuthentication.super_.prototype.authenticate.apply(this, [userDocument, cb]);
     };
-    
+
+    /**
+     *
+     * @class TokenAuthentication
+     * @constructor
+     * @param {Object} options
+     * @param {String} options.site - site uid
+     * @param {String} options.user - user id
+     */
+    function TokenAuthentication(options) {
+        this.options = options;
+        this.tokenService = new pb.TokenService(options);
+        this.userService = new pb.UserService(options);
+    }
+
+    /**
+     * @method authenticate
+     * @param {String} token
+     * @param {Function} cb
+     */
+    TokenAuthentication.prototype.authenticate = function(token, cb) {
+        var self = this;
+        this.tokenService.validateUserToken(token, function(err, result) {
+            if(util.isError(err)) {
+                return cb(err, null);
+            }
+
+            if(!result.tokenInfo || !result.valid || !result.tokenInfo.user) {
+                return cb();
+            }
+            self.userService.get(result.tokenInfo.user, cb);
+        });
+    };
+
+    //exports
     return {
         UsernamePasswordAuthentication: UsernamePasswordAuthentication,
-        FormAuthentication: FormAuthentication
+        FormAuthentication: FormAuthentication,
+        TokenAuthentication: TokenAuthentication
     };
 };

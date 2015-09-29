@@ -23,7 +23,6 @@ module.exports = function(pb) {
     //pb dependencies
     var util = pb.util;
     var SectionService = pb.SectionService;
-
     /**
      * Interface for creating and editing navigation items
      * @class NavItemFormController
@@ -31,7 +30,7 @@ module.exports = function(pb) {
     function NavItemFormController(){
         this.navItem = null;
     }
-    util.inherits(NavItemFormController, pb.BaseController);
+    util.inherits(NavItemFormController, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'nav_item_form';
@@ -54,7 +53,10 @@ module.exports = function(pb) {
             var contentSearchValue = self.navItem.contentSearchValue ? self.navItem.contentSearchValue.toString() : '';
             delete self.navItem.contentSearchValue;
 
-            data.pills = pb.AdminSubnavService.get(self.getSubnavKey(), self.ls, self.getSubnavKey(), self.navItem);
+            var navData = {
+                item: self.navItem,
+            };
+            data.pills = self.getAdminPills(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
             self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
@@ -70,16 +72,17 @@ module.exports = function(pb) {
 
     NavItemFormController.prototype.gatherData = function(vars, cb) {
         var self = this;
+        var userService = new pb.UserService(self.getServiceContext());
         var tasks = {
 
             //get editors
             editors: function(callback) {
-                pb.users.getWriterOrEditorSelectList(self.session.authentication.user_id, false, callback);
+                userService.getWriterOrEditorSelectList(self.session.authentication.user_id, false, callback);
             },
 
             //get parents
             parents: function(callback) {
-                var sectionService = new pb.SectionService();
+                var sectionService = new SectionService({site: self.site, onlyThisSite: true});
                 sectionService.getParentSelectList(self.pathVars.id, function(err, parents) {
                     if(util.isError(err)) {
                         callback(err, parents);
@@ -105,7 +108,7 @@ module.exports = function(pb) {
             },
 
             navigation: function(callback) {
-                callback(null, pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls));
+                callback(null, pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls, self.site));
             },
 
             types: function(callback) {
@@ -121,15 +124,14 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.loadById(vars.id, 'section', function(err, navItem) {
-                    if(!navItem.item) {
+                self.siteQueryService.loadById(vars.id, 'section', function(err, navItem) {
+                    if(!navItem || !navItem.item) {
                         callback(err, navItem);
                         return;
                     }
 
                     //TODO modify such that only the needed field of "headline" is returned.
-                    dao.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
+                    self.siteQueryService.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
                         if(articleOrPage) {
                             navItem.contentSearchValue = articleOrPage.headline;
                         }
@@ -147,11 +149,12 @@ module.exports = function(pb) {
     };
 
     NavItemFormController.getSubNavItems = function(key, ls, data) {
-        var pills = SectionService.getPillNavOptions();
+        var item = data.item;
+        var pills = SectionService.getPillNavOptions(null);
         pills.unshift(
         {
             name: 'manage_nav_items',
-            title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_NAV_ITEM'),
+            title: item[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + item.name : ls.get('NEW_NAV_ITEM'),
             icon: 'chevron-left',
             href: '/admin/content/navigation'
         });
