@@ -581,14 +581,14 @@ module.exports = function(pb) {
                 if (util.isError(err)) {
                     return cb(err, null);
                 }
-                
-                self.dao.delete(options.where, self.type, options, function(err, result) {
+
+                self.dao.delete(options.where, options.collection, options, function(err, result) {
                     if (util.isError(err)) {
-                        return cb(err, obj);
+                        return cb(err, result);
                     }
                     
                     self._emit(BaseObjectService.AFTER_DELETE, context, function(err) {
-                        cb(err, obj);
+                        cb(err, result);
                     });
                 });
             });

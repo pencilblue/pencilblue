@@ -25,7 +25,6 @@ module.exports = function SiteQueryServiceModule(pb) {
     //pb dependencies
     var util = pb.util;
     var DAO = pb.DAO;
-    var SiteService = pb.SiteService;
     
     /**
      * @private
