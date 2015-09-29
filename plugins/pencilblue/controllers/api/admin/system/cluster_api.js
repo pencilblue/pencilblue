@@ -18,10 +18,11 @@
 module.exports = function(pb) {
     
     //pb dependencies
-    var util                = pb.util;
-    var BaseController      = pb.BaseController;
-    var ApiActionController = pb.ApiActionController;
-    var UrlService          = pb.UrlService;
+    var util               = pb.util;
+    var BaseController     = pb.BaseController;
+    var BaseApiController  = pb.BaseApiController;
+    var UrlService         = pb.UrlService;
+    var ServerRegistration = pb.ServerRegistration;
     
     /**
      * Controller to properly route and handle remote calls to interact with
@@ -30,20 +31,28 @@ module.exports = function(pb) {
      * @constructor
      */
     function ClusterApiController() {};
-    util.inherits(ClusterApiController, ApiActionController);
-
-    //constants
-    var ACTIONS = {
-        refresh: false,
-    };
-
+    util.inherits(ClusterApiController, BaseApiController);
+    
     /**
-     * Provides the hash of all actions supported by this controller
-     * @method getActions
-     * @return {Object} Hash of acceptable actions
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
      */
-    ClusterApiController.prototype.getActions = function() {
-        return ACTIONS;
+    ClusterApiController.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+            
+            /**
+             * 
+             * @property service
+             * @type {ServerRegistration}
+             */
+            self.service = ServerRegistration.getInstance();
+                
+            cb(err, true);
+        };
+        ClusterApiController.super_.prototype.init.apply(this, [context, init]);
     };
 
     /**
@@ -54,10 +63,26 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ClusterApiController.prototype.refresh = function(cb) {
-        pb.ServerRegistration.getInstance().flush(function(err, result) {
-            var content = BaseController.apiResponse(BaseController.API_SUCCESS, 'The wait time in seconds', {wait: pb.config.registry.update_interval});
+        this.service.flush(function(err, result) {
+            var data = {
+                update_interval: pb.config.registry.update_interval,
+                result: result,
+                
+                //for backward compatibility
+                wait: pb.config.registry.update_interval
+            };
+            var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', data);
             cb({content: content});
         });
+    };
+    
+    /**
+     * Retrieves the status for the entire cluster
+     * @method getAll
+     * @param {Function} cb
+     */
+    ClusterApiController.prototype.getAll = function(cb) {
+        this.service.getClusterStatus(this.handleGet(cb));
     };
 
     //exports

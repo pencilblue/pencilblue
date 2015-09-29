@@ -243,7 +243,9 @@ module.exports = {
         SAVED: 'zapisany',
         NARROW_RESULTS: 'Zawężone wyniki',
         URL_KEY: 'URL klucz',
-        FEED_UNAVAILABLE: 'Nie można załadować aktualności.'
+        FEED_UNAVAILABLE: 'Nie można załadować aktualności.',
+        REQUESTS_TOTAL: 'Wszystkich Wnioski',
+        REQUESTS_CURRENT: 'Aktualne Wnioski'
     },
     topics: {
         MANAGE_TOPICS: 'Zarządzaj tematami',

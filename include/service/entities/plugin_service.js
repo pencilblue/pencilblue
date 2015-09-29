@@ -1889,6 +1889,11 @@ module.exports = function PluginServiceModule(pb) {
         if (isError) {
             error = new Error("Faled to validate plugin details");
             error.validationErrors = errors;
+            
+            //log the validation errors
+            errors.forEach(function(validationError) {
+                pb.log.error('PluginService:[%s] %s', details.uid, validationError);
+            });
         }
         cb(error, !isError);
     };
