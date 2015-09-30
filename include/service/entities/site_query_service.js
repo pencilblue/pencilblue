@@ -263,6 +263,7 @@ module.exports = function SiteQueryServiceModule(pb) {
       this.listCollections({}, function(err, items) {
           if(pb.util.isError(err)) {
             pb.log.error(err);
+            return cb(err);
           }
 
           items = items.filter(function(item) {
