@@ -239,19 +239,6 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
-     * Determines if a site exists matching siteUid
-     * @method siteExists
-     * @param {String} siteUid - site unique id
-     * @param {Function} cb - callback function
-     */
-    SiteService.siteExists = function(siteUid, cb) {
-        var dao = new pb.DAO();
-        dao.exists(SITE_COLL, {uid: siteUid}, function (err, exists) {
-            cb(err, exists);
-        });
-    };
-
-    /**
      * Run a job to activate a site so that all of its routes are available.
      * @method activateSite
      * @param {String} siteUid - site unique id
@@ -569,44 +556,29 @@ module.exports = function SiteServiceModule(pb) {
         return url.format(urlObject).replace(/\/$/, '');
     };
 
-    SiteService.prototype.deleteSiteSpecificContent = function (collections, siteid, callback) {
-        var self = this;
+    SiteService.prototype.deleteSiteSpecificContent = function (siteid, cb) {
+        var siteQueryService = new pb.SiteQueryService();
+        siteQueryService.getCollections(function(err, allCollections) {
+            var dao = new pb.DAO();
 
-        SiteService.siteExists(siteid, function (err, exists) {
-            if (util.isError(err)) {
-                return callback(err);
-            }
-
-            if (!exists) {
-                return callback(pb.BaseObjectService.validationError([pb.BaseObjectService.validationFailure("siteid", "Invalid siteid")]));
-            }
-
-            var tasks = util.getTasks(collections, function (collections, i) {
+            var tasks = util.getTasks(allCollections, function (collections, i) {
                 return function (taskCallback) {
-                    self.deleteSingle({where: {site: siteid}, collection: collections[i].name}, function (err, commandResult) {
+                    dao.delete({site: siteid}, collections[i].name, function (err, commandResult) {
                         if (util.isError(err) || !commandResult) {
                             return taskCallback(err);
                         }
 
-                        var numberOfDeletedRecords = commandResult.n;
-                        pb.log.silly(numberOfDeletedRecords + " site specific " + collections[i].name + " records associated with " + siteid + " were deleted");
-                        taskCallback(null, {collection: collections[i].name, recordsDeleted: numberOfDeletedRecords});
+                        taskCallback(null, {collection: collections[i].name});
                     });
                 }
             });
             async.parallel(tasks, function (err, results) {
                 if (pb.util.isError(err)) {
                     pb.log.error(err);
-                    return callback(err);
+                    return cb(err);
                 }
-                self.deleteSingle({where: {uid: siteid}, collection: 'site'}, function (err/*, result*/) {
-                    if (util.isError(err)) {
-                        pb.log.error("SiteQueryService: Failed to delete site: %s \n%s", siteid, err.stack);
-                        return callback(err);
-                    }
-                    pb.log.silly("Successfully deleted site %s from database: ", siteid);
-                    callback(null, results);
-                });
+                pb.log.silly("Successfully deleted site %s from database", siteid);
+                cb(null, results);
             });
         });
     };
@@ -616,7 +588,13 @@ module.exports = function SiteServiceModule(pb) {
         cb(null);
     };
 
+    SiteService.beforeDelete = function (context, cb) {
+        var siteid = context.data.uid;
+        context.service.deleteSiteSpecificContent(siteid, cb);
+    };
+
     pb.BaseObjectService.on(TYPE + '.' + pb.BaseObjectService.MERGE, SiteService.merge);
+    pb.BaseObjectService.on(TYPE + '.' + pb.BaseObjectService.BEFORE_DELETE, SiteService.beforeDelete);
 
     return SiteService;
 };
