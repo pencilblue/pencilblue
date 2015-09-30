@@ -3,6 +3,7 @@
     "name": "PencilBlue",
     "description": "The plugin that drives the default core functionality of PencilBlue",
     "version": "0.2.5",
+    "pb_version": "0.5.x",
     "icon": "pencil",
 	"author": {
 		"name": "PencilBlue",

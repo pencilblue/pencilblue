@@ -38,7 +38,7 @@ module.exports = function ChangePasswordFormControllerModule(pb) {
         var self = this;
 
         //retrieve user
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.redirect('/', cb);

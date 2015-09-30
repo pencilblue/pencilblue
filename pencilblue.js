@@ -45,25 +45,35 @@ function PencilBlue(config){
     var pb = require('./lib')(config);
     
     /**
+     * The number of requests served by this instance
+     * @private
+     * @static
+     * @property requestsServed
+     * @type {Integer}
+     */
+    var requestsServed = 0;
+    
+    /**
      * To be called when the configuration is loaded.  The function is responsible
      * for triggered the startup of the HTTP connection listener as well as start a
      * connection pool to the core DB.
      * @method init
      */
     this.init = function(){
-        var self = this;
-        
         var tasks = [
             this.initModules,
             this.initRequestHandler,
             this.initDBConnections,
             this.initDBIndices,
             util.wrapTask(this, this.initServer),
+            this.initSiteMigration,
             this.initSessions,
             this.initPlugins,
+            this.initSites,
             this.initServerRegistration,
             this.initCommandService,
-            this.initLibraries
+            this.initLibraries,
+            this.registerMetrics
         ];
         async.series(tasks, function(err, results) {
             if (util.isError(err)) {
@@ -87,9 +97,7 @@ function PencilBlue(config){
         
         HtmlEncoder.EncodeType = 'numerical';
         
-        pb.Localization.init();
-        
-        cb(null, true);
+        pb.Localization.init(cb);
     };
     
     /**
@@ -128,6 +136,30 @@ function PencilBlue(config){
         var pluginService = new pb.PluginService();
         pluginService.initPlugins(cb);
     };
+
+    /**
+     * Move a single tenant solution to a multi-tenant solution.
+     * @static
+     * @method initSiteMigration
+     * @param {Function} cb - callback function
+     */
+    this.initSiteMigration = function(cb) {
+        pb.dbm.processMigration(cb);
+    };
+
+    /**
+     * Initializes site(s).
+     * @method initSites
+     * @static
+     * @param {Function} cb - callback function
+     */
+    this.initSites = function(cb)
+    {
+        pb.SiteService.init();
+
+        var siteService = new pb.SiteService();
+        siteService.initSites(cb);
+    }
 
     /**
      * Attempts to initialize a connection pool to the core database
@@ -241,6 +273,9 @@ function PencilBlue(config){
             pb.log.silly('New Request: '+req.uid);
         }
 
+        //bump the counter for the instance
+        requestsServed++;
+        
         //check to see if we should inspect the x-forwarded-proto header for SSL
         //load balancers use this for SSL termination relieving the stress of SSL
         //computation on more powerful load balancers.  For me it is a giant pain
@@ -308,6 +343,25 @@ function PencilBlue(config){
     this.initLibraries = function(cb) {
         pb.LibrariesService.init(cb);
     };
+    
+    /**
+     * Initializes the metric registrations to measure request counts
+     * @static
+     * @method registerMetrics
+     * @param {Function} cb
+     */
+    this.registerMetrics = function(cb) {
+        
+        //total number of requests served
+        pb.ServerRegistration.addItem('requests', function(callback) {
+            callback(null, requestsServed);
+        });
+        
+        //current requests
+        pb.ServerRegistration.addItem('currentRequests', function(callback) {
+            pb.server.getConnections(callback);
+        });
+    };
 
     /**
      * Starts up the instance of PencilBlue
@@ -315,6 +369,7 @@ function PencilBlue(config){
      */
     this.start = function() {
         var self = this;
+        pb.system.registerSignalHandlers(true);
         pb.system.onStart(function(){
             self.init();
         });

@@ -35,7 +35,8 @@ module.exports = function UsernameAvailableModule(pb) {
             return;
         }
 
-        pb.users.isUserNameOrEmailTaken(get.username, '', null, function(error, isTaken) {
+        this.userService = new pb.UserService(this.getServiceContext());
+        this.userService.isUserNameOrEmailTaken(get.username, '', null, function(error, isTaken) {
             if(isTaken) {
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, get.username + ' is not available', false)});
                 return;

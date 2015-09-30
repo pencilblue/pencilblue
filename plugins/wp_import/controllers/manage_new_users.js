@@ -67,7 +67,7 @@ module.exports = function WPManageUsersViewControllerModule(pb) {
         }];
 
         var objects = {
-            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
+            navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
             pills: pills,
             tabs: tabs,
             users: self.session.importedUsers,
@@ -94,6 +94,7 @@ module.exports = function WPManageUsersViewControllerModule(pb) {
                 method: 'get',
                 path: '/admin/plugins/wp_import/settings/manage_new_users',
                 auth_required: true,
+                inactive_site_access: true,
                 access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
                 content_type: 'text/html'
             }

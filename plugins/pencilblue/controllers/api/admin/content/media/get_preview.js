@@ -27,7 +27,7 @@ module.exports = function(pb) {
      * @extends BaseController
      */
     function GetMediaPreviewApiController(){}
-    util.inherits(GetMediaPreviewApiController, pb.BaseController);
+    util.inherits(GetMediaPreviewApiController, pb.BaseAdminController);
 
     /**
      * Renders the preview
@@ -50,20 +50,20 @@ module.exports = function(pb) {
         var options = {
             view: 'view'
         };
-        var ms = new pb.MediaService();
+        var mediaService = new pb.MediaService(null, self.site, true);
         if (get.id) {
-            ms.renderById(get.id, options, function(err, html) {
+            mediaService.renderById(get.id, options, function(err, html) {
                 self.renderComplete(err, html, cb);
             });
         }
         else if (get.location && get.type){
 
-            var options = {
+            var renderOptions = {
                 view: 'view',
                 location: get.location,
                 type: get.type
             };
-            ms.renderByLocation(options, function(err, html) {
+            mediaService.renderByLocation(renderOptions, function(err, html) {
                 self.renderComplete(err, html, cb);
             });
         }

@@ -85,6 +85,8 @@ module.exports = function DAOModule(pb) {
      */
     DAO.DESC = -1;
 
+    var SITE_FIELD = 'site';
+
     /**
      * Retrieves an object by ID
      *
@@ -114,6 +116,49 @@ module.exports = function DAOModule(pb) {
         this.loadByValues(where, collection, opts, cb);
     };
 
+    DAO.prototype.loadByValueAvailableToSite = function(key, val, site, collection, opts, cb) {
+        var self = this;
+        this.loadByValueForOneSite(key, val, site, collection, opts, function(err, result) {
+            if (util.isError(err)) {
+                pb.log.error("DAO.loadByValueForOneSite encountered an error. ERROR[%s]", err.stack);
+                return cb(err);
+            }
+
+            //ensure setting exists
+            if (!result){
+                self.loadByValueFromGlobal(key, val, collection, opts, cb);
+                return;
+            } else {
+                cb(null, result);
+            }
+        });
+    };
+
+    DAO.prototype.loadByValueForOneSite = function(key, val, site, collection, opts, cb) {
+        if(!site || site === pb.SiteService.GLOBAL_SITE) {
+            this.loadByValueFromGlobal(key,val,collection,opts,cb);
+        } else {
+            var where = {};
+            where[key] = val;
+            where[SITE_FIELD] = site;
+            this.loadByValues(where, collection, opts, cb);  
+        }
+    };
+
+    DAO.prototype.loadByValueFromGlobal = function(key, val, collection, opts, cb) {
+        var where = {};
+        var hasNoSite = {};
+        hasNoSite[SITE_FIELD] = { $exists : false };
+        var siteIsGlobal = {};
+        siteIsGlobal[SITE_FIELD] = pb.SiteService.GLOBAL_SITE;
+        where[key] = val;
+        where.$or = [
+             hasNoSite,
+             siteIsGlobal
+        ];    
+        this.loadByValues(where, collection, opts, cb);  
+    }
+
     /**
      * Retrieves object matching several key value pairs
      *
@@ -138,6 +183,7 @@ module.exports = function DAOModule(pb) {
             order: opts.order || DAO.NATURAL_ORDER,
             limit: 1
         };
+
         this.q(collection, options, function(err, result){
            cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
         });
@@ -413,6 +459,11 @@ module.exports = function DAOModule(pb) {
         });
     };
 
+    DAO.prototype.saveToSite = function(dbObj, site, options, cb) {
+        dbObj[SITE_FIELD] = site ||pb.SiteService.GLOBAL_SITE;
+        this.save(dbObj, options, cb);
+    };
+
     /**
      * Provides a mechanism to save an array of objects all from the same
      * collection.  The function handles updates and inserts.  The difference is
@@ -674,17 +725,8 @@ module.exports = function DAOModule(pb) {
      * exists, FALSE if not.
      */
     DAO.prototype.entityExists = function(entity, cb) {
-        var options = {
-            namesOnly: true
-        };
-
-        pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            db.listCollections({name: entity}, options).toArray(function(err, results) {
-                cb(err, util.isArray(results) && results.length === 1);
-            });
+        this.listCollections({name: entity}, function(err, results) {
+            cb(err, util.isArray(results) && results.length === 1);
         });
     };
 
@@ -711,6 +753,31 @@ module.exports = function DAOModule(pb) {
                 return cb(err);
             }
             db.createCollection(entityName, options, cb);
+        });
+    };
+
+    /**
+     * Gets all collection names
+     * @method listCollections
+     * @param {Object} [filter] The filter to specify what collection(s) to search for
+     * @param {Function} cb A callback that takes two parameters. The first, an
+     * Error, if occurred. The second is the result listCollections command.
+     */
+    DAO.prototype.listCollections = function(filter, cb) {
+        var options = {
+          namesOnly: true
+        };
+
+        pb.dbm.getDb(this.dbName, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            db.listCollections(filter, options).toArray(function(err, results) {
+                if (util.isError(err)) {
+                    return cb(err)
+                }
+                cb(err, results);
+            });
         });
     };
 

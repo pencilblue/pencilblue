@@ -32,26 +32,31 @@ module.exports = function VerifyUserModule(pb) {
 
         var message = this.hasRequiredParams(vars, ['id']);
         if (message) {
-            cb({
+            return cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
             });
-            return;
         }
 
         //ensure existence
-        var dao = new pb.DAO();
+        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
         dao.loadById(vars.id, 'unverified_user', function(err, unverifiedUser) {
             if(unverifiedUser === null) {
-                cb({
+                return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
                 });
-                return;
             }
 
-            dao.deleteById(vars.id, 'unverified_user', function(err, result)  {
-                //TODO handle error
+            dao.deleteById(vars.id, 'unverified_user', function(err, result) {
+                // Handle errors
+                if (util.isError(err)){
+                    pb.log.error("SiteQueryService.deleteById encountered an error. ERROR[%s]", err.stack);
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+                    });
+                }
 
                 //convert to user
                 var user = unverifiedUser;
@@ -62,11 +67,10 @@ module.exports = function VerifyUserModule(pb) {
 
                 dao.save(user, function(err, result) {
                     if(util.isError(result))  {
-                        cb({
+                        return cb({
                             code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
                         });
-                        return;
                     }
 
                     cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, user.username + ' ' + self.ls.get('VERIFIED'))});

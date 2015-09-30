@@ -14,11 +14,9 @@ module.exports = function BlogFilterModule(pb) {
     function BlogFilter(){}
     util.inherits(BlogFilter, Blog);
 
-
     BlogFilter.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
-        var dao     = new pb.DAO();
 
         var fieldToMatch = 'url';
         var objectType = 'section';
@@ -47,35 +45,35 @@ module.exports = function BlogFilterModule(pb) {
             return;
         }
 
-        dao.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
-          if (util.isError(err) || result === null) {
-            if(pb.validation.isIdStr(custUrl)) {
-              dao.loadById(custUrl, objectType, function(err, result) {
-                if (util.isError(err) || result === null || result.draft) {
-                  self.reqHandler.serve404();
-                  return;
+        this.siteQueryService.loadByValue(fieldToMatch, custUrl, objectType, function(err, result) {
+            if (util.isError(err) || result === null) {
+                if(pb.validation.isIdStr(custUrl)) {
+                    self.siteQueryService.loadById(custUrl, objectType, function(err, result) {
+                        if (util.isError(err) || result === null || result.draft) {
+                            self.reqHandler.serve404();
+                            return;
+                        }
+
+                        self.req['pencilblue_' + objectType] = result._id.toString();
+                        self.result = result;
+                        BlogFilter.super_.prototype.render.apply(self, [cb]);
+                    });
+                }
+                else {
+                    self.reqHandler.serve404();
                 }
 
-                self.req['pencilblue_' + objectType] = result._id.toString();
-                this.result = result;
-                BlogFilter.super_.prototype.render.apply(self, [cb]);
-              });
-            }
-            else {
-              self.reqHandler.serve404();
+                return;
             }
 
-            return;
-          }
+            if(result.draft) {
+                self.reqHandler.serve404();
+                return;
+            }
 
-          if(result.draft) {
-            self.reqHandler.serve404();
-            return;
-          }
-
-          self.req['pencilblue_' + objectType] = result._id.toString();
-          this.result = result;
-          BlogFilter.super_.prototype.render.apply(self, [cb]);
+            self.req['pencilblue_' + objectType] = result._id.toString();
+            self.result = result;
+            BlogFilter.super_.prototype.render.apply(self, [cb]);
         });
     };
 

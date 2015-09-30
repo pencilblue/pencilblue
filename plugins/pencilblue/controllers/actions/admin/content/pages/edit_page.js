@@ -22,12 +22,13 @@ module.exports = function(pb) {
 
     /**
      * Edits a page
+     * @deprecated Since 0.5.0
      * @cclass EditPagePostController
      * @constructor
-     * @extends FormController
+     * @extends BaseAdminController
      */
     function EditPagePostController(){}
-    util.inherits(EditPagePostController, pb.BaseController);
+    util.inherits(EditPagePostController, pb.BaseAdminController);
 
     EditPagePostController.prototype.render = function(cb) {
         var self = this;
@@ -47,8 +48,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            var dao = new pb.DAO();
-            dao.loadById(post.id, 'page', function(err, page) {
+            self.siteQueryService.loadById(post.id, 'page', function(err, page) {
                 if(util.isError(err) || page === null) {
                     cb({
                         code: 400,
@@ -65,7 +65,7 @@ module.exports = function(pb) {
 
                 self.setFormFieldValues(post);
 
-                pb.RequestHandler.urlExists(page.url, post.id, function(err, exists) {
+                pb.RequestHandler.urlExists(page.url, post.id, self.site, function(err, exists) {
                     if(util.isError(err) || exists) {
                         cb({
                             code: 400,
@@ -74,7 +74,7 @@ module.exports = function(pb) {
                         return;
                     }
 
-                    dao.save(page, function(err, result) {
+                    self.siteQueryService.save(page, function(err, result) {
                         if(util.isError(err)) {
                             pb.log.error(err.stack);
                             return cb({

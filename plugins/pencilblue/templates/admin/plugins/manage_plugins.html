@@ -101,7 +101,42 @@
                         </ul>
                     </td>
                     <td>
-                        <a class="btn btn-sm btn-default" ng-if="!available.validationErrors" ng-click="pluginAction('install', available)"><i class="fa fa-hdd-o"></i>&nbsp;^loc_INSTALL^</a>
+                        <a class="btn btn-sm btn-default pull-right" ng-if="!available.validationErrors" ng-click="pluginAction('install', available)"><i class="fa fa-hdd-o"></i>&nbsp;^loc_INSTALL^</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel panel-default" ng-if="siteUid != 'global'">
+        <div class="panel-heading">
+            ^loc_GLOBAL_PLUGINS^&nbsp;
+            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_GLOBAL_ACTIVE_DESCRIPTION^"></i>
+        </div>
+        <div class="panel-body" ng-if="!globalActivePlugins.length">
+            ^loc_NO_AVAILABLE_PLUGINS^
+        </div>
+        <div class="table_container">
+            <table id="global_active_plugins_table" class="table table-responsive table-condensed" ng-if="globalActivePlugins.length > 0">
+                <tr id="global_active_plugins_table_header">
+                    <th>^loc_NAME^</th>
+                    <th>^loc_VERSION^</th>
+                    <th>^loc_DESCRIPTION^</th>
+                    <th></th>
+                </tr>
+                <tr class="global_active_plugin_row" ng-repeat="installed in globalActivePlugins track by installed.uid">
+                    <td>
+                        <a ng-href="/admin/plugins/{{installed.uid}}" title="{installed.description}}" ng-bind="installed.uid"></a>
+                    </td>
+                    <td class="global_active_version" ng-bind="installed.version"></td>
+                    <td class="global_active_description">
+                        <span ng-bind="installed.description"></span>
+                        <ul>
+                            <li ng-repeat="validationError in installed.validationErrors" ng-bind="validationError"></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-default pull-right" ng-if="!installed.validationErrors" ng-disabled="isInstalled(installed.uid)" ng-click="pluginAction('install', installed)"><i class="fa fa-upload"></i>&nbsp;^loc_OVERRIDE^</button>
                     </td>
                 </tr>
             </table>

@@ -28,9 +28,12 @@ module.exports = function CustomObjectServiceModule(pb) {
      * @class CustomObjectService
      * @constructor
      */
-    function CustomObjectService() {
+    function CustomObjectService(siteUid, onlyThisSite) {
         this.typesCache = {};
         this.typesNametoId = {};
+
+        this.site = pb.SiteService.getCurrentSite(siteUid);
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: onlyThisSite});
     }
 
     //statics
@@ -358,8 +361,11 @@ module.exports = function CustomObjectServiceModule(pb) {
 
         //make sure we have the type for the object passed in
         getCustObjType(custObjType, function(err, custObjType) {
-            if (util.isError(err) || util.isNullOrUndefined(custObjType)) {
+            if (util.isError(err)) {
                return cb(err);
+            }
+            else if (util.isNullOrUndefined(custObjType)) {
+                return cb(new Error('An invalid custom object type: ' + custObjType + ' was found.'));
             }
 
             var tasks = util.getTasks(Object.keys(custObjType.fields), function(fieldNames, i) {
@@ -458,8 +464,7 @@ module.exports = function CustomObjectServiceModule(pb) {
         options.where.type = typeStr;
 
         var self = this;
-        var dao  = new pb.DAO();
-        dao.q(CustomObjectService.CUST_OBJ_COLL, options, function(err, custObjs) {
+        self.siteQueryService.q(CustomObjectService.CUST_OBJ_COLL, options, function(err, custObjs) {
             if (util.isArray(custObjs)) {
 
                 var tasks = util.getTasks(custObjs, function(custObjs, i) {
@@ -487,8 +492,8 @@ module.exports = function CustomObjectServiceModule(pb) {
             select: pb.DAO.PROJECT_ALL,
             order: {NAME_FIELD: pb.DAO.ASC}
         };
-        var dao  = new pb.DAO();
-        dao.q(CustomObjectService.CUST_OBJ_TYPE_COLL, opts, function(err, custObjTypes) {
+
+        this.siteQueryService.q(CustomObjectService.CUST_OBJ_TYPE_COLL, opts, function(err, custObjTypes) {
             if (util.isArray(custObjTypes)) {
                 //currently, mongo cannot do case-insensitive sorts.  We do it manually
                 //until a solution for https://jira.mongodb.org/browse/SERVER-90 is merged.
@@ -581,8 +586,7 @@ module.exports = function CustomObjectServiceModule(pb) {
         }
 
         var self = this;
-        var dao  = new pb.DAO();
-        dao.loadByValues(where, CustomObjectService.CUST_OBJ_COLL, function(err, custObj) {
+        self.siteQueryService.loadByValues(where, CustomObjectService.CUST_OBJ_COLL, function(err, custObj) {
             if (util.isObject(custObj)) {
                 return self.fetchChildren(custObj, options, type, cb);
             }
@@ -624,8 +628,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             return cb(Error("The where parameter must be provided in order to load a custom object type"));
         }
 
-        var dao = new pb.DAO();
-        dao.loadByValues(where, CustomObjectService.CUST_OBJ_TYPE_COLL, cb);
+        this.siteQueryService.loadByValues(where, CustomObjectService.CUST_OBJ_TYPE_COLL, cb);
     };
 
     /**
@@ -758,7 +761,6 @@ module.exports = function CustomObjectServiceModule(pb) {
 
         var self   = this;
         var errors = [];
-        var dao    = new pb.DAO();
         var tasks  = [
 
             //validate the name
@@ -778,7 +780,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 //test uniqueness of name
                 var where = {};
                 where[NAME_FIELD] = new RegExp('^'+util.escapeRegExp(custObjType.name)+'$', 'i');
-                dao.unique(CustomObjectService.CUST_OBJ_TYPE_COLL, where, custObjType[pb.DAO.getIdField()], function(err, isUnique){
+                self.siteQueryService.unique(CustomObjectService.CUST_OBJ_TYPE_COLL, where, custObjType[pb.DAO.getIdField()], function(err, isUnique){
                     if(!isUnique) {
                         errors.push(CustomObjectService.err('name', 'The name '+custObjType.name+' is not unique'));
                     }
@@ -864,8 +866,8 @@ module.exports = function CustomObjectServiceModule(pb) {
             where: pb.DAO.ANYWHERE,
             select: select
         };
-        var dao  = new pb.DAO();
-        dao.q(CustomObjectService.CUST_OBJ_TYPE_COLL, opts, function(err, types) {
+
+        this.siteQueryService.q(CustomObjectService.CUST_OBJ_TYPE_COLL, opts, function(err, types) {
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -901,7 +903,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             }
 
             var dao = new pb.DAO();
-            dao.save(custObj, cb);
+            self.siteQueryService.save(custObj, cb);
         });
     };
 
@@ -925,8 +927,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 return cb(err, errors);
             }
 
-            var dao = new pb.DAO();
-            dao.save(custObjType, cb);
+            self.siteQueryService.save(custObjType, cb);
         });
     };
 
@@ -998,8 +999,8 @@ module.exports = function CustomObjectServiceModule(pb) {
         var where = {
             name: new RegExp('^'+util.escapeRegExp(typeName)+'$', 'ig')
         };
-        var dao = new pb.DAO();
-        dao.exists(CustomObjectService.CUST_OBJ_TYPE_COLL, where, cb);
+
+        this.siteQueryService.exists(CustomObjectService.CUST_OBJ_TYPE_COLL, where, cb);
     };
 
     /**
