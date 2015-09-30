@@ -56,7 +56,20 @@ module.exports = function PluginUninstallJobModule(pb) {
      */
     PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND = 'uninstall_plugin';
 
+    /**
+     * @private
+     * @static
+     * @property GLOBAL_PREFIX
+     * @type {String}
+     */
     var GLOBAL_PREFIX = pb.SiteService.GLOBAL_SITE;
+    
+    /**
+     * @private
+     * @static
+     * @property SITE_FIELD
+     * @type {String}
+     */
     var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
     /**

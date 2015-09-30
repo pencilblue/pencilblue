@@ -1456,44 +1456,49 @@ module.exports = function PluginServiceModule(pb) {
      * them into a hash where the key is the name of the localization file.
      * @method getLocalizations
      * @param {String} pluginDirName The name of the plugin directory
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Object)
+     * @param {Function} cb A callback that provides two parameters: cb(Error, Object).  
+     * When the directory does not exist NULL is returned as the result parameter.
      */
     PluginService.prototype.getLocalizations = function(pluginDirName, cb) {
         var localizationDir = path.join(PluginService.getPublicPath(pluginDirName), 'localization');
 
-        fs.readdir(localizationDir, function(err, files) {
-            if (util.isError(err)) {
-                cb(err, null);
-                return;
+        fs.exists(localizationDir, function(exists) {
+            if (!exists) {
+                return cb(null, null);
             }
+            fs.readdir(localizationDir, function(err, files) {
+                if (util.isError(err)) {
+                    return cb(err, null);
+                }
 
-            var localizations = {};
-            var tasks = util.getTasks(files, function(files, index) {
-                return function(callback) {
+                var localizations = {};
+                var tasks = util.getTasks(files, function(files, index) {
+                    return function(callback) {
 
-                    var pathToLocalization = path.join(localizationDir, files[index]);
-                    fs.readFile(pathToLocalization, function(err, json) {
-                        if (!util.isError(err)) {
+                        var pathToLocalization = path.join(localizationDir, files[index]);
+                        fs.readFile(pathToLocalization, function(err, json) {
+                            if (!util.isError(err)) {
 
-                            //attempt to parse JSON and set service
-                            try {
-                                var localization    = JSON.parse(json);
-                                var name            = PluginService.getServiceName(pathToLocalization);
-                                localizations[name] = localization;
+                                //attempt to parse JSON and set service
+                                try {
+                                    var localization    = JSON.parse(json);
+                                    var name            = PluginService.getServiceName(pathToLocalization);
+                                    localizations[name] = localization;
+                                }
+                                catch(e) {
+                                    pb.log.warn('PluginService:[%s] Failed to parse localization JSON file at [%s]. %s', pluginDirName, pathToLocalization, e.stack);
+                                }
                             }
-                            catch(e) {
-                                pb.log.warn('PluginService:[%s] Failed to parse localization JSON file at [%s]. %s', pluginDirName, pathToLocalization, e.stack);
+                            else {
+                                pb.log.warn('PluginService:[%s] Failed to load localization JSON file at [%s]', pluginDirName, pathToLocalization);
                             }
-                        }
-                        else {
-                            pb.log.warn('PluginService:[%s] Failed to load localization JSON file at [%s]', pluginDirName, pathToLocalization);
-                        }
-                        callback(null, true);
-                    });
-                };
-            });
-            async.parallel(tasks, function(err, results) {
-                cb(err, localizations);
+                            callback(null, true);
+                        });
+                    };
+                });
+                async.parallel(tasks, function(err, results) {
+                    cb(err, localizations);
+                });
             });
         });
     };
