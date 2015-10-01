@@ -361,6 +361,8 @@ function PencilBlue(config){
         pb.ServerRegistration.addItem('currentRequests', function(callback) {
             pb.server.getConnections(callback);
         });
+        
+        cb(null, true);
     };
 
     /**

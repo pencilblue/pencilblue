@@ -56,7 +56,20 @@ module.exports = function PluginUninstallJobModule(pb) {
      */
     PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND = 'uninstall_plugin';
 
+    /**
+     * @private
+     * @static
+     * @property GLOBAL_PREFIX
+     * @type {String}
+     */
     var GLOBAL_PREFIX = pb.SiteService.GLOBAL_SITE;
+    
+    /**
+     * @private
+     * @static
+     * @property SITE_FIELD
+     * @type {String}
+     */
     var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
     /**
@@ -150,6 +163,11 @@ module.exports = function PluginUninstallJobModule(pb) {
                 self.pluginService.getLocalizations(pluginUid, function(err, localizations) {
                     if (util.isError(err)) {
                         return callback(err);
+                    }
+                    else if (util.isNullOrUndefined(localizations)) {
+                        
+                        //no localization directory was found
+                        return callback(null, true);
                     }
                     
                     //remove all localizations
