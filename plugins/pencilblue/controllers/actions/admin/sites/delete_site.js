@@ -29,14 +29,12 @@ module.exports = function DeleteSiteActionModule(pb) {
     DeleteSiteAction.prototype.render = function(cb) {
         var self = this;
         var siteid = self.pathVars.siteid;
-        var siteQueryService = new pb.SiteQueryService();
-        siteQueryService.getCollections(function(err, allCollections) {
-            siteQueryService.deleteSiteSpecificContent(allCollections, siteid, function(err, result) {
-                if(util.isError(err)) {
-                    return cb(err);
-                }
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.SUCCESS, self.ls.get('REMOVE_SUCCESSFUL'), result)});
-            });
+        var siteService = new pb.SiteService();
+        siteService.deleteSingle({where: {uid: siteid}}, function (err, site) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('REMOVE_SUCCESSFUL'), site)});
         });
     };
 

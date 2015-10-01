@@ -581,7 +581,7 @@ module.exports = function(pb) {
                 if (util.isError(err)) {
                     return cb(err, null);
                 }
-                
+
                 self.dao.delete(options.where, self.type, options, function(err, result) {
                     if (util.isError(err)) {
                         return cb(err, obj);

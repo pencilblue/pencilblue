@@ -25,7 +25,6 @@ module.exports = function SiteQueryServiceModule(pb) {
     //pb dependencies
     var util = pb.util;
     var DAO = pb.DAO;
-    var SiteService = pb.SiteService;
     
     /**
      * @private
@@ -265,55 +264,6 @@ module.exports = function SiteQueryServiceModule(pb) {
         pb.log.error(err);
       }
       cb(err, items);
-    });
-  };
-
-  /**
-   * Deletes all site specific content
-   * @param {Array} collections -  array of collection names
-   * @param {String} siteid - unique site id
-   * @param {Function} callback - callback function
-   */
-  SiteQueryService.prototype.deleteSiteSpecificContent = function (collections, siteid, callback) {
-    var self = this;
-    var BaseObjectService = pb.BaseObjectService;
-
-    SiteService.siteExists(siteid, function (err, exists) {
-      if (util.isError(err)) {
-        return callback(err);
-      }
-
-      if (!exists) {
-        return callback(BaseObjectService.validationError([BaseObjectService.validationFailure("siteid", "Invalid siteid")]));
-      }
-
-      var tasks = util.getTasks(collections, function (collections, i) {
-        return function (taskCallback) {
-          self.delete({site: siteid}, collections[i].name, function (err, commandResult) {
-            if (util.isError(err) || !commandResult) {
-              return taskCallback(err);
-            }
-
-            var numberOfDeletedRecords = commandResult.result.n;
-            pb.log.silly(numberOfDeletedRecords + " site specific " + collections[i].name + " records associated with " + siteid + " were deleted");
-            taskCallback(null, {collection: collections[i].name, recordsDeleted: numberOfDeletedRecords});
-          });
-        };
-      });
-      async.parallel(tasks, function(err, results) {
-        if (pb.util.isError(err)) {
-          pb.log.error(err);
-          return callback(err);
-        }
-        self.delete({uid: siteid}, 'site', function(err/*, result*/) {
-          if (util.isError(err)) {
-            pb.log.error("SiteQueryService: Failed to delete site: %s \n%s", siteid, err.stack);
-            return callback(err);
-          }
-          pb.log.silly("Successfully deleted site %s from database: ", siteid);
-          callback(null, results);
-        });
-      });
     });
   };
 

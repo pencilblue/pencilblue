@@ -33,7 +33,7 @@ module.exports = function NewSiteActionModule(pb) {
         if(message) {
             cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
             });
             return;
         }
@@ -41,7 +41,7 @@ module.exports = function NewSiteActionModule(pb) {
         if(!pb.security.isAuthorized(self.session, {admin_level: self.body.admin})) {
             cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INSUFFICIENT_CREDENTIALS'))
             });
             return;
         }
@@ -52,12 +52,13 @@ module.exports = function NewSiteActionModule(pb) {
             if(isTaken) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('DUPLICATE_INFO'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('DUPLICATE_INFO'))
                 });
             }
-            var jobId = siteService.createSite(site);
-            var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CREATING_SITE'), jobId);
-            cb({content: content});
+            var jobId = siteService.createSite(site, function(err, result) {
+                var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CREATING_SITE'), jobId);
+                cb({content: content});
+            });
         });
 
     };
