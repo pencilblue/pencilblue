@@ -1228,10 +1228,12 @@ module.exports = function PluginServiceModule(pb) {
              function(callback) {
 
                  self.getLocalizations(plugin.dirName, function(err, localizations) {
+                     if (util.isNullOrUndefined(localizations)) {
+                         return callback(null, true);
+                     }
+                     
                      for (var locale in localizations) {
-                         if (pb.log.isDebug()) {
-                             pb.log.debug('PluginService:[%s] Registering localizations for locale [%s]', details.uid, locale);
-                         }
+                         pb.log.debug('PluginService:[%s] Registering localizations for locale [%s]', details.uid, locale);
 
                          var opts = {
                              site: self.site,

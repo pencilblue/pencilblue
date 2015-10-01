@@ -164,6 +164,11 @@ module.exports = function PluginUninstallJobModule(pb) {
                     if (util.isError(err)) {
                         return callback(err);
                     }
+                    else if (util.isNullOrUndefined(localizations)) {
+                        
+                        //no localization directory was found
+                        return callback(null, true);
+                    }
                     
                     //remove all localizations
                     var result = true;
