@@ -21,7 +21,8 @@ var async = require('async');
 module.exports = function AdminIndexControllerModule(pb) {
     
     //pb dependencies
-    var util = pb.util;
+    var util            = pb.util;
+    var SecurityService = pb.SecurityService;
     
     /**
      * Interface for the admin dashboard
@@ -63,7 +64,8 @@ module.exports = function AdminIndexControllerModule(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['dashboard'], self.localizationService, self.site),
                 contentInfo: contentInfo,
                 cluster: data.clusterStatus,
-                access: self.session.authentication.admin_level
+                access: self.session.authentication.admin_level,
+                isAdmin: self.session.authentication.admin_level === SecurityService.ACCESS_ADMINISTRATOR
             });
             self.setPageName(self.localizationService.get('DASHBOARD'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));

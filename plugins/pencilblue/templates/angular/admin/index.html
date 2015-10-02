@@ -30,11 +30,21 @@
 			.error(function(error, status) {
 				$window.location.reload();
 			});
-		}
+		};
 
 		$scope.refreshPage = function() {
 			$window.location.reload();
-		}
+		};
+        
+        $scope.updateClusterStats = function() {
+            $http.get('/api/cluster')
+            .success(function(result) {
+				$scope.cluster = result;
+			})
+			.error(function(error, status) {
+				$window.location.reload();
+			});
+        };
 
 		$http.get('https://pencilblue.org/feed')
 		.success(function(result) {
@@ -49,16 +59,25 @@
 			}
 
 			var item = $(feed).find('rss').find('item');
+			item = $(item[0]);
 
-			$scope.newsTitle = item.find('title').html();
-			$scope.newsLink = item.find('link').html();
+			$scope.newsTitle = item.find('title').text();
+			$scope.newsLink = item.find('link').text();
 
 			var copy = item.find('encoded');
 			if(copy.length === 0) {
 				copy = item.find('content\\:encoded');
 			}
 
-			$scope.newsCopy = $scope.cleanNewsCopy(copy.html());
+			$scope.newsCopy = $scope.cleanNewsCopy(copy.text());
 		});
+        
+        if ($scope.isAdmin) {
+            var interval = 10000;
+            if ($scope.cluster && $scope.cluster.length > 0) {
+                interval = $scope.cluster[0].update_interval || interval;
+            }
+            setInterval($scope.updateClusterStats, interval);
+        }
 	});
 </script>

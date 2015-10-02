@@ -311,7 +311,17 @@ module.exports = function Routes(pb){
         },
         {
             method: 'post',
-            path: "/api/cluster/:action",
+            handler: 'refresh',
+            path: "/api/cluster/refresh",
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'system', 'cluster_api.js'),
+            content_type: 'application/json'
+        },
+        {
+            method: 'get',
+            handler: 'getAll',
+            path: "/api/cluster",
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,

@@ -20,14 +20,30 @@ var url = require('url');
 var util  = require('../../util.js');
 
 module.exports = function SiteServiceModule(pb) {
-
-
     /**
      * Service for performing site specific operations.
      * @class SiteService
      * @constructor
      */
-    function SiteService(){}
+    function SiteService(context) {
+        if (!util.isObject(context)) {
+            context = {};
+        }
+
+        context.type = TYPE;
+        SiteService.super_.call(this, context);
+    }
+    util.inherits(SiteService, pb.BaseObjectService);
+
+  /**
+   * The name of the DB collection where the resources are persisted
+   * @private
+   * @static
+   * @readonly
+   * @property TYPE
+   * @type {String}
+   */
+  var TYPE = 'site';
 
     /**
      * represents default configuration, not actually a full site
@@ -74,7 +90,6 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     var SITE_COLL = SiteService.SITE_COLLECTION;
-
 
     /**
      * Load full site config from the database using the unique id.
@@ -221,19 +236,6 @@ module.exports = function SiteServiceModule(pb) {
             }
         };
         async.parallel(tasks, cb);
-    };
-
-    /**
-     * Determines if a site exists matching siteUid
-     * @method siteExists
-     * @param {String} siteUid - site unique id
-     * @param {Function} cb - callback function
-     */
-    SiteService.siteExists = function(siteUid, cb) {
-        var dao = new pb.DAO();
-        dao.exists(SITE_COLL, {uid: siteUid}, function (err, exists) {
-            cb(err, exists);
-        });
     };
 
     /**
@@ -553,6 +555,46 @@ module.exports = function SiteServiceModule(pb) {
         urlObject.protocol = pb.config.server.ssl.enabled ? 'https' : 'http';
         return url.format(urlObject).replace(/\/$/, '');
     };
+
+    SiteService.prototype.deleteSiteSpecificContent = function (siteid, cb) {
+        var siteQueryService = new pb.SiteQueryService();
+        siteQueryService.getCollections(function(err, allCollections) {
+            var dao = new pb.DAO();
+
+            var tasks = util.getTasks(allCollections, function (collections, i) {
+                return function (taskCallback) {
+                    dao.delete({site: siteid}, collections[i].name, function (err, commandResult) {
+                        if (util.isError(err) || !commandResult) {
+                            return taskCallback(err);
+                        }
+
+                        taskCallback(null, {collection: collections[i].name});
+                    });
+                }
+            });
+            async.parallel(tasks, function (err, results) {
+                if (pb.util.isError(err)) {
+                    pb.log.error(err);
+                    return cb(err);
+                }
+                pb.log.silly("Successfully deleted site %s from database", siteid);
+                cb(null, results);
+            });
+        });
+    };
+
+    SiteService.merge = function (context, cb) {
+        pb.util.merge(context.data, context.object);
+        cb(null);
+    };
+
+    SiteService.beforeDelete = function (context, cb) {
+        var siteid = context.data.uid;
+        context.service.deleteSiteSpecificContent(siteid, cb);
+    };
+
+    pb.BaseObjectService.on(TYPE + '.' + pb.BaseObjectService.MERGE, SiteService.merge);
+    pb.BaseObjectService.on(TYPE + '.' + pb.BaseObjectService.BEFORE_DELETE, SiteService.beforeDelete);
 
     return SiteService;
 };
