@@ -21,11 +21,11 @@ var _ = require('lodash');
 
 module.exports = function SiteQueryServiceModule(pb) {
     "use strict";
-  
+
     //pb dependencies
     var util = pb.util;
     var DAO = pb.DAO;
-    
+
     /**
      * @private
      * @static
@@ -34,7 +34,7 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @type {String}
      */
     var SITE_FIELD = pb.SiteService.SITE_FIELD;
-    
+
     /**
      * @private
      * @static
@@ -68,7 +68,7 @@ module.exports = function SiteQueryServiceModule(pb) {
          * @type {String}
          */
         this.siteUid = options.site;
-           
+
         /**
          * @property onlyThisSite
          * @type {Boolean}
@@ -79,7 +79,7 @@ module.exports = function SiteQueryServiceModule(pb) {
     }
     util.inherits(SiteQueryService, DAO);
 
-    /** 
+    /**
      * @private
      * @static
      * @method modifyLoadWhere
@@ -104,7 +104,7 @@ module.exports = function SiteQueryServiceModule(pb) {
     return where;
   }
 
-    /** 
+    /**
      * @private
      * @static
      * @method modifyLoadOptions
@@ -124,7 +124,7 @@ module.exports = function SiteQueryServiceModule(pb) {
     return options;
   }
 
-    /** 
+    /**
      * @private
      * @static
      * @method addToOr
@@ -136,13 +136,13 @@ module.exports = function SiteQueryServiceModule(pb) {
       var orClause = whereClause.$or;
       addToAnd(whereClause, [{$or: orClause}, {$or: conditions}]);
       delete whereClause.$or;
-    } 
+    }
       else {
       whereClause.$or = conditions;
     }
   }
 
-    /** 
+    /**
      * @private
      * @static
      * @method addToAnd
@@ -153,13 +153,13 @@ module.exports = function SiteQueryServiceModule(pb) {
         if ('$and' in whereClause) {
             var andClause = whereClause.$and;
             andClause.push.apply(andClause, conditions);
-        } 
+        }
         else {
             whereClause.$and = conditions;
         }
     }
 
-    /** 
+    /**
      * @private
      * @static
      * @method applySiteOperation
@@ -170,20 +170,20 @@ module.exports = function SiteQueryServiceModule(pb) {
     function applySiteOperation(self, callback, delegate) {
         if (siteSpecific(self)) {
             return delegate(self.siteUid, callback);
-        } 
+        }
 
         delegate(self.siteUid, function (err, cursor) {
             if (util.isError(err)) {
                 return callback(err, cursor);
-            } 
+            }
 
             cursor.count(function (countError, count) {
                 if (util.isError(countError)) {
                     callback(countError);
-                } 
+                }
                 else if (count) {
                     callback(err, cursor);
-                } 
+                }
                 else {
                     delegate(GLOBAL_SITE, callback);
                 }
@@ -259,13 +259,19 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {Function} cb
    */
   SiteQueryService.prototype.getCollections = function (cb) {
-    this.listCollections({ name: { $nin: ["system.indexes", "system.namespaces"] }}, function(err, items) {
-      if(pb.util.isError(err)) {
-        pb.log.error(err);
-      }
-      cb(err, items);
-    });
-  };
+      this.listCollections({}, function(err, items) {
+          if(pb.util.isError(err)) {
+            pb.log.error(err);
+            return cb(err);
+          }
+
+          items = items.filter(function(item) {
+              return item.name.indexOf('system.indexes') === -1 && item.name.indexOf('system.namespaces') === -1;
+          });
+
+          cb(err, items);
+      });
+    };
 
   return SiteQueryService;
 };
