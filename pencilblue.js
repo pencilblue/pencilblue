@@ -196,7 +196,7 @@ function PencilBlue(config){
                     options.ca = fs.readFileSync(chainPath);
                 }
                 
-                //create the server with and callback
+                //create the server with options & callback
                 pb.server = https.createServer(options, function(req, res) {
                     self.onHttpConnect(req, res);
                 });
