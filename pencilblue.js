@@ -187,8 +187,16 @@ function PencilBlue(config){
                 var options = {
                     key: fs.readFileSync(pb.config.server.ssl.key),
                     cert: fs.readFileSync(pb.config.server.ssl.cert),
-                    ca: fs.readFileSync(pb.config.server.ssl.chain)
                 };
+                
+                //the certificate authority or "chain" is optional.  Needed for 
+                //self-signed certs
+                var chainPath = pb.config.server.ssl.chain;
+                if (util.isString(chainPath)) {
+                    options.ca = fs.readFileSync(chainPath);
+                }
+                
+                //create the server with and callback
                 pb.server = https.createServer(options, function(req, res) {
                     self.onHttpConnect(req, res);
                 });
