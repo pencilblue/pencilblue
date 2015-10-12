@@ -625,6 +625,7 @@ module.exports = function RequestHandlerModule(pb) {
             }
             
             var data = {
+                reqHandler: self,
                 content: result.content,
                 content_type: result.mime,
                 code: err.code || 500

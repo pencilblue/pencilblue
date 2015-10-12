@@ -54,7 +54,7 @@ module.exports = function(pb) {
              * @property status
              * @type {Integer}
              */
-            self.status = self.error && self.error.status ? self.error.status : 500;
+            self.status = self.error && self.error.code ? self.error.code : 500;
             
             /**
              *
