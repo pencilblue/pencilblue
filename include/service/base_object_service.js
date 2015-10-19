@@ -312,7 +312,7 @@ module.exports = function(pb) {
      * function will callback with an object that contains a total count and an 
      * array of results.  The function will trigger the "getAll" event.  Also 
      * note that there is hard limit on the number of results the returned.
-     * @method getAll
+     * @method getAllWithCount
      * @param {Object} [options]
      * @param {Object} [options.select]
      * @param {Object} [options.where]
@@ -351,7 +351,7 @@ module.exports = function(pb) {
      * Retrieves a resource by ID. The function will callback with the object 
      * that was found or NULL if no object could be found. The function will 
      * trigger the "get" event.  
-     * @method getAll
+     * @method get
      * @param {Object} [options]
      * @param {Function} cb A callback that takes two parameters.  The first is 
      * an error, if occurred. The second is the object with the specified ID
@@ -421,7 +421,7 @@ module.exports = function(pb) {
      * 6) The object is persisted
      * 7) The afterSave event is triggered
      * 
-     * @method getAll
+     * @method save
      * @param {Object} [options]
      * @param {Object} [options.select]
      * @param {Object} [options.where]
