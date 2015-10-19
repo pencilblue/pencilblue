@@ -320,7 +320,11 @@ Configuration.getBaseConfig = function(multisite) {
                 use_handoff_port_in_redirect: false,
                 key: "ssl/key.pem",
                 cert: "ssl/cert.crt",
-                chain: "ssl/chain.crt"
+            
+                //The certificate authority, or chain, is optional.  It is 
+                //recommended to keep the paths consistent and place the CA cert 
+                //at: "ssl/chain.crt"
+                chain: null
             },
 
             //when non-empty, a header (X-POWERED-BY) will be added to each outgoing
