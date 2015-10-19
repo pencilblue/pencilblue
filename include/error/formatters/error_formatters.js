@@ -73,6 +73,14 @@ module.exports = function(pb) {
         }
         return content;
     };
+    
+    /**
+     * @private
+     * @static
+     * @property failedControllerPaths
+     * @type {Object}
+     */
+    var failedControllerPaths = {};
 
     /**
      * Serializes an error as JSON
@@ -116,7 +124,30 @@ module.exports = function(pb) {
         }
         
         //let the default error controller handle it.
-        var ErrorController  = require(path.join(pb.config.docRoot, 'controllers/error_controller.js'))(pb);
+        var code = params.error.code || 500;
+        var ErrorController  = null;
+        var paths = [
+            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'),
+            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error/index.js'),
+            path.join(pb.config.docRoot, 'controllers/error_controller.js')
+        ];
+        for (var i = 0; i < paths.length; i++) {
+            if (failedControllerPaths[paths[i]]) {
+                //we've seen it and it didn't exist or had a syntax error.  Moving on!
+                continue;
+            }
+            
+            //attempt to load the controller
+            try {
+                ErrorController = require(paths[i])(pb);
+                break;
+            }
+            catch(e){
+                
+                //we failed so make sure don't do that again...
+                failedControllerPaths[paths[i]];
+            }
+        };
         var cInstance = new ErrorController();
         var context = {
             pathVars: {},

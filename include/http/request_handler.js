@@ -629,35 +629,51 @@ module.exports = function RequestHandlerModule(pb) {
         
         //bump the error count so handlers will no if we are recursively trying to handle errors.
         this.errorCount++;
-
-        //build out params for handlers
-        var self   = this;
-        var params = {
-            mime: this.themeRoute && this.themeRoute.content_type ? this.themeRoute.content_type : 'text/html',
-            error: err,
-            request: this.req,
-            localization: this.localization,
-            activeTheme: this.activeTheme,
-            reqHandler: this,
-            errorCount: this.errorCount
-        };
         
-        //hand off to the formatters.  NOTE: the callback may not be called if 
-        //the handler chooses to fire off a controller.
-        pb.ErrorFormatters.formatForMime(params, function(error, result) {
-            if (util.isError(error)) {
-                pb.log.error('RequestHandler: An error occurred attempting to render an error: %s', error.stack);
+        //retrieve the active theme.  Sometimes we don't have it such as in the case of the 404.
+        var self = this;
+        var getActiveTheme = function(cb){
+            if (self.activeTheme) {
+                return cb(null, self.activeTheme);
             }
             
-            var data = {
-                reqHandler: self,
-                content: result.content,
-                content_type: result.mime,
-                code: err.code || 500
-            };
-            self.onRenderComplete(data);
-        });
+            var settingsService = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.siteObj.uid);
+            settingsService.get('active_theme', function(err, activeTheme){
+                self.activeTheme = activeTheme;
+                cb(null, activeTheme);
+            });
+        };
         
+        getActiveTheme(function(err, activeTheme) {
+            
+            //build out params for handlers
+            var params = {
+                mime: this.themeRoute && this.themeRoute.content_type ? this.themeRoute.content_type : 'text/html',
+                error: err,
+                request: this.req,
+                localization: this.localization,
+                activeTheme: activeTheme,
+                reqHandler: this,
+                errorCount: this.errorCount
+            };
+            
+            //hand off to the formatters.  NOTE: the callback may not be called if 
+            //the handler chooses to fire off a controller.
+            pb.ErrorFormatters.formatForMime(params, function(error, result) {
+                if (util.isError(error)) {
+                    pb.log.error('RequestHandler: An error occurred attempting to render an error: %s', error.stack);
+                }
+
+                var data = {
+                    reqHandler: self,
+                    content: result.content,
+                    content_type: result.mime,
+                    code: err.code || 500
+                };
+                self.onRenderComplete(data);
+            });
+        });
+
         return true;
     };
 
