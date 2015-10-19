@@ -637,24 +637,24 @@ module.exports = function RequestHandlerModule(pb) {
                 return cb(null, self.activeTheme);
             }
             
-            var settingsService = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.siteObj.uid);
+            var settingsService = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.siteObj.uid);
             settingsService.get('active_theme', function(err, activeTheme){
                 self.activeTheme = activeTheme;
                 cb(null, activeTheme);
             });
         };
         
-        getActiveTheme(function(err, activeTheme) {
+        getActiveTheme(function(error, activeTheme) {
             
             //build out params for handlers
             var params = {
-                mime: this.themeRoute && this.themeRoute.content_type ? this.themeRoute.content_type : 'text/html',
+                mime: self.themeRoute && self.themeRoute.content_type ? self.themeRoute.content_type : 'text/html',
                 error: err,
-                request: this.req,
-                localization: this.localization,
+                request: self.req,
+                localization: self.localization,
                 activeTheme: activeTheme,
-                reqHandler: this,
-                errorCount: this.errorCount
+                reqHandler: self,
+                errorCount: self.errorCount
             };
             
             //hand off to the formatters.  NOTE: the callback may not be called if 
