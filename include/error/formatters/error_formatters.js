@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var path        = require('path');
 var HtmlEncoder = require('htmlencode');
 
 module.exports = function(pb) {
@@ -103,12 +104,30 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ErrorFormatters.html = function(params, cb) {
-        cb(
-            null,
-            '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>' +
-            params.error.stack +
-            '</pre></body></html>'
-        );
+        if (params.errorCount > 1) {
+            
+            //we know we've hit a recursive error situation.  Bail out
+            return cb(
+                null,
+                '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>' +
+                params.error.stack +
+                '</pre></body></html>'
+            );
+        }
+        
+        //let the default error controller handle it.
+        var ErrorController  = require(path.join(pb.config.docRoot, 'controllers/error_controller.js'))(pb);
+        var cInstance = new ErrorController();
+        var context = {
+            pathVars: {},
+            cInstance: cInstance,
+            themeRoute: {},
+            activeTheme: params.activeTheme,
+            initParams: {
+                error: params.error
+            }
+        };
+        params.reqHandler.doRender(context);
     };
     
     /**
