@@ -43,6 +43,8 @@ module.exports = function RequestHandlerModule(pb) {
         this.resp      = resp;
         this.url       = url.parse(req.url, true);
         this.hostname  = req.headers.host;
+        this.activeTheme = null;
+        this.errorCount = 0;
     }
 
     /**
@@ -140,14 +142,29 @@ module.exports = function RequestHandlerModule(pb) {
         };
     };
 
+    /**
+     * @static
+     * @method loadSite
+     * @param {Object} site
+     */
     RequestHandler.loadSite = function(site) {
         RequestHandler.sites[site.hostname] = { active: site.active, uid: site.uid, displayName: site.displayName, hostname: site.hostname };
     };
 
+    /**
+     * @static
+     * @method activateSite
+     * @param {Object} site
+     */
     RequestHandler.activateSite = function(site) {
         RequestHandler.sites[site.hostname].active = true;
     };
 
+    /**
+     * @static
+     * @method deactivateSite
+     * @param {Object} site
+     */
     RequestHandler.deactivateSite = function(site) {
         RequestHandler.sites[site.hostname].active = false;
     };
@@ -589,11 +606,9 @@ module.exports = function RequestHandlerModule(pb) {
      * @method serve404
      */
     RequestHandler.prototype.serve404 = function() {
-
-        var NotFound  = require(path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/error/404.js'))(pb);
-        var cInstance = new NotFound();
-        this.doRender({}, cInstance, {});
-
+        var error = new Error('NOT FOUND');
+        error.code = 404;
+        this.serveError(error);
         if (pb.log.isSilly()) {
             pb.log.silly("RequestHandler: No Route Found, Sending 404 for URL="+this.url.href);
         }
@@ -611,27 +626,54 @@ module.exports = function RequestHandlerModule(pb) {
         if (this.resp.headerSent) {
             return false;
         }
-
-        var self   = this;
-        var params = {
-            mime: this.themeRoute && this.themeRoute.content_type ? this.themeRoute.content_type : 'text/html',
-            error: err,
-            request: this.req,
-            localization: this.localization
-        };
-        pb.ErrorFormatters.formatForMime(params, function(error, result) {
-            if (util.isError(error)) {
-                pb.log.error('RequestHandler: An error occurred attempting to render an error: %s', error.stack);
+        
+        //bump the error count so handlers will no if we are recursively trying to handle errors.
+        this.errorCount++;
+        
+        //retrieve the active theme.  Sometimes we don't have it such as in the case of the 404.
+        var self = this;
+        var getActiveTheme = function(cb){
+            if (self.activeTheme) {
+                return cb(null, self.activeTheme);
             }
             
-            var data = {
-                content: result.content,
-                content_type: result.mime,
-                code: err.code || 500
-            };
-            self.onRenderComplete(data);
-        });
+            var settingsService = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.siteObj.uid);
+            settingsService.get('active_theme', function(err, activeTheme){
+                self.activeTheme = activeTheme;
+                cb(null, activeTheme);
+            });
+        };
         
+        getActiveTheme(function(error, activeTheme) {
+            
+            //build out params for handlers
+            var params = {
+                mime: self.themeRoute && self.themeRoute.content_type ? self.themeRoute.content_type : 'text/html',
+                error: err,
+                request: self.req,
+                localization: self.localization,
+                activeTheme: activeTheme,
+                reqHandler: self,
+                errorCount: self.errorCount
+            };
+            
+            //hand off to the formatters.  NOTE: the callback may not be called if 
+            //the handler chooses to fire off a controller.
+            pb.ErrorFormatters.formatForMime(params, function(error, result) {
+                if (util.isError(error)) {
+                    pb.log.error('RequestHandler: An error occurred attempting to render an error: %s', error.stack);
+                }
+
+                var data = {
+                    reqHandler: self,
+                    content: result.content,
+                    content_type: result.mime,
+                    code: err.code || 500
+                };
+                self.onRenderComplete(data);
+            });
+        });
+
         return true;
     };
 
@@ -679,6 +721,8 @@ module.exports = function RequestHandlerModule(pb) {
                 pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
                 activeTheme = RequestHandler.DEFAULT_THEME;
             }
+            
+            self.activeTheme = activeTheme;
             self.onThemeRetrieved(activeTheme, route);
         });
     };
@@ -874,16 +918,35 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, routeTheme, method, site, route) {
 
         //extract path variables
+        var pathVars = this.getPathVariables(route);
+
+        //instantiate controller
+        var ControllerType  = route.themes[site][routeTheme][method].controller;
+        var cInstance       = new ControllerType();
+        
+        //execute it
+        var context = {
+            pathVars: pathVars,
+            cInstance: cInstance,
+            themeRoute: route.themes[site][routeTheme][method],
+            activeTheme: activeTheme
+        };
+        this.doRender(context);
+    };
+    
+    /**
+     * 
+     * @method getPathVariables
+     * @param {Object} route
+     * @param {Object} route.path_vars
+     */
+    RequestHandler.prototype.getPathVariables = function(route) {
         var pathVars = {};
         var pathParts = this.url.pathname.split('/');
         for (var field in route.path_vars) {
             pathVars[field] = pathParts[route.path_vars[field]];
         }
-
-        //execute controller
-        var ControllerType  = route.themes[site][routeTheme][method].controller;
-        var cInstance       = new ControllerType();
-        this.doRender(pathVars, cInstance, route.themes[site][routeTheme][method], activeTheme);
+        return pathVars;
     };
 
     /**
@@ -896,32 +959,39 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} themeRoute
      * @param {String} activeTheme The user set active theme
      */
-    RequestHandler.prototype.doRender = function(pathVars, cInstance, themeRoute, activeTheme) {
+    RequestHandler.prototype.doRender = function(context) {
         var self  = this;
 
         //attempt to parse body
-        this.parseBody(themeRoute.request_body, function(err, body) {
+        this.parseBody(context.themeRoute.request_body, function(err, body) {
             if (util.isError(err)) {
                 err.code = 400;
                 return self.serveError(err);
             }
 
+            //build out properties & merge in any that are special to this call
             var props = {
                 request_handler: self,
                 request: self.req,
                 response: self.resp,
                 session: self.session,
                 localization_service: self.localizationService,
-                path_vars: pathVars,
+                path_vars: context.pathVars,
+                pathVars: context.pathVars,
                 query: self.url.query,
                 body: body,
                 site: self.site,
                 siteObj: self.siteObj,
                 siteName: self.siteName,
-                activeTheme: activeTheme
+                activeTheme: context.activeTheme || self.activeTheme
             };
-            cInstance.init(props, function(){
-                self.onControllerInitialized(cInstance, themeRoute);
+            if (util.isObject(context.initParams)) {
+                util.merge(context.initParams, props);
+            }
+            
+            //initialize the controller
+            context.cInstance.init(props, function(){
+                self.onControllerInitialized(context.cInstance, context.themeRoute);
             });
         });
     };

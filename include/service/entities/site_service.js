@@ -386,7 +386,7 @@ module.exports = function SiteServiceModule(pb) {
             // When multisite, use the configured hostname for global, turn off public facing routes,
             // and maintain admin routes (active is false).
             pb.RequestHandler.loadSite({
-                displayName: pb.SiteService.GLOBAL_SITE,
+                displayName: pb.config.siteName,
                 uid: pb.SiteService.GLOBAL_SITE,
                 hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
                 active: pb.config.multisite.enabled ? false : true

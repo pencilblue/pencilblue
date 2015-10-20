@@ -76,15 +76,23 @@ describe('ErrorFormatters', function() {
     
     describe('ErrorFormatters.html', function() {
         
-        it('should return a string that represents HTML', function(next) {
+        it('should call the request handler to execute a controller', function() {
+            var resultContext = null;
+            var error = new Error('hello world');
+            error.code = 510;
+            
             var params = {
-                error: new Error('hello world')
+                error: error,
+                activeTheme: 'pencilblue',
+                reqHandler: {
+                    doRender: function(context) {
+                        resultContext = context; 
+                    }
+                }
             };
-            ErrorFormatters.html(params, function(err, result){
-                
-                result.should.be.type('string');
-                next(err);
-            });
+            ErrorFormatters.html(params, function(err, result){});
+            resultContext.initParams.error.should.eql(error);
+            resultContext.cInstance.should.not.be.null;
         });
     });
     
@@ -156,20 +164,26 @@ describe('ErrorFormatters', function() {
             });
         });
         
-        it('should return a string that represents HTML when provided an unknown formatter', function(next) {
+        it('should return a string that represents HTML when provided an unknown formatter', function() {
+            var resultContext = null;
+            var error = new Error('hello world');
+            error.code = 503;
             var params = {
                 mime: 'application/non-existing',
-                error: new Error('hello world')
+                error: error,
+                activeTheme: 'pencilblue',
+                reqHandler: {
+                    doRender: function(context) {
+                        resultContext = context; 
+                    }
+                }
             };
-            ErrorFormatters.formatForMime(params, function(err, result){
+            ErrorFormatters.formatForMime(params, function(err, result){});
+            resultContext.initParams.error.should.eql(error);
+            resultContext.cInstance.should.not.be.null;
                 
-                var formatter = ErrorFormatters.get(params.mime);
-                should.strictEqual(formatter, undefined);
-                result.should.be.type('object');
-                result.content.should.be.type('string');
-                result.mime.should.eql('text/html');
-                next(err);
-            });
+            var formatter = ErrorFormatters.get(params.mime);
+            should.strictEqual(formatter, undefined);
         });
         
         it('should throw when an error is not provided', function(next) {

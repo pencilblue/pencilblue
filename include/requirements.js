@@ -132,6 +132,7 @@ module.exports = function PB(config) {
     pb.FormController      = require(path.join(config.docRoot, '/controllers/form_controller.js'))(pb);
     pb.DeleteController    = require(path.join(config.docRoot, '/controllers/delete_controller.js'))(pb);
     pb.ApiActionController = require(path.join(config.docRoot, '/controllers/api/api_action_controller.js'))(pb);
+    pb.ErrorViewController = require(path.join(config.docRoot, '/controllers/error_controller.js'))(pb);
     pb.RequestHandler      = require(path.join(config.docRoot, '/include/http/request_handler.js'))(pb);
 
     //setup errors
