@@ -176,12 +176,35 @@ module.exports = function UrlServiceModule(pb) {
         return util.isString(urlStr) && urlStr.indexOf('http') === 0;
     };
     
-    UrlService.createSystemUrl = function(path, hostname) {
-        if (!hostname) {
-            hostname = pb.config.siteRoot;
-        }
-        return UrlService.urlJoin(hostname, path);
-    };
+    /**
+     * Creates a fully qualified URL to the system.
+     * @static
+     * @method createSystemUrl
+     * @param {String} path
+     * @param {Object} [options]
+     * @param {String} [options.locale]
+     * @param {String} [options.hostname]
+     * @return {String}
+     */
+     UrlService.createSystemUrl = function(path, options) {
+         if (!util.isObject(options)) {
+             options = {};
+         }
+         
+         var hostname = options.hostname;
+         if (!hostname) {
+             
+             //we are in single site mode so look for non-standard site root
+             var siteRootPath = url.parse(pb.config.siteRoot).path;
+             if (!path || path === '/') {
+                 return siteRootPath;
+             }
+             hostname = siteRootPath;
+         }
+         return options.locale ? UrlService.urlJoin(hostname, options.locale, path) : 
+            UrlService.urlJoin(hostname, path);
+     };
+
 
     //exports
     return UrlService;

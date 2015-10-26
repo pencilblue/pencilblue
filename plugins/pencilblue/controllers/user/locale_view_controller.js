@@ -24,7 +24,7 @@ module.exports = function(pb) {
     var UrlService        = pb.UrlService;
 
     /**
-     * Allows interaction with the user's locale.  Specifically, it allows for 
+     * Allows interaction with the user's locale.  Specifically, it allows for
      * the setting of the user's locale for the current session
      * @class LocaleViewController
      * @constructor
@@ -34,7 +34,7 @@ module.exports = function(pb) {
     util.inherits(LocaleViewController, BaseController);
 
     /**
-     * Sets the user's locale for the session and then redirects them back to 
+     * Sets the user's locale for the session and then redirects them back to
      * where they came from
      * @method setLocale
      * @param {Function} cb
@@ -51,7 +51,7 @@ module.exports = function(pb) {
         //calculate the redirect.  Referrer if provided otherwise head home
         var redirect = this.req.headers.referer;
         if (!ValidationService.isNonEmptyStr(redirect, true)) {
-            redirect = UrlService.createSystemUrl('/', this.hostname);
+            redirect = UrlService.createSystemUrl('/', { hostname: this.hostname });
         }
 
         //when new locale is provided then set it in the session
