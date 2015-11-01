@@ -517,7 +517,7 @@ module.exports = function RequestHandlerModule(pb) {
             }
 
             //get locale preference
-            self.localizationService = self.deriveLocalization(session);
+            self.localizationService = self.deriveLocalization({ session: session });
 
             //set the session id when no session has started or the current one has
             //expired.
@@ -536,17 +536,27 @@ module.exports = function RequestHandlerModule(pb) {
     /**
      * Derives the locale and localization instance.
      * @method deriveLocalization
+     * @param {Object} context
+     * @param {Object} context.session
+     * @param {String} [context.routeLocalization]
      */
-    RequestHandler.prototype.deriveLocalization = function(session) {
+    RequestHandler.prototype.deriveLocalization = function(context) {
 
-        var userPreferredLocale = session.locale;
+        var localePrefStr = '';
+        if (context.routeLocalization) {
+            localePrefStr = context.routeLocalization;
+        }
+        var userPreferredLocale = context.session.locale;
+        if (userPreferredLocale) {
+            localePrefStr += ',' + userPreferredLocale;
+        }
         var browserIndicated = this.req.headers[pb.Localization.ACCEPT_LANG_HEADER];
         if (browserIndicated) {
-            browserIndicated = ',' + browserIndicated;
+            localePrefStr += ',' + browserIndicated;
         }
 
         //get locale preference
-        return new pb.Localization(userPreferredLocale + '' + browserIndicated);
+        return new pb.Localization(localePrefStr);
     };
 
     /**
@@ -953,6 +963,16 @@ module.exports = function RequestHandlerModule(pb) {
 
         //extract path variables
         var pathVars = this.getPathVariables(route);
+        if (typeof pathVars.locale !== 'undefined') {
+            if (pb.Localization.getSupported().indexOf(pathVars.locale) < 0) {
+
+                //TODO make this check more general
+                return this.serve404();
+            }
+
+            //update the localization
+            this.localizationService = this.deriveLocalization({ session: this.session, routeLocalization: pathVars.locale });
+        }
 
         //instantiate controller
         var ControllerType  = route.themes[site][routeTheme][method].controller;

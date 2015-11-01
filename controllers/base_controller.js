@@ -125,72 +125,13 @@ module.exports = function BaseControllerModule(pb) {
         this.siteName            = props.siteName;
         this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || self.ts.siteRoot;
 
-        var tsOpts = {
-            ls: this.localizationService,
-            activeTheme: props.activeTheme,
-            site: this.site
-        };
-
-
-        this.ts = new pb.TemplateService(tsOpts);
-        this.ts.registerLocal('locale', this.ls.language);
-        this.ts.registerLocal('error_success', function(flag, cb) {
-            self.displayErrorOrSuccessCallback(flag, cb);
-        });
-        this.ts.registerLocal('page_name', function(flag, cb) {
-            cb(null, self.getPageName());
-        });
-        this.ts.registerLocal('localization_script', function(flag, cb) {
-            self.requiresClientLocalizationCallback(flag, cb);
-        });
-        this.ts.registerLocal('analytics', function(flag, cb) {
-            pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
-        });
-        this.ts.registerLocal('wysiwyg', function(flag, cb) {
-            var wysiwygId = util.uniqueId();
-
-            self.ts.registerLocal('wys_id', wysiwygId);
-            self.ts.load('admin/elements/wysiwyg', function(err, data) {
-                cb(err, new pb.TemplateValue(data, false));
-            });
-        });
-        this.ts.registerLocal('site_root', function(flag, cb) {
-            cb(null, self.hostname);
-        });
-        this.ts.registerLocal('site_name', function(flag, cb) {
-            cb(null, self.siteName);
-        });
-        this.ts.registerLocal('localized_alternate', function(flag, cb) {
-            if (!props.routeLocalized) {
-                return cb(null, '');
-            }
-
-            var val = '';
-            pb.Localization.getSupported().forEach(function(locale) {
-                if (self.ls.language === locale) {
-                    //skip current language.  We don't need to list it as an alternate
-                    return;
-                }
-
-                var path = self.req.url;
-                var urlOpts = {
-                    hostname: self.hostname,
-                    locale: undefined
-                };
-                if (self.pathVars.locale && path.indexOf(self.pathVars.locale)) {
-                    path = path.replace(self.pathVars.locale, locale);
-                }
-                else {
-                    urlOpts.locale = locale;
-                }
-                var url = pb.UrlService.createSystemUrl(path, urlOpts);
-                val += '<link rel="alternate" hreflang="' + locale + '" href="' + url + '" />\n';
-            });
-            cb(null, new pb.TemplateValue(val, false));
-        });
+        /**
+         * @property ts
+         * @type {TemplateService}
+         */
+        this.ts = this.getTemplateServiceInstance(props);
 
         /**
-         *
          * @property activeTheme
          * @type {String}
          */
@@ -211,6 +152,101 @@ module.exports = function BaseControllerModule(pb) {
         };
 
         cb();
+    };
+
+    /**
+     * Creates a TemplateService instance
+     * @method getTemplateServiceInstance
+     * @param {Object} props
+     * @return {TemplateService}
+     */
+    BaseController.prototype.getTemplateServiceInstance = function(props) {
+        var self = this;
+
+        //create options
+        var tsOpts = {
+            ls: this.localizationService,
+            activeTheme: props.activeTheme,
+            site: this.site
+        };
+
+        //create instance
+        var ts = new pb.TemplateService(tsOpts);
+
+        //configure for common flags
+        var model = {
+
+            locale: this.ls.language,
+
+            error_success: function(flag, cb) {
+                self.displayErrorOrSuccessCallback(flag, cb);
+            },
+
+            page_name: function(flag, cb) {
+                cb(null, self.getPageName());
+            },
+
+            localization_script: function(flag, cb) {
+                self.requiresClientLocalizationCallback(flag, cb);
+            },
+
+            analytics: function(flag, cb) {
+                pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
+            },
+
+            wysiwyg: function(flag, cb) {
+                var wysiwygId = util.uniqueId();
+
+                self.ts.registerLocal('wys_id', wysiwygId);
+                self.ts.load('admin/elements/wysiwyg', function(err, data) {
+                    cb(err, new pb.TemplateValue(data, false));
+                });
+            },
+
+            site_root: self.hostname,
+            site_name: self.siteName,
+
+            localized_alternate: function(flag, cb) {
+                self.onLocalizedAlternateFlagFound(props.routeLocalized, cb);
+            }
+        };
+        ts.registerModel(model);
+        return ts;
+    };
+
+    /**
+     * @method onLocalizedAlternateFlagFound
+     * @param {Boolean} routeLocalized
+     * @param {Function} cb
+     */
+    BaseController.prototype.onLocalizedAlternateFlagFound = function(routeLocalized, cb) {
+        if (!routeLocalized) {
+            return cb(null, '');
+        }
+
+        var val = '';
+        var self = this;
+        pb.Localization.getSupported().forEach(function(locale) {
+            if (self.ls.language === locale) {
+                //skip current language.  We don't need to list it as an alternate
+                return;
+            }
+
+            var path = self.req.url;
+            var urlOpts = {
+                hostname: self.hostname,
+                locale: undefined
+            };
+            if (self.pathVars.locale && path.indexOf(self.pathVars.locale)) {
+                path = path.replace(self.pathVars.locale, locale);
+            }
+            else {
+                urlOpts.locale = locale;
+            }
+            var url = pb.UrlService.createSystemUrl(path, urlOpts);
+            val += '<link rel="alternate" hreflang="' + locale + '" href="' + url + '" />\n';
+        });
+        cb(null, new pb.TemplateValue(val, false));
     };
 
     /**

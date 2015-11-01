@@ -175,7 +175,7 @@ module.exports = function UrlServiceModule(pb) {
     UrlService.isFullyQualifiedUrl = function(urlStr) {
         return util.isString(urlStr) && urlStr.indexOf('http') === 0;
     };
-    
+
     /**
      * Creates a fully qualified URL to the system.
      * @static
@@ -190,18 +190,25 @@ module.exports = function UrlServiceModule(pb) {
          if (!util.isObject(options)) {
              options = {};
          }
-         
+
          var hostname = options.hostname;
          if (!hostname) {
-             
-             //we are in single site mode so look for non-standard site root
-             var siteRootPath = url.parse(pb.config.siteRoot).path;
-             if (!path || path === '/') {
-                 return siteRootPath;
+
+             //we are in multi-site mode so just ensure we have a root so we
+             //can at least stay on the same domain.  We can also safely assume
+             //a standard site root.
+             if (pb.config.multisite.enabled) {
+                 hostname = '';
              }
-             hostname = siteRootPath;
+             else {
+                 var siteRootPath = url.parse(pb.config.siteRoot).path;
+                 if (!path || path === '/') {
+                     return siteRootPath;
+                 }
+                 hostname = pb.config.siteRoot;
+             }
          }
-         return options.locale ? UrlService.urlJoin(hostname, options.locale, path) : 
+         return options.locale ? UrlService.urlJoin(hostname, options.locale, path) :
             UrlService.urlJoin(hostname, path);
      };
 
