@@ -82,7 +82,7 @@ module.exports = {
 		UNINSTALL: 'Odinstaluj',
 		INSTALL: 'Zainstaluj',
 		ACTIVE_PLUGIN_DESCRIPTION: 'Zainstalowane wtyczki, które zostały uruchomione z powodzeniem podczas startu systemu.',
-		INACTIVE_PLUGIN_DESCRIPTION: 'Wtyczki, które pomimo instalacji nie uruchamiają się poprawnie.',
+		INACTIVE_PLUGIN_DESCRIPTION: 'Wtyczki, które pomimo instalacji nie uruchamiają się poprawnie.',
 		AVAILABLE_PLUGIN_DESCRIPTION: 'Wtyczki pobrane, gotowe do instalacji',
 		PLEASE_WAIT: 'Proszę zaczekaj',
 		VALID_ACTION_REQUIRED: 'A valid action is required',
@@ -150,7 +150,7 @@ module.exports = {
         USER: 'Użytkownik',
         SUBSCRIBE: 'Subksrybuj',
         PRIVACY_POLICY: 'Polityka prywatności',
-        MAKE_PB_BETTER: 'Przyczyń się do poprawy PencilBlue poprzez wysyłkę informacji na temat procesu instalacji',
+        MAKE_PB_BETTER: 'Przyczyń się do poprawy PencilBlue przez wysanie informacji na temat procesu instalacji',
         CLOSE: 'Zamknij',
         APPLY_SETTINGS: 'Zastosuj ustawienia',
         CONFIGURATION_SETTINGS: 'Konfiguracja ustawień',
@@ -193,14 +193,15 @@ module.exports = {
         TIME_PM: 'PM'
     },
     setup: {
-        REGISTER_ADMIN: 'Proszę utworzyć konto admistratora serwisu.'
+        REGISTER_ADMIN: 'Proszę utworzyć konto admistratora serwisu.'
     },
     login: {
         ADMIN_LOGIN: 'Logowanie: pisarz, redaktor, administrator',
         USERNAME_OR_EMAIL: 'Nazwa użytkownika lub adres email',
         INVALID_LOGIN: 'Nieprawidłowa kombinacja loginu i hasła',
         READY_TO_USE: 'Zainstalowany PencilBlue jest gotowy do użycia',
-        ACCOUNT_CREATED: 'Twoje konto zostało pomyślenie utworzone. Możesz się teraz zalogować'
+        ACCOUNT_CREATED: 'Twoje konto zostało pomyślenie utworzone. Możesz się teraz zalogować',
+        FORGOT_PASSWORD: 'Zapomniałem hasła'
     },
     admin: {
         DASHBOARD: 'Dashboard',
@@ -344,7 +345,7 @@ module.exports = {
         MANAGE_COMMENTS: 'Zarządzaj komentarzami',
         CONFIRM_DELETE_COMMENT: 'Czy na pewno chcesz usunąć ten komentarz',
         COMMENTS_DISABLED: 'Komentarze zablokowane',
-        ENABLE_HERE: 'Włącz możliwość komentowania'
+        ENABLE_HERE: 'Włącz możliwość komentowania'
     },
     custom_objects: {
         MANAGE_OBJECT_TYPES: 'Zarządzaj kategoriami obiektów',
@@ -356,7 +357,7 @@ module.exports = {
         ADD_FIELD: 'Dodaj pole',
         VALUE: 'Wartość',
         TEXT: 'tekst',
-        BOOLEAN: 'Wartość logiczna',
+        BOOLEAN: 'Wartość logiczna',
         NUMBER: 'numer',
         PEER_OBJECT: 'Obiekt równorzędny',
         CHILD_OBJECTS: 'Obiekt podrzędny',
@@ -389,7 +390,7 @@ module.exports = {
         GENERATE: 'Generuj',
         USER_TYPE: 'Kategoria użytkownika',
         CREATE_USER: 'Stwórz użytkownika',
-        USER_DELETE_SELF: 'Użytkownicy nie mogą usuwać kont',
+        USER_DELETE_SELF: 'Użytkownicy nie mogą usuwać kont',
         PASSWORD_MISMATCH: 'Hasło się nie zgadza',
         EXISTING_USERNAME: 'Nazwa użytkownika jest zajęta',
         EXISTING_EMAIL: 'Podany adres e-mail jest już zajęty',
