@@ -48,7 +48,7 @@ module.exports = function RequestHandlerModule(pb) {
     }
 
     /**
-     * A mapping that provides the interface type to parse the body based on the 
+     * A mapping that provides the interface type to parse the body based on the
      * route specification
      * @private
      * @static
@@ -91,9 +91,9 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.staticRoutes = {};
 
     /**
-     * The list of routes provided by the pencilblue plugin.  These routes are 
-     * loaded first to ensure defaults are in place before other plugins are 
-     * initialized.  In the future this will change so that all plugins are treated 
+     * The list of routes provided by the pencilblue plugin.  These routes are
+     * loaded first to ensure defaults are in place before other plugins are
+     * initialized.  In the future this will change so that all plugins are treated
      * equally.
      * @private
      * @static
@@ -180,7 +180,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} descriptor.path The URL path
      */
     RequestHandler.isValidRoute = function(descriptor) {
-        return fs.existsSync(descriptor.controller) && 
+        return fs.existsSync(descriptor.controller) &&
             !util.isNullOrUndefined(descriptor.path);
     };
 
@@ -199,7 +199,7 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         var routesRemoved = 0;
-        
+
         //pattern routes
         for (var i = 0; i < RequestHandler.storage.length; i++) {
             var path   = RequestHandler.storage[i].path;
@@ -208,7 +208,7 @@ module.exports = function RequestHandlerModule(pb) {
                 routesRemoved++;
             }
         }
-        
+
         //static routes
         Object.keys(RequestHandler.staticRoutes).forEach(function(path) {
             var result = RequestHandler.unregisterRoute(path, theme, site);
@@ -363,8 +363,8 @@ module.exports = function RequestHandlerModule(pb) {
         }
         routeDescriptor.themes[site][theme][descriptor.method]            = descriptor;
         routeDescriptor.themes[site][theme][descriptor.method].controller = require(descriptor.controller)(pb);
-                                                               
-       //only add the descriptor it is new.  We do it here because we need to 
+
+       //only add the descriptor it is new.  We do it here because we need to
        //know that the controller is good.
         if (isNew) {
             //set them in storage
@@ -376,7 +376,7 @@ module.exports = function RequestHandlerModule(pb) {
                 RequestHandler.storage.push(routeDescriptor);
             }
         }
-        
+
         //log the result
         if (isStatic) {
             pb.log.debug('RequestHander: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
@@ -430,7 +430,7 @@ module.exports = function RequestHandlerModule(pb) {
             else {
                 if (piece.indexOf('*') >= 0) {
                     piece = piece.replace(/\*/g, '.*');
-                    
+
                     hasWildcard = true;
                 }
                 pattern += '\/'+piece;
@@ -481,7 +481,7 @@ module.exports = function RequestHandlerModule(pb) {
             if (util.isError(err)) {
                 return self.serveError(err);
             }
-            
+
             //get locale preference
             self.localizationService = self.deriveLocalization(session);
 
@@ -498,19 +498,19 @@ module.exports = function RequestHandlerModule(pb) {
             self.onSessionRetrieved(err, session);
         });
     };
-    
+
     /**
      * Derives the locale and localization instance.
      * @method deriveLocalization
      */
     RequestHandler.prototype.deriveLocalization = function(session) {
-        
+
         var userPreferredLocale = session.locale;
         var browserIndicated = this.req.headers[pb.Localization.ACCEPT_LANG_HEADER];
         if (browserIndicated) {
             browserIndicated = ',' + browserIndicated;
         }
-        
+
         //get locale preference
         return new pb.Localization(userPreferredLocale + '' + browserIndicated);
     };
@@ -551,7 +551,7 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     * Attempts to derive the MIME type for a resource path based on the extension 
+     * Attempts to derive the MIME type for a resource path based on the extension
      * of the path.
      * @static
      * @method getMimeFromPath
@@ -601,7 +601,7 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     * Serves up a 404 page when the path specified by the incoming request does 
+     * Serves up a 404 page when the path specified by the incoming request does
      * not exist. This function <b>WILL</b> close the connection.
      * @method serve404
      */
@@ -626,26 +626,26 @@ module.exports = function RequestHandlerModule(pb) {
         if (this.resp.headerSent) {
             return false;
         }
-        
+
         //bump the error count so handlers will no if we are recursively trying to handle errors.
         this.errorCount++;
-        
+
         //retrieve the active theme.  Sometimes we don't have it such as in the case of the 404.
         var self = this;
         var getActiveTheme = function(cb){
             if (self.activeTheme) {
                 return cb(null, self.activeTheme);
             }
-            
+
             var settingsService = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.siteObj.uid);
             settingsService.get('active_theme', function(err, activeTheme){
                 self.activeTheme = activeTheme;
                 cb(null, activeTheme);
             });
         };
-        
+
         getActiveTheme(function(error, activeTheme) {
-            
+
             //build out params for handlers
             var params = {
                 mime: self.themeRoute && self.themeRoute.content_type ? self.themeRoute.content_type : 'text/html',
@@ -656,8 +656,8 @@ module.exports = function RequestHandlerModule(pb) {
                 reqHandler: self,
                 errorCount: self.errorCount
             };
-            
-            //hand off to the formatters.  NOTE: the callback may not be called if 
+
+            //hand off to the formatters.  NOTE: the callback may not be called if
             //the handler chooses to fire off a controller.
             pb.ErrorFormatters.formatForMime(params, function(error, result) {
                 if (util.isError(error)) {
@@ -678,7 +678,7 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     * Called when the session has been retrieved.  Responsible for checking the 
+     * Called when the session has been retrieved.  Responsible for checking the
      * active theme.  It then retrieves the route object and passes it off to onThemeRetrieved.
      * @method onSessionRetrieved
      * @param {Error} err Any error that occurred while retrieving the session
@@ -721,7 +721,7 @@ module.exports = function RequestHandlerModule(pb) {
                 pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
                 activeTheme = RequestHandler.DEFAULT_THEME;
             }
-            
+
             self.activeTheme = activeTheme;
             self.onThemeRetrieved(activeTheme, route);
         });
@@ -734,8 +734,8 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Object} The route object or NULL if the path does not match any route
      */
     RequestHandler.prototype.getRoute = function(path) {
-        
-        //check static routes first.  It must be an exact match including 
+
+        //check static routes first.  It must be an exact match including
         //casing and any ending slash.
         var isSilly = pb.log.isSilly();
         var route   = RequestHandler.staticRoutes[path];
@@ -748,7 +748,7 @@ module.exports = function RequestHandlerModule(pb) {
             }
         }
 
-        //now do the hard work.  Iterate over the available patterns until a 
+        //now do the hard work.  Iterate over the available patterns until a
         //pattern is found.
         for (var i = 0; i < RequestHandler.storage.length; i++) {
 
@@ -765,8 +765,8 @@ module.exports = function RequestHandlerModule(pb) {
                 break;
             }
         }
-        
-        //ensures we return null when route is not found for backward 
+
+        //ensures we return null when route is not found for backward
         //compatibility.
         return null;
     };
@@ -775,7 +775,7 @@ module.exports = function RequestHandlerModule(pb) {
      * Determines if the route supports the given HTTP method
      * @static
      * @method routeSupportsMethod
-     * @param {Object} themeRoutes The route object that contains the specifics for 
+     * @param {Object} themeRoutes The route object that contains the specifics for
      * the theme variation of the route.
      * @param {String} method HTTP method
      */
@@ -795,8 +795,8 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Boolean}
      */
     RequestHandler.routeSupportsSiteTheme = function(route, theme, method, site) {
-        return !util.isNullOrUndefined(route.themes[site]) && 
-            !util.isNullOrUndefined(route.themes[site][theme]) && 
+        return !util.isNullOrUndefined(route.themes[site]) &&
+            !util.isNullOrUndefined(route.themes[site][theme]) &&
             RequestHandler.routeSupportsMethod(route.themes[site][theme], method);
     };
 
@@ -813,7 +813,7 @@ module.exports = function RequestHandlerModule(pb) {
 
     /**
      * Determines the theme that will be executed for the route.
-     * The themes will be prioritized as: active theme, pencilblue, followed by 
+     * The themes will be prioritized as: active theme, pencilblue, followed by
      * iterating over all other inherited themes.
      * @method getRouteTheme
      * @param {String} activeTheme
@@ -855,7 +855,7 @@ module.exports = function RequestHandlerModule(pb) {
     }
 
     /**
-     * 
+     *
      * @method onThemeRetrieved
      * @param {String} activeTheme
      * @param {Object} route
@@ -923,7 +923,7 @@ module.exports = function RequestHandlerModule(pb) {
         //instantiate controller
         var ControllerType  = route.themes[site][routeTheme][method].controller;
         var cInstance       = new ControllerType();
-        
+
         //execute it
         var context = {
             pathVars: pathVars,
@@ -933,9 +933,9 @@ module.exports = function RequestHandlerModule(pb) {
         };
         this.doRender(context);
     };
-    
+
     /**
-     * 
+     *
      * @method getPathVariables
      * @param {Object} route
      * @param {Object} route.path_vars
@@ -950,8 +950,8 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     * Begins the rendering process by initializing the controller.  This is done 
-     * by gathering all initialization parameters and calling the controller's 
+     * Begins the rendering process by initializing the controller.  This is done
+     * by gathering all initialization parameters and calling the controller's
      * "init" function.
      * @method doRender
      * @param {Object} pathVars The URL path's variables
@@ -988,7 +988,7 @@ module.exports = function RequestHandlerModule(pb) {
             if (util.isObject(context.initParams)) {
                 util.merge(context.initParams, props);
             }
-            
+
             //initialize the controller
             context.cInstance.init(props, function(){
                 self.onControllerInitialized(context.cInstance, context.themeRoute);
@@ -997,17 +997,17 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     * Parses the incoming request body when the body type specified matches one of 
+     * Parses the incoming request body when the body type specified matches one of
      * those explicitly allowed by the rotue.
      * @method parseBody
-     * @param {Array} mimes An array of allowed MIME strings.  
-     * @param {Function} cb A callback that takes 2 parameters: An Error, if 
-     * occurred and the parsed body.  The parsed value is often an object but the 
+     * @param {Array} mimes An array of allowed MIME strings.
+     * @param {Function} cb A callback that takes 2 parameters: An Error, if
+     * occurred and the parsed body.  The parsed value is often an object but the
      * value is dependent on the parser selected by the content type.
-     */ 
+     */
     RequestHandler.prototype.parseBody = function(mimes, cb) {
 
-        //we don't force a mime.  Controllers have the ability to handle this 
+        //we don't force a mime.  Controllers have the ability to handle this
         //themselves.
         if (!util.isArray(mimes)) {
             return cb(null, null);
@@ -1017,7 +1017,7 @@ module.exports = function RequestHandlerModule(pb) {
         var contentType = this.req.headers['content-type'];
         if (contentType) {
 
-            //we split on ';' to check for multipart encoding since it specifies a 
+            //we split on ';' to check for multipart encoding since it specifies a
             //boundary
             contentType = contentType.split(';')[0];
             if (mimes.indexOf(contentType) === -1) {
@@ -1079,7 +1079,7 @@ module.exports = function RequestHandlerModule(pb) {
         if (util.isError(data)) {
             return this.serveError(data);
         }
-        
+
         //set cookie
         var cookies = new Cookies(this.req, this.resp);
         if (this.setSessionCookie) {
@@ -1158,7 +1158,7 @@ module.exports = function RequestHandlerModule(pb) {
             }
             this.resp.setHeader('content-type', contentType);
             this.resp.writeHead(data.code);
-            
+
             //write content
             var content = data.content;
             if (Buffer.isBuffer(content)) {
@@ -1177,8 +1177,8 @@ module.exports = function RequestHandlerModule(pb) {
     /**
      * Creates a cookie string
      * @method writeCookie
-     * @param {Object} descriptor The pieces of the cookie that are to be included 
-     * in the string.  These pieces are represented as key value pairs.  Each value 
+     * @param {Object} descriptor The pieces of the cookie that are to be included
+     * in the string.  These pieces are represented as key value pairs.  Each value
      * will be serialized via its implicity "toString" function.
      * @param {String} [cookieStr=''] The current cookie string if it exists
      * @return {String} The cookie represented as a string
@@ -1268,9 +1268,9 @@ module.exports = function RequestHandlerModule(pb) {
             var result   = {success: true};
             var reqPerms = self.themeRoute.permissions;
             var auth     = self.session.authentication;
-            if (auth && auth.user && 
-                auth.access_level !== pb.SecurityService.ACCESS_ADMINISTRATOR && 
-                auth.user.permissisions && 
+            if (auth && auth.user &&
+                auth.access_level !== pb.SecurityService.ACCESS_ADMINISTRATOR &&
+                auth.user.permissisions &&
                 util.isArray(reqPerms)) {
 
                 var permMap = self.session.authentication.user.permissions;
@@ -1319,7 +1319,7 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     * 
+     *
      * @method onErrorOccurred
      * @param {Error} err
      */
@@ -1389,7 +1389,7 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     * 
+     *
      * @static
      * @method isAdminURL
      * @param {String} url
@@ -1447,6 +1447,6 @@ module.exports = function RequestHandlerModule(pb) {
         BODY_PARSER_MAP[mime] = protoype;
         return true;
     };
-    
+
     return RequestHandler;
 };
