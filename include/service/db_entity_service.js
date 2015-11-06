@@ -19,7 +19,7 @@
 var util = require('../util.js');
 
 module.exports = function DbEntityServiceModule(pb) {
-    
+
     /**
      * Database storage service
      *
@@ -41,6 +41,7 @@ module.exports = function DbEntityServiceModule(pb) {
         this.valueField = options.valueField ? options.valueField : null;
         this.site       = options.site || GLOBAL_SITE;
         this.onlyThisSite       = options.onlyThisSite ? true : false;
+        this.sqs = new pb.SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
     }
 
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
@@ -53,10 +54,6 @@ module.exports = function DbEntityServiceModule(pb) {
      * @param  {Function} cb  Callback function
      */
     DbEntityService.prototype.get = function(key, cb){
-        var dao              = new pb.DAO();
-        var where            = {};
-        where[this.keyField] = key;
-
         var self = this;
         var callback = function(err, entity){
             if (util.isError(err)) {
@@ -74,11 +71,9 @@ module.exports = function DbEntityServiceModule(pb) {
             //callback with the result
             cb(null, val);
         };
-        if(this.onlyThisSite) {
-            dao.loadByValueForOneSite(this.keyField, key, this.site, this.objType, null, callback);
-        } else {
-            dao.loadByValueAvailableToSite(this.keyField, key, this.site, this.objType, null, callback);
-        }
+
+        this.sqs.loadByValue(this.keyField, key, this.objType, null, callback);
+
     };
 
     /**
@@ -90,14 +85,10 @@ module.exports = function DbEntityServiceModule(pb) {
      * @param {Function} cb    Callback function
      */
     DbEntityService.prototype.set = function(key, value, cb) {
-        var dao              = new pb.DAO();
-        var where            = {};
-        where[this.keyField] = key;
-
         var self = this;
-        dao.loadByValueForOneSite(this.keyField, key, this.site, this.objType, function(err, result){
+        this.sqs.loadByValue(this.keyField, key, this.objType, function(err, result){
             if (util.isError(err)) {
-                pb.log.error("DbEntityService.loadByValueForOneSite encountered an error. ERROR[%s]", err.stack);
+                pb.log.error("DbEntityService.loadByValue encountered an error. ERROR[%s]", err.stack);
                 return cb(err);
             }
 
@@ -122,7 +113,7 @@ module.exports = function DbEntityServiceModule(pb) {
             }
 
             //set into cache
-            dao.saveToSite(val, self.site, cb);
+            self.sqs.save(val, cb);
         });
     };
 
@@ -137,7 +128,7 @@ module.exports = function DbEntityServiceModule(pb) {
         var dao              = new pb.DAO();
         var where            = {};
         where[this.keyField] = key;
-        
+
         var hasNoSite = {};
         hasNoSite[SITE_FIELD] = { $exists : false};
 
@@ -154,6 +145,6 @@ module.exports = function DbEntityServiceModule(pb) {
         }
         dao.delete(where, this.objType, cb);
     };
-    
+
     return DbEntityService;
 };

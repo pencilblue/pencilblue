@@ -85,8 +85,6 @@ module.exports = function DAOModule(pb) {
      */
     DAO.DESC = -1;
 
-    var SITE_FIELD = 'site';
-
     /**
      * Retrieves an object by ID
      *
@@ -115,49 +113,6 @@ module.exports = function DAOModule(pb) {
         where[key] = val;
         this.loadByValues(where, collection, opts, cb);
     };
-
-    DAO.prototype.loadByValueAvailableToSite = function(key, val, site, collection, opts, cb) {
-        var self = this;
-        this.loadByValueForOneSite(key, val, site, collection, opts, function(err, result) {
-            if (util.isError(err)) {
-                pb.log.error("DAO.loadByValueForOneSite encountered an error. ERROR[%s]", err.stack);
-                return cb(err);
-            }
-
-            //ensure setting exists
-            if (!result){
-                self.loadByValueFromGlobal(key, val, collection, opts, cb);
-                return;
-            } else {
-                cb(null, result);
-            }
-        });
-    };
-
-    DAO.prototype.loadByValueForOneSite = function(key, val, site, collection, opts, cb) {
-        if(!site || site === pb.SiteService.GLOBAL_SITE) {
-            this.loadByValueFromGlobal(key,val,collection,opts,cb);
-        } else {
-            var where = {};
-            where[key] = val;
-            where[SITE_FIELD] = site;
-            this.loadByValues(where, collection, opts, cb);  
-        }
-    };
-
-    DAO.prototype.loadByValueFromGlobal = function(key, val, collection, opts, cb) {
-        var where = {};
-        var hasNoSite = {};
-        hasNoSite[SITE_FIELD] = { $exists : false };
-        var siteIsGlobal = {};
-        siteIsGlobal[SITE_FIELD] = pb.SiteService.GLOBAL_SITE;
-        where[key] = val;
-        where.$or = [
-             hasNoSite,
-             siteIsGlobal
-        ];    
-        this.loadByValues(where, collection, opts, cb);  
-    }
 
     /**
      * Retrieves object matching several key value pairs
@@ -409,8 +364,8 @@ module.exports = function DAOModule(pb) {
     };
 
     /**
-     * Inserts or replaces an existing document with the specified DB Object. 
-     * An insert is distinguished from an update based the presence of the _id 
+     * Inserts or replaces an existing document with the specified DB Object.
+     * An insert is distinguished from an update based the presence of the _id
      * field.
      * @method save
      * @param {Object} dbObj The system object to persist
@@ -433,7 +388,7 @@ module.exports = function DAOModule(pb) {
         //ensure an object_type was specified & update common fields
         dbObj.object_type = dbObj.object_type || options.object_type;
         DAO.updateChangeHistory(dbObj);
-        
+
         //log interaction
         if (pb.config.db.query_logging) {
             var msg;
@@ -459,11 +414,6 @@ module.exports = function DAOModule(pb) {
         });
     };
 
-    DAO.prototype.saveToSite = function(dbObj, site, options, cb) {
-        dbObj[SITE_FIELD] = site ||pb.SiteService.GLOBAL_SITE;
-        this.save(dbObj, options, cb);
-    };
-
     /**
      * Provides a mechanism to save an array of objects all from the same
      * collection.  The function handles updates and inserts.  The difference is
@@ -472,7 +422,6 @@ module.exports = function DAOModule(pb) {
      * @param {Array} objArray The array of objects to persist
      * @param {String} collection The collection to persist the objects to
      * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#initializeunorderedbulkop
-     * @param {Boolean} [options.replace=true] Indicates if the default should be to update the fields available or to replace the document
      * @param {Function} cb A callback that takes two arguments.  The first is an
      * error, if occurred. The second is the second parameter of the callback
      * described here: http://mongodb.github.io/node-mongodb-native/api-generated/unordered.html#execute
@@ -493,9 +442,6 @@ module.exports = function DAOModule(pb) {
         else if (!util.isString(collection)) {
             return cb(new Error('COLLECTION_MUST_BE_STR'));
         }
-        
-        //ensure we have default options
-        options.replace = util.isNullOrUndefined(options.replace) ? true : !!options.replace;
 
         //retrieve db reference
         this.getDb(function(err, db) {
@@ -512,9 +458,8 @@ module.exports = function DAOModule(pb) {
 
                 item.object_type = collection;
                 DAO.updateChangeHistory(item);
-                if (item._id) {
-                    batch.find({_id: item._id})
-                        .updateOne(options.replace ? item : {$set: item });
+                if (item[DAO.getIdField()]) {
+                    batch.update(item);
                 }
                 else {
                     batch.insert(item);
@@ -672,7 +617,7 @@ module.exports = function DAOModule(pb) {
             db.collection(collection).ensureIndex(spec, options, cb);
         });
     };
-    
+
     /**
      * Retrieves indexes for the specified collection
      * @method indexInfo
@@ -689,11 +634,11 @@ module.exports = function DAOModule(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             db.indexInformation(collection, options, cb);
         });
     };
-    
+
     /**
      * Drops the specified index from the given collection
      * @method dropIndex
@@ -707,7 +652,7 @@ module.exports = function DAOModule(pb) {
             cb = options;
             options = {};
         }
-        
+
         pb.dbm.getDb(this.dbName, function(err, db) {
             if (util.isError(err)) {
                 return cb(err);
