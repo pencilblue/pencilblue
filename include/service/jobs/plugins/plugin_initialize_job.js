@@ -56,7 +56,8 @@ module.exports = function PluginInitializeJobModule(pb) {
             jobId: this.getId(),
             pluginUid: this.getPluginUid(),
             site: this.getSite(),
-            progress: progress
+            progress: progress,
+            timeout: 20000
         };
 
         //build out the tasks to execute
