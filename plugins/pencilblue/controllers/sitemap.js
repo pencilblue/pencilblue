@@ -19,7 +19,7 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
 
@@ -36,38 +36,7 @@ module.exports = function(pb) {
         var self = this;
 
         this.ts.registerLocal('urls', function(flag, cb) {
-
-            var dao   = new pb.SiteQueryService({site: self.site, onlyThisSite: self.onlyThisSite});
-            var today = new Date();
-            var descriptors = {
-                section: {
-                    where: {type: {$ne: 'container'}},
-                    weight: '0.5',
-                    path: '/'
-                },
-                page: {
-                    where: {publish_date: {$lte: today}, draft: {$ne: 1}},
-                    weight: '1.0',
-                    path: '/page/'
-                },
-                article: {
-                    where: {publish_date: {$lte: today}, draft: {$ne: 1}},
-                    weight: '1.0',
-                    path: '/article/'
-                }
-            };
-            var tasks = util.getTasks(Object.keys(descriptors), function(keys, i) {
-                return function(callback) {
-                    var data = descriptors[keys[i]];
-                    data.select = {url: 1, last_modified: 1};
-                    dao.q(keys[i], data, function(err, items) {
-                        self.processObjects(items, data.path, data.weight, callback);
-                    });
-                };    
-            });
-            async.parallelLimit(tasks, 2, function(err, htmlParts) {
-                cb(err, new pb.TemplateValue(htmlParts.join(''), false));
-            });
+            self.prepareContent(cb);
         });
         this.ts.load('xml_feeds/sitemap', function(err, content) {
             var data = {
@@ -77,6 +46,41 @@ module.exports = function(pb) {
                 }
             };
             cb(data);
+        });
+    };
+
+    SiteMap.prototype.prepareContent = function(cb) {
+        var self  = this;
+        var dao   = new pb.SiteQueryService({site: self.site, onlyThisSite: self.onlyThisSite});
+        var today = new Date();
+        var descriptors = {
+            section: {
+                where: {type: {$ne: 'container'}},
+                weight: '0.5',
+                path: '/'
+            },
+            page: {
+                where: {publish_date: {$lte: today}, draft: {$ne: 1}},
+                weight: '1.0',
+                path: '/page/'
+            },
+            article: {
+                where: {publish_date: {$lte: today}, draft: {$ne: 1}},
+                weight: '1.0',
+                path: '/article/'
+            }
+        };
+        var tasks = util.getTasks(Object.keys(descriptors), function(keys, i) {
+            return function(callback) {
+                var data = descriptors[keys[i]];
+                data.select = {url: 1, last_modified: 1};
+                dao.q(keys[i], data, function(err, items) {
+                    self.processObjects(items, data.path, data.weight, callback);
+                });
+            };
+        });
+        async.parallelLimit(tasks, 2, function(err, htmlParts) {
+            cb(err, new pb.TemplateValue(htmlParts.join(''), false));
         });
     };
 
