@@ -55,6 +55,7 @@ The instructions below assume that Node.js and MongoDB are installed on your mac
 
 ##### Roadmap
 **0.5.0 Release:**
+
 Target Date: Mid-December 2015
 New Features:
 * Multisite support
