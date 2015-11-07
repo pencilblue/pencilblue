@@ -31,6 +31,13 @@ module.exports = function(pb) {
         var vars = this.pathVars;
 
         this.getJSONPostParams(function(err, post) {
+            if(post.draft === 0 && self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR) {
+                return cb({
+                    code: 403,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('NO_PERMISSION'))
+                });
+            }
+
             post.publish_date = new Date(parseInt(post.publish_date));
             post.id = vars.id;
             delete post[pb.DAO.getIdField()];
@@ -63,7 +70,7 @@ module.exports = function(pb) {
 
                 pb.RequestHandler.urlExists(article.url, post.id, function(error, exists) {
                     var testError = (error !== null && typeof error !== 'undefined');
-                    
+
                     if( testError || exists || article.url.indexOf('/admin') === 0) {
                         cb({
                             code: 400,
