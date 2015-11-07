@@ -9,6 +9,7 @@
 		^tmp_angular=admin=elements=is_wysiwyg_valid^
 
 		$scope.urlAvailable = null;
+		$scope.urlGenerated = null;
 
 		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
 		$scope.article.article_media = $scope.article.article_media || [];
@@ -34,6 +35,21 @@
 				$scope.errorMessage = error.message;
 			});
 		};
+
+		$scope.generateUrl = function() {
+			$scope.article.url = $scope.article.headline.replace(/\s+/g, '-').toLowerCase();
+			if($scope.article.url){
+				$scope.urlGenerated = true;
+			} else {
+				$scope.urlGenerated = false;
+			}
+		};
+
+		$scope.$watch('article.url', function() {
+			if($scope.article.url !== $scope.article.headline.replace(/\s+/g, '-').toLowerCase()){
+ 			   $scope.urlGenerated = null;
+ 		   	}
+	   	});
 
 		$scope.resetUrlAvailability = function() {
 			$scope.urlAvailable = null;
