@@ -40,7 +40,6 @@
 		};
 
 		$scope.saveArticle = function(draft) {
-			console.log($scope.article)
 			$scope.formSubmitted = true;
 
 			if(!validationService.isFormValid($scope.articleForm) || !$scope.isWysiwygValid($scope.layout)) {
