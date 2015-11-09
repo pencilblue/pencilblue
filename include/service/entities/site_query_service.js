@@ -259,19 +259,19 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {Function} cb
    */
   SiteQueryService.prototype.getCollections = function (cb) {
-      this.listCollections({}, function(err, items) {
-          if(pb.util.isError(err)) {
-            pb.log.error(err);
-            return cb(err);
-          }
+    this.listCollections({}, function(err, items) {
+      if(pb.util.isError(err)) {
+        pb.log.error(err);
+        return cb(err);
+      }
 
-          items = items.filter(function(item) {
-              return item.name.indexOf('system.indexes') === -1 && item.name.indexOf('system.namespaces') === -1;
-          });
-
-          cb(err, items);
+      items = items.filter(function(item) {
+        return item.name.indexOf('system.indexes') === -1 && item.name.indexOf('system.namespaces') === -1;
       });
-    };
+
+      cb(err, items);
+    });
+  };
 
   return SiteQueryService;
 };
