@@ -458,7 +458,7 @@ module.exports = function DAOModule(pb) {
 
                 item.object_type = collection;
                 DAO.updateChangeHistory(item);
-                if (item[DAO.getIdField()]) {
+                if (item._id) {
                     batch.update(item);
                 }
                 else {
