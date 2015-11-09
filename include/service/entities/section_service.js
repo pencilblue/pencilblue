@@ -150,6 +150,40 @@ module.exports = function SectionServiceModule(pb) {
         }
         return orphans;
     };
+    
+        /**
+     *
+     * @private
+     * @method getSectionMapIndex
+     * @param {String} sid
+     * @param {Array} sectionMap
+     */
+    SectionService.prototype.getSectionMapIndex = function(sid, sectionMap) {
+
+        //inspect the top level
+        var result = {
+            index: -1,
+            childIndex: -1
+        };
+        for (var i = sectionMap.length - 1; i >= 0; i--) {
+
+            var item = sectionMap[i];
+            if (item.uid === sid) {
+                result.index = i;
+            }
+            else if (util.isArray(item.children)) {
+
+                for (var j = item.children.length - 1; j >= 0; j--) {
+
+                    var child = item.children[j];
+                    if (child.uid === sid) {
+                        result.childIndex = j;
+                    }
+                }
+            }
+        }
+        return result;
+    };
 
     /**
      * 
@@ -179,20 +213,32 @@ module.exports = function SectionServiceModule(pb) {
             if(mapWasNull) {
                 sectionMap = [];
             }
-
+            
+            //check if the section already exist in sectionMap
+            var sectionIndex = self.getSectionMapIndex(sid, sectionMap);
             //remove the section from the map
             self._removeFromSectionMap(sid, sectionMap);
 
             //make a top level item if there is no parent or the map was originally
             //empty (means its impossible for there to be a parent)
             if (mapWasNull || !section.parent) {
-                sectionMap.push({uid: sid, children: []});
+                if (sectionIndex.index > -1) {
+                    sectionMap.splice(sectionIndex.index, 0, {uid: sid, children: []});
+                }
+                else {
+                    sectionMap.push({uid: sid, children: []});
+                }
             }
             else {//set as child of parent in map
 
                 for (var i = 0; i < sectionMap.length; i++) {
                     if (sectionMap[i].uid == section.parent) {
-                        sectionMap[i].children.push({uid: sid});
+                        if (sectionIndex.childIndex > -1) {
+                            sectionMap[i].children.splice(sectionIndex.childIndex, 0, {uid: sid});
+                        }
+                        else {
+                            sectionMap[i].children.push({uid: sid});
+                        }
                         break;
                     }
                 }
