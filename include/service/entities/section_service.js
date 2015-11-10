@@ -157,6 +157,7 @@ module.exports = function SectionServiceModule(pb) {
      * @method getSectionMapIndex
      * @param {String} sid
      * @param {Array} sectionMap
+     * @return {Object}
      */
     SectionService.prototype.getSectionMapIndex = function(sid, sectionMap) {
 
