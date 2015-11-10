@@ -11,8 +11,9 @@
       'pencilblue.factories.admin.pages',
       'pencilblue.services.article'
     ])
-    .controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService, pageFactory, articleService) {
+    .controller('PencilBlueController', function($scope, $http, $timeout, searchService, sortService, paginationService, pageFactory, articleService) {
         ^angular_objects^
+        ^tmp_angular=admin=elements=error_success^
 
         $scope.searchText = '';
         $scope.paginationIndex;

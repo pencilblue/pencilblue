@@ -114,6 +114,16 @@ form .error
     margin: 1em 0 0 0;
 }
 
+.error_success.async {
+  margin: 2em 0 0 0;
+  opacity: .95;
+  box-shadow: 0px 0px 5px;
+  position: fixed;
+  width: 40%;
+  left: 30%;
+  z-index: 999999;
+}
+
 .alert-danger.error_success a
 {
     color: #B94A48;
