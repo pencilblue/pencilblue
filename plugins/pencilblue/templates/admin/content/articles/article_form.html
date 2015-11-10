@@ -33,6 +33,10 @@
 							<label>^loc_AUTHOR^</label>
 							<select class="form-control" ng-model="article.author" ng-options="availableAuthor._id as availableAuthor.name for availableAuthor in availableAuthors"></select>
 					</div>
+					<div class="form-group" ng-if="media.length">
+							<label>^loc_FEATURED_IMAGE^</label>
+							<select class="form-control" ng-model="article.featured_media" ng-options="med._id as med.name for med in media"></select>
+					</div>
 					<div class="form-group" ng-class="{'has-error': !isFieldValid(articleForm.headline)}">
 						<label>^loc_HEADLINE^</label>
 						<input type="text" name="headline" class="form-control" ng-model="article.headline" required></input>

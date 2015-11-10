@@ -206,6 +206,7 @@ module.exports = {
         ARTICLES: 'Articles',
         TOPICS: 'Topics',
         MEDIA: 'Media',
+        FEATURED_IMAGE: 'Featured image',
         CUSTOM_OBJECTS: 'Custom objects',
         PLUGINS: 'Plugins',
         THEMES: 'Themes',
