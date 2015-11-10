@@ -125,7 +125,12 @@ module.exports = function CacheEntityServiceModule(pb) {
             }
 
             //set into cache
-            pb.cache.setex(key, self.timeout, val, cb);
+            if (self.timeout) {
+                pb.cache.setex(key, self.timeout, val, cb);
+            }
+            else {
+                pb.cache.set(key, val, cb);
+            }
         });
     };
 
