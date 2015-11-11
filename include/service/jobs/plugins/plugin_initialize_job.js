@@ -32,7 +32,7 @@ module.exports = function PluginInitializeJobModule(pb) {
 
         //initialize
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(PluginInitializeJob, pb.PluginJobRunner);
 
     /**
@@ -45,7 +45,7 @@ module.exports = function PluginInitializeJobModule(pb) {
         var self = this;
 
         //progress function
-        progress  = function(indexOfExecutingTask, totalTasks) {
+        var progress  = function(indexOfExecutingTask, totalTasks) {
 
             var increment = indexOfExecutingTask > 0 ? 100 / totalTasks * self.getChunkOfWorkPercentage(): 0;
             self.onUpdate(increment);
@@ -74,6 +74,7 @@ module.exports = function PluginInitializeJobModule(pb) {
      */
     PluginInitializeJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
+        var pluginService = new pb.PluginService();
 
         var pluginUid = this.getPluginUid();
         var tasks = [
@@ -87,7 +88,7 @@ module.exports = function PluginInitializeJobModule(pb) {
                 }
 
                 //load the plugin from persistence then initialize it on the server
-                pb.plugins.getPlugin(pluginUid, function(err, plugin) {
+                pluginService.getPlugin(pluginUid, function(err, plugin) {
                     if (util.isError(err)) {
                         callback(err);
                         return;
@@ -99,7 +100,7 @@ module.exports = function PluginInitializeJobModule(pb) {
                     }
 
                     self.log('Initializing plugin %s', pluginUid);
-                    pb.plugins.initPlugin(plugin, function(err, result) {
+                    pluginService.initPlugin(plugin, function(err, result) {
                         self.log('Completed initialization RESULT=[%s] ERROR=[%s]', result, err ? err.message : 'n/a');
                         callback(err, result);
                     });

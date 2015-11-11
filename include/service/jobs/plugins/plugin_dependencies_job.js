@@ -32,7 +32,7 @@ module.exports = function PluginDependenciesJobModule(pb) {
 
         //initialize
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(PluginDependenciesJob, pb.PluginJobRunner);
 
     /**
@@ -45,7 +45,7 @@ module.exports = function PluginDependenciesJobModule(pb) {
         var self = this;
 
         //progress function
-        progress  = function(indexOfExecutingTask, totalTasks) {
+        var progress  = function(indexOfExecutingTask, totalTasks) {
 
             var increment = indexOfExecutingTask > 0 ? 100 / totalTasks * self.getChunkOfWorkPercentage(): 0;
             self.onUpdate(increment);
@@ -76,6 +76,7 @@ module.exports = function PluginDependenciesJobModule(pb) {
      */
     PluginDependenciesJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
+        var pluginService = new pb.PluginService();
 
         var pluginDetails = null;
         var pluginUid     = this.getPluginUid();
@@ -102,7 +103,7 @@ module.exports = function PluginDependenciesJobModule(pb) {
                     return callback(null, true);
                 }
 
-                pb.plugins.installPluginDependencies(pluginUid, pluginDetails.dependencies, pluginDetails, function(err, results) {
+                pluginService.installPluginDependencies(pluginUid, pluginDetails.dependencies, pluginDetails, function(err, results) {
                     callback(err, !util.isError(err));
                 });
             }

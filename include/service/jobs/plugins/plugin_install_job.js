@@ -44,7 +44,7 @@ module.exports = function PluginInstallJobModule(pb) {
         //initialize
         this.init();
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(PluginInstallJob, pb.PluginJobRunner);
 
     /**
@@ -55,6 +55,7 @@ module.exports = function PluginInstallJobModule(pb) {
      */
     PluginInstallJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
+        var pluginService = new pb.PluginService();
 
         //progress function
         var jobId     = self.getId();
@@ -65,7 +66,7 @@ module.exports = function PluginInstallJobModule(pb) {
             function(callback) {
                 self.log("Verifying that plugin %s is not already installed", pluginUid);
 
-                pb.plugins.isInstalled(pluginUid, function(err, isInstalled){
+                pluginService.isInstalled(pluginUid, function(err, isInstalled){
                     if (util.isError(err)) {
                         callback(err, !isInstalled);
                     }
@@ -130,6 +131,7 @@ module.exports = function PluginInstallJobModule(pb) {
      */
     PluginInstallJob.prototype.doPersistenceTasks = function(cb) {
         var self = this;
+        var pluginService = new pb.PluginService();
 
         var pluginUid = this.getPluginUid();
         var details   = null;
@@ -160,7 +162,7 @@ module.exports = function PluginInstallJobModule(pb) {
              //load plugin settings
              function(callback) {
                  self.log("Adding settings for %s", details.uid);
-                 pb.plugins.resetSettings(details, callback);
+                 pluginService.resetSettings(details, callback);
              },
 
              //load theme settings
@@ -168,7 +170,7 @@ module.exports = function PluginInstallJobModule(pb) {
                  if (details.theme && details.theme.settings) {
                      self.log("Adding theme settings for %s", details.uid);
 
-                     pb.plugins.resetThemeSettings(details, callback);
+                     pluginService.resetThemeSettings(details, callback);
                  }
                  else {
                      callback(null, true);
