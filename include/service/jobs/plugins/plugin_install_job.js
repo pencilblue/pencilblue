@@ -55,7 +55,6 @@ module.exports = function PluginInstallJobModule(pb) {
      */
     PluginInstallJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
-        var pluginService = new pb.PluginService();
 
         //progress function
         var jobId     = self.getId();
@@ -66,7 +65,7 @@ module.exports = function PluginInstallJobModule(pb) {
             function(callback) {
                 self.log("Verifying that plugin %s is not already installed", pluginUid);
 
-                pluginService.isInstalled(pluginUid, function(err, isInstalled){
+                self.pluginService.isInstalled(pluginUid, function(err, isInstalled){
                     if (util.isError(err)) {
                         callback(err, !isInstalled);
                     }

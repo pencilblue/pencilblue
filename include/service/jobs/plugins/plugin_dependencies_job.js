@@ -76,7 +76,6 @@ module.exports = function PluginDependenciesJobModule(pb) {
      */
     PluginDependenciesJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
-        var pluginService = new pb.PluginService();
 
         var pluginDetails = null;
         var pluginUid     = this.getPluginUid();
@@ -103,7 +102,7 @@ module.exports = function PluginDependenciesJobModule(pb) {
                     return callback(null, true);
                 }
 
-                pluginService.installPluginDependencies(pluginUid, pluginDetails.dependencies, pluginDetails, function(err, results) {
+                self.pluginService.installPluginDependencies(pluginUid, pluginDetails.dependencies, pluginDetails, function(err, results) {
                     callback(err, !util.isError(err));
                 });
             }

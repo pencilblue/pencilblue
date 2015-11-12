@@ -99,7 +99,6 @@ module.exports = function PluginUninstallJobModule(pb) {
      */
     PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
-        var pluginService = new pb.PluginService();
 
         var pluginUid = this.getPluginUid();
         var tasks = [
@@ -149,7 +148,7 @@ module.exports = function PluginUninstallJobModule(pb) {
             function(callback) {
                 self.log('Attemping to remove plugin settings');
 
-                pluginService.pluginSettingsService.purge(pluginUid, function (err, result) {
+                self.pluginService.pluginSettingsService.purge(pluginUid, function (err, result) {
                     callback(err, !util.isError(err));
                 });
             },
@@ -158,7 +157,7 @@ module.exports = function PluginUninstallJobModule(pb) {
             function(callback) {
                 self.log('Attemping to remove theme settings');
 
-                pluginService.themeSettingsService.purge(pluginUid, function (err, result) {
+                self.pluginService.themeSettingsService.purge(pluginUid, function (err, result) {
                     callback(err, !util.isError(err));
                 });
             },

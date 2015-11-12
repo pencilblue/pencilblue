@@ -74,7 +74,6 @@ module.exports = function PluginInitializeJobModule(pb) {
      */
     PluginInitializeJob.prototype.getWorkerTasks = function(cb) {
         var self = this;
-        var pluginService = new pb.PluginService();
 
         var pluginUid = this.getPluginUid();
         var tasks = [
@@ -88,7 +87,7 @@ module.exports = function PluginInitializeJobModule(pb) {
                 }
 
                 //load the plugin from persistence then initialize it on the server
-                pluginService.getPlugin(pluginUid, function(err, plugin) {
+                self.pluginService.getPlugin(pluginUid, function(err, plugin) {
                     if (util.isError(err)) {
                         callback(err);
                         return;
@@ -100,7 +99,7 @@ module.exports = function PluginInitializeJobModule(pb) {
                     }
 
                     self.log('Initializing plugin %s', pluginUid);
-                    pluginService.initPlugin(plugin, function(err, result) {
+                    self.pluginService.initPlugin(plugin, function(err, result) {
                         self.log('Completed initialization RESULT=[%s] ERROR=[%s]', result, err ? err.message : 'n/a');
                         callback(err, result);
                     });
