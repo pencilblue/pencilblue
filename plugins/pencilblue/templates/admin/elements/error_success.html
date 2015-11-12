@@ -1,5 +1,5 @@
 ^error_success^
-<div class="alert error_success" ng-class="{'alert-success': successMessage, 'alert-danger': errorMessage}" ng-if="errorMessage || successMessage">
+<div class="alert error_success async" ng-class="{'alert-success': successMessage, 'alert-danger': errorMessage}" ng-if="errorMessage || successMessage" ng-cloak>
 	<span ng-bind="errorMessage || successMessage"></span>
-	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<button type="button" class="close" aria-hidden="true" ng-click="clearMessages()">&times;</button>
 </div>
