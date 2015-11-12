@@ -65,7 +65,7 @@ module.exports = function SimpleLayeredServiceModule(pb) {
                         return;
                     }
 
-                    if (result) {
+                    if (result || (typeof result === 'boolean' && result === false)) {
                         resultNotFound = false;
                         entity         = result;
                     }
