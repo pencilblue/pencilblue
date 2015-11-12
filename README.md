@@ -3,6 +3,8 @@
 [PencilBlue](http://pencilblue.org)
 =====
 
+[![Join the chat at https://gitter.im/pencilblue/pencilblue](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pencilblue/pencilblue?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ### A full featured Node.js CMS and blogging platform (plugins, server cluster management, data-driven pages)
 
 First and foremost:  If at any point you have questions, comments or concerns you can find us hanging out on twitter [@getpencilblue](https://twitter.com/GetPencilBlue) and on our [subreddit](http://www.reddit.com/domain/pencilblue.org/).  We're always happy to help and pull requests (plugin or core) are always welcome.  
