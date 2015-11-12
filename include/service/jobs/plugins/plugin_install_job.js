@@ -130,7 +130,6 @@ module.exports = function PluginInstallJobModule(pb) {
      */
     PluginInstallJob.prototype.doPersistenceTasks = function(cb) {
         var self = this;
-        var pluginService = new pb.PluginService();
 
         var pluginUid = this.getPluginUid();
         var details   = null;
@@ -161,7 +160,7 @@ module.exports = function PluginInstallJobModule(pb) {
              //load plugin settings
              function(callback) {
                  self.log("Adding settings for %s", details.uid);
-                 pluginService.resetSettings(details, callback);
+                 self.pluginService.resetSettings(details, callback);
              },
 
              //load theme settings
@@ -169,7 +168,7 @@ module.exports = function PluginInstallJobModule(pb) {
                  if (details.theme && details.theme.settings) {
                      self.log("Adding theme settings for %s", details.uid);
 
-                     pluginService.resetThemeSettings(details, callback);
+                     self.pluginService.resetThemeSettings(details, callback);
                  }
                  else {
                      callback(null, true);
