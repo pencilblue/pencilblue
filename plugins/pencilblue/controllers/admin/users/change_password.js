@@ -16,10 +16,10 @@
 */
 
 module.exports = function AdminChangePasswordControllerModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for changing the logged in user's password
      * @class AdminChangePasswordController
@@ -81,7 +81,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
                 name: SUB_NAV_KEY,
                 title: ls.get('CHANGE_PASSWORD'),
                 icon: 'chevron-left',
-                href: pb.UrlService.urlJoin('/admin/users/', + encodeURIComponent(data[pb.DAO.getIdField()]))
+                href: pb.UrlService.urlJoin('/admin/users/', encodeURIComponent(data[pb.DAO.getIdField()]))
             }
        ];
     };
