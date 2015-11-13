@@ -22,7 +22,7 @@
 							<span class="input-group-addon">/article/</span>
 							<input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="article.url" ng-change="resetUrlAvailability()" url-safe required></input>
 							<span class="input-group-btn">
-								<button type="button" class="btn" ng-class="{'btn-default': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="generateUrl()" ng-disabled="articleForm.headline.$invalid">
+								<button type="button" class="btn" ng-class="{'btn-default': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="articleForm.headline.$invalid">
 									<span ng-if="urlGenerated === null">^loc_GENERATE^</span>
 									<span ng-if="urlGenerated === true"><i class="fa fa-check"></i>&nbsp;^loc_GENERATED^</span>
 									<span ng-if="urlGenerated === false"><i class="fa fa-ban"></i>&nbsp;^loc_NOT_GENERATED^</span>

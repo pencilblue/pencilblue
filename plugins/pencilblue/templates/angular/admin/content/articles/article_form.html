@@ -36,19 +36,27 @@
 			});
 		};
 
-		$scope.generateUrl = function() {
-			$scope.article.url = $scope.article.headline.replace(/\s+/g, '-').toLowerCase();
-			if($scope.article.url){
+		$scope.generateUrl = function(text) {
+			if (text) {
+				return text.replace(/\s+/g, '-').toLowerCase();
+			}
+		};
+
+		$scope.getUrl = function() {
+			$scope.article.url = $scope.generateUrl($scope.article.headline);
+			if($scope.article.url && $scope.article.url.length) {
 				$scope.urlGenerated = true;
 			} else {
 				$scope.urlGenerated = false;
 			}
 		};
 
-		$scope.$watch('article.url', function() {
-			if($scope.article.url !== $scope.article.headline.replace(/\s+/g, '-').toLowerCase()){
- 			   $scope.urlGenerated = null;
- 		   	}
+		$scope.$watch('article.url', function(newVal, oldVal) {
+			if (newVal !== oldVal) {
+				if($scope.article.url !== $scope.generateUrl($scope.article.headline)){
+	 			   $scope.urlGenerated = null;
+	 		   	}
+			}
 	   	});
 
 		$scope.resetUrlAvailability = function() {
