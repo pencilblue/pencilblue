@@ -35,7 +35,7 @@ module.exports = function PluginJobRunnerModule(pb) {
          * @type {PluginService}
          */
         this.pluginService = new pb.PluginService();
-    };
+    }
     util.inherits(PluginJobRunner, pb.ClusterJobRunner);
 
     /**
