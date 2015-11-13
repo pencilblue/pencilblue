@@ -10,7 +10,6 @@
 
 		$scope.urlAvailable = null;
 		$scope.urlGenerated = null;
-
 		$scope.article.publish_date = $filter('date')($scope.article.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
 		$scope.article.article_media = $scope.article.article_media || [];
 		$scope.layout = $sce.trustAsHtml($scope.article.article_layout);
@@ -35,29 +34,6 @@
 				$scope.errorMessage = error.message;
 			});
 		};
-
-		$scope.generateUrl = function(text) {
-			if (text) {
-				return text.replace(/\s+/g, '-').toLowerCase();
-			}
-		};
-
-		$scope.getUrl = function() {
-			$scope.article.url = $scope.generateUrl($scope.article.headline);
-			if($scope.article.url && $scope.article.url.length) {
-				$scope.urlGenerated = true;
-			} else {
-				$scope.urlGenerated = false;
-			}
-		};
-
-		$scope.$watch('article.url', function(newVal, oldVal) {
-			if (newVal !== oldVal) {
-				if($scope.article.url !== $scope.generateUrl($scope.article.headline)){
-	 			   $scope.urlGenerated = null;
-	 		   	}
-			}
-	   	});
 
 		$scope.resetUrlAvailability = function() {
 			$scope.urlAvailable = null;
@@ -169,6 +145,29 @@
 				}
 			});
 		}
+
+		$scope.generateUrl = function(text) {
+			if (text) {
+				return text.replace(/\s+/g, '-').toLowerCase();
+			}
+		};
+
+		$scope.getUrl = function() {
+			$scope.article.url = $scope.generateUrl($scope.article.headline);
+			if($scope.article.url && $scope.article.url.length) {
+				$scope.urlGenerated = true;
+			} else {
+				$scope.urlGenerated = false;
+			}
+		};
+
+		$scope.$watch('article.url', function(newVal, oldVal) {
+			if (newVal !== oldVal) {
+				if($scope.article.url !== $scope.generateUrl($scope.article.headline)){
+	 			   $scope.urlGenerated = null;
+	 		   	}
+			}
+	   	});
 
 		$('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
 		$timeout($scope.saveArticleDraft, 30000);
