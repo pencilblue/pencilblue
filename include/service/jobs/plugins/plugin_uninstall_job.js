@@ -44,7 +44,7 @@ module.exports = function PluginUninstallJobModule(pb) {
 
         //initialize
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(PluginUninstallJob, pb.PluginJobRunner);
 
     /**
@@ -148,7 +148,7 @@ module.exports = function PluginUninstallJobModule(pb) {
             function(callback) {
                 self.log('Attemping to remove plugin settings');
 
-                pb.plugins.pluginSettingsService.purge(pluginUid, function (err, result) {
+                self.pluginService.pluginSettingsService.purge(pluginUid, function (err, result) {
                     callback(err, !util.isError(err));
                 });
             },
@@ -157,7 +157,7 @@ module.exports = function PluginUninstallJobModule(pb) {
             function(callback) {
                 self.log('Attemping to remove theme settings');
 
-                pb.plugins.themeSettingsService.purge(pluginUid, function (err, result) {
+                self.pluginService.themeSettingsService.purge(pluginUid, function (err, result) {
                     callback(err, !util.isError(err));
                 });
             },
