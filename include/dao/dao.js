@@ -202,7 +202,7 @@ module.exports = function DAOModule(pb) {
 
         //set the exclusion
         if (exclusionId) {
-            where[DAO.getIdField()] = DAO.getNotIDField(exclusionId);
+            where[DAO.getIdField()] = DAO.getNotIdField(exclusionId);
         }
 
         //checks to see how many docs were available

@@ -205,16 +205,14 @@ module.exports = function SectionServiceModule(pb) {
 
         //do validation
         if (!util.isObject(section) || !section[pb.DAO.getIdField()]) {
-            cb(new Error("A valid section object must be provided", false));
-            return;
+            return cb(new Error("A valid section object must be provided", false));
         }
 
         //retrieve the section map
         var sid = section[pb.DAO.getIdField()].toString();
         self.settings.get('section_map', function(err, sectionMap) {
             if (util.isError(err)) {
-                cb(err, false);
-                return;
+                return cb(err, false);
             }
 
             //create it if not already done
@@ -239,7 +237,6 @@ module.exports = function SectionServiceModule(pb) {
                 }
             }
             else {//set as child of parent in map
-
                 for (var i = 0; i < sectionMap.length; i++) {
                     if (sectionMap[i].uid == section.parent) {
                         if (sectionIndex.childIndex > -1) {

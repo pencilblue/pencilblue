@@ -80,7 +80,7 @@ module.exports = function(pb) {
                     }
                     else if(util.isArray(result) && result.length > 0) {
                         cb({
-                            code: 500,
+                            code: 400,
                             content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, EditNavItem.getHtmlErrorMsg(result))
                         });
                         return;

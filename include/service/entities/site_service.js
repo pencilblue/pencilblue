@@ -221,7 +221,7 @@ module.exports = function SiteServiceModule(pb) {
 
         var getWhere = function(where) {
             if (id) {
-                where[pb.DAO.getIdField()] = pb.DAO.getNotIDField(id);
+                where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(id);
             }
             return where;
         };
