@@ -52,7 +52,7 @@ module.exports = function PluginInstallJobModule(pb) {
         //initialize
         this.init();
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(PluginInstallJob, pb.PluginJobRunner);
 
     /**
