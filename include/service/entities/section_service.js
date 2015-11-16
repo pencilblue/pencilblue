@@ -224,33 +224,54 @@ module.exports = function SectionServiceModule(pb) {
             //check if the section already exist in sectionMap
             var sectionIndex = self.getSectionMapIndex(sid, sectionMap);
             //remove the section from the map
-            self._removeFromSectionMap(sid, sectionMap);
+            var orphans = self._removeFromSectionMap(sid, sectionMap);
 
             //make a top level item if there is no parent or the map was originally
             //empty (means its impossible for there to be a parent)
+            var navItem = {
+                uid: sid,
+                children: orphans
+            };
             if (mapWasNull || !section.parent) {
+                
+                //we are attaching the items back to a parent.  There are no 
+                //orphans to return in the callback.
+                orphans = [];
+                
                 if (sectionIndex.index > -1) {
-                    sectionMap.splice(sectionIndex.index, 0, {uid: sid, children: []});
+                    sectionMap.splice(sectionIndex.index, 0, navItem);
                 }
                 else {
-                    sectionMap.push({uid: sid, children: []});
+                    sectionMap.push(navItem);
                 }
             }
             else {//set as child of parent in map
+
+                //we only support two levels so ensure we drop any children
+                navItem.children = undefined;
+
                 for (var i = 0; i < sectionMap.length; i++) {
                     if (sectionMap[i].uid == section.parent) {
                         if (sectionIndex.childIndex > -1) {
-                            sectionMap[i].children.splice(sectionIndex.childIndex, 0, {uid: sid});
+                            sectionMap[i].children.splice(sectionIndex.childIndex, 0, navItem);
                         }
                         else {
-                            sectionMap[i].children.push({uid: sid});
+                            sectionMap[i].children.push(navItem);
                         }
                         break;
                     }
                 }
             }
 
-            self.settings.set('section_map', sectionMap, cb);
+            pb.settings.set('section_map', sectionMap, function(err, settingSaveResult){
+                if (util.isError(err)){
+                    return cb(err);
+                }
+                else if (!settingSaveResult) {
+                    return cb(new Error('Failed to persist cached navigation map'));
+                }
+                cb(null, orphans);
+            });
         });
     };
 
@@ -701,8 +722,15 @@ module.exports = function SectionServiceModule(pb) {
                 }
 
                 //update the navigation map
-                self.updateNavMap(navItem, function() {
-
+                self.updateNavMap(navItem, function(err, orphans) {
+                    if (util.isError(err)) {
+                        return cb(err);
+                    }
+                    else if (orphans.length === 0) {
+                        //we kept the children so there is nothing to do
+                        return cb(null, true);
+                    }
+                    
                     //ok, now we can delete the orhphans if they exist
                     self.deleteChildren(navItem[pb.DAO.getIdField()], cb);
                 });
