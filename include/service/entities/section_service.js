@@ -263,7 +263,7 @@ module.exports = function SectionServiceModule(pb) {
                 else if (!settingSaveResult) {
                     return cb(new Error('Failed to persist cached navigation map'));
                 }
-                cb(null, orphans)
+                cb(null, orphans);
             });
         });
     };
