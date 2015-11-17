@@ -13,11 +13,12 @@ module.exports = function SamplePluginModule(pb) {
 
     /**
      * Called when the application is being installed for the first time.
-     *
+     * @static
+     * @method onInstallWithContext
      * @param cb A callback that must be called upon completion.  cb(Error, Boolean).
      * The result should be TRUE on success and FALSE on failure
      */
-    SamplePlugin.onInstall = function(cb) {
+    SamplePlugin.onInstallWithContext = function(context, cb) {
         cb(null, true);
     };
 
