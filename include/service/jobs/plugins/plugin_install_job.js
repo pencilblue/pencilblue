@@ -192,9 +192,16 @@ module.exports = function PluginInstallJobModule(pb) {
             function(callback) {
 
                 var mainModule = pb.PluginService.loadMainModule(pluginUid, details.main_module.path);
-                if (!util.isNullOrUndefined(mainModule) && util.isFunction(mainModule.onInstall)) {
+                var hasBasicOnInstall = util.isFunction(mainModule.onInstall);
+                var hasContextOnInstall = util.isFunction(mainModule.onInstallWithContext);
+                if (!util.isNullOrUndefined(mainModule) && (hasBasicOnInstall || hasContextOnInstall)) {
                     self.log("Executing %s 'onInstall' function", details.uid);
-                    mainModule.onInstall(callback);
+                
+                    if (hasBasicOnInstall) {
+                        return mainModule.onInstall(callback);
+                    }
+                    
+                    mainModule.onInstallWithContext({ site: site }, callback);
                 }
                 else {
                     self.log("WARN: Plugin %s did not provide an 'onInstall' function.", details.uid);
