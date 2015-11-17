@@ -955,7 +955,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             options = {};
         }
 
-        if (!pb.validation.isIdStr(id.toString(), true)) {
+        if (!pb.validation.isId(id, true)) {
             return cb(new Error('INVALID_UID'));
         }
 
