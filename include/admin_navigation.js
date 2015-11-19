@@ -529,7 +529,11 @@ module.exports = function AdminNavigationModule(pb) {
 
         var childAdditionsMap = AdminNavigation.childrenAdditions[site];
         util.forEach(childAdditionsMap, function(value, key) {
-            childAdditionsMap[key] = removeNode(id, value);
+            if(key === id){
+                delete childAdditionsMap[key];
+            }else {
+                childAdditionsMap[key] = removeNode(id, value);
+            }
         });
         
         return true;
