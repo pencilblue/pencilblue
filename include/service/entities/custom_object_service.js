@@ -577,7 +577,12 @@ module.exports = function CustomObjectServiceModule(pb) {
         }
 
         if (type) {
-            where.type = type;
+            var typeStr = type;
+            if (util.isObject(type)) {
+                typeStr = type[pb.DAO.getIdField()] + '';
+            }
+    
+            where.type = typeStr;
         }
 
         var self = this;
