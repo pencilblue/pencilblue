@@ -7,6 +7,7 @@
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
 		^tmp_angular=admin=elements=is_wysiwyg_valid^
+		^tmp_angular=admin=elements=error_success^
 
 		$scope.urlAvailable = null;
 
@@ -53,7 +54,7 @@
 					// Update an existing article
 					$http.put('/api/content/articles/' + $scope.article._id, articleData)
 					.success(function(result) {
-						$scope.successMessage = 'SUCCESS';
+						$scope.successMessage = articleData.headline + ' ' + loc.admin.EDITED;
 						$scope.article.last_modified = result.last_modified;
 						$scope.saving = false;
 					})
@@ -66,7 +67,7 @@
 					// Save a new article
 					$http.post('/api/content/articles', articleData)
 					.success(function(result) {
-						$scope.successMessage = 'SUCCESS';
+						$scope.successMessage = articleData.headline + ' ' + loc.admin.CREATED;
 						$scope.saving = false;
 
 						if(!result._id) {

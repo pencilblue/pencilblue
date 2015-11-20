@@ -32,7 +32,7 @@ module.exports = function PluginInitializeJobModule(pb) {
 
         //initialize
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(PluginInitializeJob, pb.PluginJobRunner);
 
     /**
@@ -45,7 +45,7 @@ module.exports = function PluginInitializeJobModule(pb) {
         var self = this;
 
         //progress function
-        progress  = function(indexOfExecutingTask, totalTasks) {
+        var progress  = function(indexOfExecutingTask, totalTasks) {
 
             var increment = indexOfExecutingTask > 0 ? 100 / totalTasks * self.getChunkOfWorkPercentage(): 0;
             self.onUpdate(increment);
@@ -56,7 +56,8 @@ module.exports = function PluginInitializeJobModule(pb) {
             jobId: this.getId(),
             pluginUid: this.getPluginUid(),
             site: this.getSite(),
-            progress: progress
+            progress: progress,
+            timeout: 20000
         };
 
         //build out the tasks to execute

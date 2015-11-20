@@ -44,7 +44,7 @@ module.exports = function PluginUninstallJobModule(pb) {
 
         //initialize
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(PluginUninstallJob, pb.PluginJobRunner);
 
     /**
@@ -184,7 +184,6 @@ module.exports = function PluginUninstallJobModule(pb) {
                 self.log('Attemping to remove plugin settings');
                 self.pluginService.purgePluginSettings(pluginUid, function (err, result) {
                     callback(err, !util.isError(err) && result);
-
                 });
             },
 

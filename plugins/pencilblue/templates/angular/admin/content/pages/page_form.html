@@ -7,6 +7,7 @@
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
         ^tmp_angular=admin=elements=is_wysiwyg_valid^
+        ^tmp_angular=admin=elements=error_success^
 
         $scope.urlAvailable = null;
         $scope.page.publish_date = $filter('date')($scope.page.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
@@ -48,7 +49,7 @@
                     // Update an existing page
                     $http.put('/api/content/pages/' + $scope.page._id, pageData)
                     .success(function(result) {
-                        $scope.successMessage = 'SUCCESS';
+                        $scope.successMessage = pageData.headline + ' ' + loc.admin.EDITED;
                         $scope.page.last_modified = result.last_modified;
                         $scope.saving = false;
                     })
@@ -61,7 +62,7 @@
                     // Save a new page
                     $http.post('/api/content/pages', pageData)
                     .success(function(result) {
-                        $scope.successMessage = 'SUCCESS';
+                        $scope.successMessage = pageData.headline + ' ' + loc.admin.CREATED;
                         $scope.saving = false;
                         $window.location = '/admin/content/pages/' + result._id.toString();
                     })

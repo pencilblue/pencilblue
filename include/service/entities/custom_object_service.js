@@ -955,7 +955,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             options = {};
         }
 
-        if (!pb.validation.isIdStr(id, true)) {
+        if (!pb.validation.isId(id, true)) {
             return cb(new Error('INVALID_UID'));
         }
 
@@ -991,7 +991,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             typeId = custObjType.toString();
         }
         var dao = new pb.DAO();
-        dao.delete({type: custObjType}, CustomObjectService.CUST_OBJ_COLL, cb);
+        dao.delete({type: typeId}, CustomObjectService.CUST_OBJ_COLL, cb);
     };
 
     CustomObjectService.prototype.typeExists = function(typeName, cb) {

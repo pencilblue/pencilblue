@@ -1,8 +1,9 @@
 <script type="text/javascript" src="/js/angular/directives/wysiwyg.js"></script>
 <script type="text/javascript">
     angular.module('pencilblueApp', ['wysiwygElement'])
-    .controller('PencilBlueController', function($scope, $http, $sce) {
+    .controller('PencilBlueController', function($scope, $http, $sce, $timeout) {
         ^angular_objects^
+        ^tmp_angular=admin=elements=error_success^
 
         $scope.layout = $sce.trustAsHtml($scope.emailSettings.verification_content);
         $scope.hideMediaButton = true;

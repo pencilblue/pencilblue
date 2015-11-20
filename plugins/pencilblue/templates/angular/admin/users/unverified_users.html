@@ -3,8 +3,9 @@
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
 <script type="text/javascript">
 	angular.module('pencilblueApp', ['search', 'sort', 'paginate'])
-	.controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService) {
+	.controller('PencilBlueController', function($scope, $http, $timeout, searchService, sortService, paginationService) {
 		^angular_objects^
+		^tmp_angular=admin=elements=error_success^
 
 		$scope.searchText = '';
 		$scope.paginationIndex = 0;

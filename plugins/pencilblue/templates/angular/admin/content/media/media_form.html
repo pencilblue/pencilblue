@@ -3,9 +3,10 @@
 <script type="text/javascript" src="/js/angular/services/media.js"></script>
 <script type="text/javascript">
 	angular.module('pencilblueApp', ['media', 'ui.sortable', 'angularFileUpload', 'topicSelect', 'validation'])
-	.controller('PencilBlueController', function($scope, $sce, $http, $upload, $window, mediaService, validationService) {
+	.controller('PencilBlueController', function($scope, $sce, $http, $upload, $window, $timeout, mediaService, validationService) {
 		^angular_objects^
 		^tmp_angular=admin=elements=is_field_valid^
+		^tmp_angular=admin=elements=error_success^
 
 		$scope.mediaPreview = '';
 		$scope.editingObject = $scope.media;

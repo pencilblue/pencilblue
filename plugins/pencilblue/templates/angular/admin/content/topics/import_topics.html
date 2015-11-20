@@ -1,8 +1,9 @@
 <script type="text/javascript" src="^angular_upload_src^"></script>
 <script type="text/javascript">
     angular.module('pencilblueApp', ['angularFileUpload'])
-    .controller('PencilBlueController', function($scope, $http, $upload) {
+    .controller('PencilBlueController', function($scope, $http, $upload, $timeout) {
         ^angular_objects^
+        ^tmp_angular=admin=elements=error_success^
 
         $scope.onFileSelect = function($files) {
             for (var i = 0; i < $files.length && i < 1; i++) {

@@ -1,4 +1,4 @@
-[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue) [![Coverage Status](https://coveralls.io/repos/pencilblue/pencilblue/badge.svg?branch=master)](https://coveralls.io/r/pencilblue/pencilblue?branch=master) [![Build Status](https://travis-ci.org/pencilblue/pencilblue.svg?branch=master)](https://travis-ci.org/pencilblue/pencilblue) [![Code Climate](https://codeclimate.com/github/pencilblue/pencilblue/badges/gpa.svg)](https://codeclimate.com/github/pencilblue/pencilblue)
+[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue) [![Coverage Status](https://coveralls.io/repos/pencilblue/pencilblue/badge.svg?branch=master)](https://coveralls.io/r/pencilblue/pencilblue?branch=master) [![Build Status](https://travis-ci.org/pencilblue/pencilblue.svg?branch=master)](https://travis-ci.org/pencilblue/pencilblue) [![Code Climate](https://codeclimate.com/github/pencilblue/pencilblue/badges/gpa.svg)](https://codeclimate.com/github/pencilblue/pencilblue)[![Join the chat at https://gitter.im/pencilblue/pencilblue](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pencilblue/pencilblue?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [PencilBlue](http://pencilblue.org)
 =====
@@ -30,10 +30,10 @@ The instructions below assume that Node.js and MongoDB are installed on your mac
 
 ##### PencilBlue Command-line interface
  1. Install the pencilblue-cli module: ```sudo npm install -g pencilblue-cli```
- 2. Run ```pencilblue install [directory]``` where [directory] is the directory you want PencilBlue to be installed to.
+ 2. Run ```pbctrl install [directory]``` where [directory] is the directory you want PencilBlue to be installed to.
  3. Follow the install instructions
  4. After the installation is done, ```cd``` into the folder where you installed PencilBlue
- 5. Run ```pencilblue start```
+ 5. Run ```pbctrl start```
 
 ##### Manual installation
  1. Clone the PencilBlue repository
@@ -52,6 +52,19 @@ The instructions below assume that Node.js and MongoDB are installed on your mac
  sudo forever start pencilblue.js
  ```
  7. Navigate to the site root you specified in a configuration file or http://localhost:8080 by default.
+
+##### Roadmap
+**0.5.0 Release:**
+
+Target Date: Mid-December 2015
+New Features:
+* Multisite support
+* #501 - Route localization
+
+The full list can be found [here](https://github.com/pencilblue/pencilblue/milestones/0.5.0).
+
+Features in progress:
+Check out our [Waffle](https://waffle.io/pencilblue/pencilblue) board.
 
 ##### Help & Support
 Aways start with our wiki or [code level documentation](http://pencilblue.github.io/).  The source never lies.  Additionally, always feel free to leave questions on our issues page or reach out to us on Twitter at [@GetPencilBlue](https://twitter.com/GetPencilBlue).
