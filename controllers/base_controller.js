@@ -227,24 +227,29 @@ module.exports = function BaseControllerModule(pb) {
         var val = '';
         var self = this;
         pb.Localization.getSupported().forEach(function(locale) {
-            if (self.ls.language === locale) {
+            var path = self.req.url;
+            var isLocalizedPath = !!self.pathVars.locale && path.indexOf(self.pathVars.locale) >= 0;
+            if (self.ls.language === locale && !isLocalizedPath) {
                 //skip current language.  We don't need to list it as an alternate
                 return;
             }
+            var relationship = self.ls.language === locale ? 'canonical' : 'alternate';
 
-            var path = self.req.url;
             var urlOpts = {
                 hostname: self.hostname,
                 locale: undefined
             };
-            if (self.pathVars.locale && path.indexOf(self.pathVars.locale)) {
+            if (self.ls.language === locale) {
+                path = path.replace(locale + '/', '').replace(locale, '');
+            }
+            else if (isLocalizedPath) {
                 path = path.replace(self.pathVars.locale, locale);
             }
             else {
                 urlOpts.locale = locale;
             }
             var url = pb.UrlService.createSystemUrl(path, urlOpts);
-            val += '<link rel="alternate" hreflang="' + locale + '" href="' + url + '" />\n';
+            val += '<link rel="' + relationship + '" hreflang="' + locale + '" href="' + url + '" />\n';
         });
         cb(null, new pb.TemplateValue(val, false));
     };
