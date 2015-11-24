@@ -3,6 +3,7 @@
 		require: 'ngModel',
 		link: function(scope, element, attrs, modelCtrl) {
 			modelCtrl.$parsers.push(function (inputValue) {
+				
 				if(inputValue){
 					if(!inputValue.length) {
 						return inputValue;
