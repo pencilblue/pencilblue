@@ -27,6 +27,7 @@ module.exports = function FeedModule(pb) {
     var util             = pb.util;
     var ArticleServiceV2 = pb.ArticleServiceV2;
     var MediaLoader      = pb.MediaLoader;
+    var UrlService       = pb.UrlService;
 
     /**
      * RSS Feed
@@ -34,6 +35,25 @@ module.exports = function FeedModule(pb) {
     function ArticleFeed(){}
     util.inherits(ArticleFeed, pb.BaseController);
 
+    /**
+     * @private
+     * @static
+     * @property DAYS
+     * @type {Array}
+     */
+    var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    /**
+     * @private
+     * @static
+     * @property MONTHS
+     * @type {Array}
+     */
+    var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    /**
+     * @method init
+     */
     ArticleFeed.prototype.init = function(props, cb) {
         var self = this;
         var init = function(err) {
@@ -49,57 +69,21 @@ module.exports = function FeedModule(pb) {
         ArticleFeed.super_.prototype.init.apply(this, [props, init]);
     };
 
+    /**
+     * @method render
+     */
     ArticleFeed.prototype.render = function(cb) {
         var self = this;
 
-        this.ts.registerLocal('language', pb.config.defaultLanguage ? pb.config.defaultLanguage : 'en-us');
-        this.ts.registerLocal('last_build', self.getBuildDate());
-        this.ts.registerLocal('items', function(flag, cb){
-
-            var opts = {
-                render: true,
-                order: {publish_date: pb.DAO.DESC},
-                limit: 100
-            };
-            self.service.getPublished(opts, function(err, articles) {
-                if (util.isError(err)) {
-                    return cb(err);
-                }
-
-                self.getSectionNames(articles, function(err) {
-                    if (util.isError(err)) {
-                        return cb(err);
-                    }
-
-                    var tasks = util.getTasks(articles, function(articles, i) {
-                        return function(callback) {
-
-                            self.ts.registerLocal('url', '/article/' + articles[i].url);
-                            self.ts.registerLocal('title', articles[i].headline);
-                            self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
-                            self.ts.registerLocal('author', articles[i].author_name);
-                            self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
-                            self.ts.registerLocal('content', new pb.TemplateValue(articles[i].layout, false));
-                            self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
-                                var categories = '';
-                                for(var j = 0; j < articles[i].section_names.length; j++) {
-                                    categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
-                                }
-                                onFlagProccessed(null, new pb.TemplateValue(categories, false));
-                            });
-
-                            process.nextTick(function() {
-                                self.ts.load('xml_feeds/rss/item', callback);
-                            });
-                        };
-                    });
-                    async.series(tasks, function(err, results) {
-                        cb(err, new pb.TemplateValue(results.join(''), false));
-                    });
-                });
-            });
+        this.ts.registerModel({
+            feed_url: UrlService.createSystemUrl(self.req.url),
+            language: pb.config.defaultLanguage ? pb.config.defaultLanguage : 'en-us',
+            last_build: ArticleFeed.getRSSDate(),
+            items: function(flag, cb){
+                self.processItems(cb);
+            }
         });
-        self.ts.load('xml_feeds/rss', function(err, content) {
+        this.ts.load('xml_feeds/rss', function(err, content) {
             var data = {
                 content: content,
                 headers: {
@@ -110,22 +94,59 @@ module.exports = function FeedModule(pb) {
         });
     };
 
-    ArticleFeed.prototype.getBuildDate = function() {
-        var date = new Date();
-        //Thu, 03 Jul 2014 18:21:05 +0000
+    /**
+     * Builds the content
+     * @method processItems
+     */
+    ArticleFeed.prototype.processItems = function(cb) {
+        var self = this;
 
-        var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-        this.zeroNum = function(num) {
-            if(num < 10) {
-                return '0' + num;
+        var opts = {
+            render: true,
+            order: {publish_date: pb.DAO.DESC},
+            limit: 100
+        };
+        self.service.getPublished(opts, function(err, articles) {
+            if (util.isError(err)) {
+                return cb(err);
             }
 
-            return num.toString();
-        };
+            self.getSectionNames(articles, function(err) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
 
-        return days[date.getDay()] + ', ' + this.zeroNum(date.getDate()) + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() + ' ' + this.zeroNum(date.getHours()) + ':' + this.zeroNum(date.getMinutes()) + ':' + this.zeroNum(date.getSeconds()) + ' +0000';
+                var urlOptions = {
+                    locale: self.ls.language
+                };
+                var tasks = util.getTasks(articles, function(articles, i) {
+                    return function(callback) {
+
+                        var url = UrlService.createSystemUrl(UrlService.urlJoin('/article', articles[i].url), urlOptions);
+                        self.ts.registerLocal('url', url);
+                        self.ts.registerLocal('title', articles[i].headline);
+                        self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
+                        self.ts.registerLocal('author', articles[i].author_name);
+                        self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
+                        self.ts.registerLocal('content', new pb.TemplateValue(articles[i].layout, false));
+                        self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
+                            var categories = '';
+                            for(var j = 0; j < articles[i].section_names.length; j++) {
+                                categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
+                            }
+                            onFlagProccessed(null, new pb.TemplateValue(categories, false));
+                        });
+
+                        process.nextTick(function() {
+                            self.ts.load('xml_feeds/rss/item', callback);
+                        });
+                    };
+                });
+                async.series(tasks, function(err, results) {
+                    cb(err, new pb.TemplateValue(results.join(''), false));
+                });
+            });
+        });
     };
 
 
@@ -180,20 +201,24 @@ module.exports = function FeedModule(pb) {
         });
     };
 
+    /**
+     * Ex: Thu, 03 Jul 2014 18:21:05 +0000
+     * @method getRSSDate
+     * @return {String}
+     */
     ArticleFeed.getRSSDate = function(date) {
-
-        var dayNames   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-        function getTrailingZero(number)  {
-            if(number < 10) {
-                return '0' + number;
-            }
-            return number;
-        }
-
-        return dayNames[date.getDay()] + ', ' + date.getDate() + ' ' + monthNames[date.getMonth()] + ' ' + date.getFullYear() + ' ' + getTrailingZero(date.getHours()) + ':' + getTrailingZero(date.getMinutes()) + ':' + getTrailingZero(date.getSeconds()) + ' +0000';
+        date = date || new Date();
+        return DAYS[date.getDay()] + ', ' + zeroNum(date.getDate()) + ' ' + MONTHS[date.getMonth()] + ' ' + date.getFullYear() + ' ' + zeroNum(date.getHours()) + ':' + zeroNum(date.getMinutes()) + ':' + zeroNum(date.getSeconds()) + ' +0000';
     };
+
+    /**
+     * @private
+     * @method zeroNum
+     * @param {Integer} num
+     */
+    function zeroNum(num) {
+        return num < 10 ? '0' + num : num.toString();
+    }
 
     //exports
     return ArticleFeed;
