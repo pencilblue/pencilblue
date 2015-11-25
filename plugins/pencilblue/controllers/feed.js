@@ -53,6 +53,8 @@ module.exports = function FeedModule(pb) {
 
     /**
      * @method init
+     * @param {Object} props
+     * @param {Function} cb
      */
     ArticleFeed.prototype.init = function(props, cb) {
         var self = this;
@@ -71,6 +73,7 @@ module.exports = function FeedModule(pb) {
 
     /**
      * @method render
+     * @param {Function} cb
      */
     ArticleFeed.prototype.render = function(cb) {
         var self = this;
@@ -101,71 +104,81 @@ module.exports = function FeedModule(pb) {
     ArticleFeed.prototype.processItems = function(cb) {
         var self = this;
 
-        var opts = {
-            render: true,
-            order: {publish_date: pb.DAO.DESC},
-            limit: 100
-        };
-        self.service.getPublished(opts, function(err, articles) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
+        var tasks = [
 
-            self.getSectionNames(articles, function(err) {
-                if (util.isError(err)) {
-                    return cb(err);
-                }
-
-                var urlOptions = {
-                    locale: self.ls.language
+            //retrieve articles
+            function(callback) {
+                var opts = {
+                    render: true,
+                    order: {publish_date: pb.DAO.DESC},
+                    limit: 100
                 };
-                var tasks = util.getTasks(articles, function(articles, i) {
-                    return function(callback) {
+                self.service.getPublished(opts, callback);
+            },
 
-                        var url = UrlService.createSystemUrl(UrlService.urlJoin('/article', articles[i].url), urlOptions);
-                        self.ts.registerLocal('url', url);
-                        self.ts.registerLocal('title', articles[i].headline);
-                        self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
-                        self.ts.registerLocal('author', articles[i].author_name);
-                        self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
-                        self.ts.registerLocal('content', new pb.TemplateValue(articles[i].layout, false));
-                        self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
-                            var categories = '';
-                            for(var j = 0; j < articles[i].section_names.length; j++) {
-                                categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
-                            }
-                            onFlagProccessed(null, new pb.TemplateValue(categories, false));
-                        });
+            //get section names
+            function(articles, callback) {
+                self.getSectionNames(articles, callback);
+            },
 
-                        process.nextTick(function() {
-                            self.ts.load('xml_feeds/rss/item', callback);
-                        });
-                    };
+            //serialize articles
+            function(articles, callback) {
+                self.serializeArticles(articles, callback);
+            }
+        ]
+        async.waterfall(tasks, cb);
+    };
+
+    /**
+     * @method serializeArticles
+     * @param {Array} articles
+     * @param {Function} cb
+     */
+    ArticleFeed.prototype.serializeArticles = function(articles, cb) {
+        var self = this;
+
+        var urlOptions = {
+            locale: this.ls.language
+        };
+        var tasks = util.getTasks(articles, function(articles, i) {
+            return function(callback) {
+
+                var url = UrlService.createSystemUrl(UrlService.urlJoin('/article', articles[i].url), urlOptions);
+                var ts = self.ts.getChildInstance();
+                ts.registerLocal('url', url);
+                ts.registerLocal('title', articles[i].headline);
+                ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
+                ts.registerLocal('author', articles[i].author_name);
+                ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
+                ts.registerLocal('content', new pb.TemplateValue(articles[i].layout, false));
+                ts.registerLocal('categories', function(flag, onFlagProccessed) {
+                    var categories = articles[i].section_names.reduce(function(prev, curr) {
+                        return prev + '\n<category>' + HtmlEncoder.htmlEncode(curr) + '</category>';
+                    }, '');
+                    onFlagProccessed(null, new pb.TemplateValue(categories, false));
                 });
-                async.series(tasks, function(err, results) {
-                    cb(err, new pb.TemplateValue(results.join(''), false));
+
+                process.nextTick(function() {
+                    ts.load('xml_feeds/rss/item', callback);
                 });
-            });
+            };
+        });
+        async.parallel(tasks, function(err, results) {
+            cb(err, new pb.TemplateValue(results.join(''), false));
         });
     };
 
-
+    /**
+     * @method getSectionNames
+     * @param {Array} articles
+     * @param {Function} cb
+     */
     ArticleFeed.prototype.getSectionNames = function(articles, cb) {
-
-        //get the sections
-        var sectionsHash = {};
-        articles.forEach(function(article) {
-            if (util.isArray(article.article_sections) && article.article_sections.length > 0) {
-                article.article_sections.forEach(function(sectionId) {
-                    sectionsHash[sectionId] = true;
-                });
-            }
-        });
 
         //build query to lookup sections that apply
         var opts = {
             select: {name: 1},
-            where: pb.DAO.getIdInWhere(Object.keys(sectionsHash)),
+            where: pb.DAO.getIdInWhere(ArticleFeed.getDistinctSections(articles)),
             order: {parent: 1}
         };
         var dao = new pb.DAO();
@@ -176,7 +189,7 @@ module.exports = function FeedModule(pb) {
 
             //convert to hash for quick lookup
             var idField = pb.DAO.getIdField();
-            sectionsHash = util.arrayToHash(sections, function(sections, i) {
+            var sectionsHash = util.arrayToHash(sections, function(sections, i) {
                 return sections[i][idField];
             });
 
@@ -197,13 +210,33 @@ module.exports = function FeedModule(pb) {
                 });
             });
 
-            cb(null);
+            cb(null, articles);
         });
     };
 
     /**
+     * @static
+     * @method getDistinctSections
+     * @param {Array} articles
+     * @return {Array}
+     */
+    ArticleFeed.getDistinctSections = function(articles) {
+
+        var sectionsHash = {};
+        articles.forEach(function(article) {
+            if (util.isArray(article.article_sections) && article.article_sections.length > 0) {
+                article.article_sections.forEach(function(sectionId) {
+                    sectionsHash[sectionId] = true;
+                });
+            }
+        });
+        return Object.keys(sectionsHash);
+    }
+
+    /**
      * Ex: Thu, 03 Jul 2014 18:21:05 +0000
      * @method getRSSDate
+     * @param {Date} [date]
      * @return {String}
      */
     ArticleFeed.getRSSDate = function(date) {
@@ -215,6 +248,7 @@ module.exports = function FeedModule(pb) {
      * @private
      * @method zeroNum
      * @param {Integer} num
+     * @return {String}
      */
     function zeroNum(num) {
         return num < 10 ? '0' + num : num.toString();
