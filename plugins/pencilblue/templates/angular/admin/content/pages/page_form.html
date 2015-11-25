@@ -10,6 +10,8 @@
         ^tmp_angular=admin=elements=error_success^
 
         $scope.urlAvailable = null;
+        $scope.urlGenerated = null;
+
         $scope.page.publish_date = $filter('date')($scope.page.publish_date || new Date(), 'MM-dd-yyyy HH:mm');
         $scope.page.page_media = $scope.page.page_media || [];
         $scope.layout = $sce.trustAsHtml($scope.page.page_layout);
@@ -149,6 +151,38 @@
                 }
             });
         };
+
+        $scope.generateUrl = function(text) {
+			if (text) {
+				return text.replace(/\s+/g, '-').toLowerCase();
+			}
+		};
+
+		$scope.getUrl = function() {
+			$scope.page.url = $scope.generateUrl($scope.page.headline);
+            
+            $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page&' + $scope.siteKey + '=' + $scope.site)
+            .success(function(result) {
+                $scope.urlAvailable = !result.data;
+            })
+            .error(function(error, status) {
+                $scope.errorMessage = error.message;
+            });
+
+			if($scope.page.url && $scope.page.url.length) {
+				$scope.urlGenerated = true;
+			} else {
+				$scope.urlGenerated = false;
+			}
+		};
+
+		$scope.$watch('page.url', function(newVal, oldVal) {
+			if (newVal !== oldVal) {
+				if($scope.page.url !== $scope.generateUrl($scope.page.headline)){
+	 			   $scope.urlGenerated = null;
+	 		   	}
+			}
+	   	});
 
         $('#publish_date').datetimepicker({format: 'm-d-Y H:i'});
         $timeout($scope.savePageDraft, 30000);
