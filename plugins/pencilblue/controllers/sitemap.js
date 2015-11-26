@@ -15,16 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//dependencies
-var async = require('async');
-
 module.exports = function(pb) {
 
     //pb dependencies
     var util = pb.util;
+    var SiteMapService = pb.SiteMapService;
+    var ArticleServiceV2 = pb.ArticleServiceV2;
+    var PageService = pb.PageService;
 
     /**
      * Google sitemap
+     * @class SiteMap
+     * @extends BaseController
+     * @constructor
      */
     function SiteMap(){}
     util.inherits(SiteMap, pb.BaseController);
@@ -32,98 +35,47 @@ module.exports = function(pb) {
     //constants
     var PARALLEL_LIMIT = 2;
 
-    SiteMap.prototype.render = function(cb) {
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    SiteMap.prototype.init = function(context, cb) {
         var self = this;
+        var init = function(err) {
 
-        this.ts.registerLocal('urls', function(flag, cb) {
-            self.prepareContent(cb);
-        });
-        this.ts.load('xml_feeds/sitemap', function(err, content) {
-            var data = {
-                content: content,
+            //build dependencies for site map service
+            var articleSerivce = new ArticleServiceV2(self.getServiceContext());
+            var pageService = new PageService(self.getServiceContext());
+            var context = self.getServiceContext();
+            context.articleService = articleSerivce;
+            context.pageService = pageService;
+
+            /**
+             *
+             * @property service
+             * @type {SiteMapService}
+             */
+            self.service = new SiteMapService(context);
+
+            cb(err, true);
+        };
+        SiteMap.super_.prototype.init.apply(this, [context, init]);
+    };
+
+    SiteMap.prototype.render = function(cb) {
+        this.service.getAndSerialize(function(err, xml) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            cb({
+                content: xml,
                 headers: {
                     'Access-Control-Allow-Origin': '*'
                 }
-            };
-            cb(data);
+            });
         });
-    };
-
-    SiteMap.prototype.prepareContent = function(cb) {
-        var self  = this;
-        var dao   = new pb.SiteQueryService({site: self.site, onlyThisSite: self.onlyThisSite});
-        var today = new Date();
-        var descriptors = {
-            section: {
-                where: {type: {$ne: 'container'}},
-                weight: '0.5',
-                path: '/'
-            },
-            page: {
-                where: {publish_date: {$lte: today}, draft: {$ne: 1}},
-                weight: '1.0',
-                path: '/page/'
-            },
-            article: {
-                where: {publish_date: {$lte: today}, draft: {$ne: 1}},
-                weight: '1.0',
-                path: '/article/'
-            }
-        };
-        var tasks = util.getTasks(Object.keys(descriptors), function(keys, i) {
-            return function(callback) {
-                var data = descriptors[keys[i]];
-                data.select = {url: 1, last_modified: 1};
-                dao.q(keys[i], data, function(err, items) {
-                    self.processObjects(items, data.path, data.weight, callback);
-                });
-            };
-        });
-        async.parallelLimit(tasks, 2, function(err, htmlParts) {
-            cb(err, new pb.TemplateValue(htmlParts.join(''), false));
-        });
-    };
-
-    SiteMap.prototype.processObjects = function(objArray, urlPrefix, priority, cb) {
-        var self = this;
-        var ts   = new pb.TemplateService(this.ls);
-        ts.registerLocal("site_root", new pb.TemplateValue(self.hostname, false));
-        ts.registerLocal('change_freq', 'daily');
-        ts.registerLocal('priority', priority);
-
-
-        var tasks = util.getTasks(objArray, function(objArray, i) {
-            return function(callback) {
-
-                var url;
-                if (urlPrefix === '/') {//special case for navItems
-                    pb.SectionService.formatUrl(objArray[i]);
-                    url = objArray[i].url;
-                }
-                else {
-                    url = pb.UrlService.urlJoin(urlPrefix, objArray[i].url);
-                }
-                ts.registerLocal('url', url);
-                ts.registerLocal('last_mod', self.getLastModDate(objArray[i].last_modified));
-                ts.load('xml_feeds/sitemap/url', callback);
-            };
-        });
-        async.series(tasks, function(err, results) {
-            cb(err, results.join(''));
-        });
-    };
-
-    SiteMap.prototype.getLastModDate = function(date) {
-        var month = date.getMonth() + 1;
-        if(month < 10) {
-            month = '0' + month;
-        }
-        var day = date.getDate();
-        if(day < 10) {
-            day = '0' + day;
-        }
-
-        return date.getFullYear() + '-' + month + '-' + day;
     };
 
     //exports

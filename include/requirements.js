@@ -26,7 +26,7 @@ var path = require('path');
  * @return {Object} The pb namespace
  */
 module.exports = function PB(config) {
-    
+
     //define what will become the global entry point into the server api.
     var pb = {};
 
@@ -44,7 +44,7 @@ module.exports = function PB(config) {
 
     //initialize logging
     pb.log    = require(path.join(config.docRoot, '/include/utils/logging.js'))(config);
-    
+
     //setup the System instance
     pb.System = require(path.join(config.docRoot, 'include/system/system.js'));
     pb.system = new pb.System(pb);
@@ -65,7 +65,7 @@ module.exports = function PB(config) {
     var ValidationModule = require(path.join(config.docRoot, '/include/validation/validation_service.js'));
     pb.ValidationService = ValidationModule(pb);
     pb.validation        = pb.ValidationService;
-    
+
     //lock services
     pb.locks = {
         providers: {
@@ -197,7 +197,7 @@ module.exports = function PB(config) {
             pb.log.warn('PencilBlue: pb.js is deprecated.  Use pb.ClientJs instead');
             return pb.ClientJS;
         }
-    });						
+    });
     pb.AdminNavigation    = require(path.join(config.docRoot, '/include/admin_navigation'))(pb);			// Admin Navigation
     pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'))(pb);
     pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'))(pb);
@@ -215,7 +215,7 @@ module.exports = function PB(config) {
         }
     });
 
-    //create plugin setting service 
+    //create plugin setting service
     pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'))(pb);
     pb.PluginRepository = require(path.join(config.docRoot, '/include/repository/plugin_repository.js'))(pb);
 
@@ -224,7 +224,7 @@ module.exports = function PB(config) {
         renderers: {
             BaseMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/base_media_renderer.js'))(pb),
         },
-        
+
         providers: {
             FsMediaProvider: require(path.join(config.docRoot, '/include/service/media/fs_media_provider.js'))(pb),
             MongoMediaProvider: require(path.join(config.docRoot, '/include/service/media/mongo_media_provider.js'))(pb)
@@ -242,14 +242,14 @@ module.exports = function PB(config) {
     pb.media.renderers.StorifyMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/storify_media_renderer.js'))(pb),
     pb.media.renderers.KickStarterMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/kickstarter_media_renderer.js'))(pb);
     pb.media.renderers.PdfMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/pdf_media_renderer.js'))(pb);
-    
+
     //providers and service
     pb.MediaService = require(path.join(config.docRoot, '/include/service/entities/media_service.js'))(pb);
 
     //content services
     pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js')(pb);
     pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js')(pb);
-    
+
     //object services
     pb.TopicService         = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
     pb.ContentObjectService = require(path.join(config.docRoot, '/include/service/entities/content/content_object_service.js'))(pb);
@@ -258,11 +258,13 @@ module.exports = function PB(config) {
     pb.PageRenderer         = require(path.join(config.docRoot, '/include/service/entities/content/page_renderer.js'))(pb);
     pb.PageService          = require(path.join(config.docRoot, '/include/service/entities/content/page_service.js'))(pb);
     pb.ContentViewLoader    = require(path.join(config.docRoot, '/include/service/entities/content/content_view_loader.js'))(pb);
-    
+
+    pb.SiteMapService = require(path.join(config.docRoot, '/include/service/entities/site_map_service.js'))(pb);
+
     var ArticleServiceModule = require(path.join(config.docRoot, '/include/service/entities/article_service.js'))(pb);
     pb.ArticleService        = ArticleServiceModule.ArticleService;
     pb.MediaLoader           = ArticleServiceModule.MediaLoader;
     pb.CommentService        = require(config.docRoot+'/include/theme/comments.js')(pb);
-    
+
     return pb;
 };
