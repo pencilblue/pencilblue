@@ -16,8 +16,10 @@
  */
 
 //dependencies
-var async = require('async');
-var util  = require('../../util.js');
+var async       = require('async');
+var url         = require('url');
+var util        = require('../../util.js');
+var HtmlEncoder = require('htmlencode');
 
 module.exports = function(pb) {
 
@@ -31,6 +33,8 @@ module.exports = function(pb) {
         }
 
         this.ts = context.ts;
+
+        this.ls = context.ls;
 
         this.articleService = context.articleService;
 
@@ -134,7 +138,7 @@ module.exports = function(pb) {
                     priority: item.priority || '1.0',
                     url: item.url,
                     last_mod: SiteMapService.getLastModDate(item.last_modified),
-                    alternate_links: ' '
+                    alternate_links: new pb.TemplateValue(SiteMapService.createAlternateLinks(item, self.ls.language, pb.Localization.getSupported(), self.hostname), false)
                 });
                 ts.load(self.urlTemplatePath, callback);
             };
@@ -178,7 +182,7 @@ module.exports = function(pb) {
 
     SiteMapService.prototype.getForSections = function(context, cb) {
         var opts = {
-            select: { url: 1, last_modified: 1},
+            select: { url: 1, last_modified: 1, type: 1, item: 1 },
             where: {type: {$ne: 'container'}}
         };
         this.dao.q('section', opts, SiteMapService.onPostLoad({urlPrefix: '', weight: '0.5', localized: true, hostname: this.hostname}, cb));
@@ -247,6 +251,36 @@ module.exports = function(pb) {
             }, []);
             cb(null, combined);
         };
+    };
+
+    SiteMapService.createAlternateLinks = function(item, currentLocale, locales, hostname) {
+        if (!item.localized) {
+            return '';
+        }
+
+        return locales.reduce(function(prev, curr) {
+            if (currentLocale === curr) {
+                return prev;
+            }
+
+            var urlOpts = {
+                hostname: hostname,
+                locale: curr
+            };
+            var urlPath = url.parse(item.url).path;
+
+
+            var context = {
+                relationship: 'alternate',
+                locale: curr,
+                url: pb.UrlService.createSystemUrl(urlPath, urlOpts)
+            };
+            return prev + SiteMapService.serializeLocaleLink(context) + '\n';
+        }, '');
+    };
+
+    SiteMapService.serializeLocaleLink = function(context) {
+        return util.format('<xhtml:link rel="%s" hreflang="%s" href="%s" />', context.relationship, context.locale, HtmlEncoder.htmlEncode(context.url));
     };
 
     return SiteMapService;
