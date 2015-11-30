@@ -236,7 +236,7 @@ module.exports = function(pb) {
     };
 
     SiteMapService.paddedNumStr = function(num) {
-        return num < 10 ? '0' + num : num;
+        return num < 10 ? '0' + num : '' + num;
     };
 
     SiteMapService.formatGetResults = function(cb) {
