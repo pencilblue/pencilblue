@@ -1316,28 +1316,53 @@ module.exports = function PluginServiceModule(pb) {
         var hasDependencies = true;
         var tasks = util.getTasks(Object.keys(plugin.dependencies), function(keys, i) {
             return function(callback) {
-                
+
                 //verify that the module exists and its package definition is available
                 var packagePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'node_modules', keys[i], 'package.json');
-                var modulePath = packagePath;
-                fs.exists(modulePath, function(exists) {
-                    if (!exists) {
-                        pb.log.warn('PluginService: Plugin %s is missing dependency %s', plugin.name, keys[i]);
-                        
-                        hasDependencies = false;
-                        return callback(null, false);
+                var rootPackagePath = path.join(process.cwd(), 'node_modules', keys[i], 'package.json');
+                var checkModulePath = function(myPath, cb) {
+                    fs.exists(myPath, function(exists) {
+                        if (!exists) {
+                            hasDependencies = false;
+                            return cb(null, {satisfied: false, exists: exists});
+                        }
+
+                        //ensure that the version expression specified by the
+                        //dependency is satisfied by that provided by the package.json
+                        var package = require(myPath);
+                        var isSatisfied = semver.satisfies(package.version, plugin.dependencies[keys[i]]);
+                        if (!isSatisfied) {
+
+                            hasDependencies = false;
+
+                        }
+                        cb(null, {satisfied: isSatisfied, exists: exists});
+                    });
+                };
+
+                checkModulePath(packagePath, function(err, result) {
+                    if(err) {
+                        return callback(err, false);
                     }
-                    
-                    //ensure that the version expression specified by the 
-                    //dependency is satisfied by that provided by the package.json
-                    var package = require(packagePath);
-                    var isSatisfied = semver.satisfies(package.version, plugin.dependencies[keys[i]]);
-                    if (!isSatisfied) {
-                        
-                        hasDependencies = false;
-                        pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, package.version, keys[i]);
+                    if(result.satisfied) {
+                        hasDependencies = true;
+                        return callback(err, result.satisfied);
                     }
-                    callback();
+                    checkModulePath(rootPackagePath, function(err,  result) {
+                        if(err) {
+                            return callback(err, false);
+                        }
+                        if (!result.exists) {
+                            pb.log.warn('PluginService: Plugin %s is missing dependency %s', plugin.name, keys[i]);
+                        }
+                        if(!result.satisfied) {
+                            pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, package.version, keys[i]);
+                        }
+                        if(result.satisfied) {
+                            hasDependencies = true;
+                        }
+                        callback(err, result.satisfied);
+                    });
                 });
             };
         });
