@@ -238,8 +238,12 @@ module.exports = function MediaServiceModule(pb) {
      */
     MediaService.prototype.setContent = function(fileDataStrOrBuff, fileName, cb) {
         var mediaPath = MediaService.generateMediaPath(fileName);
-        this.provider.set(fileDataStrOrBuff, mediaPath, function(err, result) {
-            cb(err, { mediaPath: mediaPath, result: result});
+        this.provider.set(fileDataStrOrBuff, mediaPath, function(err, remoteURL, result) {
+            if (util.isBoolean(remoteURL)) {		
+              cb(err, { mediaPath: mediaPath, result: result});		
+            } else {		
+              cb(err, { mediaPath: remoteURL, result: result});		
+            }
         });
     };
 
@@ -252,8 +256,12 @@ module.exports = function MediaServiceModule(pb) {
      */
     MediaService.prototype.setContentStream = function(stream, fileName, cb) {
         var mediaPath = MediaService.generateMediaPath(fileName);
-        this.provider.setStream(stream, mediaPath, function(err, result) {
-            cb(err, { mediaPath: mediaPath, result: result});
+        this.provider.setStream(stream, mediaPath, function(err, remoteURL, result) {
+            if (util.isBoolean(remoteURL)) {		
+              cb(err, { mediaPath: mediaPath, result: result});		
+            } else {		
+              cb(err, { mediaPath: remoteURL, result: result});		
+            }
         });
     };
 

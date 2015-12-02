@@ -77,7 +77,7 @@ module.exports = function(pb) {
     };
 
     DeleteMediaController.prototype.removeLocal = function(media, mservice, cb) {
-        if (!media.is_file) {
+        if (!media.is_file && media.location.indexOf('http') !== 0 && media.location.indexOf('//') !== 0) {
             return cb();
         }
         mservice.deleteContentByPath(media.location, cb);
