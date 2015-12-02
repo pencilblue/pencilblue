@@ -16,7 +16,6 @@
  */
 
 module.exports = function SiteFormModule(pb) {
-
   //pb dependencies
   var util = pb.util;
 
@@ -56,13 +55,14 @@ module.exports = function SiteFormModule(pb) {
         options.isNew = false;
         options.display = data.displayName.toString();
         options.host = data.hostname.toString();
+        options.selectedSupportedLocales = data.selectedSupportedLocales;
+        options.defaultLocale = data.defaultLocale;
         options.isActive = data.active;
         options.uid = data.uid;
       }
 
       setupAngularObj(self, options, cb);
     });
-
   };
 
   /**
@@ -75,15 +75,27 @@ module.exports = function SiteFormModule(pb) {
     var options = {isNew: true};
     //todo:: refactor angular on site_form to remove unneeded properties
     setupAngularObj(self, options, cb);
-
   };
 
   function setupAngularObj(self, options, cb){
     var isNew = options.isNew,
-      display = options.display,
-      host = options.host,
-      isActive = options.isActive,
-      uid = options.uid;
+    display = options.display,
+    host = options.host,
+    supportedLocales = {},
+    selectedLocales = [],
+    defaultLocale = options.defaultLocale,
+    selectedSupportedLocales = options.selectedSupportedLocales || {"en-US": true},
+    isActive = options.isActive,
+    uid = options.uid;
+
+    for ( var locale in pb.Localization.supportedLookup) {
+      supportedLocales[locale] = selectedSupportedLocales[locale] ? true : false;
+      if (selectedSupportedLocales[locale]) {
+        selectedLocales.push(locale);
+      }
+    }
+
+    pb.log.debug("supportedLocales[" + JSON.stringify(supportedLocales) + "]");
 
     var angularObjects = pb.ClientJs.getAngularObjects({
       navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls, self.site),
@@ -91,6 +103,9 @@ module.exports = function SiteFormModule(pb) {
       tabs: [{ active: 'active', href: '#editSite', icon: 'cog', title: self.ls.get('EDIT_SITE') }],
       displayName: display,
       hostname: host,
+      supportedLocales: supportedLocales,
+      selectedLocales: selectedLocales,
+      defaultLocale: defaultLocale,
       isNew: isNew,
       isActive: isActive,
       uid: uid

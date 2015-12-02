@@ -16,7 +16,6 @@
  */
 
 module.exports = function EditSiteActionModule(pb) {
-
     //pb dependencies
     var util = pb.util;
 
@@ -57,6 +56,9 @@ module.exports = function EditSiteActionModule(pb) {
 
                 data.displayName = self.body.displayName;
                 data.hostname = self.body.hostname;
+                data.selectedSupportedLocales = self.body.selectedSupportedLocales;
+                data.defaultLocale = self.body.defaultLocale;
+
                 var jobId = siteService.editSite(data, function(err, result) {
                     var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('UPDATING_SITE'), jobId);
                     cb({content: content});
