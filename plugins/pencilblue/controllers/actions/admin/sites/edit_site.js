@@ -56,7 +56,11 @@ module.exports = function EditSiteActionModule(pb) {
 
                 data.displayName = self.body.displayName;
                 data.hostname = self.body.hostname;
-                //TODO: Convert selectedLocales array to an object before saving
+                self.body.savedLocales = {};
+                for (var i=0; i< self.body.selectedLocales.length; i++) {
+                    var selectedLocale = self.body.selectedLocales[i];
+                    self.body.savedLocales[selectedLocale] = true;
+                }
                 data.savedLocales = self.body.savedLocales;
                 data.defaultLocale = self.body.defaultLocale;
 
