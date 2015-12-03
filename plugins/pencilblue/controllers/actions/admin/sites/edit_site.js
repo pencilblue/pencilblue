@@ -16,7 +16,6 @@
  */
 
 module.exports = function EditSiteActionModule(pb) {
-
     //pb dependencies
     var util = pb.util;
 
@@ -57,6 +56,10 @@ module.exports = function EditSiteActionModule(pb) {
 
                 data.displayName = self.body.displayName;
                 data.hostname = self.body.hostname;
+                //TODO: Convert selectedLocales array to an object before saving
+                data.savedLocales = self.body.savedLocales;
+                data.defaultLocale = self.body.defaultLocale;
+
                 var jobId = siteService.editSite(data, function(err, result) {
                     var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('UPDATING_SITE'), jobId);
                     cb({content: content});
@@ -66,7 +69,7 @@ module.exports = function EditSiteActionModule(pb) {
     };
 
     EditSiteAction.prototype.getRequiredFields = function() {
-        return['displayName', 'hostname'];
+        return['displayName', 'hostname', 'defaultLocale', 'selectedLocales'];
     };
 
     //exports
