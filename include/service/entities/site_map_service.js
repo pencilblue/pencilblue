@@ -137,7 +137,7 @@ module.exports = function(pb) {
                     change_freq: item.changeFrequency || 'daily',
                     priority: item.priority || '1.0',
                     url: item.url,
-                    last_mod: SiteMapService.getLastModDate(item.last_modified),
+                    last_mod: SiteMapService.getLastModDateStr(item.last_modified),
                     alternate_links: new pb.TemplateValue(SiteMapService.createAlternateLinks(item, self.ls.language, pb.Localization.getSupported(), self.hostname), false)
                 });
                 ts.load(self.urlTemplatePath, callback);
@@ -229,7 +229,7 @@ module.exports = function(pb) {
         return true;
     };
 
-    SiteMapService.getLastModDate = function(date) {
+    SiteMapService.getLastModDateStr = function(date) {
         var month = SiteMapService.paddedNumStr(date.getMonth() + 1);
         var day = SiteMapService.paddedNumStr(date.getDate());
         return date.getFullYear() + '-' + month + '-' + day;

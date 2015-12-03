@@ -53,6 +53,37 @@ describe('SiteMapService', function() {
         });
     });
 
+    describe('SiteMapService.formatGetResults', function() {
+
+        it('should return a function', function() {
+            var result = SiteMapService.formatGetResults(function(){});
+            result.should.be.type('function');
+        });
+
+        it('should callback with an error when passed an error', function(done) {
+            var error = new Error('hello');
+            var func = SiteMapService.formatGetResults(function(err, result) {
+                err.should.eql(error);
+                done();
+            });
+            func(error);
+        });
+
+        it('should reduce the results down to a single array provided in the callback', function(done) {
+            var results = [
+                ['a', 'b', 'c'],
+                [],
+                ['d'],
+                ['e', 'f']
+            ];
+            var func = SiteMapService.formatGetResults(function(err, result) {
+                result.should.eql(['a', 'b', 'c', 'd', 'e', 'f']);
+                done();
+            });
+            func(null, results);
+        });
+    });
+
     describe('SiteMapService.paddedNumStr', function() {
 
         it('should prefix a number with a 0 when less than 10', function() {
@@ -65,6 +96,15 @@ describe('SiteMapService', function() {
 
             var result = SiteMapService.paddedNumStr(10);
             result.should.eql('10');
+        });
+    });
+
+    describe('SiteMapService.getLastModDateStr', function() {
+
+        it('should format the date in the format YYYY-MM-DD', function() {
+            var date = new Date(Date.parse('2015-11-28T10:16:42+00:00'));
+            var dateStr = SiteMapService.getLastModDateStr(date);
+            dateStr.should.eql('2015-11-28');
         });
     });
 });
