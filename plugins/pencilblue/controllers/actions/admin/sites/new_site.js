@@ -43,11 +43,12 @@ module.exports = function NewSiteActionModule(pb) {
         }
 
         var siteService = new pb.SiteService();
-        self.body.savedLocales = {};
+        self.body.supportedLocales = {};
         for (var i=0; i< self.body.selectedLocales.length; i++) {
             var selectedLocale = self.body.selectedLocales[i];
-            self.body.savedLocales[selectedLocale] = true;
+            self.body.supportedLocales[selectedLocale] = true;
         }
+        self.body.selectedLocales = undefined;
         var site = pb.DocumentCreator.create('site', self.body);
         siteService.isDisplayNameOrHostnameTaken(site.displayName, site.hostname, site._id, function (err, isTaken/*, field*/) {
             if(isTaken) {

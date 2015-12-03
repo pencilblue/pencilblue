@@ -148,7 +148,13 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} site
      */
     RequestHandler.loadSite = function(site) {
-        RequestHandler.sites[site.hostname] = { active: site.active, uid: site.uid, displayName: site.displayName, hostname: site.hostname };
+        RequestHandler.sites[site.hostname] = {
+          active: site.active,
+          uid: site.uid,
+          displayName: site.displayName,
+          hostname: site.hostname,
+          defaultLocale: site.defaultLocale,
+          supportedLocales: site.supportedLocales };
     };
 
     /**
