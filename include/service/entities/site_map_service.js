@@ -32,29 +32,86 @@ module.exports = function(pb) {
             throw new Error('context parameter must be a valid object');
         }
 
+        /**
+         * @property ts
+         * @type {TemplateService}
+         */
         this.ts = context.ts;
 
+        /**
+         * @property ls
+         * @type {Localization}
+         */
         this.ls = context.ls;
 
+        /**
+         * @property articleService
+         * @type {ArticleServiceV2}
+         */
         this.articleService = context.articleService;
 
+        /**
+         * @property pageService
+         * @type {PageService}
+         */
         this.pageService = context.pageService;
 
+        /**
+         * @property dao
+         * @type {SiteQueryService}
+         */
         this.dao = new pb.SiteQueryService({site: context.site, onlyThisSite: context.onlyThisSite});
 
+        /**
+         * @property site
+         * @type {String}
+         */
         this.site = context.site;
 
+        /**
+         * @property onlyThisSite
+         * @type {Boolean}
+         */
         this.onlyThisSite = context.onlyThisSite;
 
+        /**
+         * @property templatePath
+         * @type {String}
+         */
         this.templatePath = context.templatePath || DEFAULT_TEMPLATE;
 
+        /**
+         * @property urlTemplatePath
+         * @type {String}
+         */
         this.urlTemplatePath = context.urlTemplatePath || DEFAULT_URL_TEMPLATE;
     }
 
+    /**
+     *
+     * @private
+     * @static
+     * @property DEFAULT_TEMPLATE
+     * @type {String}
+     */
     var DEFAULT_TEMPLATE = 'xml_feeds/sitemap';
 
+    /**
+     *
+     * @private
+     * @static
+     * @property DEFAULT_URL_TEMPLATE
+     * @type {String}
+     */
     var DEFAULT_URL_TEMPLATE = 'xml_feeds/sitemap/url';
 
+    /**
+     *
+     * @private
+     * @static
+     * @property SITE_MAP_REGISTRY
+     * @type {Object}
+     */
     var SITE_MAP_REGISTRY = {
 
         article: function(context, cb) {
@@ -70,6 +127,12 @@ module.exports = function(pb) {
         }
     };
 
+    /**
+     *
+     * @method getAndSerialize
+     * @param {Object} [options]
+     * @param {Function} cb
+     */
     SiteMapService.prototype.getAndSerialize = function(options, cb) {
         if (util.isFunction(options)) {
             cb = options;
@@ -89,6 +152,12 @@ module.exports = function(pb) {
         async.waterfall(tasks, cb);
     };
 
+    /**
+     *
+     * @method get
+     * @param {Object} [options]
+     * @param {Function} cb
+     */
     SiteMapService.prototype.get = function(options, cb) {
         if (util.isFunction(options)) {
             cb = options;
@@ -110,6 +179,13 @@ module.exports = function(pb) {
         async.parallel(tasks, SiteMapService.formatGetResults(cb));
     };
 
+    /**
+     *
+     * @method toXml
+     * @param {Array} items
+     * @param {Object} [options]
+     * @param {Function} cb
+     */
     SiteMapService.prototype.toXml = function(items, options, cb) {
         if (util.isFunction(options)) {
             cb = options;
@@ -125,6 +201,13 @@ module.exports = function(pb) {
         this.ts.load(this.templatePath, cb);
     };
 
+    /**
+     *
+     * @private
+     * @method _serializeItems
+     * @param {Array} items
+     * @param {Function} cb
+     */
     SiteMapService.prototype._serializeItems = function(items, cb) {
         var self = this;
 
@@ -151,6 +234,12 @@ module.exports = function(pb) {
         })
     };
 
+    /**
+     *
+     * @method getForArticles
+     * @param {Object} context
+     * @param {Function} cb
+     */
     SiteMapService.prototype.getForArticles = function(context, cb) {
         var opts = {
             service: this.articleService,
@@ -162,6 +251,12 @@ module.exports = function(pb) {
         this.getForContent(context, opts, cb);
     };
 
+    /**
+     *
+     * @method getForPages
+     * @param {Object} context
+     * @param {Function} cb
+     */
     SiteMapService.prototype.getForPages = function(context, cb) {
         var opts = {
             service: this.pageService,
@@ -173,6 +268,13 @@ module.exports = function(pb) {
         this.getForContent(context, opts, cb);
     };
 
+    /**
+     *
+     * @method getForContent
+     * @param {Object} context
+     * @param {Object} options
+     * @param {Function} cb
+     */
     SiteMapService.prototype.getForContent = function(context, options, cb) {
         var opts = {
             select: { url: 1, last_modified: 1}
@@ -180,6 +282,12 @@ module.exports = function(pb) {
         options.service.getPublished(opts, SiteMapService.onPostLoad(options, cb));
     };
 
+    /**
+     *
+     * @method getForSections
+     * @param {Object} context
+     * @param {Function} cb
+     */
     SiteMapService.prototype.getForSections = function(context, cb) {
         var opts = {
             select: { url: 1, last_modified: 1, type: 1, item: 1 },
@@ -188,6 +296,21 @@ module.exports = function(pb) {
         this.dao.q('section', opts, SiteMapService.onPostLoad({urlPrefix: '', weight: '0.5', localized: true, hostname: this.hostname}, cb));
     };
 
+    /**
+     * Returns a function that processes site map items.  It calculates the
+     * full URL for the item as well as setting the weight and indicating if
+     * the items is localized.  The returned function accepts two parameters.
+     * The first is an error object, if exists.  The second is an Array of
+     * objects.
+     * @static
+     * @method onPostLoad
+     * @param {Object} options
+     * @param {String} options.urlPrefix
+     * @param {Decimal} options.weight
+     * @param {Boolean} options.localized
+     * @param {Function} cb
+     * @return {Function}
+     */
     SiteMapService.onPostLoad = function(options, cb) {
         return function(err, results) {
             if (util.isError(err)) {
@@ -210,8 +333,17 @@ module.exports = function(pb) {
         };
     };
 
+    /**
+     * Registers an item provider.  The callback should take two parameters.
+     * The first is a context object. The second is callback function.
+     * @static
+     * @method register
+     * @param {String} type
+     * @param {Function} callback
+     * @return {Boolean}
+     */
     SiteMapService.register = function(type, callback) {
-        if (!util.isString(type)) {
+        if (!pb.ValidationService.isNonEmptyStr(type, true)) {
             throw new Error('type parameter must be a string');
         }
         if (!util.isFunction(callback)) {
@@ -221,24 +353,60 @@ module.exports = function(pb) {
         return true;
     }
 
+    /**
+     * Unregisters an item provider from the site map service
+     * @static
+     * @method unregister
+     * @param {String} type
+     * @return {Boolean}
+     */
     SiteMapService.unregister = function(type) {
-        if (!util.isString(type)) {
+        if (!pb.ValidationService.isNonEmptyStr(type, true)) {
             throw new Error('type parameter must be a string');
         }
-        SITE_MAP_REGISTRY[type] = callback;
-        return true;
+
+        var exists = util.isFunction(SITE_MAP_REGISTRY[type]);
+        if (exists) {
+            delete SITE_MAP_REGISTRY[type];
+        }
+        return exists;
     };
 
+    /**
+     * Formats date objects to a string in the format of: YYYY-MM-DD
+     * @static
+     * @method getLastModDateStr
+     * @param {Date} date
+     * @return {String}
+     */
     SiteMapService.getLastModDateStr = function(date) {
         var month = SiteMapService.paddedNumStr(date.getMonth() + 1);
         var day = SiteMapService.paddedNumStr(date.getDate());
         return date.getFullYear() + '-' + month + '-' + day;
     };
 
+    /**
+     * Converts the provided number to a string. If the number is less than 10
+     * it is prefix with a '0'.
+     * @static
+     * @method paddedNumStr
+     * @param {Integer} num
+     * @return {String}
+     */
     SiteMapService.paddedNumStr = function(num) {
         return num < 10 ? '0' + num : '' + num;
     };
 
+    /**
+     * Returns a function that accepts two parameters. The first is an error,
+     * if exists, and the second is an array of arrays. The returning function,
+     * when executed, reduces the array of arrays down to a single array.
+     * NOTE: results are not deduped.
+     * @static
+     * @method formatGetResults
+     * @param {Function} cb
+     * @return {Function}
+     */
     SiteMapService.formatGetResults = function(cb) {
         return function(err, results) {
             if (util.isError(err)) {
@@ -253,6 +421,18 @@ module.exports = function(pb) {
         };
     };
 
+    /**
+     * Takes a site map item and inspects its localized property.  If it
+     * evaluates to TRUE then the XML elements are generated that match the
+     * allowed locales
+     * @static
+     * @method createAlternateLinks
+     * @param {Object} item
+     * @param {String} currentLocale
+     * @param {Array} locales
+     * @param {String} hostname
+     * @return {String}
+     */
     SiteMapService.createAlternateLinks = function(item, currentLocale, locales, hostname) {
         if (!item.localized) {
             return '';
@@ -279,6 +459,17 @@ module.exports = function(pb) {
         }, '');
     };
 
+    /**
+     * Takes the provided relationship, locale, and URL to generate an XML
+     * element to represent the alternate link for a site map
+     * @static
+     * @method serializeLocaleLink
+     * @param {Object} context
+     * @param {String} context.relationship
+     * @param {String} context.locale
+     * @param {String} context.url
+     * @return {String}
+     */
     SiteMapService.serializeLocaleLink = function(context) {
         return util.format('<xhtml:link rel="%s" hreflang="%s" href="%s" />', context.relationship, context.locale, HtmlEncoder.htmlEncode(context.url));
     };
