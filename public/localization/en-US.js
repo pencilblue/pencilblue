@@ -248,7 +248,9 @@ module.exports = {
         FEED_UNAVAILABLE: 'Unable to load the news feed.',
         REQUESTS_TOTAL: 'Total Requests',
         REQUESTS_CURRENT: 'Current Requests',
-        ETC: 'And other items...'
+        ETC: 'And other items...',
+        GENERATED: 'Generated',
+        NOT_GENERATED: 'Not Generated'
     },
     topics: {
         MANAGE_TOPICS: 'Manage topics',

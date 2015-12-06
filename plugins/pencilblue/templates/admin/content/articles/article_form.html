@@ -7,12 +7,26 @@
 		<fieldset>
 			<div class="tab-content">
 				<div class="tab-pane active" id="content">
+					<div class="form-group" ng-class="{'has-error': !isFieldValid(articleForm.headline)}">
+						<label>^loc_HEADLINE^</label>
+						<input type="text" name="headline" class="form-control" ng-model="article.headline" required></input>
+						<div class="form_error" ng-if="!isFieldValid(articleForm.headline)">^loc_REQUIRED_FIELD^</div>
+					</div>
+					<div class="form-group">
+						<label>^loc_SUBHEADING^</label>
+						<input type="text" class="form-control" ng-model="article.subheading"></input>
+					</div>
 					<div class="form-group" ng-class="{'has-error': !isFieldValid(articleForm.url)}">
 						<label>^loc_ARTICLE_URL^</label>
 						<div class="input-group">
 							<span class="input-group-addon">/article/</span>
 							<input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="article.url" ng-change="resetUrlAvailability()" url-safe required></input>
 							<span class="input-group-btn">
+								<button type="button" class="btn" ng-class="{'btn-default': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="articleForm.headline.$invalid">
+									<span ng-if="urlGenerated === null">^loc_GENERATE^</span>
+									<span ng-if="urlGenerated === true"><i class="fa fa-check"></i>&nbsp;^loc_GENERATED^</span>
+									<span ng-if="urlGenerated === false"><i class="fa fa-ban"></i>&nbsp;^loc_NOT_GENERATED^</span>
+								</button>
 								<button type="button" class="btn" ng-class="{'btn-default': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!article.url.length">
 									<span ng-if="urlAvailable === null">^loc_CHECK^</span>
 									<span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
@@ -32,15 +46,6 @@
 					<div class="form-group" ng-if="availableAuthors.length">
 							<label>^loc_AUTHOR^</label>
 							<select class="form-control" ng-model="article.author" ng-options="availableAuthor._id as availableAuthor.name for availableAuthor in availableAuthors"></select>
-					</div>
-					<div class="form-group" ng-class="{'has-error': !isFieldValid(articleForm.headline)}">
-						<label>^loc_HEADLINE^</label>
-						<input type="text" name="headline" class="form-control" ng-model="article.headline" required></input>
-						<div class="form_error" ng-if="!isFieldValid(articleForm.headline)">^loc_REQUIRED_FIELD^</div>
-					</div>
-					<div class="form-group">
-						<label>^loc_SUBHEADING^</label>
-						<input type="text" class="form-control" ng-model="article.subheading"></input>
 					</div>
 					<div class="form-group" ng-class="{'has-error': !isFieldValid(articleForm.publish_date)}">
 						<label>^loc_PUBLISH_DATE^</label>
