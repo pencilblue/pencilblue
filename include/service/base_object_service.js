@@ -537,7 +537,7 @@ module.exports = function(pb) {
         else {
             
             //we are creating a new object so pass it along
-            onObjectRetrieved(null, {});
+            onObjectRetrieved(null, dto);
         }
     };
     
