@@ -1342,6 +1342,7 @@ module.exports = function PluginServiceModule(pb) {
                     var rootDirSatsified = checkPackageVersion(rootPackagePath);
 
                     if(!pluginDirSatisfied && !rootDirSatsified) {
+                        hasDependencies = false;
                         pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, package.version, keys[i]);
                     }
 
