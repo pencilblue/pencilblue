@@ -53,7 +53,7 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     SiteService.GLOBAL_SITE = 'global';
-    
+
     /**
      * represents a site that doesn't exist
      * @static
@@ -62,7 +62,7 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     SiteService.NO_SITE = 'no-site';
-    
+
     /**
      *
      * @static
@@ -71,7 +71,7 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     SiteService.SITE_FIELD = 'site';
-    
+
     /**
      *
      * @static
@@ -80,7 +80,7 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     SiteService.SITE_COLLECTION = 'site';
-    
+
     /**
      *
      * @private
@@ -102,7 +102,9 @@ module.exports = function SiteServiceModule(pb) {
             cb(null, {
                 displayName:pb.config.siteName,
                 hostname: pb.config.siteRoot,
-                uid: SiteService.GLOBAL_SITE
+                uid: SiteService.GLOBAL_SITE,
+                defaultLocale: pb.Localization.defaultLocale,
+                supportedLocales: {}
             });
         }
         else {
@@ -324,13 +326,13 @@ module.exports = function SiteServiceModule(pb) {
         dao.loadByValue('uid', siteUid, 'site', function(err, site) {
             if(util.isError(err)) {
                 cb(err, null);
-            } 
+            }
             else if (!site) {
                 cb(new Error('Site not found'), null);
-            } 
+            }
             else if (!site.active) {
                 cb(new Error('Site not active'), null);
-            } 
+            }
             else {
                 pb.RequestHandler.activateSite(site);
                 cb(err, site);
@@ -349,13 +351,13 @@ module.exports = function SiteServiceModule(pb) {
         dao.loadByValue('uid', siteUid, 'site', function(err, site) {
             if(util.isError(err)) {
                 cb(err, null);
-            } 
+            }
             else if (!site) {
                 cb(new Error('Site not found'), null);
-            } 
+            }
             else if (site.active) {
                 cb(new Error('Site not deactivated'), null);
-            } 
+            }
             else {
                 pb.RequestHandler.deactivateSite(site);
                 cb(err, site);
@@ -375,12 +377,12 @@ module.exports = function SiteServiceModule(pb) {
         this.getAllSites(function (err, results) {
             if (err) {
                 return cb(err);
-            } 
+            }
 
             util.forEach(results, function (site) {
                 pb.RequestHandler.loadSite(site);
             });
-            
+
             // To remain backwards compatible, hostname is siteRoot for single tenant
             // and active allows all routes to be hit.
             // When multisite, use the configured hostname for global, turn off public facing routes,
