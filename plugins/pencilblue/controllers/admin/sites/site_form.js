@@ -84,7 +84,7 @@ module.exports = function SiteFormModule(pb) {
       supportedLocales = {},
       savedLocales = options.savedLocales || {},
       selectedLocales = [],
-      defaultLocale = options.defaultLocale || "",
+      defaultLocale = options.defaultLocale || pb.Localization.getDefaultLocale(),
       isActive = options.isActive,
       uid = options.uid;
 
