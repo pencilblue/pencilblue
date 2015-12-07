@@ -88,12 +88,15 @@ module.exports = function SiteFormModule(pb) {
       isActive = options.isActive,
       uid = options.uid;
 
+    savedLocales[defaultLocale] = true;
+
+    selectedLocales = pb.Localization.getSupported().filter(function(locale) {
+      return savedLocales[locale];
+    });
+
+    //Pre-select saved locales that match a supported locale
     for (var locale in pb.Localization.supportedLookup) {
-      //Pre-select saved locales that match a supported locale
       supportedLocales[locale] = savedLocales[locale] ? true : false;
-      if (savedLocales[locale]) {
-        selectedLocales.push(locale);
-      }
     }
 
     var angularObjects = pb.ClientJs.getAngularObjects({
