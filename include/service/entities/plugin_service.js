@@ -1046,8 +1046,8 @@ module.exports = function PluginServiceModule(pb) {
 
         async.series(tasks, function(err, results) {
             //cleanup on error
-            if (util.isError(err) && details && details.uid) {
-                delete ACTIVE_PLUGINS[details.uid];
+            if (util.isError(err)) {
+                delete ACTIVE_PLUGINS[plugin.uid];
             }
 
             //callback with final result
@@ -1293,7 +1293,6 @@ module.exports = function PluginServiceModule(pb) {
 
         if(cached_plugin) {
             details = cached_plugin.details;
-            plugin.dependencies = details.dependencies;
             return tasks;
         }
         PLUGIN_INIT_CACHE[plugin.uid] = plugin;
@@ -1319,50 +1318,34 @@ module.exports = function PluginServiceModule(pb) {
 
                 //verify that the module exists and its package definition is available
                 var packagePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'node_modules', keys[i], 'package.json');
-                var rootPackagePath = path.join(process.cwd(), 'node_modules', keys[i], 'package.json');
-                var checkModulePath = function(myPath, cb) {
-                    fs.exists(myPath, function(exists) {
-                        if (!exists) {
-                            hasDependencies = false;
-                            return cb(null, {satisfied: false, exists: exists});
-                        }
-
-                        //ensure that the version expression specified by the
-                        //dependency is satisfied by that provided by the package.json
-                        var package = require(myPath);
-                        var isSatisfied = semver.satisfies(package.version, plugin.dependencies[keys[i]]);
-                        if (!isSatisfied) {
-
-                            hasDependencies = false;
-
-                        }
-                        cb(null, {satisfied: isSatisfied, exists: exists});
-                    });
+                var rootPackagePath = path.join(pb.config.docRoot, 'node_modules', keys[i], 'package.json');
+                var checkPackageVersion = function(myPath) {
+                    //ensure that the version expression specified by the
+                    //dependency is satisfied by that provided by the package.json
+                    var package = {};
+                    try {
+                        package = require(myPath);
+                    }
+                    catch (e) {
+                        return false;
+                    }
+                    return semver.satisfies(package.version, plugin.dependencies[keys[i]]);
                 };
 
-                checkModulePath(packagePath, function(err, result) {
-                    if(err) {
-                        return callback(err, false);
+                async.some([packagePath, rootPackagePath], fs.exists, function(result) {
+                    if(!result) {
+                        hasDependencies = false;
+                        pb.log.warn('PluginService: Plugin %s is missing dependency %s', plugin.name, keys[i]);
+                        return callback(null, false)
                     }
-                    if(result.satisfied) {
-                        hasDependencies = true;
-                        return callback(err, result.satisfied);
+                    var pluginDirSatisfied = checkPackageVersion(packagePath);
+                    var rootDirSatsified = checkPackageVersion(rootPackagePath);
+
+                    if(!pluginDirSatisfied && !rootDirSatsified) {
+                        pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, package.version, keys[i]);
                     }
-                    checkModulePath(rootPackagePath, function(err,  result) {
-                        if(err) {
-                            return callback(err, false);
-                        }
-                        if (!result.exists) {
-                            pb.log.warn('PluginService: Plugin %s is missing dependency %s', plugin.name, keys[i]);
-                        }
-                        if(!result.satisfied) {
-                            pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, package.version, keys[i]);
-                        }
-                        if(result.satisfied) {
-                            hasDependencies = true;
-                        }
-                        callback(err, result.satisfied);
-                    });
+
+                    callback(null, pluginDirSatisfied || rootDirSatsified);
                 });
             };
         });
