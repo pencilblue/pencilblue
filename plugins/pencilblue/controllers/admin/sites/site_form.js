@@ -80,10 +80,10 @@ module.exports = function SiteFormModule(pb) {
 
   function setupAngularObj(self, options, cb){
     var isNew = options.isNew,
-    display = options.display,
-    host = options.host,
-    isActive = options.isActive,
-    uid = options.uid;
+      display = options.display,
+      host = options.host,
+      isActive = options.isActive,
+      uid = options.uid;
 
     var angularObjects = pb.ClientJs.getAngularObjects({
       navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls, self.site),
