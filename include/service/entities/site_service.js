@@ -53,7 +53,7 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     SiteService.GLOBAL_SITE = 'global';
-    
+
     /**
      * represents a site that doesn't exist
      * @static
@@ -62,7 +62,7 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     SiteService.NO_SITE = 'no-site';
-    
+
     /**
      *
      * @static
@@ -71,7 +71,7 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     SiteService.SITE_FIELD = 'site';
-    
+
     /**
      *
      * @static
@@ -80,7 +80,16 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     SiteService.SITE_COLLECTION = 'site';
-    
+
+    /**
+     *
+     * @static
+     * @readonly
+     * @property REDIRECT_HOSTS
+     * @type {String}
+     */
+    SiteService.REDIRECT_HOSTS = 'redirect_hosts';
+
     /**
      *
      * @private
@@ -90,6 +99,16 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     var SITE_COLL = SiteService.SITE_COLLECTION;
+
+    /**
+     *
+     * @private
+     * @static
+     * @readonly
+     * @property SITE_COLL
+     * @type {String}
+     */
+    var REDIRECT_HOSTS = SiteService.REDIRECT_HOSTS;
 
     /**
      * Load full site config from the database using the unique id.
@@ -120,6 +139,16 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.getAllSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {} }, cb);
+    };
+
+    /**
+     * Get all of the redirect_hosts in the database
+     * @method getRedirectHosts
+     * @param {Function} cb - the callback function
+     */
+    SiteService.prototype.getRedirectHosts = function(cb) {
+      var dao = new pb.DAO();
+      dao.q(REDIRECT_HOSTS, { select: pb.DAO.SELECT_ALL, where: {} }, cb);
     };
 
     /**
@@ -324,13 +353,13 @@ module.exports = function SiteServiceModule(pb) {
         dao.loadByValue('uid', siteUid, 'site', function(err, site) {
             if(util.isError(err)) {
                 cb(err, null);
-            } 
+            }
             else if (!site) {
                 cb(new Error('Site not found'), null);
-            } 
+            }
             else if (!site.active) {
                 cb(new Error('Site not active'), null);
-            } 
+            }
             else {
                 pb.RequestHandler.activateSite(site);
                 cb(err, site);
@@ -349,13 +378,13 @@ module.exports = function SiteServiceModule(pb) {
         dao.loadByValue('uid', siteUid, 'site', function(err, site) {
             if(util.isError(err)) {
                 cb(err, null);
-            } 
+            }
             else if (!site) {
                 cb(new Error('Site not found'), null);
-            } 
+            }
             else if (site.active) {
                 cb(new Error('Site not deactivated'), null);
-            } 
+            }
             else {
                 pb.RequestHandler.deactivateSite(site);
                 cb(err, site);
@@ -372,15 +401,30 @@ module.exports = function SiteServiceModule(pb) {
         if (pb.config.multisite.enabled && !pb.config.multisite.globalRoot) {
             return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
         }
+
+        pb.log.info("Load redirect_hosts from DB");
+        // Load redirectHosts
+        this.getRedirectHosts(function(err, results) {
+          if (util.isError(err)) {
+            pb.log.error("ERROR: Failed to load redirect_hosts");
+          }
+          else {
+            util.forEach(results, function (redirect) {
+              pb.RequestHandler.redirectHosts[redirect.host] = redirect.uid;
+            });
+            pb.log.info("redirectHosts[" + JSON.stringify(pb.RequestHandler.redirectHosts) + "]");
+          }
+        });
+
         this.getAllSites(function (err, results) {
             if (err) {
                 return cb(err);
-            } 
+            }
 
             util.forEach(results, function (site) {
                 pb.RequestHandler.loadSite(site);
             });
-            
+
             // To remain backwards compatible, hostname is siteRoot for single tenant
             // and active allows all routes to be hit.
             // When multisite, use the configured hostname for global, turn off public facing routes,

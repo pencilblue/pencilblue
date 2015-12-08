@@ -80,6 +80,7 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.storage = [];
     RequestHandler.index   = {};
     RequestHandler.sites = {};
+    RequestHandler.redirectHosts = {};
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
     /**
      * The internal storage of static routes after they are validated and processed.
@@ -140,6 +141,26 @@ module.exports = function RequestHandlerModule(pb) {
         return {
             redirect: location
         };
+    };
+
+    /**
+     * @static
+     * @method saveRedirectHost
+     * @param {Object} site
+     */
+    RequestHandler.saveRedirectHost = function(hostname, uid) {
+        RequestHandler.redirectHosts[hostname] = uid;
+
+        var dao = new pb.DAO();
+        var redirect = {host: hostname,
+                        uid: uid};
+        var redirectHost = pb.DocumentCreator.create('redirect_hosts', redirect);
+        pb.log.info("Save redirecthost[" + hostname + "] = " + uid + "   - redirectHost[" + redirectHost + "]");
+        dao.save(redirectHost, function(err, result) {
+            if (pb.util.isError(err)) {
+                pb.log.error("ERROR: Failed to save off redirectHost ERR[" + err.stack + "]");
+            }
+        });
     };
 
     /**
@@ -696,11 +717,20 @@ module.exports = function RequestHandlerModule(pb) {
         //set the site
         this.siteObj = RequestHandler.sites[this.hostname];
 
+        pb.log.info(this.hostname + " exists?[" + this.siteObj + "]");
         if (!this.siteObj) {
-            var hostnameErr = new Error("The host (" + this.hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
-            pb.log.error(hostnameErr);
-            this.serveError(hostnameErr);
-            return;
+            pb.log.info("Step 2. redirectHosts[" + RequestHandler.redirectHosts[this.hostname] + "]");
+            if (RequestHandler.redirectHosts[this.hostname]) {
+                pb.log.info("\n\n\tREDIRECT IT\n\n");
+                // TODO: Generate site redirect to associated redirectHost
+            }
+
+            else {
+                var hostnameErr = new Error("The host (" + this.hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
+                pb.log.error(hostnameErr);
+                this.serveError(hostnameErr);
+                return;
+            }
         }
 
         this.site = this.siteObj.uid;
