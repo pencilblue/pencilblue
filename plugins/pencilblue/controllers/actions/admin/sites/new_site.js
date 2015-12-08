@@ -16,6 +16,7 @@
  */
 
 module.exports = function NewSiteActionModule(pb) {
+
     //pb dependencies
     var util = pb.util;
 
@@ -25,41 +26,46 @@ module.exports = function NewSiteActionModule(pb) {
     function NewSiteAction(){}
     util.inherits(NewSiteAction, pb.BaseController);
 
-    NewSiteAction.prototype.render = function(cb) {
+    NewSiteAction.prototype.render = function(cb)
+    {
         var self = this;
         var message = self.hasRequiredParams(self.body, self.getRequiredFields());
         if(message) {
-            return cb({
+            cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
             });
+            return;
         }
 
         if(!pb.security.isAuthorized(self.session, {admin_level: self.body.admin})) {
-            return cb({
+            cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INSUFFICIENT_CREDENTIALS'))
             });
+            return;
         }
 
         var siteService = new pb.SiteService();
         var site = pb.DocumentCreator.create('site', self.body);
         siteService.isDisplayNameOrHostnameTaken(site.displayName, site.hostname, site._id, function (err, isTaken/*, field*/) {
             if(isTaken) {
-                return cb({
+                cb({
                     code: 400,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('DUPLICATE_INFO'))
                 });
+                return;
             }
             var jobId = siteService.createSite(site, function(err, result) {
                 var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CREATING_SITE'), jobId);
                 cb({content: content});
             });
         });
+
     };
 
     NewSiteAction.prototype.getRequiredFields = function() {
-        return ['displayName', 'hostname', 'defaultLocale', 'supportedLocales'];
+        return ['displayName', 'hostname'];
     };
 
     //exports

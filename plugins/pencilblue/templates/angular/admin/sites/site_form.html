@@ -20,9 +20,7 @@
                     $http.post('/actions/admin/sites/edit/' + $scope.uid,
                             {
                                 displayName: $scope.displayName,
-                                hostname: $scope.hostname,
-                                supportedLocales: $scope.supportedLocales,
-                                defaultLocale: $scope.defaultLocale
+                                hostname: $scope.hostname
                             })
                             .success(function(result) {
                                 $scope.onCreateOrEditComplete(result);
@@ -41,9 +39,7 @@
                     $http.post('/actions/admin/sites/new',
                             {
                                 displayName: $scope.displayName,
-                                hostname: $scope.hostname,
-                                supportedLocales: $scope.supportedLocales,
-                                defaultLocale: $scope.defaultLocale
+                                hostname: $scope.hostname
                             })
                             .success(function(result) {
                                 $scope.onCreateOrEditComplete(result);
@@ -137,12 +133,6 @@
 
                 $scope.refreshPage = function() {
                     $window.location.reload();
-                }
-
-                $scope.updateSelectedLocales = function() {
-                    for (var locale in $scope.supportedLocales) {
-                        $scope.selectedLocales.push(locale);
-                    }
                 }
             });
 </script>
