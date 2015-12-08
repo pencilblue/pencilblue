@@ -101,8 +101,6 @@ module.exports = function SiteCreateEditJobModule(pb) {
 
                     site.hostname = hostname;
                     site.displayName = mySite.displayName || site.displayName;
-                    site.selectedSupportedLocales = mySite.selectedSupportedLocales || site.selectedSupportedLocales;
-                    site.defaultLocale = mySite.defaultLocale || site.defaultLocale;
 
                     siteService.save(site, function(err, result) {
                         if(util.isError(err)) {
@@ -120,6 +118,6 @@ module.exports = function SiteCreateEditJobModule(pb) {
         });
     };
 
-  //exports
-  return SiteCreateEditJob;
+    //exports
+    return SiteCreateEditJob;
 };
