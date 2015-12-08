@@ -146,22 +146,44 @@ module.exports = function RequestHandlerModule(pb) {
     /**
      * @static
      * @method saveRedirectHost
-     * @param {Object} site
+     * @param {String} hostname
+     * @param {String} oldHostname
+     * @param {String} uid
      */
-    RequestHandler.saveRedirectHost = function(hostname, uid) {
+    RequestHandler.saveRedirectHost = function(hostname, oldHostname, uid) {
+        var self = this;
         RequestHandler.redirectHosts[hostname] = uid;
 
         var dao = new pb.DAO();
+        // If a 301 loop is detected, delete needless redirect
+        if (RequestHandler.redirectHosts[oldHostname]) {
+            self.deleteRedirectHost(oldHostname);
+        }
+
         var redirect = {host: hostname,
                         uid: uid};
         var redirectHost = pb.DocumentCreator.create('redirect_hosts', redirect);
-        pb.log.info("Save redirecthost[" + hostname + "] = " + uid + "   - redirectHost[" + redirectHost + "]");
         dao.save(redirectHost, function(err, result) {
             if (pb.util.isError(err)) {
                 pb.log.error("ERROR: Failed to save off redirectHost ERR[" + err.stack + "]");
+
             }
         });
     };
+
+    /**
+     * @static
+     * @method deleteRedirectHost
+     * @param {String} hostname
+     */
+    RequestHandler.deleteRedirectHost = function(hostname) {
+        var dao = new pb.DAO();
+        dao.delete({host:hostname}, 'redirect_hosts', function(err, result) {
+            if (pb.util.isError(err)) {
+                pb.log.error("ERROR: Failed to delete deprecated redirectHost ERR[" + err.stack + "]");
+            }
+        });
+    }
 
     /**
      * @static

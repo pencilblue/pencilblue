@@ -93,12 +93,13 @@ module.exports = function SiteCreateEditJobModule(pb) {
                         site = pb.DocumentCreator.create('site', mySite);
                     }
 
+                    var hostname = mySite.hostname || site.hostname;
                     // If this site's hostname has been changed, save off a redirectHost for 301 redirects
-                    if ((site && mySite) && (site.hostname !== mySite.hostname || site.hostname) && mySite.uid) {
-                        pb.RequestHandler.saveRedirectHost(site.hostname, mySite.uid);
+                    if ((site && mySite) && (site.hostname !== hostname) && mySite.uid) {
+                        pb.RequestHandler.saveRedirectHost(site.hostname, mySite.hostname, mySite.uid);
                     }
 
-                    site.hostname = mySite.hostname || site.hostname;
+                    site.hostname = hostname;
                     site.displayName = mySite.displayName || site.displayName;
                     site.selectedSupportedLocales = mySite.selectedSupportedLocales || site.selectedSupportedLocales;
                     site.defaultLocale = mySite.defaultLocale || site.defaultLocale;

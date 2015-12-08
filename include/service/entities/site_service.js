@@ -402,7 +402,6 @@ module.exports = function SiteServiceModule(pb) {
             return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
         }
 
-        pb.log.info("Load redirect_hosts from DB");
         // Load redirectHosts
         this.getRedirectHosts(function(err, results) {
           if (util.isError(err)) {
@@ -412,7 +411,6 @@ module.exports = function SiteServiceModule(pb) {
             util.forEach(results, function (redirect) {
               pb.RequestHandler.redirectHosts[redirect.host] = redirect.uid;
             });
-            pb.log.info("redirectHosts[" + JSON.stringify(pb.RequestHandler.redirectHosts) + "]");
           }
         });
 
