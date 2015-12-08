@@ -183,7 +183,45 @@ module.exports = function RequestHandlerModule(pb) {
                 pb.log.error("ERROR: Failed to delete deprecated redirectHost ERR[" + err.stack + "]");
             }
         });
-    }
+    };
+
+    /**
+     * @static
+     * @method checkForRedirect
+     * @param {String} hostname
+     * @param {Function} cb
+     */
+    RequestHandler.checkForRedirect = function(hostname, cb) {
+        var err = null,
+            siteObj = RequestHandler.sites[hostname];
+
+        if (siteObj) {
+            return cb(err, siteObj);
+        }
+
+        else {
+            var redirectSite = RequestHandler.redirectHosts[hostname];
+            if (redirectSite) {
+                new pb.SiteService().getAllSites(function (err, results) {
+                    if (err) {
+                        return cb(err);
+                    }
+
+                    util.forEach(results, function (site) {
+                        if (site.uid == redirectSite) {
+                            siteObj = RequestHandler.sites[site.hostname];
+                            return cb(err, siteObj);
+                        }
+                    });
+                });
+            }
+
+            else {
+                err = new Error("The host (" + hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
+                return cb(err, siteObj);
+            }
+        }
+    };
 
     /**
      * @static
@@ -728,6 +766,8 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} session The session for the requesting entity
      */
     RequestHandler.prototype.onSessionRetrieved = function(err, session) {
+        var self = this;
+
         if (err) {
             this.onErrorOccurred(err);
             return;
@@ -736,46 +776,38 @@ module.exports = function RequestHandlerModule(pb) {
         //set the session
         this.session = session;
 
-        //set the site
-        this.siteObj = RequestHandler.sites[this.hostname];
+        var hostname = this.hostname;
 
-        pb.log.info(this.hostname + " exists?[" + this.siteObj + "]");
-        if (!this.siteObj) {
-            pb.log.info("Step 2. redirectHosts[" + RequestHandler.redirectHosts[this.hostname] + "]");
-            if (RequestHandler.redirectHosts[this.hostname]) {
-                pb.log.info("\n\n\tREDIRECT IT\n\n");
-                // TODO: Generate site redirect to associated redirectHost
-            }
-
-            else {
-                var hostnameErr = new Error("The host (" + this.hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
-                pb.log.error(hostnameErr);
-                this.serveError(hostnameErr);
+        // Extract the proper siteObj accounting for required redirects, if applicable
+        RequestHandler.checkForRedirect(hostname, function(err, siteObj) {
+            if (pb.util.isError(err)) {
+                pb.log.error(err);
+                self.serveError(err);
                 return;
             }
-        }
 
-        this.site = this.siteObj.uid;
-        this.siteName = this.siteObj.displayName;
-        //find the controller to hand off to
-        var route = this.getRoute(this.url.pathname);
-        if (route == null) {
-            this.serve404();
-            return;
-        }
-        this.route = route;
-
-        //get active theme
-        var self = this;
-        var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.siteObj.uid);
-        settings.get('active_theme', function(err, activeTheme){
-            if (!activeTheme) {
-                pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
-                activeTheme = RequestHandler.DEFAULT_THEME;
+            self.siteObj = siteObj;
+            self.site = self.siteObj.uid;
+            self.siteName = self.siteObj.displayName;
+            //find the controller to hand off to
+            var route = self.getRoute(self.url.pathname);
+            if (route == null) {
+                self.serve404();
+                return;
             }
+            self.route = route;
 
-            self.activeTheme = activeTheme;
-            self.onThemeRetrieved(activeTheme, route);
+            // Get active theme
+            var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.siteObj.uid);
+            settings.get('active_theme', function(err, activeTheme){
+                if (!activeTheme) {
+                    pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
+                    activeTheme = RequestHandler.DEFAULT_THEME;
+                }
+
+                self.activeTheme = activeTheme;
+                self.onThemeRetrieved(activeTheme, route);
+            });
         });
     };
 
