@@ -7,12 +7,26 @@
         <fieldset>
             <div class="tab-content">
                 <div class="tab-pane active" id="content">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.headline)}">
+                        <label>^loc_HEADLINE^</label>
+                        <input type="text" name="headline" class="form-control" ng-model="page.headline" required></input>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.headline)">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_SUBHEADING^</label>
+                        <input type="text" class="form-control" ng-model="page.subheading"></input>
+                    </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.url)}">
                         <label>^loc_PAGE_URL^</label>
                         <div class="input-group">
                             <span class="input-group-addon">/page/</span>
                             <input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" url-safe required></input>
                             <span class="input-group-btn">
+                                <button type="button" class="btn" ng-class="{'btn-default': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="pageForm.headline.$invalid">
+									<span ng-if="urlGenerated === null">^loc_GENERATE^</span>
+									<span ng-if="urlGenerated === true"><i class="fa fa-check"></i>&nbsp;^loc_GENERATED^</span>
+									<span ng-if="urlGenerated === false"><i class="fa fa-ban"></i>&nbsp;^loc_NOT_GENERATED^</span>
+								</button>
                                 <button type="button" class="btn" ng-class="{'btn-default': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!page.url.length">
                                     <span ng-if="urlAvailable === null">^loc_CHECK^</span>
                                     <span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
@@ -34,15 +48,6 @@
                         <select class="form-control" ng-model="page.author" ng-options="availableAuthor._id as availableAuthor.name for availableAuthor in availableAuthors"></select>
                     </div>
                     ^tmp_admin=elements=hero_upload^
-                    <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.headline)}">
-                        <label>^loc_HEADLINE^</label>
-                        <input type="text" name="headline" class="form-control" ng-model="page.headline" required></input>
-                        <div class="form_error" ng-if="!isFieldValid(pageForm.headline)">^loc_REQUIRED_FIELD^</div>
-                    </div>
-                    <div class="form-group">
-                        <label>^loc_SUBHEADING^</label>
-                        <input type="text" class="form-control" ng-model="page.subheading"></input>
-                    </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.publish_date)}">
                         <label>^loc_PUBLISH_DATE^</label>
                         <div class="input-group">

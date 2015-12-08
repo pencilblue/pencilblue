@@ -1,15 +1,26 @@
 <script type="text/javascript" src="/js/angular/services/search.js"></script>
 <script type="text/javascript" src="/js/angular/services/sort.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript" src="/js/angular/factories/admin/page.js"></script>
+<script type="text/javascript" src="/js/angular/services/article.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['search', 'sort', 'paginate'])
-    .controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService) {
+    angular.module('pencilblueApp', [
+      'search',
+      'sort',
+      'paginate',
+      'pencilblue.factories.admin.pages',
+      'pencilblue.services.article'
+    ])
+    .controller('PencilBlueController', function($scope, $http, $timeout, searchService, sortService, paginationService, pageFactory, articleService) {
         ^angular_objects^
+        ^tmp_angular=admin=elements=error_success^
 
         $scope.searchText = '';
-        $scope.paginationIndex = 0;
+        $scope.paginationIndex;
         $scope.paginationLimit = 25;
+        $scope.paginationPages = [];
         $scope.deleteNameKey = 'headline';
+        $scope.orderString = 'publish_date=0'
 
         $scope.tableHeaders = [{
             name: loc.pages.HEADLINE,
@@ -18,7 +29,7 @@
             sortDesc: false
         }, {
             name: loc.generic.STATUS,
-            field: 'status',
+            field: 'draft',
             sortAsc: false,
             sortDesc: false
         }, {
@@ -34,41 +45,101 @@
         }, {
             name: loc.pages.PUBLISH_DATE,
             field: 'publish_date',
-            sortAsc: true,
-            sortDesc: false
+            sortAsc: false,
+            sortDesc: true
         }];
 
+        $scope.getPages = function(cb) {
+          if(!cb) {
+            cb = function() {};
+          }
+
+          $scope.pages = null;
+
+          pageFactory.getPages({
+            $limit: $scope.paginationLimit,
+            $offset: $scope.paginationIndex,
+    				$order: $scope.orderString,
+            render: 1
+          }, function(error, pages, total) {
+            if(error) {
+              $scope.errorMessage = error.message;
+              return;
+            }
+
+            $scope.pages = articleService.setArticleStatuses(pages);
+            $scope.paginationTotal = total;
+            cb(pages, total);
+          });
+        };
+
         $scope.search = function() {
-            searchService.search($scope.searchText, $scope.pages, ['headline'], function(pages) {
-                $scope.pages = pages;
-                $scope.paginate(0);
-            });
-        }
+          $scope.paginate(0, true);
+        };
 
         $scope.clearSearch = function() {
-            $scope.searchText = '';
-            $scope.search();
-        }
+          $scope.searchText = '';
+          $scope.paginate(0, true);
+        };
 
-        $scope.paginate = function(paginationIndex) {
-            $scope.paginationIndex = paginationIndex;
+        $scope.query = function(cb) {
+          if(!cb) {
+            cb = function() {};
+          }
 
-            paginationService.paginate($scope.pages, $scope.paginationIndex, $scope.paginationLimit, function(pages, paginationPages) {
-                $scope.pages = pages;
-                $scope.paginationPages = paginationPages;
-            })
-        }
+          $scope.pages = null;
+
+          pageFactory.getPages({
+            q: $scope.searchText,
+            $limit: $scope.paginationLimit,
+            $offset: $scope.paginationIndex,
+            $order: $scope.orderString,
+            render: 1
+          }, function(error, pages, total) {
+            if(error) {
+              $scope.errorMessage = error.message;
+              return;
+            }
+
+            $scope.pages = articleService.setArticleStatuses(pages);
+            $scope.paginationTotal = total;
+            cb(pages, total);
+          });
+        };
+
+        $scope.paginate = function(paginationIndex, force) {
+          if(!force && !paginationService.paginationValid(paginationIndex, $scope.paginationIndex, $scope.paginationPages.length)) {
+            return;
+          }
+
+          $scope.paginationIndex = paginationIndex;
+          if($scope.searchText.length) {
+            $scope.query(function() {
+              $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
+            });
+          }
+          else {
+            $scope.getPages(function() {
+              $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
+            });
+          }
+        };
 
         $scope.pageButtonVisible = function(testIndex) {
             return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
         };
 
         $scope.sort = function(headerIndex) {
-            sortService.sortByHeader($scope.pages, $scope.tableHeaders, headerIndex, function(pages, headers) {
-                $scope.pages = pages;
-                $scope.headers = headers;
-                $scope.paginate(0);
-            });
+          var targetHeader = sortService.setSortHeader($scope.pages, $scope.tableHeaders, headerIndex);
+          $scope.orderString = targetHeader.field + '=' + (targetHeader.sortDesc ? '0' : '1');
+          $scope.paginate(0, true);
+
+          return;
+          sortService.sortByHeader($scope.pages, $scope.tableHeaders, headerIndex, function(pages, headers) {
+            $scope.pages = pages;
+            $scope.headers = headers;
+            $scope.paginate(0);
+          });
         }
 
         $scope.confirmDelete = function(pageIndex) {
@@ -78,26 +149,32 @@
         }
 
         $scope.deleteObject = function() {
-            if(!$scope.objectToDelete) {
-                return;
+          if(!$scope.objectToDelete) {
+            return;
+          }
+
+          $scope.deleting = true;
+          pageFactory.deletePage($scope.objectToDelete._id, function(error, result) {
+            if(error) {
+              $scope.deleting = false;
+              $scope.errorMessage = error.message;
+              $('#confirm_delete_modal').modal('hide');
+              return;
             }
 
-            $scope.deleting = true;
-            $http({method: 'DELETE', url: '/actions/admin/content/pages/' + $scope.objectToDelete._id})
-            .success(function(result) {
-                $scope.pages.splice($scope.objectToDeleteIndex, 1);
-                $scope.deleting = false;
-                $scope.successMessage = result.message;
-                $scope.paginate(0);
-                $('#confirm_delete_modal').modal('hide');
-            })
-            .error(function(error, status) {
-                $scope.deleting = false;
-                $scope.errorMessage = error.message;
-                $('#confirm_delete_modal').modal('hide');
-            });
+            for(var i = 0; i < $scope.pages.length; i ++) {
+              if($scope.pages[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+                $scope.pages.splice(i, 1);
+                break;
+              }
+            }
+            $scope.deleting = false;
+            $scope.successMessage = result.message;
+            $scope.paginate(0);
+            $('#confirm_delete_modal').modal('hide');
+          });
         }
 
-        $scope.sort(4);
+        $scope.paginate(0);
     });
 </script>

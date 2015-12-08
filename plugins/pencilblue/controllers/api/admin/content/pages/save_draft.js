@@ -72,7 +72,7 @@ SavePageDraftController.prototype.onPostParamsRetrieved = function(post, cb) {
         post = pb.DocumentCreator.formatIntegerItems(post, ['draft']);
         pb.DocumentCreator.update(post, page, ['meta_keywords', 'page_topics', 'page_media']);
 
-        pb.RequestHandler.urlExists(page.url, post.id, function(error, exists) {
+        pb.RequestHandler.urlExists(page.url, post.id, page.site, function(error, exists) {
             if(error != null || exists || page.url.indexOf('/admin') == 0) {
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'existing page url')});
                 return;

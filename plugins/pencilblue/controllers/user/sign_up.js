@@ -32,7 +32,7 @@ module.exports = function SignUpModule(pb) {
   SignUp.prototype.render = function(cb) {
     var self = this;
 
-    var contentService = new pb.ContentService();
+    var contentService = new pb.ContentService({site: this.site});
     contentService.getSettings(function(err, contentSettings) {
       if(!contentSettings.allow_comments) {
         self.redirect('/', cb);

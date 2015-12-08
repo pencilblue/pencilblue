@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Interface for managing unverified users
      */
     function UnverifiedUsers(){}
-    util.inherits(UnverifiedUsers, pb.BaseController);
+    util.inherits(UnverifiedUsers, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'unverified_users';
@@ -35,16 +35,16 @@ module.exports = function(pb) {
         var opts = {
             where: pb.DAO.ANYWHERE
         };
-        var dao  = new pb.DAO();
-        dao.q('unverified_user', opts, function(err, users) {
+
+        self.siteQueryService.q('unverified_user', opts, function(err, users) {
             if(util.isError(err)) {
                 return self.redirect('/admin', cb);
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
-                navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                navigation: pb.AdminNavigation.get(self.session, ['users', 'manage'], self.ls, self.site),
+                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                 users: users
             });
 

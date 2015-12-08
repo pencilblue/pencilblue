@@ -80,7 +80,14 @@ module.exports = function PB(config) {
     pb.SessionHandler = SessionModule(pb);
     pb.session        = new pb.SessionHandler(pb.SessionHandler.getSessionStoreInstance());
 
-    //setup object services
+    pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
+
+    //setup site service
+    pb.SiteService = require(path.join(config.docRoot, '/include/service/entities/site_service.js'))(pb);
+    pb.SiteQueryService = require(path.join(config.docRoot, '/include/service/entities/site_query_service.js'))(pb);
+
+
+  //setup object services
     pb.SimpleLayeredService         = require(path.join(config.docRoot, '/include/service/simple_layered_service.js'))(pb);
     pb.MemoryEntityService          = require(path.join(config.docRoot, '/include/service/memory_entity_service.js'))(pb);
     pb.CacheEntityService           = require(path.join(config.docRoot, '/include/service/cache_entity_service.js'))(pb);
@@ -102,9 +109,9 @@ module.exports = function PB(config) {
     var Authentication                = require(path.join(config.docRoot, '/include/security/authentication'))(pb);
     pb.UsernamePasswordAuthentication = Authentication.UsernamePasswordAuthentication;
     pb.FormAuthentication             = Authentication.FormAuthentication;
+    pb.TokenAuthentication            = Authentication.TokenAuthentication;
 
     //setup user service
-    pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
     pb.UserService       = require(path.join(config.docRoot, '/include/service/entities/user_service.js'))(pb);
     Object.defineProperty(pb, 'users', {
         get: function() {
@@ -120,10 +127,12 @@ module.exports = function PB(config) {
     pb.FormBodyParser      = BodyParsers.FormBodyParser;
     pb.BaseController      = require(path.join(config.docRoot, '/controllers/base_controller.js'))(pb);
     pb.BaseApiController   = require(path.join(config.docRoot, '/controllers/api/base_api_controller.js'))(pb);
+    pb.BaseAdminController = require(path.join(config.docRoot, '/controllers/admin/base_admin_controller.js'))(pb);
     pb.ViewController      = require(path.join(config.docRoot, '/controllers/view_controller.js'))(pb);
     pb.FormController      = require(path.join(config.docRoot, '/controllers/form_controller.js'))(pb);
     pb.DeleteController    = require(path.join(config.docRoot, '/controllers/delete_controller.js'))(pb);
     pb.ApiActionController = require(path.join(config.docRoot, '/controllers/api/api_action_controller.js'))(pb);
+    pb.ErrorViewController = require(path.join(config.docRoot, '/controllers/error_controller.js'))(pb);
     pb.RequestHandler      = require(path.join(config.docRoot, '/include/http/request_handler.js'))(pb);
 
     //setup errors
@@ -158,6 +167,10 @@ module.exports = function PB(config) {
     pb.PluginDependenciesJob = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_dependencies_job.js'))(pb);
     pb.PluginInitializeJob   = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_initialize_job.js'))(pb);
     pb.PluginInstallJob      = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_install_job.js'))(pb);
+    pb.SiteJobRunner         = require(path.join(config.docRoot, '/include/service/jobs/sites/site_job_runner.js'))(pb);
+    pb.SiteActivateJob       = require(path.join(config.docRoot, '/include/service/jobs/sites/site_activate_job.js'))(pb);
+    pb.SiteDeactivateJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_deactivate_job.js'))(pb);
+    pb.SiteCreateEditJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_create_edit_job.js'))(pb);
 
     //Email settings and functions
     pb.EmailService = require(path.join(config.docRoot, '/include/email'))(pb);
@@ -191,6 +204,7 @@ module.exports = function PB(config) {
     pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'))(pb);
     pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'))(pb);
     pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
+    pb.TokenService       = require(path.join(config.docRoot, '/include/service/entities/token_service.js'))(pb);
 
     //create plugin service
     pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);
@@ -200,6 +214,10 @@ module.exports = function PB(config) {
             return new pb.PluginService();
         }
     });
+
+    //create plugin setting service 
+    pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'))(pb);
+    pb.PluginRepository = require(path.join(config.docRoot, '/include/repository/plugin_repository.js'))(pb);
 
     //media renderers
     pb.media = {
@@ -222,7 +240,8 @@ module.exports = function PB(config) {
     pb.media.renderers.SlideShareMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/slideshare_media_renderer.js'))(pb),
     pb.media.renderers.TrinketMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/trinket_media_renderer.js'))(pb),
     pb.media.renderers.StorifyMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/storify_media_renderer.js'))(pb),
-    pb.media.renderers.KickStarterMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/kickstarter_media_renderer.js'))(pb)
+    pb.media.renderers.KickStarterMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/kickstarter_media_renderer.js'))(pb);
+    pb.media.renderers.PdfMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/pdf_media_renderer.js'))(pb);
     
     //providers and service
     pb.MediaService = require(path.join(config.docRoot, '/include/service/entities/media_service.js'))(pb);

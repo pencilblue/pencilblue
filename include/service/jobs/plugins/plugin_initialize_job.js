@@ -55,7 +55,9 @@ module.exports = function PluginInitializeJobModule(pb) {
         var validateCommand = {
             jobId: this.getId(),
             pluginUid: this.getPluginUid(),
-            progress: progress
+            site: this.getSite(),
+            progress: progress,
+            timeout: 20000
         };
 
         //build out the tasks to execute
@@ -76,18 +78,19 @@ module.exports = function PluginInitializeJobModule(pb) {
         var self = this;
 
         var pluginUid = this.getPluginUid();
+        var site = this.getSite();
         var tasks = [
 
             //initialize the plugin if not already
             function(callback) {
-                if (pb.PluginService.isActivePlugin(pluginUid)) {
+                if (pb.PluginService.isPluginActiveBySite(pluginUid, site)) {
                     self.log('Plugin %s is already active!', pluginUid);
                     callback(null, true);
                     return;
                 }
 
                 //load the plugin from persistence then initialize it on the server
-                self.pluginService.getPlugin(pluginUid, function(err, plugin) {
+                self.pluginService.getPluginBySite(pluginUid, function(err, plugin) {
                     if (util.isError(err)) {
                         callback(err);
                         return;

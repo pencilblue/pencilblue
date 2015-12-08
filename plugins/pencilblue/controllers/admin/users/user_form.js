@@ -27,7 +27,7 @@ module.exports = function(pb) {
      * Interface for editing a user
      */
     function UserForm(){}
-    util.inherits(UserForm, pb.BaseController);
+    util.inherits(UserForm, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'user_form';
@@ -46,11 +46,12 @@ module.exports = function(pb) {
             }
 
             self.user = data.user;
-            data.pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: self.user});
+            data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {session: self.session, user: self.user});
 
             data.adminOptions = [{name: self.ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR}];
             if(!data.user[pb.DAO.getIdField()] || self.session.authentication.user_id !== data.user[pb.DAO.getIdField()].toString()) {
-                data.adminOptions = pb.users.getAdminOptions(self.session, self.localizationService);
+                var userService = new pb.UserService(self.getServiceContext());
+                data.adminOptions = userService.getAdminOptions(self.session, self.localizationService);
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects(data);
@@ -82,7 +83,7 @@ module.exports = function(pb) {
             },
 
             navigation: function(callback) {
-                callback(null, pb.AdminNavigation.get(self.session, ['users'], self.ls));
+                callback(null, pb.AdminNavigation.get(self.session, ['users'], self.ls, self.site));
             },
 
             user: function(callback) {
@@ -91,8 +92,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.loadById(vars.id, 'user', function(err, user) {
+                self.siteQueryService.loadById(vars.id, 'user', function(err, user) {
                     delete user.password;
                     callback(err, user);
                 });

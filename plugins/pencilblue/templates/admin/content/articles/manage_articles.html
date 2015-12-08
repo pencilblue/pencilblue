@@ -1,23 +1,28 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-    ^tmp_admin=elements=error_success^
-    ^tmp_admin=elements=sub_nav^
-    ^tmp_admin=elements=search_input^
+  ^tmp_admin=elements=error_success^
+  ^tmp_admin=elements=sub_nav^
+  ^tmp_admin=elements=search_input^
+  <div ng-if="!articles">
+    <i class="fa fa-4x fa-circle-o-notch fa-spin"></i>
+  </div>
+  <div ng-if="articles" ng-cloak>
     <div class="table_container">
-        <table class="table table-responsive table-condensed">
-            ^tmp_admin=elements=table_headers^
-            <tr ng-repeat="article in articles track by article._id" ng-if="!article.hidden && !article.paginated">
-                <td><a class="article_headline" ng-href="/admin/content/articles/{{article._id}}" ng-bind="article.headline"></a></td>
-                <td class="article_status" ng-bind="article.status"></td>
-                <td class="article_url" ng-bind="article.url"></td>
-                <td class="article_author" ng-bind="article.author_name"></td>
-                <td class="article_date" ng-bind="article.publish_date | date: 'yyyy-MM-dd HH:mm'"></td>
-                <td><a href="#" ng-click="confirmDelete($index)"><i class="fa fa-trash"></i></a></td>
-            </tr>
-        </table>
+      <table class="table table-responsive table-condensed">
+        ^tmp_admin=elements=table_headers^
+        <tr ng-repeat="article in articles track by article._id" ng-if="!article.hidden && !article.paginated">
+          <td><a class="article_headline" ng-href="/admin/content/articles/{{article._id}}" ng-bind="article.headline"></a></td>
+          <td class="article_status" ng-bind="article.status"></td>
+          <td class="article_url" ng-bind="article.url"></td>
+          <td class="article_author" ng-bind="article.author_name"></td>
+          <td class="article_date" ng-bind="article.publish_date | date: 'yyyy-MM-dd HH:mm'"></td>
+          <td><a href="#" ng-click="confirmDelete($index)"><i class="fa fa-trash"></i></a></td>
+        </tr>
+      </table>
     </div>
     ^tmp_admin=elements=pagination^
-    ^tmp_admin=elements=delete_modal^
+  </div>
 </div>
+^tmp_admin=elements=delete_modal^
 ^tmp_angular=admin=content=articles=manage_articles^
 ^tmp_admin=footer^

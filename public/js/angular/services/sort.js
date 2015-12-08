@@ -4,16 +4,18 @@ angular.module('sort', [])
 		cb($filter('orderBy')(items, field, sortDesc));
 	};
 
-	this.sortByHeader = function(items, headers, headerIndex, cb) {
+	this.setSortHeader = function(items, headers, headerIndex) {
 		if(headers[headerIndex].unsorted) {
 			cb(items, headers);
 			return;
 		}
 
-		var sortDesc = true;
+		var targetHeader;
 
 		for(var i = 0; i < headers.length; i++) {
 			if(i === headerIndex) {
+				targetHeader = headers[i];
+
 				if(headers[i].sortAsc) {
 					headers[i].sortAsc = false;
 					headers[i].sortDesc = true;
@@ -21,7 +23,6 @@ angular.module('sort', [])
 				else {
 					headers[i].sortAsc = true;
 					headers[i].sortDesc = false;
-					sortDesc = false;
 				}
 			}
 			else {
@@ -30,8 +31,14 @@ angular.module('sort', [])
 			}
 		}
 
-		this.sort(items, headers[headerIndex].field, sortDesc, function(items) {
+		return targetHeader;
+	};
+
+	this.sortByHeader = function(items, headers, headerIndex, cb) {
+		var targetHeader = this.setSortHeader(items, headers, headerIndex);
+
+		this.sort(items, headers[headerIndex].field, targetHeader.sortDesc, function(items) {
 			cb(items, headers);
 		});
-	}
-})
+	};
+});

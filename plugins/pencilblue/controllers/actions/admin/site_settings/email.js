@@ -30,7 +30,8 @@ module.exports = function(pb) {
         var self = this;
 
         this.getJSONPostParams(function(err, post) {
-            pb.settings.set('email_settings', post, function(data) {
+            var settingService = pb.SettingServiceFactory.getServiceBySite(self.site, true);
+            settingService.set('email_settings', post, function(data) {
                 if(util.isError(data)) {
                     cb({
                         code: 500,

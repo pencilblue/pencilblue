@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Saves the site's content settings
      */
     function Content(){}
-    util.inherits(Content, pb.BaseController);
+    util.inherits(Content, pb.BaseAdminController);
 
     Content.prototype.render = function(cb) {
         var self = this;
@@ -39,7 +39,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            pb.settings.set('content_settings', post, function(data) {
+            self.settings.set('content_settings', post, function(data) {
                 if(util.isError(data)) {
                     cb({
                         code: 500,

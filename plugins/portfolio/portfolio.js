@@ -53,6 +53,33 @@ module.exports = function PortfolioModule(pb) {
             }
             return [];
         });
+        
+        //setup for custom fields on page objects (hero_image)
+        pb.BaseObjectService.on('page' + '.' + pb.BaseObjectService.FORMAT, function(context, cb) {
+            var dto = context.data;
+            dto.hero_image = pb.BaseObjectService.sanitize(dto.hero_image);
+            
+            cb(null);
+        });
+        pb.BaseObjectService.on('page' + '.' + pb.BaseObjectService.MERGE, function(context, cb) {
+            var dto = context.data;
+            var obj = context.object;
+
+            obj.hero_image = dto.hero_image;
+            
+            cb(null);
+        });
+        pb.BaseObjectService.on('page' + '.' + pb.BaseObjectService.VALIDATE, function(context, cb) {
+            var obj = context.data;
+            var errors = context.validationErrors;
+            
+            if (!pb.ValidationService.isUrl(obj.hero_image, false)) {
+                errors.push(pb.BaseObjectService.validationFailure('hero_image', 'Hero image must be a valid URL or media path'));
+            }
+            
+            cb(null);
+        });
+        
         cb(null, true);
     };
 

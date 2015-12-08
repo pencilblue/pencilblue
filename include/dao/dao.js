@@ -138,6 +138,7 @@ module.exports = function DAOModule(pb) {
             order: opts.order || DAO.NATURAL_ORDER,
             limit: 1
         };
+
         this.q(collection, options, function(err, result){
            cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
         });
@@ -201,7 +202,7 @@ module.exports = function DAOModule(pb) {
 
         //set the exclusion
         if (exclusionId) {
-            where[DAO.getIdField()] = DAO.getNotIDField(exclusionId);
+            where[DAO.getIdField()] = DAO.getNotIdField(exclusionId);
         }
 
         //checks to see how many docs were available
@@ -363,8 +364,8 @@ module.exports = function DAOModule(pb) {
     };
 
     /**
-     * Inserts or replaces an existing document with the specified DB Object. 
-     * An insert is distinguished from an update based the presence of the _id 
+     * Inserts or replaces an existing document with the specified DB Object.
+     * An insert is distinguished from an update based the presence of the _id
      * field.
      * @method save
      * @param {Object} dbObj The system object to persist
@@ -387,7 +388,7 @@ module.exports = function DAOModule(pb) {
         //ensure an object_type was specified & update common fields
         dbObj.object_type = dbObj.object_type || options.object_type;
         DAO.updateChangeHistory(dbObj);
-        
+
         //log interaction
         if (pb.config.db.query_logging) {
             var msg;
@@ -421,7 +422,6 @@ module.exports = function DAOModule(pb) {
      * @param {Array} objArray The array of objects to persist
      * @param {String} collection The collection to persist the objects to
      * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#initializeunorderedbulkop
-     * @param {Boolean} [options.replace=true] Indicates if the default should be to update the fields available or to replace the document
      * @param {Function} cb A callback that takes two arguments.  The first is an
      * error, if occurred. The second is the second parameter of the callback
      * described here: http://mongodb.github.io/node-mongodb-native/api-generated/unordered.html#execute
@@ -442,9 +442,6 @@ module.exports = function DAOModule(pb) {
         else if (!util.isString(collection)) {
             return cb(new Error('COLLECTION_MUST_BE_STR'));
         }
-        
-        //ensure we have default options
-        options.replace = util.isNullOrUndefined(options.replace) ? true : !!options.replace;
 
         //retrieve db reference
         this.getDb(function(err, db) {
@@ -462,8 +459,7 @@ module.exports = function DAOModule(pb) {
                 item.object_type = collection;
                 DAO.updateChangeHistory(item);
                 if (item._id) {
-                    batch.find({_id: item._id})
-                        .updateOne(options.replace ? item : {$set: item });
+                    batch.update(item);
                 }
                 else {
                     batch.insert(item);
@@ -621,7 +617,7 @@ module.exports = function DAOModule(pb) {
             db.collection(collection).ensureIndex(spec, options, cb);
         });
     };
-    
+
     /**
      * Retrieves indexes for the specified collection
      * @method indexInfo
@@ -638,11 +634,11 @@ module.exports = function DAOModule(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             db.indexInformation(collection, options, cb);
         });
     };
-    
+
     /**
      * Drops the specified index from the given collection
      * @method dropIndex
@@ -656,7 +652,7 @@ module.exports = function DAOModule(pb) {
             cb = options;
             options = {};
         }
-        
+
         pb.dbm.getDb(this.dbName, function(err, db) {
             if (util.isError(err)) {
                 return cb(err);
@@ -674,17 +670,8 @@ module.exports = function DAOModule(pb) {
      * exists, FALSE if not.
      */
     DAO.prototype.entityExists = function(entity, cb) {
-        var options = {
-            namesOnly: true
-        };
-
-        pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            db.listCollections({name: entity}, options).toArray(function(err, results) {
-                cb(err, util.isArray(results) && results.length === 1);
-            });
+        this.listCollections({name: entity}, function(err, results) {
+            cb(err, util.isArray(results) && results.length === 1);
         });
     };
 
@@ -711,6 +698,31 @@ module.exports = function DAOModule(pb) {
                 return cb(err);
             }
             db.createCollection(entityName, options, cb);
+        });
+    };
+
+    /**
+     * Gets all collection names
+     * @method listCollections
+     * @param {Object} [filter] The filter to specify what collection(s) to search for
+     * @param {Function} cb A callback that takes two parameters. The first, an
+     * Error, if occurred. The second is the result listCollections command.
+     */
+    DAO.prototype.listCollections = function(filter, cb) {
+        var options = {
+          namesOnly: true
+        };
+
+        pb.dbm.getDb(this.dbName, function(err, db) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            db.listCollections(filter, options).toArray(function(err, results) {
+                if (util.isError(err)) {
+                    return cb(err)
+                }
+                cb(err, results);
+            });
         });
     };
 

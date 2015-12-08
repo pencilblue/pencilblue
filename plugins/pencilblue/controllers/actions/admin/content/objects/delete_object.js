@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Deletes an object
      */
     function DeleteObject(){}
-    util.inherits(DeleteObject, pb.BaseController);
+    util.inherits(DeleteObject, pb.BaseAdminController);
 
     DeleteObject.prototype.render = function(cb) {
         var self = this;
@@ -42,7 +42,7 @@ module.exports = function(pb) {
             return;
         }
 
-        var cos = new pb.CustomObjectService();
+        var cos = new pb.CustomObjectService(self.site, true);
         cos.loadById(vars.id, function(err, customObject) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
