@@ -221,11 +221,40 @@ function PencilBlue(config){
                 cb(err, false);
             };
             pb.server.once('error', onServerStartError);
-            pb.server.listen(pb.config.sitePort, pb.config.siteIP, function() {
-                pb.log.info('PencilBlue: %s running at site root [%s] on port [%d]', pb.config.siteName, pb.config.siteRoot, pb.config.sitePort);
-                pb.server.removeListener('error', onServerStartError);
-                cb(null, true);
-            });
+			if(pb.config.server.unixsocket==true){
+					//get the path without the socket file itself.
+					var folderPath=pb.config.siteUnixSocketPath.substring(0, pb.config.siteUnixSocketPath.lastIndexOf("/"));
+					//check if the folder for the socket exsists
+					fs.open(folderPath,'r+',function(err,fd){
+						if (err && err.code=='ENOENT') { 
+						//the folder does not exsist, lets create it
+							fs.mkdirSync(folderPath);
+						}else{
+						//make sure the folder has permission to write/read/remove our new socket
+						fs.chmodSync(folderPath, 0777);
+						//delete socket if it already exsists, when the server is shutdown prematurely
+						try{
+						fs.unlinkSync(pb.config.siteUnixSocketPath);
+						}catch(e){}
+						}
+						//Make our actual unix socket.
+						pb.server.listen(pb.config.siteUnixSocketPath, function() {
+							pb.log.info('PencilBlue: %s running at site at unix socket path:[%s]', pb.config.siteName, pb.config.siteUnixSocketPath, 0);
+							pb.server.removeListener('error', onServerStartError);
+							cb(null, true);
+						});
+					});
+				}
+				//maybe you want to use both, http and unix same time.
+				if(pb.config.server.tcpip==true){
+				pb.server.listen(pb.config.sitePort, pb.config.siteIP, function() {
+					pb.log.info('PencilBlue: %s running at site root [%s] on port [%d]', pb.config.siteName, pb.config.siteRoot, pb.config.sitePort);
+					pb.server.removeListener('error', onServerStartError);
+					cb(null, true);
+				});
+				}
+		
+		
         }
         catch(e) {
             cb(e, false);
