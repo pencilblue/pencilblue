@@ -26,7 +26,7 @@
                                    value="{{checked}}"
                                    ng-checked="checked"
                                    ng-click="updateSupportedLocales(locale)"
-                                    >{{locale}}
+                                    ><span ng-bind="locale"></span>
                         </label>
                     </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.defaultLocale)}">
