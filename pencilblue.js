@@ -241,6 +241,8 @@ function PencilBlue(config){
 						pb.server.listen(pb.config.siteUnixSocketPath, function() {
 							pb.log.info('PencilBlue: %s running at site at unix socket path:[%s]', pb.config.siteName, pb.config.siteUnixSocketPath, 0);
 							pb.server.removeListener('error', onServerStartError);
+							//give our new socket read/write permission, maybe only read is required.
+							fs.chmodSync(pb.config.siteUnixSocketPath, 0777);
 							cb(null, true);
 						});
 					});
