@@ -135,12 +135,13 @@ var BASE_CONFIG = {
 
     //The hostname or IP address that the web server instance will bind to
 	siteIP:   '0.0.0.0',
-
+	
     //The primary port to listen for traffic on.  Some environment such as
     //heroku force you to use whatever port they have available.  In such cases
     //the port is passed as an environment variable.
 	sitePort: process.env.port || process.env.PORT || 8080,
-
+	//The path to an unix socket.
+	siteUnixSocketPath : "/var/run/pencilblue/pb.sock",
     //the absolute file path to the directory where installation lives
 	docRoot:  Configuration.DOCUMENT_ROOT,
 
@@ -629,6 +630,12 @@ var BASE_CONFIG = {
             chain: null
         },
 
+		
+		//allow pencilblue to listen on a TCP IP port  pb.config.siteRoot+pb.config.sitePort
+		tcpip:true,
+		//allow pencilblue to create an UNIX socket
+		unixsocket:true,
+		
         //when non-empty, a header (X-POWERED-BY) will be added to each outgoing
         //response with "PencilBlue".  Cheesy but it helps the BuiltWith tools
         //of the world kep track of who uses what
