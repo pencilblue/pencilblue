@@ -327,6 +327,9 @@ Configuration.getBaseConfig = function(multisite) {
                 chain: null
             },
 
+			unixsocket:false,
+			tcpip:true
+			
             //when non-empty, a header (X-POWERED-BY) will be added to each outgoing
             //response with "PencilBlue".  Cheesy but it helps the BuiltWith tools
             //of the world kep track of who uses what
