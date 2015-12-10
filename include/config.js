@@ -110,7 +110,7 @@ Configuration.getBaseConfig = function(multisite) {
         //The root of the site.  This host part should ALWAYS match the value of
         //the siteIP
         siteRoot: 'http://localhost:8080',
-
+		
         //The hostname or IP address that the web server instance will bind to
         siteIP:   '0.0.0.0',
 
@@ -118,7 +118,8 @@ Configuration.getBaseConfig = function(multisite) {
         //heroku force you to use whatever port they have available.  In such cases
         //the port is passed as an environment variable.
         sitePort: process.env.port || process.env.PORT || 8080,
-
+		//The path to an unix socket.
+		siteUnixSocketPath : "/var/run/pencilblue/pb.sock",
         //the absolute file path to the directory where installation lives
         docRoot:  Configuration.DOCUMENT_ROOT,
 
