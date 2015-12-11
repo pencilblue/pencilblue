@@ -263,7 +263,7 @@ module.exports = function SectionServiceModule(pb) {
                 }
             }
 
-            pb.settings.set('section_map', sectionMap, function(err, settingSaveResult){
+            self.settings.set('section_map', sectionMap, function(err, settingSaveResult){
                 if (util.isError(err)){
                     return cb(err);
                 }
