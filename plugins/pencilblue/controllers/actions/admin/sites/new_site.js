@@ -16,7 +16,6 @@
  */
 
 module.exports = function NewSiteActionModule(pb) {
-
     //pb dependencies
     var util = pb.util;
 
@@ -26,27 +25,30 @@ module.exports = function NewSiteActionModule(pb) {
     function NewSiteAction(){}
     util.inherits(NewSiteAction, pb.BaseController);
 
-    NewSiteAction.prototype.render = function(cb)
-    {
+    NewSiteAction.prototype.render = function(cb) {
         var self = this;
         var message = self.hasRequiredParams(self.body, self.getRequiredFields());
         if(message) {
-            cb({
+            return cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
             });
-            return;
         }
 
         if(!pb.security.isAuthorized(self.session, {admin_level: self.body.admin})) {
-            cb({
+            return cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INSUFFICIENT_CREDENTIALS'))
             });
-            return;
         }
 
         var siteService = new pb.SiteService();
+        self.body.supportedLocales = {};
+        for (var i=0; i< self.body.selectedLocales.length; i++) {
+            var selectedLocale = self.body.selectedLocales[i];
+            self.body.supportedLocales[selectedLocale] = true;
+        }
+        self.body.selectedLocales = undefined;
         var site = pb.DocumentCreator.create('site', self.body);
         siteService.isDisplayNameOrHostnameTaken(site.displayName, site.hostname, site._id, function (err, isTaken/*, field*/) {
             if(isTaken) {
@@ -60,11 +62,10 @@ module.exports = function NewSiteActionModule(pb) {
                 cb({content: content});
             });
         });
-
     };
 
     NewSiteAction.prototype.getRequiredFields = function() {
-        return ['displayName', 'hostname'];
+        return ['displayName', 'hostname', 'defaultLocale', 'selectedLocales'];
     };
 
     //exports

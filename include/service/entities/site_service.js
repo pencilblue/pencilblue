@@ -102,7 +102,9 @@ module.exports = function SiteServiceModule(pb) {
             cb(null, {
                 displayName:pb.config.siteName,
                 hostname: pb.config.siteRoot,
-                uid: SiteService.GLOBAL_SITE
+                uid: SiteService.GLOBAL_SITE,
+                defaultLocale: pb.Localization.defaultLocale,
+                supportedLocales: {}
             });
         }
         else {

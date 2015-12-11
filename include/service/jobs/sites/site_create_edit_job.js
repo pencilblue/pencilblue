@@ -4,7 +4,6 @@ var async = require('async');
 var util  = require('../../../util.js');
 
 module.exports = function SiteCreateEditJobModule(pb) {
-
     /**
      * Job to create/edit a site.
      * @constructor SiteCreateEditJob
@@ -64,7 +63,6 @@ module.exports = function SiteCreateEditJobModule(pb) {
     SiteCreateEditJob.prototype.getWorkerTasks = function(cb) {
         var site = this.getSite();
         var tasks = [
-
             //allow traffic to start routing for site
             function(callback) {
                 pb.RequestHandler.loadSite(site);
@@ -80,7 +78,6 @@ module.exports = function SiteCreateEditJobModule(pb) {
      * @param {Function} cb - callback
      */
     SiteCreateEditJob.prototype.doPersistenceTasks = function(cb) {
-
         var mySite      = this.getSite();
         var tasks     = [
             //set site to active in mongo
@@ -98,6 +95,8 @@ module.exports = function SiteCreateEditJobModule(pb) {
 
                     site.hostname = mySite.hostname || site.hostname;
                     site.displayName = mySite.displayName || site.displayName;
+                    site.supportedLocales = mySite.supportedLocales || site.supportedLocales;
+                    site.defaultLocale = mySite.defaultLocale || site.defaultLocale;
 
                     siteService.save(site, function(err, result) {
                         if(util.isError(err)) {
