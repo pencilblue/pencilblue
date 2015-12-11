@@ -15,7 +15,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
         //initialize
         this.init();
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(SiteCreateEditJob, pb.SiteJobRunner);
 
     /**
@@ -78,8 +78,8 @@ module.exports = function SiteCreateEditJobModule(pb) {
      * @param {Function} cb - callback
      */
     SiteCreateEditJob.prototype.doPersistenceTasks = function(cb) {
-        var mySite = this.getSite();
-        var tasks = [
+        var mySite      = this.getSite();
+        var tasks     = [
             //set site to active in mongo
             function(callback) {
                 var siteService = new pb.SiteService();
@@ -109,7 +109,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
                 });
             }
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err) {
             cb(err, !util.isError(err));
         });
     };

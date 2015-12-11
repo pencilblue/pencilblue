@@ -387,12 +387,7 @@ module.exports = function SiteServiceModule(pb) {
             // and active allows all routes to be hit.
             // When multisite, use the configured hostname for global, turn off public facing routes,
             // and maintain admin routes (active is false).
-            pb.RequestHandler.loadSite({
-                displayName: pb.config.siteName,
-                uid: pb.SiteService.GLOBAL_SITE,
-                hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
-                active: pb.config.multisite.enabled ? false : true
-            });
+            pb.RequestHandler.loadSite(SiteService.getGlobalSiteContext());
             cb(err, true);
         });
     };
@@ -558,11 +553,24 @@ module.exports = function SiteServiceModule(pb) {
         return url.format(urlObject).replace(/\/$/, '');
     };
 
+    /**
+     * @method deleteSiteSpecificContent
+     * @param {String} siteId
+     * @param {Function} cb
+     */
     SiteService.prototype.deleteSiteSpecificContent = function (siteid, cb) {
         var siteQueryService = new pb.SiteQueryService();
         siteQueryService.getCollections(function(err, allCollections) {
-            var dao = new pb.DAO();
+            if (util.isError(err)) {
+                return cb(err);
+            }
 
+            //check for capped collections because you can't delete from them
+            allCollections = allCollections.filter(function(collection) {
+                return !collection.options || !collection.options.capped;
+            });
+
+            var dao = new pb.DAO();
             var tasks = util.getTasks(allCollections, function (collections, i) {
                 return function (taskCallback) {
                     dao.delete({site: siteid}, collections[i].name, function (err, commandResult) {
@@ -583,6 +591,21 @@ module.exports = function SiteServiceModule(pb) {
                 cb(null, results);
             });
         });
+    };
+    
+    /**
+     * Retrieves the global site context
+     * @static
+     * @method getGlobalSiteContext
+     * @return {Object}
+     */
+    SiteService.getGlobalSiteContext = function() {
+        return {
+            displayName: pb.config.siteName,
+            uid: pb.SiteService.GLOBAL_SITE,
+            hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
+            active: pb.config.multisite.enabled ? false : true
+        };
     };
 
     SiteService.merge = function (context, cb) {
