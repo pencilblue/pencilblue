@@ -64,7 +64,7 @@ module.exports = function BlogModule(pb) {
                     self.ts.registerLocal('meta_keywords', meta.keywords);
                     self.ts.registerLocal('meta_desc', data.section.description || meta.description);
                     self.ts.registerLocal('meta_title', data.section.name || meta.title);
-                    self.ts.registerLocal('meta_lang', localizationLanguage);
+                    self.ts.registerLocal('meta_lang', pb.config.localization.defaultLocale);
                     self.ts.registerLocal('meta_thumbnail', meta.thumbnail);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
