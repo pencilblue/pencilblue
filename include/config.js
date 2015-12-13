@@ -316,6 +316,7 @@ Configuration.getBaseConfig = function(multisite) {
             ssl: {
                 enabled: false,
                 handoff_port: 8080,
+                handoff_ip: '0.0.0.0',
                 use_x_forwarded: false,
                 use_handoff_port_in_redirect: false,
                 key: "ssl/key.pem",
