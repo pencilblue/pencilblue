@@ -57,6 +57,11 @@ module.exports = {
         "workers": 1,
         "self_managed": true
     },
+	"server":{
+		unixsocket:false,
+		tcpip:true
+	}
+	,
     multisite: {
         enabled: false,
         globalRoot: 'http://global.localhost:8080'
