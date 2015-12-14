@@ -153,6 +153,7 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.saveRedirectHost = function(hostname, oldHostname, uid) {
         var self = this;
         RequestHandler.redirectHosts[hostname] = uid;
+        RequestHandler.sites[oldHostname] = null;
 
         var dao = new pb.DAO();
         // If a 301 loop is detected, delete needless redirect

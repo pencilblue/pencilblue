@@ -96,7 +96,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
                     var hostname = mySite.hostname || site.hostname;
                     // If this site's hostname has been changed, save off a redirectHost for 301 redirects
                     if ((site && mySite) && (site.hostname !== hostname) && mySite.uid) {
-                        pb.RequestHandler.saveRedirectHost(site.hostname, mySite.hostname, mySite.uid);
+                        pb.RequestHandler.saveRedirectHost(mySite.hostname, site.hostname, mySite.uid);
                     }
 
                     site.hostname = hostname;
