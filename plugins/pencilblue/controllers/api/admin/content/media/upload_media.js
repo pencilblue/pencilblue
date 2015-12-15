@@ -41,6 +41,28 @@ module.exports = function(pb) {
         this.errored = 0;
     }
     util.inherits(UploadMediaController, pb.BaseController);
+    
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    UploadMediaController.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+
+            /**
+             * An instance of MediaService that leverages the default media provider
+             * @property service
+             * @type {TopicService}
+             */
+            self.service = new pb.MediaService(null, context.site, true);
+
+            cb(err, true);
+        };
+        UploadMediaController.super_.prototype.init.apply(this, [context, init]);
+    };
 
 
     UploadMediaController.prototype.render = function(cb) {
@@ -70,8 +92,7 @@ module.exports = function(pb) {
             var fileDescriptor = files[keys[0]];
 
             var stream = fs.createReadStream(fileDescriptor.path);
-            var mservice = new pb.MediaService();
-            mservice.setContentStream(stream, fileDescriptor.name, function(err, sresult) {
+            self.service.setContentStream(stream, fileDescriptor.name, function(err, sresult) {
                 if (util.isError(err)) {
                     return self.onDone(err, null, files, cb);
                 }
