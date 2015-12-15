@@ -637,6 +637,7 @@ module.exports = function RequestHandlerModule(pb) {
                 return cb(null, self.activeTheme);
             }
 
+            self.siteObj = self.siteObj || pb.SiteService.getGlobalSiteContext();
             var settingsService = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.siteObj.uid);
             settingsService.get('active_theme', function(err, activeTheme){
                 self.activeTheme = activeTheme;
@@ -1438,14 +1439,24 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Function} prototype A prototype that can have an instance created and parse the specified mime type
      * @return {Boolean} TRUE if the body parser was registered, FALSE if not
      */
-    RequestHandler.registerBodyParser = function(mime, protoype) {
-        if (!pb.validation.isNonEmptyStr(mime) || !util.isFunction(prototype)) {
+    RequestHandler.registerBodyParser = function(mime, prototype) {
+        if (!pb.validation.isNonEmptyStr(mime, true) || !util.isFunction(prototype)) {
             return false;
         }
 
         //set the prototype handler
-        BODY_PARSER_MAP[mime] = protoype;
+        BODY_PARSER_MAP[mime] = prototype;
         return true;
+    };
+    
+    /**
+     * Retrieves the body parser mapping
+     * @static
+     * @method getBodyParsers
+     * @return {Object} MIME string as the key and parser as the value
+     */
+    RequestHandler.getBodyParsers = function() {
+        return util.merge(BODY_PARSER_MAP, {});
     };
 
     return RequestHandler;
