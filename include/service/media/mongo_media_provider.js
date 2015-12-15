@@ -26,8 +26,10 @@ module.exports = function MongoMediaProviderModule(pb) {
      * A media provider that uses Mongo's GridFS as the method of storage.
      * @class MongoMediaProvider
      * @constructor
+     * @param {Object} context
+     * @param {String} context.site
      */
-    function MongoMediaProvider() {};
+    function MongoMediaProvider(/*context*/) {};
 
     /**
      * Retrieves the item in GridFS as a stream. 
