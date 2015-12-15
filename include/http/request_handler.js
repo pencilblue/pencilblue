@@ -100,6 +100,15 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.staticRoutes = {};
 
     /**
+     * Redirect http codes
+     * @static
+     * @property REDIRECT_CODES
+     * @type {Object}
+     */
+    RequestHandler.REDIRECT_CODES = {MOVED_PERMANENTLY: 301,
+                                     FOUND: 302};
+
+    /**
      * The list of routes provided by the pencilblue plugin.  These routes are
      * loaded first to ensure defaults are in place before other plugins are
      * initialized.  In the future this will change so that all plugins are treated
