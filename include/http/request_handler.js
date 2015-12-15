@@ -71,6 +71,15 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.DEFAULT_THEME = pb.config.plugins.default;
 
     /**
+     * Redirect http codes
+     * @static
+     * @property REDIRECT_CODES
+     * @type {Object}
+     */
+    RequestHandler.REDIRECT_CODES = {MOVED_PERMANENTLY: 301,
+                                     FOUND: 302};
+
+    /**
      * The internal storage of routes after they are validated and processed.
      * @private
      * @static
@@ -879,7 +888,7 @@ module.exports = function RequestHandlerModule(pb) {
         var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
         if (!this.siteObj.active && !inactiveSiteAccess) {
             if (this.siteObj.uid === pb.SiteService.GLOBAL_SITE) {
-                this.doRedirect('/admin');
+                this.doRedirect('/admin', RequestHandler.REDIRECT_CODES.MOVED_PERMANENTLY);
                 return;
             }
             else {
@@ -1094,7 +1103,7 @@ module.exports = function RequestHandlerModule(pb) {
         //do any necessary redirects
         var doRedirect = typeof data.redirect != "undefined";
         if(doRedirect) {
-            this.doRedirect(data.redirect);
+            this.doRedirect(data.redirect, RequestHandler.REDIRECT_CODES.MOVED_PERMANENTLY);
         }
         else {
             //output data here
@@ -1312,8 +1321,8 @@ module.exports = function RequestHandlerModule(pb) {
      * @method doRedirect
      * @param {String} location
      */
-    RequestHandler.prototype.doRedirect = function(location) {
-        this.resp.statusCode = 302;
+    RequestHandler.prototype.doRedirect = function(location, statusCode) {
+        this.resp.statusCode = statusCode || RequestHandler.REDIRECT_CODES.FOUND;
         this.resp.setHeader("Location", location);
         this.resp.end();
     };
@@ -1447,7 +1456,7 @@ module.exports = function RequestHandlerModule(pb) {
         BODY_PARSER_MAP[mime] = prototype;
         return true;
     };
-    
+
     /**
      * Retrieves the body parser mapping
      * @static
