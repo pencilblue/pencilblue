@@ -37,17 +37,32 @@ module.exports = function MediaServiceModule(pb) {
      *                      or fallback to global if not found in specified site
      */
     function MediaService(provider, site, onlyThisSite) {
+        
+        /**
+         * @property site
+         * @type {String}
+         */
         this.site = pb.SiteService.getCurrentSite(site);
-        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: onlyThisSite});
+        
+        var context = {
+            site: this.site, 
+            onlyThisSite: onlyThisSite
+        };
+        
+        /**
+         * @property siteQueryService
+         * @type {SiteQueryService}
+         */
+        this.siteQueryService = new pb.SiteQueryService(context);
+        
         if (util.isNullOrUndefined(provider)) {
-            provider = MediaService.loadMediaProvider();
+            provider = MediaService.loadMediaProvider(context);
         }
         if (!provider) {
             throw new Error('A valid media provider is required. Please check your configuration');
         }
         
         /**
-         *
          * @property provider
          * @type {MediaProvider}
          */
@@ -55,11 +70,11 @@ module.exports = function MediaServiceModule(pb) {
     }
     
     /**
-     *
+     * @deprecated
      * @private
      * @static
      * @property INSTANCE
-     * @
+     * @type {MediaProvider}
      */
     var INSTANCE = null;
 
@@ -71,6 +86,17 @@ module.exports = function MediaServiceModule(pb) {
      * @type {String}
      */
     MediaService.COLL = 'media';
+    
+    /**
+     * @private
+     * @static
+     * @property MEDIA_PROVIDERS
+     * @type {Object}
+     */
+    var MEDIA_PROVIDERS = Object.freeze({
+        fs: pb.media.providers.FsMediaProvider,
+        mongo: pb.media.providers.MongoMediaProvider
+    });
 
     /**
      * Contains the list of media renderers
@@ -881,16 +907,19 @@ module.exports = function MediaServiceModule(pb) {
     
     /**
      * Retrieves the singleton instance of MediaProvider.
+     * @deprecated
      * @static
      * @method getInstance
+     * @param {Object} [context]
      * @return {MediaProvider}
      */
-    MediaService.getInstance = function() {
+    MediaService.getInstance = function(context) {
+        pb.log.warn('MediaService: the "getInstance" function is deprecated as of 0.5.0 and will be removed in the next version');
         if (INSTANCE) {
             return INSTANCE;
         }
         
-        INSTANCE = MediaService.loadMediaProvider();
+        INSTANCE = MediaService.loadMediaProvider(context || {});
         if (INSTANCE === null) {
             throw new Error('A valid media provider was not available: PROVIDER_PATH: '+pb.config.media.provider+' TRIED='+JSON.stringify(paths));
         }
@@ -900,30 +929,37 @@ module.exports = function MediaServiceModule(pb) {
      *
      * @static
      * @method loadMediaProvider
+     * @param {Object} context
+     * @param {String} context.site
      * @return {MediaProvider} An instance of a media provider or NULL when no 
      * provider can be loaded.
      */
-    MediaService.loadMediaProvider = function() {
-        if (pb.config.media.provider === 'fs') {
-            return new pb.media.providers.FsMediaProvider(pb.config.media.parent_dir);
+    MediaService.loadMediaProvider = function(context) {
+        var ProviderType = MEDIA_PROVIDERS[pb.config.media.provider];
+        if (util.isNullOrUndefined(ProviderType)) {
+            ProviderType = MediaService.findProviderType();
         }
-        else if (pb.config.media.provider === 'mongo') {
-            return new pb.media.providers.MongoMediaProvider();
-        }
-        
+        return !!ProviderType ? new ProviderType(context) : null;
+    };
+    
+    /**
+     * Looks up the prototype for the media provider based on the configuration
+     * @static
+     * @method findProviderType
+     * @return {MediaProvider}
+     */
+    MediaService.findProviderType = function() {
         var instance = null;
         var paths = [path.join(pb.config.docRoot, pb.config.media.provider), pb.config.media.provider];
         for(var i = 0; i < paths.length; i++) {
             try{
-                var ProviderType = require(paths[i])(pb);
-                instance = new ProviderType();
-                break;
+                return require(paths[i])(pb);
             }
             catch(e){
                 pb.log.silly(e.stack);
             }
         }
-        return instance;
+        return null;
     };
 
     //exports

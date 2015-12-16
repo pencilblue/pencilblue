@@ -29,9 +29,12 @@ module.exports = function FsMediaProviderModule(pb) {
      * storage.
      * @class FsMediaProvider
      * @constructor
+     * @param {Object} context
+     * @param {String} [context.parentDir]
+     * @param {String} context.site
      */
-    function FsMediaProvider(parentDir) {
-        this.parentDir = parentDir || pb.config.media.parent_dir;
+    function FsMediaProvider(context) {
+        this.parentDir = context.parentDir || pb.config.media.parent_dir;
     };
 
     /**

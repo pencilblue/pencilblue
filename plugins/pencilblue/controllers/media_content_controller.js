@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = function MediaContentController(pb) {
+module.exports = function (pb) {
     
     //pb dependencies
     var util = pb.util;
@@ -29,10 +29,32 @@ module.exports = function MediaContentController(pb) {
      */
     function MediaContentController() {};
     util.inherits(MediaContentController, pb.BaseController);
+    
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    MediaContentController.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+
+            /**
+             * An instance of MediaService that leverages the default media provider
+             * @property service
+             * @type {TopicService}
+             */
+            self.service = new pb.MediaService(null, context.site, true);
+
+            cb(err, true);
+        };
+        MediaContentController.super_.prototype.init.apply(this, [context, init]);
+    };
 
     /**
-     * 
-     *
+     * @method render
+     * @param {Function} cb
      */
     MediaContentController.prototype.render = function(cb) {
         var self      = this;
@@ -44,8 +66,7 @@ module.exports = function MediaContentController(pb) {
 
         //load the media if available
         var mediaPath = this.req.url;
-        var mservice  = new pb.MediaService();
-        mservice.getContentStreamByPath(mediaPath, function(err, mstream) {
+        this.service.getContentStreamByPath(mediaPath, function(err, mstream) {
             if(util.isError(err)) {
                 return self.reqHandler.serveError(err); 
             }
