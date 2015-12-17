@@ -879,7 +879,7 @@ module.exports = function RequestHandlerModule(pb) {
         var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
         if (!this.siteObj.active && !inactiveSiteAccess) {
             if (this.siteObj.uid === pb.SiteService.GLOBAL_SITE) {
-                this.doRedirect('/admin', pb.HttpStatus.MOVED_PERMANENTLY);
+                this.doRedirect('/admin');
                 return;
             }
             else {
@@ -1094,7 +1094,7 @@ module.exports = function RequestHandlerModule(pb) {
         //do any necessary redirects
         var doRedirect = typeof data.redirect != "undefined";
         if(doRedirect) {
-            this.doRedirect(data.redirect, pb.HttpStatus.MOVED_PERMANENTLY);
+            this.doRedirect(data.redirect, data.statusCode);
         }
         else {
             //output data here
