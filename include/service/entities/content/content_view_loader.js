@@ -342,7 +342,7 @@ module.exports = function(pb) {
         this.ts.registerLocal('meta_desc', options.metaDescription || meta.description);
         this.ts.registerLocal('meta_title', options.metaTitle || meta.title);
         this.ts.registerLocal('meta_thumbnail', meta.thumbnail || '');
-        this.ts.registerLocal('meta_lang', Localization.getDefaultLocale());
+        this.ts.registerLocal('meta_lang', options.metaLang || this.ls.language);
     };
 
     /**

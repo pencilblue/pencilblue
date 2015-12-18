@@ -522,9 +522,6 @@ module.exports = function RequestHandlerModule(pb) {
                 return self.serveError(err);
             }
 
-            //get locale preference
-            self.localizationService = self.deriveLocalization({ session: session });
-
             //set the session id when no session has started or the current one has
             //expired.
             var sc = Object.keys(cookies).length == 0;
@@ -547,22 +544,23 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} [context.routeLocalization]
      */
     RequestHandler.prototype.deriveLocalization = function(context) {
+        var opts = {};
 
-        var localePrefStr = '';
-        if (context.routeLocalization) {
-            localePrefStr = context.routeLocalization;
+        var sources = [
+            context.routeLocalization,
+            context.session.locale,
+            this.req.headers[pb.Localization.ACCEPT_LANG_HEADER]
+        ];
+        if (this.siteObj) {
+            opts.supported = Object.keys(this.siteObj.supportedLocales);
+            sources.push(this.siteObj.defaultLocale);
         }
-        var userPreferredLocale = context.session.locale;
-        if (userPreferredLocale) {
-            localePrefStr += ',' + userPreferredLocale;
-        }
-        var browserIndicated = this.req.headers[pb.Localization.ACCEPT_LANG_HEADER];
-        if (browserIndicated) {
-            localePrefStr += ',' + browserIndicated;
-        }
+        var localePrefStr = sources.reduce(function(prev, curr, i) {
+            return prev + (curr ? (!!i && !!prev ? ',' : '') + curr : '');
+        }, '');
 
         //get locale preference
-        return new pb.Localization(localePrefStr);
+        return new pb.Localization(localePrefStr, opts);
     };
 
     /**
@@ -747,11 +745,15 @@ module.exports = function RequestHandlerModule(pb) {
         //set the site
         this.siteObj = RequestHandler.sites[this.hostname];
 
+        //derive the localization. We do it here so that if the site isn't
+        //available we can still have one available when we error out
+        this.localizationService = this.deriveLocalization({ session: session });
+
+        //ensure we have a valid site
         if (!this.siteObj) {
             var hostnameErr = new Error("The host (" + this.hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
             pb.log.error(hostnameErr);
-            this.serveError(hostnameErr);
-            return;
+            return this.serveError(hostnameErr);
         }
 
         this.site = this.siteObj.uid;
@@ -971,7 +973,7 @@ module.exports = function RequestHandlerModule(pb) {
         //extract path variables
         var pathVars = this.getPathVariables(route);
         if (typeof pathVars.locale !== 'undefined') {
-            if (pb.Localization.getSupported().indexOf(pathVars.locale) < 0) {
+            if (!this.siteObj.supportedLocales[pathVars.locale]) {
 
                 //TODO make this check more general
                 return this.serve404();
@@ -1510,7 +1512,7 @@ module.exports = function RequestHandlerModule(pb) {
         BODY_PARSER_MAP[mime] = prototype;
         return true;
     };
-    
+
     /**
      * Retrieves the body parser mapping
      * @static

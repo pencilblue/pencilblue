@@ -176,7 +176,7 @@ module.exports = function BaseControllerModule(pb) {
         //configure for common flags
         var model = {
 
-            locale: this.ls.language,
+            meta_lang: this.ls.language,
 
             error_success: function(flag, cb) {
                 self.displayErrorOrSuccessCallback(flag, cb);
@@ -226,7 +226,7 @@ module.exports = function BaseControllerModule(pb) {
 
         var val = '';
         var self = this;
-        pb.Localization.getSupported().forEach(function(locale) {
+        Object.keys(this.siteObj.supportedLocales).forEach(function(locale) {
             var path = self.req.url;
             var isLocalizedPath = !!self.pathVars.locale && path.indexOf(self.pathVars.locale) >= 0;
             if (self.ls.language === locale && !isLocalizedPath) {

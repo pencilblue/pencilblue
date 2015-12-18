@@ -16,12 +16,12 @@
 */
 
 module.exports = function (pb) {
-    
+
     //pb dependencies
     var util = pb.util;
 
     /**
-     * Media Content Controller is responsible for taking incoming requests for media and 
+     * Media Content Controller is responsible for taking incoming requests for media and
      * providing the right content for it or redirecting to where it should be.
      * @class MediaContentController
      * @constructor
@@ -29,7 +29,7 @@ module.exports = function (pb) {
      */
     function MediaContentController() {};
     util.inherits(MediaContentController, pb.BaseController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -68,7 +68,7 @@ module.exports = function (pb) {
         var mediaPath = this.req.url;
         this.service.getContentStreamByPath(mediaPath, function(err, mstream) {
             if(util.isError(err)) {
-                return self.reqHandler.serveError(err); 
+                return self.reqHandler.serveError(err);
             }
 
             mstream.once('end', function() {
@@ -80,10 +80,11 @@ module.exports = function (pb) {
                 }
                 else {
                     pb.log.error('Failed to load media: MIME=%s PATH=%s', mime, mediaPath);
+                    err.code = isNaN(err.code) ? 500 : err.code;
                     self.reqHandler.serveError(err);
                 }
-            });
-            mstream.pipe(self.res);
+            })
+            .pipe(self.res);
         });
     };
 

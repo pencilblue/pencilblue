@@ -36,14 +36,25 @@ module.exports = function LocalizationModule(pb) {
      * @param {Object} request The request object
      * @param {Object} [options]
      * @param {String} [options.activeTheme]
+     * @param {Array} [options.supported] The languages that the localization
+     * instance should be limited to.
      */
     function Localization(request, options){
         if (!util.isObject(options)) {
             options = {};
         }
 
-        //expected to be lowercase and of the form "en-us"
-        this.language = Localization.best(request).toString();
+        /**
+         * expected to be lowercase and of the form "en-us"
+         * @property language Really should be renamed to locale in the future
+         * @type {String}
+         */
+        this.language = Localization.best(request, options.supported).toString();
+
+        /**
+         * @property localeObj
+         * @type {Object}
+         */
         this.localeObj = Localization.parseLocaleStr(this.language);
 
         /**
@@ -433,22 +444,24 @@ module.exports = function LocalizationModule(pb) {
      * header in the request
      *
      * @method best
-     * @param {Object} request The request object
+     * @param {Object|String} request The request object
+     * @param {Array} [supported] The array of supported locales
      * @return {string} Locale for the request
      */
-    Localization.best = function(request){
+    Localization.best = function(request, supported){console.log(supported);console.log('^supported-------');
+        supported = util.isArray(supported) ?
+            new Locale.Locales(supported) : Localization.supported;
 
         var locales;
         var loc = Localization.getDefaultLocale();
         if (request) {
-            if (util.isString(request)) {
-                locales = new Locale.Locales(request);
-                loc = locales.best(Localization.supported);
-            }
-            else if (request.headers[Localization.ACCEPT_LANG_HEADER]){
-                locales = new Locale.Locales(request.headers[Localization.ACCEPT_LANG_HEADER]);
-                loc = locales.best(Localization.supported);
-            }
+            var acceptLangStr = util.isString(request) ? request :
+                (request.headers[Localization.ACCEPT_LANG_HEADER] || loc);
+            locales = new Locale.Locales(acceptLangStr);
+            loc = locales.best(supported);
+            console.log(acceptLangStr);
+            console.log(supported);
+            console.log(loc);
         }
         return loc;
     };

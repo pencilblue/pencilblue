@@ -58,14 +58,14 @@ module.exports = function IndexModule(pb) {
         var contentService = new pb.ContentService({site: self.site, onlyThisSite: true});
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
-                
+
                 var articleService = new pb.ArticleService(self.site, true);
                 articleService.getMetaInfo(data.content[0], function(err, meta) {
                     self.ts.registerLocal('meta_keywords', meta.keywords);
                     self.ts.registerLocal('meta_desc', data.section.description || meta.description);
                     self.ts.registerLocal('meta_title', data.section.name || meta.title);
                     self.ts.registerLocal('meta_thumbnail', meta.thumbnail);
-                    self.ts.registerLocal('meta_lang', pb.config.localization.defaultLocale);
+                    self.ts.registerLocal('meta_lang', self.ls.language);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
                     self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));
@@ -234,7 +234,7 @@ module.exports = function IndexModule(pb) {
         var topic   = this.req.pencilblue_topic   || null;
         var article = this.req.pencilblue_article || null;
         var page    = this.req.pencilblue_page    || null;
-        
+
         //get service context
         var opts = this.getServiceContext();
 
@@ -277,8 +277,8 @@ module.exports = function IndexModule(pb) {
         var isPage           = content.object_type === 'page';
         var showByLine       = contentSettings.display_bylines && !isPage;
         var showTimestamp    = contentSettings.display_timestamp && !isPage;
-        
-        
+
+
         var ats              = this.ts.getChildInstance();
         var contentUrlPrefix = isPage ? '/page/' : '/article/';
         self.ts.reprocess = false;
@@ -404,7 +404,7 @@ module.exports = function IndexModule(pb) {
             ls: this.ls,
             activeTheme: this.activeTheme
         };
-        
+
         var menuService = new pb.TopMenuService();
         menuService.getNavItems(options, function(err, navItems) {
             if (util.isError(err)) {
