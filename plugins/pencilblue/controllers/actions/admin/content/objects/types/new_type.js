@@ -24,10 +24,10 @@ module.exports = function(pb) {
      * Creates an object type
      * @class NewObjectTypeActionController
      * @constructor
-     * @extends FormController
+     * @extends BaseAdminController
      */
     function NewObjectTypeActionController(){}
-    util.inherits(NewObjectTypeActionController, pb.BaseController);
+    util.inherits(NewObjectTypeActionController, pb.BaseAdminController);
 
     NewObjectTypeActionController.prototype.render = function(cb) {
         var self = this;
@@ -35,7 +35,7 @@ module.exports = function(pb) {
         var post = self.body;
         post.fields.name = {field_type: 'text'};
 
-        var service = new pb.CustomObjectService();
+        var service = new pb.CustomObjectService(self.site, true);
         service.saveType(post, function(err, result) {
             if(util.isError(err)) {
                 return cb({

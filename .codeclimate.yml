@@ -1,0 +1,7 @@
+languages:
+  JavaScript: true
+exclude_paths:
+- "public/lib/**"
+- "public/bower_components/**"
+- "public/localization/**"
+- "sample.config.js"

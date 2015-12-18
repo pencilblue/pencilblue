@@ -239,7 +239,9 @@ module.exports = {
         SAVED: 'fue guardado',
         NARROW_RESULTS: 'Limitar resultados',
         URL_KEY: 'Clave de URL',
-        FEED_UNAVAILABLE: 'No se pudo cargar las noticias.'
+        FEED_UNAVAILABLE: 'No se pudo cargar las noticias.',
+        REQUESTS_TOTAL: 'Las solicitudes totales',
+        REQUESTS_CURRENT: 'solicitudes actuales'
     },
     topics: {
         MANAGE_TOPICS: 'Gestionar tópicos',
@@ -436,6 +438,7 @@ module.exports = {
         EDIT_CONFIGURATION: 'Para cambiar la configuración, crea un archivo config.json en el directorio raíz.',
         SITE_NAME: 'Nombre del sitio',
         SITE_ROOT: 'Raíz del sitio',
+        MEDIA_ROOT: 'Raíz del multimedia',
         DOCUMENT_ROOT: 'Document root',
         IP_ADDRESS: 'Dirección IP',
         PORT: 'Puerto',

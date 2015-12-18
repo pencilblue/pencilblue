@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Deletes a navigation item
      */
     function DeleteNavItem(){}
-    util.inherits(DeleteNavItem, pb.BaseController);
+    util.inherits(DeleteNavItem, pb.BaseAdminController);
 
     DeleteNavItem.prototype.render = function(cb) {
         var self = this;
@@ -40,8 +40,7 @@ module.exports = function(pb) {
         }
 
         //ensure existence
-        var dao = new pb.DAO();
-        dao.loadById(vars.id, 'section', function(err, section) {
+        self.siteQueryService.loadById(vars.id, 'section', function(err, section) {
             if(section === null) {
                 cb({
                     code: 400,
@@ -59,7 +58,7 @@ module.exports = function(pb) {
                     }
                 ]
             };
-            dao.delete(where, 'section', function(err, result) {
+            self.siteQueryService.delete(where, 'section', function(err, result) {
                 if(util.isError(err) || result < 1) {
                     return cb({
                         code: 500,
@@ -83,8 +82,8 @@ module.exports = function(pb) {
     };
 
     DeleteNavItem.prototype.updateNavMap = function(removeID, cb) {
-        var service = new pb.SectionService();
-        service.removeFromSectionMap(removeID, cb);
+        var sectionService = new pb.SectionService({site: this.site, onlyThisSite: true});
+        sectionService.removeFromSectionMap(removeID, cb);
     };
 
     //exports

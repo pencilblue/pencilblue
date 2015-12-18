@@ -31,6 +31,9 @@ var util    = require('../util.js');
  */
 module.exports = function System(pb){
     
+    //pb dependencies
+    var log = pb.log;
+    
     /**
      *
      * @private
@@ -293,7 +296,7 @@ module.exports = function System(pb){
         });
         
         process.on ('uncaughtException', function(err) {
-            log.debug('System[%s]: uncaughtException detected %s: ', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '', err.stack);
+            log.error('System[%s]: uncaught Exception detected %s: ', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '', err.stack);
             if (!IS_SHUTTING_DOWN) {
                 self.shutdown(killProcess);
             }

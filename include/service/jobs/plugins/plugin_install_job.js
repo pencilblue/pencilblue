@@ -20,6 +20,7 @@ var async = require('async');
 var util  = require('../../../util.js');
 
 module.exports = function PluginInstallJobModule(pb) {
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * A system job that coordinates the uninstall of a plugin across the cluster.
@@ -38,9 +39,16 @@ module.exports = function PluginInstallJobModule(pb) {
      * @constructor
      * @extends PluginJobRunner
      */
-    function PluginInstallJob(){
+    function PluginInstallJob(options){
+        if(options){
+          this.site = options.site || pb.SiteService.GLOBAL_SITE;
+        } else {
+            this.site = pb.SiteService.GLOBAL_SITE;
+        }
+
         PluginInstallJob.super_.call(this);
 
+       this.pluginService = new pb.PluginService(this.site);
         //initialize
         this.init();
         this.setParallelLimit(1);
@@ -59,6 +67,7 @@ module.exports = function PluginInstallJobModule(pb) {
         //progress function
         var jobId     = self.getId();
         var pluginUid = self.getPluginUid();
+        var site      = self.getSite();
         var tasks = [
 
             //verify that the plugin is not already installed
@@ -84,6 +93,7 @@ module.exports = function PluginInstallJobModule(pb) {
                 job.setRunAsInitiator(true)
                 .init(name, jobId)
                 .setPluginUid(pluginUid)
+                .setSite(site)
                 .setChunkOfWorkPercentage(1/2)
                 .run(callback);
             },
@@ -107,6 +117,7 @@ module.exports = function PluginInstallJobModule(pb) {
                 job.setRunAsInitiator(true)
                 .init(name, jobId)
                 .setPluginUid(pluginUid)
+                .setSite(site)
                 .setChunkOfWorkPercentage(1/2)
                 .run(callback);
             }
@@ -132,6 +143,7 @@ module.exports = function PluginInstallJobModule(pb) {
         var self = this;
 
         var pluginUid = this.getPluginUid();
+        var site      = this.getSite();
         var details   = null;
         var tasks     = [
 
@@ -154,6 +166,7 @@ module.exports = function PluginInstallJobModule(pb) {
                  clone.dirName = pluginUid;
 
                  var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
+                 pluginDescriptor.site = site || GLOBAL_SITE;
                  self.dao.save(pluginDescriptor, callback);
              },
 
@@ -179,9 +192,16 @@ module.exports = function PluginInstallJobModule(pb) {
             function(callback) {
 
                 var mainModule = pb.PluginService.loadMainModule(pluginUid, details.main_module.path);
-                if (!util.isNullOrUndefined(mainModule) && util.isFunction(mainModule.onInstall)) {
+                var hasBasicOnInstall = util.isFunction(mainModule.onInstall);
+                var hasContextOnInstall = util.isFunction(mainModule.onInstallWithContext);
+                if (!util.isNullOrUndefined(mainModule) && (hasBasicOnInstall || hasContextOnInstall)) {
                     self.log("Executing %s 'onInstall' function", details.uid);
-                    mainModule.onInstall(callback);
+                
+                    if (hasBasicOnInstall) {
+                        return mainModule.onInstall(callback);
+                    }
+                    
+                    mainModule.onInstallWithContext({ site: site }, callback);
                 }
                 else {
                     self.log("WARN: Plugin %s did not provide an 'onInstall' function.", details.uid);

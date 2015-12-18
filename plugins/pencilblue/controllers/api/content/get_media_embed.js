@@ -62,7 +62,7 @@ module.exports = function(pb) {
                 "max-height": (flag.style.maxHeight || '')
             }
         };
-        var ms = new pb.MediaService();
+        var ms = new pb.MediaService(null, self.site, self.onlyThisSite);
         ms.renderById(get.id, options, function(err, html) {
             if (util.isError(err)) {
                 return this.reqHandler.serveError(err);

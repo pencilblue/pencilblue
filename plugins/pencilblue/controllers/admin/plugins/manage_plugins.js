@@ -16,49 +16,57 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util           = pb.util;
-    var BaseController = pb.BaseController;
-    
+
     /**
      * Interface for managing plugins
      */
     function ManagePlugins(){}
 
-    //dependencies
-    var BaseController = pb.BaseController;
-
     //inheritance
-    util.inherits(ManagePlugins, BaseController);
+    util.inherits(ManagePlugins, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_plugins';
 
-    ManagePlugins.prototype.render = function(cb) {
+    ManagePlugins.prototype.render = function (cb) {
         var self = this;
 
-        //get the data
-        var pluginService = new pb.PluginService();
-        pluginService.getPluginMap(function(err, map) {
+        var pluginService = new pb.PluginService({site: self.site});
+        var globalPluginService = new pb.PluginService();
+        pluginService.getPluginMap(function (err, sitePluginMap) {
             if (util.isError(err)) {
                 self.reqHandler.serveError(err);
                 return;
             }
-
-            //setup angular
-            var angularObjects = pb.ClientJs.getAngularObjects({
-                navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls),
-                pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls),
-                installedPlugins: map.active,
-                inactivePlugins: map.inactive,
-                availablePlugins: map.available
-            });
-
-            //load the template
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
-                cb({content: result});
+            globalPluginService.getPluginMap(function(err, globalPluginMap) {
+                //filter globally installed plugins out of inactive
+                var availablePluginsMinusGlobal = sitePluginMap.available.filter(function(val) {
+                    var accepted = true;
+                    for (var i = 0; i < globalPluginMap.active.length; i++) {
+                        if (globalPluginMap.active[i].uid === val.uid) {
+                            accepted = false;
+                        }
+                    }
+                    return accepted;
+                });
+                //setup angular
+                var angularObjects = pb.ClientJs.getAngularObjects({
+                    navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
+                    installedPlugins: sitePluginMap.active,
+                    inactivePlugins: sitePluginMap.inactive,
+                    availablePlugins: availablePluginsMinusGlobal,
+                    globalActivePlugins: globalPluginMap.active,
+                    siteUid: self.site
+                });
+                //load the template
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
+                    cb({content: result});
+                });
             });
         });
     };

@@ -30,11 +30,21 @@
 			.error(function(error, status) {
 				$window.location.reload();
 			});
-		}
+		};
 
 		$scope.refreshPage = function() {
 			$window.location.reload();
-		}
+		};
+        
+        $scope.updateClusterStats = function() {
+            $http.get('/api/cluster')
+            .success(function(result) {
+				$scope.cluster = result;
+			})
+			.error(function(error, status) {
+				$window.location.reload();
+			});
+        };
 
 		$http.get('https://pencilblue.org/feed')
 		.success(function(result) {
@@ -61,5 +71,13 @@
 
 			$scope.newsCopy = $scope.cleanNewsCopy(copy.text());
 		});
+        
+        if ($scope.isAdmin) {
+            var interval = 10000;
+            if ($scope.cluster && $scope.cluster.length > 0) {
+                interval = $scope.cluster[0].update_interval || interval;
+            }
+            setInterval($scope.updateClusterStats, interval);
+        }
 	});
 </script>

@@ -20,7 +20,10 @@ var url  = require('url');
 var util = require('../include/util.js');
 
 module.exports = function BaseControllerModule(pb) {
-    
+
+    // pb dependancies
+    var SiteService = pb.SiteService;
+
     /**
      * The base controller provides functions for the majority of
      * the heavy lifing for a controller. It accepts and provides access to
@@ -106,6 +109,7 @@ module.exports = function BaseControllerModule(pb) {
      *  @param {Function} cb A callback that takes a single optional argument: cb(Error)
      */
     BaseController.prototype.init = function(props, cb) {
+        var self = this;
         this.reqHandler          = props.request_handler;
         this.req                 = props.request;
         this.res                 = props.response;
@@ -113,54 +117,69 @@ module.exports = function BaseControllerModule(pb) {
         this.body                = props.body;
         this.localizationService = props.localization_service;
         this.ls                  = this.localizationService;
-        this.pathVars            = props.path_vars;
+        this.pathVars            = props.pathVars;
         this.query               = props.query;
         this.pageName            = '';
+        this.siteObj             = props.siteObj;
+        this.site                = props.site;
+        this.siteName            = props.siteName;
+        this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || self.ts.siteRoot;
 
-        var self   = this;
         var tsOpts = {
             ls: this.localizationService,
-            activeTheme: props.activeTheme
+            activeTheme: props.activeTheme,
+            site: this.site
         };
-        this.templateService = new pb.TemplateService(tsOpts);
-        this.templateService.registerLocal('locale', this.ls.language);
-        this.templateService.registerLocal('error_success', function(flag, cb) {
+
+
+        this.ts = new pb.TemplateService(tsOpts);
+        this.ts.registerLocal('locale', this.ls.language);
+        this.ts.registerLocal('error_success', function(flag, cb) {
             self.displayErrorOrSuccessCallback(flag, cb);
         });
-        this.templateService.registerLocal('page_name', function(flag, cb) {
+        this.ts.registerLocal('page_name', function(flag, cb) {
             cb(null, self.getPageName());
         });
-        this.templateService.registerLocal('localization_script', function(flag, cb) {
+        this.ts.registerLocal('localization_script', function(flag, cb) {
             self.requiresClientLocalizationCallback(flag, cb);
         });
-        this.templateService.registerLocal('analytics', function(flag, cb) {
+        this.ts.registerLocal('analytics', function(flag, cb) {
             pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
         });
-        this.templateService.registerLocal('wysiwyg', function(flag, cb) {
+        this.ts.registerLocal('wysiwyg', function(flag, cb) {
             var wysiwygId = util.uniqueId();
 
-            self.templateService.registerLocal('wys_id', wysiwygId);
-            self.templateService.load('admin/elements/wysiwyg', function(err, data) {
+            self.ts.registerLocal('wys_id', wysiwygId);
+            self.ts.load('admin/elements/wysiwyg', function(err, data) {
                 cb(err, new pb.TemplateValue(data, false));
             });
         });
-        this.ts = this.templateService;
-        
+        this.ts.registerLocal('site_root', function(flag, cb) {
+            cb(null, self.hostname);
+        });
+        this.ts.registerLocal('site_name', function(flag, cb) {
+            cb(null, self.siteName);
+        });
+
         /**
          *
          * @property activeTheme
          * @type {String}
          */
         this.activeTheme = props.activeTheme;
-        
-        //build out a base service context that can be cloned and passed to any 
+
+        //build out a base service context that can be cloned and passed to any
         //service objects
         this.context = {
             req: this.req,
             session: this.session,
             ls: this.ls,
             ts: this.ts,
-            activeTheme: this.activeTheme
+            site: this.site,
+            hostname: this.hostname,
+            activeTheme: this.activeTheme,
+            onlyThisSite: true,
+            siteObj: this.siteObj
         };
 
         cb();
@@ -209,7 +228,7 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.formError = function(message, redirectLocation, cb) {
 
         this.session.error = message;
-        var uri = pb.UrlService.createSystemUrl(redirectLocation);
+        var uri = pb.UrlService.createSystemUrl(redirectLocation, this.hostname);
         cb(pb.RequestHandler.generateRedirect(uri));
     };
 
@@ -263,9 +282,10 @@ module.exports = function BaseControllerModule(pb) {
         var self = this;
         
         this.getPostData(function(err, raw){
+            //Handle error
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                pb.log.error("BaseController.getPostParams encountered an error. ERROR[%s]", err.stack);
+                return cb(err, null);
             }
 
             //lookup encoding
@@ -287,7 +307,9 @@ module.exports = function BaseControllerModule(pb) {
         var self = this;
         
         this.getPostData(function(err, raw){
+            //Handle error
             if (util.isError(err)) {
+                pb.log.error("BaseController.getJSONPostParams encountered an error. ERROR[%s]", err.stack);
                 return cb(err, null);
             }
             
@@ -300,6 +322,7 @@ module.exports = function BaseControllerModule(pb) {
             try {
                 postParams = JSON.parse(raw.toString(encoding));
             }
+            //TODO - Needed? Can't we just pass err into the cb?
             catch(err) {
                 error = err;
             }
@@ -388,7 +411,7 @@ module.exports = function BaseControllerModule(pb) {
             delete this.session.fieldValues;
         }
 
-        cb(result);
+        cb(null, result);
     };
 
     /**
@@ -402,6 +425,7 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.sanitizeObject = function(obj) {
         if (!util.isObject(obj)) {
+            pb.log.warn("BaseController.sanitizeObject was not passed an object.");
             return;
         }
 

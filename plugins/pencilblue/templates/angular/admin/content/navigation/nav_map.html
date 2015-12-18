@@ -1,7 +1,8 @@
 <script type="text/javascript">
     angular.module('pencilblueApp', ['ui.sortable'])
-    .controller('PencilBlueController', function($scope, $http) {
+    .controller('PencilBlueController', function($scope, $http, $timeout) {
         ^angular_objects^
+        ^tmp_angular=admin=elements=error_success^
 
         $scope.deleteNameKey = 'name';
 
@@ -16,7 +17,7 @@
             },
             itemMoved: function (event) {},
             orderChanged: function(event) {},
-        }
+        };
 
         $scope.saveNavMap = function() {
             var navMap = [];
@@ -45,12 +46,12 @@
                 $scope.errorMessage = error.message;
                 $scope.saving = false;
             });
-        }
+        };
 
         $scope.confirmDelete = function(item) {
             $scope.objectToDelete = item;
             $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
-        }
+        };
 
         $scope.deleteObject = function() {
             if(!$scope.objectToDelete) {
@@ -83,6 +84,6 @@
                 $scope.errorMessage = error.message;
                 $('#confirm_delete_modal').modal('hide');
             });
-        }
+        };
     });
 </script>

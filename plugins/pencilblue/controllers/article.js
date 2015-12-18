@@ -1,25 +1,25 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2015  PencilBlue, LLC
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Loads a single article
      * @class ArticleViewController
@@ -40,7 +40,7 @@ module.exports = function(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             //create the service
             self.service = new pb.ArticleServiceV2(self.getServiceContext());
 
@@ -48,7 +48,7 @@ module.exports = function(pb) {
             var context     = self.getServiceContext();
             context.service = self.service;
             self.contentViewLoader = new pb.ContentViewLoader(context);
-            
+
             cb(null, true);
         };
         ArticleViewController.super_.prototype.init.apply(this, [context, init]);
@@ -61,7 +61,7 @@ module.exports = function(pb) {
     ArticleViewController.prototype.render = function(cb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
-        
+
         //attempt to load object
         var opts = {
             render: true,
@@ -72,9 +72,9 @@ module.exports = function(pb) {
                 return cb(err);
             }
             else if (article == null) {
-                return self.reqHandler.serve404();   
+                return self.reqHandler.serve404();
             }
-                
+
             var options = {};
             self.contentViewLoader.render([article], options, function(err, html) {
                 if (util.isError(err)) {
@@ -88,30 +88,30 @@ module.exports = function(pb) {
             });
         });
     };
-    
+
     /**
-     * Builds out the where clause for finding the article to render.  Because 
-     * MongoDB has an object ID represented by 12 characters we must account 
-     * for this condition by building a where clause with an "or" condition.  
+     * Builds out the where clause for finding the article to render.  Because
+     * MongoDB has an object ID represented by 12 characters we must account
+     * for this condition by building a where clause with an "or" condition.
      * Otherwise we will only query on the url key
      * @method getWhereClause
      * @param {String} custUrl Represents the article's ID or its slug
-     * @return {Object} An object representing the where clause to use in the 
+     * @return {Object} An object representing the where clause to use in the
      * query to locate the article
      */
     ArticleViewController.prototype.getWhereClause = function(custUrl) {
-        
+
         //put a check to look up by ID *FIRST*
         var conditions = [];
         if(pb.validation.isIdStr(custUrl, true)) {
             conditions.push(pb.DAO.getIdWhere(custUrl));
         }
-        
+
         //put a check to look up by URL
         conditions.push({
-            url: custUrl 
+            url: custUrl
         });
-        
+
         //check for object ID as the custom URL
         var where;
         if (conditions.length > 1) {

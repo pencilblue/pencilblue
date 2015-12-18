@@ -31,29 +31,50 @@ module.exports = function MediaServiceModule(pb) {
      * @submodule Entities
      * @class MediaService
      * @constructor
+     * @param provider
+     * @param site          Site uid to be used for this service
+     * @param onlyThisSite  Whether this service should only return media associated with specified site
+     *                      or fallback to global if not found in specified site
      */
-    function MediaService(provider){
+    function MediaService(provider, site, onlyThisSite) {
+        
+        /**
+         * @property site
+         * @type {String}
+         */
+        this.site = pb.SiteService.getCurrentSite(site);
+        
+        var context = {
+            site: this.site, 
+            onlyThisSite: onlyThisSite
+        };
+        
+        /**
+         * @property siteQueryService
+         * @type {SiteQueryService}
+         */
+        this.siteQueryService = new pb.SiteQueryService(context);
+        
         if (util.isNullOrUndefined(provider)) {
-            provider = MediaService.loadMediaProvider();
+            provider = MediaService.loadMediaProvider(context);
         }
         if (!provider) {
             throw new Error('A valid media provider is required. Please check your configuration');
         }
         
         /**
-         *
          * @property provider
          * @type {MediaProvider}
          */
         this.provider = provider;
-    };
+    }
     
     /**
-     *
+     * @deprecated
      * @private
      * @static
      * @property INSTANCE
-     * @
+     * @type {MediaProvider}
      */
     var INSTANCE = null;
 
@@ -65,6 +86,17 @@ module.exports = function MediaServiceModule(pb) {
      * @type {String}
      */
     MediaService.COLL = 'media';
+    
+    /**
+     * @private
+     * @static
+     * @property MEDIA_PROVIDERS
+     * @type {Object}
+     */
+    var MEDIA_PROVIDERS = Object.freeze({
+        fs: pb.media.providers.FsMediaProvider,
+        mongo: pb.media.providers.MongoMediaProvider
+    });
 
     /**
      * Contains the list of media renderers
@@ -84,7 +116,8 @@ module.exports = function MediaServiceModule(pb) {
         pb.media.renderers.SlideShareMediaRenderer,
         pb.media.renderers.TrinketMediaRenderer,
         pb.media.renderers.StorifyMediaRenderer,
-        pb.media.renderers.KickStarterMediaRenderer
+        pb.media.renderers.KickStarterMediaRenderer,
+        pb.media.renderers.PdfMediaRenderer
     ];
 
     /**
@@ -95,8 +128,7 @@ module.exports = function MediaServiceModule(pb) {
      * occurred and a media descriptor if found.
      */
     MediaService.prototype.loadById = function(mid, cb) {
-        var dao = new pb.DAO();
-        dao.loadById(mid.toString(), MediaService.COLL, cb);
+        this.siteQueryService.loadById(mid.toString(), MediaService.COLL, cb);
     };
 
     /**
@@ -113,8 +145,7 @@ module.exports = function MediaServiceModule(pb) {
         }
 
         var self = this;
-        var dao  = new pb.DAO();
-        dao.deleteById(mid, MediaService.COLL, cb);
+        self.siteQueryService.deleteById(mid, MediaService.COLL, cb);
     };
 
     /**
@@ -131,7 +162,7 @@ module.exports = function MediaServiceModule(pb) {
         }
 
         var self = this;
-        this.validate(media, function(err, validationErrors) {
+        self.validate(media, function(err, validationErrors) {
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -139,8 +170,7 @@ module.exports = function MediaServiceModule(pb) {
                 return cb(null, validationErrors);
             }
 
-            var dao = new pb.DAO();
-            dao.save(media, cb);
+            self.siteQueryService.save(media, cb);
         });
     };
 
@@ -161,8 +191,7 @@ module.exports = function MediaServiceModule(pb) {
 
         //ensure the media name is unique
         var where = { name: media.name };
-        var dao   = new pb.DAO();
-        dao.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
+        this.siteQueryService.unique(MediaService.COLL, where, media[pb.DAO.getIdField()], function(err, isUnique) {
             if(util.isError(err)) {
                 return cb(err, errors);
             }
@@ -185,6 +214,7 @@ module.exports = function MediaServiceModule(pb) {
      * @param {Integer} [options.limit]
      * @param {Integer} [options.offset]
      * @param {Boolean} [options.format_media=true]
+     * @param cb
      */
     MediaService.prototype.get = function(options, cb) {
         if (util.isFunction(options)) {
@@ -195,8 +225,7 @@ module.exports = function MediaServiceModule(pb) {
             };
         }
 
-        var dao  = new pb.DAO();
-        dao.q('media', options, function(err, media) {
+        this.siteQueryService.q('media', options, function (err, media) {
             if (util.isError(err)) {
                 return cb(err, []);
             }
@@ -470,8 +499,7 @@ module.exports = function MediaServiceModule(pb) {
     MediaService.prototype.renderById = function(id, options, cb) {
         var self = this;
 
-        var dao = new pb.DAO();
-        dao.loadById(id, MediaService.COLL, function(err, media) {
+        self.siteQueryService.loadById(id, MediaService.COLL, function (err, media) {
             if (util.isError(err)) {
                 return cb(err);   
             }
@@ -845,17 +873,53 @@ module.exports = function MediaServiceModule(pb) {
     };
     
     /**
-     * Retrieves the singleton instance of CommandService.
+     * Provides a mechanism to retrieve all of the supported extension types 
+     * that can be uploaded into the system.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array} provides an array of strings
+     */
+    MediaService.getSupportedExtensions = function() {
+        
+        var extensions = {};
+        REGISTERED_MEDIA_RENDERERS.forEach(function(provider) {
+            
+            //for backward compatibility check for existence of extension retrieval
+            if (!util.isFunction(provider.getSupportedExtensions)) {
+                pb.log.warn('MediaService: Renderer %s does provide an implementation for getSupportedExtensions', provider.getName());
+                return;
+            }
+            
+            //retrieve the extensions
+            var exts = provider.getSupportedExtensions();
+            if (!util.isArray(exts)) {
+                return;
+            }
+            
+            //add them to the hash
+            exts.forEach(function(extension) {
+                extensions[extension] = true;
+            });
+        });
+        
+        return Object.keys(extensions);
+    };
+    
+    /**
+     * Retrieves the singleton instance of MediaProvider.
+     * @deprecated
      * @static
      * @method getInstance
-     * @return {CommandService}
+     * @param {Object} [context]
+     * @return {MediaProvider}
      */
-    MediaService.getInstance = function() {
+    MediaService.getInstance = function(context) {
+        pb.log.warn('MediaService: the "getInstance" function is deprecated as of 0.5.0 and will be removed in the next version');
         if (INSTANCE) {
             return INSTANCE;
         }
         
-        INSTANCE = MediaService.loadMediaProvider();
+        INSTANCE = MediaService.loadMediaProvider(context || {});
         if (INSTANCE === null) {
             throw new Error('A valid media provider was not available: PROVIDER_PATH: '+pb.config.media.provider+' TRIED='+JSON.stringify(paths));
         }
@@ -865,30 +929,37 @@ module.exports = function MediaServiceModule(pb) {
      *
      * @static
      * @method loadMediaProvider
+     * @param {Object} context
+     * @param {String} context.site
      * @return {MediaProvider} An instance of a media provider or NULL when no 
      * provider can be loaded.
      */
-    MediaService.loadMediaProvider = function() {
-        if (pb.config.media.provider === 'fs') {
-            return new pb.media.providers.FsMediaProvider(pb.config.media.parent_dir);
+    MediaService.loadMediaProvider = function(context) {
+        var ProviderType = MEDIA_PROVIDERS[pb.config.media.provider];
+        if (util.isNullOrUndefined(ProviderType)) {
+            ProviderType = MediaService.findProviderType();
         }
-        else if (pb.config.media.provider === 'mongo') {
-            return new pb.media.providers.MongoMediaProvider();
-        }
-        
+        return !!ProviderType ? new ProviderType(context) : null;
+    };
+    
+    /**
+     * Looks up the prototype for the media provider based on the configuration
+     * @static
+     * @method findProviderType
+     * @return {MediaProvider}
+     */
+    MediaService.findProviderType = function() {
         var instance = null;
         var paths = [path.join(pb.config.docRoot, pb.config.media.provider), pb.config.media.provider];
         for(var i = 0; i < paths.length; i++) {
             try{
-                var ProviderType = require(paths[i])(pb);
-                instance = new ProviderType();
-                break;
+                return require(paths[i])(pb);
             }
             catch(e){
                 pb.log.silly(e.stack);
             }
         }
-        return instance;
+        return null;
     };
 
     //exports

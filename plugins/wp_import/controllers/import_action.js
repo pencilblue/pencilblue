@@ -23,7 +23,6 @@ module.exports = function ImportWPActionControllerModule(pb) {
     
     //pb dependencies
     var util       = pb.util;
-    var wpXMLParse = pb.PluginService.getService('wp_xml_parse', 'wp_import');
 
     /**
      * @class ImportWPActionController
@@ -41,7 +40,8 @@ module.exports = function ImportWPActionControllerModule(pb) {
     ImportWPActionController.prototype.render = function(cb) {
         var self  = this;
         var files = [];
-
+        var WPXMLParseService = pb.PluginService.getService('wp_xml_parse', 'wp_import', this.site);
+        var wpXMLParse = new WPXMLParseService(this.site);
         var form = new formidable.IncomingForm();
         form.on('file', function(field, file) {
             files.push(file);
@@ -78,6 +78,7 @@ module.exports = function ImportWPActionControllerModule(pb) {
                 method: 'post',
                 path: '/actions/admin/plugins/wp_import/settings/import',
                 auth_required: true,
+                inactive_site_access: true,
                 access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
                 content_type: 'text/html'
             }

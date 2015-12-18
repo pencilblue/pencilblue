@@ -1,15 +1,26 @@
 <script type="text/javascript" src="/js/angular/services/search.js"></script>
 <script type="text/javascript" src="/js/angular/services/sort.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript" src="/js/angular/factories/admin/article.js"></script>
+<script type="text/javascript" src="/js/angular/services/article.js"></script>
 <script type="text/javascript">
-	angular.module('pencilblueApp', ['search', 'sort', 'paginate'])
-	.controller('PencilBlueController', function($scope, $http, searchService, sortService, paginationService) {
+	angular.module('pencilblueApp', [
+		'search',
+		'sort',
+		'paginate',
+		'pencilblue.factories.admin.articles',
+		'pencilblue.services.article'
+	])
+	.controller('PencilBlueController', function($scope, $http, $timeout, searchService, sortService, paginationService, articleFactory, articleService) {
 		^angular_objects^
+		^tmp_angular=admin=elements=error_success^
 
 		$scope.searchText = '';
-		$scope.paginationIndex = 0;
+		$scope.paginationIndex;
 		$scope.paginationLimit = 25;
+		$scope.paginationPages = [];
 		$scope.deleteNameKey = 'headline';
+		$scope.orderString = 'publish_date=0'
 
 		$scope.tableHeaders = [{
 			name: loc.articles.HEADLINE,
@@ -18,7 +29,7 @@
 			sortDesc: false
 		}, {
 			name: loc.generic.STATUS,
-			field: 'status',
+			field: 'draft',
 			sortAsc: false,
 			sortDesc: false
 		}, {
@@ -34,36 +45,96 @@
 		}, {
 			name: loc.articles.PUBLISH_DATE,
 			field: 'publish_date',
-			sortAsc: true,
-			sortDesc: false
+			sortAsc: false,
+			sortDesc: true
 		}];
 
-		$scope.search = function() {
-			searchService.search($scope.searchText, $scope.articles, ['headline'], function(articles) {
-				$scope.articles = articles;
-				$scope.paginate(0);
-			});
-		}
+		$scope.getArticles = function(cb) {
+      if(!cb) {
+        cb = function() {};
+      }
 
-		$scope.clearSearch = function() {
-			$scope.searchText = '';
-			$scope.search();
-		}
+      $scope.articles = null;
 
-		$scope.paginate = function(paginationIndex) {
-			$scope.paginationIndex = paginationIndex;
+      articleFactory.getArticles({
+        $limit: $scope.paginationLimit,
+        $offset: $scope.paginationIndex,
+        $order: $scope.orderString,
+        render: 1
+      }, function(error, articles, total) {
+        if(error) {
+          $scope.errorMessage = error.message;
+          return;
+        }
 
-			paginationService.paginate($scope.articles, $scope.paginationIndex, $scope.paginationLimit, function(articles, paginationPages) {
-				$scope.articles = articles;
-				$scope.paginationPages = paginationPages;
-			})
-		}
+        $scope.articles = articleService.setArticleStatuses(articles);
+        $scope.paginationTotal = total;
+        cb(articles, total);
+      });
+    };
+
+    $scope.search = function() {
+      $scope.paginate(0, true);
+    };
+
+    $scope.clearSearch = function() {
+      $scope.searchText = '';
+      $scope.paginate(0, true);
+    };
+
+    $scope.query = function(cb) {
+      if(!cb) {
+        cb = function() {};
+      }
+
+      $scope.articles = null;
+
+      articleFactory.getArticles({
+        q: $scope.searchText,
+        $limit: $scope.paginationLimit,
+        $offset: $scope.paginationIndex,
+				$order: $scope.orderString,
+				render: 1
+      }, function(error, articles, total) {
+        if(error) {
+          $scope.errorMessage = error.message;
+          return;
+        }
+
+        $scope.articles = articleService.setArticleStatuses(articles);
+        $scope.paginationTotal = total;
+        cb(articles, total);
+      });
+    };
+
+    $scope.paginate = function(paginationIndex, force) {
+      if(!force && !paginationService.paginationValid(paginationIndex, $scope.paginationIndex, $scope.paginationPages.length)) {
+        return;
+      }
+
+      $scope.paginationIndex = paginationIndex;
+      if($scope.searchText.length) {
+        $scope.query(function() {
+          $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
+        });
+      }
+      else {
+        $scope.getArticles(function() {
+          $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
+        });
+      }
+    };
 
 		$scope.pageButtonVisible = function(testIndex) {
 			return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
 		};
 
 		$scope.sort = function(headerIndex) {
+			var targetHeader = sortService.setSortHeader($scope.articles, $scope.tableHeaders, headerIndex);
+			$scope.orderString = targetHeader.field + '=' + (targetHeader.sortDesc ? '0' : '1');
+			$scope.paginate(0, true);
+
+			return;
 			sortService.sortByHeader($scope.articles, $scope.tableHeaders, headerIndex, function(articles, headers) {
 				$scope.articles = articles;
 				$scope.headers = headers;
@@ -79,25 +150,31 @@
 
 		$scope.deleteObject = function() {
 			if(!$scope.objectToDelete) {
-				return;
-			}
+        return;
+      }
 
-			$scope.deleting = true;
-			$http({method: 'DELETE', url: '/actions/admin/content/articles/' + $scope.objectToDelete._id})
-			.success(function(result) {
-				$scope.articles.splice($scope.objectToDeleteIndex, 1);
-				$scope.deleting = false;
-				$scope.successMessage = result.message;
-				$scope.paginate(0);
-				$('#confirm_delete_modal').modal('hide');
-			})
-			.error(function(error, status) {
-				$scope.deleting = false;
-				$scope.errorMessage = error.message;
-				$('#confirm_delete_modal').modal('hide');
-			});
+      $scope.deleting = true;
+      articleFactory.deleteArticle($scope.objectToDelete._id, function(error, result) {
+        if(error) {
+          $scope.deleting = false;
+          $scope.errorMessage = error.message;
+          $('#confirm_delete_modal').modal('hide');
+          return;
+        }
+
+        for(var i = 0; i < $scope.articles.length; i ++) {
+          if($scope.articles[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+            $scope.articles.splice(i, 1);
+            break;
+          }
+        }
+        $scope.deleting = false;
+        $scope.successMessage = result.message;
+        $scope.paginate(0);
+        $('#confirm_delete_modal').modal('hide');
+      });
 		}
 
-		$scope.sort(4);
+		$scope.paginate(0);
 	});
 </script>

@@ -16,10 +16,10 @@
 */
 
 module.exports = function AdminChangePasswordControllerModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for changing the logged in user's password
      * @class AdminChangePasswordController
@@ -27,7 +27,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
      * @extends BaseController
      */
     function AdminChangePasswordController(){}
-    util.inherits(AdminChangePasswordController, pb.BaseController);
+    util.inherits(AdminChangePasswordController, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'change_password';
@@ -44,8 +44,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
             return;
         }
 
-        var dao = new pb.DAO();
-        dao.loadById(vars.id, 'user', function(err, user) {
+        self.siteQueryService.loadById(vars.id, 'user', function(err, user) {
             if(util.isError(err) || user === null) {
                 self.redirect('/admin/users', cb);
                 return;
@@ -60,7 +59,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
 
             var angularObjects = pb.ClientJs.getAngularObjects(
             {
-                navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls),
+                navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls, self.site),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, user),
                 tabs: tabs,
                 adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
@@ -82,7 +81,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
                 name: SUB_NAV_KEY,
                 title: ls.get('CHANGE_PASSWORD'),
                 icon: 'chevron-left',
-                href: pb.UrlService.urlJoin('/admin/users/', + encodeURIComponent(data[pb.DAO.getIdField()]))
+                href: pb.UrlService.urlJoin('/admin/users/', encodeURIComponent(data[pb.DAO.getIdField()]))
             }
        ];
     };

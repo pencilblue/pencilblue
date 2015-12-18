@@ -55,7 +55,13 @@ module.exports = function(pb) {
          * @type {TopicService}
          */
         this.topicService = new TopicService();
-        
+
+        /**
+         * @property site
+         * @type {String}
+         */
+        this.site = context.site;
+
         //call the super constructor
         ContentObjectService.super_.call(this, context);
     }
@@ -345,7 +351,7 @@ module.exports = function(pb) {
                     return callback(null, self.contentSettings);
                 }
                 
-                var contentService = new pb.ContentService();
+                var contentService = new pb.ContentService({self: self.site});
                 contentService.getSettings(callback);
             }
         };
@@ -454,7 +460,7 @@ module.exports = function(pb) {
                     },
                     where: pb.DAO.getIdWhere(content.thumbnail)
                 };
-                var mediaService = new pb.MediaService();
+                var mediaService = new pb.MediaService(null, self.site, false);
                 mediaService.get(mOpts, function(err, media) {
                     callback(err, util.isNullOrUndefined(media) ? '' : media.location);
                 });

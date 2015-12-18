@@ -19,12 +19,21 @@ module.exports = function(pb) {
     
     //pb dependencies
     var util = pb.util;
+    var BaseAdminController = pb.BaseAdminController;
     
     /**
      * Creates a nav item
      */
     function NewNavItem(){}
-    util.inherits(NewNavItem, pb.BaseController);
+    util.inherits(NewNavItem, BaseAdminController);
+
+    NewNavItem.prototype.init = function (props, cb) {
+        var self = this;
+        BaseAdminController.prototype.init.call(self, props, function () {
+            self.sectionService = new pb.SectionService({site: self.site, onlyThisSite: true});
+            cb();
+        });
+    };
 
     NewNavItem.prototype.render = function(cb){
         var self = this;
@@ -42,8 +51,7 @@ module.exports = function(pb) {
             pb.SectionService.trimForType(navItem);
 
             //validate
-            var navService = new pb.SectionService();
-            navService.save(navItem, function(err, result) {
+            self.sectionService.save(navItem, function(err, result) {
                 if(util.isError(err)) {
                     cb({
                         code: 500,
@@ -67,8 +75,7 @@ module.exports = function(pb) {
     };
 
     NewNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {
-        var service = new pb.SectionService();
-        service.updateNavMap(navItem, cb);
+        this.sectionService.updateNavMap(navItem, cb);
     };
 
     NewNavItem.getHtmlErrorMsg = function(validationErrors) {

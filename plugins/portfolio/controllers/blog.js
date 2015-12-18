@@ -22,7 +22,6 @@ module.exports = function BlogModule(pb) {
 
     //pb dependencies
     var util           = pb.util;
-    var config         = pb.config;
     var PluginService  = pb.PluginService;
     var TopMenu        = pb.TopMenuService;
     var Comments       = pb.CommentService;
@@ -37,6 +36,15 @@ module.exports = function BlogModule(pb) {
     function Blog(){}
     util.inherits(Blog, pb.BaseController);
 
+    Blog.prototype.init = function(props, cb) {
+        var self = this;
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.navService = new pb.SectionService({site: self.site});
+            self.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
+            cb();
+        });
+    };
+
     Blog.prototype.render = function(cb) {
         var self = this;
 
@@ -46,17 +54,17 @@ module.exports = function BlogModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService(self.site, true);
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
-                var articleService = new pb.ArticleService();
+                var articleService = new pb.ArticleService(self.site, true);
                 articleService.getMetaInfo(data.content[0], function(err, meta) {
 
                     self.ts.reprocess = false;
                     self.ts.registerLocal('meta_keywords', meta.keywords);
                     self.ts.registerLocal('meta_desc', data.section.description || meta.description);
                     self.ts.registerLocal('meta_title', data.section.name || meta.title);
-                    self.ts.registerLocal('meta_lang', config.localization.defaultLocale);
+                    self.ts.registerLocal('meta_lang', pb.config.localization.defaultLocale);
                     self.ts.registerLocal('meta_thumbnail', meta.thumbnail);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
@@ -200,7 +208,7 @@ module.exports = function BlogModule(pb) {
         //the theme is specified, we ensure that the theme is installed and
         //initialized otherwise we let the template service figure out how to
         //delegate.
-        if (!pb.PluginService.isActivePlugin(pieces[0])) {
+        if (!pb.PluginService.isActivePlugin(pieces[0], this.site)) {
             pb.log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
             cb(null, pieces[1]);
             return;
@@ -236,8 +244,7 @@ module.exports = function BlogModule(pb) {
                     return;
                 }
 
-                var dao = new pb.DAO();
-                dao.loadById(self.req.pencilblue_section, 'section', callback);
+                self.siteQueryService.loadById(self.req.pencilblue_section, 'section', callback);
             }
         };
         async.parallel(tasks, cb);
@@ -250,7 +257,7 @@ module.exports = function BlogModule(pb) {
         var article = this.req.pencilblue_article || null;
         var page    = this.req.pencilblue_page    || null;
 
-        var service = new ArticleService();
+        var service = new ArticleService(this.site, true);
         if(this.req.pencilblue_preview) {
             if(this.req.pencilblue_preview == page || article) {
                 if(page) {
@@ -389,11 +396,10 @@ module.exports = function BlogModule(pb) {
         else if(searchId = this.req.pencilblue_section || this.req.pencilblue_topic) {
 
             var objType = this.req.pencilblue_section ? 'section' : 'topic';
-            var dao     = new pb.DAO();
             if(this.req.pencilblue_topic) {
                 searchId = searchId.toString();
             }
-            dao.loadById(searchId, objType, function(err, obj) {
+            this.siteQueryService.loadById(searchId, objType, function(err, obj) {
                 if(util.isError(err) || obj === null) {
                     cb(null, pb.config.siteName);
                     return;
@@ -409,7 +415,8 @@ module.exports = function BlogModule(pb) {
 
     Blog.prototype.getNavigation = function(cb) {
         var options = {
-            currUrl: this.req.url
+            currUrl: this.req.url,
+            site: this.site
         };
         TopMenu.getTopMenu(this.session, this.ls, options, function(themeSettings, navigation, accountButtons) {
             TopMenu.getBootstrapNav(navigation, accountButtons, function(navigation, accountButtons) {
@@ -421,7 +428,7 @@ module.exports = function BlogModule(pb) {
     Blog.prototype.getSideNavigation = function(articles, cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService();
+        var pluginService = new pb.PluginService({site: this.site});
         pluginService.getSetting('show_side_navigation', 'portfolio', function(err, showSideNavigation) {
             if(!showSideNavigation) {
                 cb('', null);
@@ -459,15 +466,14 @@ module.exports = function BlogModule(pb) {
                 },
                 limit: 6
             };
-            var dao = new pb.DAO();
-            dao.q('article', opts, function(err, relatedArticles) {
+            self.siteQueryService.q('article', opts, function(err, relatedArticles) {
                 if(relatedArticles.length === 0) {
 
                     opts = {
                         where: pb.DAO.ANYWHERE,
                         order: {name: 1}
                     };
-                    dao.q('topic', opts, function(err, topicObjects) {
+                    self.siteQueryService.q('topic', opts, function(err, topicObjects) {
                         var articleTopics = [];
                         for(var i = 0; i < topics.length && articleTopics.length < 20; i++) {
                             for(var j = 0; j < topicObjects.length; j++) {

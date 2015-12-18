@@ -26,8 +26,15 @@ module.exports = function SectionServiceModule(pb) {
      * Service for managing the site's navigation
      * @class SectionService
      * @constructor
+     * @param {String} site uid
+     * @param {Boolean} onlyThisSite should section service only return value set specifically by site rather than defaulting to global
      */
-    function SectionService(){}
+    function SectionService(options) {
+        this.site = pb.SiteService.getCurrentSite(options.site) || pb.SiteService.GLOBAL_SITE;
+        this.onlyThisSite = options.onlyThisSite || false;
+        this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, this.onlyThisSite);
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
+    }
 
     /**
      *
@@ -46,7 +53,7 @@ module.exports = function SectionServiceModule(pb) {
     };
 
     /**
-     * 
+     *
      * @static
      * @method getPillNavOptions
      * @param {String} activePill
@@ -71,6 +78,8 @@ module.exports = function SectionServiceModule(pb) {
      * @param {Function} cb
      */
     SectionService.prototype.removeFromSectionMap = function(section, sectionMap, cb) {
+        var self = this;
+
         if (!cb) {
             cb         = sectionMap;
             sectionMap = null;
@@ -88,12 +97,11 @@ module.exports = function SectionServiceModule(pb) {
                 callback(null, sectionMap);
             }
             else {
-                pb.settings.get('section_map', callback);
+                self.settings.get('section_map', callback);
             }
         };
 
         //retrieve map
-        var self = this;
         getSectionMap(sectionMap, function(err, sectionMap) {
             if (util.isError(err)) {
                 cb(err, false);
@@ -109,7 +117,7 @@ module.exports = function SectionServiceModule(pb) {
 
             //when the section map was not provided persist it back
             if (sectionMapWasNull) {
-                pb.settings.set('section_map', sectionMap, function(err, result) {
+                self.settings.set('section_map', sectionMap, function(err, result) {
                     cb(err, orphans);
                 });
             }
@@ -197,16 +205,14 @@ module.exports = function SectionServiceModule(pb) {
 
         //do validation
         if (!util.isObject(section) || !section[pb.DAO.getIdField()]) {
-            cb(new Error("A valid section object must be provided", false));
-            return;
+            return cb(new Error("A valid section object must be provided", false));
         }
 
         //retrieve the section map
         var sid = section[pb.DAO.getIdField()].toString();
-        pb.settings.get('section_map', function(err, sectionMap) {
+        self.settings.get('section_map', function(err, sectionMap) {
             if (util.isError(err)) {
-                cb(err, false);
-                return;
+                return cb(err, false);
             }
 
             //create it if not already done
@@ -243,6 +249,7 @@ module.exports = function SectionServiceModule(pb) {
 
                 //we only support two levels so ensure we drop any children
                 navItem.children = undefined;
+
                 for (var i = 0; i < sectionMap.length; i++) {
                     if (sectionMap[i].uid == section.parent) {
                         if (sectionIndex.childIndex > -1) {
@@ -256,7 +263,7 @@ module.exports = function SectionServiceModule(pb) {
                 }
             }
 
-            pb.settings.set('section_map', sectionMap, function(err, settingSaveResult){
+            self.settings.set('section_map', sectionMap, function(err, settingSaveResult){
                 if (util.isError(err)){
                     return cb(err);
                 }
@@ -291,20 +298,20 @@ module.exports = function SectionServiceModule(pb) {
      * @param {Function} cb
      */
     SectionService.prototype.getFormattedSections = function(localizationService, currUrl, cb) {
+        var self = this;
         if (util.isFunction(currUrl)) {
             cb      = currUrl;
             currUrl = null;
         }
 
-        pb.settings.get('section_map', function(err, sectionMap) {
+        self.settings.get('section_map', function(err, sectionMap) {
             if (util.isError(err) || sectionMap == null) {
                 cb(err, []);
                 return;
             }
 
             //retrieve sections
-            var dao = new pb.DAO();
-            dao.q('section', function(err, sections) {
+            self.siteQueryService.q('section', function(err, sections) {
                 if (util.isError(err)) {
                     return cb(err, []);
                 }
@@ -372,8 +379,7 @@ module.exports = function SectionServiceModule(pb) {
             where: where,
             order: {'name': pb.DAO.ASC}
         };
-        var dao = new pb.DAO();
-        dao.q('section', opts, cb);
+        this.siteQueryService.q('section', opts, cb);
     };
 
     /**
@@ -505,8 +511,7 @@ module.exports = function SectionServiceModule(pb) {
         var where = {
             name: navItem.name
         };
-        var dao = new pb.DAO();
-        dao.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
+        this.siteQueryService.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
             var error = null;
             if (!unique) {
                 error = {field: 'name', message: 'The provided name is not unique'};
@@ -568,7 +573,8 @@ module.exports = function SectionServiceModule(pb) {
                 var params = {
                     type: 'section', 
                     id: navItem[pb.DAO.getIdField()], 
-                    url: navItem.url
+                    url: navItem.url,
+                    site: self.site
                 };
                 var urlService = new pb.UrlService();
                 urlService.existsForType(params, function(err, exists) {
@@ -616,7 +622,6 @@ module.exports = function SectionServiceModule(pb) {
         if (!pb.validation.validateNonEmptyStr(parent, false)) {
             error = {field: 'parent', message: 'The parent must be a valid nav item container ID'};
             cb(null, error);
-            return;
         }
         else if (parent) {
 
@@ -711,8 +716,7 @@ module.exports = function SectionServiceModule(pb) {
             }
 
             //persist the changes
-            var dao = new pb.DAO();
-            dao.save(navItem, function(err, data) {
+            self.siteQueryService.save(navItem, function(err, data) {
                 if(util.isError(err)) {
                     return cb(err);
                 }
@@ -735,11 +739,12 @@ module.exports = function SectionServiceModule(pb) {
     };
 
     /**
-     * 
+     *
      * @static
      * @method getSectionData
-     * @param {String} editor
-     * @param {Function} cb
+     * @param {String} uid
+     * @param {Object} navItems
+     * @param {String} currUrl
      */
     SectionService.getSectionData = function(uid, navItems, currUrl) {
         var self = this;
