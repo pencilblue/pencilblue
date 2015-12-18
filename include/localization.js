@@ -448,7 +448,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {Array} [supported] The array of supported locales
      * @return {string} Locale for the request
      */
-    Localization.best = function(request, supported){console.log(supported);console.log('^supported-------');
+    Localization.best = function(request, supported){
         supported = util.isArray(supported) ?
             new Locale.Locales(supported) : Localization.supported;
 
@@ -459,9 +459,6 @@ module.exports = function LocalizationModule(pb) {
                 (request.headers[Localization.ACCEPT_LANG_HEADER] || loc);
             locales = new Locale.Locales(acceptLangStr);
             loc = locales.best(supported);
-            console.log(acceptLangStr);
-            console.log(supported);
-            console.log(loc);
         }
         return loc;
     };

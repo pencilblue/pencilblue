@@ -26,6 +26,16 @@ module.exports = function(pb) {
     /**
      * @class SiteMapService
      * @constructor
+     * @param {Object} context
+     * @param {TemplateService} context.ts
+     * @param {Localization} context.ls
+     * @param {ArticleServiceV2} context.articleService
+     * @param {PageService} context.pageService
+     * @param {String} context.site The site UID
+     * @param {Boolean} context.onlyThisSite
+     * @param {String} context.templatePath
+     * @param {String} context.urlTemplatePath
+     * @param {Array} [context.supportedLocales]
      */
     function SiteMapService(context) {
         if (!util.isObject(context)) {
@@ -85,6 +95,13 @@ module.exports = function(pb) {
          * @type {String}
          */
         this.urlTemplatePath = context.urlTemplatePath || DEFAULT_URL_TEMPLATE;
+
+        /**
+         * The locales that are supported for the site as an array of strings
+         * @property supportedLocales
+         * @type {Array}
+         */
+        this.supportedLocales = context.supportedLocales || pb.Localization.getSupported();
     }
 
     /**
@@ -221,7 +238,7 @@ module.exports = function(pb) {
                     priority: item.priority || '1.0',
                     url: item.url,
                     last_mod: SiteMapService.getLastModDateStr(item.last_modified),
-                    alternate_links: new pb.TemplateValue(SiteMapService.createAlternateLinks(item, self.ls.language, pb.Localization.getSupported(), self.hostname), false)
+                    alternate_links: new pb.TemplateValue(SiteMapService.createAlternateLinks(item, self.ls.language, self.supportedLocales, self.hostname), false)
                 });
                 ts.load(self.urlTemplatePath, callback);
             };

@@ -51,6 +51,7 @@ module.exports = function(pb) {
             var context = self.getServiceContext();
             context.articleService = articleSerivce;
             context.pageService = pageService;
+            context.supportedLocales = Object.keys(context.siteObj.supportedLocales);
 
             /**
              *
