@@ -151,7 +151,7 @@
           var mediaFormat = '/position:' + scope.wysiwyg.mediaPosition;
 
           if(scope.wysiwyg.mediaMaxHeight) {
-            mediaFormat = mediaFormat.concat(',maxheight:' + scope.wysiwyg.mediaMaxHeight + scope.wysiwyg.mediaMaxHeightUnit);
+            mediaFormat = mediaFormat.concat(',maxHeight:' + scope.wysiwyg.mediaMaxHeight + scope.wysiwyg.mediaMaxHeightUnit);
           }
 
           return mediaFormat;
