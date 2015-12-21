@@ -83,15 +83,6 @@ module.exports = function SiteServiceModule(pb) {
 
     /**
      *
-     * @static
-     * @readonly
-     * @property REDIRECT_HOSTS
-     * @type {String}
-     */
-    SiteService.REDIRECT_HOSTS = 'redirect_hosts';
-
-    /**
-     *
      * @private
      * @static
      * @readonly
@@ -99,16 +90,6 @@ module.exports = function SiteServiceModule(pb) {
      * @type {String}
      */
     var SITE_COLL = SiteService.SITE_COLLECTION;
-
-    /**
-     *
-     * @private
-     * @static
-     * @readonly
-     * @property SITE_COLL
-     * @type {String}
-     */
-    var REDIRECT_HOSTS = SiteService.REDIRECT_HOSTS;
 
     /**
      * Load full site config from the database using the unique id.
@@ -139,16 +120,6 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.getAllSites = function(cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {} }, cb);
-    };
-
-    /**
-     * Get all of the redirect_hosts in the database
-     * @method getRedirectHosts
-     * @param {Function} cb - the callback function
-     */
-    SiteService.prototype.getRedirectHosts = function(cb) {
-      var dao = new pb.DAO();
-      dao.q(REDIRECT_HOSTS, { select: pb.DAO.SELECT_ALL, where: {} }, cb);
     };
 
     /**
@@ -401,18 +372,6 @@ module.exports = function SiteServiceModule(pb) {
         if (pb.config.multisite.enabled && !pb.config.multisite.globalRoot) {
             return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
         }
-
-        // Load redirectHosts
-        this.getRedirectHosts(function(err, results) {
-          if (util.isError(err)) {
-            pb.log.error("ERROR: Failed to load redirect_hosts");
-          }
-          else {
-            util.forEach(results, function (redirect) {
-              pb.RequestHandler.redirectHosts[redirect.host] = redirect.uid;
-            });
-          }
-        });
 
         this.getAllSites(function (err, results) {
             if (err) {
