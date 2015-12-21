@@ -1092,7 +1092,7 @@ module.exports = function RequestHandlerModule(pb) {
         //do any necessary redirects
         var doRedirect = typeof data.redirect != "undefined";
         if(doRedirect) {
-            this.doRedirect(data.redirect);
+            this.doRedirect(data.redirect, data.statusCode);
         }
         else {
             //output data here
@@ -1310,8 +1310,8 @@ module.exports = function RequestHandlerModule(pb) {
      * @method doRedirect
      * @param {String} location
      */
-    RequestHandler.prototype.doRedirect = function(location) {
-        this.resp.statusCode = 302;
+    RequestHandler.prototype.doRedirect = function(location, statusCode) {
+        this.resp.statusCode = statusCode || pb.HttpStatus.MOVED_TEMPORARILY;
         this.resp.setHeader("Location", location);
         this.resp.end();
     };
@@ -1445,7 +1445,7 @@ module.exports = function RequestHandlerModule(pb) {
         BODY_PARSER_MAP[mime] = prototype;
         return true;
     };
-    
+
     /**
      * Retrieves the body parser mapping
      * @static
