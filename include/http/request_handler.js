@@ -873,19 +873,16 @@ module.exports = function RequestHandlerModule(pb) {
 
         //sanity check
         if (rt.theme === null || rt.method === null || rt.site === null) {
-            this.serve404();
-            return;
+            return this.serve404();
         }
 
         var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
         if (!this.siteObj.active && !inactiveSiteAccess) {
             if (this.siteObj.uid === pb.SiteService.GLOBAL_SITE) {
-                this.doRedirect('/admin');
-                return;
+                return this.doRedirect('/admin');
             }
             else {
-                this.serve404();
-                return;
+                return this.serve404();
             }
         }
 

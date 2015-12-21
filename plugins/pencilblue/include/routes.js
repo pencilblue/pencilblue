@@ -34,6 +34,7 @@ module.exports = function Routes(pb){
             access_level: 0,
             auth_required: false,
             setup_required: false,
+            inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'public.js'),
             content_type: 'text/html'
         },
