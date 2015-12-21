@@ -145,20 +145,6 @@ module.exports = function RequestHandlerModule(pb) {
 
     /**
      * @static
-     * @method deleteRedirectHost
-     * @param {String} hostname
-     */
-    RequestHandler.deleteRedirectHost = function(hostname) {
-        var dao = new pb.DAO();
-        dao.delete({host:hostname}, 'redirect_hosts', function(err, result) {
-            if (pb.util.isError(err)) {
-                pb.log.error("ERROR: Failed to delete deprecated redirectHost ERR[" + err.stack + "]");
-            }
-        });
-    };
-
-    /**
-     * @static
      * @method loadSite
      * @param {Object} site
      */
