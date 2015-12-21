@@ -15,7 +15,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
         //initialize
         this.init();
         this.setParallelLimit(1);
-    };
+    }
     util.inherits(SiteCreateEditJob, pb.SiteJobRunner);
 
     /**
@@ -124,7 +124,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
                 });
             }
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err) {
             cb(err, !util.isError(err));
         });
     };
