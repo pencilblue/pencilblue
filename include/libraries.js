@@ -74,8 +74,8 @@ module.exports = function LibrariesServiceModule(pb) {
         ng_sortable_css: '/css/lib/ng-sortable/ng-sortable.min.css',
         ng_sortable_style_css: '/css/lib/ng-sortable/ng-sortable.style.min.css',
         ng_sortable_js: '/js/lib/ng-sortable/ng-sortable.min.js',
-        rangy: 'http://rangy.googlecode.com/svn/trunk/currentrelease/rangy-core.js',
-        rangy_saverestore: 'http://rangy.googlecode.com/svn/trunk/currentrelease/rangy-selectionsaverestore.js'
+        rangy: '//rangy.googlecode.com/svn/trunk/currentrelease/rangy-core.js',
+        rangy_saverestore: '//rangy.googlecode.com/svn/trunk/currentrelease/rangy-selectionsaverestore.js'
     });
 
     /**
