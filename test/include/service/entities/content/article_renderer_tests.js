@@ -1,7 +1,7 @@
 
 //depedencies
 var should          = require('should');
-var UrlService      = require('../../../../../include/service/entities/url_service.js')({config: {siteRoot: 'http://www.test.com'}});
+var UrlService      = require('../../../../../include/service/entities/url_service.js')({config: {siteRoot: 'http://www.test.com', multisite: { enabled: false}}});
 var ArticleRenderer = require('../../../../../include/service/entities/content/article_renderer.js')(
     {
         UrlService: UrlService,
@@ -32,7 +32,6 @@ describe('ArticleRenderer', function() {
 
             var service = new ArticleRenderer(fakeContext);
             service.formatLayoutForReadMore(article, context);
-
             article.article_layout.indexOf('<a href="http://www.test.com/article/test_article">Read More</a>').should.be.above(0);
         });
 

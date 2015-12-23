@@ -148,7 +148,13 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} site
      */
     RequestHandler.loadSite = function(site) {
-        RequestHandler.sites[site.hostname] = { active: site.active, uid: site.uid, displayName: site.displayName, hostname: site.hostname };
+        RequestHandler.sites[site.hostname] = {
+          active: site.active,
+          uid: site.uid,
+          displayName: site.displayName,
+          hostname: site.hostname,
+          defaultLocale: site.defaultLocale,
+          supportedLocales: site.supportedLocales };
     };
 
     /**
@@ -291,7 +297,9 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Boolean} [descriptor.auth_required=false] If true, the user making the
      * request must have successfully authenticated against the system.
      * @param {String} [descriptor.content_type='text/html'] The content type header sent with the response
+     * @param {Boolean} [descriptor.localization=false]
      * @param {String} theme The plugin/theme UID
+     * @param {String} site The UID of site that owns the route
      * @return {Boolean} TRUE if the route was registered, FALSE if not
      */
     RequestHandler.registerRoute = function(descriptor, theme, site){
@@ -303,7 +311,7 @@ module.exports = function RequestHandlerModule(pb) {
 
         //validate route
         if (!RequestHandler.isValidRoute(descriptor)) {
-            pb.log.error("Route Validation Failed for: "+JSON.stringify(descriptor));
+            pb.log.error("RequestHandler: Route Validation Failed for: "+JSON.stringify(descriptor));
             return false;
         }
 
@@ -315,6 +323,38 @@ module.exports = function RequestHandlerModule(pb) {
             descriptor.method = 'ALL'
         }
 
+        //make sure we get a valid prototype back
+        var Controller = require(descriptor.controller)(pb);
+        if (!Controller) {
+            pb.log.error('RequestHandler: Failed to get a prototype back from the controller module. %s', JSON.stringify(descriptor));
+            return false;
+        }
+
+        //register main route
+        var result = _registerRoute(descriptor, theme, site, Controller);
+
+        //now check if we should localize the route
+        if (descriptor.localization) {
+
+            var localizedDescriptor = util.clone(descriptor);
+            localizedDescriptor.path = pb.UrlService.urlJoin('/:locale', descriptor.path);
+            result &= _registerRoute(localizedDescriptor, theme, site, Controller);
+        }
+        return result;
+    };
+
+    /**
+     *
+     * @private
+     * @static
+     * @method _registerRoute
+     * @param {Object} descriptor
+     * @param {String} theme
+     * @param {String} site
+     * @param {Function} Controller
+     * @return {Boolean}
+     */
+    function _registerRoute(descriptor, theme, site, Controller) {
         //get pattern and path variables
         var patternObj = RequestHandler.getRoutePattern(descriptor.path);
         var pathVars   = patternObj.pathVars;
@@ -362,7 +402,7 @@ module.exports = function RequestHandlerModule(pb) {
             routeDescriptor.themes[site].size++;
         }
         routeDescriptor.themes[site][theme][descriptor.method]            = descriptor;
-        routeDescriptor.themes[site][theme][descriptor.method].controller = require(descriptor.controller)(pb);
+        routeDescriptor.themes[site][theme][descriptor.method].controller = Controller;
 
        //only add the descriptor it is new.  We do it here because we need to
        //know that the controller is good.
@@ -385,7 +425,7 @@ module.exports = function RequestHandlerModule(pb) {
             pb.log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
         }
         return true;
-    };
+    }
 
     /**
      * Generates a regular expression based on the specified path.  In addition the
@@ -482,9 +522,6 @@ module.exports = function RequestHandlerModule(pb) {
                 return self.serveError(err);
             }
 
-            //get locale preference
-            self.localizationService = self.deriveLocalization(session);
-
             //set the session id when no session has started or the current one has
             //expired.
             var sc = Object.keys(cookies).length == 0;
@@ -502,17 +539,28 @@ module.exports = function RequestHandlerModule(pb) {
     /**
      * Derives the locale and localization instance.
      * @method deriveLocalization
+     * @param {Object} context
+     * @param {Object} context.session
+     * @param {String} [context.routeLocalization]
      */
-    RequestHandler.prototype.deriveLocalization = function(session) {
+    RequestHandler.prototype.deriveLocalization = function(context) {
+        var opts = {};
 
-        var userPreferredLocale = session.locale;
-        var browserIndicated = this.req.headers[pb.Localization.ACCEPT_LANG_HEADER];
-        if (browserIndicated) {
-            browserIndicated = ',' + browserIndicated;
+        var sources = [
+            context.routeLocalization,
+            context.session.locale,
+            this.req.headers[pb.Localization.ACCEPT_LANG_HEADER]
+        ];
+        if (this.siteObj) {
+            opts.supported = Object.keys(this.siteObj.supportedLocales);
+            sources.push(this.siteObj.defaultLocale);
         }
+        var localePrefStr = sources.reduce(function(prev, curr, i) {
+            return prev + (curr ? (!!i && !!prev ? ',' : '') + curr : '');
+        }, '');
 
         //get locale preference
-        return new pb.Localization(userPreferredLocale + '' + browserIndicated);
+        return new pb.Localization(localePrefStr, opts);
     };
 
     /**
@@ -697,11 +745,15 @@ module.exports = function RequestHandlerModule(pb) {
         //set the site
         this.siteObj = RequestHandler.sites[this.hostname];
 
+        //derive the localization. We do it here so that if the site isn't
+        //available we can still have one available when we error out
+        this.localizationService = this.deriveLocalization({ session: session });
+
+        //ensure we have a valid site
         if (!this.siteObj) {
             var hostnameErr = new Error("The host (" + this.hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
             pb.log.error(hostnameErr);
-            this.serveError(hostnameErr);
-            return;
+            return this.serveError(hostnameErr);
         }
 
         this.site = this.siteObj.uid;
@@ -917,6 +969,16 @@ module.exports = function RequestHandlerModule(pb) {
 
         //extract path variables
         var pathVars = this.getPathVariables(route);
+        if (typeof pathVars.locale !== 'undefined') {
+            if (!this.siteObj.supportedLocales[pathVars.locale]) {
+
+                //TODO make this check more general
+                return this.serve404();
+            }
+
+            //update the localization
+            this.localizationService = this.deriveLocalization({ session: this.session, routeLocalization: pathVars.locale });
+        }
 
         //instantiate controller
         var ControllerType  = route.themes[site][routeTheme][method].controller;
@@ -981,7 +1043,8 @@ module.exports = function RequestHandlerModule(pb) {
                 site: self.site,
                 siteObj: self.siteObj,
                 siteName: self.siteName,
-                activeTheme: context.activeTheme || self.activeTheme
+                activeTheme: context.activeTheme || self.activeTheme,
+                routeLocalized: !!context.themeRoute.localization
             };
             if (util.isObject(context.initParams)) {
                 util.merge(context.initParams, props);
@@ -1231,7 +1294,8 @@ module.exports = function RequestHandlerModule(pb) {
                 if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
                     result.success  = false;
                     result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
-                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href : pb.UrlService.createSystemUrl('/admin', self.hostname);
+                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href :
+                        pb.UrlService.createSystemUrl('/admin', { hostname: self.hostname });
                     callback(result, result);
                     return;
                 }

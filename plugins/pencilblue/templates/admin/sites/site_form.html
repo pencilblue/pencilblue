@@ -12,11 +12,28 @@
                         <input type="text" name="displayName" class="form-control" ng-model="displayName" required>
                         <div class="form_error" ng-if="!isFieldValid(siteForm.display)">^loc_REQUIRED_FIELD^</div>
                     </div>
-                    <div class="form_group" ng-class="{'has-error': !isFieldValid(siteForm.hostname)}">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.hostname)}">
                         <label>Hostname</label>
                         <input type="text" name="hostname" class="form-control" ng-disabled="isActive" ng-model="hostname" required>
                         <div class="form_error" ng-if="!isActive && !isFieldValid(siteForm.hostname)">^loc_REQUIRED_FIELD^</div>
                         <div class="form_error" ng-if="isActive">^loc_SITE_MUST_DEACTIVATE^</div>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.supportedLocales)}">
+                        <label>Supported Locales</label><br>
+                        <label ng-repeat="(locale, checked) in supportedLocales" style="display:block;">
+                            <input type="checkbox"
+                                   name="supportedLocales"
+                                   value="{{checked}}"
+                                   ng-checked="checked"
+                                   ng-click="updateSupportedLocales(locale)"
+                                    ><span ng-bind="locale"></span>
+                        </label>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.defaultLocale)}">
+                        <label>Default Locale</label>
+                        <select ng-model="defaultLocale" ng-options="i for i in selectedLocales">
+                        </select>
+                        <div class="form_error" ng-if="defaultLocale==''">^loc_REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <br>
@@ -36,5 +53,3 @@
 </div>
 ^tmp_angular=admin=sites=site_form^
 ^tmp_admin=footer^
-
-

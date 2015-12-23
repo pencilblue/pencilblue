@@ -27,6 +27,7 @@ module.exports = function FeedModule(pb) {
     var util             = pb.util;
     var ArticleServiceV2 = pb.ArticleServiceV2;
     var MediaLoader      = pb.MediaLoader;
+    var UrlService       = pb.UrlService;
 
     /**
      * RSS Feed
@@ -34,6 +35,27 @@ module.exports = function FeedModule(pb) {
     function ArticleFeed(){}
     util.inherits(ArticleFeed, pb.BaseController);
 
+    /**
+     * @private
+     * @static
+     * @property DAYS
+     * @type {Array}
+     */
+    var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    /**
+     * @private
+     * @static
+     * @property MONTHS
+     * @type {Array}
+     */
+    var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    /**
+     * @method init
+     * @param {Object} props
+     * @param {Function} cb
+     */
     ArticleFeed.prototype.init = function(props, cb) {
         var self = this;
         var init = function(err) {
@@ -49,57 +71,22 @@ module.exports = function FeedModule(pb) {
         ArticleFeed.super_.prototype.init.apply(this, [props, init]);
     };
 
+    /**
+     * @method render
+     * @param {Function} cb
+     */
     ArticleFeed.prototype.render = function(cb) {
         var self = this;
 
-        this.ts.registerLocal('language', pb.config.defaultLanguage ? pb.config.defaultLanguage : 'en-us');
-        this.ts.registerLocal('last_build', self.getBuildDate());
-        this.ts.registerLocal('items', function(flag, cb){
-
-            var opts = {
-                render: true,
-                order: {publish_date: pb.DAO.DESC},
-                limit: 100
-            };
-            self.service.getPublished(opts, function(err, articles) {
-                if (util.isError(err)) {
-                    return cb(err);
-                }
-
-                self.getSectionNames(articles, function(err) {
-                    if (util.isError(err)) {
-                        return cb(err);
-                    }
-
-                    var tasks = util.getTasks(articles, function(articles, i) {
-                        return function(callback) {
-
-                            self.ts.registerLocal('url', '/article/' + articles[i].url);
-                            self.ts.registerLocal('title', articles[i].headline);
-                            self.ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
-                            self.ts.registerLocal('author', articles[i].author_name);
-                            self.ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
-                            self.ts.registerLocal('content', new pb.TemplateValue(articles[i].layout, false));
-                            self.ts.registerLocal('categories', function(flag, onFlagProccessed) {
-                                var categories = '';
-                                for(var j = 0; j < articles[i].section_names.length; j++) {
-                                    categories = categories.concat('<category>' + HtmlEncoder.htmlEncode(articles[i].section_names[j]) + '</category>');
-                                }
-                                onFlagProccessed(null, new pb.TemplateValue(categories, false));
-                            });
-
-                            process.nextTick(function() {
-                                self.ts.load('xml_feeds/rss/item', callback);
-                            });
-                        };
-                    });
-                    async.series(tasks, function(err, results) {
-                        cb(err, new pb.TemplateValue(results.join(''), false));
-                    });
-                });
-            });
+        this.ts.registerModel({
+            feed_url: UrlService.createSystemUrl(self.req.url),
+            language: pb.config.defaultLanguage ? pb.config.defaultLanguage : 'en-us',
+            last_build: ArticleFeed.getRSSDate(),
+            items: function(flag, cb){
+                self.processItems(cb);
+            }
         });
-        self.ts.load('xml_feeds/rss', function(err, content) {
+        this.ts.load('xml_feeds/rss', function(err, content) {
             var data = {
                 content: content,
                 headers: {
@@ -110,41 +97,88 @@ module.exports = function FeedModule(pb) {
         });
     };
 
-    ArticleFeed.prototype.getBuildDate = function() {
-        var date = new Date();
-        //Thu, 03 Jul 2014 18:21:05 +0000
+    /**
+     * Builds the content
+     * @method processItems
+     */
+    ArticleFeed.prototype.processItems = function(cb) {
+        var self = this;
 
-        var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var tasks = [
 
-        this.zeroNum = function(num) {
-            if(num < 10) {
-                return '0' + num;
+            //retrieve articles
+            function(callback) {
+                var opts = {
+                    render: true,
+                    order: {publish_date: pb.DAO.DESC},
+                    limit: 100
+                };
+                self.service.getPublished(opts, callback);
+            },
+
+            //get section names
+            function(articles, callback) {
+                self.getSectionNames(articles, callback);
+            },
+
+            //serialize articles
+            function(articles, callback) {
+                self.serializeArticles(articles, callback);
             }
-
-            return num.toString();
-        };
-
-        return days[date.getDay()] + ', ' + this.zeroNum(date.getDate()) + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() + ' ' + this.zeroNum(date.getHours()) + ':' + this.zeroNum(date.getMinutes()) + ':' + this.zeroNum(date.getSeconds()) + ' +0000';
+        ]
+        async.waterfall(tasks, cb);
     };
 
+    /**
+     * @method serializeArticles
+     * @param {Array} articles
+     * @param {Function} cb
+     */
+    ArticleFeed.prototype.serializeArticles = function(articles, cb) {
+        var self = this;
 
-    ArticleFeed.prototype.getSectionNames = function(articles, cb) {
+        var urlOptions = {
+            locale: this.ls.language
+        };
+        var tasks = util.getTasks(articles, function(articles, i) {
+            return function(callback) {
 
-        //get the sections
-        var sectionsHash = {};
-        articles.forEach(function(article) {
-            if (util.isArray(article.article_sections) && article.article_sections.length > 0) {
-                article.article_sections.forEach(function(sectionId) {
-                    sectionsHash[sectionId] = true;
+                var url = UrlService.createSystemUrl(UrlService.urlJoin('/article', articles[i].url), urlOptions);
+                var ts = self.ts.getChildInstance();
+                ts.registerLocal('url', url);
+                ts.registerLocal('title', articles[i].headline);
+                ts.registerLocal('pub_date', ArticleFeed.getRSSDate(articles[i].publish_date));
+                ts.registerLocal('author', articles[i].author_name);
+                ts.registerLocal('description', new pb.TemplateValue(articles[i].meta_desc ? articles[i].meta_desc : articles[i].subheading, false));
+                ts.registerLocal('content', new pb.TemplateValue(articles[i].layout, false));
+                ts.registerLocal('categories', function(flag, onFlagProccessed) {
+                    var categories = articles[i].section_names.reduce(function(prev, curr) {
+                        return prev + '\n<category>' + HtmlEncoder.htmlEncode(curr) + '</category>';
+                    }, '');
+                    onFlagProccessed(null, new pb.TemplateValue(categories, false));
                 });
-            }
+
+                process.nextTick(function() {
+                    ts.load('xml_feeds/rss/item', callback);
+                });
+            };
         });
+        async.parallel(tasks, function(err, results) {
+            cb(err, new pb.TemplateValue(results.join(''), false));
+        });
+    };
+
+    /**
+     * @method getSectionNames
+     * @param {Array} articles
+     * @param {Function} cb
+     */
+    ArticleFeed.prototype.getSectionNames = function(articles, cb) {
 
         //build query to lookup sections that apply
         var opts = {
             select: {name: 1},
-            where: pb.DAO.getIdInWhere(Object.keys(sectionsHash)),
+            where: pb.DAO.getIdInWhere(ArticleFeed.getDistinctSections(articles)),
             order: {parent: 1}
         };
         var dao = new pb.DAO();
@@ -155,7 +189,7 @@ module.exports = function FeedModule(pb) {
 
             //convert to hash for quick lookup
             var idField = pb.DAO.getIdField();
-            sectionsHash = util.arrayToHash(sections, function(sections, i) {
+            var sectionsHash = util.arrayToHash(sections, function(sections, i) {
                 return sections[i][idField];
             });
 
@@ -176,24 +210,49 @@ module.exports = function FeedModule(pb) {
                 });
             });
 
-            cb(null);
+            cb(null, articles);
         });
     };
 
-    ArticleFeed.getRSSDate = function(date) {
+    /**
+     * @static
+     * @method getDistinctSections
+     * @param {Array} articles
+     * @return {Array}
+     */
+    ArticleFeed.getDistinctSections = function(articles) {
 
-        var dayNames   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-        function getTrailingZero(number)  {
-            if(number < 10) {
-                return '0' + number;
+        var sectionsHash = {};
+        articles.forEach(function(article) {
+            if (util.isArray(article.article_sections) && article.article_sections.length > 0) {
+                article.article_sections.forEach(function(sectionId) {
+                    sectionsHash[sectionId] = true;
+                });
             }
-            return number;
-        }
+        });
+        return Object.keys(sectionsHash);
+    }
 
-        return dayNames[date.getDay()] + ', ' + date.getDate() + ' ' + monthNames[date.getMonth()] + ' ' + date.getFullYear() + ' ' + getTrailingZero(date.getHours()) + ':' + getTrailingZero(date.getMinutes()) + ':' + getTrailingZero(date.getSeconds()) + ' +0000';
+    /**
+     * Ex: Thu, 03 Jul 2014 18:21:05 +0000
+     * @method getRSSDate
+     * @param {Date} [date]
+     * @return {String}
+     */
+    ArticleFeed.getRSSDate = function(date) {
+        date = date || new Date();
+        return DAYS[date.getDay()] + ', ' + zeroNum(date.getDate()) + ' ' + MONTHS[date.getMonth()] + ' ' + date.getFullYear() + ' ' + zeroNum(date.getHours()) + ':' + zeroNum(date.getMinutes()) + ':' + zeroNum(date.getSeconds()) + ' +0000';
     };
+
+    /**
+     * @private
+     * @method zeroNum
+     * @param {Integer} num
+     * @return {String}
+     */
+    function zeroNum(num) {
+        return num < 10 ? '0' + num : num.toString();
+    }
 
     //exports
     return ArticleFeed;
