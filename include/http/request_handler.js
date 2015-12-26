@@ -42,7 +42,17 @@ module.exports = function RequestHandlerModule(pb) {
         this.req       = req;
         this.resp      = resp;
         this.url       = url.parse(req.url, true);
-        this.hostname  = req.headers.host;
+
+        /**
+         * The hostname (host header) of the current request. When no host
+         * header is provided the globa context is assumed.  We do this because
+         * some load balancers including HAProxy use the root as the heartbeat.
+         * If we error then the web server will be taken out of the server pool
+         * resulting in a 503 from the load balancer
+         * @property hostname
+         * @type {String}
+         */
+        this.hostname  = req.headers.host || pb.SiteService.getGlobalSiteContext().hostname;
         this.activeTheme = null;
         this.errorCount = 0;
     }
