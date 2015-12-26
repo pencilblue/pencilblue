@@ -23,7 +23,7 @@ var ObjectID = require('mongodb').ObjectID;
 var util     = require('../util.js');
 
 module.exports = function DBManagerModule(pb) {
-    
+
     /**
      * @private
      * @static
@@ -32,7 +32,7 @@ module.exports = function DBManagerModule(pb) {
      * @type {String}
      */
     var FILES_NAMESPACE = 'fs.files';
-    
+
     /**
      * @private
      * @static
@@ -41,6 +41,15 @@ module.exports = function DBManagerModule(pb) {
      * @type {String}
      */
     var CHUNKS_NAMESPACE = 'fs.chunks';
+
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property SYSTEM_NAMESPACE_PREFIX
+     * @type {String}
+     */
+    var SYSTEM_NAMESPACE_PREFIX = 'system.';
 
     /**
      * Wrapper that protects against direct access to the active connection pools
@@ -91,7 +100,7 @@ module.exports = function DBManagerModule(pb) {
             //clone the config and set the name that is being asked for
             var config  = util.clone(pb.config);
             config.db.name = name;
-            
+
             //build the connection string for the mongo cluster
             var dbURL   = DBManager.buildConnectionStr(pb.config);
             var options = config.db.options;
@@ -123,7 +132,7 @@ module.exports = function DBManagerModule(pb) {
         };
 
         /**
-         * 
+         *
          * @method authenticate
          * @param {Object} auth
          * @param {Db} db
@@ -154,21 +163,21 @@ module.exports = function DBManagerModule(pb) {
          * Takes an Array of indexing procedures and delegates them out to paralleled
          * tasks.
          * @method processIndices
-         * @param {Array} procedures An array of objects that describe the index to 
-         * place upon a collection.  The object contains three properties.  
-         * "collection" a string that represents the name of the collection to build an 
-         * index for.  "specs" is an object that describes which fields to index.  The 
-         * keys are the field names and the value is -1 for descending order and 1 for 
-         * ascending.  "options" is an object that that provides specific index 
-         * properties such as unique or sparse.  See 
-         * http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#ensureindex 
+         * @param {Array} procedures An array of objects that describe the index to
+         * place upon a collection.  The object contains three properties.
+         * "collection" a string that represents the name of the collection to build an
+         * index for.  "specs" is an object that describes which fields to index.  The
+         * keys are the field names and the value is -1 for descending order and 1 for
+         * ascending.  "options" is an object that that provides specific index
+         * properties such as unique or sparse.  See
+         * http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#ensureindex
          * for specific MongoDB implementation details for specs and options.
-         * @param {Function} cb A callback that provides two parameters: The first, an 
-         * Error, if occurred.  Secondly, an object that contains two properties. 
-         * "result" an array of the results where each object in the array represents 
-         * the result of the request to ensure the index.  "errors" an array of errors 
-         * that occurred while indexing.  The function does not terminate after the 
-         * first error.  Instead it allows all indices to attempt to be created and 
+         * @param {Function} cb A callback that provides two parameters: The first, an
+         * Error, if occurred.  Secondly, an object that contains two properties.
+         * "result" an array of the results where each object in the array represents
+         * the result of the request to ensure the index.  "errors" an array of errors
+         * that occurred while indexing.  The function does not terminate after the
+         * first error.  Instead it allows all indices to attempt to be created and
          * defer the reporting of an error until the end.
          */
         this.processIndices = function(procedures, cb) {
@@ -241,17 +250,16 @@ module.exports = function DBManagerModule(pb) {
                 var tasks = util.getTasks(storedIndices, function(indices, i) {
                     return function(callback) {
                         var index = indices[i];
-                        
-                        //special condition: When mongo is used as the media 
-                        //storage provider two special collections are created: 
-                        //"fs.chunks" and "fs.files".  These indices should be 
+
+                        //special condition: When mongo is used as the media
+                        //storage provider two special collections are created:
+                        //"fs.chunks" and "fs.files".  These indices should be
                         //left alone and ignored.
-                        if (index.ns.indexOf(FILES_NAMESPACE, index.ns.length - FILES_NAMESPACE.length) !== -1 || 
-                            index.ns.indexOf(CHUNKS_NAMESPACE, index.ns.length - CHUNKS_NAMESPACE.length) !== -1) {
+                        if (DBManager.isProtectedIndex(index.ns)) {
                             pb.log.silly("DBManager: Skipping protected index for %s", index.ns);
                             return callback();
                         }
-                        
+
                         var filteredIndex = procedures.filter(function(procedure) {
                             var ns = pb.config.db.name + '.' + procedure.collection;
                             var result = ns === index.ns && self.compareIndices(index, procedure);
@@ -368,7 +376,7 @@ module.exports = function DBManagerModule(pb) {
     var PROTOCOL_PREFIX = 'mongodb://';
 
     /**
-     * 
+     *
      * @static
      * @method buildConnectionStr
      * @param {Object} config
@@ -386,20 +394,33 @@ module.exports = function DBManagerModule(pb) {
             if (hostAndPort.indexOf(PROTOCOL_PREFIX) === 0) {
                 hostAndPort = hostAndPort.substring(PROTOCOL_PREFIX.length);
             }
-            
+
             //check for options
             var parts = hostAndPort.split('?');
             if (parts.length > 1) {
-                options += (options.length > 1 ? '&' : '') + parts[1]; 
+                options += (options.length > 1 ? '&' : '') + parts[1];
             }
             hostAndPort = parts[0];
-            
+
             if (i > 0) {
                 str += ',';
             }
             str += hostAndPort;
         };
         return pb.UrlService.urlJoin(str, config.db.name) + options;
+    };
+
+    /**
+     *
+     * @static
+     * @method isProtectedIndex
+     * @param {String} indexNamespace
+     * @return {Boolean}
+     */
+    DBManager.isProtectedIndex = function(indexNamespace) {
+        return indexNamespace.indexOf(FILES_NAMESPACE, indexNamespace.length - FILES_NAMESPACE.length) !== -1 ||
+        indexNamespace.indexOf(CHUNKS_NAMESPACE, indexNamespace - CHUNKS_NAMESPACE.length) !== -1 ||
+        indexNamespace.indexOf(SYSTEM_NAMESPACE_PREFIX) !== -1;
     };
 
     //exports

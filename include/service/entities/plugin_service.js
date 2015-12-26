@@ -42,6 +42,8 @@ module.exports = function PluginServiceModule(pb) {
      *
      * @class PluginService
      * @constructor
+     * @param {Object} options
+     * @param {String} [options.site]
      * @module Services
      * @submodule Entities
      */
@@ -49,10 +51,10 @@ module.exports = function PluginServiceModule(pb) {
         if (!util.isObject(options)) {
             options = {};
         }
-        
+
         /**
          * @property site
-         * @type {String} 
+         * @type {String}
          */
         this.site = options.site || GLOBAL_SITE;
 
@@ -125,9 +127,9 @@ module.exports = function PluginServiceModule(pb) {
         }
         return null;
     }
-    
+
     /**
-     * The maximum number of retries to acquire 
+     * The maximum number of retries to acquire
      * @private
      * @static
      * @readonly
@@ -257,16 +259,16 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
-     * Retrieves the settings for a plugin as hash of key/value pairs.  This 
-     * differs from the getSettings function because the getSettings function 
-     * provides the settings in their raw form as an array of objects containing 
-     * multiple properties.  In most circumstances just the k/v pair is needed and 
-     * not any additional information about the property.  The function takes the 
-     * raw settings array and transforms it into an object where the setting name 
+     * Retrieves the settings for a plugin as hash of key/value pairs.  This
+     * differs from the getSettings function because the getSettings function
+     * provides the settings in their raw form as an array of objects containing
+     * multiple properties.  In most circumstances just the k/v pair is needed and
+     * not any additional information about the property.  The function takes the
+     * raw settings array and transforms it into an object where the setting name
      * is the property and the setting value is the value.
      * @method getSettingsKV
      * @param {String} pluginName The unique ID of the plugin who settings are to be retrieved
-     * @param {Function} cb A callback that takes two parameters.  A error, if 
+     * @param {Function} cb A callback that takes two parameters.  A error, if
      * exists, and a hash of of the plugin's settings' names/values.
      */
     PluginService.prototype.getSettingsKV = function(pluginName, cb) {
@@ -369,16 +371,16 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
-     * Retrieves the theme settings for a plugin as hash of key/value pairs.  This 
-     * differs from the getThemeSettings function because the getThemeSettings function 
-     * provides the settings in their raw form as an array of objects containing 
-     * multiple properties.  In most circumstances just the k/v pair is needed and 
-     * not any additional information about the property.  The function takes the 
-     * raw settings array and transforms it into an object where the setting name 
+     * Retrieves the theme settings for a plugin as hash of key/value pairs.  This
+     * differs from the getThemeSettings function because the getThemeSettings function
+     * provides the settings in their raw form as an array of objects containing
+     * multiple properties.  In most circumstances just the k/v pair is needed and
+     * not any additional information about the property.  The function takes the
+     * raw settings array and transforms it into an object where the setting name
      * is the property and the setting value is the value.
      * @method getThemeSettingsKV
      * @param {String} pluginName The unique ID of the plugin who settings are to be retrieved
-     * @param {Function} cb A callback that takes two parameters.  A error, if 
+     * @param {Function} cb A callback that takes two parameters.  A error, if
      * exists, and a hash of of the plugin's settings' names/values.
      */
     PluginService.prototype.getThemeSettingsKV = function(pluginName, cb) {
@@ -1343,7 +1345,7 @@ module.exports = function PluginServiceModule(pb) {
 
                     if(!pluginDirSatisfied && !rootDirSatsified) {
                         hasDependencies = false;
-                        pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, package.version, keys[i]);
+                        pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, plugin.version, keys[i]);
                     }
 
                     callback(null, pluginDirSatisfied || rootDirSatsified);
@@ -1385,7 +1387,7 @@ module.exports = function PluginServiceModule(pb) {
                 //try and acquire the lock
                 lockService.acquire(key, function(err, reply) {
                     if (util.isError(err)) {
-                        return callback(err);   
+                        return callback(err);
                     }
                     else if (reply) {
                         didLock = true;
@@ -1397,7 +1399,7 @@ module.exports = function PluginServiceModule(pb) {
                     pb.log.silly('PluginService: Failed to acquire dependency installation lock for the %s time. Waiting for 1000ms.', retryCount);
                     setTimeout(function() {
 
-                        //now check to see if another process installed the 
+                        //now check to see if another process installed the
                         //dependencies.  If there is no plugin object then skip.
                         callback();
                     }, 1000);
@@ -1424,14 +1426,14 @@ module.exports = function PluginServiceModule(pb) {
                     pb.log.warn('PluginService: Reached maximum retry count trying to verify dependencies');
                     return onDone(null, false);
                 }
-                           
+
                 //proceed to check to see if all dependencies are there
                 self.hasDependencies(plugin, function(err, hasDependencies) {
                     if (hasDependencies) {
                         pb.log.silly('PluginService: Assuming another process installed dependencies because they were discovered. Skipping install');
                         return onDone(err);
                     }
-                    
+
                     //dependencies are not available so install them while we have the lock
                     pb.log.silly('PluginService: Installing dependencies for %s.', pluginDirName);
                     self._installPluginDependencies(pluginDirName, dependencies, function(err, result){
@@ -1467,9 +1469,9 @@ module.exports = function PluginServiceModule(pb) {
                 return;
             }
 
-            //we set the prefix manually here.  See: 
+            //we set the prefix manually here.  See:
             //https://github.com/pencilblue/pencilblue/issues/214
-            //this is a hack to keep it working until the npm team can decouple the 
+            //this is a hack to keep it working until the npm team can decouple the
             //npmconf module from npm and create a scenario where it can be reloaded.
             npm.config.prefix = prefixPath;
 
@@ -1506,7 +1508,7 @@ module.exports = function PluginServiceModule(pb) {
      * them into a hash where the key is the name of the localization file.
      * @method getLocalizations
      * @param {String} pluginDirName The name of the plugin directory
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Object).  
+     * @param {Function} cb A callback that provides two parameters: cb(Error, Object).
      * When the directory does not exist NULL is returned as the result parameter.
      */
     PluginService.prototype.getLocalizations = function(pluginDirName, cb) {
@@ -1574,13 +1576,13 @@ module.exports = function PluginServiceModule(pb) {
             return null;
         }
     };
-    
+
     /**
      * Retrieves a plugin service prototype.  It is expected to be a prototype but
      * it may also be an instance as along as that instance fufills all
      * responsbilities of the service interface.  When the desired service does not
      * exist NULL is returned.
-     * @static 
+     * @static
      * @method getService
      * @param {String} serviceName
      * @param {String} pluginUid The unique plugin identifier
@@ -1944,7 +1946,7 @@ module.exports = function PluginServiceModule(pb) {
         if (isError) {
             error = new Error("Faled to validate plugin details");
             error.validationErrors = errors;
-            
+
             //log the validation errors
             errors.forEach(function(validationError) {
                 pb.log.error('PluginService:[%s] %s', details.uid, validationError);
@@ -2260,7 +2262,7 @@ module.exports = function PluginServiceModule(pb) {
             forCluster: false,
             jobId: command.jobId
         }
-        
+
         var pluginService = new PluginService({site: command.site});
         pluginService.uninstallPlugin(command.pluginUid, options, function(err, result) {
 
@@ -2369,14 +2371,14 @@ module.exports = function PluginServiceModule(pb) {
             pb.CommandService.getInstance().sendInResponseTo(command, response);
         });
     };
-    
+
     /**
      *
      * @static
      * @method init
      */
     PluginService.init = function() {
-        
+
         //register for commands
         var commandService = pb.CommandService.getInstance();
         commandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
