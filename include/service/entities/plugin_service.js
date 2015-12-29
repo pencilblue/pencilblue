@@ -1737,7 +1737,7 @@ module.exports = function PluginServiceModule(pb) {
 
             //validate pb_version in config against pb version
             else if (!semver.satisfies(pb.config.version, details.pb_version)) {
-                errors.push("Version " + details.version + " is incompatible with PencilBlue version " + pb.config.version);
+                errors.push("Version " + details.pb_version + " is incompatible with PencilBlue version " + pb.config.version);
             }
         }
 
