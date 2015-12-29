@@ -102,7 +102,9 @@ module.exports = function SiteServiceModule(pb) {
             cb(null, {
                 displayName:pb.config.siteName,
                 hostname: pb.config.siteRoot,
-                uid: SiteService.GLOBAL_SITE
+                uid: SiteService.GLOBAL_SITE,
+                defaultLocale: pb.Localization.defaultLocale,
+                supportedLocales: {}
             });
         }
         else {
@@ -375,15 +377,17 @@ module.exports = function SiteServiceModule(pb) {
         if (pb.config.multisite.enabled && !pb.config.multisite.globalRoot) {
             return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
         }
-
         this.getAllSites(function (err, results) {
             if (err) {
                 return cb(err);
             }
 
-            util.forEach(results, function (site) {
-                pb.RequestHandler.loadSite(site);
-            });
+            //only load the sites when we are in multi-site mode
+            if (pb.config.multisite.enabled) {
+                util.forEach(results, function (site) {
+                    pb.RequestHandler.loadSite(site);
+                });
+            }
 
             // To remain backwards compatible, hostname is siteRoot for single tenant
             // and active allows all routes to be hit.
@@ -586,7 +590,7 @@ module.exports = function SiteServiceModule(pb) {
             });
         });
     };
-    
+
     /**
      * Retrieves the global site context
      * @static
@@ -598,7 +602,8 @@ module.exports = function SiteServiceModule(pb) {
             displayName: pb.config.siteName,
             uid: pb.SiteService.GLOBAL_SITE,
             hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
-            active: pb.config.multisite.enabled ? false : true
+            active: pb.config.multisite.enabled ? false : true,
+            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function(a, i) { return true; })
         };
     };
 

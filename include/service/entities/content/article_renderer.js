@@ -375,7 +375,7 @@ module.exports = function(pb) {
     ArticleRenderer.prototype.getReadMoreLink = function(content, anchorContent) {
 
         var path = pb.UrlService.urlJoin(this.getContentLinkPrefix() + content.url);
-        return '<a href="' + pb.UrlService.createSystemUrl(path, this.hostname) + '">' + anchorContent + '</a>';
+        return '<a href="' + pb.UrlService.createSystemUrl(path, { hostname: this.hostname }) + '">' + anchorContent + '</a>';
     };
 
     /**

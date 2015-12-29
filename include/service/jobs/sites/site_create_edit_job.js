@@ -95,6 +95,8 @@ module.exports = function SiteCreateEditJobModule(pb) {
 
                     site.hostname = mySite.hostname || site.hostname;
                     site.displayName = mySite.displayName || site.displayName;
+                    site.supportedLocales = mySite.supportedLocales || site.supportedLocales;
+                    site.defaultLocale = mySite.defaultLocale || site.defaultLocale;
 
                     siteService.save(site, function(err, result) {
                         if(util.isError(err)) {
