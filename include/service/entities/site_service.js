@@ -287,6 +287,9 @@ module.exports = function SiteServiceModule(pb) {
      */
     SiteService.prototype.editSite = function(options, cb) {
         cb = cb || util.cb;
+        if (!options.prevHostnames) {
+            options.prevHostnames = [];
+        }
         var name = util.format("EDIT_SITE%s", options.site);
         var job = new pb.SiteCreateEditJob();
         job.setRunAsInitiator(true);
@@ -599,7 +602,25 @@ module.exports = function SiteServiceModule(pb) {
         };
     };
 
+    SiteService.buildPrevHostnames = function(data, object) {
+        var prevHostname = object.hostname;
+        var newHostname = data.hostname;
+        // If this site's hostname has been changed, save off a redirectHost
+        if ((prevHostname && newHostname) && (prevHostname !== newHostname)) {
+            // Check for circular hostname references
+            data.prevHostnames = data.prevHostnames.filter(function (hostname) {
+                return hostname !== newHostname;
+            })
+            data.prevHostnames.push(prevHostname);
+            pb.RequestHandler.redirectHosts[prevHostname] = newHostname;
+            pb.RequestHandler.sites[prevHostname] = null;
+        }
+        return data;
+    };
+
     SiteService.merge = function (context, cb) {
+        context.data = SiteService.buildPrevHostnames(context.data, context.object);
+
         pb.util.merge(context.data, context.object);
         cb(null);
     };

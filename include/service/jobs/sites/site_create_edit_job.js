@@ -93,24 +93,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
                         site = pb.DocumentCreator.create('site', mySite);
                     }
 
-                    var prevHostname = site.hostname;
-                    var newHostname = mySite.hostname;
-                    if (!site.prevHostnames) {
-                        site.prevHostnames = [];
-                    }
-                    // If this site's hostname has been changed, save off a redirectHost
-                    if ((prevHostname && newHostname) && (prevHostname !== newHostname)) {
-                        // Check for circular hostname references
-                        for (var i=0; i< site.prevHostnames.length; i++) {
-                            if (site.prevHostnames[i] == newHostname) {
-                                site.prevHostnames.splice(i, 1);
-                            }
-                        }
-                        site.prevHostnames.push(prevHostname);
-                        pb.RequestHandler.redirectHosts[prevHostname] = newHostname;
-                        pb.RequestHandler.sites[prevHostname] = null;
-                    }
-                    site.hostname = newHostname || prevHostname;
+                    site.hostname = mySite.hostname || site.hostname;
                     site.displayName = mySite.displayName || site.displayName;
 
                     siteService.save(site, function(err, result) {
