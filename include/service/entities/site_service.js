@@ -289,9 +289,6 @@ module.exports = function SiteServiceModule(pb) {
      */
     SiteService.prototype.editSite = function(options, cb) {
         cb = cb || util.cb;
-        if (!options.prevHostnames) {
-            options.prevHostnames = [];
-        }
         var name = util.format("EDIT_SITE%s", options.site);
         var job = new pb.SiteCreateEditJob();
         job.setRunAsInitiator(true);
@@ -624,6 +621,9 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     SiteService.merge = function (context, cb) {
+        if (!context.data.prevHostnames) {
+            context.data.prevHostnames = [];
+        }
         context.data = SiteService.buildPrevHostnames(context.data, context.object);
 
         pb.util.merge(context.data, context.object);
