@@ -30,6 +30,7 @@
                             .error(function(error, status) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
+                                angular.element('#progress_modal').modal('hide');
                             });
                 };
 
@@ -51,6 +52,7 @@
                             .error(function(error, status) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
+                                angular.element('#progress_modal').modal('hide');
                             });
                 };
 
