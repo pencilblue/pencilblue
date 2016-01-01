@@ -90,6 +90,7 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.storage = [];
     RequestHandler.index   = {};
     RequestHandler.sites = {};
+    RequestHandler.redirectHosts = {};
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
     /**
      * The internal storage of static routes after they are validated and processed.
@@ -164,7 +165,15 @@ module.exports = function RequestHandlerModule(pb) {
           displayName: site.displayName,
           hostname: site.hostname,
           defaultLocale: site.defaultLocale,
-          supportedLocales: site.supportedLocales };
+          supportedLocales: site.supportedLocales,
+          prevHostnames: site.prevHostnames
+        };
+        //Populate RequestHandler.redirectHosts if this site has prevHostnames associated
+        if (site.prevHostnames) {
+            site.prevHostnames.forEach(function (oldHostname) {
+                RequestHandler.redirectHosts[oldHostname] = site.hostname;
+            });
+        }
     };
 
     /**
@@ -752,20 +761,27 @@ module.exports = function RequestHandlerModule(pb) {
         //set the session
         this.session = session;
 
-        //set the site
-        this.siteObj = RequestHandler.sites[this.hostname];
+        var hostname = this.hostname;
+        var siteObj = RequestHandler.sites[hostname],
+            redirectHost = RequestHandler.redirectHosts[hostname];
 
         //derive the localization. We do it here so that if the site isn't
         //available we can still have one available when we error out
         this.localizationService = this.deriveLocalization({ session: session });
 
-        //ensure we have a valid site
-        if (!this.siteObj) {
-            var hostnameErr = new Error("The host (" + this.hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
-            pb.log.error(hostnameErr);
-            return this.serveError(hostnameErr);
+        // If we need to grab a host redirect
+        if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
+            siteObj = RequestHandler.sites[redirectHost];
         }
 
+        else if (!siteObj) {
+            var err = new Error("The host (" + hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
+            pb.log.error(err);
+            this.serveError(err);
+            return;
+        }
+
+        this.siteObj = siteObj;
         this.site = this.siteObj.uid;
         this.siteName = this.siteObj.displayName;
         //find the controller to hand off to

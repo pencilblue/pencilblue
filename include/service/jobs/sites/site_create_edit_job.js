@@ -78,8 +78,8 @@ module.exports = function SiteCreateEditJobModule(pb) {
      * @param {Function} cb - callback
      */
     SiteCreateEditJob.prototype.doPersistenceTasks = function(cb) {
-        var mySite      = this.getSite();
-        var tasks     = [
+        var mySite = this.getSite();
+        var tasks = [
             //set site to active in mongo
             function(callback) {
                 var siteService = new pb.SiteService();

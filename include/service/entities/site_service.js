@@ -564,16 +564,8 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.deleteSiteSpecificContent = function (siteid, cb) {
         var siteQueryService = new pb.SiteQueryService();
         siteQueryService.getCollections(function(err, allCollections) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-
-            //check for capped collections because you can't delete from them
-            allCollections = allCollections.filter(function(collection) {
-                return !collection.options || !collection.options.capped;
-            });
-
             var dao = new pb.DAO();
+
             var tasks = util.getTasks(allCollections, function (collections, i) {
                 return function (taskCallback) {
                     dao.delete({site: siteid}, collections[i].name, function (err, commandResult) {
@@ -612,7 +604,28 @@ module.exports = function SiteServiceModule(pb) {
         };
     };
 
+    SiteService.buildPrevHostnames = function(data, object) {
+        var prevHostname = object.hostname;
+        var newHostname = data.hostname;
+        // If this site's hostname has been changed, save off a redirectHost
+        if ((prevHostname && newHostname) && (prevHostname !== newHostname)) {
+            // Check for circular hostname references
+            data.prevHostnames = data.prevHostnames.filter(function (hostname) {
+                return hostname !== newHostname;
+            })
+            data.prevHostnames.push(prevHostname);
+            pb.RequestHandler.redirectHosts[prevHostname] = newHostname;
+            pb.RequestHandler.sites[prevHostname] = null;
+        }
+        return data;
+    };
+
     SiteService.merge = function (context, cb) {
+        if (!context.data.prevHostnames) {
+            context.data.prevHostnames = [];
+        }
+        context.data = SiteService.buildPrevHostnames(context.data, context.object);
+
         pb.util.merge(context.data, context.object);
         cb(null);
     };
