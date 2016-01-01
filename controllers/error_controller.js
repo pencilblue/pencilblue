@@ -19,7 +19,7 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
 
@@ -31,7 +31,7 @@ module.exports = function(pb) {
      */
     function ErrorViewController(){}
     util.inherits(ErrorViewController, pb.BaseController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -48,28 +48,28 @@ module.exports = function(pb) {
              * @type {Error}
              */
             self.error = context.error;
-            
+
             /**
              *
              * @property status
              * @type {Integer}
              */
             self.status = self.error && self.error.code ? self.error.code : 500;
-            
+
             /**
              *
              * @property contentSettingService
              * @type {ContentService}
              */
             self.contentSettingService = new pb.ContentService(self.getServiceContext());
-            
+
             /**
              *
              * @property contentSettingService
              * @type {TopMenuService}
              */
             self.topMenuService = new pb.TopMenuService(self.getServiceContext());
-            
+
             //set the default page name based on the status code if provided
             self.setPageName(self.status + '');
 
@@ -80,24 +80,24 @@ module.exports = function(pb) {
     };
 
     /**
-     * 
+     *
      * @method render
      * @param {Function} cb
      */
     ErrorViewController.prototype.render = function(cb) {
         var self = this;
 
-        
+
         this.gatherData(function(err, data) {
             if (util.isError(err)) {
-                
+
                 //to prevent loops we just bury the error
                 pb.log.error('ErrorController: %s', err.stack);
                 data = {
                     navItems: {}
                 };
             }
-            
+
             //build angular controller
             var angularController = pb.ClientJs.getAngularController(
                 {
@@ -128,16 +128,16 @@ module.exports = function(pb) {
                     //to prevent loops we just bury the error
                     pb.log.error('ErrorController: %s', err.stack);
                 }
-                
+
                 cb({
-                    content: content, 
-                    code: self.status, 
+                    content: content,
+                    code: self.status,
                     content_type: 'text/html'
                 });
             });
         });
     };
-    
+
     /**
      * @method getErrorMessage
      * @return {String}
@@ -145,7 +145,7 @@ module.exports = function(pb) {
     ErrorViewController.prototype.getErrorMessage = function() {
         return this.error ? this.error.message : this.ls.g('error.ERROR');
     };
-    
+
     /**
      *
      * @method getTemplatePath
@@ -154,19 +154,19 @@ module.exports = function(pb) {
     ErrorViewController.prototype.getTemplatePath = function() {
         return 'error/default';
     };
-    
+
     /**
      * @method gatherData
      * @param {Function} cb
      */
     ErrorViewController.prototype.gatherData = function(cb) {
         var self = this;
-        
+
         var tasks = {
             contentSettings: function(callback) {
                 self.contentSettingService.getSettings(callback);
             },
-            
+
             navItems: function(callback) {
                 var options = {
                     ls: self.ls,

@@ -18,7 +18,8 @@
 module.exports = function DeleteSiteActionModule(pb) {
 
     //pb dependencies
-    var util = pb.util;
+    var util        = pb.util;
+    var SiteService = pb.SiteService;
 
     /**
      * Deletes a current site
@@ -26,11 +27,32 @@ module.exports = function DeleteSiteActionModule(pb) {
     function DeleteSiteAction(){}
     util.inherits(DeleteSiteAction, pb.BaseController);
 
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    DeleteSiteAction.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+
+            /**
+             *
+             * @property service
+             * @type {SiteService}
+             */
+            self.service = new SiteService(self.getServiceContext());
+
+            cb(err, true);
+        };
+        DeleteSiteAction.super_.prototype.init.apply(this, [context, init]);
+    };
+
     DeleteSiteAction.prototype.render = function(cb) {
         var self = this;
         var siteid = self.pathVars.siteid;
-        var siteService = new pb.SiteService();
-        siteService.deleteSingle({where: {uid: siteid}}, function (err, site) {
+        this.service.deleteSingle({where: {uid: siteid}}, function (err, site) {
             if (util.isError(err)) {
                 return cb(err);
             }

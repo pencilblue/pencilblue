@@ -16,7 +16,6 @@
  */
 
 module.exports = function EditSiteActionModule(pb) {
-
     //pb dependencies
     var util = pb.util;
 
@@ -57,6 +56,15 @@ module.exports = function EditSiteActionModule(pb) {
 
                 data.displayName = self.body.displayName;
                 data.hostname = self.body.hostname;
+                self.body.supportedLocales = {};
+                for (var i=0; i< self.body.selectedLocales.length; i++) {
+                    var selectedLocale = self.body.selectedLocales[i];
+                    self.body.supportedLocales[selectedLocale] = true;
+                }
+                self.body.selectedLocales = undefined;
+                data.supportedLocales = self.body.supportedLocales;
+                data.defaultLocale = self.body.defaultLocale;
+
                 var jobId = siteService.editSite(data, function(err, result) {
                     var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('UPDATING_SITE'), jobId);
                     cb({content: content});
@@ -66,7 +74,7 @@ module.exports = function EditSiteActionModule(pb) {
     };
 
     EditSiteAction.prototype.getRequiredFields = function() {
-        return['displayName', 'hostname'];
+        return['displayName', 'hostname', 'defaultLocale', 'selectedLocales'];
     };
 
     //exports

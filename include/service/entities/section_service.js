@@ -158,7 +158,7 @@ module.exports = function SectionServiceModule(pb) {
         }
         return orphans;
     };
-    
+
         /**
      *
      * @private
@@ -195,7 +195,7 @@ module.exports = function SectionServiceModule(pb) {
     };
 
     /**
-     * 
+     *
      * @method updateNavMap
      * @param {Object} section
      * @param {Function} cb
@@ -220,7 +220,7 @@ module.exports = function SectionServiceModule(pb) {
             if(mapWasNull) {
                 sectionMap = [];
             }
-            
+
             //check if the section already exist in sectionMap
             var sectionIndex = self.getSectionMapIndex(sid, sectionMap);
             //remove the section from the map
@@ -233,11 +233,11 @@ module.exports = function SectionServiceModule(pb) {
                 children: orphans
             };
             if (mapWasNull || !section.parent) {
-                
-                //we are attaching the items back to a parent.  There are no 
+
+                //we are attaching the items back to a parent.  There are no
                 //orphans to return in the callback.
                 orphans = [];
-                
+
                 if (sectionIndex.index > -1) {
                     sectionMap.splice(sectionIndex.index, 0, navItem);
                 }
@@ -263,7 +263,7 @@ module.exports = function SectionServiceModule(pb) {
                 }
             }
 
-            pb.settings.set('section_map', sectionMap, function(err, settingSaveResult){
+            self.settings.set('section_map', sectionMap, function(err, settingSaveResult){
                 if (util.isError(err)){
                     return cb(err);
                 }
@@ -291,7 +291,7 @@ module.exports = function SectionServiceModule(pb) {
     };
 
     /**
-     * 
+     *
      * @method getFormattedSections
      * @param {Localization} localizationService
      * @param {String} [currUrl]
@@ -323,7 +323,7 @@ module.exports = function SectionServiceModule(pb) {
                         pb.log.error('SectionService: The navigation map is out of sync.  Root [%s] could not be found.', sectionMap[i].uid);
                         continue;
                     }
-                    
+
                     if(sectionMap[i].children.length === 0) {
                         formattedSections.push(section);
                     }
@@ -571,8 +571,8 @@ module.exports = function SectionServiceModule(pb) {
             function(callback) {
 
                 var params = {
-                    type: 'section', 
-                    id: navItem[pb.DAO.getIdField()], 
+                    type: 'section',
+                    id: navItem[pb.DAO.getIdField()],
                     url: navItem.url,
                     site: self.site
                 };
@@ -669,7 +669,7 @@ module.exports = function SectionServiceModule(pb) {
     };
 
     /**
-     * 
+     *
      * @method validateNavItemEditor
      * @param {String} editor
      * @param {Function} cb
@@ -693,7 +693,7 @@ module.exports = function SectionServiceModule(pb) {
     };
 
     /**
-     * 
+     *
      * @method save
      * @param {Object} navItem
      * @param {Object} [options]
@@ -730,7 +730,7 @@ module.exports = function SectionServiceModule(pb) {
                         //we kept the children so there is nothing to do
                         return cb(null, true);
                     }
-                    
+
                     //ok, now we can delete the orhphans if they exist
                     self.deleteChildren(navItem[pb.DAO.getIdField()], cb);
                 });
@@ -785,7 +785,7 @@ module.exports = function SectionServiceModule(pb) {
             navItem.url = pb.UrlService.urlJoin('/page', navItem.item);
         }
         else {
-            navItem.url = '#';
+            navItem.url = '#' + (navItem.name || '');
         }
     };
 

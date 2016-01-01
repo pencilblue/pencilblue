@@ -244,11 +244,11 @@ module.exports = function AdminNavigationModule(pb) {
         }
         return Object.freeze(settingsNav);
     }
-    
+
     function getDefaultNavigation(site) {
         return util.clone([CONTENT_NAV, PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
     }
-    
+
     function getMultiSiteNavigation() {
         return util.clone([MULTISITE_NAV]);
     }
@@ -437,10 +437,14 @@ module.exports = function AdminNavigationModule(pb) {
         return localizeNavigation(navigation, ls);
     };
 
+    AdminNavigation.addChild = function(parentId, node) {
+        AdminNavigation.addChildToSite(parentId, node, pb.SiteService.GLOBAL_SITE);
+    }
+
     /**
      * Adds a new child node to an existing top level node
      * @static
-     * @method addChild
+     * @method addChildToSite
      * @param {String} parentId
      * @param {Object} node
      * @param {String} site - site unique id
@@ -535,7 +539,7 @@ module.exports = function AdminNavigationModule(pb) {
                 childAdditionsMap[key] = removeNode(id, value);
             }
         });
-        
+
         return true;
     };
 

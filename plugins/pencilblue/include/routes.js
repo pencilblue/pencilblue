@@ -34,6 +34,7 @@ module.exports = function Routes(pb){
             access_level: 0,
             auth_required: false,
             setup_required: false,
+            inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'public.js'),
             content_type: 'text/html'
         },
@@ -133,7 +134,8 @@ module.exports = function Routes(pb){
             access_level: 0,
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'blog.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            localization: true
         },
         {
             method: 'get',
@@ -225,21 +227,24 @@ module.exports = function Routes(pb){
             path: "/section/:customUrl",
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'section.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            localization: true
         },
         {
             method: 'get',
             path: "/article/:customUrl",
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'article.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            localization: true
         },
         {
             method: 'get',
             path: "/page/:customUrl",
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'page.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            localization: true
         },
         {
             method: 'post',

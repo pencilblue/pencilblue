@@ -20,7 +20,9 @@
                     $http.post('/actions/admin/sites/edit/' + $scope.uid,
                             {
                                 displayName: $scope.displayName,
-                                hostname: $scope.hostname
+                                hostname: $scope.hostname,
+                                selectedLocales: $scope.selectedLocales,
+                                defaultLocale: $scope.defaultLocale
                             })
                             .success(function(result) {
                                 $scope.onCreateOrEditComplete(result);
@@ -28,6 +30,7 @@
                             .error(function(error, status) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
+                                angular.element('#progress_modal').modal('hide');
                             });
                 };
 
@@ -39,7 +42,9 @@
                     $http.post('/actions/admin/sites/new',
                             {
                                 displayName: $scope.displayName,
-                                hostname: $scope.hostname
+                                hostname: $scope.hostname,
+                                selectedLocales: $scope.selectedLocales,
+                                defaultLocale: $scope.defaultLocale
                             })
                             .success(function(result) {
                                 $scope.onCreateOrEditComplete(result);
@@ -47,6 +52,7 @@
                             .error(function(error, status) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
+                                angular.element('#progress_modal').modal('hide');
                             });
                 };
 
@@ -133,6 +139,28 @@
 
                 $scope.refreshPage = function() {
                     $window.location.reload();
+                }
+
+                $scope.updateSelectedLocales = function() {
+                    $scope.selectedLocales = [];
+                    angular.forEach($scope.supportedLocales, function(clicked, locale) {
+                        if (clicked) {
+                            $scope.selectedLocales.push(locale);
+                            // If the default locale is empty, assign it to the first found selected locale
+                            if ($scope.defaultLocale == "") {
+                                $scope.defaultLocale = locale;
+                            }
+                        }
+                    });
+                }
+
+                $scope.updateSupportedLocales = function(locale) {
+                    $scope.supportedLocales[locale] = !$scope.supportedLocales[locale];
+                    // If the default locale was just un-selected from supported locales, clear out the default locale
+                    if (!$scope.supportedLocales[locale] && $scope.defaultLocale == locale) {
+                        $scope.defaultLocale = "";
+                    }
+                    $scope.updateSelectedLocales();
                 }
             });
 </script>

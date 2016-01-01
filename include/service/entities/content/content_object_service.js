@@ -460,7 +460,7 @@ module.exports = function(pb) {
                     },
                     where: pb.DAO.getIdWhere(content.thumbnail)
                 };
-                var mediaService = new pb.MediaService();
+                var mediaService = new pb.MediaService(null, self.site, false);
                 mediaService.get(mOpts, function(err, media) {
                     callback(err, util.isNullOrUndefined(media) ? '' : media.location);
                 });
