@@ -462,7 +462,7 @@ module.exports = function SectionServiceModule(pb) {
             //validate for each type of nav item
             switch(navItem.type) {
             case 'container':
-                onDone(null, errors);
+                onDone(null, []);
                 break;
             case 'section':
                 self.validateSectionNavItem(navItem, onDone);

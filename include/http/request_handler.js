@@ -762,33 +762,32 @@ module.exports = function RequestHandlerModule(pb) {
         this.session = session;
 
         var hostname = this.hostname;
-        var siteObj = RequestHandler.sites[hostname],
-            redirectHost = RequestHandler.redirectHosts[hostname];
-
-        //derive the localization. We do it here so that if the site isn't
-        //available we can still have one available when we error out
-        this.localizationService = this.deriveLocalization({ session: session });
+        var siteObj = RequestHandler.sites[hostname];
+        var redirectHost = RequestHandler.redirectHosts[hostname];
 
         // If we need to grab a host redirect
         if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
             siteObj = RequestHandler.sites[redirectHost];
         }
+        this.siteObj = siteObj;
 
-        else if (!siteObj) {
+        //derive the localization. We do it here so that if the site isn't
+        //available we can still have one available when we error out
+        this.localizationService = this.deriveLocalization({ session: session });
+
+        //make sure we have a site
+        if (!siteObj) {
             var err = new Error("The host (" + hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
             pb.log.error(err);
-            this.serveError(err);
-            return;
+            return this.serveError(err);
         }
 
-        this.siteObj = siteObj;
         this.site = this.siteObj.uid;
         this.siteName = this.siteObj.displayName;
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
         if (route == null) {
-            this.serve404();
-            return;
+            return this.serve404();
         }
         this.route = route;
 
