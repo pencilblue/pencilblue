@@ -320,7 +320,7 @@ module.exports = function SectionServiceModule(pb) {
                 for(var i = 0; i < sectionMap.length; i++) {
                     var section    = SectionService.getSectionData(sectionMap[i].uid, sections, currUrl);
                     if (util.isNullOrUndefined(section)) {
-                        pb.log.error('SectionService: The navigation map is out of sync.  Root [%s] could not be found.', sectionMap[i].uid);
+                        pb.log.error('SectionService: The navigation map is out of sync.  Root [%s] could not be found for site [%s].', sectionMap[i].uid, self.site);
                         continue;
                     }
 
@@ -335,7 +335,7 @@ module.exports = function SectionServiceModule(pb) {
                             for(var j = 0; j < sectionMap[i].children.length; j++) {
                                 var child = SectionService.getSectionData(sectionMap[i].children[j].uid, sections, currUrl);
                                 if (util.isNullOrUndefined(child)) {
-                                    pb.log.error('SectionService: The navigation map is out of sync.  Child [%s] could not be found.', sectionMap[i].children[j].uid);
+                                    pb.log.error('SectionService: The navigation map is out of sync.  Child [%s] could not be found for site [%s].', sectionMap[i].children[j].uid, self.site);
                                     continue;
                                 }
 

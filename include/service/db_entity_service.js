@@ -35,17 +35,36 @@ module.exports = function DbEntityServiceModule(pb) {
      * @param {String} [options.onlyThisSite=false]
      */
     function DbEntityService(options){
-        this.type       = 'DB';
-        this.objType    = options.objType;
-        this.keyField   = options.keyField;
+
+        this.objType = options.objType;
+        this.keyField = options.keyField;
         this.valueField = options.valueField ? options.valueField : null;
-        this.site       = options.site || GLOBAL_SITE;
-        this.onlyThisSite       = options.onlyThisSite ? true : false;
+        this.site = options.site || GLOBAL_SITE;
+        this.onlyThisSite = !!options.onlyThisSite;
+        this.type = 'DB-'+this.site+'-'+this.onlyThisSite;
         this.sqs = new pb.SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
     }
 
+    /**
+     * Short reference to SiteService.GLOBAL_SITE
+     * @private
+     * @static
+     * @readonly
+     * @property GLOBAL_SITE
+     * @type {String}
+     */
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+
+    /**
+     * Short reference to SiteService.SITE_FIELD
+     * @private
+     * @static
+     * @readonly
+     * @property SITE_FIELD
+     * @type {String}
+     */
     var SITE_FIELD = pb.SiteService.SITE_FIELD;
+
     /**
      * Retrieve a value from the database
      *
