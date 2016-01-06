@@ -394,6 +394,7 @@ module.exports = function Routes(pb){
         {
             method: 'post',
             path: "/actions/admin/content/navigation",
+            handler: 'post',
             access_level: pb.SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
@@ -403,10 +404,11 @@ module.exports = function Routes(pb){
         {
             method: 'post',
             path: "/actions/admin/content/navigation/:id",
+            handler: 'put',
             access_level: pb.SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'navigation', 'edit_nav_item.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'navigation', 'new_nav_item.js'),
             content_type: 'text/html'
         },
         {

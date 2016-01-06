@@ -24,7 +24,7 @@ var util = require('../util.js');
  * @submodule Storage
  */
 module.exports = function CacheEntityServiceModule(pb) {
-    
+
     /**
      * In-cache storage service
      *
@@ -41,15 +41,24 @@ module.exports = function CacheEntityServiceModule(pb) {
      * before expiry.
      */
     function CacheEntityService(options){
-        this.type       = 'Cache';
-        this.objType    = options.objType;
-        this.keyField   = options.keyField;
+
+        this.objType = options.objType;
+        this.keyField = options.keyField;
         this.valueField = options.valueField ? options.valueField : null;
         this.site = options.site || GLOBAL_SITE;
-        this.onlyThisSite = options.onlyThisSite ? true : false;
-        this.timeout    = options.timeout || 0;
+        this.onlyThisSite = !!options.onlyThisSite;
+        this.timeout = options.timeout || 0;
+        this.type = 'Cache-'+this.site+'-'+this.onlyThisSite;
     }
 
+    /**
+     * Short reference to SiteService.GLOBAL_SITE
+     * @private
+     * @static
+     * @readonly
+     * @property GLOBAL_SITE
+     * @type {String}
+     */
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
@@ -131,7 +140,7 @@ module.exports = function CacheEntityServiceModule(pb) {
             var val = null;
             if (self.valueField == null) {
                 val = value;
-                
+
                 if (util.isObject(val)) {
                     val = JSON.stringify(val);
                 }
@@ -175,6 +184,6 @@ module.exports = function CacheEntityServiceModule(pb) {
     CacheEntityService.prototype.purge = function(key, cb) {
         pb.cache.del(keyValue(key, this.site), cb);
     };
-    
+
     return CacheEntityService;
 };
