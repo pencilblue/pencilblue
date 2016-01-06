@@ -164,9 +164,9 @@ module.exports = function RequestHandlerModule(pb) {
           uid: site.uid,
           displayName: site.displayName,
           hostname: site.hostname,
-          defaultLocale: site.defaultLocale || pb.Localization.getDefaultLocale(),
-          supportedLocales: site.supportedLocales || [],
-          prevHostnames: site.prevHostnames || []
+          defaultLocale: site.defaultLocale,
+          supportedLocales: site.supportedLocales,
+          prevHostnames: site.prevHostnames
         };
         //Populate RequestHandler.redirectHosts if this site has prevHostnames associated
         if (site.prevHostnames) {
