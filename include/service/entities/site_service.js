@@ -382,9 +382,9 @@ module.exports = function SiteServiceModule(pb) {
             //only load the sites when we are in multi-site mode
             if (pb.config.multisite.enabled) {
                 util.forEach(results, function (site) {
-                    site.defaultLocale ? site.defaultLocale : pb.Localization.getDefaultLocale();
-                    site.supportedLocales ? site.supportedLocales : [site.defaultLocale];
-                    site.prevHostnames ? site.prevHostnames : [];
+                    site.defaultLocale = site.defaultLocale ? site.defaultLocale : pb.Localization.getDefaultLocale();
+                    site.supportedLocales = site.supportedLocales ? site.supportedLocales : [site.defaultLocale];
+                    site.prevHostnames = site.prevHostnames ? site.prevHostnames : [];
                     pb.RequestHandler.loadSite(site);
                 });
             }
