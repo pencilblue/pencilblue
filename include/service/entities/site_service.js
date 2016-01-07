@@ -603,7 +603,9 @@ module.exports = function SiteServiceModule(pb) {
             uid: pb.SiteService.GLOBAL_SITE,
             hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
             active: pb.config.multisite.enabled ? false : true,
-            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function(a, i) { return true; })
+            defaultLocale: pb.Localization.getDefaultLocale(),
+            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function(a, i) { return true; }),
+            prevHostnames: []
         };
     };
 
