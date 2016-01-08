@@ -382,6 +382,9 @@ module.exports = function SiteServiceModule(pb) {
             //only load the sites when we are in multi-site mode
             if (pb.config.multisite.enabled) {
                 util.forEach(results, function (site) {
+                    site.defaultLocale = site.defaultLocale || pb.Localization.getDefaultLocale();
+                    site.supportedLocales = site.supportedLocales || [site.defaultLocale];
+                    site.prevHostnames = site.prevHostnames || [];
                     pb.RequestHandler.loadSite(site);
                 });
             }
@@ -600,7 +603,9 @@ module.exports = function SiteServiceModule(pb) {
             uid: pb.SiteService.GLOBAL_SITE,
             hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
             active: pb.config.multisite.enabled ? false : true,
-            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function(a, i) { return true; })
+            defaultLocale: pb.Localization.getDefaultLocale(),
+            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function(a, i) { return true; }),
+            prevHostnames: []
         };
     };
 
