@@ -61,7 +61,6 @@ module.exports = function EditSiteActionModule(pb) {
                     var selectedLocale = self.body.selectedLocales[i];
                     self.body.supportedLocales[selectedLocale] = true;
                 }
-                self.body.selectedLocales = undefined;
                 data.supportedLocales = self.body.supportedLocales;
                 data.defaultLocale = self.body.defaultLocale;
 

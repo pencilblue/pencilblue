@@ -32,6 +32,7 @@ module.exports = function SiteServiceModule(pb) {
 
         context.type = TYPE;
         SiteService.super_.call(this, context);
+        this.dao = new pb.DAO();
     }
     util.inherits(SiteService, pb.BaseObjectService);
 
