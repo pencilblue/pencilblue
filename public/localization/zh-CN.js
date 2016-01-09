@@ -250,13 +250,13 @@ module.exports = {
         TOPICS_CREATED: '话题已成功创建',
         IMPORT_TOPICS: '导入话题',
         IMPORT_TOPICS_HELP: '在此您可以导入一个话题名称的 CSV 文件到 PencilBlue. 该文件不该包含其它信息.',
-        TOPICS_CSV_FILE: 'CSV 文件包含话题名称',
+        TOPICS_CSV_FILE: 'CSV 文件包含话题名称'
     },
     media: {
         MANAGE_MEDIA: '管理媒体',
         NEW_MEDIA: '新建媒体',
         LINK_OR_UPLOAD: '链接或上传',
-        LINK_TO_MEDIA: '链接到媒体'
+        LINK_TO_MEDIA: '链接到媒体',
         UPLOAD_MEDIA: '上传媒体',
         MEDIA_URL: '媒体地址',
         MEDIA_URL_PLACEHOLDER: '图片, YouTube, Vimeo, 或 Dailymotion 链接',
@@ -299,7 +299,7 @@ module.exports = {
         UNPUBLISHED: '未发布',
         DRAFT: '草稿',
         ALLOW_COMMENTS: '允许评论',
-        INSERT_READ_MORE: '插入阅读更多截断',
+        INSERT_READ_MORE: '插入阅读更多截断'
     },
     wysiwyg: {
         NORMAL_TEXT: '正常文本',
