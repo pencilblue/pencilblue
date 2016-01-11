@@ -380,9 +380,15 @@ module.exports = function SiteServiceModule(pb) {
                 return cb(err);
             }
 
+            var defaultLocale = pb.Localization.getDefaultLocale();
+            var defaultSupportedLocales = {};
+            defaultSupportedLocales[defaultLocale] = true;
             //only load the sites when we are in multi-site mode
             if (pb.config.multisite.enabled) {
                 util.forEach(results, function (site) {
+                    site.defaultLocale = site.defaultLocale || defaultLocale;
+                    site.supportedLocales = site.supportedLocales || defaultSupportedLocales;
+                    site.prevHostnames = site.prevHostnames || [];
                     pb.RequestHandler.loadSite(site);
                 });
             }
@@ -596,12 +602,17 @@ module.exports = function SiteServiceModule(pb) {
      * @return {Object}
      */
     SiteService.getGlobalSiteContext = function() {
+        var defaultLocale = pb.Localization.getDefaultLocale();
+        var defaultSupportedLocales = {};
+        defaultSupportedLocales[defaultLocale] = true;
         return {
             displayName: pb.config.siteName,
             uid: pb.SiteService.GLOBAL_SITE,
             hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
             active: pb.config.multisite.enabled ? false : true,
-            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function(a, i) { return true; })
+            defaultLocale: defaultLocale,
+            supportedLocales: defaultSupportedLocales,
+            prevHostnames: []
         };
     };
 
