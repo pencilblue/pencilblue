@@ -31,7 +31,7 @@ var fs    = require('fs');
 function ServerInitializer(/*pb*/) {}
 
 /**
- * Initializes the server.  Depending on the configuration will start an HTTP 
+ * Initializes the server.  Depending on the configuration will start an HTTP
  * server and/or an HTTPs server.
  * @param {Object} context
  * @param {Logger} context.log
@@ -75,7 +75,7 @@ ServerInitializer.prototype._init = function(context, cb) {
 ServerInitializer.prototype.initHttp = function(context, cb) {
     context.log.info('ServerInitializer: HTTP server starting, binding on IP %s and port: %d', context.config.siteIP, context.config.sitePort);
     var server = this.getServer(context);
-    this.startServer(server, context.config.sitePort, context.config.siteIP, function(err, started){
+    this.startServer(server, context.config.sitePort, context.config.siteIP, function(err/*, started*/){
         cb(err, {
             server: server
         });
@@ -94,7 +94,7 @@ ServerInitializer.prototype.initHttp = function(context, cb) {
 ServerInitializer.prototype.initHttps = function(context, cb) {
     var log = context.log;
     var config = context.config;
-    
+
     //create the server with options & callback
     var server = this.getSslServer(context);
 
@@ -103,13 +103,13 @@ ServerInitializer.prototype.initHttps = function(context, cb) {
 
     var self = this;
     var tasks = [
-       
+
         //start primary HTTPS server
         function (callback) {
             log.info('ServerInitializer: HTTPS server starting, binding on IP %s and port: %d', config.siteIP, config.sitePort);
             this.startServer(server, config.sitePort, config.siteIP, callback);
         },
-        
+
         //start handoff server that will force redirect back to HTTPs
         function (callback) {
             log.info('ServerInitializer: Handoff HTTP server starting, binding on IP %s and port: %d', config.server.ssl.handoff_ip, config.server.ssl.handoff_port);
@@ -144,7 +144,7 @@ ServerInitializer.prototype.getServer = function(context) {
 ServerInitializer.prototype.getSslServer = function(context) {
     var options = this.getSslServerOptions(context.config);
     return https.createServer(options, context.onRequest);
-}
+};
 
 /**
  * @method getSslServerOptions
@@ -161,15 +161,15 @@ ServerInitializer.prototype.getSslServerOptions = function(config) {
         key: fs.readFileSync(config.server.ssl.key),
         cert: fs.readFileSync(config.server.ssl.cert),
     };
-    
-    //the certificate authority or "chain" is optional.  Needed for 
+
+    //the certificate authority or "chain" is optional.  Needed for
     //self-signed certs
     var chainPath = config.server.ssl.chain;
     if (util.isString(chainPath)) {
         options.ca = fs.readFileSync(chainPath);
     }
     return options;
-}
+};
 
 /**
  * Does a simple start on a server object by binding to the specified IP address and port.

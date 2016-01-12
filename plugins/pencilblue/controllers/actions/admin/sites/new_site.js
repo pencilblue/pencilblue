@@ -57,7 +57,7 @@ module.exports = function NewSiteActionModule(pb) {
                     content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('DUPLICATE_INFO'))
                 });
             }
-            var jobId = siteService.createSite(site, function(err, result) {
+            var jobId = siteService.createSite(site, function(/*err, result*/) {
                 var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('CREATING_SITE'), jobId);
                 cb({content: content});
             });
