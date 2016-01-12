@@ -380,11 +380,14 @@ module.exports = function SiteServiceModule(pb) {
                 return cb(err);
             }
 
+            var defaultLocale = pb.Localization.getDefaultLocale();
+            var defaultSupportedLocales = {};
+            defaultSupportedLocales[defaultLocale] = true;
             //only load the sites when we are in multi-site mode
             if (pb.config.multisite.enabled) {
                 util.forEach(results, function (site) {
-                    site.defaultLocale = site.defaultLocale || pb.Localization.getDefaultLocale();
-                    site.supportedLocales = site.supportedLocales || [site.defaultLocale];
+                    site.defaultLocale = site.defaultLocale || defaultLocale;
+                    site.supportedLocales = site.supportedLocales || defaultSupportedLocales;
                     site.prevHostnames = site.prevHostnames || [];
                     pb.RequestHandler.loadSite(site);
                 });
