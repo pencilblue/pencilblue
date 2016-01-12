@@ -602,16 +602,13 @@ module.exports = function SiteServiceModule(pb) {
      * @return {Object}
      */
     SiteService.getGlobalSiteContext = function() {
-        var defaultLocale = pb.Localization.getDefaultLocale();
-        var defaultSupportedLocales = {};
-        defaultSupportedLocales[defaultLocale] = true;
         return {
             displayName: pb.config.siteName,
             uid: pb.SiteService.GLOBAL_SITE,
             hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
             active: pb.config.multisite.enabled ? false : true,
-            defaultLocale: defaultLocale,
-            supportedLocales: defaultSupportedLocales,
+            defaultLocale: pb.Localization.getDefaultLocale(),
+            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function(a, i) { return true; }),
             prevHostnames: []
         };
     };
