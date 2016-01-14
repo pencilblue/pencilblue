@@ -1079,11 +1079,15 @@ module.exports = function PluginServiceModule(pb) {
                 if(!cached_plugin || !cached_plugin.details) {
                     return PluginService.loadDetailsFile(PluginService.getDetailsPath(plugin.dirName), function (err, loadedDetails) {
                         details = loadedDetails;
-                        PLUGIN_INIT_CACHE[plugin.uid].details = details;
-                        plugin.dependencies = details.dependencies;
-                        callback(err, null);
+                        callback(err, !!details);
                     });
                 }
+                callback(null, true);
+            },
+
+            function(callback) {
+                PLUGIN_INIT_CACHE[plugin.uid].details = details;
+                plugin.dependencies = details.dependencies;
                 callback(null, true);
             },
 
