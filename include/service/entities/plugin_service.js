@@ -1503,8 +1503,16 @@ module.exports = function PluginServiceModule(pb) {
      * @return {*} The entity returned by the "require" call.
      */
     PluginService.require = function(pluginDirName, moduleName) {
-        var modulePath = path.join(PluginService.getPluginsDir(), pluginDirName, 'node_modules', moduleName);
-        return require(modulePath);
+        var modulePath = null;
+        try {
+            modulePath = path.join(PluginService.getPluginsDir(), pluginDirName, 'node_modules', moduleName);
+            return require(modulePath);
+        }
+        catch(e) {
+            pb.log.warn('PluginService:%s Failed to find module %s at path %s.  Attempting to retrieve from PB context', pluginDirName, moduleName, modulePath)
+            pb.log.debug(e.stack);
+        }
+        return require(moduleName);
     };
 
     /**
