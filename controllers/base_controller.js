@@ -123,7 +123,8 @@ module.exports = function BaseControllerModule(pb) {
         this.siteObj             = props.siteObj;
         this.site                = props.site;
         this.siteName            = props.siteName;
-        this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || self.ts.siteRoot;
+        this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || pb.config.siteRoot;
+        this.referer             = this.req.headers.referer;
 
         /**
          * @property ts

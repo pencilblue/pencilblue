@@ -472,7 +472,6 @@ module.exports = function LocalizationModule(pb) {
      * @param {Function} cb
      */
     Localization.init = function(cb) {
-        var supportedLocales = [];
         Localization.storage = {};
         Localization.keys = {};
 

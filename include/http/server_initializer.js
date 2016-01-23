@@ -107,13 +107,13 @@ ServerInitializer.prototype.initHttps = function(context, cb) {
         //start primary HTTPS server
         function (callback) {
             log.info('ServerInitializer: HTTPS server starting, binding on IP %s and port: %d', config.siteIP, config.sitePort);
-            this.startServer(server, config.sitePort, config.siteIP, callback);
+            self.startServer(server, config.sitePort, config.siteIP, callback);
         },
 
         //start handoff server that will force redirect back to HTTPs
         function (callback) {
             log.info('ServerInitializer: Handoff HTTP server starting, binding on IP %s and port: %d', config.server.ssl.handoff_ip, config.server.ssl.handoff_port);
-            this.startServer(handOffServer, config.server.ssl.handoff_port, config.server.ssl.handoff_ip, callback);
+            self.startServer(handOffServer, config.server.ssl.handoff_port, config.server.ssl.handoff_ip, callback);
         },
     ];
     async.series(tasks, function(err){

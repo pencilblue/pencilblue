@@ -102,6 +102,13 @@ module.exports = function(pb) {
          * @type {Array}
          */
         this.supportedLocales = context.supportedLocales || pb.Localization.getSupported();
+
+        /**
+         * The instance of the registry to pull from.  Initializes based off of the global configuration
+         * @property siteMapRegistry
+         * @type {Object}
+         */
+        this.siteMapRegistry = util.merge(SITE_MAP_REGISTRY, {});
     }
 
     /**
@@ -181,6 +188,7 @@ module.exports = function(pb) {
             options = {};
         }
 
+        var self = this;
         var context = Object.freeze({
             service: this,
             site: this.site,
@@ -188,9 +196,9 @@ module.exports = function(pb) {
             ts: this.ts,
             hostname: this.hostname
         });
-        var tasks = util.getTasks(Object.keys(SITE_MAP_REGISTRY), function(keys, i) {
+        var tasks = util.getTasks(Object.keys(self.siteMapRegistry), function(keys, i) {
             return function(callback) {
-                SITE_MAP_REGISTRY[keys[i]](context, callback);
+                self.siteMapRegistry[keys[i]](context, callback);
             };
         });
         async.parallel(tasks, SiteMapService.formatGetResults(cb));

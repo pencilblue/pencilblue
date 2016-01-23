@@ -37,7 +37,7 @@ var winston = require('winston');
 function Configuration(){}
 
 /**
- * 
+ *
  * @static
  * @readonly
  * @property DOCUMENT_ROOT
@@ -46,7 +46,7 @@ function Configuration(){}
 Configuration.DOCUMENT_ROOT = __dirname.substr(0, __dirname.indexOf(path.sep+'include'));
 
 /**
- * 
+ *
  * @static
  * @readonly
  * @property EXTERNAL_ROOT
@@ -76,7 +76,7 @@ var LOG_DIR = path.join(Configuration.DOCUMENT_ROOT, 'log');
 var LOG_FILE = path.join(LOG_DIR, 'pencilblue.log');
 
 /**
- * The configuration module overrides file name 
+ * The configuration module overrides file name
  * @private
  * @static
  * @readonly
@@ -98,7 +98,7 @@ var OVERRIDE_FILE_PATHS = [
     path.join(Configuration.EXTERNAL_ROOT, CONFIG_MODULE_NAME)
 ];
 
-/** 
+/**
  * Retrieve the base configuration
  */
 Configuration.getBaseConfig = function(multisite) {
@@ -141,9 +141,9 @@ Configuration.getBaseConfig = function(multisite) {
 
             //the name of the default DB for the system
             name: 'pencil_blue',
-            
+
             options: {
-                
+
                 //http://docs.mongodb.org/manual/core/write-concern/
                 w: 1
             },
@@ -252,9 +252,9 @@ Configuration.getBaseConfig = function(multisite) {
                 //values will not be purged from memory once expired.
                 memory_timeout: 0
             },
-            
-            //The default plugin.  Allows for the default plugin to be 
-            //referenced from a single location.  The property can be overriden 
+
+            //The default plugin.  Allows for the default plugin to be
+            //referenced from a single location.  The property can be overriden
             //but may have unexpected behavior.
             default: 'pencilblue'
         },
@@ -321,9 +321,9 @@ Configuration.getBaseConfig = function(multisite) {
                 use_handoff_port_in_redirect: false,
                 key: "ssl/key.pem",
                 cert: "ssl/cert.crt",
-            
-                //The certificate authority, or chain, is optional.  It is 
-                //recommended to keep the paths consistent and place the CA cert 
+
+                //The certificate authority, or chain, is optional.  It is
+                //recommended to keep the paths consistent and place the CA cert
                 //at: "ssl/chain.crt"
                 chain: null
             },
@@ -454,12 +454,12 @@ Configuration.load = function(filePaths) {
 };
 
 /**
- * 
+ *
  * @static
  * @method mergeWithBase
  */
 Configuration.mergeWithBase = function(overrides) {
-    
+
     var multisite = overrides && overrides.multisite ? overrides.multisite.enabled : false;
     var baseConfig = Configuration.getBaseConfig(multisite);
 
@@ -475,7 +475,7 @@ Configuration.mergeWithBase = function(overrides) {
     if (config.media.urlRoot.lastIndexOf('/') === (config.media.urlRoot.length - 1)) {
         config.media.urlRoot = config.media.urlRoot.substring(0, config.media.urlRoot.length - 1);
     }
-    
+
 	return config;
 };
 

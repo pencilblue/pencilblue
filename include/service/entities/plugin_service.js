@@ -1079,11 +1079,15 @@ module.exports = function PluginServiceModule(pb) {
                 if(!cached_plugin || !cached_plugin.details) {
                     return PluginService.loadDetailsFile(PluginService.getDetailsPath(plugin.dirName), function (err, loadedDetails) {
                         details = loadedDetails;
-                        PLUGIN_INIT_CACHE[plugin.uid].details = details;
-                        plugin.dependencies = details.dependencies;
-                        callback(err, null);
+                        callback(err, !!details);
                     });
                 }
+                callback(null, true);
+            },
+
+            function(callback) {
+                PLUGIN_INIT_CACHE[plugin.uid].details = details;
+                plugin.dependencies = details.dependencies;
                 callback(null, true);
             },
 
@@ -1499,8 +1503,16 @@ module.exports = function PluginServiceModule(pb) {
      * @return {*} The entity returned by the "require" call.
      */
     PluginService.require = function(pluginDirName, moduleName) {
-        var modulePath = path.join(PluginService.getPluginsDir(), pluginDirName, 'node_modules', moduleName);
-        return require(modulePath);
+        var modulePath = null;
+        try {
+            modulePath = path.join(PluginService.getPluginsDir(), pluginDirName, 'node_modules', moduleName);
+            return require(modulePath);
+        }
+        catch(e) {
+            pb.log.warn('PluginService:%s Failed to find module %s at path %s.  Attempting to retrieve from PB context', pluginDirName, moduleName, modulePath)
+            pb.log.debug(e.stack);
+        }
+        return require(moduleName);
     };
 
     /**
@@ -1739,7 +1751,7 @@ module.exports = function PluginServiceModule(pb) {
 
             //validate pb_version in config against pb version
             else if (!semver.satisfies(pb.config.version, details.pb_version)) {
-                errors.push("Version " + details.version + " is incompatible with PencilBlue version " + pb.config.version);
+                errors.push("Version " + details.pb_version + " is incompatible with PencilBlue version " + pb.config.version);
             }
         }
 

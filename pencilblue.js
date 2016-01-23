@@ -35,16 +35,16 @@ var HtmlEncoder = require('htmlencode');
  * @constructor
  */
 function PencilBlue(config){
-    
+
     /**
-     * 
-     * @private 
+     *
+     * @private
      * @static
      * @property pb
      * @type {Object}
      */
     var pb = require('./lib')(config);
-    
+
     /**
      * The number of requests served by this instance
      * @private
@@ -53,7 +53,7 @@ function PencilBlue(config){
      * @type {Integer}
      */
     var requestsServed = 0;
-    
+
     /**
      * To be called when the configuration is loaded.  The function is responsible
      * for triggered the startup of the HTTP connection listener as well as start a
@@ -66,7 +66,6 @@ function PencilBlue(config){
             this.initRequestHandler,
             this.initDBConnections,
             this.initDBIndices,
-            util.wrapTask(this, this.initServer),
             this.initSiteMigration,
             this.initSessions,
             this.initPlugins,
@@ -74,7 +73,8 @@ function PencilBlue(config){
             this.initServerRegistration,
             this.initCommandService,
             this.initLibraries,
-            this.registerMetrics
+            this.registerMetrics,
+            util.wrapTask(this, this.initServer),
         ];
         async.series(tasks, function(err, results) {
             if (util.isError(err)) {
@@ -83,7 +83,7 @@ function PencilBlue(config){
             pb.log.info('PencilBlue: Ready to run!');
         });
     };
-    
+
     /**
      * Ensures that any log messages by the NPM module are forwarded as output
      * to the system logs
@@ -95,12 +95,12 @@ function PencilBlue(config){
         npm.on('log', function(message) {
             pb.log.info(message);
         });
-        
+
         HtmlEncoder.EncodeType = 'numerical';
-        
+
         pb.Localization.init(cb);
     };
-    
+
     /**
      * Initializes the request handler.  This causes all system routes to be
      * registered.
@@ -112,7 +112,7 @@ function PencilBlue(config){
         pb.RequestHandler.init();
         cb(null, true);
     }
-    
+
     /**
      * Starts the session handler
      * @method initSessions
@@ -129,10 +129,10 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     this.initPlugins = function(cb) {
-        
+
         //initialize command listeners
         pb.PluginService.init();
-        
+
         //initialize the plugins
         var pluginService = new pb.PluginService();
         pluginService.initPlugins(cb);
@@ -183,7 +183,7 @@ function PencilBlue(config){
     };
 
     /**
-     * Checks to see if the process should verify that the indices are valid and in 
+     * Checks to see if the process should verify that the indices are valid and in
      * place.
      * @static
      * @method initDBIndices
@@ -225,10 +225,10 @@ function PencilBlue(config){
         initializer.init(context, function(err, servers) {
             if (util.isError(err)) {
                 return cb(err);
-            }  
+            }
             pb.server = servers.server;
             pb.handOffServer = servers.handOffServer;
-            
+
             cb(err, true);
         });
     };
@@ -251,10 +251,10 @@ function PencilBlue(config){
 
         //bump the counter for the instance
         requestsServed++;
-        
+
         //check to see if we should inspect the x-forwarded-proto header for SSL
         //load balancers use this for SSL termination relieving the stress of SSL
-        //computation on more powerful load balancers.  
+        //computation on more powerful load balancers.
         if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
             return this.onHttpConnectForHandoff(req, res);
         }
@@ -317,7 +317,7 @@ function PencilBlue(config){
     this.initLibraries = function(cb) {
         pb.LibrariesService.init(cb);
     };
-    
+
     /**
      * Initializes the metric registrations to measure request counts
      * @static
@@ -325,17 +325,17 @@ function PencilBlue(config){
      * @param {Function} cb
      */
     this.registerMetrics = function(cb) {
-        
+
         //total number of requests served
         pb.ServerRegistration.addItem('requests', function(callback) {
             callback(null, requestsServed);
         });
-        
+
         //current requests
         pb.ServerRegistration.addItem('currentRequests', function(callback) {
             pb.server.getConnections(callback);
         });
-        
+
         cb(null, true);
     };
 
@@ -354,7 +354,7 @@ function PencilBlue(config){
 
 //start system only when the module is called directly
 if (require.main === module) {
-    
+
     var Configuration = require('./include/config.js');
     var config        = Configuration.load();
     var pb            = new PencilBlue(config);
