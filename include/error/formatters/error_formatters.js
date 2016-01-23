@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var path        = require('path');
 var HtmlEncoder = require('htmlencode');
 
 module.exports = function(pb) {
@@ -72,6 +73,14 @@ module.exports = function(pb) {
         }
         return content;
     };
+    
+    /**
+     * @private
+     * @static
+     * @property failedControllerPaths
+     * @type {Object}
+     */
+    var failedControllerPaths = {};
 
     /**
      * Serializes an error as JSON
@@ -103,12 +112,53 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ErrorFormatters.html = function(params, cb) {
-        cb(
-            null,
-            '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>' +
-            params.error.stack +
-            '</pre></body></html>'
-        );
+        if (params.errorCount > 1) {
+            
+            //we know we've hit a recursive error situation.  Bail out
+            return cb(
+                null,
+                '<html><body><h2>Whoops! Something unexpected happened.</h2><br/><pre>' +
+                params.error.stack +
+                '</pre></body></html>'
+            );
+        }
+        
+        //let the default error controller handle it.
+        var code = params.error.code || 500;
+        var ErrorController  = null;
+        var paths = [
+            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'),
+            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error/index.js'),
+            path.join(pb.config.docRoot, 'controllers/error_controller.js')
+        ];
+        for (var i = 0; i < paths.length; i++) {
+            if (failedControllerPaths[paths[i]]) {
+                //we've seen it and it didn't exist or had a syntax error.  Moving on!
+                continue;
+            }
+            
+            //attempt to load the controller
+            try {
+                ErrorController = require(paths[i])(pb);
+                break;
+            }
+            catch(e){
+                
+                //we failed so make sure don't do that again...
+                failedControllerPaths[paths[i]];
+            }
+        };
+        var cInstance = new ErrorController();
+        var context = {
+            pathVars: {},
+            cInstance: cInstance,
+            themeRoute: {},
+            activeTheme: params.activeTheme,
+            initParams: {
+                error: params.error
+            }
+        };
+        params.reqHandler.doRender(context);
     };
     
     /**

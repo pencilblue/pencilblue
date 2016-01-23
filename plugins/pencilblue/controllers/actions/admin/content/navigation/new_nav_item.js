@@ -16,72 +16,186 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+    var BaseController = pb.BaseController;
+    var BaseAdminController = pb.BaseAdminController;
+
+    /**
+     * Persists a nav item
+     * @class PersistNavItemController
+     * @constructor
+     */
+    function PersistNavItemController(){}
+    util.inherits(PersistNavItemController, BaseAdminController);
+
+    /**
+     * @method init
+     * @param {Object} props
+     * @param {Function} cb
+     */
+    PersistNavItemController.prototype.init = function (props, cb) {
+        var self = this;
+        var init = function () {
+            self.sectionService = new pb.SectionService({site: self.site, onlyThisSite: true});
+            cb();
+        };
+        BaseAdminController.prototype.init.call(self, props, init);
+    };
+
     /**
      * Creates a nav item
+     * @method post
+     * @param {Function} cb
      */
-    function NewNavItem(){}
-    util.inherits(NewNavItem, pb.BaseController);
+    PersistNavItemController.prototype.post = function(cb) {
+        this.render(cb);
+    };
 
-    NewNavItem.prototype.render = function(cb){
+    /**
+     * Creates a nav item
+     * @method render
+     * @param {Function} cb
+     */
+    PersistNavItemController.prototype.render = function(cb){
         var self = this;
 
         this.getJSONPostParams(function(err, post) {
+            if (util.isError(err)) {
+                return self.handleError(err, cb);
+            }
 
             var navItem = pb.DocumentCreator.create('section', post, ['keywords'], ['parent']);
 
-            //ensure a URL was provided
-            if(!navItem.url && navItem.name) {
-                navItem.url = navItem.name.toLowerCase().split(' ').join('-');
+            self.persist(navItem, cb);
+        });
+    };
+
+    /**
+     * Edits a nav item
+     * @method render
+     * @param {Function} cb
+     */
+    PersistNavItemController.prototype.put = function(cb) {
+        var self = this;
+        var vars = this.pathVars;
+
+        var message = this.hasRequiredParams(vars, ['id']);
+        if (message) {
+            return cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+            });
+        }
+
+        this.getJSONPostParams(function(err, post) {
+            if (util.isError(err)) {
+                return self.handleError(err, cb);
             }
 
-            //strip unneeded properties
-            pb.SectionService.trimForType(navItem);
-
-            //validate
-            var navService = new pb.SectionService();
-            navService.save(navItem, function(err, result) {
+            //load object
+            self.siteQueryService.loadById(vars.id, 'section', function(err, navItem) {
                 if(util.isError(err)) {
-                    cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                    });
-                    return;
+                    return self.handleError(err, cb);
                 }
-                else if(util.isArray(result) && result.length > 0) {
-                    cb({
-                        code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, NewNavItem.getHtmlErrorMsg(result))
+                else if (!util.isObject(navItem)){
+                    return cb({
+                        code: 404,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
                     });
-                    return;
                 }
 
-                self.checkForNavMapUpdate(navItem, function() {
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, navItem.name + ' ' + self.ls.get('CREATED'), true)});
+                pb.DocumentCreator.update(post, navItem, ['keywords'], ['url', 'parent']);
+                self.persist(navItem, cb);
+            });
+        });
+    };
+
+    /**
+     * Handles the formatting and persists a nav item
+     * @method render
+     * @param {Function} cb
+     */
+    PersistNavItemController.prototype.persist = function(navItem, cb) {
+        var self = this;
+
+        //ensure a URL was provided
+        if(!navItem.url && navItem.name) {
+            navItem.url = navItem.name.toLowerCase().split(' ').join('-');
+        }
+
+        //strip unneeded properties
+        pb.SectionService.trimForType(navItem);
+
+        //validate & persist
+        var isUpdate = !!navItem[pb.DAO.getIdField()];
+        this.sectionService.save(navItem, function(err, result) {
+            if(util.isError(err)) {
+                return self.handleError(err, cb);
+            }
+            else if(util.isArray(result) && result.length > 0) {
+                return self.handleBadRequest(result, cb);
+            }
+
+            //update cached nav map
+            self.checkForNavMapUpdate(navItem, function() {
+                var msg = navItem.name + ' ' + self.ls.g(isUpdate ? 'admin.EDITED' : 'admin.CREATED');
+                cb({
+                    content: BaseController.apiResponse(pb.BaseController.API_SUCCESS, msg, true)
                 });
             });
         });
     };
 
-    NewNavItem.prototype.checkForNavMapUpdate = function(navItem, cb) {
-        var service = new pb.SectionService();
-        service.updateNavMap(navItem, cb);
+    /**
+     * Forces the nav map to update
+     * @method checkForNavMapUpdate
+     * @param {Function} cb
+     */
+    PersistNavItemController.prototype.checkForNavMapUpdate = function(navItem, cb) {
+        this.sectionService.updateNavMap(navItem, cb);
     };
 
-    NewNavItem.getHtmlErrorMsg = function(validationErrors) {
-        var html = '';
-        for (var i = 0; i < validationErrors.length; i++) {
+    /**
+     * @method handleError
+     * @param {Error} err
+     * @param {Function} cb
+     */
+    PersistNavItemController.prototype.handleError = function(err, cb) {
+        return cb({
+            code: 500,
+            content: BaseController.apiResponse(BaseController.API_ERROR, this.ls.get('ERROR_SAVING'))
+        });
+    };
+
+    /**
+     * @method handleBadRequest
+     * @param {Array} validationErrors
+     * @param {Function} cb
+     */
+    PersistNavItemController.prototype.handleBadRequest = function(validationErrors, cb) {
+        return cb({
+            code: 400,
+            content: BaseController.apiResponse(BaseController.API_ERROR, PersistNavItemController.getHtmlErrorMsg(validationErrors))
+        });
+    };
+
+    /**
+     * Formats the errors as a single HTML message
+     * @static
+     * @method checkForNavMapUpdate
+     * @param {Function} cb
+     */
+    PersistNavItemController.getHtmlErrorMsg = function(validationErrors) {
+        return validationErrors.reduce(function(html, error, i) {
             if (i > 0) {
                 html += '<br/>';
             }
-            html += validationErrors[i].field + ':' + validationErrors[i].message;
-        }
-        return html;
+            return html + error.field + ': ' + error.message;
+        }, '');
     };
 
     //exports
-    return NewNavItem;
+    return PersistNavItemController;
 };

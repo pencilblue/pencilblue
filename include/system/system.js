@@ -24,22 +24,25 @@ var domain  = require('domain');
 var util    = require('../util.js');
 
 /**
- * 
+ *
  * @class System
  * @constructor
  * @param {Object} pb The PencilBlue namespace
  */
 module.exports = function System(pb){
-    
+
+    //pb dependencies
+    var log = pb.log;
+
     /**
      *
      * @private
      * @static
-     * @property 
+     * @property
      * @type {Object}
      */
     var SHUTDOWN_HOOKS = {};
-    
+
     /**
      *
      * @private
@@ -47,7 +50,7 @@ module.exports = function System(pb){
      * @type {Array}
      */
     var SHUTDOWN_PRIORITY = [];
-    
+
     /**
      *
      * @private
@@ -55,7 +58,7 @@ module.exports = function System(pb){
      * @type {Boolean}
      */
     var IS_SHUTTING_DOWN = false;
-    
+
     /**
      *
      * @private
@@ -63,7 +66,7 @@ module.exports = function System(pb){
      * @type {Integer}
      */
     var DISCONNECTS_CNT = 0;
-    
+
     /**
      *
      * @private
@@ -71,7 +74,7 @@ module.exports = function System(pb){
      * @type {Array}
      */
     var DISCONNECTS = [];
-    
+
     /**
      *
      * @private
@@ -80,10 +83,10 @@ module.exports = function System(pb){
      * @type {Array}
      */
     var FORCE_PROCESS_EXIT_TIMEOUT = 5*1000;
-    
+
     /**
      *
-     * @method onStart 
+     * @method onStart
      * @param {Function} onChildRunning
      */
     this.onStart = function(onChildRunning) {
@@ -99,8 +102,8 @@ module.exports = function System(pb){
     };
 
     /**
-     * 
-     * @method 
+     *
+     * @method
      */
     this.onMasterRunning = function() {
 
@@ -113,7 +116,7 @@ module.exports = function System(pb){
         for (var i = 0; i < workerCnt; i++) {
             cluster.fork();
         }
-        
+
         var self = this;
         cluster.on('disconnect', function(worker) {
             self.onWorkerDisconntect(worker)
@@ -123,8 +126,8 @@ module.exports = function System(pb){
     };
 
     /**
-     * 
-     * @method 
+     *
+     * @method
      */
     this.onWorkerDisconntect = function(worker) {
         pb.log.debug('System[%s]: Worker [%d] disconnected', this.getWorkerId(), worker.id);
@@ -162,24 +165,24 @@ module.exports = function System(pb){
     };
 
     /**
-     * 
-     * @method 
+     *
+     * @method
      */
     this.isShuttingDown = function() {
         return IS_SHUTTING_DOWN;
     };
 
     /**
-     * 
-     * @method 
+     *
+     * @method
      */
     this.getWorkerId = function() {
         return cluster.worker ? cluster.worker.id : 'M';
     };
 
     /**
-     * 
-     * @method 
+     *
+     * @method
      */
     this.registerShutdownHook = function(name, shutdownHook) {
         if (typeof name !== 'string') {
@@ -202,7 +205,7 @@ module.exports = function System(pb){
         if (!util.isFunction(cb)) {
             cb = util.cb;
         }
-        
+
         //notify of shutdown
         var self = this;
         pb.log.debug('System[%s]: Shutting down...', this.getWorkerId());
@@ -245,7 +248,7 @@ module.exports = function System(pb){
                 clearTimeout(toh);
                 toh = null;
             }
-            
+
             //kill off the process when instructed
             if (killProcess) {
                 process.exit();
@@ -259,23 +262,23 @@ module.exports = function System(pb){
                 process.exit();
             }, FORCE_PROCESS_EXIT_TIMEOUT);
         }
-        
+
     };
-    
+
     /**
-     * Registers signal handlers (SIGTERM, SIGINT) that will call shutdown when 
+     * Registers signal handlers (SIGTERM, SIGINT) that will call shutdown when
      * triggered
      * @method registerSignalHandlers
-     * @param {Boolean} [killProcess] When TRUE or not provided the variable 
-     * instructs the handlers to kill off the process in addition to shutting 
+     * @param {Boolean} [killProcess] When TRUE or not provided the variable
+     * instructs the handlers to kill off the process in addition to shutting
      * down PencilBlue services
      */
     this.registerSignalHandlers = function(killProcess) {
         var self = this;
-        
+
         //determine if th process should be killed off
         killProcess = killProcess || util.isNullOrUndefined(killProcess);
-        
+
         // listen for TERM signal .e.g. kill
         process.on ('SIGTERM', function() {
             log.debug('System[%s]: SIGTERM detected %s', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
@@ -291,9 +294,9 @@ module.exports = function System(pb){
                 self.shutdown(killProcess);
             }
         });
-        
+
         process.on ('uncaughtException', function(err) {
-            log.debug('System[%s]: uncaughtException detected %s: ', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '', err.stack);
+            log.error('System[%s]: uncaught Exception detected %s: %s', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '', err.stack);
             if (!IS_SHUTTING_DOWN) {
                 self.shutdown(killProcess);
             }

@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Interface for importing topics from CSV
      */
     function ImportTopics(){}
-    util.inherits(ImportTopics, pb.BaseController);
+    util.inherits(ImportTopics, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'import_topics';
@@ -44,8 +44,8 @@ module.exports = function(pb) {
 
         var angularObjects = pb.ClientJs.getAngularObjects(
         {
-            navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls),
-            pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_topics'),
+            navigation: pb.AdminNavigation.get(self.session, ['content', 'topics'], self.ls, self.site),
+            pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'manage_topics'),
             tabs: tabs
         });
 

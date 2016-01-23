@@ -1,0 +1,118 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    <div class="row">
+        <div class="col-xs-12" style="background-color:#fff; font-weight:bold;">
+            <div class="input-group" style="width:100%; margin-bottom:20px">
+                <input type="text" class="form-control" placeholder="Search Active Sites for..." ng-model="activeQuery"
+                       style="width:100%;">
+                <span class="input-group-btn" ng-click="clearSearch('activeQuery')">
+                    <button class="btn btn-default" type="button"><i class="fa fa-search" ng-class="{'fa-search': !activeQuery.length, 'fa-times': activeQuery.length}"></i></button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Active Sites
+            </div>
+            <div class="panel-body" ng-if="!activeSites.length">
+                No Active Sites
+            </div>
+            <table id="active_sites_table" class="table table-responsive table-condensed" ng-if="activeSites.length > 0">
+                <tr id="active_sites_table_header">
+                    <th id="active_name_header" ng-click="orderActive('displayName')">Site Name
+                        <span ng-show="predicate == 'displayName' && !reverse" class="fa fa-caret-down"></span>
+                        <span ng-show="predicate == 'displayName' && reverse" class="fa fa-caret-up"></span>
+                    </th>
+                    <th id="active_hostname_header" ng-click="orderActive('hostname')">Hostname
+                        <span ng-show="predicate == 'hostname' && !reverse" class="fa fa-caret-down"></span>
+                        <span ng-show="predicate == 'hostname' && reverse" class="fa fa-caret-up"></span>
+                    </th>
+                    <th id="active_date_header" ng-click="orderActive('created')">Date Added
+                        <span ng-show="predicate == 'created' && !reverse" class="fa fa-caret-down"></span>
+                        <span ng-show="predicate == 'created' && reverse" class="fa fa-caret-up"></span>
+                    </th>
+                    <th></th>
+                </tr>
+                <tr class="active_site_row" ng-repeat="active in activeSites | orderBy:predicate:reverse | filter:activeQuery track by active.uid " >
+                    <td><a href="#" ng-click="authUserToSite(active)" title="{{active.displayName}}" ng-bind="active.displayName"></a></td>
+                    <td ng-bind="active.hostname"></td>
+                    <td ng-bind="active.created | date: 'yyyy-MM-dd HH:mm'"></td>
+                    <td style="text-align: right">
+                        <div class="btn-group" style="text-align: left">
+                            <a class="btn btn-sm btn-default" ng-click="deactivateSite(active)"><i class="fa fa-remove"></i>&nbsp;^loc_DEACTIVATE^</a>
+                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-sm fa-chevron-down"></i>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a ng-href="/admin/sites/{{active.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_EDIT^</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12" style="background-color:#fff; font-weight:bold;">
+                <div class="input-group" style="width:100%; margin-bottom:20px">
+                    <input type="text" class="form-control" placeholder="Search Inactive Sites for..." ng-model="inactiveQuery"
+                           style="width:100%;">
+                                    <span class="input-group-btn" ng-click="clearSearch('inactiveQuery')">
+                    <button class="btn btn-default" type="button"><i class="fa fa-search" ng-class="{'fa-search': !inactiveQuery.length, 'fa-times': inactiveQuery.length}"></i></button>
+                </span>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Inactive Sites
+            </div>
+            <div class="panel-body" ng-if="!inactiveSites.length">
+                No Inactive Sites
+            </div>
+            <table id="inactive_sites_table" class="table table-responsive table-condensed" ng-if="inactiveSites.length > 0">
+                <tr id="inactive_sites_table_header">
+                    <th id="inactive_name_header" ng-click="orderInactive('displayName')">Site Name
+                        <span ng-show="inactivePredicate == 'displayName' && !inactiveReverse" class="fa fa-caret-down"></span>
+                        <span ng-show="inactivePredicate == 'displayName' && inactiveReverse" class="fa fa-caret-up"></span>
+                    </th>
+                    <th id="inactive_hostname_header" ng-click="orderInactive('hostname')">Hostname
+                        <span ng-show="inactivePredicate == 'hostname' && !inactiveReverse" class="fa fa-caret-down"></span>
+                        <span ng-show="inactivePredicate == 'hostname' && inactiveReverse" class="fa fa-caret-up"></span>
+                    </th>
+                    <th id="inactive_date_header" ng-click="orderInactive('created')">Date Added
+                        <span ng-show="inactivePredicate == 'created' && !inactiveReverse" class="fa fa-caret-down"></span>
+                        <span ng-show="inactivePredicate == 'created' && inactiveReverse" class="fa fa-caret-up"></span>
+                    </th>
+                    <th></th>
+                </tr>
+                <tr class="inactive_site_row" ng-repeat="inactive in inactiveSites | orderBy:inactivePredicate:inactiveReverse | filter:inactiveQuery  track by inactive.uid">
+                    <td><a href="#" ng-click="authUserToSite(inactive)" title="{{inactive.displayName}}" ng-bind="inactive.displayName"></a></td>
+                    <td ng-bind="inactive.hostname"></td>
+                    <td ng-bind="inactive.created | date: 'yyyy-MM-dd HH:mm'"></td>
+                    <td style="text-align: right">
+                        <div class="btn-group" style="text-align: left">
+                            <a class="btn btn-sm btn-default" ng-click="activateSite(inactive)"><i class="fa fa-plus"></i>&nbsp;^loc_ACTIVATE^</a>
+                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-sm fa-chevron-down"></i>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a ng-href="/admin/sites/{{inactive.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_EDIT^</a></li>
+                                <li><a ng-click="deleteSite(inactive)"><i class="fa fa-fw fa-trash"></i>&nbsp;^loc_DELETE^</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    ^tmp_admin=elements=progress_console_modal^
+</div>
+^tmp_angular=admin=sites=manage_sites^
+^tmp_admin=footer^

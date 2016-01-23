@@ -24,10 +24,10 @@ module.exports = function(pb) {
      * Interface for sorting objects
      * @class SortObjects
      * @constructor
-     * @extends BaseController
+     * @extends BaseAdminController
      */
     function SortObjects() {}
-    util.inherits(SortObjects, pb.BaseController);
+    util.inherits(SortObjects, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'sort_custom_objects';
@@ -39,9 +39,9 @@ module.exports = function(pb) {
             return this.reqHandler.serve404();
         }
 
-        var service = new pb.CustomObjectService();
+        var service = new pb.CustomObjectService(self.site, true);
         service.loadTypeById(vars.type_id, function(err, objectType) {
-            if(util.isError(err) || objectType === null) {
+            if(util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
             else if (!util.isObject(objectType)) {
@@ -61,10 +61,10 @@ module.exports = function(pb) {
 
                 var angularObjects = pb.ClientJs.getAngularObjects(
                 {
-                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls),
-                    pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, null, objectType),
+                    navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls, self.site),
+                    pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: objectType}),
                     customObjects: customObjects,
-                    objectType: objectType
+                    objectType: objectType,
                 });
 
                 self.setPageName(self.ls.get('SORT') + ' ' + objectType.name);
@@ -79,14 +79,14 @@ module.exports = function(pb) {
     SortObjects.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_objects',
-            title: ls.get('SORT') + ' ' + data.name + ' ' + ls.get('OBJECTS'),
+            title: ls.get('SORT') + ' ' + data.objectType.name + ' ' + ls.get('OBJECTS'),
             icon: 'chevron-left',
-            href: '/admin/content/objects/' + data[pb.DAO.getIdField()]
+            href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()]
         }, {
             name: 'new_object',
             title: '',
             icon: 'plus',
-            href: '/admin/content/objects/' + data[pb.DAO.getIdField()] + '/new'
+            href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()] + '/new'
         }];
     };
 

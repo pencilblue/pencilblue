@@ -298,6 +298,8 @@ module.exports = function CommandServiceModule(pb) {
      * @method sendCommandGetResponse
      * @param {String} type
      * @param {Object} options
+     * @param {String} options.to
+     * @param {Integer} [options.timeout]
      * @param{Function} onResponse
      */
     CommandService.prototype.sendCommandGetResponse = function(type, options, onResponse) {

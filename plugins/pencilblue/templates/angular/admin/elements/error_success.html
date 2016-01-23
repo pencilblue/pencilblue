@@ -1,0 +1,22 @@
+$scope.clearMessages = function() {
+  $scope.errorMessage = null;
+  $scope.successMessage = null;
+};
+
+$scope.watchErrorSuccess = function(newVal, oldVal) {
+  var errorMessage = $scope.errorMessage;
+  var successMessage = $scope.successMessage;
+
+  if(newVal && newVal !== oldVal) {
+    $timeout(function() {
+      angular.element('.error_success').fadeOut();
+      $timeout(function() {
+        $scope.clearMessages();
+        angular.element('.error_success').show();
+      }, 500);
+    }, 2500);
+  }
+};
+
+$scope.$watch('successMessage', $scope.watchErrorSuccess);
+$scope.$watch('errorMessage', $scope.watchErrorSuccess);

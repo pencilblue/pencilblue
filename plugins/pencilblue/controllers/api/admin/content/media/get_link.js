@@ -28,6 +28,28 @@ module.exports = function(pb) {
      */
     function GetMediaLinkApiController(){}
     util.inherits(GetMediaLinkApiController, pb.BaseController);
+    
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    GetMediaLinkApiController.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+
+            /**
+             * An instance of MediaService that leverages the default media provider
+             * @property service
+             * @type {TopicService}
+             */
+            self.service = new pb.MediaService(null, context.site, true);
+
+            cb(err, true);
+        };
+        GetMediaLinkApiController.super_.prototype.init.apply(this, [context, init]);
+    };
 
     /**
      * Inspects the provided URL and returns a media descriptor for the URL.  If 
@@ -46,8 +68,7 @@ module.exports = function(pb) {
             });
         }
 
-        var service = new pb.MediaService();
-        service.getMediaDescriptor(get.url, function(err, descriptor) {
+        this.service.getMediaDescriptor(get.url, function(err, descriptor) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }

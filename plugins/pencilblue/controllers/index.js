@@ -23,7 +23,6 @@ module.exports = function IndexModule(pb) {
 
     //pb dependencies
     var util           = pb.util;
-    var config         = pb.config;
     var TopMenu        = pb.TopMenuService;
     var Comments       = pb.CommentService;
     var ArticleService = pb.ArticleService;
@@ -38,6 +37,15 @@ module.exports = function IndexModule(pb) {
     function Index(){}
     util.inherits(Index, pb.BaseController);
 
+    Index.prototype.init = function (props, cb) {
+        var self = this;
+
+        pb.BaseController.prototype.init.call(self, props, function () {
+            self.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
+            cb();
+        });
+    };
+
     Index.prototype.render = function(cb) {
         var self = this;
 
@@ -47,17 +55,17 @@ module.exports = function IndexModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService();
+        var contentService = new pb.ContentService({site: self.site, onlyThisSite: true});
         contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
-                
-                var articleService = new pb.ArticleService();
+
+                var articleService = new pb.ArticleService(self.site, true);
                 articleService.getMetaInfo(data.content[0], function(err, meta) {
                     self.ts.registerLocal('meta_keywords', meta.keywords);
                     self.ts.registerLocal('meta_desc', data.section.description || meta.description);
                     self.ts.registerLocal('meta_title', data.section.name || meta.title);
                     self.ts.registerLocal('meta_thumbnail', meta.thumbnail);
-                    self.ts.registerLocal('meta_lang', config.localization.defaultLocale);
+                    self.ts.registerLocal('meta_lang', self.ls.language);
                     self.ts.registerLocal('current_url', self.req.url);
                     self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
                     self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));
@@ -173,7 +181,7 @@ module.exports = function IndexModule(pb) {
         //the theme is specified, we ensure that the theme is installed and
         //initialized otherwise we let the template service figure out how to
         //delegate.
-        if (!pb.PluginService.isActivePlugin(pieces[0])) {
+        if (!pb.PluginService.isActivePlugin(pieces[0], this.site)) {
             pb.log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
             cb(null, pieces[1]);
             return;
@@ -226,11 +234,11 @@ module.exports = function IndexModule(pb) {
         var topic   = this.req.pencilblue_topic   || null;
         var article = this.req.pencilblue_article || null;
         var page    = this.req.pencilblue_page    || null;
-        
+
         //get service context
         var opts = this.getServiceContext();
 
-        var service = new ArticleService();
+        var service = new ArticleService(this.site, true);
         if(this.req.pencilblue_preview) {
             if(this.req.pencilblue_preview == page || article) {
                 if(page) {
@@ -269,8 +277,8 @@ module.exports = function IndexModule(pb) {
         var isPage           = content.object_type === 'page';
         var showByLine       = contentSettings.display_bylines && !isPage;
         var showTimestamp    = contentSettings.display_timestamp && !isPage;
-        
-        
+
+
         var ats              = this.ts.getChildInstance();
         var contentUrlPrefix = isPage ? '/page/' : '/article/';
         self.ts.reprocess = false;
@@ -391,11 +399,12 @@ module.exports = function IndexModule(pb) {
     Index.prototype.getNavigation = function(cb) {
         var options = {
             currUrl: this.req.url,
+            site: this.site,
             session: this.session,
             ls: this.ls,
             activeTheme: this.activeTheme
         };
-        
+
         var menuService = new pb.TopMenuService();
         menuService.getNavItems(options, function(err, navItems) {
             if (util.isError(err)) {

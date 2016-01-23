@@ -24,7 +24,7 @@ module.exports = function(pb) {
      * Creates a new topic
      */
     function NewTopic(){}
-    util.inherits(NewTopic, pb.BaseController);
+    util.inherits(NewTopic, pb.BaseAdminController);
 
     NewTopic.prototype.render = function(cb) {
         var self = this;
@@ -49,8 +49,7 @@ module.exports = function(pb) {
                 return;
             }
 
-            var dao = new pb.DAO();
-            dao.loadById(vars.id, 'topic', function(err, topic) {
+            self.siteQueryService.loadById(vars.id, 'topic', function(err, topic) {
                 if(util.isError(err) || !util.isObject(topic)) {
                     cb({
                         code: 400,
@@ -61,7 +60,7 @@ module.exports = function(pb) {
 
                 pb.DocumentCreator.update(post, topic);
 
-                dao.loadByValue('name', topic.name, 'topic', function(err, testTopic) {
+                self.siteQueryService.loadByValue('name', topic.name, 'topic', function(err, testTopic) {
                     if(testTopic && !testTopic[pb.DAO.getIdField()].equals(topic[pb.DAO.getIdField()])) {
                         cb({
                             code: 400,
@@ -70,7 +69,7 @@ module.exports = function(pb) {
                         return;
                     }
 
-                    dao.save(topic, function(err, result) {
+                    self.siteQueryService.save(topic, function(err, result) {
                         if(util.isError(err)) {
                             return cb({
                                 code: 500,

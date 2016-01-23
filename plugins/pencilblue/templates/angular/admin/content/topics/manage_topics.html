@@ -1,71 +1,130 @@
 <script type="text/javascript" src="/js/angular/services/search.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
+<script type="text/javascript" src="/js/angular/factories/admin/topic.js"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['search', 'paginate'])
-    .controller('PencilBlueController', function($scope, $http, searchService, paginationService) {
-        ^angular_objects^
+  angular.module('pencilblueApp', [
+    'search',
+    'paginate',
+    'pencilblue.factories.admin.topics'
+  ])
+  .controller('PencilBlueController', function($scope, $http, $timeout, searchService, paginationService, topicFactory) {
+    ^angular_objects^
+    ^tmp_angular=admin=elements=error_success^
 
-        $scope.searchText = '';
-        $scope.paginationIndex = 0;
-        $scope.paginationLimit = 50;
-        $scope.deleteNameKey = 'name';
+    $scope.searchText = '';
+    $scope.paginationIndex;
+    $scope.paginationLimit = 50;
+    $scope.paginationPages = [];
+    $scope.deleteNameKey = 'name';
 
-        $scope.search = function() {
-            searchService.search($scope.searchText, $scope.topics, ['name'], function(topics) {
-                $scope.topics = topics;
-                $scope.paginate(0);
-            });
+    $scope.getTopics = function(cb) {
+      if(!cb) {
+        cb = function() {};
+      }
+
+      $scope.topics = null;
+
+      topicFactory.getTopics({
+        $limit: $scope.paginationLimit,
+        $offset: $scope.paginationIndex
+      }, function(error, topics, total) {
+        if(error) {
+          $scope.errorMessage = error.message;
+          return;
         }
 
-        $scope.clearSearch = function() {
-            $scope.searchText = '';
-            $scope.search();
+        $scope.topics = topics;
+        $scope.paginationTotal = total;
+        cb(topics, total);
+      });
+    };
+
+    $scope.search = function() {
+      $scope.paginate(0, true);
+    };
+
+    $scope.clearSearch = function() {
+      $scope.searchText = '';
+      $scope.paginate(0, true);
+    };
+
+    $scope.query = function(cb) {
+      if(!cb) {
+        cb = function() {};
+      }
+
+      $scope.topics = null;
+
+      topicFactory.getTopics({
+        q: $scope.searchText,
+        $limit: $scope.paginationLimit,
+        $offset: $scope.paginationIndex
+      }, function(error, topics, total) {
+        if(error) {
+          $scope.errorMessage = error.message;
+          return;
         }
 
-        $scope.paginate = function(paginationIndex) {
-            $scope.paginationIndex = paginationIndex;
+        $scope.topics = topics;
+        $scope.paginationTotal = total;
+        cb(topics, total);
+      });
+    };
 
-            paginationService.paginate($scope.topics, $scope.paginationIndex, $scope.paginationLimit, function(topics, paginationPages) {
-                $scope.topics = topics;
-                $scope.paginationPages = paginationPages;
-            })
+    $scope.paginate = function(paginationIndex, force) {
+      if(!force && !paginationService.paginationValid(paginationIndex, $scope.paginationIndex, $scope.paginationPages.length)) {
+        return;
+      }
+
+      $scope.paginationIndex = paginationIndex;
+      if($scope.searchText.length) {
+        $scope.query(function() {
+          $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
+        });
+      }
+      else {
+        $scope.getTopics(function() {
+          $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
+        });
+      }
+    };
+
+    $scope.pageButtonVisible = function(testIndex) {
+      return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
+    };
+
+    $scope.confirmDelete = function(topic) {
+      $scope.objectToDelete = topic;
+      $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+    }
+
+    $scope.deleteObject = function() {
+      if(!$scope.objectToDelete) {
+        return;
+      }
+
+      $scope.deleting = true;
+      topicFactory.deleteTopic($scope.objectToDelete._id, function(error, result) {
+        if(error) {
+          $scope.deleting = false;
+          $scope.errorMessage = error.message;
+          $('#confirm_delete_modal').modal('hide');
+          return;
         }
 
-        $scope.pageButtonVisible = function(testIndex) {
-            return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);
-        };
-
-        $scope.confirmDelete = function(topic) {
-            $scope.objectToDelete = topic;
-            $('#confirm_delete_modal').modal({backdrop: 'static', keyboard: true});
+        for(var i = 0; i < $scope.topics.length; i ++) {
+          if($scope.topics[i]._id.toString() === $scope.objectToDelete._id.toString()) {
+            $scope.topics.splice(i, 1);
+            break;
+          }
         }
-
-        $scope.deleteObject = function() {
-            if(!$scope.objectToDelete) {
-                return;
-            }
-
-            $scope.deleting = true;
-            $http({method: 'DELETE', url: '/actions/admin/content/topics/' + $scope.objectToDelete._id})
-            .success(function(result) {
-                for(var i = 0; i < $scope.topics.length; i ++) {
-                    if($scope.topics[i]._id.toString() === $scope.objectToDelete._id.toString()) {
-                        $scope.topics.splice(i, 1);
-                        break;
-                    }
-                }
-                $scope.deleting = false;
-                $scope.successMessage = result.message;
-                $scope.paginate(0);
-                $('#confirm_delete_modal').modal('hide');
-            })
-            .error(function(error, status) {
-                $scope.deleting = false;
-                $scope.errorMessage = error.message;
-                $('#confirm_delete_modal').modal('hide');
-            });
-        }
-
+        $scope.deleting = false;
+        $scope.successMessage = result.message;
         $scope.paginate(0);
-    });
+        $('#confirm_delete_modal').modal('hide');
+      });
+    }
+
+    $scope.paginate(0);
+  });
 </script>

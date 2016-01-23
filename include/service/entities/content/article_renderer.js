@@ -1,45 +1,44 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2015  PencilBlue, LLC
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //dependencies
 var util  = require('../../../util.js');
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var DAO            = pb.DAO;
-    
+
     /**
-     * Retrieves the necessary data as well as prepares the layout so a view 
+     * Retrieves the necessary data as well as prepares the layout so a view
      * loader can complete the render of content
      * @class ArticleRenderer
      * @constructor
      */
     function ArticleRenderer(context) {
-    
-        /**
-         *
-         * @property commentService
-         * @type {CommentService}
-         */
-        this.commentService = new pb.CommentService(context);
+        if (context) {
+            this.commentService = new pb.CommentService(context);
+            this.hostname = context.hostname;
+        }
+        this.site = pb.SiteService.getCurrentSite(context.site);
+        this.onlyThisSite = context.onlyThisSite;
     }
-    
+
     /**
      * @private
      * @static
@@ -48,15 +47,15 @@ module.exports = function(pb) {
      * @type {String}
      */
     var READ_MORE_FLAG = '^read_more^';
-    
+
     /**
      * @method render
      * @param {Object} content
      * @param {Object} context
-     * @param {Object} [context.authors] A hash of user objects representing the 
+     * @param {Object} [context.authors] A hash of user objects representing the
      * authors of the content to be rendered
      * @param {Object} context.contentSettings The content settings
-     * @param {Integer} context.contentCount An integer representing the total 
+     * @param {Integer} context.contentCount An integer representing the total
      * number of content objects that will be processed for this request
      * @param {Boolean} [context.renderBylines=true]
      * @param {Boolean} [context.renderTimestamp=true]
@@ -80,7 +79,7 @@ module.exports = function(pb) {
         else if (isNaN(context.contentCount)) {
             return cb(new Error('context.contentCount parameter must be a valid integer greater than 0'));
         }
-        
+
         if (context.renderBylines !== false) {
             this.formatBylines(content, context);
         }
@@ -88,23 +87,23 @@ module.exports = function(pb) {
             this.formatTimestamp(content, context);
         }
         this.formatLayout(content, context);
-        
+
         //build out task list
         var tasks = [
             util.wrapTask(this, this.formatMediaReferences, [content, context])
         ];
-        
+
         //render comments unless explicitly asked not too
         if (context.renderComments !== false) {
             tasks.push(util.wrapTask(this, this.formatComments, [content, context]));
         }
-        
+
         //run the tasks
         async.parallel(tasks, function(err/*, results*/) {
             cb(err, content);
         });
     };
-    
+
     /**
      * @method formatBylines
      * @param {Object} content
@@ -117,7 +116,7 @@ module.exports = function(pb) {
             pb.log.warn('ArticleRenderer: Failed to find author [%s] for content [%s]', content.author, content[DAO.getIdField()]);
             return;
         }
-        
+
         var contentSettings = context.contentSettings;
         if(author.photo && contentSettings.display_author_photo) {
             content.author_photo     = author.photo;
@@ -130,7 +129,7 @@ module.exports = function(pb) {
             content.author_position = author.position;
         }
     };
-    
+
     /**
      * @method formatTimestamp
      * @param {Object} content
@@ -139,12 +138,12 @@ module.exports = function(pb) {
     ArticleRenderer.prototype.formatTimestamp = function(content, context) {
         if(context.contentSettings.display_timestamp ) {
             content.timestamp = pb.ContentService.getTimestampTextFromSettings(
-                    content.publish_date,
-                    context.contentSettings
+              content.publish_date,
+              context.contentSettings
             );
         }
     };
-    
+
     /**
      * @method formatLayout
      * @param {Object} content
@@ -152,7 +151,7 @@ module.exports = function(pb) {
      */
     ArticleRenderer.prototype.formatLayout = function(content, context) {
         var contentSettings = context.contentSettings;
-        
+
         if(this.containsReadMoreFlag(content)) {
             this.formatLayoutForReadMore(content, context);
         }
@@ -160,7 +159,7 @@ module.exports = function(pb) {
             this.formatAutoBreaks(content, context);
         }
     };
-    
+
     /**
      * @method formatMediaReferences
      * @param {Object} content
@@ -169,16 +168,16 @@ module.exports = function(pb) {
      */
     ArticleRenderer.prototype.formatMediaReferences = function(content, context, cb) {
         var self = this;
-        
+
         content.layout  = this.getLayout(content);
-        var mediaLoader = new pb.MediaLoader();
+        var mediaLoader = new pb.MediaLoader({site: self.site, onlyThisSite: self.onlyThisSite});
         mediaLoader.start(content.layout, function(err, newLayout) {
             content.layout = newLayout;
             self.setLayout(content, undefined);
             cb(err);
         });
     };
-    
+
     /**
      * @method formatComments
      * @param {Object} content
@@ -210,7 +209,7 @@ module.exports = function(pb) {
             });
         });
     };
-    
+
     /**
      * Retrieves the commenters for an array of comments
      *
@@ -273,7 +272,7 @@ module.exports = function(pb) {
             cb(err, processedComments);
         });
     };
-    
+
     /**
      * @method formatAutoBreak
      * @param {Object} content
@@ -284,7 +283,7 @@ module.exports = function(pb) {
         var breakString = '<br>';
         var tempLayout;
         var layout = this.getLayout(content);
-        
+
         // Firefox uses br and Chrome uses div in content editables.
         // We need to see which one is being used
         var brIndex = layout.indexOf('<br>');
@@ -301,7 +300,7 @@ module.exports = function(pb) {
         else {
             breakString = '</div>';
             tempLayout = layout.split('<div><br></div>').join(breakString + '^dbl_pgf_break^')
-            .split('<div><br /></div>').join(breakString + '^dbl_pgf_break^');
+              .split('<div><br /></div>').join(breakString + '^dbl_pgf_break^');
         }
 
         // Split the layout by paragraphs and remove any empty indices
@@ -320,7 +319,7 @@ module.exports = function(pb) {
             // Cutoff the content at the right number of paragraphs
             for(i = 0; i < tempLayoutArray.length && i < contentSettings.auto_break_articles; i++) {
                 if(i === contentSettings.auto_break_articles - 1 && i != tempLayoutArray.length - 1) {
-                    
+
                     newLayout += tempLayoutArray[i] + this.getReadMoreSpan(content, contentSettings.read_more_text) + breakString;
                     continue;
                 }
@@ -337,7 +336,7 @@ module.exports = function(pb) {
             this.setLayout(content, newLayout);
         }
     };
-    
+
     /**
      * @method formatLayoutForReadMore
      * @param {Object} content
@@ -345,7 +344,7 @@ module.exports = function(pb) {
      */
     ArticleRenderer.prototype.formatLayoutForReadMore = function(content, context) {
         var layout = this.getLayout(content);
-        
+
         if(context.readMore) {
             var beforeReadMore = layout.substr(0, layout.indexOf(READ_MORE_FLAG));
             layout = beforeReadMore + this.getReadMoreSpan(content, context.contentSettings.read_more_text);
@@ -355,7 +354,7 @@ module.exports = function(pb) {
         }
         this.setLayout(content, layout);
     };
-    
+
     /**
      *
      * @method getReadMoreSpan
@@ -364,9 +363,9 @@ module.exports = function(pb) {
      * @return {String}
      */
     ArticleRenderer.prototype.getReadMoreSpan = function(content, anchorContent) {
-        return '&nbsp<span class="read_more">' + this.getReadMoreLink(content, anchorContent) + '</span>';
+        return '&nbsp;<span class="read_more">' + this.getReadMoreLink(content, anchorContent) + '</span>';
     };
-    
+
     /**
      * @method getReadMoreLink
      * @param {Object} content
@@ -374,11 +373,11 @@ module.exports = function(pb) {
      * @return {String}
      */
     ArticleRenderer.prototype.getReadMoreLink = function(content, anchorContent) {
-        
+
         var path = pb.UrlService.urlJoin(this.getContentLinkPrefix() + content.url);
-        return '<a href="' + pb.UrlService.createSystemUrl(path) + '">' + anchorContent + '</a>';
+        return '<a href="' + pb.UrlService.createSystemUrl(path, { hostname: this.hostname }) + '">' + anchorContent + '</a>';
     };
-    
+
     /**
      * @method getContentLinkPrefix
      * @return {String}
@@ -386,9 +385,9 @@ module.exports = function(pb) {
     ArticleRenderer.prototype.getContentLinkPrefix = function() {
         return '/article/';
     };
-    
+
     /**
-     * Retrieves the layout from the content object. Provides a mechanism to 
+     * Retrieves the layout from the content object. Provides a mechanism to
      * allow for layout parameter to have any name.
      * @method getLayout
      * @param {Object} content
@@ -397,10 +396,10 @@ module.exports = function(pb) {
     ArticleRenderer.prototype.getLayout = function(content) {
         return content.article_layout;
     };
-    
+
     /**
-     * A workaround to allow this prototype to operate on articles and pages.  
-     * The layout parameter is not the same.  Until we introduce breaking 
+     * A workaround to allow this prototype to operate on articles and pages.
+     * The layout parameter is not the same.  Until we introduce breaking
      * changes this will have to do.
      * @method setLayout
      * @param {Object} content
@@ -409,9 +408,9 @@ module.exports = function(pb) {
     ArticleRenderer.prototype.setLayout = function(content, layout) {
         content.article_layout = layout;
     };
-    
+
     /**
-     * @method containsReadMoreFlag 
+     * @method containsReadMoreFlag
      * @param {Object} content
      * @return {Boolean}
      */
@@ -421,6 +420,6 @@ module.exports = function(pb) {
         }
         return this.getLayout(content).indexOf(READ_MORE_FLAG) > -1;
     };
-        
+
     return ArticleRenderer;
 };

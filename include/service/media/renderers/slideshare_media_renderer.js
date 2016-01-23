@@ -64,6 +64,16 @@ module.exports = function SlideShareMediaRendererModule(pb) {
             height: "356px"
         }
     });
+    
+    /**
+     * Retrieves the supported extension types for the renderer.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array}
+     */
+    SlideShareMediaRenderer.getSupportedExtensions = function() {
+        return [];
+    };
 
     /**
      * Retrieves the style for the specified type of view

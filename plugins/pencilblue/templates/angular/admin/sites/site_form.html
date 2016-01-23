@@ -1,0 +1,166 @@
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['validation'])
+            .controller('PencilBlueController', function($scope, $http, $window, $timeout, validationService) {
+                ^angular_objects^
+                ^tmp_angular=admin=elements=is_field_valid^
+                ^tmp_angular=admin=elements=error_success^
+
+                $scope.editSite = function() {
+                    $scope.formSubmitted = true;
+
+                    if(!validationService.isFormValid($scope.siteForm)) {
+                        return;
+                    }
+
+                    $scope.saving = true;
+                    $scope.actionProgress = '0';
+                    $scope.consoleOutput = '';
+                    angular.element('#progress_modal').modal();
+                    $http.post('/actions/admin/sites/edit/' + $scope.uid,
+                            {
+                                displayName: $scope.displayName,
+                                hostname: $scope.hostname,
+                                selectedLocales: $scope.selectedLocales,
+                                defaultLocale: $scope.defaultLocale
+                            })
+                            .success(function(result) {
+                                $scope.onCreateOrEditComplete(result);
+                            })
+                            .error(function(error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                                angular.element('#progress_modal').modal('hide');
+                            });
+                };
+
+                $scope.newSite = function() {
+                    $scope.saving = true;
+                    $scope.actionProgress = '0';
+                    $scope.consoleOutput = '';
+                    angular.element('#progress_modal').modal();
+                    $http.post('/actions/admin/sites/new',
+                            {
+                                displayName: $scope.displayName,
+                                hostname: $scope.hostname,
+                                selectedLocales: $scope.selectedLocales,
+                                defaultLocale: $scope.defaultLocale
+                            })
+                            .success(function(result) {
+                                $scope.onCreateOrEditComplete(result);
+                            })
+                            .error(function(error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                                angular.element('#progress_modal').modal('hide');
+                            });
+                };
+
+                $scope.onCreateOrEditComplete = function(result) {
+                    $scope.actionPlugin = {name: result.message};
+                    var jobId = result.data;
+                    //poll for logs
+                    var logHandle = null;
+                    var starting  = 0;
+                    var doLogRetrieve = function() {
+                        $scope.jobAction('getLogs', jobId, {starting: starting}, function(result) {
+                            if (!result || !result.data || !result.data.length) {
+                                return;
+                            }
+                            var nextStarting = starting;
+                            for(var i = 0; i < result.data.length; i++) {
+                                var item = result.data[i];
+                                $scope.consoleOutput += ($scope.consoleOutput.length ? '\n' : '') + item.created + ':[' + item.worker_id + '] ' + item.message;
+                                var date = new Date(item.created).getTime();
+                                if(date > nextStarting) {
+                                    nextStarting = date;
+                                }
+                            }
+                            //offset so we don't get repeats
+                            starting = nextStarting + 1;
+                            //check for more log entries
+                            logHandle = setTimeout(doLogRetrieve, 2000);
+                        });
+                    };
+
+                    doLogRetrieve();
+                    //check for job completion
+                    var retrieveHandle = null;
+                    var doJobRetrieve = function() {
+                        $scope.jobAction('get', jobId, {}, function(result) {
+                            if(!result || !result.data) {
+                                return;
+                            }
+                            //set progress bar
+                            if(!isNaN(result.data.progress)) {
+                                $scope.actionProgress = result.data.progress.toString();
+                            }
+                            //verify status
+                            if(result.data.status === 'RUNNING') {
+                                retrieveHandle = setTimeout(doJobRetrieve, 1000);
+                            }
+                            else {
+                                //allow any trailing logs to come in
+                                setTimeout(function() {
+                                    clearTimeout(logHandle);
+                                    var line = result.data.status;
+                                    if (result.data.error) {
+                                        line += ': ' + result.data.error;
+                                    }
+                                    $scope.consoleOutput += ($scope.consoleOutput.length ? '\n' : '') + line;
+                                    $scope.onActionSuccess();
+                                    $scope.$apply();
+                                }, 1500);
+                            }
+                        });
+                    };
+                    doJobRetrieve();
+                };
+
+                $scope.jobAction = function(actionType, identifier, data, cb) {
+                    $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
+                            .success(function(result) {
+                                cb(result);
+                            })
+                            .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
+                $scope.onActionSuccess = function() {
+                    $scope.actionIsComplete = true;
+                    $window.location.href = '/admin/sites';
+                }
+
+                $scope.onActionFailure = function(error) {
+                    $scope.actionIsComplete = true;
+                    $scope.actionError = error.message;
+                }
+
+                $scope.refreshPage = function() {
+                    $window.location.reload();
+                }
+
+                $scope.updateSelectedLocales = function() {
+                    $scope.selectedLocales = [];
+                    angular.forEach($scope.supportedLocales, function(clicked, locale) {
+                        if (clicked) {
+                            $scope.selectedLocales.push(locale);
+                            // If the default locale is empty, assign it to the first found selected locale
+                            if ($scope.defaultLocale == "") {
+                                $scope.defaultLocale = locale;
+                            }
+                        }
+                    });
+                }
+
+                $scope.updateSupportedLocales = function(locale) {
+                    $scope.supportedLocales[locale] = !$scope.supportedLocales[locale];
+                    // If the default locale was just un-selected from supported locales, clear out the default locale
+                    if (!$scope.supportedLocales[locale] && $scope.defaultLocale == locale) {
+                        $scope.defaultLocale = "";
+                    }
+                    $scope.updateSelectedLocales();
+                }
+            });
+</script>

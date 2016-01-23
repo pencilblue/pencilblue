@@ -15,12 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//dependencies 
+//dependencies
 var url  = require('url');
 var util = require('../include/util.js');
 
 module.exports = function BaseControllerModule(pb) {
-    
+
+    // pb dependancies
+    var SiteService = pb.SiteService;
+
     /**
      * The base controller provides functions for the majority of
      * the heavy lifing for a controller. It accepts and provides access to
@@ -67,9 +70,9 @@ module.exports = function BaseControllerModule(pb) {
      * @type {String}
      */
     var ALERT_PATTERN = '<div class="alert %s error_success">%s<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
-    
+
     /**
-     * A mapping that converts the HTTP standard for content-type encoding and 
+     * A mapping that converts the HTTP standard for content-type encoding and
      * what the Buffer prototype expects
      * @static
      * @private
@@ -82,7 +85,7 @@ module.exports = function BaseControllerModule(pb) {
         'US-ASCII': 'ascii',
         'UTF-16LE': 'utf16le'
     });
-    
+
     /**
      * Responsible for initializing a controller.  Properties from the
      * RequestHandler are passed down so that the controller has complete access to
@@ -106,6 +109,7 @@ module.exports = function BaseControllerModule(pb) {
      *  @param {Function} cb A callback that takes a single optional argument: cb(Error)
      */
     BaseController.prototype.init = function(props, cb) {
+        var self = this;
         this.reqHandler          = props.request_handler;
         this.req                 = props.request;
         this.res                 = props.response;
@@ -113,61 +117,146 @@ module.exports = function BaseControllerModule(pb) {
         this.body                = props.body;
         this.localizationService = props.localization_service;
         this.ls                  = this.localizationService;
-        this.pathVars            = props.path_vars;
+        this.pathVars            = props.pathVars;
         this.query               = props.query;
         this.pageName            = '';
+        this.siteObj             = props.siteObj;
+        this.site                = props.site;
+        this.siteName            = props.siteName;
+        this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || pb.config.siteRoot;
+        this.referer             = this.req.headers.referer;
 
-        var self   = this;
-        var tsOpts = {
-            ls: this.localizationService,
-            activeTheme: props.activeTheme
-        };
-        this.templateService = new pb.TemplateService(tsOpts);
-        this.templateService.registerLocal('locale', this.ls.language);
-        this.templateService.registerLocal('error_success', function(flag, cb) {
-            self.displayErrorOrSuccessCallback(flag, cb);
-        });
-        this.templateService.registerLocal('page_name', function(flag, cb) {
-            cb(null, self.getPageName());
-        });
-        this.templateService.registerLocal('localization_script', function(flag, cb) {
-            self.requiresClientLocalizationCallback(flag, cb);
-        });
-        this.templateService.registerLocal('analytics', function(flag, cb) {
-            pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
-        });
-        this.templateService.registerLocal('wysiwyg', function(flag, cb) {
-            var wysiwygId = util.uniqueId();
-
-            self.templateService.registerLocal('wys_id', wysiwygId);
-            self.templateService.load('admin/elements/wysiwyg', function(err, data) {
-                cb(err, new pb.TemplateValue(data, false));
-            });
-        });
-        this.ts = this.templateService;
-        
         /**
-         *
+         * @property ts
+         * @type {TemplateService}
+         */
+        this.ts = this.getTemplateServiceInstance(props);
+
+        /**
          * @property activeTheme
          * @type {String}
          */
         this.activeTheme = props.activeTheme;
-        
-        //build out a base service context that can be cloned and passed to any 
+
+        //build out a base service context that can be cloned and passed to any
         //service objects
         this.context = {
             req: this.req,
             session: this.session,
             ls: this.ls,
             ts: this.ts,
-            activeTheme: this.activeTheme
+            site: this.site,
+            hostname: this.hostname,
+            activeTheme: this.activeTheme,
+            onlyThisSite: true,
+            siteObj: this.siteObj
         };
 
         cb();
     };
-    
+
     /**
-     * Retrieves a context object that contains the necessary information for 
+     * Creates a TemplateService instance
+     * @method getTemplateServiceInstance
+     * @param {Object} props
+     * @return {TemplateService}
+     */
+    BaseController.prototype.getTemplateServiceInstance = function(props) {
+        var self = this;
+
+        //create options
+        var tsOpts = {
+            ls: this.localizationService,
+            activeTheme: props.activeTheme,
+            site: this.site
+        };
+
+        //create instance
+        var ts = new pb.TemplateService(tsOpts);
+
+        //configure for common flags
+        var model = {
+
+            meta_lang: this.ls.language,
+
+            error_success: function(flag, cb) {
+                self.displayErrorOrSuccessCallback(flag, cb);
+            },
+
+            page_name: function(flag, cb) {
+                cb(null, self.getPageName());
+            },
+
+            localization_script: function(flag, cb) {
+                self.requiresClientLocalizationCallback(flag, cb);
+            },
+
+            analytics: function(flag, cb) {
+                pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
+            },
+
+            wysiwyg: function(flag, cb) {
+                var wysiwygId = util.uniqueId();
+
+                self.ts.registerLocal('wys_id', wysiwygId);
+                self.ts.load('admin/elements/wysiwyg', function(err, data) {
+                    cb(err, new pb.TemplateValue(data, false));
+                });
+            },
+
+            site_root: self.hostname,
+            site_name: self.siteName,
+
+            localized_alternate: function(flag, cb) {
+                self.onLocalizedAlternateFlagFound(props.routeLocalized, cb);
+            }
+        };
+        ts.registerModel(model);
+        return ts;
+    };
+
+    /**
+     * @method onLocalizedAlternateFlagFound
+     * @param {Boolean} routeLocalized
+     * @param {Function} cb
+     */
+    BaseController.prototype.onLocalizedAlternateFlagFound = function(routeLocalized, cb) {
+        if (!routeLocalized) {
+            return cb(null, '');
+        }
+
+        var val = '';
+        var self = this;
+        Object.keys(this.siteObj.supportedLocales).forEach(function(locale) {
+            var path = self.req.url;
+            var isLocalizedPath = !!self.pathVars.locale && path.indexOf(self.pathVars.locale) >= 0;
+            if (self.ls.language === locale && !isLocalizedPath) {
+                //skip current language.  We don't need to list it as an alternate
+                return;
+            }
+            var relationship = self.ls.language === locale ? 'canonical' : 'alternate';
+
+            var urlOpts = {
+                hostname: self.hostname,
+                locale: undefined
+            };
+            if (self.ls.language === locale) {
+                path = path.replace(locale + '/', '').replace(locale, '');
+            }
+            else if (isLocalizedPath) {
+                path = path.replace(self.pathVars.locale, locale);
+            }
+            else {
+                urlOpts.locale = locale;
+            }
+            var url = pb.UrlService.createSystemUrl(path, urlOpts);
+            val += '<link rel="' + relationship + '" hreflang="' + locale + '" href="' + url + '" />\n';
+        });
+        cb(null, new pb.TemplateValue(val, false));
+    };
+
+    /**
+     * Retrieves a context object that contains the necessary information for
      * service prototypes
      * @method getServiceContext
      * @return {Object}
@@ -209,7 +298,7 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.formError = function(message, redirectLocation, cb) {
 
         this.session.error = message;
-        var uri = pb.UrlService.createSystemUrl(redirectLocation);
+        var uri = pb.UrlService.createSystemUrl(redirectLocation, { hostname: this.hostname });
         cb(pb.RequestHandler.generateRedirect(uri));
     };
 
@@ -261,17 +350,18 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.getPostParams = function(cb) {
         var self = this;
-        
+
         this.getPostData(function(err, raw){
+            //Handle error
             if (util.isError(err)) {
-                cb(err, null);
-                return;
+                pb.log.error("BaseController.getPostParams encountered an error. ERROR[%s]", err.stack);
+                return cb(err, null);
             }
 
             //lookup encoding
             var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
             encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
-            
+
             //convert to string
             var postParams = url.parse('?' + raw.toString(encoding), true).query;
             cb(null, postParams);
@@ -285,12 +375,14 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.getJSONPostParams = function(cb) {
         var self = this;
-        
+
         this.getPostData(function(err, raw){
+            //Handle error
             if (util.isError(err)) {
+                pb.log.error("BaseController.getJSONPostParams encountered an error. ERROR[%s]", err.stack);
                 return cb(err, null);
             }
-            
+
             //lookup encoding
             var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
             encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
@@ -300,6 +392,7 @@ module.exports = function BaseControllerModule(pb) {
             try {
                 postParams = JSON.parse(raw.toString(encoding));
             }
+            //TODO - Needed? Can't we just pass err into the cb?
             catch(err) {
                 error = err;
             }
@@ -315,11 +408,11 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.getPostData = function(cb) {
         var buffers     = [];
         var totalLength = 0;
-        
+
         this.req.on('data', function (data) {
             buffers.push(data);
             totalLength += data.length;
-            
+
             // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
             if (totalLength > 1e6) {
                 // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
@@ -329,7 +422,7 @@ module.exports = function BaseControllerModule(pb) {
             }
         });
         this.req.on('end', function () {
-            
+
             //create one big buffer.
             var body = Buffer.concat (buffers, totalLength);
             cb(null, body);
@@ -388,7 +481,7 @@ module.exports = function BaseControllerModule(pb) {
             delete this.session.fieldValues;
         }
 
-        cb(result);
+        cb(null, result);
     };
 
     /**
@@ -402,6 +495,7 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.sanitizeObject = function(obj) {
         if (!util.isObject(obj)) {
+            pb.log.warn("BaseController.sanitizeObject was not passed an object.");
             return;
         }
 

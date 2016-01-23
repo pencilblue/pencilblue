@@ -20,12 +20,12 @@ module.exports = function(pb) {
     //pb dependencies
     var util           = pb.util;
     var SectionService = pb.SectionService;
-    
+
     /**
      * Interface for editing the navigation
      */
     function NavigationMap(){}
-    util.inherits(NavigationMap, pb.BaseController);
+    util.inherits(NavigationMap, pb.BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'navigation_map';
@@ -36,8 +36,7 @@ module.exports = function(pb) {
         var opts = {
             where: pb.DAO.ANYWHERE
         };
-        var dao  = new pb.DAO();
-        dao.q('section', opts, function(err, sections) {
+        self.siteQueryService.q('section', opts, function (err, sections) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
             }
@@ -47,7 +46,7 @@ module.exports = function(pb) {
                 return self.redirect('/admin/content/navigation/new', cb);
             }
 
-            pb.settings.get('section_map', function(err, sectionMap) {
+            self.settings.get('section_map', function (err, sectionMap) {
                 if(sectionMap === null) {
                     self.redirect('/admin/content/navigation/new', cb);
                     return;
@@ -55,8 +54,8 @@ module.exports = function(pb) {
 
                 var angularObjects = pb.ClientJs.getAngularObjects(
                     {
-                        navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls),
-                        pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'sections'], self.ls, self.site),
+                        pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
                         navItems: NavigationMap.getOrderedItems(sections, sectionMap),
                         icons: {
                             container: 'inbox',

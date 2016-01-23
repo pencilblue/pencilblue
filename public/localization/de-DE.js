@@ -250,7 +250,9 @@ module.exports = {
         SAVED: 'wurde gespeichert',
         NARROW_RESULTS: 'Resultate eingrenzen',
         URL_KEY: 'URL-Schlüssel',
-        FEED_UNAVAILABLE: 'Kann den Nachrichten-Feed nicht laden.'
+        FEED_UNAVAILABLE: 'Kann den Nachrichten-Feed nicht laden.',
+        REQUESTS_TOTAL: 'Total Anfragen',
+        REQUESTS_CURRENT: 'aktuelle Anfragen'
     },
     topics: {
         MANAGE_TOPICS: 'Kategorien verwalten',
@@ -458,6 +460,7 @@ module.exports = {
     site_settings: {
         CONFIGURATION: 'Konfiguration',
         EDIT_CONFIGURATION: 'Um die Konfiguration zu bearbeiten, müssen die die Datei "config.json" im Root-Verzeichnis anlegen.',
+        MEDIA_ROOT: 'Root-Verzeichnis der Medientyp',
         SITE_NAME: 'Name der Seite',
         SITE_ROOT: 'Root-Verzeichnis der Seite',
         DOCUMENT_ROOT: 'Basisverzeichnis für Dokumente',

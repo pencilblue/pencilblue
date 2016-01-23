@@ -92,7 +92,7 @@ module.exports = function ServerRegistrationModule(pb) {
 
         active_plugins: function(cb) {
             var pluginService = new pb.PluginService();
-            cb(null, pluginService.getActivePluginNames());
+            cb(null, pluginService.getAllActivePluginNames());
         },
 
         uptime: function(cb) {
@@ -113,6 +113,10 @@ module.exports = function ServerRegistrationModule(pb) {
 
         pb_version: function(cb) {
             cb(null, pb.config.version);
+        },
+        
+        update_interval: function(cb) {
+            cb(null, pb.config.registry.update_interval);
         }
     };
 

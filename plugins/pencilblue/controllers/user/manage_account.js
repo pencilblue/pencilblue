@@ -33,7 +33,7 @@ module.exports = function(pb) {
      */
     function ManageAccount(){}
     util.inherits(ManageAccount, pb.FormController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -43,14 +43,14 @@ module.exports = function(pb) {
     ManageAccount.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
+
             /**
-             * 
+             *
              * @property service
              * @type {TopicService}
              */
             self.service = new UserService(self.getServiceContext());
-                
+
             cb(err, true);
         };
         ManageAccount.super_.prototype.init.apply(this, [context, init]);
@@ -69,7 +69,7 @@ module.exports = function(pb) {
                 return cb(err);
             }
             else if (data.user === null) {
-                return self.redirect(UrlService.createSystemUrl('/'), cb);
+                return self.redirect(UrlService.createSystemUrl('/', { hostname: self.hostname }), cb);
             }
 
             delete data.user.password;
@@ -104,18 +104,18 @@ module.exports = function(pb) {
             tabs: function(callback) {
                 callback(null, self.getTabs());
             },
-            
+
             locales: function(callback) {
                 callback(null, pb.Localization.getSupportedWithDisplay());
             },
-            
+
             user: function(callback) {
                 self.service.get(self.session.authentication.user_id, callback);
             }
         };
         async.parallel(tasks, cb);
     };
-    
+
     /**
      *
      * @method getNavigation
@@ -149,7 +149,7 @@ module.exports = function(pb) {
             }
         ];
     };
-    
+
     /**
      *
      * @method getTabs
@@ -170,7 +170,7 @@ module.exports = function(pb) {
             }
         ];
     };
-    
+
     /**
      *
      * @method getPills

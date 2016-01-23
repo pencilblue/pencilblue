@@ -134,7 +134,7 @@ module.exports = function(pb) {
 
     /**
      *
-     * @method 
+     * @method
      * @param {Error} [err]
      * @param {String} message
      * @param {Function} cb
@@ -151,7 +151,7 @@ module.exports = function(pb) {
      * @method getFormErrorRedirect
      * @param {Error} err
      * @param {String} message
-     * @return 
+     * @return
      */
     DeleteController.prototype.getFormErrorRedirect = function(/*err, message*/) {
         return '/';
@@ -172,7 +172,7 @@ module.exports = function(pb) {
      * @return {String}
      */
     DeleteController.prototype.getSuccessRedirect = function() {
-        return pb.UrlService.createSystemUrl('/');
+        return pb.UrlService.createSystemUrl('/', { hostname: this.hostname });
     };
 
     /**
@@ -193,6 +193,6 @@ module.exports = function(pb) {
     DeleteController.prototype.getDefaultErrorMessage = function() {
         return this.ls.get('ERROR_SAVING');
     };
-    
+
     return DeleteController;
 };

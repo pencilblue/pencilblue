@@ -61,7 +61,7 @@ module.exports = function(pb) {
         var self = this;
         var vars = this.pathVars;
         var post = this.body || {};
-        
+
 
         if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
             return cb({
@@ -74,13 +74,13 @@ module.exports = function(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
-            //set the locale for the session the user being modified is the 
+
+            //set the locale for the session the user being modified is the
             //authenticated user
             if (self.session.authentication.user_id === vars.id) {
                 self.session.locale = obj.locale;
-            }console.log(self.session.authentication.user_id);console.log(vars.id);
-            
+            }
+
             cb({
                 content: {
                     data: obj
@@ -88,6 +88,10 @@ module.exports = function(pb) {
                 code: 201
             });
         });
+    };
+
+    EditUser.prototype.getRequiredFields = function() {
+        return ['username', 'email', 'admin'];
     };
 
     //exports

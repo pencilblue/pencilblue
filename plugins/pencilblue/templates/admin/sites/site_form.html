@@ -1,0 +1,55 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form name="siteForm" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.displayName)}">
+                        <label>Display Name</label>
+                        <input type="text" name="displayName" class="form-control" ng-model="displayName" required>
+                        <div class="form_error" ng-if="!isFieldValid(siteForm.display)">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.hostname)}">
+                        <label>Hostname</label>
+                        <input type="text" name="hostname" class="form-control" ng-disabled="isActive" ng-model="hostname" required>
+                        <div class="form_error" ng-if="!isActive && !isFieldValid(siteForm.hostname)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="isActive">^loc_SITE_MUST_DEACTIVATE^</div>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.supportedLocales)}">
+                        <label>Supported Locales</label><br>
+                        <label ng-repeat="(locale, checked) in supportedLocales" style="display:block;">
+                            <input type="checkbox"
+                                   name="supportedLocales"
+                                   value="{{checked}}"
+                                   ng-checked="checked"
+                                   ng-click="updateSupportedLocales(locale)"
+                                    ><span ng-bind="locale"></span>
+                        </label>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.defaultLocale)}">
+                        <label>Default Locale</label>
+                        <select ng-model="defaultLocale" ng-options="i for i in selectedLocales">
+                        </select>
+                        <div class="form_error" ng-if="defaultLocale==''">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                </div>
+                <br>
+                <a class="btn btn-default" href="/admin/sites">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </a>
+                <button type="button" class="btn btn-primary" ng-click="newSite()" ng-if="isNew">
+                    <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SAVE^
+                </button>
+                <button type="button" class="btn btn-primary" ng-click="editSite()" ng-if="!isNew">
+                    <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SAVE^
+                </button>
+            </div>
+        </fieldset>
+    </form>
+    ^tmp_admin=elements=progress_console_modal^
+</div>
+^tmp_angular=admin=sites=site_form^
+^tmp_admin=footer^

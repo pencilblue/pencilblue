@@ -19,7 +19,7 @@
 var util = require('../util.js');
 
 module.exports = function DbEntityServiceModule(pb) {
-    
+
     /**
      * Database storage service
      *
@@ -27,16 +27,43 @@ module.exports = function DbEntityServiceModule(pb) {
      * @submodule Storage
      * @class DbEntityService
      * @constructor
-     * @param {String} objType
-     * @param {String} valueField
-     * @param {String} keyField
+     * @param {Object} options
+     * @param {String} options.objType
+     * @param {String} options.keyField
+     * @param {String} [options.valueField=null]
+     * @param {String} [options.site=GLOBAL_SITE]
+     * @param {String} [options.onlyThisSite=false]
      */
-    function DbEntityService(objType, valueField, keyField){
-        this.type       = 'DB';
-        this.objType    = objType;
-        this.keyField   = keyField;
-        this.valueField = valueField ? valueField : null;
+    function DbEntityService(options){
+
+        this.objType = options.objType;
+        this.keyField = options.keyField;
+        this.valueField = options.valueField ? options.valueField : null;
+        this.site = options.site || GLOBAL_SITE;
+        this.onlyThisSite = !!options.onlyThisSite;
+        this.type = 'DB-'+this.site+'-'+this.onlyThisSite;
+        this.sqs = new pb.SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
     }
+
+    /**
+     * Short reference to SiteService.GLOBAL_SITE
+     * @private
+     * @static
+     * @readonly
+     * @property GLOBAL_SITE
+     * @type {String}
+     */
+    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+
+    /**
+     * Short reference to SiteService.SITE_FIELD
+     * @private
+     * @static
+     * @readonly
+     * @property SITE_FIELD
+     * @type {String}
+     */
+    var SITE_FIELD = pb.SiteService.SITE_FIELD;
 
     /**
      * Retrieve a value from the database
@@ -46,12 +73,8 @@ module.exports = function DbEntityServiceModule(pb) {
      * @param  {Function} cb  Callback function
      */
     DbEntityService.prototype.get = function(key, cb){
-        var dao              = new pb.DAO();
-        var where            = {};
-        where[this.keyField] = key;
-
         var self = this;
-        dao.loadByValue(this.keyField, key, this.objType, function(err, entity){
+        var callback = function(err, entity){
             if (util.isError(err)) {
                 return cb(err);
             }
@@ -66,7 +89,10 @@ module.exports = function DbEntityServiceModule(pb) {
 
             //callback with the result
             cb(null, val);
-        });
+        };
+
+        this.sqs.loadByValue(this.keyField, key, this.objType, null, callback);
+
     };
 
     /**
@@ -78,13 +104,10 @@ module.exports = function DbEntityServiceModule(pb) {
      * @param {Function} cb    Callback function
      */
     DbEntityService.prototype.set = function(key, value, cb) {
-        var dao              = new pb.DAO();
-        var where            = {};
-        where[this.keyField] = key;
-
         var self = this;
-        dao.loadByValue(this.keyField, key, this.objType, function(err, result){
+        this.sqs.loadByValue(this.keyField, key, this.objType, function(err, result){
             if (util.isError(err)) {
+                pb.log.error("DbEntityService.loadByValue encountered an error. ERROR[%s]", err.stack);
                 return cb(err);
             }
 
@@ -109,7 +132,7 @@ module.exports = function DbEntityServiceModule(pb) {
             }
 
             //set into cache
-            dao.save(val, cb);
+            self.sqs.save(val, cb);
         });
     };
 
@@ -124,8 +147,23 @@ module.exports = function DbEntityServiceModule(pb) {
         var dao              = new pb.DAO();
         var where            = {};
         where[this.keyField] = key;
+
+        var hasNoSite = {};
+        hasNoSite[SITE_FIELD] = { $exists : false};
+
+        var siteIsGlobal = {};
+        siteIsGlobal[SITE_FIELD] = GLOBAL_SITE;
+
+        if(!this.site || this.site === GLOBAL_SITE) {
+            where.$or = [
+                hasNoSite,
+                siteIsGlobal
+            ];
+        } else {
+            where[SITE_FIELD] = this.site;
+        }
         dao.delete(where, this.objType, cb);
     };
-    
+
     return DbEntityService;
 };

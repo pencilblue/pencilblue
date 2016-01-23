@@ -60,6 +60,9 @@ module.exports = function SetupViewControllerModule(pb) {
      */
     SetupViewController.prototype.doSetup = function(cb) {
         this.setPageName('Setup');
+        this.ts.registerLocal('global_root', function(flag, cb) {
+            cb(null, pb.SiteService.getHostWithProtocol(pb.config.multisite.enabled ? pb.config.multisite.globalRoot : pb.config.siteRoot));
+        });
         this.ts.load('setup', function(err, data) {
             cb({content: data});
         });

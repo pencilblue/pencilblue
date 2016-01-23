@@ -1,8 +1,9 @@
 <script type="text/javascript">
     angular.module('pencilblueApp', ['ui.sortable'])
-    .controller('PencilBlueController', function($scope, $http, $window) {
+    .controller('PencilBlueController', function($scope, $http, $window, $timeout) {
         ^angular_objects^
         ^tmp_angular=admin=elements=is_field_valid^
+        ^tmp_angular=admin=elements=error_success^
 
         $scope.nameAvailable = null;
         $scope.originalName = $scope.objectType.name ? $scope.objectType.name.toString() : '';
@@ -12,7 +13,7 @@
             itemMoved: function (event) {},
             orderChanged: function(event) {},
             containment: '#object_fields'
-        }
+        };
 
         // Move key/value of fields to an array, so ng-sortable will work with it
         var fieldArray = [];
@@ -107,7 +108,7 @@
             }
             saveObject.fields = fields;
 
-            var postURL = '/actions/admin/content/objects/types'
+            var postURL = '/actions/admin/content/objects/types';
             if(saveObject._id) {
                 postURL += '/' + saveObject._id;
             }

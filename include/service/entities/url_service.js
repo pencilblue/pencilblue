@@ -31,7 +31,11 @@ module.exports = function UrlServiceModule(pb) {
      * @module Services
      * @submodule Entities
      */
-    function UrlService() {}
+    function UrlService(site, onlyThisSite) {
+        this.site = pb.SiteService.getCurrentSite(site);
+        this.onlyThisSite = onlyThisSite;
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
+    }
 
     //dependencies
     var RequestHandler = pb.RequestHandler;
@@ -71,6 +75,7 @@ module.exports = function UrlServiceModule(pb) {
         var url  = params.url;
         var type = params.type;
         var id   = params.id;
+        var site = params.site;
 
         //validate required params
         if (!url || !type) {
@@ -91,8 +96,10 @@ module.exports = function UrlServiceModule(pb) {
         var where = {
             url: new RegExp(pattern, 'g')
         };
-        var dao = new pb.DAO();
-        dao.unique(type, where, id, function(err, isUnique) {
+        if (site !== undefined) {
+            where[pb.SiteService.SITE_FIELD] = site;
+        }
+        this.siteQueryService.unique(type, where, id, function(err, isUnique) {
             cb(err, !isUnique);
         });
     };
@@ -168,10 +175,43 @@ module.exports = function UrlServiceModule(pb) {
     UrlService.isFullyQualifiedUrl = function(urlStr) {
         return util.isString(urlStr) && urlStr.indexOf('http') === 0;
     };
-    
-    UrlService.createSystemUrl = function(path) {
-        return UrlService.urlJoin(pb.config.siteRoot, path);
-    };
+
+    /**
+     * Creates a fully qualified URL to the system.
+     * @static
+     * @method createSystemUrl
+     * @param {String} path
+     * @param {Object} [options]
+     * @param {String} [options.locale]
+     * @param {String} [options.hostname]
+     * @return {String}
+     */
+     UrlService.createSystemUrl = function(path, options) {
+         if (!util.isObject(options)) {
+             options = {};
+         }
+
+         var hostname = options.hostname;
+         if (!hostname) {
+
+             //we are in multi-site mode so just ensure we have a root so we
+             //can at least stay on the same domain.  We can also safely assume
+             //a standard site root.
+             if (pb.config.multisite.enabled) {
+                 hostname = '';
+             }
+             else {
+                 var siteRootPath = url.parse(pb.config.siteRoot).path;
+                 if (!path || path === '/') {
+                     return siteRootPath;
+                 }
+                 hostname = pb.config.siteRoot;
+             }
+         }
+         return options.locale ? UrlService.urlJoin(hostname, options.locale, path) :
+            UrlService.urlJoin(hostname, path);
+     };
+
 
     //exports
     return UrlService;

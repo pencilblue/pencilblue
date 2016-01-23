@@ -27,11 +27,9 @@ module.exports = function ResendVerificationModule(pb) {
    */
   function ResendVerification(){}
   util.inherits(ResendVerification, pb.BaseController);
-
   ResendVerification.prototype.render = function(cb) {
     var self = this;
-
-    var contentService = new pb.ContentService();
+    var contentService = new pb.ContentService({site: self.site, onlyThisSite: true});
     contentService.getSettings(function(err, contentSettings) {
 
       /*if(!contentSettings.allow_comments || !contentSettings.require_verification) {
@@ -46,7 +44,7 @@ module.exports = function ResendVerificationModule(pb) {
           cb({content: data});
         });
       });
-
+    
     });
   };
 

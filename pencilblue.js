@@ -22,6 +22,7 @@ var https       = require('https');
 var async       = require('async');
 var npm         = require('npm');
 var util        = require('./include/util.js');
+var ServerInitializer = require('./include/http/server_initializer.js');
 var HtmlEncoder = require('htmlencode');
 
 
@@ -34,16 +35,25 @@ var HtmlEncoder = require('htmlencode');
  * @constructor
  */
 function PencilBlue(config){
-    
+
     /**
-     * 
-     * @private 
+     *
+     * @private
      * @static
      * @property pb
      * @type {Object}
      */
     var pb = require('./lib')(config);
-    
+
+    /**
+     * The number of requests served by this instance
+     * @private
+     * @static
+     * @property requestsServed
+     * @type {Integer}
+     */
+    var requestsServed = 0;
+
     /**
      * To be called when the configuration is loaded.  The function is responsible
      * for triggered the startup of the HTTP connection listener as well as start a
@@ -51,19 +61,20 @@ function PencilBlue(config){
      * @method init
      */
     this.init = function(){
-        var self = this;
-        
         var tasks = [
             this.initModules,
             this.initRequestHandler,
             this.initDBConnections,
             this.initDBIndices,
-            util.wrapTask(this, this.initServer),
+            this.initSiteMigration,
             this.initSessions,
             this.initPlugins,
+            this.initSites,
             this.initServerRegistration,
             this.initCommandService,
-            this.initLibraries
+            this.initLibraries,
+            this.registerMetrics,
+            util.wrapTask(this, this.initServer),
         ];
         async.series(tasks, function(err, results) {
             if (util.isError(err)) {
@@ -72,7 +83,7 @@ function PencilBlue(config){
             pb.log.info('PencilBlue: Ready to run!');
         });
     };
-    
+
     /**
      * Ensures that any log messages by the NPM module are forwarded as output
      * to the system logs
@@ -84,14 +95,12 @@ function PencilBlue(config){
         npm.on('log', function(message) {
             pb.log.info(message);
         });
-        
+
         HtmlEncoder.EncodeType = 'numerical';
-        
-        pb.Localization.init();
-        
-        cb(null, true);
+
+        pb.Localization.init(cb);
     };
-    
+
     /**
      * Initializes the request handler.  This causes all system routes to be
      * registered.
@@ -103,7 +112,7 @@ function PencilBlue(config){
         pb.RequestHandler.init();
         cb(null, true);
     }
-    
+
     /**
      * Starts the session handler
      * @method initSessions
@@ -120,13 +129,36 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     this.initPlugins = function(cb) {
-        
+
         //initialize command listeners
         pb.PluginService.init();
-        
+
         //initialize the plugins
         var pluginService = new pb.PluginService();
         pluginService.initPlugins(cb);
+    };
+
+    /**
+     * Move a single tenant solution to a multi-tenant solution.
+     * @static
+     * @method initSiteMigration
+     * @param {Function} cb - callback function
+     */
+    this.initSiteMigration = function(cb) {
+        pb.dbm.processMigration(cb);
+    };
+
+    /**
+     * Initializes site(s).
+     * @method initSites
+     * @static
+     * @param {Function} cb - callback function
+     */
+    this.initSites = function(cb) {
+        pb.SiteService.init();
+
+        var siteService = new pb.SiteService();
+        siteService.initSites(cb);
     };
 
     /**
@@ -151,7 +183,7 @@ function PencilBlue(config){
     };
 
     /**
-     * Checks to see if the process should verify that the indices are valid and in 
+     * Checks to see if the process should verify that the indices are valid and in
      * place.
      * @static
      * @method initDBIndices
@@ -177,59 +209,28 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     this.initServer = function(cb){
-        pb.log.debug('Starting server...');
-
         var self = this;
-        try{
-            if (pb.config.server.ssl.enabled) {
-
-                //set SSL options
-                var options = {
-                    key: fs.readFileSync(pb.config.server.ssl.key),
-                    cert: fs.readFileSync(pb.config.server.ssl.cert),
-                };
-                
-                //the certificate authority or "chain" is optional.  Needed for 
-                //self-signed certs
-                var chainPath = pb.config.server.ssl.chain;
-                if (util.isString(chainPath)) {
-                    options.ca = fs.readFileSync(chainPath);
-                }
-                
-                //create the server with options & callback
-                pb.server = https.createServer(options, function(req, res) {
-                    self.onHttpConnect(req, res);
-                });
-
-                //create an http server that redirects to SSL site
-                pb.handOffServer = http.createServer(function(req, res) {
-                    self.onHttpConnectForHandoff(req, res); 
-                });
-                pb.handOffServer.listen(pb.config.server.ssl.handoff_port, function() {
-                    pb.log.info('PencilBlue: Handoff HTTP server running on port: %d', pb.config.server.ssl.handoff_port);
-                });
+        var context = {
+            config: pb.config,
+            log: pb.log,
+            onRequest: function(req, res) {
+                self.onHttpConnect(req, res);
+            },
+            onHandoffRequest: function(req, res) {
+                self.onHttpConnectForHandoff(req, res);
             }
-            else {
-                pb.server = http.createServer(function(req, res) {
-                    self.onHttpConnect(req, res);
-                });
+        };
+        var Initializer = pb.config.server.initializer || ServerInitializer;
+        var initializer = new Initializer(pb);
+        initializer.init(context, function(err, servers) {
+            if (util.isError(err)) {
+                return cb(err);
             }
+            pb.server = servers.server;
+            pb.handOffServer = servers.handOffServer;
 
-            //start the server
-            var onServerStartError = function(err) {
-                err.message = util.format("Failed to start HTTP server on PORT=[%s] binding to SITE_IP=[%s]: %s", pb.config.sitePort, pb.config.siteIP, err.message);
-                cb(err, false);
-            };
-            pb.server.once('error', onServerStartError);
-            pb.server.listen(pb.config.sitePort, pb.config.siteIP, function() {
-                pb.log.info('PencilBlue: %s running at site root [%s] on port [%d]', pb.config.siteName, pb.config.siteRoot, pb.config.sitePort);
-                pb.server.removeListener('error', onServerStartError);
-                cb(null, true);
-            });
-        }
-        catch(e) {
-            cb(e, false);
-        }
+            cb(err, true);
+        });
     };
 
     /**
@@ -241,25 +242,25 @@ function PencilBlue(config){
      * @static
      * @method onHttpConnect
      * @param {Request} req The incoming request
-     * @param {Response} resp The outgoing response
+     * @param {Response} res The outgoing response
      */
-    this.onHttpConnect = function(req, resp){
+    this.onHttpConnect = function(req, res){
         if (pb.log.isSilly()) {
-            req.uid = util.uniqueId();
-            pb.log.silly('New Request: '+req.uid);
+            pb.log.silly('New Request: %s', (req.uid = util.uniqueId()));
         }
+
+        //bump the counter for the instance
+        requestsServed++;
 
         //check to see if we should inspect the x-forwarded-proto header for SSL
         //load balancers use this for SSL termination relieving the stress of SSL
-        //computation on more powerful load balancers.  For me it is a giant pain
-        //in the ass when all I want to do is simple load balancing.
+        //computation on more powerful load balancers.
         if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
-            this.onHttpConnectForHandoff(req, resp);
-            return;
+            return this.onHttpConnectForHandoff(req, res);
         }
 
         //route the request
-        var handler = new pb.RequestHandler(pb.server, req, resp);
+        var handler = new pb.RequestHandler(pb.server, req, res);
         handler.handleRequest();
     };
 
@@ -318,11 +319,33 @@ function PencilBlue(config){
     };
 
     /**
+     * Initializes the metric registrations to measure request counts
+     * @static
+     * @method registerMetrics
+     * @param {Function} cb
+     */
+    this.registerMetrics = function(cb) {
+
+        //total number of requests served
+        pb.ServerRegistration.addItem('requests', function(callback) {
+            callback(null, requestsServed);
+        });
+
+        //current requests
+        pb.ServerRegistration.addItem('currentRequests', function(callback) {
+            pb.server.getConnections(callback);
+        });
+
+        cb(null, true);
+    };
+
+    /**
      * Starts up the instance of PencilBlue
      * @method start
      */
     this.start = function() {
         var self = this;
+        pb.system.registerSignalHandlers(true);
         pb.system.onStart(function(){
             self.init();
         });
@@ -331,7 +354,7 @@ function PencilBlue(config){
 
 //start system only when the module is called directly
 if (require.main === module) {
-    
+
     var Configuration = require('./include/config.js');
     var config        = Configuration.load();
     var pb            = new PencilBlue(config);

@@ -87,6 +87,16 @@ module.exports = function VideoMediaRendererModule(pb) {
             height: "315px"
         }
     });
+    
+    /**
+     * Retrieves the supported extension types for the renderer.
+     * @static
+     * @method getSupportedExtensions
+     * @returns {Array}
+     */
+    VideoMediaRenderer.getSupportedExtensions = function() {
+        return Object.keys(SUPPORTED);
+    };
 
     /**
      * Retrieves the style for the specified type of view
@@ -236,7 +246,7 @@ module.exports = function VideoMediaRendererModule(pb) {
      * represented by the media Id
      */
     VideoMediaRenderer.getEmbedUrl = function(mediaId) {
-        return mediaId;
+        return BaseMediaRenderer.getEmbedUrl(mediaId);
     };
 
     /**
