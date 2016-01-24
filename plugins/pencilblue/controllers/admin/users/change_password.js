@@ -32,6 +32,27 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
     //statics
     var SUB_NAV_KEY = 'change_password';
 
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    AdminChangePasswordController.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+
+            /**
+             * @property service
+             * @type {UserService}
+             */
+            self.service = new UserService(self.getServiceContext());
+
+            cb(err, true);
+        };
+        AdminChangePasswordController.super_.prototype.init.apply(this, [context, init]);
+    };
+
     AdminChangePasswordController.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
@@ -54,7 +75,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
                 active: 'active',
                 href: '#password',
                 icon: 'key',
-                title: self.ls.get('PASSWORD')
+                title: self.ls.g('users.PASSWORD')
             }];
 
             var angularObjects = pb.ClientJs.getAngularObjects(
@@ -62,12 +83,12 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['users'], self.ls, self.site),
                 pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, user),
                 tabs: tabs,
-                adminOptions: pb.users.getAdminOptions(self.session, self.localizationService),
+                adminOptions: self.service.getAdminOptions(self.session, self.localizationService),
                 user: user
             });
 
             delete user.password;
-            self.setPageName(self.ls.get('CHANGE_PASSWORD'));
+            self.setPageName(self.ls.g('users.CHANGE_PASSWORD'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/users/change_password', function(err, result) {
                 cb({content: result});
@@ -79,7 +100,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
         return [
             {
                 name: SUB_NAV_KEY,
-                title: ls.get('CHANGE_PASSWORD'),
+                title: ls.g('users.CHANGE_PASSWORD'),
                 icon: 'chevron-left',
                 href: pb.UrlService.urlJoin('/admin/users/', encodeURIComponent(data[pb.DAO.getIdField()]))
             }

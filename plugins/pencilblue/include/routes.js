@@ -173,6 +173,7 @@ module.exports = function Routes(pb){
             path: "/actions/user/sign_up",
             auth_required: false,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'sign_up.js'),
+            request_body: ['application/x-www-form-urlencoded', 'application/json']
         },
         {
             method: 'get',
@@ -274,7 +275,6 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'resend_verification.js'),
             content_type: 'text/html'
         },
-
         {
             method: 'get',
             path: "/admin/users/permissions",

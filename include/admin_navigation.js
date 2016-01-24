@@ -360,13 +360,13 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method localizeNavigation
-     * @param navigation
-     * @param ls
-     * @return {*}
+     * @param {Array} navigation
+     * @param {Localization} ls
+     * @return {Array}
      */
     function localizeNavigation(navigation, ls) {
         navigation.forEach(function(nav) {
-            nav.title = ls.get(nav.title);
+            nav.title = ls.g(nav.title);
             if(util.isArray(nav.children)) {
                 nav.children = localizeNavigation(nav.children, ls);
             }
