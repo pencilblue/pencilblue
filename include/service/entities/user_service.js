@@ -150,20 +150,25 @@ module.exports = function(pb) {
      *
      * @method getAdminOptions
      * @param {Object} session The current session object
-     * @param {Object} ls      The localization object
-     * @param {String} siteUid
+     * @param {Localization} ls The localization object
+     * @return {Array}
      */
     UserService.prototype.getAdminOptions = function (session, ls) {
         var adminOptions = [];
 
-        if (!pb.SiteService.isGlobal(this.context.site)) {
-            adminOptions = [
+        //in multi-site deployments non-global sites are limited to user roles: READER, WRITER, EDITOR.
+        //Admin roles (ADMINISTRATOR and MANAGING_EDITOR) are resevered for the global site.
+        if (!pb.config.multisite.enabled || !pb.SiteService.isGlobal(this.context.site)) {
+            adminOptions.push(
                 {name: ls.g('generic.READER'), value: pb.SecurityService.ACCESS_USER},
                 {name: ls.g('generic.WRITER'), value: pb.SecurityService.ACCESS_WRITER},
                 {name: ls.g('generic.EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}
-            ];
+            );
         }
-        else {
+
+        //we want these included for single site deployments too.  However, we
+        //can guarantee that the site will be global in single site mode.
+        if (pb.SiteService.isGlobal(this.context.site)) {
             if (session.authentication.user.admin >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
                 adminOptions.push({name: ls.g('generic.MANAGING_EDITOR'), value: pb.SecurityService.ACCESS_MANAGING_EDITOR});
             }
