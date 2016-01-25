@@ -20,7 +20,7 @@ var async = require('async');
 var util  = require('../../util.js');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var DAO               = pb.DAO;
     var SecurityService   = pb.SecurityService;
@@ -39,12 +39,12 @@ module.exports = function(pb) {
         if (!util.isObject(context)) {
             context = {};
         }
-        
+
         context.type = TYPE;
         UserService.super_.call(this, context);
     }
     util.inherits(UserService, BaseObjectService);
-    
+
     /**
      * @private
      * @static
@@ -53,7 +53,7 @@ module.exports = function(pb) {
      * @type {String}
      */
     var TYPE = 'user';
-    
+
     /**
      * @private
      * @static
@@ -150,31 +150,36 @@ module.exports = function(pb) {
      *
      * @method getAdminOptions
      * @param {Object} session The current session object
-     * @param {Object} ls      The localization object
-     * @param {String} siteUid
+     * @param {Localization} ls The localization object
+     * @return {Array}
      */
     UserService.prototype.getAdminOptions = function (session, ls) {
         var adminOptions = [];
 
-        if (!pb.SiteService.isGlobal(this.context.site)) {
-            adminOptions = [
-                {name: ls.get('READER'), value: pb.SecurityService.ACCESS_USER},
-                {name: ls.get('WRITER'), value: pb.SecurityService.ACCESS_WRITER},
-                {name: ls.get('EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}
-            ];
+        //in multi-site deployments non-global sites are limited to user roles: READER, WRITER, EDITOR.
+        //Admin roles (ADMINISTRATOR and MANAGING_EDITOR) are resevered for the global site.
+        if (!pb.config.multisite.enabled || !pb.SiteService.isGlobal(this.context.site)) {
+            adminOptions.push(
+                {name: ls.g('generic.READER'), value: pb.SecurityService.ACCESS_USER},
+                {name: ls.g('generic.WRITER'), value: pb.SecurityService.ACCESS_WRITER},
+                {name: ls.g('generic.EDITOR'), value: pb.SecurityService.ACCESS_EDITOR}
+            );
         }
-        else {
+
+        //we want these included for single site deployments too.  However, we
+        //can guarantee that the site will be global in single site mode.
+        if (pb.SiteService.isGlobal(this.context.site)) {
             if (session.authentication.user.admin >= pb.SecurityService.ACCESS_MANAGING_EDITOR) {
-                adminOptions.push({name: ls.get('MANAGING_EDITOR'), value: pb.SecurityService.ACCESS_MANAGING_EDITOR});
+                adminOptions.push({name: ls.g('generic.MANAGING_EDITOR'), value: pb.SecurityService.ACCESS_MANAGING_EDITOR});
             }
             if (session.authentication.user.admin >= pb.SecurityService.ACCESS_ADMINISTRATOR) {
-                adminOptions.push({name: ls.get('ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR});
+                adminOptions.push({name: ls.g('generic.ADMINISTRATOR'), value: pb.SecurityService.ACCESS_ADMINISTRATOR});
             }
         }
 
         return adminOptions;
     };
-    
+
     /**
      * Retrieves a select list (id/name) of available system editors
      * @deprecated since 0.4.0
@@ -203,7 +208,7 @@ module.exports = function(pb) {
             cb = getWriters;
             getWriters = false;
         }
-        
+
         var self = this;
 
         var opts = {
@@ -311,7 +316,7 @@ module.exports = function(pb) {
                 return cb(err, null);
             }
             var root = pb.SiteService.getHostWithProtocol(siteInfo.hostname);
-            var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password') + 
+            var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password') +
                 util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
             var options = {
                 to: user.email,
@@ -391,10 +396,10 @@ module.exports = function(pb) {
         };
         async.series(tasks, cb);
     };
-    
+
     /**
-     * Indicates if there exists a user with the specified email value. The 
-     * field is expected to be a string value.  The values will be compare with 
+     * Indicates if there exists a user with the specified email value. The
+     * field is expected to be a string value.  The values will be compare with
      * case ignored.
      * @method isUsernameInUse
      * @param {String} email
@@ -405,10 +410,10 @@ module.exports = function(pb) {
     UserService.prototype.isEmailInUse = function(email, options, cb) {
         this._isFieldInUse(email, 'email', options, cb);
     };
-    
+
     /**
-     * Indicates if there exists a user with the specified username value. The 
-     * field is expected to be a string value.  The values will be compare with 
+     * Indicates if there exists a user with the specified username value. The
+     * field is expected to be a string value.  The values will be compare with
      * case ignored.
      * @method isUsernameInUse
      * @param {String} username
@@ -419,10 +424,10 @@ module.exports = function(pb) {
     UserService.prototype.isUsernameInUse = function(username, options, cb) {
         this._isFieldInUse(username, 'username', options, cb);
     };
-    
+
     /**
-     * Indicates if there exists a user with the specified property value. The 
-     * field is expected to be a string value.  The values will be compare with 
+     * Indicates if there exists a user with the specified property value. The
+     * field is expected to be a string value.  The values will be compare with
      * case ignored.
      * @private
      * @method _isFieldInUse
@@ -437,26 +442,26 @@ module.exports = function(pb) {
             cb = options;
             options = {};
         }
-        
+
         var self = this;
         var expressionStr = util.escapeRegExp(value) + '$';
         var where = {};
         where[field] = new RegExp(expressionStr, 'i');
-        
+
         //set exclusion.  This would be if we are editing a user
         if (ValidationService.isId(options.exclusionId, true)) {
             where[DAO.getIdField()] = DAO.getNotIdField(options.exclusionId);
         }
-        
+
         var opts = {
             where: where
         };
         var tasks = {
-            
+
             verified: function(callback) {
                 self.count(opts, callback);
             },
-            
+
             unverified: function(callback) {
                 var dao = new pb.DAO();
                 dao.count(UNVERIFIED_TYPE, where, callback);
@@ -520,7 +525,7 @@ module.exports = function(pb) {
     };
 
     UserService.prototype.determineUserSiteScope = function(accessLevel, siteid) {
-        if (accessLevel === pb.SecurityService.ACCESS_MANAGING_EDITOR || 
+        if (accessLevel === pb.SecurityService.ACCESS_MANAGING_EDITOR ||
             accessLevel === pb.SecurityService.ACCESS_ADMINISTRATOR) {
             return pb.SiteService.GLOBAL_SITE;
         }
@@ -529,13 +534,13 @@ module.exports = function(pb) {
         }
         return siteid;
     };
-    
+
     /**
-     * 
+     *
      * @method validate
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
-     * @param {UserService} context.service An instance of the service that triggered 
+     * @param {UserService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -543,9 +548,9 @@ module.exports = function(pb) {
         var self = this;
         var obj = context.data;
         var errors = context.validationErrors;
-        
+
         var tasks = [
-            
+
             //first name
             function(callback) {
                 if (!ValidationService.isNonEmptyStr(obj.first_name, false)) {
@@ -553,7 +558,7 @@ module.exports = function(pb) {
                 }
                 callback();
             },
-            
+
             //last name
             function(callback) {
                 if (!ValidationService.isNonEmptyStr(obj.last_name, false)) {
@@ -561,14 +566,14 @@ module.exports = function(pb) {
                 }
                 callback();
             },
-            
+
             //username
             function(callback) {
                 if (!ValidationService.isNonEmptyStr(obj.username, true)) {
                     errors.push(BaseObjectService.validationFailure('username', 'Username is required'));
                     return callback();
                 }
-                
+
                 //check to see if it is in use
                 var usernameOpts = {
                     exclusionId: obj[DAO.getIdField()]
@@ -580,14 +585,14 @@ module.exports = function(pb) {
                     callback(err);
                 });
             },
-            
+
             //email
             function(callback) {
                 if (!ValidationService.isEmail(obj.email, true)) {
                     errors.push(BaseObjectService.validationFailure('email', 'Email is required'));
                     return callback();
                 }
-                
+
                 //check to see if it is in use
                 var usernameOpts = {
                     exclusionId: obj[DAO.getIdField()]
@@ -599,7 +604,7 @@ module.exports = function(pb) {
                     callback(err);
                 });
             },
-            
+
             //password
             function(callback) {
                 if (!ValidationService.isNonEmptyStr(obj.password, true)) {
@@ -607,7 +612,7 @@ module.exports = function(pb) {
                 }
                 callback();
             },
-            
+
             //admin
             function(callback) {
                 if (!ValidationService.isInt(obj.admin, true, true)) {
@@ -619,7 +624,7 @@ module.exports = function(pb) {
                 }
                 callback();
             },
-            
+
             //locale
             function(callback) {
                 if (!ValidationService.isNonEmptyStr(obj.locale, true)) {
@@ -627,7 +632,7 @@ module.exports = function(pb) {
                 }
                 callback();
             },
-            
+
             //photo
             function(callback) {
                 if (!ValidationService.isNonEmptyStr(obj.photo, false)) {
@@ -635,7 +640,7 @@ module.exports = function(pb) {
                 }
                 callback();
             },
-            
+
             //position
             function(callback) {
                 if (!ValidationService.isNonEmptyStr(obj.position, false)) {
@@ -646,13 +651,13 @@ module.exports = function(pb) {
         ];
         async.series(tasks, cb);
     };
-    
+
     /**
-     * 
+     *
      * @static
-     * @method 
+     * @method
      * @param {Object} context
-     * @param {UserService} service An instance of the service that triggered 
+     * @param {UserService} service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -661,30 +666,30 @@ module.exports = function(pb) {
         dto.first_name = BaseObjectService.sanitize(dto.first_name);
         dto.last_name = BaseObjectService.sanitize(dto.last_name);
         dto.username = BaseObjectService.sanitize(dto.username);
-        dto.email = BaseObjectService.sanitize(dto.email);  
+        dto.email = BaseObjectService.sanitize(dto.email);
         if (dto.email) {
             dto.email = dto.email.toLowerCase();
         }
         dto.admin = parseInt(dto.admin);
-        dto.locale = BaseObjectService.sanitize(dto.locale);  
-        dto.photo = BaseObjectService.sanitize(dto.photo);  
+        dto.locale = BaseObjectService.sanitize(dto.locale);
+        dto.photo = BaseObjectService.sanitize(dto.photo);
         dto.position = BaseObjectService.sanitize(dto.position);
         cb(null);
     };
-    
+
     /**
-     * 
+     *
      * @static
-     * @method 
+     * @method
      * @param {Object} context
-     * @param {UserService} service An instance of the service that triggered 
+     * @param {UserService} service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     UserService.merge = function(context, cb) {
         var dto = context.data;
         var obj = context.object;
-        
+
         obj.first_name = dto.first_name;
         obj.last_name = dto.last_name;
         obj.username = dto.username;
@@ -698,29 +703,29 @@ module.exports = function(pb) {
         }
         cb(null);
     };
-    
+
     /**
-     * 
+     *
      * @static
      * @method validate
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
-     * @param {UserService} context.service An instance of the service that triggered 
+     * @param {UserService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     UserService.validate = function(context, cb) {
         context.service.validate(context, cb);
     };
-    
+
     /**
-     * Strips the password from one or more user objects when passed a valid 
+     * Strips the password from one or more user objects when passed a valid
      * base object service event context
      * @static
      * @method removePassword
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
-     * @param {UserService} context.service An instance of the service that triggered 
+     * @param {UserService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -736,7 +741,7 @@ module.exports = function(pb) {
         }
         cb();
     };
-    
+
     //Event Registries
     BaseObjectService.on(TYPE + '.' + BaseObjectService.AFTER_SAVE, UserService.removePassword);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.GET, UserService.removePassword);
@@ -744,6 +749,6 @@ module.exports = function(pb) {
     BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, UserService.format);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, UserService.merge);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, UserService.validate);
-    
+
     return UserService;
 };
