@@ -59,7 +59,7 @@ module.exports = function(pb) {
                 });
             }
 
-            var filepath = path.join(pb.config.docRoot, 'plugins', post.plugin, 'public', 'localization', post.lang, '.json');
+            var filepath = path.join(pb.config.docRoot, 'plugins', post.plugin, 'public', 'localization', post.lang + '.json');
             fs.readFile(filepath, "utf-8", function (err, data) {
                 if (err) throw err;
                 console.log(data);
