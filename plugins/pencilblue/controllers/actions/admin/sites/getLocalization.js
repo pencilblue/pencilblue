@@ -41,8 +41,12 @@ module.exports = function(pb) {
 
             if(pb.config.localization && pb.config.localization.db){
                 var col = "localizations";
+                var opts = {
+                    where: {siteName: post.siteName}
+                };
+                var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
-                queryService.q(siteDocument, function (err, result) {
+                queryService.q(opts, function (err, result) {
                     if (util.isError(err)) {
                         pb.log.error(err);
                         return cb({

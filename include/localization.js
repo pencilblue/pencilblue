@@ -69,6 +69,12 @@ module.exports = function LocalizationModule(pb) {
          * performing key lookup
          */
         this.activeTheme = options.activeTheme;
+
+        /**
+         * The current site that should be prioritized when
+         * performing key lookup, higher priority than activeTheme
+         */
+        this.siteName = options.siteName;
     }
 
     /**
@@ -479,7 +485,16 @@ module.exports = function LocalizationModule(pb) {
         Localization.keys = {};
 
         if(pb.config.localization && pb.config.localization.db){
+            var opts = {
+                where: {siteName: Localization.siteName}
+            };
+            var queryService = new pb.SiteQueryService({site: Localization.site, onlyThisSite: true});
 
+            queryService.q(opts, function (err, result) {
+                if (util.isError(err)) {
+                    pb.log.error(err);
+                }
+            });
         }
         //create path to localization directory
         var options = {
