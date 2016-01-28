@@ -65,7 +65,7 @@ module.exports = function (pb) {
             if (err) throw err;
 
             if (data) {
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, data)});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, JSON.parse(data))});
             }
 
 
