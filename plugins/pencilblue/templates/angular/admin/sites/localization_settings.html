@@ -4,6 +4,23 @@
                 ^angular_objects^
 
 
+                $scope.getLocalizations = function(){
+                    if($scope.currentPlugin && $scope.currentLocale && $scope.siteName){
+
+                        $http.get('/actions/admin/localization?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&siteName=' + $scope.siteName)
+                            .success(function (result) {
+                                console.log(result);//$scope.onCreateOrEditComplete(result);
+                                return result;
+                            })
+                            .error(function (error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                            });
+                    }
+                    else{
+                        return [];
+                    }
+                };
                 for(var i = 0; i < $scope.selectedLocales.length; i++){
                     if($scope.selectedLocales[i] === $scope.defaultLocale){
                         $scope.currentLocale = $scope.selectedLocales[i];
@@ -16,19 +33,9 @@
                         break;
                     }
                 }
-
-                $scope.jobResultsType = "job_results";
-                $scope.jobDetailsType = "job_details";
+                $scope.currentPlugin = $scope.currentPlugin || '';
                 $scope.customType = "custom";
-                $scope.localizationKVSet = getLocalizations() || [];
-                $scope.jobResultsPath = "/search";
-                $scope.jobDetailsPath = "/job/:title/:did OR /job/:did";
-
-                $scope.customRegex = /(\w)/;
-                $scope.jobDetailsRegex = /^\/(?=.*:did).*/;
-
-                $scope.patternError = "^loc_INVALID_PATH^";
-                $scope.detailsPatternError = "^loc_INVALID_DETAILS_PATH^";
+                $scope.localizationKVSet = $scope.getLocalizations() || [];
 
 
                 $scope.isKeyValid = function(index) {
@@ -58,16 +65,7 @@
                     }
                 };
 
-                function getLocalizations(){
-                    $http.get('/actions/admin/localization', {siteName: $scope.siteName})
-                        .success(function (result) {
-                            console.log(result);//$scope.onCreateOrEditComplete(result);
-                        })
-                        .error(function (error, status) {
-                            $scope.errorMessage = error.message;
-                            $scope.saving = false;
-                        });
-                }
+
 
                 $scope.saveLocales = function () {
                     $scope.errorMessage = "";

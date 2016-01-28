@@ -83,7 +83,7 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_EDITOR,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers','actions', 'admin','sites','getLocalization.js'),
-            content_type: 'text/html'
+            content_type: 'application/json'
         },
         {
             method: 'get',
