@@ -33,18 +33,17 @@ module.exports = function (pb) {
     Localization.prototype.render = function (cb) {
         var self = this;
 
-        if (!self.pathVars.siteName) {
+        if (!self.query.siteName || !self.query.plugin || self.query.lang) {
             return cb({
                 code: 500,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no siteName passed in', err)
             });
         }
 
-        self.siteName = self.pathVars.siteName;
         if (pb.config.localization && pb.config.localization.db) {
             var col = "localizations";
             var opts = {
-                where: {siteName: post.siteName}
+                where: {siteName: self.query.siteName}
             };
             var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
@@ -61,7 +60,7 @@ module.exports = function (pb) {
             });
         }
 
-        var filepath = path.join(pb.config.docRoot, 'plugins', post.plugin, 'public', 'localization', post.lang, '.json');
+        var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang, '.json');
         fs.readFile(filepath, "utf-8", function (err, data) {
             if (err) throw err;
 

@@ -78,7 +78,7 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
-            path: '/actions/admin/localization/:siteName',
+            path: '/actions/admin/localization',
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
             inactive_site_access: true,
