@@ -1,0 +1,236 @@
+<script type="text/javascript">
+    angular.module('pencilblueApp', [])
+            .controller('PencilBlueController', function ($scope, $http, $window) {
+                ^angular_objects^
+
+                $scope.jobResultsType = "job_results";
+                $scope.jobDetailsType = "job_details";
+                $scope.customType = "custom";
+                $scope.redirectSettings = [];
+                $scope.jobResultsPath = "/search";
+                $scope.jobDetailsPath = "/job/:title/:did OR /job/:did";
+
+                $scope.customRegex = /(\w)/;
+                $scope.jobDetailsRegex = /^\/(?=.*:did).*/;
+
+                $scope.patternError = "^loc_INVALID_PATH^";
+                $scope.detailsPatternError = "^loc_INVALID_DETAILS_PATH^";
+
+                setupFieldTypeVariables();
+
+                $scope.getFromPlaceholder = function(urlType) {
+                    var placeholder = "Redirect From";
+                    if (urlType == $scope.jobResultsType) {
+                        placeholder = "Job Results Path";
+                    } else if (urlType == $scope.jobDetailsType) {
+                        placeholder = "Job Details Path";
+                    }
+                    return placeholder;
+                };
+
+                $scope.getToPlaceholder = function(urlType) {
+                    var placeholder = "Redirect To";
+                    if (urlType == $scope.jobResultsType) {
+                        placeholder = "/search";
+                    } else if (urlType == $scope.jobDetailsType) {
+                        placeholder = "/job/:title/:did OR /job/:did";
+                    }
+                    return placeholder;
+                };
+
+                $scope.isFromValid = function(index) {
+                    return $scope.redirectsForm["redirectFrom_" + index]
+                            && $scope.redirectsForm["redirectFrom_" + index].$error.pattern;
+                };
+
+                $scope.isToValid = function(index) {
+                    return $scope.redirectsForm["redirectTo_" + index]
+                            && $scope.redirectsForm["redirectTo_" + index].$error.pattern;
+                };
+
+                $scope.isFromRequire = function(index) {
+                    return $scope.redirectsForm["redirectFrom_" + index]
+                            && $scope.redirectsForm["redirectFrom_" + index].$error.required;
+                }
+
+                $scope.isToRequire = function(index) {
+                    return $scope.redirectsForm["redirectTo_" + index]
+                            && $scope.redirectsForm["redirectTo_" + index].$error.required;
+                }
+
+                $scope.addField = function (urlType) {
+                    var redirect = { urlType: urlType };
+                    if (urlType == $scope.jobResultsType) {
+                        $scope.jobResultsPresent = true;
+                    } else if (urlType == $scope.jobDetailsType) {
+                        $scope.jobDetailsPresent = true;
+                    }
+                    $scope.redirectSettings.push(redirect);
+                };
+
+                $scope.removeField = function (index) {
+                    var redirect = $scope.redirectSettings.splice(index, 1)[0];
+                    if (redirect.urlType == $scope.jobResultsType) {
+                        $scope.jobResultsPresent = false;
+                    } else if (redirect.urlType == $scope.jobDetailsType) {
+                        $scope.jobDetailsPresent = false;
+                    }
+                };
+
+                $scope.saveRedirects = function () {
+                    $scope.errorMessage = "";
+                    $scope.successMessage = "";
+                    var redirects = cleanData($scope.redirectSettings);
+                    redirects = redirects[0];
+                    redirects.siteName = $scope.redirect.siteName;
+                    redirects.plugin = $scope.redirect.plugin;
+                    redirects.lang = $scope.redirect.lang + '.json';
+                    $scope.saving = true;
+                    $scope.actionProgress = '0';
+                    $scope.consoleOutput = '';
+                    angular.element('#progress_modal').modal();
+
+                    $http.post('/actions/admin/localization', redirects)
+                            .success(function (result) {
+                                $scope.onCreateOrEditComplete(result);
+                            })
+                            .error(function (error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                            });
+                };
+
+                $scope.onCreateOrEditComplete = function(result) {
+                    $scope.actionPlugin = {name: result.message};
+                    var jobId = result.data;
+                    //poll for logs
+                    var logHandle = null;
+                    var starting  = 0;
+                    var doLogRetrieve = function() {
+                        $scope.jobAction('getLogs', jobId, {starting: starting}, function(result) {
+                            if (!result || !result.data || !result.data.length) {
+                                return;
+                            }
+                            var nextStarting = starting;
+                            for(var i = 0; i < result.data.length; i++) {
+                                var item = result.data[i];
+                                $scope.consoleOutput += ($scope.consoleOutput.length ? '\n' : '') + item.created + ':[' + item.worker_id + '] ' + item.message;
+                                var date = new Date(item.created).getTime();
+                                if(date > nextStarting) {
+                                    nextStarting = date;
+                                }
+                            }
+                            //offset so we don't get repeats
+                            starting = nextStarting + 1;
+                            //check for more log entries
+                            logHandle = setTimeout(doLogRetrieve, 2000);
+                        });
+                    };
+
+                    doLogRetrieve();
+                    //check for job completion
+                    var retrieveHandle = null;
+                    var doJobRetrieve = function() {
+                        $scope.jobAction('get', jobId, {}, function(result) {
+                            if(!result || !result.data) {
+                                return;
+                            }
+                            //set progress bar
+                            if(!isNaN(result.data.progress)) {
+                                $scope.actionProgress = result.data.progress.toString();
+                            }
+                            //verify status
+                            if(result.data.status === 'RUNNING') {
+                                retrieveHandle = setTimeout(doJobRetrieve, 1000);
+                            }
+                            else {
+                                //allow any trailing logs to come in
+                                setTimeout(function() {
+                                    clearTimeout(logHandle);
+                                    var line = result.data.status;
+                                    if (result.data.error) {
+                                        line += ': ' + result.data.error;
+                                    }
+                                    $scope.consoleOutput += ($scope.consoleOutput.length ? '\n' : '') + line;
+                                    $scope.onActionSuccess();
+                                    $scope.$apply();
+                                }, 1500);
+                            }
+                        });
+                    };
+                    doJobRetrieve();
+                };
+
+                $scope.jobAction = function(actionType, identifier, data, cb) {
+                    $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
+                            .success(function(result) {
+                                cb(result);
+                            })
+                            .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
+                $scope.onActionSuccess = function() {
+                    $scope.actionIsComplete = true;
+                    $window.location.href = '/admin/plugins/premium/settings/redirects';
+                };
+
+                $scope.onActionFailure = function(error) {
+                    $scope.actionIsComplete = true;
+                    $scope.actionError = error.message;
+                };
+
+                function setupFieldTypeVariables() {
+                    var jobResultsPresent = false;
+                    var jobDetailsPresent = false;
+                    for (var i = 0; i < $scope.redirectSettings.length; i++) {
+                        if ($scope.redirectSettings[i].urlType == $scope.jobResultsType) {
+                            jobResultsPresent = true;
+                        } else if ($scope.redirectSettings[i].urlType == $scope.jobDetailsType) {
+                            jobDetailsPresent = true;
+                        }
+                    }
+                    $scope.jobResultsPresent = jobResultsPresent;
+                    $scope.jobDetailsPresent = jobDetailsPresent;
+                }
+
+                function cleanData(settings) {
+                    var result = [];
+                    for (var i = 0; i < settings.length; i++) {
+                        delete settings[i].$$hashKey;
+                        if (settings[i].urlType == $scope.customType) {
+                            if (settings[i].redirectFrom && settings[i].redirectTo) {
+                                result.push(settings[i]);
+                            }
+                        } else {
+                            if (settings[i].redirectFrom) {
+                                result.push(settings[i]);
+                            }
+                        }
+                    }
+                    return result;
+                }
+
+                function hasDuplicates(settings) {
+                    for (var i = 0; i < settings.length; i++) {
+                        if (settings[i].urlType == $scope.customType) {
+                            if (settings[i].redirectFrom == settings[i].redirectTo) {
+                                return true;
+                            }
+                        }
+                        if (settings[i].urlType == $scope.jobDetailsType) {
+                            if (/^\/job\/(:title\/)?:did\/?$/.test(settings[i].redirectFrom)) {
+                                return true;
+                            }
+                        }
+                        if (settings[i].urlType == $scope.jobResultsType) {
+                            if (/^\/search\/?$/.test(settings[i].redirectFrom)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
+</script>
