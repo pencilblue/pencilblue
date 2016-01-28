@@ -33,7 +33,7 @@ module.exports = function (pb) {
     Localization.prototype.render = function (cb) {
         var self = this;
 
-        if (!self.query.siteName || !self.query.plugin || self.query.lang) {
+        if (!self.query.siteName || !self.query.plugin || !self.query.lang) {
             return cb({
                 code: 500,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no siteName passed in', err)
