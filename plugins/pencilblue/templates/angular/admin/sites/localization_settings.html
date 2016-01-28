@@ -20,7 +20,7 @@
                 $scope.jobResultsType = "job_results";
                 $scope.jobDetailsType = "job_details";
                 $scope.customType = "custom";
-                $scope.localizationKVSet = [];
+                $scope.localizationKVSet = getLocalizations() || [];
                 $scope.jobResultsPath = "/search";
                 $scope.jobDetailsPath = "/job/:title/:did OR /job/:did";
 
@@ -58,6 +58,17 @@
                     }
                 };
 
+                function getLocalizations(){
+                    $http.get('/actions/admin/localization', {siteName: $scope.siteName})
+                        .success(function (result) {
+                            console.log(result);//$scope.onCreateOrEditComplete(result);
+                        })
+                        .error(function (error, status) {
+                            $scope.errorMessage = error.message;
+                            $scope.saving = false;
+                        });
+                }
+
                 $scope.saveLocales = function () {
                     $scope.errorMessage = "";
                     $scope.successMessage = "";
@@ -78,7 +89,7 @@
 
                     $http.post('/actions/admin/localization', payload)
                             .success(function (result) {
-                                $scope.onCreateOrEditComplete(result);
+                                console.log(result);//$scope.onCreateOrEditComplete(result);
                             })
                             .error(function (error, status) {
                                 $scope.errorMessage = error.message;
@@ -88,6 +99,8 @@
 
                 $scope.onCreateOrEditComplete = function(result) {
                     $scope.actionPlugin = {name: result.message};
+
+                    // TODO: FIND OUT WHAT THIS IS
                     var jobId = result.data;
                     //poll for logs
                     var logHandle = null;
@@ -168,7 +181,7 @@
                 };
 
 
-
+                // Helper Function
                 function cleanData(settings) {
                     var result = [];
                     for (var i = 0; i < settings.length; i++) {
@@ -177,15 +190,6 @@
                         }
                     }
                     return result;
-                }
-
-                function hasDuplicates(settings) {
-                    for (var i = 0; i < settings.length; i++) {
-                            if (settings[i].key == settings[i].value) {
-                                return true;
-                            }
-                    }
-                    return false;
                 }
             });
 </script>

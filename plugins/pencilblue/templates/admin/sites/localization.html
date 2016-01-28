@@ -8,74 +8,252 @@
             height: 125px;
         }
     </style>
-    <h1>Localization Fields</h1>
+
     <form name="localizationKVForm" ng-submit="saveLocales()" novalidate>
         <fieldset>
             <div class="tab-content">
-                <input name="siteName" type="text" class="form-control"
-                       placeholder="site name"
-                       ng-model="siteName" readonly>
-                <select id="localization-locale-dropdown" ng-model="currentLocale">
-                    <option ng-repeat="lang in selectedLocales" value="{{lang}}">{{lang}}</option>
-                </select>
-                <select id="localization-plugin-dropdown" ng-model="currentPlugin">
-                    <option ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
-                </select>
+                <!--Page for Adding Locales-->
+                <div class="tab-pane active" id="addLocale">
+                    <h1>Localization Settings</h1>
+                    <!-- Top Settings for Adding Locales -->
+                    <div class="row">
+                        <div class="col-xs-6 col-xs-offset-3">
+                            <label>Current Site to Apply Locales to:</label>
+                            <input name="siteName" type="text" class="form-control"
+                                   placeholder="site name"
+                                   ng-model="siteName" readonly>
+                            <label>Select Language:</label>
+                            <select id="localization-locale-dropdown" style="width:100%" ng-model="currentLocale">
+                                <option ng-repeat="lang in selectedLocales" value="{{lang}}">{{lang}}</option>
+                            </select>
+                            <label>Select Plugin:</label>
+                            <select id="localization-plugin-dropdown" style="width:100%" ng-model="currentPlugin">
+                                <option ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
+                            </select>
+                        </div>
+                    </div>
 
-                <hr>
-                <!--Page Localizations-->
-                <div class="tab-pane active" id="locale-overrides-section">
-                    <label>Add Localizations</label>
+                    <hr>
 
-                    <div class="row" ng-repeat="localField in localizationKVSet">
-                        <div class="col-xs-5">
-                            <div class="form-group" ng-class="{'has-error': isKeyValid($index)}">
-                                <input name="localFieldKey_{{$index}}" type="text" class="form-control"
-                                       placeholder="Localization Key"
-                                       ng-model="localField.key" required>
-                                <div class="form_error" ng-if="!isKeyValid($index)">
-                                    ^loc_THIS_FIELD_IS_REQUIRED^
+                    <!--Add/Edit Localizations-->
+                    <div class="tab-pane active" id="locale-overrides-section">
+                        <label>Add Localizations</label>
+
+                        <!-- Title Row -->
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <label>Localization Keys</label>
+                            </div>
+                            <div class="col-xs-5">
+                                <label>Localization Values</label>
+                            </div>
+                            <div class="col-xs-2">
+                            </div>
+                        </div>
+                        <!-- Localization Rows -->
+                        <div class="row" ng-repeat="localField in localizationKVSet">
+                            <div class="col-xs-5">
+                                <div class="form-group" ng-class="{'has-error': isKeyValid($index)}">
+                                    <input name="localFieldKey_{{$index}}" type="text" class="form-control"
+                                           placeholder="Localization Key"
+                                           ng-model="localField.key" required>
+
+                                    <div class="form_error" ng-if="!isKeyValid($index)">
+                                        ^loc_THIS_FIELD_IS_REQUIRED^
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-5">
+                                <div class="form-group" ng-class="{'has-error': isValueValid($index)}">
+                                    <input name="localFieldValue_{{$index}}" type="text" class="form-control"
+                                           placeholder="Localization Value Text"
+                                           ng-model="localField.value" ng-model-options="{allowInvalid: true}" required>
+
+                                    <div class="form_error" ng-if="!isValueValid($index)">
+                                        ^loc_THIS_FIELD_IS_REQUIRED^
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-1">
+                                <div class="form-group">
+                                    <div class="btn btn-default" ng-click="removeField($index)">
+                                        <i class="fa fa-minus"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-5">
-                            <div class="form-group" ng-class="{'has-error': isValueValid($index)}">
-                                <input name="localFieldValue_{{$index}}" type="text" class="form-control"
-                                       placeholder="Localization Value Text"
-                                       ng-model="localField.value" ng-model-options="{allowInvalid: true}" required>
-                                <div class="form_error" ng-if="!isValueValid($index)">
-                                    ^loc_THIS_FIELD_IS_REQUIRED^
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-1">
-                            <div class="form-group">
-                                <div class="btn btn-default" ng-click="removeField($index)">
-                                    <i class="fa fa-minus"></i>
-                                </div>
+
+                        <br>
+                        <hr>
+                        <br>
+
+                        <!--Add Fields-->
+                        <label>Add a field...</label><br>
+                        <button type="button" class="btn btn-success add_field_button" ng-click="addField('custom')">
+                            <i class="fa fa-plus"></i>
+                            Add a Custom Locale
+                        </button>
+                    </div>
+
+                    <!--submit button-->
+                    <a class="btn btn-default" href="/admin/localization">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    </a>
+                    <button type="submit" class="btn btn-primary" ng-disabled="saving">
+                        <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SAVE^
+                    </button>
+                </div>
+
+                <!--Page for Viewing Existing Locales-->
+                <div class="tab-pane" id="viewLocale">
+                    <h1>View Locales</h1>
+
+                    <div class="row">
+                        <div class="col-xs-12" style="background-color:#fff; font-weight:bold;">
+                            <div class="input-group" style="width:100%; margin-bottom:20px">
+                                <input type="text" class="form-control" placeholder="Search Active Sites for..."
+                                       ng-model="activeQuery"
+                                       style="width:100%;">
+                <span class="input-group-btn" ng-click="clearSearch('activeQuery')">
+                    <button class="btn btn-default" type="button"><i class="fa fa-search"
+                                                                     ng-class="{'fa-search': !activeQuery.length, 'fa-times': activeQuery.length}"></i>
+                    </button>
+                </span>
                             </div>
                         </div>
                     </div>
-                    <br>
-                    <hr>
-                    <br><label>Add a field...</label><br>
-                    <button type="button" class="btn btn-success add_field_button" ng-click="addField('custom')">
-                        <i class="fa fa-plus"></i>
-                        Add a Custom Locale
-                    </button>
-                </div>
-                <!--submit button-->
+                    <div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Active Sites
+                            </div>
+                            <div class="panel-body" ng-if="!activeSites.length">
+                                No Active Sites
+                            </div>
+                            <table id="active_sites_table" class="table table-responsive table-condensed"
+                                   ng-if="activeSites.length > 0">
+                                <tr id="active_sites_table_header">
+                                    <th id="active_name_header" ng-click="orderActive('displayName')">Site Name
+                                        <span ng-show="predicate == 'displayName' && !reverse"
+                                              class="fa fa-caret-down"></span>
+                                        <span ng-show="predicate == 'displayName' && reverse"
+                                              class="fa fa-caret-up"></span>
+                                    </th>
+                                    <th id="active_hostname_header" ng-click="orderActive('hostname')">Hostname
+                                        <span ng-show="predicate == 'hostname' && !reverse"
+                                              class="fa fa-caret-down"></span>
+                                        <span ng-show="predicate == 'hostname' && reverse"
+                                              class="fa fa-caret-up"></span>
+                                    </th>
+                                    <th id="active_date_header" ng-click="orderActive('created')">Date Added
+                                        <span ng-show="predicate == 'created' && !reverse"
+                                              class="fa fa-caret-down"></span>
+                                        <span ng-show="predicate == 'created' && reverse" class="fa fa-caret-up"></span>
+                                    </th>
+                                    <th></th>
+                                </tr>
+                                <tr class="active_site_row"
+                                    ng-repeat="active in activeSites | orderBy:predicate:reverse | filter:activeQuery track by active.uid ">
+                                    <td><a href="#" ng-click="authUserToSite(active)" title="{{active.displayName}}"
+                                           ng-bind="active.displayName"></a></td>
+                                    <td ng-bind="active.hostname"></td>
+                                    <td ng-bind="active.created | date: 'yyyy-MM-dd HH:mm'"></td>
+                                    <td style="text-align: right">
+                                        <div class="btn-group" style="text-align: left">
+                                            <a class="btn btn-sm btn-default" ng-click="deactivateSite(active)"><i
+                                                class="fa fa-remove"></i>&nbsp;^loc_DEACTIVATE^</a>
+                                            <button type="button" class="btn btn-sm btn-default dropdown-toggle"
+                                                    data-toggle="dropdown">
+                                                <i class="fa fa-sm fa-chevron-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a ng-href="/admin/sites/{{active.uid}}"><i
+                                                    class="fa fa-fw fa-cog"></i>&nbsp;^loc_EDIT^</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
 
-                <a class="btn btn-default" href="/admin/localization">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-                </a>
-                <button type="submit" class="btn btn-primary" ng-disabled="saving">
-                    <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SAVE^
-                </button>
-            </div>
+                        <div class="row">
+                            <div class="col-xs-12" style="background-color:#fff; font-weight:bold;">
+                                <div class="input-group" style="width:100%; margin-bottom:20px">
+                                    <input type="text" class="form-control" placeholder="Search Inactive Sites for..."
+                                           ng-model="inactiveQuery"
+                                           style="width:100%;">
+                                    <span class="input-group-btn" ng-click="clearSearch('inactiveQuery')">
+                    <button class="btn btn-default" type="button"><i class="fa fa-search"
+                                                                     ng-class="{'fa-search': !inactiveQuery.length, 'fa-times': inactiveQuery.length}"></i>
+                    </button>
+                </span>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Inactive Sites
+                            </div>
+                            <div class="panel-body" ng-if="!inactiveSites.length">
+                                No Inactive Sites
+                            </div>
+                            <table id="inactive_sites_table" class="table table-responsive table-condensed"
+                                   ng-if="inactiveSites.length > 0">
+                                <tr id="inactive_sites_table_header">
+                                    <th id="inactive_name_header" ng-click="orderInactive('displayName')">Site Name
+                                        <span ng-show="inactivePredicate == 'displayName' && !inactiveReverse"
+                                              class="fa fa-caret-down"></span>
+                                        <span ng-show="inactivePredicate == 'displayName' && inactiveReverse"
+                                              class="fa fa-caret-up"></span>
+                                    </th>
+                                    <th id="inactive_hostname_header" ng-click="orderInactive('hostname')">Hostname
+                                        <span ng-show="inactivePredicate == 'hostname' && !inactiveReverse"
+                                              class="fa fa-caret-down"></span>
+                                        <span ng-show="inactivePredicate == 'hostname' && inactiveReverse"
+                                              class="fa fa-caret-up"></span>
+                                    </th>
+                                    <th id="inactive_date_header" ng-click="orderInactive('created')">Date Added
+                                        <span ng-show="inactivePredicate == 'created' && !inactiveReverse"
+                                              class="fa fa-caret-down"></span>
+                                        <span ng-show="inactivePredicate == 'created' && inactiveReverse"
+                                              class="fa fa-caret-up"></span>
+                                    </th>
+                                    <th></th>
+                                </tr>
+                                <tr class="inactive_site_row"
+                                    ng-repeat="inactive in inactiveSites | orderBy:inactivePredicate:inactiveReverse | filter:inactiveQuery  track by inactive.uid">
+                                    <td><a href="#" ng-click="authUserToSite(inactive)" title="{{inactive.displayName}}"
+                                           ng-bind="inactive.displayName"></a></td>
+                                    <td ng-bind="inactive.hostname"></td>
+                                    <td ng-bind="inactive.created | date: 'yyyy-MM-dd HH:mm'"></td>
+                                    <td style="text-align: right">
+                                        <div class="btn-group" style="text-align: left">
+                                            <a class="btn btn-sm btn-default" ng-click="activateSite(inactive)"><i
+                                                class="fa fa-plus"></i>&nbsp;^loc_ACTIVATE^</a>
+                                            <button type="button" class="btn btn-sm btn-default dropdown-toggle"
+                                                    data-toggle="dropdown">
+                                                <i class="fa fa-sm fa-chevron-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a ng-href="/admin/sites/{{inactive.uid}}"><i
+                                                    class="fa fa-fw fa-cog"></i>&nbsp;^loc_EDIT^</a></li>
+                                                <li><a ng-click="deleteSite(inactive)"><i class="fa fa-fw fa-trash"></i>&nbsp;^loc_DELETE^</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
         </fieldset>
     </form>
-    ^tmp_admin=elements=progress_console_modal^
+</div>
+
+^tmp_admin=elements=progress_console_modal^
 </div>
 ^tmp_angular=admin=sites=localization_settings^
 ^tmp_admin=footer^

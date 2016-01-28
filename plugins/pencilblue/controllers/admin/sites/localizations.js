@@ -72,23 +72,16 @@ module.exports = function LocalizationModule(pb) {
      */
     Localization.prototype.render = function(cb) {
         var self = this;
-        var options = {isNew: true};
-        //todo:: refactor angular on site_form to remove unneeded properties
-        setupAngularObj(self, options, cb);
+        setupAngularObj(self, cb);
     };
 
-    function setupAngularObj(self, options, cb){
+    function setupAngularObj(self, cb){
         var pluginService = new pb.PluginService({site: self.site});
         var activePlugins = pluginService.getActivePluginNames();
-        var isNew = options.isNew,
-            display = options.display,
-            host = options.host,
-            supportedLocales = {},
-            savedLocales = options.savedLocales || {},
+        var supportedLocales = {},
+            savedLocales = {},
             selectedLocales = [],
-            defaultLocale = options.defaultLocale || pb.Localization.getDefaultLocale(),
-            isActive = options.isActive,
-            uid = options.uid;
+            defaultLocale = pb.Localization.getDefaultLocale();
 
         self.ts.registerLocal("active_theme", new pb.TemplateValue(self.activeTheme,false));
         savedLocales[defaultLocale] = true;
@@ -105,18 +98,16 @@ module.exports = function LocalizationModule(pb) {
         var angularObjects = pb.ClientJs.getAngularObjects({
             navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls, self.site),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-            tabs: [{ active: 'active', href: '#editSite', icon: 'cog', title: self.ls.get('EDIT_SITE') }],
-            displayName: display,
+            tabs: [
+                { active: 'active', href: '#addLocale', icon: 'cog', title: self.ls.get('ADD_LOCALE') },
+                { href: '#viewLocale', icon: 'eye', title: self.ls.get('VIEW_LOCALE') }
+            ],
             activePlugins: activePlugins || [],
             activeTheme: self.activeTheme,
             siteName: self.siteName,
-            hostname: host,
             supportedLocales: supportedLocales,
             selectedLocales: selectedLocales,
-            defaultLocale: defaultLocale,
-            isNew: isNew,
-            isActive: isActive,
-            uid: uid
+            defaultLocale: defaultLocale
         });
 
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
