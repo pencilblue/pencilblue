@@ -42,11 +42,7 @@ module.exports = function(pb) {
             if(pb.config.localization && pb.config.localization.db){
                 var col = "localizations";
 
-                var siteDocument = pb.DocumentCreator.create(col, post);
-
-                var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
-
-                queryService.save(siteDocument, function (err, result) {
+                queryService.q(siteDocument, function (err, result) {
                     if (util.isError(err)) {
                         pb.log.error(err);
                         return cb({

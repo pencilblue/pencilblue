@@ -55,7 +55,7 @@ module.exports = function(pb) {
                         });
                     }
 
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVED'))});
+                return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVED'))});
                 });
             }
 
@@ -71,7 +71,9 @@ module.exports = function(pb) {
                 }
                 if(pluginsJsonFileObj) {
                     var obj = {};
-                    obj[post.redirectFrom] = post.redirectTo;
+                    post.translations.forEach(function (element){
+                        obj[element.key] = element.value;
+                    });
                     pluginsJsonFileObj[post.siteName] = obj;
                     try{
                         pluginsJsonFileObj = JSON.stringify(pluginsJsonFileObj);
