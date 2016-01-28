@@ -60,6 +60,15 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
+            path: '/admin/localization',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin','sites','localizations.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
             path: "/admin/login",
             access_level: 0,
             auth_required: false,

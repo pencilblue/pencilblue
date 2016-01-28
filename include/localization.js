@@ -276,9 +276,9 @@ module.exports = function LocalizationModule(pb) {
     Localization.prototype.g = function() {
         var key = arguments[0];
         var options = arguments[1] || {
-            site: pb.SiteService.GLOBAL_SITE,
-            params: {}
-        };
+                site: pb.SiteService.GLOBAL_SITE,
+                params: {}
+            };
 
         //log operation
         if (pb.log.isSilly()) {
@@ -406,6 +406,9 @@ module.exports = function LocalizationModule(pb) {
         //key create key path
         var keyBlock = Localization.storage;
         var parts = key.split(Localization.KEY_SEP);
+        if(keyBlock[self.siteName] && keyBlock[self.siteName][parts[0]])
+            keyBlock= keyBlock[self.siteName];
+
         for (var i = 0; i < parts.length; i++) {
             if (util.isNullOrUndefined(keyBlock[parts[i]]) || !keyBlock[parts[i]].__isKey) {
 
