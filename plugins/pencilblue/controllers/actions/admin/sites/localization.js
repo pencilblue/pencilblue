@@ -32,43 +32,37 @@ module.exports = function(pb) {
         var self = this;
 
         this.getJSONPostParams(function(err, post) {
-            var message = null;
-            if(message) {
-                cb({
-                    code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
-                });
-                return;
-            }
             if(util.isError(err)) {
-                cb({
+                return cb({
                     code: 500,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), err)
                 });
-                return;
             }
             var filepath = path.join(pb.config.docRoot, 'plugins', post.plugin, 'public', 'localization', post.lang);
             fs.readFile(filepath, "utf-8", function (err, data) {
                 if (err) throw err;
                 console.log(data);
-                var x;
+                var pluginsJsonFileObj;
                 try{
-                    x = JSON.parse(data);
+                    pluginsJsonFileObj = JSON.parse(data);
                 } catch(e) {
-                    x = null;
+                    pluginsJsonFileObj = null;
                 }
-                if(x) {
+                if(pluginsJsonFileObj) {
                     var obj = {};
                     obj[post.redirectFrom] = post.redirectTo;
-                    var c = x;
-                    x[post.siteName] = obj;
+                    pluginsJsonFileObj[post.siteName] = obj;
                     try{
-                        x = JSON.stringify(x);
+                        pluginsJsonFileObj = JSON.stringify(pluginsJsonFileObj);
                     }catch(e){
-                        x = c;
+                        console.log(e);
+                        return cb({
+                            code: 500,
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), e)
+                        });
                     }
 
-                    fs.writeFile(filepath, x, function (err) {
+                    fs.writeFile(filepath, pluginsJsonFileObj, function (err) {
                         if (err) throw err;
                         console.log('It\'s saved!');
                         cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS,'happy happy joy joy')});
