@@ -60,7 +60,7 @@ module.exports = function (pb) {
             });
         }
 
-        var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang, '.json');
+        var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
         fs.readFile(filepath, "utf-8", function (err, data) {
             if (err) throw err;
 

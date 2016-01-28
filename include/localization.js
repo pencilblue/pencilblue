@@ -287,8 +287,21 @@ module.exports = function LocalizationModule(pb) {
             };
 
         if(pb.config.localization && pb.config.localization.db){
-            //todo make keyblock obj here
+            var opts = {
+                where: {_id: Localization.siteName}
+            };
+            var queryService = new pb.SiteQueryService({site: Localization.site, onlyThisSite: true});
+
+            queryService.q("localization", opts, function (err, result) {
+                if (util.isError(err)) {
+                    pb.log.error(err);
+                }
+                var x = result;
+                //todo:: make keyblock here
+
+            });
         }
+
         //log operation
         if (pb.log.isSilly()) {
             pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, this.language);
@@ -484,18 +497,6 @@ module.exports = function LocalizationModule(pb) {
         Localization.storage = {};
         Localization.keys = {};
 
-        if(pb.config.localization && pb.config.localization.db){
-            var opts = {
-                where: {siteName: Localization.siteName}
-            };
-            var queryService = new pb.SiteQueryService({site: Localization.site, onlyThisSite: true});
-
-            queryService.q(opts, function (err, result) {
-                if (util.isError(err)) {
-                    pb.log.error(err);
-                }
-            });
-        }
         //create path to localization directory
         var options = {
             recursive: false,
