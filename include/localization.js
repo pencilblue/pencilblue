@@ -280,6 +280,9 @@ module.exports = function LocalizationModule(pb) {
                 params: {}
             };
 
+        if(pb.config.localization && pb.config.localization.db){
+            //todo make keyblock obj here
+        }
         //log operation
         if (pb.log.isSilly()) {
             pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, this.language);
@@ -297,9 +300,6 @@ module.exports = function LocalizationModule(pb) {
         if (!util.isObject(params)) {
             throw new Error('params parameter is required');
         }
-
-
-        //TODO retrieve active plugins for site to narrow down which plugins should be examined during retrieval
 
         //get the current local as object
         var locale = this.localeObj;
@@ -478,6 +478,9 @@ module.exports = function LocalizationModule(pb) {
         Localization.storage = {};
         Localization.keys = {};
 
+        if(pb.config.localization && pb.config.localization.db){
+
+        }
         //create path to localization directory
         var options = {
             recursive: false,
