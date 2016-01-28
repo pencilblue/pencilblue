@@ -78,6 +78,8 @@ module.exports = function LocalizationModule(pb) {
     };
 
     function setupAngularObj(self, options, cb){
+        var pluginService = new pb.PluginService({site: self.site});
+        var activePlugins = pluginService.getActivePluginNames();
         var isNew = options.isNew,
             display = options.display,
             host = options.host,
@@ -88,6 +90,7 @@ module.exports = function LocalizationModule(pb) {
             isActive = options.isActive,
             uid = options.uid;
 
+        self.ts.registerLocal("active_theme", new pb.TemplateValue(self.activeTheme,false));
         savedLocales[defaultLocale] = true;
 
         selectedLocales = pb.Localization.getSupported().filter(function(locale) {
@@ -104,6 +107,9 @@ module.exports = function LocalizationModule(pb) {
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
             tabs: [{ active: 'active', href: '#editSite', icon: 'cog', title: self.ls.get('EDIT_SITE') }],
             displayName: display,
+            activePlugins: activePlugins || [],
+            activeTheme: self.activeTheme,
+            siteName: self.siteName,
             hostname: host,
             supportedLocales: supportedLocales,
             selectedLocales: selectedLocales,

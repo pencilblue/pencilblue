@@ -8,56 +8,42 @@
             height: 125px;
         }
     </style>
-    <form name="redirectsForm" ng-submit="saveRedirects()" novalidate>
+    <h1>Localization Fields</h1>
+    <form name="localizationKVForm" ng-submit="saveLocales()" novalidate>
         <fieldset>
             <div class="tab-content">
                 <input name="siteName" type="text" class="form-control"
                        placeholder="site name"
-                       ng-model="redirect.siteName" required
-                       ng-model-options="{allowInvalid: true}">
-                <input name="language" type="text" class="form-control"
-                       placeholder="language e.g. en-US"
-                       ng-model="redirect.lang" required
-                       ng-model-options="{allowInvalid: true}">
-                <input name="language" type="text" class="form-control"
-                       placeholder="Active Theme"
-                       ng-model="redirect.plugin" required
-                       ng-model-options="{allowInvalid: true}">
-                <!--Page Redirects-->
-                <div class="tab-pane active" id="#premium_redirects">
+                       ng-model="siteName" readonly>
+                <select id="localization-locale-dropdown" ng-model="currentLocale">
+                    <option ng-repeat="lang in selectedLocales" value="{{lang}}">{{lang}}</option>
+                </select>
+                <select id="localization-plugin-dropdown" ng-model="currentPlugin">
+                    <option ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
+                </select>
+
+                <hr>
+                <!--Page Localizations-->
+                <div class="tab-pane active" id="locale-overrides-section">
                     <label>Add Localizations</label>
 
-                    <div class="row" ng-repeat="redirect in redirectSettings">
+                    <div class="row" ng-repeat="localField in localizationKVSet">
                         <div class="col-xs-5">
-                            <div class="form-group"
-                                 ng-class="{'has-error': isFromValid($index) || isFromRequire($index)}">
-                                <input name="redirectFrom_{{$index}}" type="text" class="form-control"
-                                       placeholder="{{getFromPlaceholder(redirect.urlType)}}"
-                                       ng-model="redirect.redirectFrom" required
-                                       ng-model-options="{allowInvalid: true}"
-                                       ng-pattern="redirect.urlType == jobDetailsType ? jobDetailsRegex : customRegex">
-
-                                <div class="form_error" ng-if="isFromValid($index)">
-                                    {{redirect.urlType == jobDetailsType ? detailsPatternError : patternError}}
-                                </div>
-                                <div class="form_error" ng-if="isFromRequire($index)">
+                            <div class="form-group" ng-class="{'has-error': isKeyValid($index)}">
+                                <input name="localFieldKey_{{$index}}" type="text" class="form-control"
+                                       placeholder="Localization Key"
+                                       ng-model="localField.key" required>
+                                <div class="form_error" ng-if="!isKeyValid($index)">
                                     ^loc_THIS_FIELD_IS_REQUIRED^
                                 </div>
                             </div>
                         </div>
                         <div class="col-xs-5">
-                            <div class="form-group" ng-class="{'has-error': isToValid($index) || isToRequire($index)}">
-                                <input name="redirectTo_{{$index}}" type="text" class="form-control"
-                                       placeholder="{{getToPlaceholder(redirect.urlType)}}"
-                                       ng-model="redirect.redirectTo" ng-model-options="{allowInvalid: true}" required
-                                       ng-pattern="customRegex" ng-if="redirect.urlType == customType">
-                                <input class="form-control" ng-if="redirect.urlType != customType" readonly
-                                       value="{{redirect.urlType == jobResultsType ? jobResultsPath : jobDetailsPath}}">
-
-                                <div class="form_error" ng-if="isToValid($index)">
-                                    {{patternError}}
-                                </div>
-                                <div class="form_error" ng-if="isToRequire($index)">
+                            <div class="form-group" ng-class="{'has-error': isValueValid($index)}">
+                                <input name="localFieldValue_{{$index}}" type="text" class="form-control"
+                                       placeholder="Localization Value Text"
+                                       ng-model="localField.value" ng-model-options="{allowInvalid: true}" required>
+                                <div class="form_error" ng-if="!isValueValid($index)">
                                     ^loc_THIS_FIELD_IS_REQUIRED^
                                 </div>
                             </div>
@@ -70,11 +56,12 @@
                             </div>
                         </div>
                     </div>
-
+                    <br>
+                    <hr>
                     <br><label>Add a field...</label><br>
                     <button type="button" class="btn btn-success add_field_button" ng-click="addField('custom')">
                         <i class="fa fa-plus"></i>
-                        Custom Local Variable
+                        Add a Custom Locale
                     </button>
                 </div>
                 <!--submit button-->
@@ -90,7 +77,5 @@
     </form>
     ^tmp_admin=elements=progress_console_modal^
 </div>
-<script src="/public/premium/js/bootstrap-colorpicker-module.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/public/premium/css/colorpicker.min.css"/>
 ^tmp_angular=admin=sites=localization_settings^
 ^tmp_admin=footer^
