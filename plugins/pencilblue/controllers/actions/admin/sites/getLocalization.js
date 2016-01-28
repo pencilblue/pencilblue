@@ -17,7 +17,7 @@
 var path = require('path');
 var fs = require('fs');
 
-module.exports = function(pb) {
+module.exports = function (pb) {
 
     //pb dependencies
     var util = pb.util;
@@ -25,53 +25,52 @@ module.exports = function(pb) {
     /**
      * Saves the site's Localization settings
      */
-    function Localization(){}
+    function Localization() {
+    }
+
     util.inherits(Localization, pb.BaseAdminController);
 
-    Localization.prototype.render = function(cb) {
+    Localization.prototype.render = function (cb) {
         var self = this;
 
-        this.getJSONPostParams(function(err, post) {
-            if(util.isError(err)) {
-                return cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), err)
-                });
-            }
+        if (!self.pathVars.siteName) {
+            return cb({
+                code: 500,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no siteName passed in', err)
+            });
+        }
 
-            if(pb.config.localization && pb.config.localization.db){
-                var col = "localizations";
-                var opts = {
-                    where: {siteName: post.siteName}
-                };
-                var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
+        self.siteName = self.pathVars.siteName;
+        if (pb.config.localization && pb.config.localization.db) {
+            var col = "localizations";
+            var opts = {
+                where: {siteName: post.siteName}
+            };
+            var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
-                queryService.q(opts, function (err, result) {
-                    if (util.isError(err)) {
-                        pb.log.error(err);
-                        return cb({
-                            code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-                        });
-                    }
-
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVED'))});
-                });
-            }
-
-            var filepath = path.join(pb.config.docRoot, 'plugins', post.plugin, 'public', 'localization', post.lang, '.json');
-            fs.readFile(filepath, "utf-8", function (err, data) {
-                if (err) throw err;
-
-                if(data) {
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS,data)});
+            queryService.q(opts, function (err, result) {
+                if (util.isError(err)) {
+                    pb.log.error(err);
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                    });
                 }
 
-
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVED'))});
             });
+        }
+
+        var filepath = path.join(pb.config.docRoot, 'plugins', post.plugin, 'public', 'localization', post.lang, '.json');
+        fs.readFile(filepath, "utf-8", function (err, data) {
+            if (err) throw err;
+
+            if (data) {
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, data)});
+            }
+
 
         });
-
     };
 
     //exports
