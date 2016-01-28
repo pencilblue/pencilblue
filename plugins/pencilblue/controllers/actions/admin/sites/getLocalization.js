@@ -36,7 +36,7 @@ module.exports = function (pb) {
         if (!self.query.siteName || !self.query.plugin || !self.query.lang) {
             return cb({
                 code: 500,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no siteName passed in', err)
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no siteName passed in')
             });
         }
 
