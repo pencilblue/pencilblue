@@ -118,10 +118,12 @@ module.exports = function(pb) {
     function formatDocument(element, data){
 
         var locale = splitLocale(data.lang);
-        var document = {isKey:true};
+        var isKeyText = "__isKey";
+        var pluginText = "__plugins";
+        var document = {isKeyText:true};
 
-        document[locale.language] = {};
-        document[locale.language][locale.country] = {plugin: {}};
+        document[locale.language] = {isKeyText:true};
+        document[locale.language][locale.country] = {isKeyText:true, pluginText: {}};
         document[locale.language][locale.country].plugin[data.plugin] = {
             isParameterized:false,
             value: element.value
