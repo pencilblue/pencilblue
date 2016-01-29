@@ -27,7 +27,7 @@
                                    ng-model="siteName" readonly>
                             <label>Select Language:</label>
                             <select id="localization-locale-dropdown" ng-change="getAllLocalizations()" ng-model="currentLocale">
-                                <option ng-repeat="lang in selectedLocales" value="{{lang}}">{{lang}}</option>
+                                <option ng-repeat="lang in enabledLocales" value="{{lang}}">{{lang}}</option>
                             </select>
                             <label>Select Plugin:</label>
                             <select id="localization-plugin-dropdown" ng-change="getAllLocalizations()" ng-model="currentPlugin">
@@ -110,11 +110,27 @@
                 <!--Page for Viewing Existing Locales-->
                 <div class="tab-pane" id="viewLocale">
                     <h1>View Locales</h1>
-
                     <div class="row">
+                        <div class="col-xs-6 col-xs-offset-3">
+                            <label>Current Site to Apply Locales to:</label>
+                            <input name="siteName" type="text" class="form-control"
+                                   placeholder="site name"
+                                   ng-model="siteName" readonly>
+                            <label>Select Language:</label>
+                            <select id="localization-locale-dropdown" ng-change="getAllLocalizations()" ng-model="currentLocale">
+                                <option ng-repeat="lang in enabledLocales" value="{{lang}}">{{lang}}</option>
+                            </select>
+                            <label>Select Plugin:</label>
+                            <select id="localization-plugin-dropdown" ng-change="getAllLocalizations()" ng-model="currentPlugin">
+                                <option ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <hr>
                         <div class="col-xs-12" style="background-color:#fff; font-weight:bold;">
                             <div class="input-group" style="width:100%; margin-bottom:20px">
-                                <input type="text" class="form-control" placeholder="Search Active Sites for..."
+                                <input type="text" class="form-control" placeholder="Search Keys for..."
                                        ng-model="activeQuery"
                                        style="width:100%;">
                 <span class="input-group-btn" ng-click="clearSearch('activeQuery')">
@@ -128,53 +144,21 @@
                     <div>
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                Active Sites
+                                Generic Plugin Keys
                             </div>
-                            <div class="panel-body" ng-if="!activeSites.length">
-                                No Active Sites
+                            <div class="panel-body" ng-if="!generics.length">
+                                No Generic Keys
                             </div>
                             <table id="active_sites_table" class="table table-responsive table-condensed"
-                                   ng-if="activeSites.length > 0">
+                                   ng-if="generics.length > 0">
                                 <tr id="active_sites_table_header">
-                                    <th id="active_name_header" ng-click="orderActive('displayName')">Site Name
-                                        <span ng-show="predicate == 'displayName' && !reverse"
-                                              class="fa fa-caret-down"></span>
-                                        <span ng-show="predicate == 'displayName' && reverse"
-                                              class="fa fa-caret-up"></span>
-                                    </th>
-                                    <th id="active_hostname_header" ng-click="orderActive('hostname')">Hostname
-                                        <span ng-show="predicate == 'hostname' && !reverse"
-                                              class="fa fa-caret-down"></span>
-                                        <span ng-show="predicate == 'hostname' && reverse"
-                                              class="fa fa-caret-up"></span>
-                                    </th>
-                                    <th id="active_date_header" ng-click="orderActive('created')">Date Added
-                                        <span ng-show="predicate == 'created' && !reverse"
-                                              class="fa fa-caret-down"></span>
-                                        <span ng-show="predicate == 'created' && reverse" class="fa fa-caret-up"></span>
-                                    </th>
-                                    <th></th>
+                                    <th id="active_name_header" > Key</th>
+                                    <th id="active_date_header" >Value</th>
                                 </tr>
                                 <tr class="active_site_row"
-                                    ng-repeat="active in activeSites | orderBy:predicate:reverse | filter:activeQuery track by active.uid ">
-                                    <td><a href="#" ng-click="authUserToSite(active)" title="{{active.displayName}}"
-                                           ng-bind="active.displayName"></a></td>
-                                    <td ng-bind="active.hostname"></td>
-                                    <td ng-bind="active.created | date: 'yyyy-MM-dd HH:mm'"></td>
-                                    <td style="text-align: right">
-                                        <div class="btn-group" style="text-align: left">
-                                            <a class="btn btn-sm btn-default" ng-click="deactivateSite(active)"><i
-                                                class="fa fa-remove"></i>&nbsp;^loc_DEACTIVATE^</a>
-                                            <button type="button" class="btn btn-sm btn-default dropdown-toggle"
-                                                    data-toggle="dropdown">
-                                                <i class="fa fa-sm fa-chevron-down"></i>
-                                            </button>
-                                            <ul class="dropdown-menu" role="menu">
-                                                <li><a ng-href="/admin/sites/{{active.uid}}"><i
-                                                    class="fa fa-fw fa-cog"></i>&nbsp;^loc_EDIT^</a></li>
-                                            </ul>
-                                        </div>
-                                    </td>
+                                    ng-repeat="item in generics | filter:activeQuery">
+                                    <td ng-bind="item.key"></td>
+                                    <td ng-bind="item.val"></td>
                                 </tr>
                             </table>
                         </div>
@@ -197,56 +181,21 @@
 
                         <div class="panel panel-default">
                             <div class="panel-heading">
-                                Inactive Sites
+                                Site Overrides
                             </div>
-                            <div class="panel-body" ng-if="!inactiveSites.length">
-                                No Inactive Sites
+                            <div class="panel-body" ng-if="!siteLocales.length">
+                                No Site Overrides
                             </div>
-                            <table id="inactive_sites_table" class="table table-responsive table-condensed"
-                                   ng-if="inactiveSites.length > 0">
-                                <tr id="inactive_sites_table_header">
-                                    <th id="inactive_name_header" ng-click="orderInactive('displayName')">Site Name
-                                        <span ng-show="inactivePredicate == 'displayName' && !inactiveReverse"
-                                              class="fa fa-caret-down"></span>
-                                        <span ng-show="inactivePredicate == 'displayName' && inactiveReverse"
-                                              class="fa fa-caret-up"></span>
-                                    </th>
-                                    <th id="inactive_hostname_header" ng-click="orderInactive('hostname')">Hostname
-                                        <span ng-show="inactivePredicate == 'hostname' && !inactiveReverse"
-                                              class="fa fa-caret-down"></span>
-                                        <span ng-show="inactivePredicate == 'hostname' && inactiveReverse"
-                                              class="fa fa-caret-up"></span>
-                                    </th>
-                                    <th id="inactive_date_header" ng-click="orderInactive('created')">Date Added
-                                        <span ng-show="inactivePredicate == 'created' && !inactiveReverse"
-                                              class="fa fa-caret-down"></span>
-                                        <span ng-show="inactivePredicate == 'created' && inactiveReverse"
-                                              class="fa fa-caret-up"></span>
-                                    </th>
-                                    <th></th>
+                            <table id="active_sites_table" class="table table-responsive table-condensed"
+                                   ng-if="siteLocales.length > 0">
+                                <tr id="active_sites_table_header">
+                                    <th id="active_name_header" > Key</th>
+                                    <th id="active_date_header" >Value</th>
                                 </tr>
-                                <tr class="inactive_site_row"
-                                    ng-repeat="inactive in inactiveSites | orderBy:inactivePredicate:inactiveReverse | filter:inactiveQuery  track by inactive.uid">
-                                    <td><a href="#" ng-click="authUserToSite(inactive)" title="{{inactive.displayName}}"
-                                           ng-bind="inactive.displayName"></a></td>
-                                    <td ng-bind="inactive.hostname"></td>
-                                    <td ng-bind="inactive.created | date: 'yyyy-MM-dd HH:mm'"></td>
-                                    <td style="text-align: right">
-                                        <div class="btn-group" style="text-align: left">
-                                            <a class="btn btn-sm btn-default" ng-click="activateSite(inactive)"><i
-                                                class="fa fa-plus"></i>&nbsp;^loc_ACTIVATE^</a>
-                                            <button type="button" class="btn btn-sm btn-default dropdown-toggle"
-                                                    data-toggle="dropdown">
-                                                <i class="fa fa-sm fa-chevron-down"></i>
-                                            </button>
-                                            <ul class="dropdown-menu" role="menu">
-                                                <li><a ng-href="/admin/sites/{{inactive.uid}}"><i
-                                                    class="fa fa-fw fa-cog"></i>&nbsp;^loc_EDIT^</a></li>
-                                                <li><a ng-click="deleteSite(inactive)"><i class="fa fa-fw fa-trash"></i>&nbsp;^loc_DELETE^</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
+                                <tr class="active_site_row"
+                                    ng-repeat="item in siteLocales | filter:inactiveQuery">
+                                    <td ng-bind="item.key"></td>
+                                    <td ng-bind="item.val"></td>
                                 </tr>
                             </table>
                         </div>

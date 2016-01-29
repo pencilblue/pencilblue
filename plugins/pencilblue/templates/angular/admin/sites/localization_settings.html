@@ -10,8 +10,14 @@
                         $http.get('/actions/admin/localization?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&siteName=' + $scope.siteName)
                             .success(function (result) {
                                 $scope.allLocales = result.message;
+                                if(result.message.generic){
+                                    $scope.generics = getGenerics(result.message.generic);
+                                } else {
+                                    $scope.generics = getGenerics(result.message);
+                                }
                                 var siteSpecificLocales = $scope.allLocales[$scope.siteName];
                                 $scope.localizationKVSet = siteSpecificLocales ? [siteSpecificLocales] : [];
+                                $scope.siteLocales = getGenerics($scope.localizationKVSet[0]);
                                 formatLocalizationKVSet();
                             })
                             .error(function (error, status) {
@@ -47,7 +53,17 @@
                         break;
                     }
                 }
+                $scope.enabledLocales = [];
+                for(x in $scope.supportedLocales){
+                    if($scope.supportedLocales[x]){
+                        $scope.enabledLocales.push(x);
+                    }
+                }
+                if($scope.enabledLocales.length === 0)
+                    $scope.enabledLocales = ['en-US'];
+
                 $scope.currentPlugin = $scope.currentPlugin || '';
+                $scope.currentLocale = $scope.currentLocale || '';
                 $scope.customType = "custom";
                 $scope.getAllLocalizations();
 
@@ -203,5 +219,24 @@
                     }
                     return result;
                 }
+
+
+                //View Tab functions
+
+                function getGenerics(data) {
+                    var arr = [];
+                    for(x in data){
+                        if(!(typeof data[x] === "object")) {
+                                arr.push({key: x, val:data[x]});
+                        }
+                    }
+                    return arr;
+                }
+
+                $scope.clearSearch = function(query){
+                    $scope[query] = '';
+                };
+
+
             });
 </script>

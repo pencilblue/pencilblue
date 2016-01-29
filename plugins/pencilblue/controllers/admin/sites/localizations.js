@@ -36,14 +36,13 @@ module.exports = function LocalizationModule(pb) {
     var SUB_NAV_KEY = 'sites_edit';
 
     /**
-     * Edit the site form to edit sites.
-     * @method edit
+     * New the site form to create sites.
+     * @method new
      * @param {Function} cb - the callback function
      */
-    Localization.prototype.edit = function(cb) {
+    Localization.prototype.render = function(cb) {
         var self = this;
-        var isNew = true;
-        var id = this.pathVars.siteid;
+        var id = this.site;
         var dao = new pb.DAO();
         dao.loadByValue('uid', id, 'site', function(err, data) {
             if (util.isError(err)) {
@@ -55,24 +54,15 @@ module.exports = function LocalizationModule(pb) {
                 options.isNew = false;
                 options.display = data.displayName.toString();
                 options.host = data.hostname.toString();
-                options.savedLocales = data.supportedLocales;
+                self.savedLocales = data.supportedLocales;
                 options.defaultLocale = data.defaultLocale;
                 options.isActive = data.active;
                 options.uid = data.uid;
             }
 
-            setupAngularObj(self, options, cb);
+            setupAngularObj(self, cb);
         });
-    };
 
-    /**
-     * New the site form to create sites.
-     * @method new
-     * @param {Function} cb - the callback function
-     */
-    Localization.prototype.render = function(cb) {
-        var self = this;
-        setupAngularObj(self, cb);
     };
 
     function setupAngularObj(self, cb){
@@ -90,11 +80,6 @@ module.exports = function LocalizationModule(pb) {
             return savedLocales[locale];
         });
 
-        //Pre-select saved locales that match a supported locale
-        for (var locale in pb.Localization.supportedLookup) {
-            supportedLocales[locale] = savedLocales[locale] ? true : false;
-        }
-
         var angularObjects = pb.ClientJs.getAngularObjects({
             navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls, self.site),
             pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
@@ -105,7 +90,7 @@ module.exports = function LocalizationModule(pb) {
             activePlugins: activePlugins || [],
             activeTheme: self.activeTheme,
             siteName: self.siteName,
-            supportedLocales: supportedLocales,
+            supportedLocales: self.savedLocales,
             selectedLocales: selectedLocales,
             defaultLocale: defaultLocale
         });
