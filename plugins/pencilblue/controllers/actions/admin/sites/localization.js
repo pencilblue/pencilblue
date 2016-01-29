@@ -41,8 +41,14 @@ module.exports = function(pb) {
 
             if(pb.config.localization && pb.config.localization.db){
                 var col = "localizations";
-                post._id = post.siteName;
-                var siteDocument = pb.DocumentCreator.create(col, post);
+
+                var doc = {_id:post.siteName, storage:{}};
+                post.translations.forEach(function (element){
+                    doc.storage[element.siteName][getKey(element)] = formatDocument(post);
+                });
+
+
+                var siteDocument = pb.DocumentCreator.create(col, doc);
 
                 var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
@@ -96,6 +102,27 @@ module.exports = function(pb) {
         });
 
     };
+
+    function formatDocument(data){
+        var document = {};
+        document._id = data.siteName;
+        var locale = splitLocale(data.lang);
+        var sample = 'stuff';
+
+        return document;
+
+    }
+
+    function splitLocale(lang){
+        var locale = {country:'', language:''};
+        var langObj = lang.split('-');
+        if(langObj.length != 2){
+            return new Error('lang couldnt be split into locale');
+        }
+        locale.language = langObj[0];
+        locale.country = langObj[1];
+        return locale;
+    }
 
     //exports
     return Localization;
