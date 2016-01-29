@@ -1,1 +1,1 @@
-{"SAMPLE_HELLO_WORLD":"Hello World!!! From Sample","PARAMETERIZED_KEY":"This is a parameterized key.  I can pass a string value like, {someString}, or a number like {someNumber}.  I can even pass JSON like, {json}","ns":{"SAMPLE_HELLO_WORLD":"listen here fucko","blargh":"balrog"}}
+{"SAMPLE_HELLO_WORLD":"Hello World!!! From Sample","PARAMETERIZED_KEY":"This is a parameterized key.  I can pass a string value like, {someString}, or a number like {someNumber}.  I can even pass JSON like, {json}","ns":{"SAMPLE_HELLO_WORLD":"everything is awesome","blargh":"balrog"}}
