@@ -10,12 +10,15 @@
                         $http.get('/actions/admin/localization?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&siteName=' + $scope.siteName)
                             .success(function (result) {
                                 $scope.allLocales = result.message;
+                                var siteSpecificLocales = [];
                                 if(result.message.generic){
                                     $scope.generics = getGenerics(result.message.generic);
+                                    siteSpecificLocales = $scope.allLocales.site;
+
                                 } else {
                                     $scope.generics = getGenerics(result.message);
+                                    siteSpecificLocales = $scope.allLocales[$scope.siteName];
                                 }
-                                var siteSpecificLocales = $scope.allLocales[$scope.siteName];
                                 $scope.localizationKVSet = siteSpecificLocales ? [siteSpecificLocales] : [];
                                 $scope.siteLocales = getGenerics($scope.localizationKVSet[0]);
                                 formatLocalizationKVSet();
