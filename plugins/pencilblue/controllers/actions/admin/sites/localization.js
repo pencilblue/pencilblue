@@ -120,7 +120,8 @@ module.exports = function(pb) {
         var locale = splitLocale(data.lang);
         var isKeyText = "__isKey";
         var pluginText = "__plugins";
-        var document = {isKeyText:true};
+        var document = {};
+        document.__isKey = true;
 
         document[locale.language] = {};
         document[locale.language].__isKey = true;
