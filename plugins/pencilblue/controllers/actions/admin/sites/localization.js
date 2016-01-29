@@ -43,10 +43,17 @@ module.exports = function(pb) {
                 var col = "localizations";
 
                 var doc = {_id:post.siteName, storage:{}};
-                post.translations.forEach(function (element){
-                    doc.storage[element.siteName][getKey(element)] = formatDocument(post);
-                });
+                var objectHead =doc.storage;
+                if(self.site){
+                    doc.storage[self.site] = {isSite:true, isKey:true};
+                    objectHead = doc.storage[self.site];
+                }
 
+               for(var i = 0; i < post.translations.length; i++){
+                   var keysBody = formatDocument( post.translations[i], post);
+                   var key = post.translations[i].key;
+                   objectHead[key] = util.deepMerge(doc.storage[self.site][key], keysBody);
+               }
 
                 var siteDocument = pb.DocumentCreator.create(col, doc);
 
@@ -103,11 +110,17 @@ module.exports = function(pb) {
 
     };
 
-    function formatDocument(data){
-        var document = {};
-        document._id = data.siteName;
+    function formatDocument(element, data){
+
         var locale = splitLocale(data.lang);
-        var sample = 'stuff';
+        var document = {isKey:true};
+
+        document[locale.language] = {};
+        document[locale.language][locale.country] = {plugin: {}};
+        document[locale.language][locale.country].plugin[data.plugin] = {
+            isParameterized:false,
+            value: element.value
+        };
 
         return document;
 
