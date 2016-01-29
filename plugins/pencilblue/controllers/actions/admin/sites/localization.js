@@ -137,8 +137,8 @@ module.exports = function(pb) {
         if(langObj.length != 2){
             return new Error('lang couldnt be split into locale');
         }
-        locale.language = langObj[0];
-        locale.country = langObj[1];
+        locale.language = "__" + langObj[0];
+        locale.country = "__" + langObj[1];
         return locale;
     }
 
