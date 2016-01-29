@@ -280,6 +280,7 @@ module.exports = function LocalizationModule(pb) {
      * @return {String}
      */
     Localization.prototype.g = function() {
+        var self = this;
         var key = arguments[0];
         var options = arguments[1] || {
                 site: pb.SiteService.GLOBAL_SITE,
@@ -288,16 +289,17 @@ module.exports = function LocalizationModule(pb) {
 
         if(pb.config.localization && pb.config.localization.db){
             var opts = {
-                where: {_id: Localization.siteName}
+                where: {_id: self.site}
             };
-            var queryService = new pb.SiteQueryService({site: Localization.site, onlyThisSite: true});
+            var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
-            queryService.q("localization", opts, function (err, result) {
+            queryService.q("localizations", opts, function (err, result) {
                 if (util.isError(err)) {
                     pb.log.error(err);
                 }
                 var x = result;
                 //todo:: make keyblock here
+
 
             });
         }
