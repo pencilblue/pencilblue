@@ -287,22 +287,6 @@ module.exports = function LocalizationModule(pb) {
                 params: {}
             };
 
-       // if(pb.config.localization && pb.config.localization.db){
-            var opts = {
-                where: {_id: self.siteName}
-            };
-            var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
-
-            queryService.q("localizations", opts, function (err, result) {
-                if (util.isError(err)) {
-                    pb.log.error(err);
-                }
-                if(result && result[0] && result[0].storage)
-                    Localization.storage =  util.deepMerge(result[0].storage,Localization.storage);
-
-         //   });
-       // }
-
         //log operation
         if (pb.log.isSilly()) {
             pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, self.language);
@@ -426,8 +410,8 @@ module.exports = function LocalizationModule(pb) {
         //key create key path
         var keyBlock = Localization.storage;
         var parts = key.split(Localization.KEY_SEP);
-        if(keyBlock[self.site] && keyBlock[self.site][parts[0]])
-            keyBlock = keyBlock[self.site];
+        if(keyBlock[self.siteName] && keyBlock[self.siteName][parts[0]])
+            keyBlock = keyBlock[self.siteName];
 
         for (var i = 0; i < parts.length; i++) {
             if (util.isNullOrUndefined(keyBlock[parts[i]]) || !keyBlock[parts[i]].__isKey) {
@@ -460,7 +444,6 @@ module.exports = function LocalizationModule(pb) {
 
         //finally, if we have a string result return it otherwise settle on the key
         return finalize(result);
-            });
     };
 
     /**
