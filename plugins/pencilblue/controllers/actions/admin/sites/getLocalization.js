@@ -105,8 +105,8 @@ module.exports = function (pb) {
     function checkKeyObject(keyObj,localeObj,selectedPlugin){
         if(keyObj[localeObj.language]){
             if(keyObj[localeObj.language][localeObj.country]){
-                if(keyObj[localeObj.language][localeObj.country].plugin[selectedPlugin])
-                    return keyObj[localeObj.language][localeObj.country].plugin[selectedPlugin].value;
+                if(keyObj[localeObj.language][localeObj.country].__plugins[selectedPlugin])
+                    return keyObj[localeObj.language][localeObj.country].__plugins[selectedPlugin].value;
             }
         }
         return '';

@@ -122,9 +122,13 @@ module.exports = function(pb) {
         var pluginText = "__plugins";
         var document = {isKeyText:true};
 
-        document[locale.language] = {isKeyText:true};
-        document[locale.language][locale.country] = {isKeyText:true, pluginText: {}};
-        document[locale.language][locale.country].plugin[data.plugin] = {
+        document[locale.language] = {};
+        document[locale.language].__isKey = true;
+        document[locale.language][locale.country] = {};
+        document[locale.language][locale.country].__isKey = true;
+        document[locale.language][locale.country].__plugins = {};
+        document[locale.language][locale.country][pluginText] = {};
+        document[locale.language][locale.country][pluginText][data.plugin] = {
             isParameterized:false,
             value: element.value
         };
