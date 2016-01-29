@@ -76,6 +76,9 @@ module.exports = function (pb) {
     };
 
     function convertLocalesToDisplayObject(lang, selectedPlugin, data){
+        if(!data || !data.storage){
+            data = { storage: {}};
+        }
         var siteLocs = data.storage[data.site] || {};
         var localeObj = splitLocale(lang);
         var displayObj = {};
