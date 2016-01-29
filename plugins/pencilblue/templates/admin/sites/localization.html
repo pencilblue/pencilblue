@@ -26,11 +26,11 @@
                                    placeholder="site name"
                                    ng-model="siteName" readonly>
                             <label>Select Language:</label>
-                            <select id="localization-locale-dropdown" ng-change="getLocalizations()" ng-model="currentLocale">
+                            <select id="localization-locale-dropdown" ng-change="getAllLocalizations()" ng-model="currentLocale">
                                 <option ng-repeat="lang in selectedLocales" value="{{lang}}">{{lang}}</option>
                             </select>
                             <label>Select Plugin:</label>
-                            <select id="localization-plugin-dropdown" ng-change="getLocalizations()" ng-model="currentPlugin">
+                            <select id="localization-plugin-dropdown" ng-change="getAllLocalizations()" ng-model="currentPlugin">
                                 <option ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
                             </select>
                         </div>
@@ -56,10 +56,10 @@
                         <!-- Localization Rows -->
                         <div class="row" ng-repeat="localField in localizationKVSet">
                             <div class="col-xs-5">
-                                <div class="form-group" ng-class="{'has-error': isKeyValid($index)}">
+                                <div class="form-group" ng-class="{'has-error': !isKeyValid($index)}">
                                     <input name="localFieldKey_{{$index}}" type="text" class="form-control"
                                            placeholder="Localization Key"
-                                           ng-model="localField.key" required>
+                                           ng-model="localField.key" ng-model-options="{allowInvalid: true}" required>
 
                                     <div class="form_error" ng-if="!isKeyValid($index)">
                                         ^loc_THIS_FIELD_IS_REQUIRED^
@@ -67,7 +67,7 @@
                                 </div>
                             </div>
                             <div class="col-xs-5">
-                                <div class="form-group" ng-class="{'has-error': isValueValid($index)}">
+                                <div class="form-group" ng-class="{'has-error': !isValueValid($index)}">
                                     <input name="localFieldValue_{{$index}}" type="text" class="form-control"
                                            placeholder="Localization Value Text"
                                            ng-model="localField.value" ng-model-options="{allowInvalid: true}" required>

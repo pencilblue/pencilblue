@@ -4,13 +4,15 @@
                 ^angular_objects^
 
 
-                $scope.getLocalizations = function(){
+                $scope.getAllLocalizations = function() {
                     if($scope.currentPlugin && $scope.currentLocale && $scope.siteName){
 
                         $http.get('/actions/admin/localization?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&siteName=' + $scope.siteName)
                             .success(function (result) {
-                                console.log(result);//$scope.onCreateOrEditComplete(result);
-                                return result;
+                                $scope.allLocales = result.message;
+                                var siteSpecificLocales = $scope.allLocales[$scope.siteName];
+                                $scope.localizationKVSet = siteSpecificLocales ? [siteSpecificLocales] : [];
+                                formatLocalizationKVSet();
                             })
                             .error(function (error, status) {
                                 $scope.errorMessage = error.message;
@@ -21,6 +23,18 @@
                         return [];
                     }
                 };
+                function formatLocalizationKVSet(){
+                    var temp = [];
+                    for(var pos in $scope.localizationKVSet) {
+
+                        for (var key in $scope.localizationKVSet[pos]) {
+                            if ($scope.localizationKVSet[pos].hasOwnProperty(key)) {
+                                temp.push({key: key, value: $scope.localizationKVSet[pos][key]});
+                            }
+                        }
+                    }
+                    $scope.localizationKVSet = temp;
+                }
                 for(var i = 0; i < $scope.selectedLocales.length; i++){
                     if($scope.selectedLocales[i] === $scope.defaultLocale){
                         $scope.currentLocale = $scope.selectedLocales[i];
@@ -35,15 +49,15 @@
                 }
                 $scope.currentPlugin = $scope.currentPlugin || '';
                 $scope.customType = "custom";
-                $scope.localizationKVSet = $scope.getLocalizations() || [];
+                $scope.getAllLocalizations();
 
 
                 $scope.isKeyValid = function(index) {
-                    return ($scope.localizationKVSet[index].key) && ($scope.localizationKVSet[index].key.indexOf('"') === -1);
+                    return (($scope.localizationKVSet[index].key) && ($scope.localizationKVSet[index].key.indexOf('"') === -1) && ($scope.localizationKVSet[index].key.indexOf(' ') === -1));
                 };
 
                 $scope.isValueValid = function(index) {
-                    return ($scope.localizationKVSet[index].value) && ($scope.localizationKVSet[index].value.indexOf('"') === -1);
+                    return (($scope.localizationKVSet[index].value) && ($scope.localizationKVSet[index].value.indexOf('"') === -1));
                 };
 
                 $scope.addField = function (urlType) {
