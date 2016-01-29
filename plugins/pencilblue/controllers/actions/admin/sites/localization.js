@@ -84,34 +84,44 @@ module.exports = function(pb) {
     Localization.prototype.saveLocalesToDatabase = function(post, cb){
         var self = this;
         var col = "localizations";
-
-        var doc = {_id:post.siteName, storage:{}};
-        var objectHead =doc.storage;
-        if(self.site){
-            doc.storage[self.site] = {isSite:true, isKey:true};
-            objectHead = doc.storage[self.site];
-        }
-
-        for(var i = 0; i < post.translations.length; i++){
-            var keysBody = formatDocument( post.translations[i], post);
-            var key = post.translations[i].key;
-            objectHead[key] = util.deepMerge(doc.storage[self.site][key], keysBody);
-        }
-
-        var siteDocument = pb.DocumentCreator.create(col, doc);
-
         var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
-        queryService.save(siteDocument, function (err, result) {
-            if (util.isError(err)) {
-                pb.log.error(err);
-                return cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-                });
+        var opts = {
+            where: {_id: self.query.siteName}
+        };
+
+        queryService.q(col, opts, function (err, doc) {
+            if(!doc[0])
+                doc = {_id: post.siteName, storage: {}};
+            else{
+                doc= doc[0];
+            }
+            var objectHead = doc.storage;
+            if (self.site) {
+                doc.storage[self.site] = doc.storage[self.site] || {isSite: true, isKey: true};
+                objectHead = doc.storage[self.site];
             }
 
-            return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVED'))});
+            for (var i = 0; i < post.translations.length; i++) {
+                var keysBody = formatDocument(post.translations[i], post);
+                var key = post.translations[i].key;
+                objectHead[key] = util.deepMerge(keysBody, doc.storage[self.site][key]);
+            }
+
+            var siteDocument = pb.DocumentCreator.create(col, doc);
+
+
+            queryService.save(siteDocument, function (err, result) {
+                if (util.isError(err)) {
+                    pb.log.error(err);
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                    });
+                }
+
+                return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVED'))});
+            });
         });
     };
 

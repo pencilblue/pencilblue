@@ -126,6 +126,8 @@ module.exports = {
 		CONTENT_SEARCH_EXPLANATION: 'Search for an article or page by headline and sub-heading.',
 		PARENT_NAV_ITEM: 'Parent Navigation Item',
 		LOCALIZATION: 'Localization',
+		ADD_LOCALE: 'Add Localizations',
+		VIEW_LOCALE: 'View Current Localizations',
 		NAVIGATION: 'Navigation',
 		NAV_MAP: 'Navigation Map',
         NEW_NAV_ITEM: 'New Navigation Item',
