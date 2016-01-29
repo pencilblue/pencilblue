@@ -43,7 +43,7 @@ module.exports = function (pb) {
         if (pb.config.localization && pb.config.localization.db) {
             var col = "localizations";
             var opts = {
-                where: {siteName: self.query.siteName}
+                where: {siteName: self.site}
             };
             var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 

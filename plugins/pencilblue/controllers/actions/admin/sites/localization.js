@@ -42,7 +42,7 @@ module.exports = function(pb) {
             if(pb.config.localization && pb.config.localization.db){
                 var col = "localizations";
 
-                var doc = {_id:post.siteName, storage:{}};
+                var doc = {_id:self.site, storage:{}};
                 post.translations.forEach(function (element){
                     doc.storage[element.siteName][getKey(element)] = formatDocument(post);
                 });
