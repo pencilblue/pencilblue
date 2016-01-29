@@ -40,7 +40,7 @@ module.exports = function(pb) {
             }
 
             if(pb.config.localization && pb.config.localization.db){
-                return self.saveLocalesToDatabase(cb);
+                return self.saveLocalesToDatabase(post, cb);
             }
 
             var filepath = path.join(pb.config.docRoot, 'plugins', post.plugin, 'public', 'localization', post.lang + '.json');
@@ -81,7 +81,7 @@ module.exports = function(pb) {
 
     };
 
-    Localization.prototype.saveLocalesToDatabase = function(cb){
+    Localization.prototype.saveLocalesToDatabase = function(post, cb){
         var self = this;
         var col = "localizations";
 
