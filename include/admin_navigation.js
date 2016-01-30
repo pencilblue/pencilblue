@@ -476,12 +476,12 @@ module.exports = function AdminNavigationModule(pb) {
     /**
      * Adds a new top level node
      * @static
-     * @method addToSite
+     * @method add
      * @param {Object} node
-     * @param site
+     * @param {String} [site='global']
      * @return {Boolean}
      */
-    AdminNavigation.addToSite = function (node, site) {
+    AdminNavigation.add = function(node, site) {
         if (util.isNullOrUndefined(site)) {
             site = GLOBAL_SITE;
         }
@@ -497,14 +497,29 @@ module.exports = function AdminNavigationModule(pb) {
     };
 
     /**
+     * Adds a new top level node
+     * @static
+     * @method addToSite
+     * @param {Object} node
+     * @param {String} site
+     * @return {Boolean}
+     */
+    AdminNavigation.addToSite = function (node, site) {
+        return AdminNavigation.add(node, site);
+    };
+
+    /**
      * Remove a navigation node
      * @static
-     * @method removeFromSite
+     * @method remove
      * @param id
-     * @param site
+     * @param {String} [site='global']
      * @return {boolean}
      */
-    AdminNavigation.removeFromSite = function (id, site) {
+    AdminNavigation.remove = function(id, site) {
+        if (util.isNullOrUndefined(site)) {
+            site = GLOBAL_SITE;
+        }
         if (!isDuplicate(id, buildNavigation(site))) {
             return false;
         }
@@ -541,6 +556,18 @@ module.exports = function AdminNavigationModule(pb) {
         });
 
         return true;
+    };
+
+    /**
+     * Remove a navigation node
+     * @static
+     * @method removeFromSite
+     * @param id
+     * @param {String} site
+     * @return {boolean}
+     */
+    AdminNavigation.removeFromSite = function (id, site) {
+        return AdminNavigation.remove(id, site);
     };
 
     /**
