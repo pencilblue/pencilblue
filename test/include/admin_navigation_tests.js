@@ -53,6 +53,7 @@ describe('AdminNavigation', function() {
     describe('AdminNavigation.addToSite', function() {
 
         it('should add a node when the node does not already exist with no site provided', function() {
+            AdminNavigation.additions = {};
             var node = { id: getNextId() };
             var result = AdminNavigation.addToSite(node);
             result.should.be.ok;
