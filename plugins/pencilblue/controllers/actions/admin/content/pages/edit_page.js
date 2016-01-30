@@ -52,7 +52,7 @@ module.exports = function(pb) {
                 if(util.isError(err) || page === null) {
                     cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_UID'))
                     });
                     return;
                 }
@@ -69,7 +69,7 @@ module.exports = function(pb) {
                     if(util.isError(err) || exists) {
                         cb({
                             code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_URL'))
                         });
                         return;
                     }
@@ -79,12 +79,12 @@ module.exports = function(pb) {
                             pb.log.error(err.stack);
                             return cb({
                                 code: 500,
-                                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'), result)
                             });
                         }
 
                         post.last_modified = new Date();
-                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.get('EDITED'), post)});
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, page.headline + ' ' + self.ls.g('admin.EDITED'), post)});
                     });
                 });
             });

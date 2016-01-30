@@ -102,7 +102,7 @@ module.exports = function(pb) {
                 else if (!util.isObject(navItem)){
                     return cb({
                         code: 404,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                     });
                 }
 
