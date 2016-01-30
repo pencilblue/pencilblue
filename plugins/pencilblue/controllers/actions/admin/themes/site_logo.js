@@ -17,7 +17,7 @@
 
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util         = pb.util;
 
@@ -34,21 +34,20 @@ module.exports = function(pb) {
             if (!pb.validation.validateNonEmptyStr(post.site_logo, true)) {
                 cb({
                     code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SITE_LOGO_UPLOAD_FAILURE'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.SITE_LOGO_UPLOAD_FAILURE'))
                 });
                 return;
             }
 
             self.settings.set('site_logo', post.site_logo, function(err, result) {
                 if (util.isError(err)) {
-                    cb({
+                    return cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SITE_LOGO_UPLOAD_FAILURE'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.SITE_LOGO_UPLOAD_FAILURE'))
                     });
-                    return;
                 }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SITE_LOGO_UPLOAD_SUCCESS'))});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('generic.SITE_LOGO_UPLOAD_SUCCESS'))});
             });
         });
     };

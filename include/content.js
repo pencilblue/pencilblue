@@ -185,7 +185,7 @@ module.exports = function(pb) {
             .split('yy').join(date.getYear())
             .split('M').join(monthNames[date.getMonth()])
             .split('mm').join(month)
-            .split('dd').join(day)
+            .split('dd').join(day);
 
         if (typeof displayTime !== 'undefined' && displayTime) {
 

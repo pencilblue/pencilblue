@@ -24,6 +24,7 @@ module.exports = function (pb) {
     var util = pb.util;
     var BaseController = pb.BaseController;
     var FormController = pb.FormController;
+    var UserService = pb.UserService;
 
     /**
      * Creates an READER level user

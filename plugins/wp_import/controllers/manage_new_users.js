@@ -20,6 +20,7 @@ module.exports = function WPManageUsersViewControllerModule(pb) {
     //pb dependencies
     var util          = pb.util;
     var PluginService = pb.PluginService;
+    var UserService   = pb.UserService;
 
     function WPManageUsersViewController() {}
     util.inherits(WPManageUsersViewController, pb.BaseController);

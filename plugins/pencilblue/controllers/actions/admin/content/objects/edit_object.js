@@ -92,7 +92,7 @@ module.exports = function(pb) {
                         });
                     }
 
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObj.name + ' ' + self.ls.get('admin.EDITED'))});
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObj.name + ' ' + self.ls.g('admin.EDITED'))});
                 });
             });
         });

@@ -19,6 +19,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
 
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
 
     /**
      * Interface for changing the logged in user's password

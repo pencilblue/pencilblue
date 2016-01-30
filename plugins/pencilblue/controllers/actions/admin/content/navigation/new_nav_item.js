@@ -165,7 +165,7 @@ module.exports = function(pb) {
     PersistNavItemController.prototype.handleError = function(err, cb) {
         return cb({
             code: 500,
-            content: BaseController.apiResponse(BaseController.API_ERROR, this.ls.get('ERROR_SAVING'))
+            content: BaseController.apiResponse(BaseController.API_ERROR, this.ls.g('generic.ERROR_SAVING'))
         });
     };
 

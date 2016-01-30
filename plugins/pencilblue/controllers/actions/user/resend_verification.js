@@ -17,14 +17,18 @@
 
 
 module.exports = function ResendVerificationModule(pb) {
-  //pb dependencies
-  var util = pb.util;
 
-  /**
-   * Resends an account verification email
-   */
-  function ResendVerification(){}
-  util.inherits(ResendVerification, pb.FormController);
+    //pb dependencies
+    var util = pb.util;
+    var UserService = pb.UserService;
+
+    /**
+     * Resends an account verification email
+     * @class ResendVerification
+     * @constructor
+     */
+    function ResendVerification(){}
+    util.inherits(ResendVerification, pb.FormController);
 
     /**
      * Initializes the controller
