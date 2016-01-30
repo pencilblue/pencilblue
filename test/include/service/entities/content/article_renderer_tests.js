@@ -7,7 +7,7 @@ var ArticleRenderer = require('../../../../../include/service/entities/content/a
         UrlService: UrlService,
         CommentService: function(){},
         SiteService: { getCurrentSite: function(){} },
-        UserService: {}
+        UserService: function(){}
     });
 var fakeContext = {site: 'PencilBlue', onlyThisSite: true};
 
