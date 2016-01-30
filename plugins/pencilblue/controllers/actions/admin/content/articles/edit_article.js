@@ -48,7 +48,7 @@ module.exports = function(pb) {
                 if(util.isError(err) || article === null) {
                     return cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_UID'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_UID'))
                     });
                 }
 
@@ -61,11 +61,11 @@ module.exports = function(pb) {
 
                 pb.RequestHandler.urlExists(article.url, post.id, self.site, function(error, exists) {
                     var testError = (error !== null && typeof error !== 'undefined');
-                    
+
                     if( testError || exists || article.url.indexOf('/admin') === 0) {
                         return cb({
                             code: 400,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('EXISTING_URL'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_URL'))
                         });
                     }
 
@@ -73,12 +73,12 @@ module.exports = function(pb) {
                         if(util.isError(err)) {
                             return cb({
                                 code: 500,
-                                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'), result)
                             });
                         }
 
                         post.last_modified = new Date();
-                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.get('EDITED'), post)});
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, article.headline + ' ' + self.ls.g('admin.EDITED'), post)});
                     });
                 });
             });

@@ -16,7 +16,7 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util         = pb.util;
 
@@ -54,7 +54,7 @@ module.exports = function(pb) {
                 if(util.isError(err) || media === null) {
                     cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                     });
                     return;
                 }
@@ -65,13 +65,13 @@ module.exports = function(pb) {
                     if(util.isError(err) || util.isArray(result)) {
                         cb({
                             code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'))
                         });
                         return;
                     }
 
                     result.icon = pb.MediaService.getMediaIcon(media.media_type);
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, media.name + ' ' + self.ls.get('EDITED'), result)});
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, media.name + ' ' + self.ls.g('admin.EDITED'), result)});
                 });
             });
         });
