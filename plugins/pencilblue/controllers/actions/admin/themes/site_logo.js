@@ -23,32 +23,36 @@ module.exports = function(pb) {
 
     /**
      * Saves the site's logo
+     * @class SiteLogo
+     * @constructor
      */
     function SiteLogo() {}
     util.inherits(SiteLogo, pb.BaseAdminController);
 
+    /**
+     * @method render
+     * @param {Function} cb
+     */
     SiteLogo.prototype.render = function(cb) {
         var self = this;
 
-        this.getJSONPostParams(function(err, post) {
-            if (!pb.validation.validateNonEmptyStr(post.site_logo, true)) {
-                cb({
+        var post = this.body;
+        if (!pb.validation.validateNonEmptyStr(post.site_logo, true)) {
+            return cb({
+                code: 500,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.SITE_LOGO_UPLOAD_FAILURE'))
+            });
+        }
+
+        self.settings.set('site_logo', post.site_logo, function(err, result) {
+            if (util.isError(err)) {
+                return cb({
                     code: 500,
                     content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.SITE_LOGO_UPLOAD_FAILURE'))
                 });
-                return;
             }
 
-            self.settings.set('site_logo', post.site_logo, function(err, result) {
-                if (util.isError(err)) {
-                    return cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.SITE_LOGO_UPLOAD_FAILURE'))
-                    });
-                }
-
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('generic.SITE_LOGO_UPLOAD_SUCCESS'))});
-            });
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('generic.SITE_LOGO_UPLOAD_SUCCESS'))});
         });
     };
 

@@ -19,7 +19,7 @@
 var util = require('../util.js');
 
 module.exports = function SettingsModule(pb) {
-    
+
     /**
      * SettingServiceFactory - Creates a service that will provide access to settings
      * @class SettingsServiceFactory
@@ -91,6 +91,52 @@ module.exports = function SettingsModule(pb) {
 
         return new pb.SimpleLayeredService(services, 'SettingService' + count++);
     };
+
+    /**
+     * @method getBaseObjectService
+     * @param {Object} options
+     * @param {String} options.site
+     * @param {Boolean} options.onlyThisSite
+     */
+    SettingServiceFactory.getBaseObjectService = function(options) {
+        return new SettingService(options);
+    };
+
+    /**
+     * @class SettingService
+     * @constructor
+     * @param {Object} options
+     * @param {String} options.site
+     * @param {Boolean} options.onlyThisSite
+     */
+    function SettingService(options) {
+
+        /**
+         * @property cacheService
+         * @type {SimpleLayeredService}
+         */
+        this.cacheService = SettingServiceFactory.getServiceBySite(options.site, options.onlyThisSite);
+
+        options.type = 'setting';
+        SettingService.super_.call(this, options);
+    };
+    util.inherits(SettingService, pb.BaseObjectService);
+
+    SettingService.prototype._get = function(id, options, cb) {console.log('here');
+        this.cacheService.get(id, cb);
+    };
+
+    SettingService.afterSave = function(context, cb) {
+        context.service.cacheService.set(context.data.key, context.data.value, cb);
+    };
+
+    SettingService.afterDelete = function(context, cb) {
+        context.service.cacheService.purge(context.data.key, cb);
+    };
+
+    //registrations
+    pb.BaseObjectService.on('setting' + '.' + pb.BaseObjectService.AFTER_SAVE, SettingService.afterSave);
+    pb.BaseObjectService.on('setting' + '.' + pb.BaseObjectService.AFTER_DELETE, SettingService.afterDelete);
 
     //exports
     return SettingServiceFactory;

@@ -911,6 +911,8 @@ module.exports = function Routes(pb){
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'themes', 'site_logo.js'),
+            content_type: 'application/json',
+            request_body: ['application/json']
         },
 
         // USERS
@@ -1271,6 +1273,26 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_EDITOR,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js')
+        },
+
+        //settings
+        {
+            method: 'get',
+            path: "/api/admin/settings/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/admin/settings",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js')
         },
 
         //topics

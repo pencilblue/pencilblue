@@ -81,7 +81,7 @@ module.exports = function AdminNavigationModule(pb) {
      */
     var CONTENT_NAV = Object.freeze({
         id: 'content',
-        title: 'CONTENT',
+        title: 'generic.CONTENT',
         icon: 'quote-right',
         href: '#',
         access: SecurityService.ACCESS_WRITER,
