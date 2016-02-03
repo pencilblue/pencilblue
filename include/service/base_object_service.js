@@ -523,8 +523,8 @@ module.exports = function(pb) {
 
         //function used as callback handler so we can simplify if/else logic
         var self     = this;
-        var id       = dto[pb.DAO.getIdField()];
-        var isUpdate = id ? true : false;
+        var where    = this.getIdWhere(dto);
+        var isUpdate = !!where;
         var isCreate = !isUpdate;
         var onObjectRetrieved = function(err, obj) {
             if (util.isError(err) || util.isNullOrUndefined(obj)) {
@@ -542,14 +542,25 @@ module.exports = function(pb) {
         };
 
         //when we are doing an update load the object
-        if (id) {
-            this.dao.loadById(id, this.type, onObjectRetrieved);
+        if (where) {
+            this.dao.loadByValues(where, this.type, onObjectRetrieved);
         }
         else {
 
             //we are creating a new object so pass it along
             onObjectRetrieved(null, {});
         }
+    };
+
+    /**
+     * Creates the where clause that creates a lookup by the key that indicates
+     * uniqueness for the collection
+     * @method getIdWhere
+     * @param {Object} dto
+     * @return {Object}
+     */
+    BaseObjectService.prototype.getIdWhere = function(dto) {
+        return dto[pb.DAO.getIdField()] ? pb.DAO.getIdWhere(dto[pb.DAO.getIdField()]) : null;
     };
 
     /**

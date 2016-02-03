@@ -1294,6 +1294,36 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js')
         },
+        {
+            method: 'post',
+            path: "/api/admin/settings",
+            handler: "post",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js'),
+            request_body: ['application/json']
+        },
+        {
+            method: 'put',
+            path: "/api/admin/settings/:id",
+            handler: "put",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js'),
+            request_body: ['application/json']
+        },
+        {
+            method: 'delete',
+            path: "/api/admin/settings/:id",
+            handler: "delete",
+            content_type: 'application/json',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js'),
+            request_body: ['application/json']
+        },
 
         //topics
         {
