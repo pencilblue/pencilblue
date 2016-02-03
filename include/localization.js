@@ -74,7 +74,7 @@ module.exports = function LocalizationModule(pb) {
          * The current site that should be prioritized when
          * performing key lookup, higher priority than activeTheme
          */
-        this.siteName = options.siteName;
+        this.site = options.site;
     }
 
     /**
@@ -410,8 +410,8 @@ module.exports = function LocalizationModule(pb) {
         //key create key path
         var keyBlock = Localization.storage;
         var parts = key.split(Localization.KEY_SEP);
-        if(keyBlock[self.siteName] && keyBlock[self.siteName][parts[0]])
-            keyBlock = keyBlock[self.siteName];
+        if(keyBlock[self.site] && keyBlock[self.site][parts[0]])
+            keyBlock = keyBlock[self.site];
 
         for (var i = 0; i < parts.length; i++) {
             if (util.isNullOrUndefined(keyBlock[parts[i]]) || !keyBlock[parts[i]].__isKey) {

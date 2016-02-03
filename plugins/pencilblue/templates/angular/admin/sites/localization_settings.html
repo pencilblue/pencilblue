@@ -5,9 +5,9 @@
 
 
                 $scope.getAllLocalizations = function() {
-                    if($scope.currentPlugin && $scope.currentLocale && $scope.siteName){
+                    if($scope.currentPlugin && $scope.currentLocale && $scope.site){
 
-                        $http.get('/actions/admin/localization?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&siteName=' + $scope.siteName)
+                        $http.get('/actions/admin/localization?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&site=' + $scope.site)
                             .success(function (result) {
                                 $scope.allLocales = result.message;
                                 var siteSpecificLocales = [];
@@ -17,7 +17,7 @@
 
                                 } else {
                                     $scope.generics = getGenerics(result.message);
-                                    siteSpecificLocales = $scope.allLocales[$scope.siteName];
+                                    siteSpecificLocales = $scope.allLocales[$scope.site];
                                 }
                                 $scope.localizationKVSet = siteSpecificLocales ? [siteSpecificLocales] : [];
                                 $scope.siteLocales = getGenerics($scope.localizationKVSet[0]);
@@ -107,7 +107,7 @@
                     // Sets up the data to be passed to the backend on save
                     var payload = {};
                     payload.translations = cleanData($scope.localizationKVSet);
-                    payload.siteName = $scope.siteName || "global";
+                    payload.site = $scope.site || "global";
                     payload.plugin = $scope.currentPlugin || "pencilblue";
                     payload.lang = $scope.currentLocale || 'en-US';
 

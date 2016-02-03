@@ -58,7 +58,7 @@ module.exports = function(pb) {
                     post.translations.forEach(function (element){
                         obj[element.key] = element.value;
                     });
-                    pluginsJsonFileObj[post.siteName] = obj;
+                    pluginsJsonFileObj[post.site] = obj;
                     try{
                         pluginsJsonFileObj = JSON.stringify(pluginsJsonFileObj);
                     }catch(e){
@@ -87,12 +87,12 @@ module.exports = function(pb) {
         var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
         var opts = {
-            where: {_id: self.query.siteName}
+            where: {_id: self.query.site}
         };
 
         queryService.q(col, opts, function (err, doc) {
             if(!doc[0])
-                doc = {_id: post.siteName, storage: {}};
+                doc = {_id: post.site, storage: {}};
             else{
                 doc= doc[0];
             }
@@ -151,10 +151,10 @@ module.exports = function(pb) {
     Localization.prototype.getLocales = function (cb) {
         var self = this;
 
-        if (!self.query.siteName || !self.query.plugin || !self.query.lang) {
+        if (!self.query.site || !self.query.plugin || !self.query.lang) {
             return cb({
                 code: 500,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no siteName passed in')
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no site passed in')
             });
         }
 
@@ -177,7 +177,7 @@ module.exports = function(pb) {
         var self = this;
         var col = "localizations";
         var opts = {
-            where: {_id: self.query.siteName}
+            where: {_id: self.query.site}
         };
         var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
