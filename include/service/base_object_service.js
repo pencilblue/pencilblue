@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -422,6 +422,24 @@ module.exports = function(pb) {
         });
     };
 
+    BaseObjectService.prototype.add = function(dto, options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        options.isCreate = true;
+        this.save(dto, options, cb);
+    };
+
+    BaseObjectService.prototype.update = function(dto, options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        options.isCreate = false;
+        this.save(dto, options, cb);
+    };
+
     /**
      * Attempts to persist the DTO.  The function executes a series of events:
      * 1) The format event is fired
@@ -434,10 +452,7 @@ module.exports = function(pb) {
      *
      * @method save
      * @param {Object} [options]
-     * @param {Object} [options.select]
-     * @param {Object} [options.where]
-     * @param {Array} [options.order]
-     * @param {Integer} [options.offset]
+     * @param {Boolean} [options.isCreate]
      * @param {Function} cb A callback that takes two parameters.  The first is
      * an error, if occurred. The second is the object that matches the specified query
      */
@@ -455,6 +470,8 @@ module.exports = function(pb) {
         //do any object formatting that should be done before validation
         var self    = this;
         var context = this.getContext(dto);
+        context.isCreate = util.isBoolean(options.isCreate) ? options.isCreate : util.isNullOrUndefined(dto[pb.DAO.getIdField()]);
+        context.isUpdate = !context.isCreate;
         self._emit(BaseObjectService.FORMAT, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
@@ -462,15 +479,13 @@ module.exports = function(pb) {
 
             //detect if we are doing an update or insert.  On update retrieve
             //the obj and call the merge event handlers
-            self._retrieveOnUpdateAndMerge(dto, function(err, obj) {
-                if (util.isError(err) || util.isNullOrUndefined(obj)) {
+            self._retrieveOnUpdateAndMerge(dto, options, function(err, obj) {
+                if (util.isError(err) || util.isNullOrUndefined(obj)) {console.log(obj);
                     return cb(err, obj);
                 }
 
                 //remove the dto from context and set the obj as the data to focus on
                 context.data             = obj;
-                context.isCreate         = util.isNullOrUndefined(obj[pb.DAO.getIdField()]);
-                context.isUpdate         = !context.isCreate;
                 context.validationErrors = [];
 
                 //perform all validations
@@ -517,15 +532,18 @@ module.exports = function(pb) {
      * @private
      * @method _retrieveOnUpdateAndMerge
      * @param {Object} dto
+     * @param {Object} options
+     * @param {Boolean} [options.isCreate]
      * @param {Function} cb
      */
-    BaseObjectService.prototype._retrieveOnUpdateAndMerge = function(dto, cb) {
+    BaseObjectService.prototype._retrieveOnUpdateAndMerge = function(dto, options, cb) {
 
         //function used as callback handler so we can simplify if/else logic
         var self     = this;
         var where    = this.getIdWhere(dto);
-        var isUpdate = !!where;
-        var isCreate = !isUpdate;
+        var isCreate = util.isBoolean(options.isCreate) ? options.isCreate : !where;
+        var isUpdate = !isCreate;console.log('isCreate:'+isCreate);
+
         var onObjectRetrieved = function(err, obj) {
             if (util.isError(err) || util.isNullOrUndefined(obj)) {
                 return cb(err, obj);
@@ -542,7 +560,7 @@ module.exports = function(pb) {
         };
 
         //when we are doing an update load the object
-        if (where) {
+        if (isUpdate) {
             this.dao.loadByValues(where, this.type, onObjectRetrieved);
         }
         else {
