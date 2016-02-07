@@ -90,6 +90,7 @@ module.exports = function LocalizationModule(pb) {
             activePlugins: activePlugins || [],
             activeTheme: self.activeTheme,
             siteName: self.siteName,
+            site: self.site,
             supportedLocales: self.savedLocales,
             selectedLocales: selectedLocales,
             defaultLocale: defaultLocale
